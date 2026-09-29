@@ -8,7 +8,7 @@ internal static class MissileReuseAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int eligible = 0;
         int reused = 0;
         int overlapping = 0;

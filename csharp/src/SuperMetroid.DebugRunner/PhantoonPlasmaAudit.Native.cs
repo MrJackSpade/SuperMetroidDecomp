@@ -11,8 +11,8 @@ internal static partial class PhantoonPlasmaAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "5DD3B0EBB99165DC54F986069329C488A7324FB6A10D00B27E992A9C0E560A88")
             throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v5 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, 0xcd13);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
         var assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = null!;
         SamusProjectileSystem shots = null!;

@@ -11,7 +11,7 @@ internal static class BombAdmissionAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "3D384C192B95B243BE8E02EE4AF5B07373F404439815711854E8F83B2886EC62")
             throw new InvalidDataException("Use the accepted bomb-admission v1 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

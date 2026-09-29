@@ -11,7 +11,7 @@ internal static class PoseSandComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "9157D53D347C8A15441BCAD2F355090B39B6281C8B47093702E1C80A31C783F1")
             throw new InvalidDataException("Use the accepted pose-sand v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

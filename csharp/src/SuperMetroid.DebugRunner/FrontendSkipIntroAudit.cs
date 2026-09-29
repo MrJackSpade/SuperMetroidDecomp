@@ -16,7 +16,7 @@ internal static class FrontendSkipIntroAudit
 {
     public static int Run(string romPath, string outputPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var game = new SuperMetroidGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
@@ -172,7 +172,7 @@ internal static class FrontendSkipIntroAudit
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame crateriaFrame = FrontendAuditDriver.EnterSelectedSlot(crateriaReload);
-        LoadStationEntry crateriaStation = LoadStationEntry.Load(
+        LoadStationEntry crateriaStation = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(
             bus,
             areaIndex: AreaId.Crateria,
             stationIndex: 0);

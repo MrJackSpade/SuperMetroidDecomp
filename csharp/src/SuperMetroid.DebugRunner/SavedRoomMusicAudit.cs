@@ -10,9 +10,9 @@ internal static class SavedRoomMusicAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var station = LoadStationEntry.Load(bus, AreaId.Norfair, 0);
-        var room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, AreaId.Norfair, 0);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
         byte data = room.State.MusicDataIndex, track = room.State.MusicTrackIndex;
         Console.WriteLine($"Norfair station 0: room {room.Pointer:X4}, music data/track {data:X2}/{track:X2}.");
         if (data == 0 || track == 0) throw new InvalidDataException("Fixture requires an explicit room music bank and track.");

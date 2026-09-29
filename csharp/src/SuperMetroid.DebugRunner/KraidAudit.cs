@@ -30,9 +30,9 @@ internal static class KraidAudit
     /// </summary>
     public static int CaptureRise(string romPath, string outputDirectory)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, IncomingDoorPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         Console.WriteLine(
             $"Kraid character bytes: room=${assets.RoomCharacters.Length:X}, " +
@@ -164,8 +164,8 @@ internal static class KraidAudit
 
     public static int Run(string romPath, string? deathCaptureDirectory = null, bool observeFloor = false)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailRoom(room);
 
@@ -788,7 +788,7 @@ internal static class KraidAudit
     /// </summary>
     private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus, string? deathCaptureDirectory, bool observeFloor)
     {
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, IncomingDoorPointer);
         if (door.DestinationRoomPointer != RoomPointer)
         {
             throw new InvalidDataException(

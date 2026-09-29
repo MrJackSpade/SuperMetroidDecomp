@@ -12,17 +12,17 @@ internal static class RetailAttractTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroidAddressSpace(rom);
+        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         int list = AttractDemoRomData.RoomBank | RomDataReader.ReadWordFixedBank(source, AttractDemoRomData.RoomSetPointers);
         // Same bounded fixture as portable capture verification: retain retail room,
         // inputs and graphics, but end after sixteen ticks rather than tour more rooms.
-        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroidAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomFields.Duration)), 16);
-        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroidAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomRecordBytes)), AttractDemoRomData.EndOfSet);
+        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomFields.Duration)), 16);
+        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomRecordBytes)), AttractDemoRomData.EndOfSet);
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
-            var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
+            var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false;
             Rgba32[]? held = null;

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompactWalkOffCollision()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var words = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) words[16 * 16 + x] = 0x8000;
         var level = new RoomLevelData(16, 32, words, new byte[words.Length], new ushort[words.Length], new byte[8]);

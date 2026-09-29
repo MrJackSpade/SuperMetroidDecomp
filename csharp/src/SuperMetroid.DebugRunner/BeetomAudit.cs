@@ -18,8 +18,8 @@ internal static class BeetomAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, GreenBrinstarBeetomsRoom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GreenBrinstarBeetomsRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

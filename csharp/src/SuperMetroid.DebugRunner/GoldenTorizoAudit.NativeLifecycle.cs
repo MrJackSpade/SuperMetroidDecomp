@@ -9,8 +9,8 @@ internal static partial class GoldenTorizoAudit
     public static int CompareNativeLifecycle(string rom, string trace, bool releaseEyeBeams = false,
         bool superMissiles = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         LoadedGoldenTorizo loaded = default;

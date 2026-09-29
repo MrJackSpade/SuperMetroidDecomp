@@ -11,7 +11,7 @@ internal static class RetailFileMapTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         int samples = 0;
         void Compare(Rgba32[] expected, LayeredRenderSnapshot scene, string context)
         {

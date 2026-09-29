@@ -42,8 +42,8 @@ internal static class SparkAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader electricDeath = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader electricDeath = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             ElectricDeathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
@@ -511,7 +511,7 @@ internal static class SparkAudit
 
     private static void VerifyAlwaysActiveRetailVariant(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             MainShaftRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));

@@ -24,8 +24,8 @@ internal static class VolcanoEnemyAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyHeaders(bus);
         VerifyProjectileDefinitions(bus);
@@ -450,7 +450,7 @@ internal static class VolcanoEnemyAudit
 
     private static void VerifyHeaders(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition fune = RoomEnemySystem.ReadDefinition(bus, FuneDefinition);
+        RoomEnemyDefinition fune = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, FuneDefinition);
         if (fune.TileDataSize != 0x0800 || fune.PalettePointer != 0x9379 ||
             fune.Health != 20 || fune.Damage != 10 ||
             fune.XRadius != 16 || fune.YRadius != 16 || fune.Bank != 0xa8 ||
@@ -465,7 +465,7 @@ internal static class VolcanoEnemyAudit
             throw new InvalidDataException("Retail Fune header does not match $A0:E6FF.");
         }
 
-        RoomEnemyDefinition polyp = RoomEnemySystem.ReadDefinition(bus, PolypDefinition);
+        RoomEnemyDefinition polyp = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, PolypDefinition);
         if (polyp.TileDataSize != 0x0600 || polyp.PalettePointer != 0xba5b ||
             polyp.Health != 1 || polyp.Damage != 4 ||
             polyp.XRadius != 4 || polyp.YRadius != 4 || polyp.Bank != 0xa2 ||

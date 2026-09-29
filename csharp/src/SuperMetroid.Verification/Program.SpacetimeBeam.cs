@@ -14,7 +14,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifySpacetimeBeam()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(
             16,
@@ -227,7 +227,7 @@ internal static partial class Program
 
         SuperMetroidGame CreateGame(bool skipOpening)
         {
-            var restartBus = SuperMetroidAddressSpace.LoadRetailRom(
+            var restartBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             var restartSaves = new SuperMetroidSaveRam(restartBus);
             restartSaves.SaveSlot(0, CreateResetSnapshot());

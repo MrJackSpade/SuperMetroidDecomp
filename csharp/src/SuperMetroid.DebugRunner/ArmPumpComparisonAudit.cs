@@ -22,7 +22,7 @@ internal static class ArmPumpComparisonAudit
             int terrain = int.Parse(seed[2]), pattern = int.Parse(seed[3]);
             if (int.Parse(seed[0]) * 60 + int.Parse(seed[1]) * 30 + terrain * 6 + pattern != cases)
                 throw new InvalidDataException("Reordered arm-pumping cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

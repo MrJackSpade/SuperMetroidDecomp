@@ -7,7 +7,7 @@ internal static partial class MetroidAudit
 {
     public static int VerifyRuntimePlacedBomb(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);

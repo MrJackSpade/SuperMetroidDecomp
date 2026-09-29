@@ -10,7 +10,7 @@ internal static class SuitAcquisitionAudit
 {
     public static int Run(string rom, string audioDirectory)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, water: false);
         runtime.LoadCartridgeRoomForDebug(0xa6e2, 0, 0);
         runtime.InitializeDebugGroundedSamus(80, 139, 8);

@@ -505,8 +505,8 @@ public sealed partial class RoomEnemySystem
 
         // Authored verifier buses may supply constructed records. A retail runtime
         // instead resolves the fixed cutscene placement without touching bank $A9.
-        RoomEnemyPopulationRecord population = _bus is IRoomEnemyFixtureSource
-            ? ReadFallingTubeFixturePopulation(_bus, populationPointer)
+        RoomEnemyPopulationRecord population = _bus is IRoomEnemyFallingTubeFixtureSource fixture
+            ? fixture.ReadFallingTubePopulation(populationPointer)
             : MotherBrainFallingTubePopulationDefinitions.Get(populationPointer);
         if (population.DefinitionPointer != MotherBrainFallingTubeDefinition)
         {
@@ -526,21 +526,6 @@ public sealed partial class RoomEnemySystem
         FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
         if (_motherBrain is not null)
             _motherBrain.SpawnedFallingTubeCount++;
-    }
-
-    private static RoomEnemyPopulationRecord ReadFallingTubeFixturePopulation(
-        ISnesAddressSpace bus, ushort pointer)
-    {
-        int record = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
-        return new RoomEnemyPopulationRecord(
-            ReadWord(bus, record),
-            ReadWord(bus, record + 2),
-            ReadWord(bus, record + 4),
-            ReadWord(bus, record + 6),
-            ReadWord(bus, record + 8),
-            ReadWord(bus, record + 10),
-            ReadWord(bus, record + 12),
-            ReadWord(bus, record + 14));
     }
 
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>

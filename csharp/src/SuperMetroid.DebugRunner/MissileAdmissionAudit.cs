@@ -11,7 +11,7 @@ internal static class MissileAdmissionAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "E237C320018B963565FFC7802C220F028EB96C36DEA8B482E8D79131E39BEAC4")
             throw new InvalidDataException("Use the accepted missile-admission v1 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

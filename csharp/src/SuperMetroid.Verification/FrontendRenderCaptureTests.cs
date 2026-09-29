@@ -10,8 +10,8 @@ internal static partial class Program
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
-        var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
-        var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
+        var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         legacy.BindMapPresentation(presentation);
         captured.BindMapPresentation(presentation);
         AssertTrue(captured.GetRetainedDisplay(1, 1) is null,

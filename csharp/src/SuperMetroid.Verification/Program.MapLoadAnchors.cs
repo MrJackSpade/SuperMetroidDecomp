@@ -44,7 +44,7 @@ internal static partial class Program
                         var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
-                    var native = new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system, expected.X, expected.Y);
+                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, typedArea), system, expected.X, expected.Y);
                     var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual.X, actual.Y);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (ushort input in MapScrollControls.Buttons)

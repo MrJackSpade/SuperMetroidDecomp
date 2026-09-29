@@ -19,8 +19,8 @@ internal static class MaridiaLargeSnailAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(retailBus, RoomPointer);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(retailBus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer)

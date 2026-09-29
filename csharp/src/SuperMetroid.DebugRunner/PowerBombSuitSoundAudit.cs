@@ -12,7 +12,7 @@ internal static class PowerBombSuitSoundAudit
         foreach (bool active in new[] { false, true })
         foreach (bool reverseBeforePublication in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             var bomb = runtime.BombProjectiles.PowerBombExplosion;

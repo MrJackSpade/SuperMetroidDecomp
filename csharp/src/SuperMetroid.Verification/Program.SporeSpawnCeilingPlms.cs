@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledSporeSpawnCeilingPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] addresses = SporeSpawnCeilingPlmProgramDefinitions
             .NativeWordAddresses().ToArray();

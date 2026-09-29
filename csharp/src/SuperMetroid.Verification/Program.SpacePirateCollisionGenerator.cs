@@ -11,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void GenerateSpacePirateCollisionDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var frames = new List<(ushort Pointer,
             (short X, short Y, ushort Hitboxes)[] Components)>();

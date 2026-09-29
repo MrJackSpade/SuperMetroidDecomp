@@ -7,14 +7,14 @@ internal static partial class Program
 {
     private static void VerifyElevatubeScrolling()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool fromNorth in new[] { true, false })
         {
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            var door = CartridgeDoorHeader.Load(bus, fromNorth
+            var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, fromNorth
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
             // incoming tube callback; no Ceres carrier belongs in this room.

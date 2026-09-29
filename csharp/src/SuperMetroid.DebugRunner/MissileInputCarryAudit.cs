@@ -7,7 +7,7 @@ internal static class MissileInputCarryAudit
     {
         foreach (int secondPress in new[] { 8, 9, 10, 11, -1 })
         {
-            var runtime = FlatFloorMovementFixture.Create(SuperMetroidAddressSpace.LoadRetailRom(rom), false);
+            var runtime = FlatFloorMovementFixture.Create(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom), false);
             var samus = runtime.Samus!;
             samus.Missiles = samus.MaxMissiles = 10;
             runtime.StepFrame(runtime.ControllerBindings.ItemSelect);

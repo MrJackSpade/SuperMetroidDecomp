@@ -18,8 +18,8 @@ internal static class DraygonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 2 || room.HeightInScreens != 2 ||
             room.AreaIndex != AreaId.Maridia || room.State.EnemyPopulationPointer != PopulationPointer)

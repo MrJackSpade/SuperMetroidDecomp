@@ -9,7 +9,7 @@ internal static class SaveStationActivationAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int checks = 0;
         foreach (byte pose in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose })
         {

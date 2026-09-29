@@ -15,7 +15,7 @@ internal static partial class PhantoonPlasmaAudit
 
     private static void VerifyRelease(string rom, ushort entryInvincibility)
     {
-        var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -53,8 +53,8 @@ internal static partial class PhantoonPlasmaAudit
     // The swooping state keeps the hitbox available after taking charged damage.
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, 0xcd13);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var enemies = new RoomEnemySystem();
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,

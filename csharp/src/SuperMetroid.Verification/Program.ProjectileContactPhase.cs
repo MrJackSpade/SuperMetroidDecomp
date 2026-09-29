@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileRuntimePhase()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
@@ -57,7 +57,7 @@ internal static partial class Program
 
     private static void VerifyProjectileContactPhase(bool verifyPhase)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var failures = new List<string>();
         foreach (ushort suit in new ushort[] { 0, (ushort)SamusEquipmentFlags.VariaSuit, (ushort)SamusEquipmentFlags.GravitySuit })
         {

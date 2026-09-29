@@ -17,7 +17,7 @@ internal static partial class Program
         // generated from the production catalog or implementation.
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
         ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (ushort i = 0; i < flash.Length; i++)
         {
             AssertEqual(ReadFirefleaWord(rom, 0x88B058 + i * 2), FirefleaFxDefinitions.FlashingShade(i),
@@ -110,7 +110,7 @@ internal static partial class Program
 
     private static void VerifyFirefleaXrayCapture()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

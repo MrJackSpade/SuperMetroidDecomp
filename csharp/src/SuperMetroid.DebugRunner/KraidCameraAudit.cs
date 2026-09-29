@@ -10,10 +10,10 @@ internal static class KraidCameraAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, water: false, playerInvincibilityEnabled: true);
         runtime.LoadCartridgeRoomThroughDoorForVerification(
-            CartridgeDoorHeader.Load(bus, KraidAuditDefinitions.EntryDoor), 0, 256);
+            SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidAuditDefinitions.EntryDoor), 0, 256);
         // Use the safe entrance ledge, not the solid floor beneath the spikes:
         // damage recoil there would confound a standing-jump reproduction.
         runtime.InitializeDebugGroundedSamus(48, 190, 20);

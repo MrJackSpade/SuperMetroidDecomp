@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyAlcoonInstructionProgramDefinitions()
     {
         VerifyAlcoonInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     }
 
     private static void VerifyAlcoonInstructionProgramDefinitions(
@@ -28,7 +28,7 @@ internal static partial class Program
         }
 
         var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(rom, AlcoonInstructionAuditRoom);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

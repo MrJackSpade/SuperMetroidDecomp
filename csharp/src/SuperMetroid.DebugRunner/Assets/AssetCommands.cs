@@ -23,7 +23,7 @@ if (args.Length == 3 && args[0].Equals("audio-rom", StringComparison.OrdinalIgno
 {
     using Stream source = File.OpenRead(args[1]);
     byte[] rom = SupportedCartridge.Read(source);
-    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(new SuperMetroid.Core.Hardware.SuperMetroidAddressSpace(rom), args[2]);
+    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(new CartridgeImportAddressSpace(rom), args[2]);
     Console.WriteLine($"Extracted {manifest.Uploads.Count} streams and {manifest.CanonicalSamples.Count} PCM samples.");
     return 0;
 }

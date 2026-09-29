@@ -15,7 +15,7 @@ internal static class SaveStationAudit
 
     public static int Run(string romPath, string outputDirectory)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         const ushort crateriaSaveRoom = RoomHeaderPointers.CrateriaSaveStation;
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -173,7 +173,7 @@ internal static class SaveStationAudit
         if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
             throw new InvalidDataException("Save-station replay ROM digest does not match.");
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];

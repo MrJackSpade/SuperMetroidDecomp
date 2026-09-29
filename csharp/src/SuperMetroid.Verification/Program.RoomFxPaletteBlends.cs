@@ -15,7 +15,7 @@ internal static partial class Program
             Console.WriteLine("  Room-FX blend palettes: cartridge comparison skipped (private ROM absent).");
             return;
         }
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)

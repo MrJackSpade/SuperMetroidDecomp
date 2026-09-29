@@ -18,7 +18,7 @@ internal static class OptionsCursorAudit
     private static void RunCase(string rom, string directory, bool japanese)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var menu = new GameOptionsMenuState(bus, japaneseText: japanese);
         ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
         int Field(string name) => (int)(typeof(GameOptionsMenuState)

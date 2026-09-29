@@ -49,7 +49,7 @@ public static partial class SnesGameplayFrameRenderer
         // window profile starting at scanline zero instead.
         for (int y = firstVisibleScanline; y < Height; y++)
         {
-            int halfWidth = ReadPowerBombHalfWidth(bus, explosion, y - centerY);
+            int halfWidth = ReadPowerBombHalfWidth(explosion, y - centerY);
             if (halfWidth < 0) continue;
             int left = Math.Max(0, centerX - halfWidth);
             int right = Math.Min(Width - 1, centerX + halfWidth);

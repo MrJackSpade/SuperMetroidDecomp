@@ -35,8 +35,8 @@ internal static class KzanAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             SpikyDeathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));

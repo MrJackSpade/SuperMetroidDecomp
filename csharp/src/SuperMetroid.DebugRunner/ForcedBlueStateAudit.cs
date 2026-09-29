@@ -14,7 +14,7 @@ internal static class ForcedBlueStateAudit
 {
     public static int Run(string romPath, string tracePath)
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         if (Convert.ToHexString(SHA256.HashData(retail.Rom)) != ForcedBlueAuditDefinitions.RetailRomSha256)
             throw new InvalidDataException("Forced Blue Suit audit requires the pinned Japan/USA ROM.");
 

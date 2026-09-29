@@ -30,12 +30,12 @@ internal static class SharedCrawlerAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int totalMaps = 0;
         int totalObjPieces = 0;
         foreach (RetailCase retailCase in Cases)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, retailCase.RoomHeader);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, retailCase.RoomHeader);
             CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
             var vram = new SnesVram();
             var cgram = new SnesCgram();

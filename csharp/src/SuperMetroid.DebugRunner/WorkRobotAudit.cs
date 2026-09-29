@@ -18,14 +18,14 @@ internal static partial class WorkRobotAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader dormantRoom = CartridgeRoomHeader.Load(bus, BasementRoom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader dormantRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BasementRoom);
         CartridgeRoomAssets dormantAssets = CartridgeRoomAssets.Load(bus, dormantRoom);
         LoadedRobots dormant = Load(bus, dormantRoom, dormantAssets, bossDefeated: false);
         VerifyDormantPopulation(dormantRoom, dormant);
         VerifyMovingSolidContact(dormant, dormantAssets);
 
-        CartridgeRoomHeader poweredRoom = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader poweredRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BasementRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));

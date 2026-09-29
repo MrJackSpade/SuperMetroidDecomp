@@ -12,7 +12,7 @@ internal static class ClimbMissileAudioAudit
 {
     public static int Run(string romPath, string? audioDirectory = null, string? nativeDll = null)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

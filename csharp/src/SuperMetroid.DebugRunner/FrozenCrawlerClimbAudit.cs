@@ -12,7 +12,7 @@ internal static class FrozenCrawlerClimbAudit
         int frozenInAir = 0;
         foreach (int shoot in directory is null ? Enumerable.Range(20, 26) : new[] { 26, 27, 38, 39 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < 16; y++)

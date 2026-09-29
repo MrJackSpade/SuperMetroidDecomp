@@ -40,7 +40,7 @@ internal static class ProcessingActionAudit
 
     private static string RunCase(string rom, string action, bool powerBombActive)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false);
         SamusState samus = runtime.Samus!;
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;

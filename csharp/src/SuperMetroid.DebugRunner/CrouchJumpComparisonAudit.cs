@@ -23,7 +23,7 @@ internal static class CrouchJumpComparisonAudit
             int angle = int.Parse(seed[4]), offset = int.Parse(seed[5]);
             if (((((medium * 2 + high) * 2 + (left ? 1 : 0)) * 2 + (crouch ? 1 : 0)) * 4 + angle) * 5 + offset + 2 != cases)
                 throw new InvalidDataException("Reordered crouch-jump cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: medium != 0, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

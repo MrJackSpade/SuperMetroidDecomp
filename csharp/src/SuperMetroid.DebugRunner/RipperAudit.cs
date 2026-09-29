@@ -26,8 +26,8 @@ internal static class RipperAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RipperRoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RipperRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         ushort populationPointer = RipperPopulationPointer;
 

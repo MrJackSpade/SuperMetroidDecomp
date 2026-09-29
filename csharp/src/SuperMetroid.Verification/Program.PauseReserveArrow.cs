@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseReserveArrow()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
             MaxReserveEnergy = 100, ReserveTankMode = 1, CollectedBeams = (ushort)SamusBeamFlags.Charge };
         var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);

@@ -18,7 +18,7 @@ internal sealed class MissileImpactAudioSequence
     public MissileImpactAudioSequence(string rom, ushort selection)
     {
         expectedLaunchSound = selection == 1 ? (byte)3 : (byte)4;
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
         runtime.Samus!.SelectedHudItem = selection;
         runtime.Samus.Missiles = runtime.Samus.MaxMissiles =
@@ -74,7 +74,7 @@ internal sealed class MissileImpactAudioSequence
     {
         foreach (bool cinematic in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             runtime.Samus!.SelectedHudItem = 2;
             runtime.Samus.SuperMissiles = runtime.Samus.MaxSuperMissiles = 10;

@@ -17,7 +17,7 @@ internal static class CrumbleBlockAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyCrumbleSequence(bus, behavior: 0, respawns: true);
         VerifyCrumbleSequence(bus, behavior: 4, respawns: false);
 

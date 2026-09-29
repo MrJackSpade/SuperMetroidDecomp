@@ -90,13 +90,17 @@ internal static partial class Program
         SuperMetroid.Core.Hardware.SnesVram vram, int definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
     {
-        int source = bus.ReadCartridgeByte(definition) | bus.ReadCartridgeByte(definition + 1) << 8 | bus.ReadCartridgeByte(definition + 2) << 16;
-        int firstSize = bus.ReadCartridgeByte(definition + 3) | bus.ReadCartridgeByte(definition + 4) << 8;
-        int secondSize = bus.ReadCartridgeByte(definition + 5) | bus.ReadCartridgeByte(definition + 6) << 8;
+        // The preserved state is RAM-only; cartridge reference bytes live in this
+        // verification-only importer, never in the resumed gameplay address space.
+        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        int source = reference.ReadCartridgeByte(definition) | reference.ReadCartridgeByte(definition + 1) << 8 | reference.ReadCartridgeByte(definition + 2) << 16;
+        int firstSize = reference.ReadCartridgeByte(definition + 3) | reference.ReadCartridgeByte(definition + 4) << 8;
+        int secondSize = reference.ReadCartridgeByte(definition + 5) | reference.ReadCartridgeByte(definition + 6) << 8;
         for (int i = 0; i < firstSize; i++)
-            Check(vram.ReadByte(destinations.First * 2 + i) == bus.ReadCartridgeByte(source + i), "Wall-grab first DMA bytes differ from ROM.");
+            Check(vram.ReadByte(destinations.First * 2 + i) == reference.ReadCartridgeByte(source + i), "Wall-grab first DMA bytes differ from ROM.");
         for (int i = 0; i < secondSize; i++)
-            Check(vram.ReadByte(destinations.Second * 2 + i) == bus.ReadCartridgeByte(source + firstSize + i), "Wall-grab second DMA bytes differ from ROM.");
+            Check(vram.ReadByte(destinations.Second * 2 + i) == reference.ReadCartridgeByte(source + firstSize + i), "Wall-grab second DMA bytes differ from ROM.");
     }
 }
 

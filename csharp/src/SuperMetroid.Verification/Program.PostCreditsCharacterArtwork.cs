@@ -13,13 +13,13 @@ internal static partial class Program
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         EndingMode7ArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroidAddressSpace(rom);
+        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
             CreditsPresentationExtractor.Extract(source)));
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var nativeBus = new SuperMetroidAddressSpace(rom);
-            var guardedBus = new EndingObjectSourceReadGuard(new SuperMetroidAddressSpace(rom));
+            var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+            var guardedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var nativeAudio = new CartridgeAudioState();
             var installedAudio = new CartridgeAudioState();
             var native = new EndingCreditsState(nativeBus, nativeAudio, hours, 0);
@@ -185,8 +185,8 @@ internal static partial class Program
                         image.Palette);
                 }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-                var stockBus = new EndingObjectSourceReadGuard(new SuperMetroidAddressSpace(rom));
-                var editedBus = new EndingObjectSourceReadGuard(new SuperMetroidAddressSpace(rom));
+                var stockBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var editedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var stockAudio = new CartridgeAudioState();
                 var editedAudio = new CartridgeAudioState();
                 var stockState = new EndingCreditsState(stockBus, stockAudio, hours, 0);

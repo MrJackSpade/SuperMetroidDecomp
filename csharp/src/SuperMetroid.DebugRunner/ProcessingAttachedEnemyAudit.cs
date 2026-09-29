@@ -12,7 +12,7 @@ internal static class ProcessingAttachedEnemyAudit
 {
     public static int Run(string rom)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         VerifyFamily(bus, ProcessingAttachedEnemyDefinitions.GreenBrinstarBeetomsRoom,
             ProcessingAttachedEnemyDefinitions.Beetom, expectedActors: 4, "Beetom");
         VerifyFamily(bus, ProcessingAttachedEnemyDefinitions.TourianMetroidRoom,
@@ -31,7 +31,7 @@ internal static class ProcessingAttachedEnemyAudit
         int expectedActors,
         string family)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

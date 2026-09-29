@@ -18,7 +18,7 @@ internal static class MamaTurtleAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace source = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var bus = new MamaTurtleInstructionReadGuard(source);
         VerifyHeaders(bus);
         VerifyPopulationLinkageCrawlingAndDrawing(bus);
@@ -101,8 +101,8 @@ internal static class MamaTurtleAudit
 
     private static void VerifyHeaders(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition mama = RoomEnemySystem.ReadDefinition(bus, MamaDefinition);
-        RoomEnemyDefinition baby = RoomEnemySystem.ReadDefinition(bus, BabyDefinition);
+        RoomEnemyDefinition mama = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, MamaDefinition);
+        RoomEnemyDefinition baby = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, BabyDefinition);
         if (mama.TileDataSize != 0x0c00 || mama.PalettePointer != 0x8b60 ||
             mama.Health != 20000 || mama.Damage != 200 || mama.XRadius != 20 ||
             mama.YRadius != 16 || mama.Bank != 0xa2 || mama.InitializationAiPointer != 0x8d6c ||
@@ -521,7 +521,7 @@ internal static class MamaTurtleAudit
     {
         IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
             throw new InvalidOperationException("Mama Turtle cartridge audit requires a ROM source.");
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(cartridge, RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

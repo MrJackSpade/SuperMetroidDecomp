@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyMaridiaPuyoPile()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CartridgeRoomHeader.Load(bus, 0xd27e);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var enemies = new RoomEnemySystem();
         var random = new Bank80SystemState();

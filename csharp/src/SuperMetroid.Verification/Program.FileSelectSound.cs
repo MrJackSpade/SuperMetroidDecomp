@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyFileSelectSound()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new FileSelectMenuState(bus, audio);
         var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio")));
@@ -32,7 +32,7 @@ internal static partial class Program
 
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (existingSave)
             new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = new SuperMetroidGame(bus);

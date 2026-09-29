@@ -18,7 +18,7 @@ internal static class ReflectedSuperTrailAudit
 
     private static void VerifyDirection(string rom, byte direction)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false);
         var samus = runtime.Samus!;
         samus.SelectedHudItem = 2;

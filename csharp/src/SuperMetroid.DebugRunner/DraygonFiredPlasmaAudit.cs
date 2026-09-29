@@ -24,7 +24,7 @@ internal static class DraygonFiredPlasmaAudit
             .Where(row => row[0] == release && row[1] == (scope ? 1 : 0) && row[2] >= 0)
             .ToDictionary(row => row[2]);
         int compared = 0;
-        var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

@@ -14,7 +14,7 @@ internal static class PauseChargeComparisonAudit
             "5B1C12F4F9D0B657A7936989D7041D5BC5E282EBE1F0A7125C6E64D7A2C5A4B2")
             throw new InvalidDataException("Use the accepted pause-charge native v2 capture.");
         var rows = File.ReadLines(capture).Skip(1).Select(line => line.Split(',')).ToArray();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int mismatches = 0, cases = 0;
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..3])))
         {

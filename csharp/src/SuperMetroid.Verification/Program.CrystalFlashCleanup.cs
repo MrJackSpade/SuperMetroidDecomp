@@ -15,7 +15,7 @@ internal static partial class Program
 
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -149,7 +149,7 @@ internal static partial class Program
 
     private static void VerifyCrystalFlashLifetime(string rom, string nativeCsv)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         AssertEqual("CA77210D138C654AEF79E44AAA897B5BE0F79244E2F72AB362D46303521BC043",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeCsv))),
             "accepted original-CPU lifetime capture");
@@ -190,7 +190,7 @@ internal static partial class Program
     /// <summary>Compare real Power Bomb cleanup admission with the original bank-$88 CPU probe.</summary>
     private static void VerifyCrystalFlashCleanup(string rom, string nativeCsv)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeCsv)));
         int cases = hash switch
         {

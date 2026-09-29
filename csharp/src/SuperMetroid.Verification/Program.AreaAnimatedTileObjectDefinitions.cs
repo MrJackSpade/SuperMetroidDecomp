@@ -20,7 +20,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         for (int areaIndex = 0;
              areaIndex < AreaAnimatedTileObjectDefinitions.NativeAreaCount;
              areaIndex++)

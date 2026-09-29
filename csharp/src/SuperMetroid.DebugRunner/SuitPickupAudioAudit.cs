@@ -9,7 +9,7 @@ internal static class SuitPickupAudioAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int failures = 0;
         foreach (var kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         {

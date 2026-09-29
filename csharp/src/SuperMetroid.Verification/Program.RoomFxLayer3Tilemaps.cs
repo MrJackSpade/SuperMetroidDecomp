@@ -15,7 +15,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(rom);
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)

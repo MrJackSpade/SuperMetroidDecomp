@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKagoInstructionProgramDefinitions()
     {
         VerifyKagoInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     }
 
     private static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)

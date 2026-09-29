@@ -17,7 +17,7 @@ internal static partial class Program
         const ushort source = 0xb3a5, destination = 0xb457;
         const string output = "csharp/test-temp/issue-619-pillar";
         Directory.CreateDirectory(output);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

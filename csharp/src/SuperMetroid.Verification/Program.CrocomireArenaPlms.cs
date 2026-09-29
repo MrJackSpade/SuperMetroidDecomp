@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledCrocomireArenaPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] addresses = CrocomireArenaPlmProgramDefinitions.NativeWordAddresses().ToArray();
         AssertEqual(15, addresses.Length, "Crocomire owns fifteen instruction words");

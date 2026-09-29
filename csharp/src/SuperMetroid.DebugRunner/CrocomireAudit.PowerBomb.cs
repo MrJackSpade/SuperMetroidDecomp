@@ -7,10 +7,10 @@ internal static partial class CrocomireAudit
     /// <summary>Checks reaction selection and every movement/animation call against a ROM-list schedule.</summary>
     public static int RunPowerBombTrajectory(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         foreach (ushort expectedList in CrocomirePowerBombFixtureData.ReactionLists)
         {
-            var room = CartridgeRoomHeader.Load(bus, RoomHeader);
+            var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeader);
             var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
             var control = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
             var state = RequireState(loaded);

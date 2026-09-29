@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyXrayTilemap()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();
         vram.ExecuteWordTransfer(Enumerable.Range(0, XrayTilemapLayout.BufferWords)
             .Select(i => (ushort)(0x4000 + i)).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);

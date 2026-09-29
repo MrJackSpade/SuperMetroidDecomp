@@ -24,7 +24,7 @@ internal static class DraygonBlueSuitProbe
     {
         // Only the boss/shot boundary is constructed. Samus's entire movement state
         // is the result of the preceding controller sequence and is never reseeded.
-        var room = CartridgeRoomHeader.Load(bus, RoomHeaderPointers.Draygon);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Draygon);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

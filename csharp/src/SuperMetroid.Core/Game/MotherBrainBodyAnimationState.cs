@@ -106,7 +106,8 @@ public sealed class MotherBrainBodyAnimationState
             if ((word & 0x8000) == 0)
             {
                 InstructionTimer = word;
-                SpritemapPointer = ReadWord(bus, unchecked((ushort)(InstructionPointer + 2)));
+                SpritemapPointer = MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(
+                    unchecked((ushort)(InstructionPointer + 2)));
                 InstructionPointer = unchecked((ushort)(InstructionPointer + 4));
                 loadedFrame = true;
                 return CreateResult();
@@ -295,11 +296,6 @@ public sealed class MotherBrainBodyAnimationState
             Bg2YScroll);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort address)
-    {
-        return RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus), InstructionBank | address);
-    }
 }
 
 /// <summary>Debugger witness for one bank-$A0 enemy-instruction processing stage.</summary>

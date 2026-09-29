@@ -24,7 +24,7 @@ internal static class KiHunterAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyAllHeaders(bus);
         VerifyAllRetailPairs(bus);
         VerifyReportedClusterRoom(bus);
@@ -33,7 +33,7 @@ internal static class KiHunterAudit
             bus, NormalRoomPointer, NormalStatePointer, NormalPopulationPointer);
         // $CA52's red population is the boss-dead branch. All boss bits are supplied here
         // only to select that authored state directly; the enemy audit does not mutate save data.
-        CartridgeRoomHeader redRoom = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader redRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             RedRoomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBitMasks.AllKnown, false, false));
@@ -645,7 +645,7 @@ internal static class KiHunterAudit
     {
         IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
             throw new InvalidOperationException("Ki Hunter cartridge audit requires a ROM source.");
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(cartridge, roomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         AssertExpectedState(room, statePointer, populationPointer);
         return room;
     }
@@ -683,7 +683,7 @@ internal static class KiHunterAudit
         ushort health,
         ushort damage)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
         if (definition.Bank != 0xa8 || definition.InitializationAiPointer != init ||
             definition.MainAiPointer != main || definition.TouchAiPointer != touch ||
             definition.ShotAiPointer != shot || definition.Health != health ||

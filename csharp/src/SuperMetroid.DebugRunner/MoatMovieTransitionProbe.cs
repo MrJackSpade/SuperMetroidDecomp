@@ -23,7 +23,7 @@ internal static class MoatMovieTransitionProbe
         ushort[] inputs = MoatMovieFixture.LoadInputs(directory);
         Dictionary<int, NativeTransitionCheckpoint> native = LoadExpected(directory);
         AssertNativeDispatcherBoundary(native);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = MoatMovieFixture.CreateRuntime(bus, memory);
 
         AssertCheckpoint(runtime, native[SeedFrame]);

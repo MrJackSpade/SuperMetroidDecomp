@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyCeresDestructionArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
         byte[] nativeMaps = RomDataReader.Decompress(bus,

@@ -13,7 +13,7 @@ internal static partial class Program
     {
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
             byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
@@ -23,7 +23,7 @@ internal static partial class Program
         }
 
         var guardedBus = new EndingPaletteSourceReadGuard(
-            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"),
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
             maps.RoomPaletteFx);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();

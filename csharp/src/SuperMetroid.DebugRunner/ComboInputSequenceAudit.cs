@@ -12,7 +12,7 @@ internal static class ComboInputSequenceAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "CC8511EA8A9BAD9E0CBD36616D8D3CBE82A98AEE8C533A906F45B28FA70F20FA")
             throw new InvalidDataException("Use the accepted combo-input v3 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var level = new RoomLevelData(16, 32, new ushort[512], new byte[512], new ushort[512], new byte[8]);
         int frames = 0, failures = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).GroupBy(line => string.Join(',', line.Split(',')[..3])))

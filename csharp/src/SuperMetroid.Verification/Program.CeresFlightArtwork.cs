@@ -11,7 +11,7 @@ internal static partial class Program
 {
     /// <summary>Exercises the actual front/rear Mode-7 transfers and restored Ceres flight.</summary>
     private static void VerifyCeresFlightArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         CeresFlightArtworkCatalog stock = installation.LoadIntroCinematicArt().CeresFlight;
         AssertTrue(stock.Mode7Characters.Span.SequenceEqual(RomDataReader.Decompress(bus,
@@ -163,7 +163,7 @@ internal static partial class Program
     }
 
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
-        SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)
     {
         string name = CeresFlightActorLayoutFormat.FileName;
@@ -305,7 +305,7 @@ internal static partial class Program
     }
 
     private static void VerifyCeresVisibleOverrides(GameInstallation installation,
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         foreach (string name in new[]
             {

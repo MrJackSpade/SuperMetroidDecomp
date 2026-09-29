@@ -10,7 +10,7 @@ internal static class CeresDestructionAudit
 {
     public static int Run(string romPath, string outputDirectory)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         Directory.CreateDirectory(outputDirectory);
         var cinematic = new CeresDestructionCinematicState(bus);
         bool capturedExplosion = false;

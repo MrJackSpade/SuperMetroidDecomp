@@ -13,7 +13,7 @@ internal static class PseudoScrewLiquidAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "2F59678185E1161C9B7384BF45BFE6A67D7F580242448ED4D4786E5C8DE91584")
             throw new InvalidDataException("Use the accepted pseudo-liquid native v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], []);
         int cases = 0, failures = 0;
         var seen = new HashSet<string>();

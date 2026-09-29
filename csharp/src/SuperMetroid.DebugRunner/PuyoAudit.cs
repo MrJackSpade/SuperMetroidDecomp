@@ -16,8 +16,8 @@ internal static class PuyoAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -486,7 +486,7 @@ internal static class PuyoAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0200 || definition.PalettePointer != 0x998d ||
             definition.Health != 100 || definition.Damage != 60 ||
             definition.XRadius != 8 || definition.YRadius != 4 || definition.Bank != 0xa2 ||

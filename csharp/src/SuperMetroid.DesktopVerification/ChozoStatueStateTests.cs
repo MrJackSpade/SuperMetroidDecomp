@@ -69,8 +69,12 @@ internal static partial class Program
         Console.WriteLine($"Verified hand collision, per-frame carry alignment, slope restoration and {soundFrames} sound frames.");
     }
 
-    private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+    private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address)
+    {
+        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        return (ushort)(reference.ReadCartridgeByte(address) | reference.ReadCartridgeByte(address + 1) << 8);
+    }
 
     private static void VerifyChozoHandRejectsStandingAndLivingBoss()
     {

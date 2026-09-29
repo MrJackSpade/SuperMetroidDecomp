@@ -61,14 +61,14 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         JsonElement[] manifestAreas = manifest.RootElement.GetProperty("Areas")
             .EnumerateArray()
             .ToArray();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);
-            AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
             JsonElement record = manifestAreas[index];
             AssertEqual(area.ToString(), record.GetProperty("Area").GetString(),
                 $"{area} map manifest identity");
@@ -110,7 +110,7 @@ internal static partial class Program
                 $"{area} secret-only cell count");
         }
 
-        AreaMapCartridgeData brinstar = AreaMapRomData.Load(bus, AreaId.Brinstar);
+        AreaMapCartridgeData brinstar = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Brinstar);
         AssertTrue(brinstar.IsRevealedByMapStation(9, 1),
             "representative Brinstar public map cell");
         AssertTrue(brinstar.IsDiscoverable(23, 2) &&

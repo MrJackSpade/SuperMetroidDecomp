@@ -23,11 +23,11 @@ internal static partial class RetailPlmPopulationAudit
     /// </summary>
     public static int AuditMetroidsClearedStates(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         ScrollAuditRoomState[] states = LoadScrollAuditStates()
             .Where(state => ReadScrollAuditPopulation(
                     bus,
-                    CartridgeRoomState.Load(bus, state.StatePointer).PlmPointer)
+                    SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer).PlmPointer)
                 .Any(record =>
                     record.Header == RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired))
             .ToArray();
@@ -40,7 +40,7 @@ internal static partial class RetailPlmPopulationAudit
         }
 
         int distinctPopulations = states
-            .Select(state => CartridgeRoomState.Load(bus, state.StatePointer).PlmPointer)
+            .Select(state => SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer).PlmPointer)
             .Distinct()
             .Count();
         if (distinctPopulations != ExpectedMetroidsClearedPopulationCount)
@@ -55,8 +55,8 @@ internal static partial class RetailPlmPopulationAudit
         int testedParlorTriggers = 0;
         foreach (ScrollAuditRoomState state in states)
         {
-            CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
-            CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+            CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
+            CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
             CartridgeRoomHeader room = defaultRoom with { State = exactState };
             CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
             ScrollAuditPopulationRecord[] sourceRecords =

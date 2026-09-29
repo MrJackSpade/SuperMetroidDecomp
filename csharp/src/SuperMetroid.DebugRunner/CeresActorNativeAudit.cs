@@ -12,7 +12,7 @@ internal static class CeresActorNativeAudit
             .ToDictionary(row => (row[0], row[1], row[2]));
         var drawRows = records.ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1]), int.Parse(row[2])),
             row => (Low: Convert.FromHexString(row[9]), High: Convert.FromHexString(row[10])));
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var scene = new CeresDestructionCinematicState(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         object Field(string name) => typeof(CeresDestructionCinematicState).GetField(name, flags)!.GetValue(scene)!;

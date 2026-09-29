@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyMaridiaElevatubeVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "maridia-elevatube-visual-" + Guid.NewGuid().ToString("N")));

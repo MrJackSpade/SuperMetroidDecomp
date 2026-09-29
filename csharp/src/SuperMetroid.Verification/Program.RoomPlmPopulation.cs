@@ -645,7 +645,7 @@ internal static partial class Program
             0x840000 | unchecked((ushort)(RoomPlmHeaders.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {
@@ -1299,7 +1299,7 @@ internal static partial class Program
             "Metroids-cleared instruction owner excludes adjacent PLM header");
         if (File.Exists("Super Metroid.smc"))
         {
-            SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
                 "Super Metroid.smc");
             int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
             ushort nativeInstruction = (ushort)(rom.ReadByte(source) |
@@ -1400,7 +1400,7 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {

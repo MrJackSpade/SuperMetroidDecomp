@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainRoomPaletteProgramDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0;
              index < MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount;

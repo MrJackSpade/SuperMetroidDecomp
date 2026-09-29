@@ -18,8 +18,8 @@ internal static class YardNativeComparisonAudit
         foreach (var group in rows.GroupBy(row => row[0]))
         {
             if (int.Parse(group.Key) != cases++) throw new InvalidDataException("Reordered Yard focus cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-            var room = CartridgeRoomHeader.Load(bus, 0xd5a7);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+            var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
             var assets = CartridgeRoomAssets.Load(bus, room);
             var vram = new SnesVram(); var cgram = new SnesCgram();
             assets.LoadGraphics(vram, cgram);

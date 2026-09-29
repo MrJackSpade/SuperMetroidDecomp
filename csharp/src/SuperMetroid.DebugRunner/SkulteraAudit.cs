@@ -15,7 +15,7 @@ internal static class SkulteraAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         MainStreetResult mainStreet = RunMainStreet(bus);
         VerifyEastOceanFacings(bus);
         VerifyCompactRadiusVariants(bus);
@@ -39,7 +39,7 @@ internal static class SkulteraAudit
     /// </summary>
     private static MainStreetResult RunMainStreet(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0xcfc9);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcfc9);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] population = enemies.Slots.Take(enemies.EnemyCount).ToArray();
@@ -218,7 +218,7 @@ internal static class SkulteraAudit
     /// </summary>
     private static void VerifyEastOceanFacings(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0x94fd);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x94fd);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -319,7 +319,7 @@ internal static class SkulteraAudit
         ushort expectedAdvanceAfterSixteenFrames,
         int retainedRecordCount)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomHeaderPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomHeaderPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

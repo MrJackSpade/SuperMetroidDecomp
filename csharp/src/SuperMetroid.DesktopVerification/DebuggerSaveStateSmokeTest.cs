@@ -18,7 +18,7 @@ public static class DebuggerSaveStateSmokeTest
     public static DebuggerSaveStateSmokeTestResult Run(string romPath)
     {
         string fullRomPath = Path.GetFullPath(romPath);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
         using var audio = new SpcAudioEngine();
         for (int frame = 0; frame < 90; frame++)

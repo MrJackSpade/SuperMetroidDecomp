@@ -15,7 +15,7 @@ internal static class ReplaySaveRamExporter
             if (!System.Security.Cryptography.SHA256.HashData(rom).AsSpan().SequenceEqual(recording.RomSha256))
                 throw new InvalidDataException("ROM digest does not match the recording's cartridge.");
         }
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var saves = new SuperMetroidSaveRam(bus);
         if (mainGameSlot is int requestedSlot)
@@ -37,7 +37,7 @@ internal static class ReplaySaveRamExporter
             var slot = saves.ReadSlot(index);
             if (slot is null)
                 continue;
-            var station = LoadStationEntry.Load(bus, (AreaId)slot.Area, checked((byte)slot.SaveStation));
+            var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)slot.Area, checked((byte)slot.SaveStation));
             Console.WriteLine($"File {(char)('A' + index)}: room ${station.RoomPointer:X4}, equipment ${slot.EquippedItems:X4}, health {slot.Health}/{slot.MaxHealth}");
             validSlots++;
         }

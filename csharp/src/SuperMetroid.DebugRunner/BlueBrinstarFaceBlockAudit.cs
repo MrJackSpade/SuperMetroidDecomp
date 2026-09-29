@@ -89,7 +89,7 @@ internal static class BlueBrinstarFaceBlockAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
         VerifyRetailPopulations(bus);
         VerifyRomTables(bus);
@@ -97,7 +97,7 @@ internal static class BlueBrinstarFaceBlockAudit
         // The selected state is the cartridge's Morph-Ball-and-missiles branch. The default
         // state uses the same positions with activation distance zero; this exact state owns
         // the four records whose proximity behavior can actually execute.
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             AuditRoomPointer,
             new RoomStateSelectionContext(default, 0, true, false));
@@ -125,7 +125,7 @@ internal static class BlueBrinstarFaceBlockAudit
 
     private static void VerifyDefinition(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0200 || definition.PalettePointer != 0xe7ac ||
             definition.Health != 20 || definition.Damage != 0 ||
             definition.XRadius != 8 || definition.YRadius != 8 ||

@@ -20,7 +20,7 @@ internal static class QuickDropCeilingAudit
             bool left = group.First()[0] == "1", remove = group.First()[1] == "1";
             if ((left ? 2 : 0) + (remove ? 1 : 0) != caseIndex++)
                 throw new InvalidDataException("Reordered quick-drop ceiling cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var level = new RoomLevelData(16, 32, new ushort[512], new byte[512], new ushort[512], new byte[8]);
             for (int x = 0; x < 16; x++) level.SetForegroundEntry(12 * 16 + x, 0x8000);
             var samus = new SamusState

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;

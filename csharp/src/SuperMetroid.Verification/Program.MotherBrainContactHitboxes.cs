@@ -10,7 +10,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMotherBrainContactHitboxes()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         MotherBrainContactPart[] parts =
         [
             MotherBrainContactPart.Body,

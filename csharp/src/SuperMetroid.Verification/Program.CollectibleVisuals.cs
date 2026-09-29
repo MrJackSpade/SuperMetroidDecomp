@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyCollectibleVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(24, RoomPlmCollectibleDrawDefinitions.All.Length,
             "all native collectible item/orb/reveal draw frames are compiled");

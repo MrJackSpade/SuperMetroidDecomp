@@ -21,7 +21,7 @@ internal static class DoorSetupCallbackAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         ushort[] pointers = DoorScrollPrograms.Pointers.Order().ToArray();
         if (pointers.Length != ExpectedPureScrollCallbackCount)
         {
@@ -60,7 +60,7 @@ internal static class DoorSetupCallbackAudit
         }
 
         CartridgeDoorHeader[] configuredHeaders = headerPointers
-            .Select(pointer => CartridgeDoorHeader.Load(bus, pointer))
+            .Select(pointer => SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, pointer))
             .Where(header => header.SetupCodePointer != 0)
             .ToArray();
         if (configuredHeaders.Length != ExpectedConfiguredDoorHeaderCount)
@@ -126,7 +126,7 @@ internal static class DoorSetupCallbackAudit
 
     private static void VerifyReportedFlywayHeader(SuperMetroidAddressSpace bus)
     {
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, DoorPointers.ParlorFromFlyway);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, DoorPointers.ParlorFromFlyway);
         if (door.SetupCodePointer != DoorCodes.DoorASM_Scroll_4_Red_8_Green)
         {
             throw new InvalidDataException(
@@ -160,7 +160,7 @@ internal static class DoorSetupCallbackAudit
     private static void VerifyCeresMode7Callbacks(SuperMetroidAddressSpace bus)
     {
         SuperMetroidRuntime runtime = CreateRuntime(bus);
-        CartridgeDoorHeader intoShaft = CartridgeDoorHeader.Load(
+        CartridgeDoorHeader intoShaft = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(
             bus,
             DoorPointers.ToCeresElevatorShaft);
         runtime.LoadCartridgeRoomThroughDoorForVerification(intoShaft);
@@ -172,7 +172,7 @@ internal static class DoorSetupCallbackAudit
                 "Ceres entry callback $8F:E4E0 did not establish Mode-7 shaft state.");
         }
 
-        CartridgeDoorHeader fromShaft = CartridgeDoorHeader.Load(
+        CartridgeDoorHeader fromShaft = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(
             bus,
             DoorPointers.FromCeresElevatorShaft);
         runtime.LoadCartridgeRoomThroughDoorForVerification(fromShaft);
@@ -221,7 +221,7 @@ internal static class DoorSetupCallbackAudit
         byte expectedBts,
         ReadOnlySpan<int> expectedSources)
     {
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
         if (door.DestinationRoomPointer != WreckedShipEntranceRoom)
         {
             throw new InvalidDataException(
@@ -336,7 +336,7 @@ internal static class DoorSetupCallbackAudit
         ushort expectedPositionAfterStep,
         ushort expectedVelocityAfterStep)
     {
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
         if (door.DestinationRoomPointer != MaridiaElevatubeRoom)
         {
             throw new InvalidDataException(
@@ -401,7 +401,7 @@ internal static class DoorSetupCallbackAudit
         ushort destinationRoom,
         bool expectsGreenLeadingScrolls)
     {
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
         if (door.DestinationRoomPointer != destinationRoom)
         {
             throw new InvalidDataException(
@@ -515,9 +515,10 @@ internal static class DoorSetupCallbackAudit
     {
         for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
             bus.WriteByte(ScratchScrollSource + index, UnwrittenSentinel);
-        return RoomScrollGrid.LoadExplicit(
+        byte[] storage = Enumerable.Repeat(UnwrittenSentinel, RoomScrollGrid.StorageByteCount).ToArray();
+        return RoomScrollGrid.LoadCompiled(
             bus,
-            ScratchScrollSource,
+            storage,
             widthInScreens: 10,
             heightInScreens: 5);
     }

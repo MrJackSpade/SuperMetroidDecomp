@@ -22,7 +22,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach (int directionTable in new[]
         {
             SamusGrappleRomData.Firing.XVelocities,

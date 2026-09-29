@@ -22,7 +22,7 @@ internal static class ProcessingDoorTimingAudit
 
     public static int Run(string rom, string nativeActionCsv)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         IReadOnlyDictionary<string, SoundEffectId[]> actions = ReadNativeActions(nativeActionCsv);
 
         var results = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -340,7 +340,7 @@ internal static class ProcessingDoorTimingAudit
     {
         SuperMetroidRuntime runtime = FlatFloorMovementFixture.Create(bus, false);
         runtime.LoadCartridgeRoomThroughDoorForVerification(
-            CartridgeDoorHeader.Load(bus, RoomEffectSoundAuditDefinitions.RisingLavaDoor));
+            SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, RoomEffectSoundAuditDefinitions.RisingLavaDoor));
         runtime.Samus!.InputLocked = true;
         foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)
             enemy.Clear();

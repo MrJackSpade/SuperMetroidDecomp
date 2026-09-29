@@ -28,7 +28,7 @@ internal static partial class Program
             SuperMetroidRuntime installed = LoadRoom(installedArt: true);
             if (useRealLandingDoor)
             {
-                var sourceBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+                var sourceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
                 LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(sourceBus);
                 byte[] sky = RomDataReader.ReadFixedBank(sourceBus,
                     entry.SkySourceAddress, entry.SkyByteCount);
@@ -127,7 +127,7 @@ internal static partial class Program
 
             SuperMetroidRuntime LoadRoom(bool installedArt)
             {
-                var bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+                var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
                 var runtime = new SuperMetroidRuntime(bus);
                 if (installedArt)
                 {
@@ -143,7 +143,7 @@ internal static partial class Program
                 ushort doorPointer = useRealLandingDoor
                     ? LandingSiteRomData.LandingCutsceneDoorPointer
                     : DoorPointers.ToCeresElevatorShaft;
-                CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+                CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
                 AssertEqual(roomPointer, door.DestinationRoomPointer,
                     $"{name} parity uses its real entry door");
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door);

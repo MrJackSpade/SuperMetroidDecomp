@@ -32,7 +32,7 @@ internal static partial class Program
             ToArray();
         AssertEqual(10, expected.Length, "Complete native Pink Brinstar right-gate positive set");
 
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -162,7 +162,7 @@ internal static partial class Program
         int frozenEnemyX,
         int shootFrame)
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

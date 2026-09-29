@@ -8,7 +8,7 @@ internal static class TourianPaletteFxAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int[] expectedCounts = [1, 2, 2, 2, 2, 2, 1, 0];
         for (int count = 1; count <= 8; count++)
         {

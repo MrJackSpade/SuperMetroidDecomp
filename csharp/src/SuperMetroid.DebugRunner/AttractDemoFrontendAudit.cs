@@ -9,7 +9,7 @@ internal static class AttractDemoFrontendAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
         byte[] originalSave = bus.SaveRam.ToArray();
         var ports = new byte[4];
@@ -58,7 +58,7 @@ internal static class AttractDemoFrontendAudit
                 throw new InvalidDataException("Final demo hold advanced Samus instead of waiting for NMI.");
             if (wasPlaying && game.GameState == SuperMetroidGameState.TransitionFromDemoA)
             {
-                AttractDemoScene expected = AttractDemoScene.Read(bus, setIndex, sceneIndex)!;
+                AttractDemoScene expected = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, setIndex, sceneIndex)!;
                 if (activeFrames != expected.Duration || holdFrames != AttractDemoRomData.FinalImageHoldFrames)
                     throw new InvalidDataException($"Demo {sceneIndex} timing differs: gameplay={activeFrames}, hold={holdFrames}.");
                 completed++;

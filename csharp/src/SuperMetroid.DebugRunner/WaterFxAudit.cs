@@ -49,8 +49,8 @@ internal static class WaterFxAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             WaterFxAuditDefinitions.RoomHeader);
         if (room.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||
@@ -162,7 +162,7 @@ internal static class WaterFxAudit
     {
         foreach (AtmosphericFxRoomDefinition definition in AtmosphericFxAuditDefinitions.Rooms)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, definition.HeaderPointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, definition.HeaderPointer);
             if (room.Identity != definition.Identity)
             {
                 throw new InvalidDataException(

@@ -17,7 +17,7 @@ internal static class ElevatorAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         List<RoomEnemyPopulationRecord> records = ReadEveryNamedRetailRecord(retailBus);
         if (records.Count != 15)
         {
@@ -49,7 +49,7 @@ internal static class ElevatorAudit
 
     private static void VerifyDefinition(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, ElevatorDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, ElevatorDefinition);
         if (definition.Bank != 0xa3 || definition.Health != 40 || definition.Damage != 15 ||
             definition.InitializationAiPointer != 0x94e6 || definition.MainAiPointer != 0x952a ||
             definition.TouchAiPointer != 0x804c || definition.ShotAiPointer != 0x804c ||

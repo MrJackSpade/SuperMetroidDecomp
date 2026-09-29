@@ -12,8 +12,8 @@ internal static class MetareeAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace retailBus =
-            SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(retailBus, 0x9cb3);
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(retailBus, 0x9cb3);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

@@ -11,7 +11,7 @@ internal static partial class Program
         samus.XPosition = 220;
         samus.YPosition = 180;
         var fixture = CreateEnemyDropFixture(samus, [1]);
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int bank in new[] { 0x860000, 0x8d0000 })
         {
             var data = new byte[0x8000];
@@ -72,7 +72,7 @@ internal static partial class Program
 
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (byte pose in new[] { SamusPoseIds.StandingAimDiagonalDownRightPose,
             SamusPoseIds.NormalJumpForwardRightPose, SamusPoseIds.FacingRightNormalPose })
         {

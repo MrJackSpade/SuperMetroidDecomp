@@ -11,7 +11,7 @@ internal static class ItemAcquisitionComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "AF61194A7FD39C287F711FA1518E48D03B11D51AA3EA85538634BF695C06B8A8")
             throw new InvalidDataException("Use the accepted item-acquisition v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, pickups = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

@@ -27,8 +27,8 @@ internal static class NamiheAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyHeader(bus);
         VerifyProjectileDefinition(bus);
@@ -288,7 +288,7 @@ internal static class NamiheAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0800 || definition.PalettePointer != 0x959d ||
             definition.Health != 20 || definition.Damage != 10 ||
             definition.XRadius != 16 || definition.YRadius != 16 ||

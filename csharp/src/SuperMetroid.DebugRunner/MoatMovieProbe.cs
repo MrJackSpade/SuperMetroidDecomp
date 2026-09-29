@@ -10,7 +10,7 @@ internal static class MoatMovieProbe
             directory,
             "frame-270.wram",
             "2F0F8D3F4C8BB7BD73C728C1E3F81F76663B35DCB5FFCC7C52ED035D74279DFA");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = MoatMovieFixture.CreateRuntime(bus, memory);
         SamusState s = runtime.Samus!;
         ushort[] inputs = MoatMovieFixture.LoadInputs(directory);

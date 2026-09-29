@@ -20,7 +20,7 @@ internal static class SparkPlayerRecordingAudit
             throw new InvalidDataException("Recording and replay ROM differ.");
         foreach (int substitutionStart in new[] { -1, 1688, 2156, 3013, 3722, 4081, 4645 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             recording.InitialSaveRam.CopyTo(bus.SaveRam);
             var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
             var ports = new byte[4];

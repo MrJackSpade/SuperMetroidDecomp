@@ -24,7 +24,7 @@ internal static partial class Program
     // Only sprite-reference fields are replaced; timing/damage/collision stay native.
     private static SuperMetroidAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         void Art(int entry, ushort map)
         {

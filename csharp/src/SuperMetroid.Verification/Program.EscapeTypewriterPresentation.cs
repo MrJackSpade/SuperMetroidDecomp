@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyEscapeTypewriterPresentation(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus);
         EscapeTypewriterPresentation presentation = EscapeTypewriterPresentation.Load(
             new MemoryStream(extracted, writable: false));

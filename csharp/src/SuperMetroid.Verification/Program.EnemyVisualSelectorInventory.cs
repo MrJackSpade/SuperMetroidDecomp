@@ -14,7 +14,7 @@ internal static partial class Program
     /// </summary>
     private static void InspectEnemyVisualSelectors(bool generateCatalog = false)
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags staticFlags = BindingFlags.Static |
             BindingFlags.NonPublic | BindingFlags.Public;
@@ -190,7 +190,7 @@ internal static partial class Program
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
     private static void VerifyCompiledEnemyVisualSelectors()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(4640, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");

@@ -9,7 +9,7 @@ internal static class PauseMapAudit
 {
     public static int Run(string romPath, string outputPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var samus = new SamusState
         {
             XPosition = 0x0080,

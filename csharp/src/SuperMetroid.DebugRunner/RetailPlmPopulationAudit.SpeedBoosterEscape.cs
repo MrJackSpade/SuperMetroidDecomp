@@ -16,7 +16,7 @@ internal static partial class RetailPlmPopulationAudit
     /// </summary>
     public static int AuditSpeedBoosterEscape(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         if (ReadWord(bus, 0x84b8ae) != RoomPlmInstructionLists.SpeedBoosterEscape ||
             ReadWord(bus, 0x84b88a) != RoomPlmInstructionCodes.InstallPreInstruction ||
             ReadWord(bus, 0x84b88c) !=
@@ -151,9 +151,9 @@ internal static partial class RetailPlmPopulationAudit
         bool collectedSpeedBooster,
         bool eventAlreadySet)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, SpeedBoosterEscapeRoom) with
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, SpeedBoosterEscapeRoom) with
         {
-            State = CartridgeRoomState.Load(bus, SpeedBoosterEscapeState),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, SpeedBoosterEscapeState),
         };
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var system = new Bank80SystemState();

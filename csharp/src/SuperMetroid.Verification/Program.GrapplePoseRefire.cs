@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGrapplePoseRefire()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         foreach (bool left in new[] { false, true })
         foreach (int changeFrame in Enumerable.Range(1, 10))

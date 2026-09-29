@@ -11,7 +11,7 @@ internal static class SparkSurfaceAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "94E65FA92F45E63FD67C329234E27ADCC435C210B5CB41CEC95A367F89C66963")
             throw new InvalidDataException("Use the accepted surface-travel capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

@@ -28,8 +28,8 @@ internal static class ZebetiteAudit
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(tracePath))) !=
             "E6EC8D2C87120784ACAF6EF2AF5C7F1B30663D26507E833D31C8E0CD731ED99F")
             throw new InvalidDataException("Use the accepted original-CPU double-kill trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var room = CartridgeRoomHeader.Load(bus, MotherBrainRoom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
         if (rows.Length != 108 || rows.Any(row => row.Length != 9))
@@ -73,8 +73,8 @@ internal static class ZebetiteAudit
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(tracePath))) !=
             "35963B1F6E0D69B2CC2FC647AE969BEE27D2551A00D3B278E41AEAEF00E44C0E")
             throw new InvalidDataException("Use the accepted original-CPU ten-missile trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var room = CartridgeRoomHeader.Load(bus, MotherBrainRoom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
         if (rows.Length != 2968 || rows.Any(row => row.Length != 7))
@@ -118,8 +118,8 @@ internal static class ZebetiteAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MotherBrainRoom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionAndPopulation(bus, room);
@@ -260,7 +260,7 @@ internal static class ZebetiteAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, ZebetiteDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, ZebetiteDefinition);
         if (room.State.EnemyPopulationPointer != 0xe321 ||
             ReadWord(bus, 0xa10000 | ZebetitePopulationRecord) != ZebetiteDefinition ||
             definition.Bank != 0xa6 || definition.InitializationAiPointer != 0xfb72 ||

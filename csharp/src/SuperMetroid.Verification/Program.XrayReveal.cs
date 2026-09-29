@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyXrayRevealTable()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;
         var commands = new HashSet<ushort>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())

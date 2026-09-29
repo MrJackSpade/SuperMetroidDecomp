@@ -11,7 +11,7 @@ internal static class DoorChargeAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

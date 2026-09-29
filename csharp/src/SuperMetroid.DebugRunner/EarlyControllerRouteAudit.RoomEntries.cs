@@ -20,7 +20,7 @@ internal static partial class EarlyControllerRouteAudit
         string romPath,
         string? captureDirectory = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = CreateInitializedRuntime(bus);
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "Green Brinstar elevator audit initialized without Samus.");
@@ -422,7 +422,7 @@ internal static partial class EarlyControllerRouteAudit
     /// </summary>
     public static int RunVerticalRoomEntryAudit(string romPath, string? captureDirectory = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = CreateInitializedRuntime(bus);
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "Vertical-entry audit initialized without Samus.");
@@ -497,7 +497,7 @@ internal static partial class EarlyControllerRouteAudit
 
         runtime.System.SetEvent((int)EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Climb);
-        CartridgeDoorHeader parlorDoor = CartridgeDoorHeader.Load(
+        CartridgeDoorHeader parlorDoor = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(
             bus,
             DoorPointers.ParlorFromClimb);
         // Vertical transitions retain the source X low byte. Stage it at the authored
@@ -683,7 +683,7 @@ internal static partial class EarlyControllerRouteAudit
     /// </summary>
     public static int RunParlorScrollPoseProbeAudit(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach ((int blockIndex, int blockX, int blockY) in new[]
                  {
                      (1062, 0x16, 0x0d),

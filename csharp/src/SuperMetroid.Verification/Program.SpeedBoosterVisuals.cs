@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifySpeedBoosterVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "speed-booster-visual-" + Guid.NewGuid().ToString("N")));

@@ -11,8 +11,8 @@ internal static class WavePhantoonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "49CBBF9D478C6F3351B62B825BB5D0B8E2093DD6822EC8D8953EAE2BB2E61675")
             throw new InvalidDataException("Use the accepted wave-phantoon-418-v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, 0xcd13);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
         var assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = null!;
         SamusProjectileSystem projectiles = null!;

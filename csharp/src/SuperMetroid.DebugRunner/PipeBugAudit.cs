@@ -26,10 +26,10 @@ internal static partial class PipeBugAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeadersAndEveryRetailRecord(bus);
 
-        CartridgeRoomHeader brinstarRoom = CartridgeRoomHeader.Load(bus, 0x9b5b);
+        CartridgeRoomHeader brinstarRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9b5b);
         CartridgeRoomAssets brinstarAssets = CartridgeRoomAssets.Load(bus, brinstarRoom);
         LoadedPipeBugs brinstar = LoadPrefix(
             bus,
@@ -39,7 +39,7 @@ internal static partial class PipeBugAudit
             retainedRecordCount: 1);
         VerifyBrinstarCycle(brinstar, brinstarAssets, strong: false);
 
-        CartridgeRoomHeader strongRoom = CartridgeRoomHeader.Load(bus, 0x965b);
+        CartridgeRoomHeader strongRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x965b);
         CartridgeRoomAssets strongAssets = CartridgeRoomAssets.Load(bus, strongRoom);
         LoadedPipeBugs strong = LoadPrefix(
             bus,
@@ -49,7 +49,7 @@ internal static partial class PipeBugAudit
             retainedRecordCount: 1);
         VerifyBrinstarCycle(strong, strongAssets, strong: true);
 
-        CartridgeRoomHeader norfairRoom = CartridgeRoomHeader.Load(bus, 0xb051);
+        CartridgeRoomHeader norfairRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xb051);
         CartridgeRoomAssets norfairAssets = CartridgeRoomAssets.Load(bus, norfairRoom);
         LoadedPipeBugs norfair = LoadPrefix(
             bus,
@@ -59,7 +59,7 @@ internal static partial class PipeBugAudit
             retainedRecordCount: 5);
         VerifyNorfairFormation(norfair, norfairAssets);
 
-        CartridgeRoomHeader yellowRoom = CartridgeRoomHeader.Load(bus, 0x9e52);
+        CartridgeRoomHeader yellowRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9e52);
         CartridgeRoomAssets yellowAssets = CartridgeRoomAssets.Load(bus, yellowRoom);
         LoadedPipeBugs yellow = LoadPrefix(
             bus,
@@ -100,7 +100,7 @@ internal static partial class PipeBugAudit
         ushort initialization,
         ushort main)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
         if (definition.Bank != 0xb3 || definition.Health != health ||
             definition.Damage != damage || definition.InitializationAiPointer != initialization ||
             definition.MainAiPointer != main || definition.TouchAiPointer != 0x8023 ||

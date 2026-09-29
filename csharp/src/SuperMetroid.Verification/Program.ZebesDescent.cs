@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyZebesDoesNotWrapDuringDescent()
     {
         VerifyOffScreenCinematicOam();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = new CeresDestructionCinematicState(bus);
         int previousBottom = FrontendFrame.Height;
         int visibleFrames = 0, slideFrames = 0;

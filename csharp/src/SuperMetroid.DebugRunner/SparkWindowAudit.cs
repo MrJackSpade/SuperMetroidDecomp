@@ -13,7 +13,7 @@ internal static class SparkWindowAudit
             tap ? "49165A9EFFD5CEB5C4625B2FCE77E171588A844B9C7B084D664F38A2CEA3FBD0" :
             "CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D"))
             throw new InvalidDataException("Use accepted held/tap spark-window capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

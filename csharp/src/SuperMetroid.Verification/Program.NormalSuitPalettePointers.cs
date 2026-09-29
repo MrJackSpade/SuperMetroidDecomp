@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyNormalSuitPalettePointers()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = new NormalSuitPointerReadGuard(rom);
         ushort[] equipment =
         [

@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var forbidden = new HashSet<int>();
         int wordCount = 0;

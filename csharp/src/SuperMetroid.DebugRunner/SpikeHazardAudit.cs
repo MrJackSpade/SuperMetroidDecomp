@@ -28,8 +28,8 @@ internal static class SpikeHazardAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             SpikeHazardAuditRomData.RoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);

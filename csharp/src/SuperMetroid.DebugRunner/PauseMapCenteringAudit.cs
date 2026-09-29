@@ -7,7 +7,7 @@ internal static class PauseMapCenteringAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         for (int area = 0; area < 6; area++)
         {
             var system = new Bank80SystemState();

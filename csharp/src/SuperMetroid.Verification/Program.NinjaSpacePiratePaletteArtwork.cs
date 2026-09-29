@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
-        RoomEnemyDefinition shared = RoomEnemySystem.ReadDefinition(bus,
+        RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus,
             NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition);
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
             shared.Bank << 16 | shared.PalettePointer,

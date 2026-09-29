@@ -9,7 +9,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new KraidFootCollisionNoReadBus();
         var native = new RoomEnemySystem();

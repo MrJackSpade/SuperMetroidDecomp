@@ -83,7 +83,7 @@ internal static class EtecoonFloorClipNativeProbe
         byte[] seed,
         ushort[] inputs)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = CreateRuntime(bus, seed);
         var game = new SuperMetroidGame(bus);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!

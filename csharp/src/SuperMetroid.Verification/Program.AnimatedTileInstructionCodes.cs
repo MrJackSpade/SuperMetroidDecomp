@@ -26,7 +26,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyRetailTreadmillMechanics(bus);
         VerifyRetailTreadmillStream(
             bus,

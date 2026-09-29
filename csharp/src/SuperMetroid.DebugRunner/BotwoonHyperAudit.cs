@@ -18,7 +18,7 @@ internal static partial class BotwoonAudit
         int compared = 0;
         foreach (var (fireAt, useScope) in new[] { (296, true), (300, true), (300, false) })
         {
-            var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
+            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

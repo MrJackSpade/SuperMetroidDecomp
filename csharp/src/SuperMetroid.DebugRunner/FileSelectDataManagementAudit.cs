@@ -10,7 +10,7 @@ internal static class FileSelectDataManagementAudit
     public static int Run(string romPath, string outputDirectory)
     {
         Directory.CreateDirectory(outputDirectory);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var saveRam = new SuperMetroidSaveRam(bus);
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
         {

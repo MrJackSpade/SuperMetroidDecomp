@@ -16,8 +16,8 @@ internal static class TourianEntranceStatueAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.State.Pointer != 0xa677 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
@@ -62,7 +62,7 @@ internal static class TourianEntranceStatueAudit
             }
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.Bank != 0xaa || definition.InitializationAiPointer != 0xd7c8 ||
             definition.MainAiPointer != 0xd7c7 || definition.TouchAiPointer != 0x804c ||
             definition.ShotAiPointer != 0x804c)
@@ -80,7 +80,7 @@ internal static class TourianEntranceStatueAudit
         foreach (int bossCount in new[] { 0, 3, 4 })
         {
             bool allBossesDead = bossCount == 4;
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

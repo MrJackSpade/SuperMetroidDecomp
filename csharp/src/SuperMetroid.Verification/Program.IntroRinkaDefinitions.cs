@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyIntroRinkaDefinitions()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int pointer = IntroRinkaInstructionDefinitions.StartPointer;
              pointer < IntroRinkaInstructionDefinitions.EndPointer; pointer++)
             AssertEqual(retail.ReadByte(IntroRinkaDefinitions.NativeBank | pointer),

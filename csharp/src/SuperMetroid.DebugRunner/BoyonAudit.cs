@@ -40,8 +40,8 @@ internal static class BoyonAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BoyonAuditDefinitions.AlphaPowerBombRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
@@ -316,7 +316,7 @@ internal static class BoyonAudit
     /// </summary>
     private static void VerifyCrateriaSuperFreezePuzzle(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BoyonAuditDefinitions.CrateriaSuperRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
@@ -478,7 +478,7 @@ internal static class BoyonAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             BoyonAuditDefinitions.BoyonEnemyDefinition);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x8687 ||

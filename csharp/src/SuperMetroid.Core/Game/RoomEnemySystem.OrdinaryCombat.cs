@@ -3191,53 +3191,9 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        int bank = enemy.Definition.Bank << 16;
-        int extendedMap = bank | enemy.SpritemapPointer;
-        // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;
-        // Ceres steam, for example, stores `$1001` for one component. Treating the whole
-        // word as 4097 components walks into adjacent ROM and eventually selects garbage
-        // callbacks such as `$F880` instead of the authored `$F03F/$804C` pair.
-        int componentCount = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(extendedMap);
-
-        for (int componentIndex = 0; componentIndex < componentCount; componentIndex++)
-        {
-            int component = AddWithinBank(extendedMap, 2 + componentIndex * 8);
-            ushort componentX = unchecked((ushort)(
-                enemy.XPosition + ReadWord(_bus!, component)));
-            ushort componentY = unchecked((ushort)(
-                enemy.YPosition + ReadWord(_bus!, AddWithinBank(component, 2))));
-            ushort hitboxListPointer = ReadWord(_bus!, AddWithinBank(component, 6));
-            int hitboxList = bank | hitboxListPointer;
-            int hitboxCount = ReadWord(_bus!, hitboxList);
-
-            for (int hitboxIndex = 0; hitboxIndex < hitboxCount; hitboxIndex++)
-            {
-                int hitbox = AddWithinBank(hitboxList, 2 + hitboxIndex * 12);
-                ushort left = unchecked((ushort)(
-                    componentX + ReadWord(_bus!, hitbox)));
-                ushort top = unchecked((ushort)(
-                    componentY + ReadWord(_bus!, AddWithinBank(hitbox, 2))));
-                ushort right = unchecked((ushort)(
-                    componentX + ReadWord(_bus!, AddWithinBank(hitbox, 4))));
-                ushort bottom = unchecked((ushort)(
-                    componentY + ReadWord(_bus!, AddWithinBank(hitbox, 6))));
-
-                // These asymmetric signed comparisons are literal translations. They
-                // retain the cartridge's inclusive left/bottom and exclusive right/top
-                // edges instead of replacing them with a friendlier host rectangle API.
-                if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                        targetTop, targetBottom, left, top, right, bottom,
-                        selectShotCallback))
-                    continue;
-
-                callback = ReadWord(
-                    _bus!,
-                    AddWithinBank(hitbox, selectShotCallback ? 10 : 8));
-                return true;
-            }
-        }
-
-        return false;
+        throw new InvalidDataException(
+            $"Enemy ${enemy.EnemyDefinitionPointer:X4} extended collision frame " +
+            $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
     }
 
     /// <summary>

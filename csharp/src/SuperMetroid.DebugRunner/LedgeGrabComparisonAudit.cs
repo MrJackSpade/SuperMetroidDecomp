@@ -23,7 +23,7 @@ internal static class LedgeGrabComparisonAudit
             int gap = int.Parse(seed[4]), delay = int.Parse(seed[5]);
             if ((((((left ? 1 : 0) * 2 + family) * 2 + scenario) * 3 + speed) * 9 + gap) * 8 + delay + 1 != cases)
                 throw new InvalidDataException("Reordered ledge-grab cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

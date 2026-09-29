@@ -14,7 +14,7 @@ internal static class SparkSandAudit
             (entry ? "E83A95054A51FAC0AF7877467D65EAF8D748F70D64A2C2254D967F27A815A89E" :
             "BA0837A6A362939F04A8C2A6B76B119883930D1A82E2B0C14FA636AA30FE9EE5"))
             throw new InvalidDataException("Use the accepted sand-travel capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

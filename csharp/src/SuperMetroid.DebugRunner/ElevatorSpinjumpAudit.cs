@@ -55,10 +55,10 @@ internal static class ElevatorSpinjumpAudit
     public static int Run(string rom, string? outputDirectory = null, bool directionHeldDuringArrival = false)
     {
         if (outputDirectory != null) Directory.CreateDirectory(outputDirectory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var doors = File.ReadLines("upstream-sm/assets/names.txt")
             .Where(line => line.StartsWith("0x83") && line.Contains(" kDoorDef_"))
-            .Select(line => CartridgeDoorHeader.Load(bus, Convert.ToUInt16(line.Substring(4, 4), 16)))
+            .Select(line => SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, Convert.ToUInt16(line.Substring(4, 4), 16)))
             .ToArray();
         foreach (var (room, name) in new (ushort, string)[]
             { (RoomHeaderPointers.MorphBallRoom, "Blue Brinstar"),

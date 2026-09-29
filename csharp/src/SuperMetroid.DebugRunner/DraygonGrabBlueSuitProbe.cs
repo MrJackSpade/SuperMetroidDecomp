@@ -47,7 +47,7 @@ internal sealed class DraygonGrabBlueSuitProbe(SuperMetroidAddressSpace bus, Sam
     public void AfterFrame(int frame)
     {
         if (frame != GrabFrame(mode)) return;
-        var room = CartridgeRoomHeader.Load(bus, RoomHeaderPointers.Draygon);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Draygon);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

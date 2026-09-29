@@ -11,7 +11,7 @@ internal static class ElevatorFrontendHandoffAudit
 {
     public static int Run(string rom, bool retainedFlash = false, int cleanupTiming = 0)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

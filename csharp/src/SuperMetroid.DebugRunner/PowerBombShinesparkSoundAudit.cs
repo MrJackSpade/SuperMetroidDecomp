@@ -13,7 +13,7 @@ internal static class PowerBombShinesparkSoundAudit
         VerifyProducerBoundaries(rom);
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             if (!samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter))
@@ -39,7 +39,7 @@ internal static class PowerBombShinesparkSoundAudit
         foreach (ushort charge in new ushort[] { 1, 15, 16, 60 })
         foreach (bool activeAtRequest in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             var shine = samus.Shinespark;
@@ -90,7 +90,7 @@ internal static class PowerBombShinesparkSoundAudit
         foreach (string action in new[] { "warning", "launch", "crash" })
         foreach (bool activeAtRequest in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             var shine = samus.Shinespark;

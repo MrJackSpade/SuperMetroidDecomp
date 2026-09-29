@@ -39,7 +39,7 @@ internal static partial class Program
 
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var explosion = new SamusPowerBombExplosionState();
         explosion.Arm();
         explosion.Spawn(128, 128);

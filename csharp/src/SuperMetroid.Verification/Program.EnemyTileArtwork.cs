@@ -15,7 +15,7 @@ internal static partial class Program
             Console.WriteLine("  Enemy tile artwork: private ROM absent; retail extraction skipped.");
             return;
         }
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyBombTorizoDormantDefinitions(bus);
         VerifyGoldenTorizoInitialDefinitions(bus);
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
@@ -89,7 +89,7 @@ internal static partial class Program
             foreach (string file in files)
             {
                 ushort pointer = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
-                RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
+                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
@@ -110,7 +110,7 @@ internal static partial class Program
 
             string editedFile = files[0];
             ushort editedPointer = Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16);
-            RoomEnemyDefinition editedDefinition = RoomEnemySystem.ReadDefinition(bus, editedPointer);
+            RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
             int editedByteCount = editedDefinition.TileDataSize & 0x7fff;
             int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);

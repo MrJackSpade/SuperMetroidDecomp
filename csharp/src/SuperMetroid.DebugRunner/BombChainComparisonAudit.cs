@@ -13,7 +13,7 @@ internal static class BombChainComparisonAudit
         bool horizontal = scenario == BombChainAuditScenario.Steering;
         bool ladder = scenario == BombChainAuditScenario.Ladder;
         bool ceilingSteering = scenario == BombChainAuditScenario.CeilingSteering;
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != (ceilingSteering ? 138240 : ladder ? 21600 : horizontal ? 112320 : triple ? 73440 : repeated ? 64800 : 12960) || rows.Any(row => row.Length != 49))
             throw new InvalidDataException("Unexpected bomb-chain capture dimensions.");

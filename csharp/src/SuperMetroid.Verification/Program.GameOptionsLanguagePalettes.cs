@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyGameOptionsLanguagePalettes()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] extracted = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(new MemoryStream(extracted));
         ReadOnlySpan<GameOptionsLanguagePaletteRegion> regions = GameOptionsRomData.LanguagePaletteRegions;

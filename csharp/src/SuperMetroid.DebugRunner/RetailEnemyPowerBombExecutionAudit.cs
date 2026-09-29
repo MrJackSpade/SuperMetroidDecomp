@@ -13,7 +13,7 @@ internal static partial class RetailEnemyExecutionAudit
 
     public static int RunPowerBombCombat(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         RetailRoomState[] states = LoadNamedRetailStates();
         var testedVariants = new HashSet<PowerBombVariant>();
         var reachedDefinitions = new HashSet<ushort>();
@@ -25,8 +25,8 @@ internal static partial class RetailEnemyExecutionAudit
         {
             try
             {
-                CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
-                CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+                CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
+                CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
                 CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
                 LoadedRetailState initial = LoadState(bus, room, assets);

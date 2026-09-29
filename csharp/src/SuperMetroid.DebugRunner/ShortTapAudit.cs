@@ -10,7 +10,7 @@ internal static class ShortTapAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int cases = 0;
         foreach (bool water in new[] { false, true })
         foreach (bool left in new[] { false, true })

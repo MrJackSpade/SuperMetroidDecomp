@@ -53,8 +53,8 @@ internal static partial class Program
                 "full installer publishes all retail enemy palettes");
             _ = installed.LoadEnemyTiles();
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
-            SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
-            CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+            CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);
             RoomArtStateEntry landingGuide = artIndex.Rooms.Single(room => room.RoomId == "00/00")
@@ -235,7 +235,7 @@ internal static partial class Program
                 }
             }
             finally { File.WriteAllBytes(backgroundManifestPath, originalBackgroundManifest); }
-            CartridgeRoomHeader ceres = CartridgeRoomHeader.Load(bus, 0xdf8d);
+            CartridgeRoomHeader ceres = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
             int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
                     source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;

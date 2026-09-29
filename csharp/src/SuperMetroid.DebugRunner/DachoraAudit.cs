@@ -38,11 +38,11 @@ internal static class DachoraAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionHeader(bus);
         VerifyRetailPopulation(bus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, DachoraRoomHeader);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DachoraRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.State.Pointer != DachoraRoomState ||
             room.State.EnemyPopulationPointer != DachoraPopulation)
@@ -67,7 +67,7 @@ internal static class DachoraAudit
 
     private static void VerifyDefinitionHeader(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DachoraDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DachoraDefinition);
         if (definition.TileDataSize != 0x0c00 || definition.PalettePointer != 0xf225 ||
             definition.Health != 0x7fff || definition.Damage != 0 ||
             definition.XRadius != 8 || definition.YRadius != 0x18 ||

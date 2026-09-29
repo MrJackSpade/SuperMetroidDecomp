@@ -23,7 +23,7 @@ internal static class EdgeBoostComparisonAudit
             int gap = int.Parse(seed[4]), delay = int.Parse(seed[5]);
             if ((((((left ? 1 : 0) * 2 + family) * 3 + speed) * 2 + ledge) * 9 + gap) * 6 + delay + 1 != cases)
                 throw new InvalidDataException("Reordered edge-boost cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

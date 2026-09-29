@@ -13,7 +13,7 @@ internal static class WallJumpSpinAudit
             (ushort)(SnesButton.A | SnesButton.Right), (ushort)(SnesButton.A | SnesButton.Left), (ushort)0,
             (ushort)(SnesButton.A | SnesButton.X) })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);

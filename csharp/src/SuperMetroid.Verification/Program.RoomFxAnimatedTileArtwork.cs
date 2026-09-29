@@ -16,7 +16,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
         RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(png));
         var guarded = new RoomFxArtworkForbiddenBus(rom);

@@ -10,7 +10,7 @@ internal static partial class YappingMawAudit
         foreach (bool jump in new[] { false, true })
         foreach (bool openCeiling in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

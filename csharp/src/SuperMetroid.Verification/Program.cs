@@ -26,17 +26,18 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
 if (args is ["--hyper-beam-fx-colors"])
 {
     VerifyHyperBeamFxColorArtwork(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--beam-palette-artwork"])
 {
-    var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     VerifyBeamPaletteArtwork(rom, BeamTileCatalog.Load(BeamTileExtractor.Extract(rom)));
     return 0;
 }
@@ -124,7 +125,7 @@ if (args is ["--room-fx-animated-tiles"])
 if (args is ["--tourian-statue-animated-tiles"])
 {
     VerifyTourianStatueUnlockDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--treadmill-animated-tiles"])
@@ -670,31 +671,31 @@ if (args is ["--fune-namihe-instruction-mechanics"])
 if (args is ["--atomic-instruction-mechanics"])
 {
     VerifyAtomicMovementDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--sbug-instruction-mechanics"])
 {
     VerifySbugMovementDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--spark-instruction-mechanics"])
 {
     VerifySparkMovementDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--nuclear-waffle-instruction-mechanics"])
 {
     VerifyNuclearWaffleDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--hibashi-instruction-mechanics"])
 {
     VerifyHibashiDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--blue-brinstar-face-block-instruction-mechanics"])
@@ -765,13 +766,13 @@ if (args is ["--ceres-door-instruction-mechanics"])
 if (args is ["--ceres-door-artwork"])
 {
     VerifyCeresDoorQuakeDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--ceres-escape-transfers"])
 {
     VerifyCeresEscapeVramTransferDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--fake-kraid-instruction-mechanics"])
@@ -987,13 +988,13 @@ if (args is ["--trail-mutable-alias"])
 }
 if (args is ["--projectile-trail-coordinates"])
 {
-    VerifyProjectileTrailCoordinates(SuperMetroidAddressSpace.LoadRetailRom(
+    VerifyProjectileTrailCoordinates(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--kraid-mouth-hitboxes"])
 {
-    VerifyKraidMouthHitboxes(SuperMetroidAddressSpace.LoadRetailRom(
+    VerifyKraidMouthHitboxes(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
@@ -1005,13 +1006,13 @@ if (args is ["--shaktool-instruction-mechanics"])
 if (args is ["--downward-gate-definitions"])
 {
     VerifyDownwardGateShotBlockDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--speed-booster-escape-definitions"])
 {
     VerifySpeedBoosterEscapeStageDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--speed-booster-block-plms"])
@@ -1102,37 +1103,37 @@ if (args is ["--kraid-room-visuals"])
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--blue-door-plm-draws"])
 {
     VerifyBlueDoorPlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--colored-door-plm-draws"])
 {
     VerifyColoredDoorPlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grey-door-plm-draws"])
 {
     VerifyGreyDoorPlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--eye-door-plm-draws"])
 {
     VerifyEyeDoorPlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--mother-brain-glass-plm-draws"])
 {
     VerifyMotherBrainGlassPlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--draygon-cannon-plm-program"])
@@ -1148,7 +1149,7 @@ if (args is ["--bomb-torizo-hand-plm-program"])
 if (args is ["--noob-tube-plm-draws"])
 {
     VerifyNoobTubePlmDrawDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--noob-tube-plm-program"])
@@ -1184,62 +1185,62 @@ if (args is ["--station-animation-programs"])
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--tourian-access-definitions"])
 {
     VerifyTourianAccessPlmDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--chozo-plm-definitions"])
 {
     VerifyChozoStatuePlmDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--samus-eater-plm-definitions"])
 {
     VerifySamusEaterPlmDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--station-access-plm-definitions"])
 {
     VerifyStationAccessPlmDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--quicksand-definitions"])
 {
     VerifyQuicksandDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     VerifyQuicksand();
     return 0;
 }
 if (args is ["--save-station-animation-definitions"])
 {
     VerifySaveStationAnimationDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--enemy-drop-chance-definitions"])
 {
     VerifyEnemyDropChanceDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--enemy-vulnerability-definitions"])
 {
     VerifyEnemyVulnerabilityDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--escape-etecoon-definitions"])
 {
     VerifyEscapeEtecoonDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--escape-etecoon-instruction-mechanics"])
@@ -1260,19 +1261,19 @@ if (args is ["--crocomire-instruction-mechanics"])
 if (args is ["--yard-turn-definitions"])
 {
     VerifyYardTurnDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--ridley-explosion-definitions"])
 {
     VerifyRidleyExplosionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--choot-pattern-definitions"])
 {
     VerifyChootPatternDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--enemy-instruction-selectors"])
@@ -1283,7 +1284,7 @@ if (args is ["--enemy-instruction-selectors"])
 if (args is ["--kraid-head-instruction-definitions"])
 {
     VerifyKraidHeadInstructionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--magic-number-audit"])
@@ -1293,7 +1294,7 @@ if (args is ["--magic-number-audit"])
 }
 if (args is ["--room-plm-populations"])
 {
-    SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+    SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     VerifyCompiledRoomPlmPopulationDefinitions(rom);
     VerifyElevatorPlatformPlmDefinitions(rom);
@@ -1312,7 +1313,7 @@ if (args is ["--explored-map-packing-definitions"])
 if (args is ["--mutable-animation-aliases"])
 {
     string sourceRom = Path.GetFullPath("Super Metroid.smc");
-    SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+    SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
     VerifySamusAnimationDelayDefinitions(bus, sourceRom);
     VerifyRunningCadence(bus);
     return 0;
@@ -1320,75 +1321,75 @@ if (args is ["--mutable-animation-aliases"])
 if (args is ["--enemy-death-explosion-definitions"])
 {
     VerifyEnemyDeathExplosionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--ceres-door-initialization-definitions"])
 {
     VerifyCeresDoorInitializationDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--botwoon-instruction-definitions"])
 {
     VerifyBotwoonInstructionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--botwoon-navigation-definitions"])
 {
     VerifyBotwoonNavigationDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--enemy-projectile-definitions"])
 {
     VerifyEnemyProjectileDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--room-palette-fx-definitions"])
 {
     VerifyRoomPaletteFxDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--ceres-ridley-eye-fade-definitions"])
 {
     VerifyCeresRidleyEyeFadeDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--crystal-flash-palette-timing-definitions"])
 {
     VerifyCrystalFlashPaletteTimingDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--work-robot-palette-timing-definitions"])
 {
     VerifyWorkRobotPaletteTimingDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--samus-death-explosion-timing-definitions"])
 {
     VerifySamusDeathExplosionTimingDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     VerifySamusDeathSequence();
     return 0;
 }
 if (args is ["--hyper-beam-palette-fx-program-definitions"])
 {
     VerifyHyperBeamPaletteFxProgramDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     VerifySamusDrainedController();
     return 0;
 }
 if (args is ["--suit-pickup-beam-curve-definitions"])
 {
     VerifySuitPickupBeamCurveDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     VerifyPermanentCollectibles();
     return 0;
 }
@@ -1405,38 +1406,38 @@ if (args is ["--enemy-drops"])
 if (args is ["--room-sprite-object-definitions"])
 {
     VerifyRoomSpriteObjectDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--dead-sidehopper-corpse-definitions"])
 {
     VerifyDeadSidehopperCorpseDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--dead-tourian-corpse-definitions"])
 {
     VerifyDeadTourianCorpseDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--dead-torizo-corpse-definitions"])
 {
     VerifyDeadTorizoCorpseDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--gunship-motion-definitions"])
 {
     VerifyGunshipMotionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     VerifyPostCeresGunshipLanding();
     return 0;
 }
 if (args is ["--remaining-signed-sine-consumers"])
 {
     SuperMetroidAddressSpace rom =
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     VerifyBombTorizoDroolSine(rom);
     VerifyMotherBrainNeckSine(rom);
     return 0;
@@ -1444,25 +1445,25 @@ if (args is ["--remaining-signed-sine-consumers"])
 if (args is ["--crocomire-bridge-fragment-definitions"])
 {
     VerifyCrocomireBridgeFragmentDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--crocomire-melting-definitions"])
 {
     VerifyCrocomireMeltingDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--draygon-intro-dance-definitions"])
 {
     VerifyDraygonIntroDanceDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--phantoon-sound-definitions"])
 {
     VerifyPhantoonSoundDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--baby-metroid-route-definitions"])
@@ -1478,13 +1479,13 @@ if (args is ["--mother-brain-contact-hitboxes"])
 if (args is ["--mother-brain-turret-definitions"])
 {
     VerifyMotherBrainTurretDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--mother-brain-glass-shard-definitions"])
 {
     VerifyMotherBrainGlassShardDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--mama-turtle-shell-contour"])
@@ -1495,7 +1496,7 @@ if (args is ["--mama-turtle-shell-contour"])
 if (args is ["--maridia-large-snail-instruction-definitions"])
 {
     VerifyMaridiaLargeSnailInstructionDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--etecoon-instruction-program-definitions"])
@@ -1521,7 +1522,7 @@ if (args is ["--platform-instruction-program-definitions"])
 if (args is ["--hopper-instruction-program-definitions"])
 {
     VerifyHopperAnimationDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--hzoomer-instruction-program-definitions"])
@@ -1641,7 +1642,7 @@ if (args is ["--mama-turtle-enemy-definitions"])
 }
 if (args is ["--pose-dispatch-definitions"])
 {
-    var poseRom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var poseRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     VerifyPoseDispatchDefinitions(poseRom);
     VerifyPoseCollisionDefinitions(poseRom);
     VerifyPoseProjectileOrigin(poseRom);
@@ -1650,32 +1651,32 @@ if (args is ["--pose-dispatch-definitions"])
 }
 if (args is ["--pose-input-definitions"])
 {
-    VerifyPoseInputDefinitions(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyPoseInputDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grapple-rope-geometry"])
 {
-    VerifyGrappleRopeGeometry(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyGrappleRopeGeometry(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grapple-sprite-artwork"])
 {
-    VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyGrappleSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grapple-tile-artwork"])
 {
-    VerifyGrappleTileArtwork(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyGrappleTileArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grapple-flare-placement"])
 {
-    VerifyGrappleFlarePlacement(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyGrappleFlarePlacement(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--grapple-swing-frames"])
 {
-    VerifyGrappleBodyPlacement(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyGrappleBodyPlacement(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--stock-attract-scenes"])
@@ -1806,7 +1807,7 @@ if (args is ["--map-presentation"])
 if (args is ["--escape-timer-pointer-definitions", var timerRom])
 {
     VerifyEscapeTimerPointerDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath(timerRom)));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(timerRom)));
     return 0;
 }
 if (args is ["--load-station-definitions"])
@@ -1919,7 +1920,7 @@ if (args is ["--kraid-foot-collision"])
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
@@ -2679,7 +2680,7 @@ if (args is ["--phantoon-position"])
 }
 if (args is ["--title-instruction-definitions"])
 {
-    VerifyTitleGradientTables(SuperMetroidAddressSpace.LoadRetailRom(
+    VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc")));
     VerifyTitleSequenceRomData();
     return 0;
@@ -2923,11 +2924,11 @@ VerifyRoomPlmHeaderCatalog();
 VerifyRoomPlmInstructionListCatalog();
 VerifySequentialRoomPlmPopulationLoader();
 VerifyMotherBrainEscapeGateCompiledDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyEscapeGateVisuals(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyCompiledRoomPlmPopulationDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyNoobTubePlm();
 VerifyDownwardGatePlms();
 VerifyEyeDoorPlms();
@@ -3021,11 +3022,11 @@ VerifyCrocomireBodyCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyCrocomireMeltingDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyDraygonIntroDanceDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();
 VerifyRipperEnemy(verifyXrayTimers: true);
@@ -3034,7 +3035,7 @@ VerifyCeresElevatorPlatformAnimation();
 VerifyCeresDoorBossBranch();
 VerifyCeresRidleyRoomEntry();
 VerifyCeresEscapeVramTransferDefinitions(
-    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyCeresEscapeHandoff();
 VerifyCeresDestructionCinematic();
 

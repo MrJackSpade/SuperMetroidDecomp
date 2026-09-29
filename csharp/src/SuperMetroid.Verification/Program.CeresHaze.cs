@@ -39,7 +39,7 @@ internal static partial class Program
             AssertEqual(frame, haze.Intensity, "native fade-out table before decrement");
         }
 
-        var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

@@ -11,7 +11,7 @@ internal static class ElevatorGrabComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "34AD146CA59AD8C1E9A0FD4B37EE96A5CF92F151A1EE83020E3A2D018F4AA3DC")
             throw new InvalidDataException("Use the accepted native elevator-grab contact v2 capture.");
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(capture).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 3072 || rows.Any(row => row.Length != 13))
             throw new InvalidDataException("Incomplete elevator grab contact matrix.");

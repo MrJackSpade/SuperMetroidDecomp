@@ -15,7 +15,7 @@ internal static class MissileCrawlerDetachmentAudit
             // The frozen Zoomer is a state-dispatch control, not a claim that
             // Ice can freeze every member of the shared crawler family.
             if (frozen && definition != DownbackFixtureData.ZoomerDefinition) continue;
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var level = runtime.LevelData!;
             // The ceiling crawler is behind and well above the projectile's path.

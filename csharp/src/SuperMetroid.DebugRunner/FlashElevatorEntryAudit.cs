@@ -9,7 +9,7 @@ internal static class FlashElevatorEntryAudit
 {
     public static int Run(string rom, string trace)
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(retail.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != "67113DB05F6FB27EC0107C15773E685BABCA645AABFB3DFDB240E7FF13B9F794")

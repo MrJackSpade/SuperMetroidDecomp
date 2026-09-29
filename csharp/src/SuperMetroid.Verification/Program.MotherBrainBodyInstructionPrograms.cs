@@ -10,7 +10,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMotherBrainBodyInstructionPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
 
         foreach (MotherBrainBodyInstructionMechanicsWord definition in
@@ -23,9 +23,13 @@ internal static partial class Program
 
             if ((definition.Word & 0x8000) == 0)
             {
+                ushort visualOperand = unchecked((ushort)(definition.Address + 2));
+                AssertEqual(ReadRetailWord(rom, 0xa90000 | visualOperand),
+                    MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(visualOperand),
+                    $"Mother Brain body visual selector $A9:{visualOperand:X4}");
                 AssertTrue(
                     !MotherBrainBodyInstructionProgramDefinitions.TryGetWord(
-                        unchecked((ushort)(definition.Address + 2)),
+                        visualOperand,
                         out _),
                     $"Mother Brain body spritemap $A9:{definition.Address + 2:X4} remains presentation-owned");
             }
@@ -87,12 +91,12 @@ internal static partial class Program
 
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Mother Brain body programs do not reread compiled mechanics words");
-        AssertTrue(guarded.AllowedReadAttempts > 0,
-            "Mother Brain body programs retain live presentation spritemap reads");
+        AssertEqual(0, guarded.AllowedReadAttempts,
+            "Mother Brain body programs use compiled visual selectors without cartridge reads");
         Console.WriteLine(
             $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitions.AllWords.Count} " +
-            "body command/duration words are compiled; 18 active programs and the " +
-            "initial dummy run with mechanics ROM reads forbidden.");
+            "body command/duration words and visual selectors are compiled; 18 active " +
+            "programs and the initial dummy run without cartridge reads.");
 
         static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));

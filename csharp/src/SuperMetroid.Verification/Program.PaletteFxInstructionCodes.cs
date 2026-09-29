@@ -29,7 +29,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         Type[] catalogs =
         [
             PaletteFxInstructionCodesType(),
@@ -97,7 +97,7 @@ internal static partial class Program
     }
 
     private static void VerifyPaletteFxDeleteProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         ushort[] pointers =
         [
@@ -154,7 +154,7 @@ internal static partial class Program
     }
 
     private static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
@@ -214,7 +214,7 @@ internal static partial class Program
     }
 
     private static void VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoEntry;
@@ -287,7 +287,7 @@ internal static partial class Program
     }
 
     private static void VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = TitleLogoFadePaletteFxProgramMechanicsDefinitions.ProgramStart;
@@ -360,7 +360,7 @@ internal static partial class Program
     }
 
     private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
@@ -437,7 +437,7 @@ internal static partial class Program
     }
 
     private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         int mechanicsBytes = 0;
@@ -539,7 +539,7 @@ internal static partial class Program
     }
 
     private static void VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
@@ -610,7 +610,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
@@ -683,7 +683,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
@@ -750,7 +750,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
@@ -809,7 +809,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
@@ -875,7 +875,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer =
@@ -947,7 +947,7 @@ internal static partial class Program
     }
 
     private static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer =
@@ -1020,7 +1020,7 @@ internal static partial class Program
     }
 
     private static void VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ProgramStart;
@@ -1089,7 +1089,7 @@ internal static partial class Program
     }
 
     private static void VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (CinematicGlowPaletteFxProgramDefinition definition in
@@ -1148,7 +1148,7 @@ internal static partial class Program
     }
 
     private static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
@@ -1216,7 +1216,7 @@ internal static partial class Program
     }
 
     private static void VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer =
@@ -1313,7 +1313,7 @@ internal static partial class Program
     }
 
     private static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
@@ -1362,7 +1362,7 @@ internal static partial class Program
     }
 
     private static void VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ProgramStart;
@@ -1402,7 +1402,7 @@ internal static partial class Program
     }
 
     private static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
@@ -1475,7 +1475,7 @@ internal static partial class Program
     }
 
     private static void VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer =
@@ -1556,7 +1556,7 @@ internal static partial class Program
     }
 
     private static void VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer =
@@ -1632,7 +1632,7 @@ internal static partial class Program
     }
 
     private static void VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
@@ -1698,7 +1698,7 @@ internal static partial class Program
     }
 
     private static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         int mechanicsBytes = 0;
@@ -1790,7 +1790,7 @@ internal static partial class Program
     }
 
     private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = BeaconPaletteFxProgramMechanicsDefinitions.ProgramStart;
@@ -1892,7 +1892,7 @@ internal static partial class Program
     }
 
     private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         for (ushort pointer = TourianGlowPaletteFxProgramMechanicsDefinitions.CloneProgramStart;
@@ -1993,7 +1993,7 @@ internal static partial class Program
     }
 
     private static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
@@ -2076,7 +2076,7 @@ internal static partial class Program
     }
 
     private static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
-        SuperMetroidAddressSpace bus)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
         int mechanicsBytes = 0;
@@ -3649,7 +3649,7 @@ internal static partial class Program
     /// covers the exact native side effect and the odd one-byte operand/cursor advancement:
     /// if the interpreter accidentally advances a word, the following timed record fails.
     /// </summary>
-    private static void VerifyBeaconSoundInstruction(SuperMetroidAddressSpace bus)
+    private static void VerifyBeaconSoundInstruction(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();

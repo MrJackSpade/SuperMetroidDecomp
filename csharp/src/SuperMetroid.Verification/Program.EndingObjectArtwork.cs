@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
         AssertSheet(stock.Explosion, EndingCreditsRomData.Assets.EndingObjectCharacters,
@@ -121,7 +121,7 @@ internal static partial class Program
         VerifyEndingLogoSpriteArtwork(bus, stock);
 
         var guard = new EndingObjectSourceReadGuard(
-            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = new EndingCreditsState(bus, nativeAudio, 0, 0);
@@ -240,7 +240,7 @@ internal static partial class Program
                 _ => EndingObjectArtworkFormat.FragmentByteCount,
             };
             var sceneBus = new EndingObjectSourceReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var scene = new EndingCreditsState(sceneBus, audio, 0, 0);
             scene.BindObjectArtwork(stock);

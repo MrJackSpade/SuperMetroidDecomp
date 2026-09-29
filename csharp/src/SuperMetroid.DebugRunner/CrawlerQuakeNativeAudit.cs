@@ -17,7 +17,7 @@ internal static class CrawlerQuakeNativeAudit
         for (int ceiling = 0; ceiling < 2; ceiling++)
         for (int control = 0; control < 3; control++)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var blocks = new ushort[256];
             for (int y = 0; y < 16; y++)
             for (int x = 0; x < 16; x++)

@@ -27,7 +27,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
             throw new InvalidDataException("Temporary Blue Suit audit requires the pinned Japan/USA ROM.");
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);

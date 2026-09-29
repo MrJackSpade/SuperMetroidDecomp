@@ -10,7 +10,7 @@ internal static partial class CrocomireAudit
     public static int RunNaturalAttackEntry(string rom, string directory)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

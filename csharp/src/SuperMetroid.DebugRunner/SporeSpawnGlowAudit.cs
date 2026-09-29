@@ -12,14 +12,14 @@ internal static class SporeSpawnGlowAudit
     public static int Run(string rom, string output)
     {
         Directory.CreateDirectory(output);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(
-            CartridgeDoorHeader.Load(bus, SporeSpawnAuditDefinitions.IncomingDoorPointer),
+            SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, SporeSpawnAuditDefinitions.IncomingDoorPointer),
             SporeSpawnAuditDefinitions.CameraX, SporeSpawnAuditDefinitions.IncomingDoorFinalCameraY);
         runtime.Samus!.XPosition = SporeSpawnAuditDefinitions.BodyCenterX;
         runtime.Samus.YPosition = SporeSpawnAuditDefinitions.EntryAuditSamusY;

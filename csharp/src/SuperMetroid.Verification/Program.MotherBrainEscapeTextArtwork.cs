@@ -12,7 +12,7 @@ internal static partial class Program
     {
         RoomCharacterAtlas artwork = stock.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
             MotherBrainEscapeTextArtworkDefinitions.ByteCount);
@@ -21,9 +21,9 @@ internal static partial class Program
 
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
             new MotherBrainEscapeTextReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
         SnesVram cartridgeVram = TransferMotherBrainEscapeTextPages(null,
-            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageSources.Length; page++)
         {
             int sourceOffset = checked((int)MotherBrainEscapeTextArtworkDefinitions.PageSources[page] -
@@ -55,7 +55,7 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
             new MotherBrainEscapeTextReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
         int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestinations[0] * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),

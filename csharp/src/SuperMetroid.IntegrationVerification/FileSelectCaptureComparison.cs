@@ -17,7 +17,7 @@ internal static class FileSelectCaptureComparison
         VerifyMatcher();
         using var input = File.OpenRead(journalPath);
         var recording = ControllerInputRecording.Read(input);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (!SHA256.HashData(bus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.

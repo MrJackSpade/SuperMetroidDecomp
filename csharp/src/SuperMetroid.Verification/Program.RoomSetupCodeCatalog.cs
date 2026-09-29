@@ -28,7 +28,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
@@ -41,7 +41,7 @@ internal static partial class Program
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                CartridgeRoomState state = CartridgeRoomHeader.Load(bus, roomPointer, context).State;
+                CartridgeRoomState state = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
                 if (state.SetupCodePointer != 0)

@@ -16,7 +16,7 @@ internal static class ChargeEquipmentComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "46037C3DB10645434246D811454A3C0C88EE01D3A838A0F9C2AE43CD5174F01F")
             throw new InvalidDataException("Use the accepted charge-equipment native v3 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 8000 || rows.Any(row => row.Length != 61))
             throw new InvalidDataException("Unexpected charge-equipment trace dimensions.");

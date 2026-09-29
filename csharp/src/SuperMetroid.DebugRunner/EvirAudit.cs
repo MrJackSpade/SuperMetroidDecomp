@@ -60,12 +60,12 @@ internal static class EvirAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionHeaders(bus);
         VerifyRoomAndPopulation(bus, WestRoomHeader, WestRoomState, WestPopulation, WestRecords);
         VerifyRoomAndPopulation(bus, EastRoomHeader, EastRoomState, EastPopulation, EastRecords);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, WestRoomHeader);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, WestRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyLifecycleAndDrawing(bus, room, assets);
         VerifyCombatPropagation(bus, room, assets);
@@ -81,8 +81,8 @@ internal static class EvirAudit
 
     private static void VerifyDefinitionHeaders(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition body = RoomEnemySystem.ReadDefinition(bus, BodyDefinition);
-        RoomEnemyDefinition projectile = RoomEnemySystem.ReadDefinition(bus, ProjectileDefinition);
+        RoomEnemyDefinition body = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, BodyDefinition);
+        RoomEnemyDefinition projectile = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, ProjectileDefinition);
         if (body.TileDataSize != 0x0600 || body.PalettePointer != 0x8687 ||
             body.Health != 300 || body.Damage != 100 || body.XRadius != 0x10 ||
             body.YRadius != 0x14 || body.Bank != 0xa8 ||
@@ -126,7 +126,7 @@ internal static class EvirAudit
         ushort populationPointer,
         IReadOnlyList<EvirRecord> expected)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         if (room.State.Pointer != statePointer ||
             room.State.EnemyPopulationPointer != populationPointer)
         {

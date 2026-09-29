@@ -23,7 +23,7 @@ internal static class DownbackComparisonAudit
             int pattern = int.Parse(seed[3]), delay = int.Parse(seed[4]);
             if (((((left ? 1 : 0) * 5 + entry) * 2 + geometry) * 4 + pattern) * 17 + delay != cases)
                 throw new InvalidDataException("Reordered downback cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

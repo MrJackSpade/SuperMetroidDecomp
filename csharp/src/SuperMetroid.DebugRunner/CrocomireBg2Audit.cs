@@ -11,7 +11,7 @@ internal static class CrocomireBg2Audit
     private const ushort CrocomireRoom = 0xa98d;
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();

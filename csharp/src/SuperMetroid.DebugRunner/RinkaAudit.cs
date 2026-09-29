@@ -18,14 +18,14 @@ internal static class RinkaAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeader(bus);
 
         // Selector $8F:E612 tests event index $10. Byte index two, bit zero is therefore
         // the smallest literal context that chooses state $DB0D over default state $DAF3.
         byte[] events = new byte[3];
         events[2] = 1;
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             RoomPointer,
             new RoomStateSelectionContext(
@@ -324,7 +324,7 @@ internal static class RinkaAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0600 || definition.PalettePointer != 0xba5b ||
             definition.Health != 10 || definition.Damage != 40 ||
             definition.XRadius != 8 || definition.YRadius != 8 || definition.Bank != 0xa2 ||

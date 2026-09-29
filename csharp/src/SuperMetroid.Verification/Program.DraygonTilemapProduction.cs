@@ -8,8 +8,8 @@ internal static partial class Program
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
     private static void VerifyDraygonTilemapProduction()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CartridgeRoomHeader.Load(bus, DraygonProductionAuditDefinitions.Room);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x1234);

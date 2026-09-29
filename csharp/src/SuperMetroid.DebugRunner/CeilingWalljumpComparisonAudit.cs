@@ -15,7 +15,7 @@ internal static class CeilingWalljumpComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "967C0F7E6B0BCEE3E48577E3BCC981701EDECB99F1BFA204B0F3EBF496067262")
             throw new InvalidDataException("Use the accepted ceiling-walljump native capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 46800 || rows.Any(row => row.Length != 27))
             throw new InvalidDataException("Unexpected ceiling-walljump trace dimensions.");

@@ -184,7 +184,7 @@ internal static partial class Program
 
     private static void VerifyBombTorizoHandProgramDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int address = BombTorizoHandPlmProgramDefinitions.FirstAddress;
              address <= BombTorizoHandPlmProgramDefinitions.LastAddress; address++)

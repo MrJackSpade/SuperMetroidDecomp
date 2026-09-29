@@ -13,7 +13,7 @@ internal static class GrappleJumpAimAudit
         foreach (bool aimUp in new[] { false, true })
         foreach (int fireDelay in new[] { 0, 1, 2, 4, 8 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyRoomSkyTilemaps()
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort NativeSkyPointer(int table, int index)
         {

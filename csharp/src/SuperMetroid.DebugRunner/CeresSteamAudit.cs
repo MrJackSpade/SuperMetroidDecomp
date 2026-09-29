@@ -22,7 +22,7 @@ internal static class CeresSteamAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionAndRetailPopulations(bus);
         VerifyEscapeElevatorAnimationMode7AndCollision(bus);
 
@@ -37,7 +37,7 @@ internal static class CeresSteamAudit
 
     private static void VerifyDefinitionAndRetailPopulations(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             CeresSteamDefinitions.EnemyDefinition);
         if (definition.Bank != 0xa6 || definition.Health != 0x7fff ||
@@ -89,7 +89,7 @@ internal static class CeresSteamAudit
             BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             ElevatorRoomPointer,
             selection);

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCrystalWindowNative(string rom, string path)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         AssertEqual("282BFF5EBE3C4EB99ECC2CCD0214A9FB544FB0E18A437FD01065909BED57A9C4",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))),
             "accepted native window and ordinary afterglow trace");

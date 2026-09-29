@@ -7,7 +7,7 @@ internal static class BombTraversalFixture
 {
     public static SuperMetroidRuntime Create(string rom, bool ceiling, bool left = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
         foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
         foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();

@@ -23,7 +23,7 @@ internal static class WaterballComparisonAudit
             int medium = int.Parse(group.First()[1]), run = int.Parse(group.First()[2]), timing = int.Parse(group.First()[3]);
             if ((((left ? 1 : 0) * 3 + medium) * 2 + run) * 9 + timing != cases++)
                 throw new InvalidDataException("Reordered waterball cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

@@ -24,8 +24,8 @@ internal static partial class Program
             bossBytes[(int)area] = (byte)bits;
             system.LoadBossBytes(bossBytes);
             if (downloaded) system.SetAreaMapAcquired(area);
-            var native = new FileSelectMapIcons(bus, system, area);
-            var installed = new FileSelectMapIcons(iconGuard, system, area);
+            var native = new FileSelectMapIcons(system, area);
+            var installed = new FileSelectMapIcons(system, area);
             installed.BindLandmarks(original.Landmarks);
             AssertTrue(Draw(native, area).AsSpan().SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
             AssertEqual((byte)bits, system.GetBossBitsRaw(area), "landmark drawing preserves boss state");
@@ -43,7 +43,7 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
         // An undiscovered living boss remains invisible even after its visual is moved.
         var unknown = new Bank80SystemState();
-        var hidden = new FileSelectMapIcons(guard, unknown, AreaId.WreckedShip);
+        var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
         hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
         hidden.BindLandmarks(edited.Landmarks);
         AssertTrue(hiddenBefore.AsSpan().SequenceEqual(Draw(hidden, AreaId.WreckedShip)), "landmark edit cannot reveal living boss/elevators without map download");

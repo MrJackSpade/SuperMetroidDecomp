@@ -25,7 +25,7 @@ internal static class MaridiaPipeEntryAudit
             }
             // Stage the preceding tube through its real incoming setup callback,
             // then let the frontend own the single tube -> Oasis room boundary.
-            var door = SuperMetroid.Core.Rooms.CartridgeDoorHeader.Load(loaded.AddressSpace,
+            var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(loaded.AddressSpace,
                 SuperMetroid.Core.Rooms.DoorPointers.MaridiaElevatubeFromNorth);
             if (incomingDoor)
                 MaridiaPipeIncomingDoorSeed.Apply(runtime, loaded.AddressSpace, door);

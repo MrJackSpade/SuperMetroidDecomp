@@ -12,7 +12,7 @@ internal static partial class Program
     {
         RoomCharacterAtlas artwork = stock.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
@@ -21,9 +21,9 @@ internal static partial class Program
 
         SnesVram stockVram = TransferMotherBrainCorpsePages(
             stock, new MotherBrainCorpseArtworkReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
         SnesVram cartridgeVram = TransferMotherBrainCorpsePages(null,
-            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
         {
             int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSources[page] -
@@ -42,8 +42,8 @@ internal static partial class Program
                 $"installed and cartridge Mother Brain corpse VRAM page {page} agree");
         }
 
-        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var installedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         new MotherBrainCorpseRottingState().Initialize(nativeBus);
         new MotherBrainCorpseRottingState().Initialize(
             new MotherBrainCorpseArtworkReadGuard(installedBus), artwork);
@@ -51,7 +51,7 @@ internal static partial class Program
 
         // The phase-three state machine owns a separate corpse processor. Verify
         // its explicit setup route as well as the room-entry processor above.
-        var sequenceBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var sequenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         new MotherBrainRainbowBeamAttackSequence(artwork).InitializeCorpseRotting(
             new MotherBrainCorpseArtworkReadGuard(sequenceBus));
         AssertMotherBrainCorpseBufferParity(nativeBus, sequenceBus);
@@ -74,13 +74,13 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainCorpsePages(
             edited, new MotherBrainCorpseArtworkReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
         int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestinations[0] * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
             editedVram.ReadByte(editedVramOffset),
             "Mother Brain corpse PNG edit changes live sprite VRAM");
-        var editedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         new MotherBrainCorpseRottingState().Initialize(
             new MotherBrainCorpseArtworkReadGuard(editedBus), edited.MotherBrainCorpse);
         AssertEqual((byte)(installedBus.ReadByte(0x7e9000) ^ 0x80),
@@ -90,7 +90,7 @@ internal static partial class Program
             AssertEqual(installedBus.ReadByte(0x7e9000 + offset),
                 editedBus.ReadByte(0x7e9000 + offset),
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
-        var reloadedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainCorpse!;
         new MotherBrainCorpseRottingState().Initialize(

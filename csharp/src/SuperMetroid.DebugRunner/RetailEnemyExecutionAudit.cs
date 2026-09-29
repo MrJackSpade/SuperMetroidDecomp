@@ -92,7 +92,7 @@ internal static partial class RetailEnemyExecutionAudit
         bool freshLoadPerView,
         IReadOnlyList<SamusPlacement> samusPlacements)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         RetailRoomState[] states = LoadNamedRetailStates();
 
         var failures = new List<RetailExecutionFailure>();
@@ -113,10 +113,10 @@ internal static partial class RetailEnemyExecutionAudit
             int activeFrame = -1;
             try
             {
-                CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
-                CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+                CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
+                CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
 
-                // CartridgeRoomHeader.Load selects a state from game flags. The symbol map names
+                // SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load selects a state from game flags. The symbol map names
                 // every alternative state independently, so replace only that selected record.
                 // Fixed room facts (area, dimensions, door list) still come from the real header.
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
@@ -335,7 +335,7 @@ internal static partial class RetailEnemyExecutionAudit
         ushort roomPointer,
         ushort statePointer)
     {
-        ushort defaultState = CartridgeRoomHeader.Load(bus, roomPointer).State.Pointer;
+        ushort defaultState = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer;
         if (defaultState == statePointer)
             return false;
 
@@ -346,7 +346,7 @@ internal static partial class RetailEnemyExecutionAudit
                 BossBits: unchecked((BossBits)bit),
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false);
-            if (CartridgeRoomHeader.Load(bus, roomPointer, selection).State.Pointer ==
+            if (SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, selection).State.Pointer ==
                 statePointer)
             {
                 return true;

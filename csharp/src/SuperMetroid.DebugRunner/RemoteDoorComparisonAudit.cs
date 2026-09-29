@@ -11,7 +11,7 @@ internal static class RemoteDoorComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "A2FF87BAC384E65CEFC7323F6C3F66E3ED07739E067CD01A176E00A415F20D58")
             throw new InvalidDataException("Use the accepted remote-door v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

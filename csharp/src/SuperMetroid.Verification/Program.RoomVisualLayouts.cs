@@ -14,7 +14,7 @@ internal static partial class Program
     /// installed override changes both rendered planes without changing collision/BTS.
     /// </summary>
     private static void VerifyRoomVisualLayouts(GameInstallation installed,
-        SuperMetroidAddressSpace bus, CartridgeRoomHeader landing)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,
@@ -178,7 +178,7 @@ internal static partial class Program
         // an extra physical row beyond its camera. Both must survive the corpus path.
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, pointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             CartridgeRoomAssets nativeOther = CartridgeRoomAssets.Load(bus, room);
             CartridgeRoomAssets compiledOther = CartridgeRoomAssets.Load(
                 new RoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,

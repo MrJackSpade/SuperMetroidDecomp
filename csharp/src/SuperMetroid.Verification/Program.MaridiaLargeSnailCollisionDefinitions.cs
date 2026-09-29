@@ -45,7 +45,7 @@ internal static partial class Program
 
     private static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new OumNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

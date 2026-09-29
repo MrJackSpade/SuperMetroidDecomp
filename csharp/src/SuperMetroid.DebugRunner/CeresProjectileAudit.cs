@@ -37,7 +37,7 @@ internal static class CeresProjectileAudit
         // after 132 Samus animation/NMI passes, also catches any later body DMA that grows
         // past its intended range and turns legal tile-$30 art into Samus fragments.
         ushort tilePointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             PowerBeamTilePointerAddress);
         for (int beamByte = 0; beamByte < PowerBeamTileByteCount; beamByte++)
         {

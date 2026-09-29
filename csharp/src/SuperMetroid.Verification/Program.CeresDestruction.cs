@@ -7,7 +7,7 @@ internal static partial class Program
 {
 static void VerifyCeresDestructionCinematic()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // The timeline fixture has no visible engine art. Supply a valid terminating program
     // at the compiled retail list identity; the retail pixel audit covers the alternating
@@ -76,13 +76,13 @@ static void VerifyCeresDestructionCinematic()
     // to the list's decrement-and-goto opcode and must remain untouched.
     var delayedExplosion = new IntroDiscoverySprite(0, 0, 0, 0xccdb);
     delayedExplosion.DelayFirstInstruction(3);
-    delayedExplosion.Step(new SuperMetroidAddressSpace(rom));
-    delayedExplosion.Step(new SuperMetroidAddressSpace(rom));
+    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "Ceres staggered explosion remains invisible before instruction delay");
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
-    delayedExplosion.Step(new SuperMetroidAddressSpace(rom));
+    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "fixture's first delayed explosion frame uses invisible map zero");
     AssertEqual(0xccdf, delayedExplosion.InstructionPointer,
@@ -105,7 +105,7 @@ static void VerifyCeresDestructionCinematic()
     for (int index = 0; index < titleList.Length; index++)
         WriteRomWord(rom, 0x8bccbb + index * 2, titleList[index]);
 
-    var state = new CeresDestructionCinematicState(new SuperMetroidAddressSpace(rom));
+    var state = new CeresDestructionCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
     AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),
@@ -202,7 +202,7 @@ static void WriteRepeatedCompressedStream(
 
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
-    rom[SuperMetroidAddressSpace.ToRomOffset(snesAddress)] = value;
+    rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
     int offset = snesAddress & 0xffff;
     snesAddress = offset == 0xffff
         ? ((((snesAddress >> 16) + 1) & 0xff) << 16) | 0x8000

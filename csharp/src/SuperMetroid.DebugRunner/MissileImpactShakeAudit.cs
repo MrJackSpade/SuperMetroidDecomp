@@ -11,7 +11,7 @@ internal static class MissileImpactShakeAudit
     {
         foreach (var (selection, shouldShake) in new[] { ((ushort)1, false), ((ushort)2, true) })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var samus = runtime.Samus!;
             samus.SelectedHudItem = selection;
@@ -79,7 +79,7 @@ internal static class MissileImpactShakeAudit
 
     private static void VerifyRequestOrdering(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
         runtime.Samus!.SelectedHudItem = 2;
         runtime.Samus.SuperMissiles = runtime.Samus.MaxSuperMissiles = 10;

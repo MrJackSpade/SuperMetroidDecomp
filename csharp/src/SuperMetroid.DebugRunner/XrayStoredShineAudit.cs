@@ -7,7 +7,7 @@ internal static class XrayStoredShineAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int failures = 0;
         foreach (bool left in new[] { false, true })
         foreach (bool equipped in new[] { false, true })

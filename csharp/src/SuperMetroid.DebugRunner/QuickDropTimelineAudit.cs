@@ -22,7 +22,7 @@ internal static class QuickDropTimelineAudit
             int delay = int.Parse(seed[1]), remove = int.Parse(seed[2]);
             if (int.Parse(seed[0]) * 154 + delay * 14 + remove != cases)
                 throw new InvalidDataException("Reordered quick-drop cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

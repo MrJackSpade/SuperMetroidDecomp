@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCeresExplosionDefinitions()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         VerifyActor(retail, CeresExplosionDefinitions.InitialActor, "initial explosion");
         VerifyActor(retail, CeresExplosionDefinitions.RepeatingActor, "repeating explosion");

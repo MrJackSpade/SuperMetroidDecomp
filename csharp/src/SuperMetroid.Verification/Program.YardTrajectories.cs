@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyYardTrajectories()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CartridgeRoomHeader.Load(bus, 0xd5a7);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
         var assets = CartridgeRoomAssets.Load(bus, room);
         VerifyYardLanding(bus, room);
         VerifyYardRuntimeDistancePublication();

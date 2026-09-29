@@ -24,7 +24,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         Dictionary<ushort, List<RoomEnemyPopulationRecord>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         ushort[] definitions = ReadNamedRetailEnemyDefinitions();
@@ -48,7 +48,7 @@ internal static partial class Program
 
         foreach (ushort definitionPointer in definitions)
         {
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
                 rom, definitionPointer);
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)

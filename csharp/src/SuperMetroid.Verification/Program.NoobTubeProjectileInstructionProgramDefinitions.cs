@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions() =>
         VerifyNoobTubeProjectileInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

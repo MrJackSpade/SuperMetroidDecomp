@@ -9,7 +9,7 @@ internal static partial class Program
     /// <summary>Compares a private retail-CPU trace with the real bomb alpha/overlap path.</summary>
     private static void VerifyGroundedBombSpreadNative(string tracePath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var reader = File.OpenText(tracePath);
         string[] columns = reader.ReadLine()!.Split(',');
         int observations = 0;

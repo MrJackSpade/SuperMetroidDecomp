@@ -26,7 +26,7 @@ internal static class ChozoStatueAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyRetailHeadersPopulationsAndStates(bus);
         VerifyN00bTubePaletteActor(bus);
         VerifyLowerNorfairSequence(bus);
@@ -41,7 +41,7 @@ internal static class ChozoStatueAudit
 
     private static void VerifyRetailHeadersPopulationsAndStates(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition cracks = RoomEnemySystem.ReadDefinition(bus, N00bTubeDefinition);
+        RoomEnemyDefinition cracks = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, N00bTubeDefinition);
         AssertDefinition(
             cracks,
             bank: 0xaa,
@@ -53,7 +53,7 @@ internal static class ChozoStatueAudit
             shot: 0x804c,
             "N00b Tube cracks");
 
-        RoomEnemyDefinition statue = RoomEnemySystem.ReadDefinition(bus, ChozoStatueDefinition);
+        RoomEnemyDefinition statue = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, ChozoStatueDefinition);
         AssertDefinition(
             statue,
             bank: 0xaa,
@@ -82,7 +82,7 @@ internal static class ChozoStatueAudit
             WreckedShipDefeatedPopulationPointer,
             [ChozoStatueDefinition, 0x04c8, 0x018a, 0, 0x2000, 0, 0, 0]);
 
-        CartridgeRoomHeader lower = CartridgeRoomHeader.Load(bus, LowerNorfairRoomPointer);
+        CartridgeRoomHeader lower = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, LowerNorfairRoomPointer);
         if (lower.State.Pointer != LowerNorfairStatePointer ||
             lower.State.EnemyPopulationPointer != LowerNorfairPopulationPointer)
         {
@@ -91,7 +91,7 @@ internal static class ChozoStatueAudit
                 $"${lower.State.EnemyPopulationPointer:X4}.");
         }
 
-        CartridgeRoomHeader wreckedLive = CartridgeRoomHeader.Load(bus, WreckedShipRoomPointer);
+        CartridgeRoomHeader wreckedLive = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, WreckedShipRoomPointer);
         if (wreckedLive.State.Pointer != WreckedShipLiveStatePointer ||
             wreckedLive.State.EnemyPopulationPointer != WreckedShipLivePopulationPointer)
         {
@@ -105,7 +105,7 @@ internal static class ChozoStatueAudit
             BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
-        CartridgeRoomHeader wreckedDefeated = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader wreckedDefeated = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             WreckedShipRoomPointer,
             defeatedSelection);
@@ -129,7 +129,7 @@ internal static class ChozoStatueAudit
 
     private static void VerifyN00bTubePaletteActor(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, N00bTubeRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, N00bTubeRoomPointer);
         if (room.State.EnemyPopulationPointer != N00bTubePopulationPointer)
         {
             throw new InvalidDataException(
@@ -167,7 +167,7 @@ internal static class ChozoStatueAudit
 
     private static void VerifyLowerNorfairSequence(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, LowerNorfairRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, LowerNorfairRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = CreateEncounter(
             bus,
@@ -248,7 +248,7 @@ internal static class ChozoStatueAudit
             BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             WreckedShipRoomPointer,
             defeatedSelection);

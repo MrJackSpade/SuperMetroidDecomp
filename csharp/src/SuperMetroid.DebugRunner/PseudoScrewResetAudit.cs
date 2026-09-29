@@ -12,7 +12,7 @@ internal static class PseudoScrewResetAudit
             (extended ? "184973B37284DB3055BFC9307B5A82240AA334BC911824BD1FBDABC9DD658047" :
                 "B7FB5034CA07E962EA0F3D1184D32A58D3E0EB65972160DCDD4050BFCB59A035"))
             throw new InvalidDataException("Use the accepted ordinary reset native v1 capture.");
-        var cartridge = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var bus = new EmptyPopulation(cartridge);
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))

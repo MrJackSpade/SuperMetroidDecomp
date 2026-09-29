@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyXrayWindowGeometry()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (byte pose in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
             SamusPoseIds.CrouchingRightPose, SamusPoseIds.CrouchingLeftPose })
         {

@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyCartridgeAudioQueues()
     {
         VerifyDoorSoundDisableGuard();
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
         {
@@ -85,7 +85,7 @@ internal static partial class Program
         WriteAudioRomByte(rom, 0x918000, 0xbb);
         WriteAudioRomByte(rom, 0x918001, 0x00); // terminator
         WriteAudioRomByte(rom, 0x918002, 0x00);
-        var bus = new SuperMetroidAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         VerifySoundQueueAccumulator(bus);
         VerifyGameplayAudioPublication(bus);
 
@@ -298,5 +298,5 @@ internal static partial class Program
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
-        rom[SuperMetroidAddressSpace.ToRomOffset(snesAddress)] = value;
+        rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 }

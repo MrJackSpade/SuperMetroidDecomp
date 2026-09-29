@@ -20,10 +20,10 @@ internal static class NorfairLavaJumpingEnemyAudit
 
     public static int Run(string romPath, bool deletedParentOnly = false)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeader(retailBus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             retailBus,
             RoomPointer,
             new RoomStateSelectionContext(
@@ -378,7 +378,7 @@ internal static class NorfairLavaJumpingEnemyAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0xbe1c ||
             definition.Health != 300 || definition.Damage != 50 ||
             definition.XRadius != 8 || definition.YRadius != 12 ||

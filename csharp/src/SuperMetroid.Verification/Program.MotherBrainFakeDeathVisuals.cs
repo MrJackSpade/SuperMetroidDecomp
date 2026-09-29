@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainFakeDeathVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "mother-brain-fake-death-visual-" + Guid.NewGuid().ToString("N")));

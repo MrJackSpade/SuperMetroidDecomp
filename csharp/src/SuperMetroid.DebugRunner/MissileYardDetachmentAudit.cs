@@ -10,7 +10,7 @@ internal static class MissileYardDetachmentAudit
     {
         foreach (ushort selection in new ushort[] { 1, 2 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < 16; y++)

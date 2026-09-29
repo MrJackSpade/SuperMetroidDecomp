@@ -11,7 +11,7 @@ internal static class ComboContactAudit
             (spazerAges ? "7923418D79D9A222D29C7C0FB7C60B5FABE180878A8F76B34433D5C0C83C51B5" :
                 "FC99218EA93F166D7FA3274A49777CDB8782D335DDB6AE48E308A70F30492AD1"))
             throw new InvalidDataException("Use the accepted combo-contact v2 capture.");
-        var bus = new EmptyPopulation(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new EmptyPopulation(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleGreenGateVisibility()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var trigger in new[] { DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight })
         {
             var (bus, level, streamer, plms, gateIndex) = CreateDownwardGateFixture(trigger);

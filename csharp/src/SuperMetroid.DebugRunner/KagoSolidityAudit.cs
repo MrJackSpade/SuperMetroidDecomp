@@ -17,7 +17,7 @@ internal static class KagoSolidityAudit
         var rows = File.ReadAllLines(capture);
         if (rows.Length != 8641)
             throw new InvalidDataException("Incomplete Kago solidity matrix.");
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int rowIndex = 1, mismatches = 0, embeddedPasses = 0, touchingStops = 0;
         foreach (ushort definition in KagoSolidityFixtureData.PlatformDefinitions)
         foreach (byte pose in KagoSolidityFixtureData.Poses)

@@ -75,7 +75,7 @@ internal static class DamageBoostSlopesparkAudit
 
     public static int Run(string rom, string trace)
     {
-        SuperMetroidAddressSpace verificationBus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace verificationBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(verificationBus.Rom)) != RetailRomSha256)
             throw new InvalidDataException("Use the pinned Japan/USA retail ROM for the slopespark audit.");
 
@@ -158,7 +158,7 @@ internal static class DamageBoostSlopesparkAudit
         string rom,
         bool underwater)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

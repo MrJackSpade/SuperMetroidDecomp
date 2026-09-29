@@ -12,7 +12,7 @@ internal static class PseudoScrewWalljumpAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "E7C6A3AD052DBE6466B00525798EE0B7E31F76DB5E2EDD2370A44C0276EE2BC0")
             throw new InvalidDataException("Use the accepted pseudo-walljump native v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 4760 || rows.Any(row => row.Length != 19))
             throw new InvalidDataException("Unexpected charged-walljump trace dimensions.");

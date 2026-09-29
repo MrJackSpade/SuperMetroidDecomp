@@ -20,7 +20,7 @@ internal static partial class Program
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
-            SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
             VerifySamusAnimationDelayDefinitions(bus, sourceRom);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             // The body-art override verifier intentionally edits this installation's
@@ -589,7 +589,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyIntroEyeArtwork(SuperMetroidAddressSpace bus,
+    private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         var guarded = new IntroArtworkSourceReadGuard(bus);
@@ -663,7 +663,7 @@ internal static partial class Program
             "installed eye lists and all four frames avoid native source reads");
     }
 
-    private static void VerifyIntroCaretSpriteArtwork(SuperMetroidAddressSpace bus,
+    private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         for (int offset = IntroCaretInstructionDefinitions.StartPointer;
@@ -790,7 +790,7 @@ internal static partial class Program
             "installed caret blink avoids cartridge instruction and visual reads");
     }
 
-    private static void VerifyIntroMotherBrainCollision(SuperMetroidAddressSpace bus,
+    private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -822,7 +822,7 @@ internal static partial class Program
             "flashback setup never rereads the physical level source");
     }
 
-    private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroidAddressSpace bus,
+    private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         foreach (IntroMotherBrainSpriteFrameDefinition definition in
@@ -908,7 +908,7 @@ internal static partial class Program
     }
 
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
-        SuperMetroidAddressSpace bus, IntroCinematicArtworkCatalog stock,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
         GameInstallation installation)
     {
         const ushort x = 120;

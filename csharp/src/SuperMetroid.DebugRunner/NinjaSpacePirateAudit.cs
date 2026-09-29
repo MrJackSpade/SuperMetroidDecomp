@@ -20,8 +20,8 @@ internal static partial class NinjaSpacePirateAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MetalPiratesRoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetalPiratesRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionsAndBytecode(bus);
@@ -76,7 +76,7 @@ internal static partial class NinjaSpacePirateAudit
     {
         for (int index = 0; index < Definitions.Length; index++)
         {
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definitions[index]);
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definitions[index]);
             if (definition.TileDataSize != 0x1800 || definition.Health != Health[index] ||
                 definition.Damage != Damage[index] || definition.XRadius != 0x0010 ||
                 definition.YRadius != 0x0020 || definition.Bank != 0xb2 ||

@@ -11,13 +11,13 @@ internal static class SandRoomAudit
 {
     public static int Run(string romPath, bool verifyPhysics = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var rooms = File.ReadLines("upstream-sm/assets/names.txt")
             .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Where(fields => fields.Length == 2 && fields[0].StartsWith("0x8f") && fields[1].StartsWith("kRoom_"))
             .Select(fields => ushort.TryParse(fields[1][6..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ushort p) ? p : (ushort)0)
             .Where(p => p != 0 && p != 0xe82c).Distinct()
-            .Select(p => CartridgeRoomHeader.Load(bus, p))
+            .Select(p => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, p))
             .Where(room => room.AreaIndex == AreaId.Maridia && room.RoomIndex is 0x1a or 0x24).ToArray();
         if (rooms.Length != 2) throw new InvalidDataException("Expected both reported Maridia sand rooms.");
         foreach (var room in rooms)
@@ -101,7 +101,7 @@ internal static class SandRoomAudit
                 foreach (byte doorIndex in new byte[] { 0, 1, 2, 3 })
                 {
                     var door = level.ResolveDoorCollision(bus, doorIndex, 1, publishDoorSideEffects: false);
-                    var destination = CartridgeRoomHeader.Load(bus, door.DestinationRoomPointer);
+                    var destination = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, door.DestinationRoomPointer);
                     if (door.Orientation is not (4 or 5))
                         throw new InvalidDataException("The reported room contains an unexpected vertical door.");
                     Console.WriteLine($"  Door {doorIndex}: {door} -> {destination.Identity}");

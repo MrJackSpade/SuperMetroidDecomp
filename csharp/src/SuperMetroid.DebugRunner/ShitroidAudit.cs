@@ -29,10 +29,10 @@ internal static class ShitroidAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer) with
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer) with
         {
-            State = CartridgeRoomState.Load(bus, StatePointer),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, StatePointer),
         };
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyPopulationAndHeaders(bus, room);
@@ -384,7 +384,7 @@ internal static class ShitroidAudit
             ushort definitionPointer = ReadWord(bus, PopulationBank | cursor);
             ushort parameter1 = ReadWord(bus, PopulationBank | unchecked((ushort)(cursor + 12)));
             ushort parameter2 = ReadWord(bus, PopulationBank | unchecked((ushort)(cursor + 14)));
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, definitionPointer);
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
             if (definitionPointer != expected.DefinitionPointer ||
                 parameter1 != expected.Parameter1 || parameter2 != expected.Parameter2 ||
                 definition.InitializationAiPointer != expected.InitializationAi ||

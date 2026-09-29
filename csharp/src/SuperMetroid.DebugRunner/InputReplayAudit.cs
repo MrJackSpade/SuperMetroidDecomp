@@ -45,7 +45,7 @@ internal static class InputReplayAudit
         if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(
             bus,

@@ -23,7 +23,7 @@ internal static partial class Program
 
     private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         int checkedWords = 0;
         foreach ((ushort start, ushort end) in MotherBrainHeadRegions)
         {

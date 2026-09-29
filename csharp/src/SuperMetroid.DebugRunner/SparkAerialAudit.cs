@@ -13,7 +13,7 @@ internal static class SparkAerialAudit
             restrictions ? "226191CABC7AD7862AC7CFDA2A01DEEDE039E2A264B2AD1B7087AF38A7080C1D" :
             "50BF582B79BD6EFBD70D861FB7319698AD57E722AC22BC9D75A83FEE0598E647"))
             throw new InvalidDataException("Use accepted aerial spark capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

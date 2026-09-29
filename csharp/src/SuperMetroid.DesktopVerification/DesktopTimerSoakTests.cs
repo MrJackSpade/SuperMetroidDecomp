@@ -125,7 +125,7 @@ internal static partial class Program
 
     private static void CreateDesktopSoakSeed(string rom, SuperMetroidGameOptions options, bool paused)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var game = new SuperMetroidGame(bus, options);
         using var audio = new SpcAudioEngine();
         long sequence = 0;

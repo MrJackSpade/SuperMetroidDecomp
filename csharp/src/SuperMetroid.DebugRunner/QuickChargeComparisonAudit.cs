@@ -23,7 +23,7 @@ internal static class QuickChargeComparisonAudit
             int delay = int.Parse(group.First()[1]);
             if ((left ? 41 : 0) + delay != cases++)
                 throw new InvalidDataException("Reordered quick-charge cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

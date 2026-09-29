@@ -7,7 +7,7 @@ internal static class SparkCapacityInputAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int failures = 0;
         foreach (ushort beam in new ushort[] { 0, 1, 2, 4, 8 })
         {

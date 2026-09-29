@@ -12,6 +12,19 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
 
+/// <summary>
+/// Copies a synthetic 50-byte source into the compiled scroll-buffer entry point.
+/// This fixture preserves native padding behavior without giving Core a cartridge reader.
+/// </summary>
+private static RoomScrollGrid LoadExplicitScrollFixture(
+    TestAddressSpace bus, int source, int widthInScreens, int heightInScreens)
+{
+    byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
+    for (int index = 0; index < storage.Length; index++)
+        storage[index] = bus.ReadByte(source + index);
+    return RoomScrollGrid.LoadCompiled(bus, storage, widthInScreens, heightInScreens);
+}
+
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
 static void VerifyObjRendering()
 {
@@ -423,7 +436,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, (byte)(0x80 + index));
 
-    RoomScrollGrid grid = RoomScrollGrid.LoadExplicit(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
     AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
@@ -437,7 +450,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     for (int index = 0; index < shortTableAndFollowingHeader.Length; index++)
         shortTableBus.WriteByte(source + index, shortTableAndFollowingHeader[index]);
-    RoomScrollGrid shortTableGrid = RoomScrollGrid.LoadExplicit(
+    RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableBus,
         source,
         widthInScreens: 4,
@@ -527,7 +540,7 @@ static void VerifyMovedSamusCameraTracking()
     const int source = 0x818000;
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, 1);
-    RoomScrollGrid grid = RoomScrollGrid.LoadExplicit(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
     var camera = new ScrollBoundaryCamera(grid);
 
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
@@ -610,7 +623,7 @@ static void VerifyMovedSamusCameraTracking()
     var bottomEdgeBus = new TestAddressSpace();
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
         bottomEdgeBus.WriteByte(source + index, 1);
-    RoomScrollGrid bottomEdgeGrid = RoomScrollGrid.LoadExplicit(
+    RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
         bottomEdgeBus,
         source,
         widthInScreens: 9,
@@ -628,7 +641,7 @@ static void VerifyMovedSamusCameraTracking()
     var verticalBus = new TestAddressSpace();
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
         verticalBus.WriteByte(source + index, 1);
-    RoomScrollGrid verticalGrid = RoomScrollGrid.LoadExplicit(
+    RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         verticalBus,
         source,
         widthInScreens: 3,
@@ -943,32 +956,32 @@ static void VerifyCartridgeRoomStateSelection()
     // All five state headers may remain zero-filled: State.Pointer alone proves which
     // branch won, and TestAddressSpace returns zero for every unwritten payload byte.
     AssertEqual(defaultStatePointer,
-        CartridgeRoomHeader.Load(bus, roomPointer).State.Pointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer,
         "room selector default inline state");
 
     var eventBytes = new byte[Bank80SystemState.EventByteCount];
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)).State.Pointer,
         "room selector event branch");
     AssertEqual((ushort)0x9120,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)).State.Pointer,
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)).State.Pointer,
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)).State.Pointer,
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)).State.Pointer,
         "room selector preserves cartridge priority");
 
@@ -979,7 +992,7 @@ static void VerifyCartridgeRoomStateSelection()
     WriteTestWord(bus, selector + 2, 0x9180);
     WriteTestWord(bus, selector + 4, RoomStateSelectorCodes.Finish);
     AssertEqual((ushort)0x9180,
-        CartridgeRoomHeader.Load(bus, roomPointer,
+        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
                 RoomStateSelectorOperands.MainAreaBoss,
@@ -992,11 +1005,11 @@ static void VerifyCartridgeRoomStateSelection()
     // through to a fabricated default state.
     WriteTestWord(bus, selector, RoomStateSelectorCodes.UnusedDoor);
     AssertThrows<NotSupportedException>(
-        () => CartridgeRoomHeader.Load(bus, roomPointer),
+        () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "known unused room selector fails loudly");
     WriteTestWord(bus, selector, 0xdead);
     AssertThrows<InvalidDataException>(
-        () => CartridgeRoomHeader.Load(bus, roomPointer),
+        () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "unknown room selector fails loudly");
 
     Console.WriteLine(

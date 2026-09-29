@@ -21,7 +21,7 @@ internal static class ShortTapComparisonAudit
             .ToArray();
         if (lines.Length != 720)
             throw new InvalidDataException($"Expected 720 native tap samples, got {lines.Length}.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int sample = 0, mismatches = 0;
         foreach (bool water in new[] { false, true })
         foreach (bool left in new[] { false, true })

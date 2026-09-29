@@ -546,7 +546,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (File.Exists(romPath))
         {
-            var retailBus = new SuperMetroidAddressSpace(File.ReadAllBytes(romPath));
+            var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
                 var retailMessage = new GameplayMessageBoxState();

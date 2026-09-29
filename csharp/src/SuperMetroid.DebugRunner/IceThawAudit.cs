@@ -10,7 +10,7 @@ internal static class IceThawAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "D06ECE784E8E26534709254AE384503266516EDACB6A34586D6FCBCE0D5AB8D7")
             throw new InvalidDataException("Use the accepted ice-thaw-417-v2 capture.");
-        var bus = new TargetData(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new TargetData(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         RoomEnemySystem enemies = null!;
         SamusState samus = null!;
         int cases = 0, failures = 0;

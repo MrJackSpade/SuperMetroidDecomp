@@ -53,10 +53,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"version\":1", "\"version\":1,\"revealEverything\":true")), "reject editable gameplay commands");
         if (File.Exists("Super Metroid.smc"))
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
-                var stock = AreaMapRomData.Load(bus, area);
+                var stock = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
                 using var json = new MemoryStream();
                 AreaMapPresentationAsset.Write(json, stock);
                 json.Position = 0;
@@ -95,7 +95,7 @@ internal static partial class Program
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "map-catalog-" + Guid.NewGuid().ToString("N")));
         string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
-        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => AreaMapRomData.Load(bus, area));
+        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area));
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance");
         var original = new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps();
         var reopened = AreaMapPresentationCatalog.Load(stock, overrides);

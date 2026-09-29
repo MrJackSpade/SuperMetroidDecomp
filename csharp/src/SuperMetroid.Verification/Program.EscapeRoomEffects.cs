@@ -10,7 +10,7 @@ internal static partial class Program
     {
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

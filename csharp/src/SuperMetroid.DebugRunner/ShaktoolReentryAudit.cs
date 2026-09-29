@@ -7,9 +7,9 @@ internal static class ShaktoolReentryAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false);
-        var entry = CartridgeDoorHeader.Load(bus, ShaktoolReentryDefinitions.FromSpringBall);
+        var entry = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, ShaktoolReentryDefinitions.FromSpringBall);
         runtime.LoadCartridgeRoomThroughDoorForVerification(entry);
         if (!runtime.Camera!.Scrolls.Storage[..4].SequenceEqual(new byte[] { 1, 0, 0, 0 }))
             throw new InvalidDataException("Shaktool setup did not install native scroll boundaries.");
@@ -39,7 +39,7 @@ internal static class ShaktoolReentryAudit
         runtime.Samus.XPosition++;
         runtime.StepFrame(0);
         bool marked = runtime.System.HasEvent(EventNumber.ShaktoolClearedPath);
-        runtime.LoadCartridgeRoomThroughDoorForVerification(CartridgeDoorHeader.Load(bus, ShaktoolReentryDefinitions.ToSpringBall));
+        runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, ShaktoolReentryDefinitions.ToSpringBall));
         runtime.LoadCartridgeRoomThroughDoorForVerification(entry);
         int sandAfter = runtime.LevelData!.ForegroundEntries.ToArray().Count(w => w == ShaktoolReentryDefinitions.SandWord);
         Console.WriteLine($"Shaktool reentry: event={marked}, state={runtime.ActiveRoom!.State.Pointer:X4}, sand={sandBefore}->{sandAfter}");

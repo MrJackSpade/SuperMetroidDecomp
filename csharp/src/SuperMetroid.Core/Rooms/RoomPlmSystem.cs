@@ -2445,8 +2445,8 @@ public sealed partial class RoomPlmSystem
             SnesDmaSourceKind.SaveRam =>
                 (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                     "PLM data in an SRAM window requires SRAM.")).ReadSaveRamByte((int)address),
-            SnesDmaSourceKind.Cartridge =>
-                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
+            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
+                $"PLM bank data {address} has no compiled instruction or draw definition."),
             _ => throw new InvalidDataException(
                 $"PLM data read {address} is outside mapped cartridge/WRAM/SRAM data."),
         };

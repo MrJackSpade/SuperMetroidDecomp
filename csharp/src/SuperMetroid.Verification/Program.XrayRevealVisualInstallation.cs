@@ -27,7 +27,7 @@ internal static partial class Program
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
         XrayOverlayVisualCatalog overlays = stock.Overlays ??
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
-        var nativeBus = new SuperMetroidAddressSpace(File.ReadAllBytes(installed.RomPath));
+        var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         ushort NativeWord(int address) => unchecked((ushort)(nativeBus.ReadByte(address) |
             nativeBus.ReadByte(address + 1) << 8));
         for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)

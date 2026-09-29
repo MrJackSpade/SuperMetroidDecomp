@@ -28,7 +28,7 @@ internal static class WarehouseSaveExitAudit
                 throw new InvalidDataException("Warehouse Save replay ROM digest does not match.");
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];

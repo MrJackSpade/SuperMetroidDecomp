@@ -13,7 +13,7 @@ internal static class RetailCollectibleAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string symbolPath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "upstream-sm",
@@ -217,7 +217,7 @@ internal static class RetailCollectibleAudit
         var dropTables = new HashSet<ushort>();
         foreach (ushort header in enemyHeaders)
         {
-            ushort pointer = RoomEnemySystem.ReadDefinition(bus, header)
+            ushort pointer = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, header)
                 .ItemDropChancesPointer;
             if (pointer != 0)
                 dropTables.Add(pointer);
@@ -279,7 +279,7 @@ internal static class RetailCollectibleAudit
             emptyPopulation.Value,
             enemyHeaders.First(header =>
             {
-                ushort pointer = RoomEnemySystem.ReadDefinition(bus, header)
+                ushort pointer = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, header)
                     .ItemDropChancesPointer;
                 return pointer != 0 && bus.ReadByte(0xb40000 | pointer) != 0;
             }));

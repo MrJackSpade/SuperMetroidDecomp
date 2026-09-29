@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyCrocomireInstructionProgramDefinitions()
     {
         VerifyCrocomireInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     }
 
     private static void VerifyCrocomireInstructionProgramDefinitions(
@@ -29,7 +29,7 @@ internal static partial class Program
         }
 
         var guard = new CrocomireInstructionReadGuard(rom);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             rom,
             CrocomireInstructionAuditRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);

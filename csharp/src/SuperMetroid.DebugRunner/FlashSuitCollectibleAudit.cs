@@ -10,7 +10,7 @@ internal static class FlashSuitCollectibleAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         foreach (int targetFuse in new[] { 8, 9, 10, 11 }) RunCase(bus, targetFuse);
         Console.WriteLine("Varia collectible: real PLM/message/suit flow preserves a spark only inside the native bomb-fuse window.");
         return 0;

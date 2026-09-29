@@ -22,8 +22,8 @@ internal static partial class BotwoonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyRetailRoomAndHeader(bus, room);
@@ -76,7 +76,7 @@ internal static partial class BotwoonAudit
         if (ReadWord(bus, 0xa10000 | (PopulationPointer + 16)) != 0xffff)
             throw new InvalidDataException("Botwoon population did not end after one actor.");
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.Bank != 0xb3 || definition.Health != 3000 ||
             definition.Damage != 120 || definition.XRadius != 8 ||
             definition.YRadius != 8 || definition.InitializationAiPointer != 0x9583 ||

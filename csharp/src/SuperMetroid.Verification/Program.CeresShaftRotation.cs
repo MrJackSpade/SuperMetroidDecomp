@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCeresShaftCompiledRotation()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int offset) => (ushort)(rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset) |
             rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset + 1) << 8);
         // Exhaust every raw phase that aliases an authored record, not only the

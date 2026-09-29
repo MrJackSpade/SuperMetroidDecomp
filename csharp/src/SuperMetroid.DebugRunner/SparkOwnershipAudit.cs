@@ -13,8 +13,8 @@ internal static class SparkOwnershipAudit
             reentry ? "5C6C1FB23CA978493EEE047164CD9C97E749E5BECA0190F96592B5864316A53D" :
             "25FFBFE7013658F9123ED41F67928C3A410EDD256E450B160432654C0F251D5F"))
             throw new InvalidDataException("Use the accepted ownership or reentry capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, CartridgeRoomHeader.Load(bus, 0xcd13)).LevelData;
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
         int mismatches = 0, records = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))

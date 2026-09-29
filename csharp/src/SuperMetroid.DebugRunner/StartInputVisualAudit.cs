@@ -29,7 +29,7 @@ internal static class StartInputVisualAudit
             throw new InvalidDataException("Start audit ROM SHA-256 does not match the recording.");
 
         Directory.CreateDirectory(outputDirectory);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
 

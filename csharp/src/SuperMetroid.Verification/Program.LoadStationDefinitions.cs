@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledLoadStationDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         int compared = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -15,7 +15,7 @@ internal static partial class Program
             int count = LoadStationDefinitions.Count(area);
             for (int stationIndex = 0; stationIndex < count; stationIndex++)
             {
-                var native = LoadStationEntry.Load(bus, area, checked((byte)stationIndex));
+                var native = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, area, checked((byte)stationIndex));
                 var compiled = LoadStationDefinitions.Get(area, checked((byte)stationIndex));
                 AssertEqual(native, compiled,
                     $"compiled {area} load-station {stationIndex} matches the cartridge");

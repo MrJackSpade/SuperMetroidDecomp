@@ -15,8 +15,8 @@ internal static partial class Program
         // enemy sheet to WRAM. Later rotting frames draw sand words from that same
         // sheet. Guard the entire source interval so neither path can accidentally
         // work by reading the cartridge despite a bound installed catalog.
-        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var installedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         RoomEnemySystem native = InitializeDeadTorizoArtwork(nativeBus, null);
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e2000, 0x1000,
@@ -40,7 +40,7 @@ internal static partial class Program
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadTorizoArtwork(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"), missing),
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
         string fileName = EnemyTileArtworkFormat.FileName(RoomEnemySystem.DeadTorizoDefinition);
@@ -57,7 +57,7 @@ internal static partial class Program
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        var editedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         InitializeDeadTorizoArtwork(editedBus, edited);
         AssertEqual((byte)(installedBus.ReadByte(0x7e2060) ^ 0x80),
             editedBus.ReadByte(0x7e2060),
@@ -70,7 +70,7 @@ internal static partial class Program
                 editedBus.ReadByte(0x7e2000 + offset),
                 "dead-Torizo PNG edit leaves neighboring corpse staging bytes unchanged");
         }
-        var reloadedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         InitializeDeadTorizoArtwork(reloadedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory));
         AssertEqual(editedBus.ReadByte(0x7e2060), reloadedBus.ReadByte(0x7e2060),
@@ -82,7 +82,7 @@ internal static partial class Program
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         int selector = 0xa90000 | DeadTorizoArtworkDefinitions.StationaryOperand;
         ushort nativePointer = unchecked((ushort)(
             rom.ReadByte(selector) | rom.ReadByte(selector + 1) << 8));
@@ -115,7 +115,7 @@ internal static partial class Program
     private static void VerifyDeadTorizoVramTransferDefinitions(
         EnemyTileArtworkCatalog stock)
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         for (ushort phase = 0; phase < 2; phase++)
         {
             ushort table = phase == 0
@@ -145,8 +145,8 @@ internal static partial class Program
                 $"Dead Torizo phase {phase} native zero terminator");
         }
 
-        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var installedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         RoomEnemySystem native = InitializeDeadTorizoArtwork(nativeBus, null);
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

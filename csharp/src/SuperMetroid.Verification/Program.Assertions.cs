@@ -33,7 +33,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// </summary>
 sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     IImportCartridgeSource,
-    IRoomEnemyFixtureSource
+    IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
@@ -76,7 +76,17 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     }
 
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
-        RoomEnemySystem.ReadDefinition(this, pointer);
+        SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
+
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
+    {
+        int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
+        ushort Word(int offset) => (ushort)(ReadByte(address + offset) |
+            ReadByte(address + offset + 1) << 8);
+        return new RoomEnemyPopulationRecord(
+            Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
+            Word(12), Word(14));
+    }
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {

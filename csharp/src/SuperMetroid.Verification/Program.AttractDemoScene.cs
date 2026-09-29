@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyAttractDemoScene()
     {
         VerifyStockAttractScenes();
-        var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
@@ -31,14 +31,14 @@ internal static partial class Program
         WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation, 7);
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
             (ushort)SnesButton.Right);
-        var bus = new SuperMetroidAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, 1, 0x100, 0x200, 0x40, -46,
             0x151, 0x8924, 0x8a53, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
-        if (AttractDemoScene.Read(bus, 0, 0) != expected)
+        if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusX != 338 || expected.SamusY != 576)
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
-        if (AttractDemoScene.Read(bus, 0, 1) is not null)
+        if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new AttractDemoInput(bus, expected);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
@@ -74,20 +74,20 @@ internal static partial class Program
 
     private static void VerifyStockAttractScenes()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] counts = [6, 6, 6, 5];
         int total = 0;
         for (int set = 0; set < counts.Length; set++)
         {
             for (int scene = 0; scene < counts[set]; scene++)
             {
-                AssertEqual(AttractDemoScene.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
+                AssertEqual(SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
                     $"compiled scene {set}/{scene} matches every cartridge setup field");
                 total++;
                 VerifyCompiledAttractInput(retail, StockAttractDemoScenes.Get(set, scene)!);
             }
             AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
-                AttractDemoScene.Read(retail, set, counts[set]) is null, "stock set sentinel");
+                SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, counts[set]) is null, "stock set sentinel");
             AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(set, counts[set] + 1),
                 "reject scene beyond compiled set");
         }

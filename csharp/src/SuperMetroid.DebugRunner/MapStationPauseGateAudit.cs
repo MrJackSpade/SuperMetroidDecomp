@@ -29,7 +29,7 @@ internal static class MapStationPauseGateAudit
     public static int Run(string romPath, bool auditLockedControls = false,
         ushort selectedWeapon = 0, bool holdShoot = false, bool enterFromLeft = false)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
             bus,
@@ -46,7 +46,7 @@ internal static class MapStationPauseGateAudit
         SuperMetroidRuntime runtime = game.RuntimeForVerification
             ?? throw new InvalidOperationException("Map-station audit lost its gameplay runtime.");
         runtime.LoadCartridgeRoomThroughDoorForVerification(
-            CartridgeDoorHeader.Load(bus, CrateriaMapEntranceDoor));
+            SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, CrateriaMapEntranceDoor));
         StationPlmSnapshot station = runtime.Plms.Stations.Single(
             candidate => candidate.Kind == StationKind.Map);
         // Start beside the real access block; activation must come from ordinary

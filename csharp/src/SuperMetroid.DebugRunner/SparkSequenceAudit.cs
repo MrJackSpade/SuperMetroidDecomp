@@ -12,8 +12,8 @@ internal static class SparkSequenceAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "ABF726C92E5A57AEA03FB9F3A015BF42C4400ED7C0DC6C8C00C55B3AE7827856")
             throw new InvalidDataException("Use accepted spark-sequence-466-v2 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, CartridgeRoomHeader.Load(bus, 0xcd13)).LevelData;
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
         int mismatches = 0, records = 0, cases = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..4])))

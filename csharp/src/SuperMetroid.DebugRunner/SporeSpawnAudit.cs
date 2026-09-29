@@ -71,8 +71,8 @@ internal static class SporeSpawnAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, SporeSpawnAuditDefinitions.RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, SporeSpawnAuditDefinitions.RoomPointer);
         VerifyRetailRoomAndHeader(bus, room);
         VerifyLiveEntryCameraAndFirstVisibleBody(bus);
         VerifyLiveEncounterCombatAndDeath(bus, room);
@@ -90,7 +90,7 @@ internal static class SporeSpawnAudit
     private static void VerifyLiveEntryCameraAndFirstVisibleBody(
         SuperMetroidAddressSpace bus)
     {
-        CartridgeDoorHeader incomingDoor = CartridgeDoorHeader.Load(
+        CartridgeDoorHeader incomingDoor = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(
             bus,
             SporeSpawnAuditDefinitions.IncomingDoorPointer);
         if (incomingDoor.DestinationRoomPointer != SporeSpawnAuditDefinitions.RoomPointer ||
@@ -190,7 +190,7 @@ internal static class SporeSpawnAudit
                 0xa10000 | (SporeSpawnAuditDefinitions.PopulationPointer + 16)) != 0xffff)
             throw new InvalidDataException("Spore Spawn population did not end after one body.");
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.Bank != 0xa5 || definition.Health != 960 || definition.Damage != 12 ||
             definition.InitializationAiPointer != 0xea2a ||
             definition.MainAiPointer != 0xeb13 ||

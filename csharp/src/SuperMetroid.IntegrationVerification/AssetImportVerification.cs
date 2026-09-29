@@ -56,13 +56,13 @@ try
         SuperMetroidAddressSpace romFreeMemory = (romFreeContent ??
             throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
             .OpenRuntimeAddressSpace();
-        Check(romFreeMemory.Rom.IsEmpty &&
+        Check(romFreeMemory.GetType().GetProperty("Rom") is null &&
             romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
             romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
         using (var romFreeSession = new SuperMetroid.Android.AndroidSessionData(root))
         {
-            Check(romFreeSession.Bus.Rom.IsEmpty,
+            Check(romFreeSession.Bus.GetType().GetProperty("Rom") is null,
                 "installed Android host boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
             {
@@ -76,7 +76,7 @@ try
             string loaded = romFreeSession.LoadSlot(0);
             Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
                 loaded.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
-                romFreeSession.Bus.Rom.IsEmpty,
+                romFreeSession.Bus.GetType().GetProperty("Rom") is null,
                 "installed Android state save/load retains cartridge-free memory");
         }
         Check(GameAssetInstaller.EnsureInstalled(root) is null,
@@ -126,7 +126,7 @@ try
     string settings = Path.Combine(root, "SuperMetroid.ini");
     File.WriteAllText(settings, SuperMetroidGameOptionsIni.DefaultFileContents);
     string save = Path.Combine(root, "SuperMetroid.save.json");
-    GameSaveFileStore.WriteAtomic(new SuperMetroidAddressSpace(rom), save);
+    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), save);
     byte[] saveBefore = File.ReadAllBytes(save);
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);
@@ -180,7 +180,8 @@ try
             var captured = session.Game.StepCaptured(0, frame + 1, session.Generation);
             session.Audio.RenderFrame(captured.Frame.AudioCommands);
         }
-        Check(session.Bus.Rom.SequenceEqual(rom), "Android session boots from the shared import layout without APK assets");
+        Check(session.Bus.GetType().GetProperty("Rom") is null,
+            "Android session boots from extracted content without retaining cartridge bytes");
     }
     Console.WriteLine("PASS ROM import, header normalization, exact audio parity, non-seekable input, cancellation, repair, recovery, and Android startup.");
     return 0;

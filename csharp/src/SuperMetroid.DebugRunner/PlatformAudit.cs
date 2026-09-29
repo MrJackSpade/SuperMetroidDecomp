@@ -19,7 +19,7 @@ internal static class PlatformAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyRoom021eRisingPlatform(bus);
         KamerResult kamer = VerifyEastOceanKamer(bus);
         TripperResult tripper = VerifyIceBeamAcidTrippers(bus);
@@ -40,7 +40,7 @@ internal static class PlatformAudit
 
     private static KamerResult VerifyEastOceanKamer(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0x94fd);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x94fd);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] population = enemies.Slots.Take(enemies.EnemyCount).ToArray();
@@ -213,7 +213,7 @@ internal static class PlatformAudit
 
     private static TripperResult VerifyIceBeamAcidTrippers(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0xa75d);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa75d);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] trippers = enemies.Slots.Take(enemies.EnemyCount).ToArray();
@@ -487,7 +487,7 @@ internal static class PlatformAudit
 
     private static void VerifyRightFacingTripperFreeze(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0xae07);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xae07);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

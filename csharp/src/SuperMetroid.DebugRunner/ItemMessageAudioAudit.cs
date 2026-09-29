@@ -11,7 +11,7 @@ internal static class ItemMessageAudioAudit
 {
     public static int Run(string rom, string audioDirectory)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, water: false);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom, 0, 0);
         runtime.Samus!.InputLocked = true;

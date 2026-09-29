@@ -9,7 +9,7 @@ internal static class DamageBoostComparisonAudit
 {
     public static int Run(string rom, string trace, bool hurtPrefixOnly = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length >= 26 ? int.Parse(rows[0][24]) : 0;
         if (contactKind is < 0 or > 9) throw new InvalidDataException("Unknown contact source.");
@@ -134,7 +134,7 @@ internal static class DamageBoostComparisonAudit
                 foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
                 var enemy = runtime.Enemies.Slots[0];
                 enemy.EnemyDefinitionPointer = RoomEnemySystem.RipperDefinition;
-                enemy.Definition = RoomEnemySystem.ReadDefinition(bus, enemy.EnemyDefinitionPointer);
+                enemy.Definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, enemy.EnemyDefinitionPointer);
                 enemy.AiBank = enemy.Definition.Bank;
                 enemy.XPosition = source == 1 ? (ushort)120 : (ushort)136;
                 enemy.YPosition = 160;

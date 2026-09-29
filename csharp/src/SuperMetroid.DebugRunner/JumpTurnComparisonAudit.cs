@@ -12,7 +12,7 @@ internal static class JumpTurnComparisonAudit
             .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1)
                 .Select(field => field.Split('=')).ToDictionary(field => field[0], field => field[1])).ToArray();
         if (lines.Length != 31680) throw new InvalidDataException($"Expected 31680 samples, got {lines.Length}.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int sample = 0, mismatches = 0;
         foreach (bool ledge in new[] { false, true })
         foreach (bool water in new[] { false, true })

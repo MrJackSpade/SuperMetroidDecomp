@@ -12,7 +12,7 @@ internal static partial class CrocomireAudit
         foreach (ushort weapon in new ushort[] { 0, 0x0100, 0x0200 })
         foreach (int delay in new[] { 0, 1, 4, 7 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

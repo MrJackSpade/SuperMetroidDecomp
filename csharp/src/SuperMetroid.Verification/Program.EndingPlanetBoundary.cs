@@ -23,7 +23,7 @@ internal static partial class Program
 
     private static void VerifyEndingPlanetBoundary()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = new EndingCreditsState(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)

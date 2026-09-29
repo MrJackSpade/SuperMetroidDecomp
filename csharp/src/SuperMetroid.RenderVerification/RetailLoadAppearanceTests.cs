@@ -10,8 +10,8 @@ internal static class RetailLoadAppearanceTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var left = new SuperMetroidAddressSpace(rom);
-        var right = new SuperMetroidAddressSpace(rom);
+        var left = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var right = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         foreach (var bus in new[] { left, right })
         {
             // In-memory SRAM only, matching the portable saved-file fixture.

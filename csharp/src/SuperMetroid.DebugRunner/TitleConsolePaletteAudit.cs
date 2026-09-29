@@ -8,7 +8,7 @@ internal static class TitleConsolePaletteAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var title = new TitleSequenceState(bus);
         title.Step(0);
         // Independent first records at $8D:C7FE and $8D:C866, destinations $54/$5C bytes.

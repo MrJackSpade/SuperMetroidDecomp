@@ -17,7 +17,7 @@ internal static class DoorWaitNativeComparison
         for (int count = 0; count <= 3; count++)
         for (int lag = 0; lag <= 2; lag++)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
             foreach (var projectile in runtime.Enemies.EnemyProjectiles) projectile.Clear();

@@ -13,7 +13,7 @@ internal static class PowerBombEnemySoundAudit
     {
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             runtime.System.SetEvent(EventNumber.ZebesAwake);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Climb);

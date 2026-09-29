@@ -23,7 +23,7 @@ internal static class PowerBombSoundSuppressionAudit
         VerifySameFrameBombOrdering(rom);
         foreach (bool exploding in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             runtime.Samus!.Missiles = runtime.Samus.MaxMissiles = 5;
             runtime.Samus.SelectedHudItem = 0;
@@ -49,7 +49,7 @@ internal static class PowerBombSoundSuppressionAudit
         foreach (bool suppressedAtRequest in new[] { false, true })
         foreach (bool explodingAtPublication in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             runtime.Samus!.MaxMissiles = runtime.Samus.Missiles = 5;
             runtime.Samus.SelectedHudItem = 1;
@@ -73,7 +73,7 @@ internal static class PowerBombSoundSuppressionAudit
     {
         foreach ((bool powerBombActive, bool plantPowerBomb) in new[] { (false, false), (true, false), (false, true) })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
@@ -112,7 +112,7 @@ internal static class PowerBombSoundSuppressionAudit
     {
         foreach (bool powerBombPlacedFirst in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             samus.Pose = SamusPoseIds.MorphBallGroundRightPose;

@@ -11,7 +11,7 @@ internal static class StationProbeComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "7214D1C1E3ABCB039ABD9EAA3D599908ADF30ED2F68632E0A6D393A67B8793AC")
             throw new InvalidDataException("Use the accepted station-probe v2 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

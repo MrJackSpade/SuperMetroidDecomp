@@ -19,7 +19,7 @@ internal static class ComboMotionAudit
                 wave ? "7D20E4D77F95D6633377648EDA456DD4D71A4286FA966572B05B23DB0B617442" :
                 "AFDBD584CC67F305238D796A91CBAD6BE6E088D0C40842C35323CA1EB79CDAB2"))
             throw new InvalidDataException("Use accepted Ice combo motion v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int frames = 0, failures = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))

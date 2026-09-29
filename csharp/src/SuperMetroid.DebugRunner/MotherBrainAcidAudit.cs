@@ -7,7 +7,7 @@ internal static class MotherBrainAcidAudit
 {
     public static void Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

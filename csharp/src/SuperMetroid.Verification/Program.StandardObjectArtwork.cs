@@ -11,7 +11,7 @@ internal static partial class Program
             "standard-objects-" + Guid.NewGuid().ToString("N")));
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
-        var native = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+        var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         try
         {
             StandardObjectArtworkFiles.Extract(native, stock, SupportedCartridge.Sha256);
@@ -24,7 +24,7 @@ internal static partial class Program
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = new FrontendCartridgeReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom(sourceRom));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guard, initialPaletteArt: palettes)
                 { StandardObjectArt = baseline };
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,

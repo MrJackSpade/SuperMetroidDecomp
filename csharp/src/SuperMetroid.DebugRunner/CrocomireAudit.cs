@@ -17,10 +17,10 @@ internal static partial class CrocomireAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeadersAndPopulation(bus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomHeader);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeader);
         if (room.State.Pointer != NormalRoomState ||
             room.State.EnemyPopulationPointer != Population)
         {
@@ -49,7 +49,7 @@ internal static partial class CrocomireAudit
 
     private static void VerifyHeadersAndPopulation(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition body = RoomEnemySystem.ReadDefinition(bus, BodyDefinition);
+        RoomEnemyDefinition body = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, BodyDefinition);
         if (body.Health != 0x7fff || body.Damage != 40 || body.Bank != 0xa4 ||
             body.InitializationAiPointer != 0x8a5a || body.MainAiPointer != 0x8c04 ||
             body.HurtAiPointer != 0x8687 || body.TouchAiPointer != 0xb950 ||
@@ -58,7 +58,7 @@ internal static partial class CrocomireAudit
             throw new InvalidDataException("Crocomire $DDBF header disagrees with bank $A4.");
         }
 
-        RoomEnemyDefinition tongue = RoomEnemySystem.ReadDefinition(bus, TongueDefinition);
+        RoomEnemyDefinition tongue = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, TongueDefinition);
         if (tongue.Bank != 0xa4 || tongue.InitializationAiPointer != 0xf67a ||
             tongue.MainAiPointer != 0xf6bb || tongue.TouchAiPointer != 0x8023 ||
             tongue.ShotAiPointer != 0x802d)

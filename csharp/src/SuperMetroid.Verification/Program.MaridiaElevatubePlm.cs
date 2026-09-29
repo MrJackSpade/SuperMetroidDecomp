@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyMaridiaElevatubePlm()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort start = MaridiaElevatubePlmDefinitions.InstructionList;
         foreach (ushort address in new ushort[] { start, (ushort)(start + 2),

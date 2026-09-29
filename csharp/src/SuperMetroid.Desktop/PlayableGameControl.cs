@@ -67,9 +67,24 @@ public sealed partial class PlayableGameControl : UserControl
     {
         this.romPath = romPath;
         installedAudioDirectory = audioDirectory;
-        playerDataDirectory = dataDirectory is null ? null : Path.GetFullPath(dataDirectory);
         string fullRomPath = Path.GetFullPath(romPath);
-        string saveBase = playerDataDirectory is null ? fullRomPath : Path.Combine(playerDataDirectory, Path.GetFileName(fullRomPath));
+        if (dataDirectory is null)
+        {
+            // Diagnostic callers that supply only a cartridge path still run from
+            // extracted content. The cartridge is read only by the installer.
+            string fallbackRoot = Path.Combine(
+                Path.GetDirectoryName(fullRomPath) ?? throw new InvalidOperationException(
+                    "Cartridge path has no parent directory."),
+                "SuperMetroid-installed");
+            _ = GameAssetInstaller.OpenOrRepair(fallbackRoot) ??
+                GameAssetInstaller.Install(fullRomPath, fallbackRoot);
+            playerDataDirectory = fallbackRoot;
+        }
+        else
+        {
+            playerDataDirectory = Path.GetFullPath(dataDirectory);
+        }
+        string saveBase = Path.Combine(playerDataDirectory, Path.GetFileName(fullRomPath));
         saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
@@ -209,9 +224,8 @@ public sealed partial class PlayableGameControl : UserControl
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
-        addressSpace = playerDataDirectory is null
-            ? SuperMetroidAddressSpace.LoadRetailRom(romPath)
-            : new GameInstallation(playerDataDirectory).OpenRuntimeAddressSpace();
+        addressSpace = new GameInstallation(playerDataDirectory ?? throw new InvalidOperationException(
+            "Desktop session has no installed content directory.")).OpenRuntimeAddressSpace();
         ExtractedAudioAssetCatalog? selectedAudioAssets =
             gameOptions.AudioEnabled || playerDataDirectory is not null ? LoadAudioAssets() : null;
         if (gameOptions.AudioEnabled)
@@ -522,9 +536,7 @@ public sealed partial class PlayableGameControl : UserControl
         if (replay is null)
             throw new InvalidOperationException("Replay SRAM requested without a replay.");
 
-        byte[] actualDigest = playerDataDirectory is null
-            ? SHA256.HashData(addressSpace.Rom)
-            : SupportedCartridge.CreateSha256Digest();
+        byte[] actualDigest = SupportedCartridge.CreateSha256Digest();
         if (!CryptographicOperations.FixedTimeEquals(actualDigest, replay.RomSha256))
         {
             throw new InvalidDataException(
@@ -535,17 +547,9 @@ public sealed partial class PlayableGameControl : UserControl
 
     private DebuggerSaveStateStore CreateStateStore()
     {
-        if (playerDataDirectory is null)
-        {
-            return new DebuggerSaveStateStore(
-                romPath,
-                addressSpace.Rom,
-                hostOptions: gameOptions,
-                contentIdentity: installedContentIdentity);
-        }
-
         return DebuggerSaveStateStore.ForInstalledGame(
-            playerDataDirectory,
+            playerDataDirectory ?? throw new InvalidOperationException(
+                "Desktop session has no installed content directory."),
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));

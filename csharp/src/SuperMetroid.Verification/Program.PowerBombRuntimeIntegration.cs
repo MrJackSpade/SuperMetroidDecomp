@@ -31,8 +31,8 @@ internal static partial class Program
     static void VerifyPowerBombRuntimeRendererIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
         AssertEqual(

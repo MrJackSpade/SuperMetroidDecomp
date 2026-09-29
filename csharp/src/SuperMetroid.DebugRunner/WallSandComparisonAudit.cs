@@ -11,7 +11,7 @@ internal static class WallSandComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "DF1234C0823060523974DD72BE8019BD0BC922A8D0746F290412E29172740359")
             throw new InvalidDataException("Use the accepted wall-sand v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

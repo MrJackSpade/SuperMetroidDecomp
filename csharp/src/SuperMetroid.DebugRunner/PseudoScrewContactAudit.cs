@@ -10,7 +10,7 @@ internal static class PseudoScrewContactAudit
         foreach (ushort contact in new ushort[] { 3, 4 })
         foreach (byte vulnerability in new byte[] { 0, 1, 2, 0x82 })
         {
-            var cartridge = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var bus = new VulnerabilityOverlay(cartridge, vulnerability);
             var runtime = FlatFloorMovementFixture.Create(cartridge, water: false);
             foreach (var slot in runtime.Enemies.Slots) slot.Clear();

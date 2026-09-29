@@ -12,8 +12,8 @@ internal static class EnemyBreakableTerrainAudit
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(trace))) !=
             "5A74E32C57E7BEB4B6F2760E8D6F3367B7F6C09E68CB514F3EAD7B5877944FEC")
             throw new InvalidDataException("Use the pinned 96-row original-CPU terrain trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, ShaktoolDigDefinitions.Room);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ShaktoolDigDefinitions.Room);
         int compared = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray())
                      .GroupBy(row => (Bts: row[0], Full: row[1])))

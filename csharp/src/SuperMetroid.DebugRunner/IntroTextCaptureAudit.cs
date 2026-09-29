@@ -9,7 +9,7 @@ internal static class IntroTextCaptureAudit
     public static int Run(string rom, string directory)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var intro = new IntroCinematicState(bus);
         for (int frame = 0; frame < 8192; frame++)
         {

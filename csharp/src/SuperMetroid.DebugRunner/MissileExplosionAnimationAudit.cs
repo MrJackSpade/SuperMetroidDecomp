@@ -12,7 +12,7 @@ internal static class MissileExplosionAnimationAudit
     {
         foreach (ushort selection in new ushort[] { 1, 2 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var samus = runtime.Samus!;
             samus.SelectedHudItem = selection;

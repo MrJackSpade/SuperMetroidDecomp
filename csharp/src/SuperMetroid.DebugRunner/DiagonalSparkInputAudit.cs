@@ -18,7 +18,7 @@ internal static class DiagonalSparkInputAudit
             : "782C3EAD92A3FD7D20F526FF7BD55A5FE31A522B2466C05135212727711A34CF";
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU diagonal input trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int compared = 0;
         foreach (var group in File.ReadLines(path).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))
@@ -60,7 +60,7 @@ internal static class DiagonalSparkInputAudit
 
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         foreach (bool left in new[] { false, true })
         foreach (bool upPriorityControl in new[] { false, true })
         {

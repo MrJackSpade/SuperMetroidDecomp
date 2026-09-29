@@ -16,7 +16,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
@@ -52,7 +52,7 @@ internal static partial class Program
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, roomPointer);
+            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
             CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
             CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
@@ -90,7 +90,7 @@ internal static partial class Program
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
             "edited JSON changes only the intended 8x8 visual child of a solid block");
         RoomMetatileCatalog editedCatalog = new(modified, bySource);
-        CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+        CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         CartridgeRoomAssets nativeLanding = CartridgeRoomAssets.Load(bus, landing);
         CartridgeRoomAssets editedLanding = CartridgeRoomAssets.Load(
             new RoomMetatileSourceReadGuard(bus,

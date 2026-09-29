@@ -33,7 +33,7 @@ internal static class EscapeAnimalsAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionHeaders(bus);
         VerifyRetailPopulation(bus);
 
@@ -55,7 +55,7 @@ internal static class EscapeAnimalsAudit
 
     private static void VerifyDefinitionHeaders(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition etecoon = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition etecoon = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             EscapeEtecoonDefinition);
         if (etecoon.TileDataSize != 0x0600 || etecoon.PalettePointer != 0xe525 ||
@@ -73,7 +73,7 @@ internal static class EscapeAnimalsAudit
                 "Escape Etecoon $F2D3 header disagrees with $B3:E525-$E730.");
         }
 
-        RoomEnemyDefinition dachora = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition dachora = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             EscapeDachoraDefinition);
         if (dachora.TileDataSize != 0x0c00 || dachora.PalettePointer != 0xe944 ||
@@ -129,7 +129,7 @@ internal static class EscapeAnimalsAudit
         var events = new byte[Bank80SystemState.EventByteCount];
         events[(int)EventNumber.ZebesTimebombSet >> 3] = unchecked((byte)(
             1 << ((int)EventNumber.ZebesTimebombSet & 7)));
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             EscapeRoomHeader,
             new RoomStateSelectionContext(events, 0, false, false));

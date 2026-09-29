@@ -14,7 +14,7 @@ internal static class ChootAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyAllPatternTables(bus);
         BowlingResult bowling = RunBowlingAlleyPath(bus);
         VerifyPseudoPlasmaVariants(bus);
@@ -32,7 +32,7 @@ internal static class ChootAudit
 
     private static BowlingResult RunBowlingAlleyPath(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0x9461);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9461);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -243,7 +243,7 @@ internal static class ChootAudit
 
     private static void VerifyPseudoPlasmaVariants(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0xd1dd);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd1dd);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

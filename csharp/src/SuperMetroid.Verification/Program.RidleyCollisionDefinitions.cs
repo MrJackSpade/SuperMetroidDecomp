@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyRidleyCollisionDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new RidleyCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -31,7 +31,7 @@ internal static class XrayClimbTimingAudit
         if (rows.Any(row => row.Length != 16))
             throw new InvalidDataException("Malformed X-Ray timing row.");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int mismatches = 0;
         int comparedFrames = 0;
         int successfulCases = 0;

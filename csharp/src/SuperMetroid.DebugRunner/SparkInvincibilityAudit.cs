@@ -8,7 +8,7 @@ internal static class SparkInvincibilityAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0;
         foreach (bool left in new[] { false, true })
         foreach (int direction in new[] { 0, 1, 2 })

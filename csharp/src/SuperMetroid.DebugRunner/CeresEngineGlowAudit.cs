@@ -18,7 +18,7 @@ internal static class CeresEngineGlowAudit
             typeof(CeresDestructionCinematicState), fields, fields.Length - 1);
         if (!legacy.SequenceEqual(fields.Where(field => field.Name != "paletteFx")))
             throw new InvalidDataException("Legacy engine migration changed an existing cinematic field.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
         int program = CeresEngineGlowFixtureData.Bank | Word(CeresEngineGlowFixtureData.Definition + 2);
         int colorIndex = Word(program + 2) / 2;

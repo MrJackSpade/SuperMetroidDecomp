@@ -6,8 +6,8 @@ internal static partial class CrocomireAudit
 {
     public static int RunProjectileDrop(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, RoomHeader);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeader);
         var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
         loaded.Samus.Health = 1;
         var state = RequireState(loaded);

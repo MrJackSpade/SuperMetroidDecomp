@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyStationAnimationProgramDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         int count = 0;
         foreach ((ushort address, ushort compiled) in

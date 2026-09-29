@@ -12,7 +12,7 @@ internal static partial class Program
     {
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroidAddressSpace(rom);
+        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
@@ -22,8 +22,8 @@ internal static partial class Program
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
             CreditsPresentationExtractor.Extract(source)));
 
-        var nativeBus = new SuperMetroidAddressSpace(rom);
-        var installedBus = new EndingMode7SourceReadGuard(new SuperMetroidAddressSpace(rom));
+        var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var installedBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var nativeScene = new EndingCreditsState(nativeBus, nativeAudio, 3, 0);
@@ -99,7 +99,7 @@ internal static partial class Program
                         image.Pixels, image.Palette);
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
-                var uploadBus = new EndingMode7SourceReadGuard(new SuperMetroidAddressSpace(rom));
+                var uploadBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var upload = new EndingRewardGraphicsUpload(uploadBus, stock.RewardIcon);
                 var partialVram = new SnesVram();
                 partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
@@ -115,7 +115,7 @@ internal static partial class Program
                     $"{name} rebinds eight completed chunks without touching pending VRAM");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
-                var sceneBus = new EndingMode7SourceReadGuard(new SuperMetroidAddressSpace(rom));
+                var sceneBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
                 var scene = new EndingCreditsState(sceneBus, sceneAudio, 3, 0);
                 scene.BindStaffCredits(credits);

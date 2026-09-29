@@ -24,7 +24,7 @@ internal static class CeilingDoorComparisonAudit
             int caseIndex = (((left ? 1 : 0) * 3 + speed) * 2 + ceiling) * 9 + height;
             if (caseIndex != cases)
                 throw new InvalidDataException("Reordered ceiling-door cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

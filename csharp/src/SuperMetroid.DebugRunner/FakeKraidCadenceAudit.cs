@@ -8,8 +8,8 @@ internal static class FakeKraidCadenceAudit
     public static int Run(string rom, string directory, string? nativeCsv = null)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, FakeKraidCadenceDefinitions.RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FakeKraidCadenceDefinitions.RoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         using (var data = new BinaryWriter(File.Create(Path.Combine(directory, "level.bin"))))
         {

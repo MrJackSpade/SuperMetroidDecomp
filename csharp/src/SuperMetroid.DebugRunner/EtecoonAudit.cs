@@ -39,11 +39,11 @@ internal static class EtecoonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionHeader(bus);
         VerifyRetailPopulation(bus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, GreenBrinstarMainShaftRoom);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GreenBrinstarMainShaftRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.State.Pointer != GreenBrinstarMainShaftState ||
             room.State.EnemyPopulationPointer != GreenBrinstarMainShaftPopulation)
@@ -69,7 +69,7 @@ internal static class EtecoonAudit
 
     private static void VerifyDefinitionHeader(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, EtecoonDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, EtecoonDefinition);
         if (definition.TileDataSize != 0x0600 || definition.Health != 0x7fff ||
             definition.Damage != 0 || definition.XRadius != 6 || definition.YRadius != 7 ||
             definition.Bank != 0xa7 || definition.InitializationAiPointer != 0xe912 ||

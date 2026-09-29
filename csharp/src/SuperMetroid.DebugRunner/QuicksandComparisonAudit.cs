@@ -19,7 +19,7 @@ internal static class QuicksandComparisonAudit
         for (int hold = 0; hold < 2; hold++)
         for (int delay = 8; delay <= 80; delay += 72)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);

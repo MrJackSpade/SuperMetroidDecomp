@@ -46,12 +46,12 @@ internal static class AtomicAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
 
         // The ordinary East Super state contains four consecutive zero-speed Atomics with
         // parameter-one values 0,1,2,3. Starting the audit population at the first of those
         // records avoids depending on the unrelated Coven family that precedes them.
-        CartridgeRoomHeader eastSuperRoom = CartridgeRoomHeader.Load(bus, EastSuperRoom);
+        CartridgeRoomHeader eastSuperRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, EastSuperRoom);
         CartridgeRoomAssets eastSuperAssets = CartridgeRoomAssets.Load(bus, eastSuperRoom);
         ushort eastAtomicPopulation = FindFirstPopulationRecord(
             bus,
@@ -69,7 +69,7 @@ internal static class AtomicAudit
 
         // Boss bit one selects Basement's post-Phantoon state. Its three Atomics use speed
         // index eight, a literal half pixel per axis per frame in the NTSC cartridge table.
-        CartridgeRoomHeader basementRoom = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader basementRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BasementRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));

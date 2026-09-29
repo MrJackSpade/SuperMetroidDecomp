@@ -17,8 +17,8 @@ internal static partial class NorfairRidleyAudit
 
     public static int Run(string romPath, string? deathAudioTracePath = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         if (room.AreaIndex != AreaId.Norfair || room.WidthInScreens != 1 || room.HeightInScreens != 2 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
@@ -28,7 +28,7 @@ internal static partial class NorfairRidleyAudit
                 $"population=${room.State.EnemyPopulationPointer:X4}.");
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             RoomEnemySystem.NorfairRidleyDefinition);
         if (definition.Bank != 0xa6 || definition.Health != 18000 || definition.Damage != 160 ||

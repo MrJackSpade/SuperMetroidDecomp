@@ -11,7 +11,7 @@ internal static class RetailEnemyCoverageAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string symbolPath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "upstream-sm",
@@ -130,7 +130,7 @@ internal static class RetailEnemyCoverageAudit
 
         foreach ((ushort pointer, (int populationCount, int recordCount)) in occurrences.OrderBy(pair => pair.Key))
         {
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
             Console.WriteLine(
                 $"${pointer:X4} pop={populationCount,3} records={recordCount,4} " +
                 $"init=${definition.Bank:X2}:{definition.InitializationAiPointer:X4} " +

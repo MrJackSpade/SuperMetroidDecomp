@@ -18,7 +18,7 @@ internal static class PhantoonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         // Read the region-specific immediate operands rather than assuming PAL's +/-3.
         ushort clockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.ClockwiseRageSpeedInstruction);
         ushort counterclockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.CounterclockwiseRageSpeedInstruction);
@@ -29,7 +29,7 @@ internal static class PhantoonAudit
                 throw new InvalidDataException($"Expected rage initializer LDA immediate at ${address:X6}.");
             return (ushort)(bus.ReadByte(address + 1) | bus.ReadByte(address + 2) << 8);
         }
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 1 || room.HeightInScreens != 1 ||
             room.AreaIndex != AreaId.WreckedShip ||

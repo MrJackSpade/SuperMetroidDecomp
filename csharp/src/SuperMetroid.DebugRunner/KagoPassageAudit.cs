@@ -23,7 +23,7 @@ internal static class KagoPassageAudit
             int pattern = int.Parse(seed[3]), delay = int.Parse(seed[4]);
             if (((actor * 2 + geometry) * 2 + (left ? 1 : 0)) * 75 + pattern * 25 + delay != cases)
                 throw new InvalidDataException("Reordered Kago passage cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

@@ -64,7 +64,7 @@ internal static partial class Program
 
     private static void VerifyProjectileInheritanceMovement()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { XPosition = 64, YPosition = 64 };
         samus.Kinematics.XRadius = 5;
         samus.Kinematics.YRadius = 5;
@@ -101,7 +101,7 @@ internal static partial class Program
 
     private static void VerifyProjectileInheritanceRuntime(ushort weapon)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

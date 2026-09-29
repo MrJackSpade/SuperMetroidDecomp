@@ -31,11 +31,11 @@ internal static partial class RetailPlmPopulationAudit
     /// </summary>
     public static int AuditOutOfBoundsSetup(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach (OutOfBoundsPlmScenario scenario in OutOfBoundsPlmScenarios)
         {
-            CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, scenario.RoomPointer);
-            CartridgeRoomState exactState = CartridgeRoomState.Load(bus, scenario.StatePointer);
+            CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, scenario.RoomPointer);
+            CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, scenario.StatePointer);
             if (exactState.PlmPointer != scenario.PopulationPointer)
             {
                 throw new InvalidDataException(

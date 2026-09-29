@@ -9,7 +9,7 @@ internal static class GrappleHudAudit
     private const ushort GrappleRoom = 0xac2b;
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach (var test in new (byte Pose, bool Admitted)[]
         {
             (SamusPoseIds.FacingRightNormalPose, true),

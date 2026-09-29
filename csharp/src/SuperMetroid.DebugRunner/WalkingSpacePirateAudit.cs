@@ -21,8 +21,8 @@ internal static class WalkingSpacePirateAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionsAndRetailPopulation(bus, room);
@@ -67,7 +67,7 @@ internal static class WalkingSpacePirateAudit
 
         for (int index = 0; index < Definitions.Length; index++)
         {
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definitions[index]);
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definitions[index]);
             if (definition.TileDataSize != 0x0c00 ||
                 definition.Health != Health[index] || definition.Damage != Damage[index] ||
                 definition.XRadius != 0x0010 || definition.YRadius != 0x0020 ||

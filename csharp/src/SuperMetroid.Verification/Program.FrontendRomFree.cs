@@ -18,12 +18,12 @@ internal static partial class Program
     private static void VerifyFrontendRomFreeStartup(GameInstallation installation,
         string sourceRom)
     {
-        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         // Installed gameplay gets real WRAM/SRAM but no ROM allocation at all.
         // The native reference remains available only to the development probe
         // that identifies the exact BG2 source ranges to forbid.
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        AssertEqual(0, installedMemory.Rom.Length,
+        AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
             "installed frontend starts with no cartridge allocation");
         var guardedBus = new FrontendCartridgeReadGuard(installedMemory, nativeBus);
         AssertThrows<InvalidOperationException>(

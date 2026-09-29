@@ -8,7 +8,7 @@ internal static partial class Program
 {
 static void VerifyLibraryBackgroundSourceInventory()
 {
-    ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+    ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     IReadOnlyList<LibraryBackgroundSource> sources =
         LibraryBackgroundSourceInventory.Scan(bus);
@@ -104,13 +104,13 @@ static void VerifyKraidLibraryHudArtwork(
 
 static void VerifyLibraryBackgroundLoader()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // Fixture list mirrors Ceres $8F:E4A5: decompress a four-byte tilemap to $7E:4000,
     // copy it to both BG2 screen pages, then terminate. The compressed stream begins at
     // $90:8000 and consists of one four-byte literal followed by $FF.
     byte[] compressed = [0x03, 0x11, 0x22, 0x33, 0x44, 0xff];
-    int compressedOffset = SuperMetroidAddressSpace.ToRomOffset(0x908000);
+    int compressedOffset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x908000);
     compressed.CopyTo(rom, compressedOffset);
 
     ushort cursor = 0xe000;
@@ -127,7 +127,7 @@ static void VerifyLibraryBackgroundLoader()
     WriteLibraryWord(rom, cursor, 0x0004); cursor += 2;
     WriteLibraryWord(rom, cursor, 0x0000);
 
-    var bus = new SuperMetroidAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var vram = new SnesVram();
     LibraryBackgroundExecutionResult result =
         LibraryBackgroundLoader.Execute(bus, vram, 0xe000, activeDoorPointer: 0);
@@ -152,7 +152,7 @@ static void VerifyLibraryBackgroundLoader()
     // The list cursor is sixteen-bit. Reading a command word at $8F:FFFF fetches
     // its second byte from the $8F:0000 WRAM mirror, not from the next ROM bank.
     WriteLibraryByte(rom, 0xffff, 0);
-    var wrappedBus = new SuperMetroidAddressSpace(rom);
+    var wrappedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     wrappedBus.WriteByte(0x8f0000, 0);
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
     native = LibraryBackgroundLoader.ExecuteNativeForVerification(
@@ -168,7 +168,7 @@ static void VerifyLibraryBackgroundLoader()
     // both pages with the native blank tile rather than relying on a fresh host array.
     WriteLibraryWord(rom, 0xe040, 0x000a);
     WriteLibraryWord(rom, 0xe042, 0x0000);
-    bus = new SuperMetroidAddressSpace(rom);
+    bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
     LibraryBackgroundLoader.Execute(bus, vram, 0xe040, activeDoorPointer: 0);
@@ -216,7 +216,7 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
 {
-    int offset = SuperMetroidAddressSpace.ToRomOffset(0x8f0000 | pointer);
+    int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
     rom[offset] = value;
 }
 }

@@ -45,8 +45,8 @@ internal static class HopperAudit
 
     public static int Run(string romPath, string? outputDirectory = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, BlueHopperRoomHeader);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BlueHopperRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -199,7 +199,7 @@ internal static class HopperAudit
     private static void VerifyRedBrinstarCeilingSidehoppersMoveAwayFromCeiling(
         SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             RoomDefinitions.RedBrinstarGiantSidehopperRoom);
         if (room.Identity != new RoomIdentity(AreaId.Brinstar, 0x25))
@@ -287,7 +287,7 @@ internal static class HopperAudit
         SuperMetroidAddressSpace bus,
         string? outputDirectory)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             RoomDefinitions.UpperNorfairDessgeegaRoom);
         if (room.Identity != new RoomIdentity(AreaId.Norfair, 0x04))
@@ -631,7 +631,7 @@ internal static class HopperAudit
         if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
             throw new InvalidDataException("Hopper replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];
@@ -763,7 +763,7 @@ internal static class HopperAudit
         SuperMetroidAddressSpace bus,
         string? outputDirectory)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             RoomDefinitions.CrateriaCeilingSidehopper);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);

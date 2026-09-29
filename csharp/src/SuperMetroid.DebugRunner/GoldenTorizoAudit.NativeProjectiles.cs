@@ -8,8 +8,8 @@ internal static partial class GoldenTorizoAudit
 {
     public static int CompareNativeSuperAim(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room), false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetMethod("SpawnGoldenTorizoSuperMissile", hidden)!
@@ -38,8 +38,8 @@ internal static partial class GoldenTorizoAudit
 
     public static int CompareNativeProjectileInitializers(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room), false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         var next = (Func<ushort>)typeof(RoomEnemySystem).GetField("_nextRandom", hidden)!.GetValue(loaded.Enemies)!;

@@ -15,12 +15,12 @@ internal static class PowerBombRoomEffectSoundAudit
         foreach (bool beacon in new[] { false, true })
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             if (beacon)
                 runtime.RoomPaletteFx.SpawnDefinition(bus, RoomEffectSoundAuditDefinitions.Beacon, 0);
             else
-                runtime.LoadCartridgeRoomThroughDoorForVerification(CartridgeDoorHeader.Load(bus, RoomEffectSoundAuditDefinitions.RisingLavaDoor));
+                runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, RoomEffectSoundAuditDefinitions.RisingLavaDoor));
             runtime.Samus!.InputLocked = true;
             if (active)
             {
@@ -73,7 +73,7 @@ internal static class PowerBombRoomEffectSoundAudit
     {
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var palette = new RoomPaletteFxSystem();
             var samus = new SamusState { Health = 99 };
             var explosion = new SamusPowerBombExplosionState();

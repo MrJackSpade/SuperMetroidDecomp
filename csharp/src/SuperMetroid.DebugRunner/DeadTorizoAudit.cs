@@ -10,10 +10,10 @@ internal static class DeadTorizoAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer) with
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer) with
         {
-            State = CartridgeRoomState.Load(bus, StatePointer),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, StatePointer),
         };
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedDeadTorizo loaded = Load(bus, room, assets);

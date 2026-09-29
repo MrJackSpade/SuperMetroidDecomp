@@ -15,7 +15,7 @@ internal static class NorfairBarrierCollisionAudit
 
     public static int Run(string romPath, string? recordingPath = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = FindRoom(bus, TargetRoom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -193,7 +193,7 @@ internal static class NorfairBarrierCollisionAudit
                 continue;
             }
 
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, pointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             if (room.Identity == identity)
                 return room;
         }

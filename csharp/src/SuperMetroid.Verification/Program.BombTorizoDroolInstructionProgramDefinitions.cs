@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         VerifyBombTorizoDroolInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

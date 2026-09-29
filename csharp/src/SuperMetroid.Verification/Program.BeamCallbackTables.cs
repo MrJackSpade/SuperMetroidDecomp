@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyBeamCallbackTables()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool charged in new[] { false, true })
         {
             ReadOnlySpan<SamusBeamCallbackDefinition> definitions = charged

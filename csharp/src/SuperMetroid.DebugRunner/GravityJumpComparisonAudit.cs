@@ -11,7 +11,7 @@ internal static class GravityJumpComparisonAudit
 {
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != GravityJumpNativeExpectations.RomSha256)
             throw new InvalidDataException("Gravity Jump requires the pinned Japan/USA ROM.");
         string traceText = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);

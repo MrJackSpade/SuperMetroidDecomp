@@ -15,7 +15,7 @@ internal static class SoftUnmorphChargeComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "30B110B1866FCC94A05B3A6661BD387B4F710198FE3E601979EEB38A6FC3EC60")
             throw new InvalidDataException("Use the accepted soft-unmorph-charge native v2 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 47808 || rows.Any(row => row.Length != 30))
             throw new InvalidDataException("Unexpected soft-unmorph-charge trace dimensions.");

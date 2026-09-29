@@ -16,11 +16,11 @@ internal static partial class Program
 
         static void Verify(byte[] rom, string source)
         {
-            var sourceBus = new SuperMetroidAddressSpace(rom);
+            var sourceBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             TitleGradientPresentation gradient = TitleGradientPresentation.Load(
                 new MemoryStream(TitleGradientExtractor.Extract(sourceBus), writable: false));
             var scene = new TitleSequenceState(sourceBus, titleGradientPresentation: gradient);
-            var control = new TitleSequenceState(new SuperMetroidAddressSpace(rom),
+            var control = new TitleSequenceState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
                 titleGradientPresentation: gradient);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;

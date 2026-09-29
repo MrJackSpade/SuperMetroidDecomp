@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleBlueDoors()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         for (int hitOffset = 0; hitOffset < 4; hitOffset++)
         {

@@ -12,7 +12,7 @@ internal static class SamusEaterAudit
     public static int Run(string rom, string? captureDirectory = null)
     {
         if (captureDirectory is not null) Directory.CreateDirectory(captureDirectory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         VerifyAdmission(bus);
         VerifyCeilingSequence(bus);
         var runtime = new SuperMetroidRuntime(bus);

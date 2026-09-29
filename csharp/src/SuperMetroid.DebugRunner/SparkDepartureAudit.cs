@@ -11,8 +11,8 @@ internal static class SparkDepartureAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "DF0DDF8BDD56259EB2EBEFA8F288FA975625D35192AA6E3EF0B86E1AEFCF534A")
             throw new InvalidDataException("Use accepted spark-departure-466-v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, CartridgeRoomHeader.Load(bus, 0xcd13)).LevelData;
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
         int differences = 0, records = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => row[0]))

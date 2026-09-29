@@ -29,7 +29,7 @@ internal static class ShutterAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         Dictionary<ushort, List<RoomEnemyPopulationRecord>> records =
             ReadEveryNamedRetailRecord(retailBus);
 
@@ -124,7 +124,7 @@ internal static class ShutterAudit
         ushort shot,
         ushort powerBomb)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, definitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
         if (definition.Bank != 0xa2 || definition.Health != 20 || definition.Damage != 40 ||
             definition.XRadius != xRadius || definition.YRadius != yRadius ||
             definition.InitializationAiPointer != initialization ||

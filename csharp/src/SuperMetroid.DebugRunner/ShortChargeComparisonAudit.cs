@@ -23,7 +23,7 @@ internal static class ShortChargeComparisonAudit
             int taps = int.Parse(group.First()[1]), pattern = int.Parse(group.First()[2]), shift = int.Parse(group.First()[3]);
             if ((((left ? 1 : 0) * 3 + taps - 2) * 7 + pattern) * 3 + shift + 1 != cases++)
                 throw new InvalidDataException("Reordered short-charge cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

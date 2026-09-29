@@ -7,7 +7,7 @@ internal static class DebuggerFixtureLoader
     public static DebuggerSaveStateLoadResult Load(string fixtureName, int slot)
     {
         string rom = Path.GetFullPath("Super Metroid.smc");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string directory = Path.Combine(Path.GetTempPath(), $"SuperMetroid-fixture-{Guid.NewGuid():N}");
         Directory.CreateDirectory(directory);
         var store = new DebuggerSaveStateStore(rom, bus.Rom, directory);

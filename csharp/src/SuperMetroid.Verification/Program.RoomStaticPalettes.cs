@@ -16,7 +16,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomStaticPaletteExtractor.Extract(bus);
         var compiled = new Dictionary<int, RoomStaticPalette>();
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
@@ -40,7 +40,7 @@ internal static partial class Program
         var catalog = new RoomStaticPaletteCatalog(compiled);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, roomPointer);
+            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
             CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
             CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
@@ -53,7 +53,7 @@ internal static partial class Program
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 
-        CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+        CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         int selectedSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).PaletteAddress;
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])

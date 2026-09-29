@@ -18,7 +18,7 @@ internal static class MinimapBlinkAudit
 
     private static void VerifyRoom(string romPath, ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
     {
-        var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(romPath));
+        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();

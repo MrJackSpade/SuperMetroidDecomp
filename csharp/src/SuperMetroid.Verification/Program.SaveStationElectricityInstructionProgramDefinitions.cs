@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifySaveStationElectricityInstructionProgramDefinitions() =>
         VerifySaveStationElectricityInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     private static void VerifySaveStationElectricityInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

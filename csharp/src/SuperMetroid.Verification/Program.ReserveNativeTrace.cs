@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyReserveNativeTrace(string path)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int checkedFrames = 0;
         var handlers = File.ReadLines(path + ".samus.csv").Skip(1)
             .Select(line => line.Split(',').Select(int.Parse).ToArray())

@@ -28,7 +28,7 @@ internal static class RoomPerformanceStateFixture
         {
             // The actual map-room entrance runs its cartridge setup and door PLM;
             // this does not simulate an entire route merely to benchmark one room.
-            var door = CartridgeDoorHeader.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
+            var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
             typeof(SuperMetroidRuntime).GetMethod("LoadCartridgeRoomThroughDoorForVerification", fields)!
                 .Invoke(runtime, [door, camera, camera]);
         }

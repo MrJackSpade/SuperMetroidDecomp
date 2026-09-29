@@ -8,9 +8,9 @@ internal static class GrappleDemoTrace
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         for (int set = 0; set < AttractDemoRomData.SetCount; set++)
-            for (int index = 0; AttractDemoScene.Read(bus, set, index) is { } scene; index++)
+            for (int index = 0; SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, set, index) is { } scene; index++)
             {
                 if (scene.InputObject is not (AttractDemoRomData.InputObjects.GrappleBeam or
                     AttractDemoRomData.InputObjects.AdvancedGrappleBeam)) continue;

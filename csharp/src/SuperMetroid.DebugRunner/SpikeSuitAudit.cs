@@ -18,7 +18,7 @@ internal static class SpikeSuitAudit
 
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string text = ReadVerifiedTrace(bus, trace, DryTraceSha256);
         string traceHash = HashText(text);
 
@@ -94,7 +94,7 @@ internal static class SpikeSuitAudit
 
     public static int RunUnderwaterReserve(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string text = ReadVerifiedTrace(bus, trace, UnderwaterReserveTraceSha256);
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Skip(1)
@@ -238,7 +238,7 @@ internal static class SpikeSuitAudit
     }
 
     private static string ReadVerifiedTrace(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         string trace,
         string expectedTraceSha256)
     {

@@ -14,7 +14,7 @@ internal static partial class Program
     private static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
-        SuperMetroidAddressSpace inventoryBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+        SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         VerifyCompiledLibraryBackgroundPrograms(inventoryBus);
         IReadOnlyList<LibraryBackgroundSource> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
@@ -33,13 +33,13 @@ internal static partial class Program
             foreach (ushort door in list.Where(source => source.DoorPointer.HasValue)
                 .Select(source => source.DoorPointer!.Value).Append((ushort)0).Distinct())
             {
-                SuperMetroidAddressSpace nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+                SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
                 LibraryBackgroundExecutionResult native =
                     LibraryBackgroundLoader.ExecuteNativeForVerification(
                         nativeBus, nativeVram, program.Pointer, door);
 
-                SuperMetroidAddressSpace selectedBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+                SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
                 var guarded = new LibraryBackgroundVisualReadGuard(selectedBus, sources);
                 var selectedVram = new SnesVram();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(

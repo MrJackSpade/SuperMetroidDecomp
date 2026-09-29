@@ -23,7 +23,7 @@ internal static class GapSkipComparisonAudit
             int delay = int.Parse(seed[3]), hold = int.Parse(seed[4]);
             if ((((left ? 1 : 0) * 3 + speed) * 4 + width - 1) * 100 + delay * 4 + hold != cases)
                 throw new InvalidDataException("Reordered gap-skip cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

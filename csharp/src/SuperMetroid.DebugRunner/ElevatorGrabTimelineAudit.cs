@@ -23,7 +23,7 @@ internal static class ElevatorGrabTimelineAudit
             int scenario=int.Parse(seed[3]), start=int.Parse(seed[4]), delay=int.Parse(seed[5]);
             if (((((up * 2 + parity) * 2 + left) * 3 + scenario) * 32 + start - 120) * 7 + delay - 7 != cases)
                 throw new InvalidDataException("Reordered elevator timeline cases.");
-            var retail=SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var retail=SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime=FlatFloorMovementFixture.Create(retail,false);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenBrinstarMainShaft,0,144);
             runtime.Plms.Reset();

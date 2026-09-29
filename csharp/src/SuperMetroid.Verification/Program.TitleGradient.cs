@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
-    private static void VerifyTitleGradientTables(SuperMetroidAddressSpace bus)
+    private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         VerifyTitleGradientObjectEligibility();
         VerifyExtractedTitleGraphics(bus);

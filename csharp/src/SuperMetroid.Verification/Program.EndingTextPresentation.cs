@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyEndingTextPresentation(string romPath)
     {
-        ISnesAddressSpace nativeBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(nativeBus);
         EndingTextPresentation presentation = EndingTextPresentation.Load(
             new MemoryStream(extracted, writable: false));

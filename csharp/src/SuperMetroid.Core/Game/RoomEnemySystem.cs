@@ -4206,54 +4206,6 @@ public sealed partial class RoomEnemySystem
             ? fixture.ReadEnemyGraphicsSet(pointer)
             : RoomEnemyGraphicsSetDefinitions.Get(pointer);
 
-    /// <summary>
-    /// Parses one complete 64-byte enemy header from the fixed bank-$A0 definition table.
-    /// Keeping this reader public lets debugger tooling inspect unsupported actors without
-    /// pretending their initialization or main AI has already been translated.
-    /// </summary>
-    public static RoomEnemyDefinition ReadDefinition(ISnesAddressSpace bus, ushort pointer)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (MamaTurtleEnemyDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition compiled))
-            return compiled;
-
-        int address = RoomEnemyRomLayout.DefinitionBank | pointer;
-        return new RoomEnemyDefinition(
-            TileDataSize: ReadWord(bus, address),
-            PalettePointer: ReadWord(bus, AddWithinBank(address, 2)),
-            Health: ReadWord(bus, AddWithinBank(address, 4)),
-            Damage: ReadWord(bus, AddWithinBank(address, 6)),
-            XRadius: ReadWord(bus, AddWithinBank(address, 8)),
-            YRadius: ReadWord(bus, AddWithinBank(address, 10)),
-            Bank: ReadEnemySourceByte(bus, AddWithinBank(address, 12)),
-            HurtAiTime: ReadEnemySourceByte(bus, AddWithinBank(address, 13)),
-            HurtSoundEffect: ReadWord(bus, AddWithinBank(address, 14)),
-            BossId: ReadWord(bus, AddWithinBank(address, 16)),
-            InitializationAiPointer: ReadWord(bus, AddWithinBank(address, 18)),
-            PartCount: ReadWord(bus, AddWithinBank(address, 20)),
-            Unused16: ReadWord(bus, AddWithinBank(address, 22)),
-            MainAiPointer: ReadWord(bus, AddWithinBank(address, 24)),
-            GrappleAiPointer: ReadWord(bus, AddWithinBank(address, 26)),
-            HurtAiPointer: ReadWord(bus, AddWithinBank(address, 28)),
-            FrozenAiPointer: ReadWord(bus, AddWithinBank(address, 30)),
-            TimeFrozenAiPointer: ReadWord(bus, AddWithinBank(address, 32)),
-            DeathAnimation: ReadWord(bus, AddWithinBank(address, 34)),
-            Unused24: ReadWord(bus, AddWithinBank(address, 36)),
-            Unused26: ReadWord(bus, AddWithinBank(address, 38)),
-            PowerBombReactionPointer: ReadWord(bus, AddWithinBank(address, 40)),
-            VariantIndex: ReadWord(bus, AddWithinBank(address, 42)),
-            Unused2C: ReadWord(bus, AddWithinBank(address, 44)),
-            Unused2E: ReadWord(bus, AddWithinBank(address, 46)),
-            TouchAiPointer: ReadWord(bus, AddWithinBank(address, 48)),
-            ShotAiPointer: ReadWord(bus, AddWithinBank(address, 50)),
-            InitialSpritemapPointer: ReadWord(bus, AddWithinBank(address, 52)),
-            TileDataAddress: ReadLong(bus, AddWithinBank(address, 54)),
-            Layer: ReadEnemySourceByte(bus, AddWithinBank(address, 57)),
-            ItemDropChancesPointer: ReadWord(bus, AddWithinBank(address, 58)),
-            VulnerabilityPointer: ReadWord(bus, AddWithinBank(address, 60)),
-            NamePointer: ReadWord(bus, AddWithinBank(address, 62)));
-    }
-
     private RoomEnemySpawnNameWords ReadSpawnNameWords(RoomEnemyDefinition definition)
     {
         if (definition.NamePointer == 0)
@@ -4294,8 +4246,8 @@ public sealed partial class RoomEnemySystem
                 (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                     "Enemy data in an SRAM window requires mutable memory."))
                 .ReadSaveRamByte(address),
-            SnesDmaSourceKind.Cartridge =>
-                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
+                $"Enemy data ${address:X6} has no compiled definition."),
             _ => throw new InvalidDataException(
                 $"Enemy data read ${address:X6} is outside mapped cartridge/WRAM/SRAM data."),
         };

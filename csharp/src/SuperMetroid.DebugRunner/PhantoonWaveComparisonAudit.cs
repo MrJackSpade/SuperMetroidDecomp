@@ -9,7 +9,7 @@ internal static class PhantoonWaveComparisonAudit
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(trace))) !=
             "540325129811D501D37987C45B3F3216099CBF43A6AF5A0009C0C0F97C37504A")
             throw new InvalidDataException("Use the accepted original-CPU Phantoon wave capture.");
-        _ = SuperMetroidAddressSpace.LoadRetailRom(rom); // Retain the audit's revision check.
+        _ = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom); // Retain the audit's revision check.
         int words = 0, cases = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray())
             .GroupBy(row => (Mode: row[0], Amplitude: row[1], Frame: row[2], Phase: row[3])))

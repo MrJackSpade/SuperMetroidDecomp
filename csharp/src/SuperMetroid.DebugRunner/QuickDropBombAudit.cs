@@ -24,7 +24,7 @@ internal static class QuickDropBombAudit
             int delay = int.Parse(seed[3]), blast = int.Parse(seed[4]);
             if ((int.Parse(seed[0]) * 4 + int.Parse(seed[1]) * 2 + int.Parse(seed[2])) * 20 + delay * 4 + blast != cases)
                 throw new InvalidDataException("Reordered quick-drop cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

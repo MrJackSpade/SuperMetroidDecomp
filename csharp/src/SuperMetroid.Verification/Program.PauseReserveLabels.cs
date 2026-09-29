@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseReserveLabels()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort capacity in new ushort[] { 0, 100 })
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {

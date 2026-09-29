@@ -85,7 +85,7 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
                (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start),
         "opposed fixed directions and Start survive binding normalization");
 
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
     // Five independent all-blank pages are enough to exercise the state machine. The
     // decompressor and page addresses remain real; visual asset fidelity is covered by the
     // production-ROM capture audits rather than embedding copyrighted menu data here.
@@ -114,7 +114,7 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.Pages.SpecialJapanese.Address,
         GameOptionsRomData.TilemapByteCount,
         0);
-    var bus = new SuperMetroidAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var options = new GameOptionsMenuState(bus);
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
@@ -360,14 +360,14 @@ static void VerifyEndingCreditsState()
     }
 
     byte[] rom = File.ReadAllBytes(romPath);
-    if (rom.Length != SuperMetroidAddressSpace.RetailRomByteCount)
+    if (rom.Length != SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount)
     {
         throw new InvalidDataException(
             $"Ending smoke-test ROM is ${rom.Length:X} bytes; expected headerless retail size " +
-            $"${SuperMetroidAddressSpace.RetailRomByteCount:X}.");
+            $"${SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount:X}.");
     }
 
-    var bus = new SuperMetroidAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
     var ending = new EndingCreditsState(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(

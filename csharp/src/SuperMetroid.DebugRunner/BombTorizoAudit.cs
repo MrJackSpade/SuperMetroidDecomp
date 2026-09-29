@@ -23,8 +23,8 @@ internal static partial class BombTorizoAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
         VerifyHitboxBoundaries(bus, room, assets);
@@ -73,7 +73,7 @@ internal static partial class BombTorizoAudit
             }
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.Bank != 0xaa || definition.Health != 800 || definition.Damage != 8 ||
             definition.XRadius != 18 || definition.YRadius != 48 || definition.BossId != 2 ||
             definition.InitializationAiPointer != 0xc87f ||

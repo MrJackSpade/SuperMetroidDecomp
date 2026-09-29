@@ -13,8 +13,8 @@ internal static partial class NinjaSpacePirateAudit
     {
         string[]? nativeRows = nativeTracePath is null ? null : File.ReadAllLines(nativeTracePath);
         int nativeRow = 1;
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var room = CartridgeRoomHeader.Load(bus, MetalPiratesRoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetalPiratesRoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         foreach (bool charged in new[] { false, true })
         foreach (int freezeFrames in new[] { 15, 16 })

@@ -10,7 +10,7 @@ internal static class ComboDrawAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "C92A9E80D98A24BD0D665A9DC36E541059843B2E1B523BE84B79F9796E4F95B3")
             throw new InvalidDataException("Use the accepted combo-draw v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int frames = 0, failures = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).GroupBy(line =>
             string.Join(',', line.Split(',')[..2])))

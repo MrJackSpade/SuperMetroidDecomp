@@ -16,13 +16,13 @@ internal static partial class Program
         VerifyFileSelectMapIcons();
         VerifyFileSelectMapAnimations();
         VerifyMapCancelPresentation();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
         {
             AreaId area = (AreaId)areaIndex;
             var system = new Bank80SystemState();
-            AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
             // station's mask: explored cells win, even for secret rooms.
@@ -66,7 +66,7 @@ internal static partial class Program
             Rgba32[] pixels = graphics.RenderBackgrounds(0, unchecked((ushort)-40));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
-            var retailIcons = new FileSelectMapIcons(bus, system, area);
+            var retailIcons = new FileSelectMapIcons(system, area);
             var retailOam = new OamBuffer();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, 0, 0);
@@ -81,7 +81,7 @@ internal static partial class Program
 
     private static void VerifyMapCancelPresentation()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus);
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;
@@ -207,7 +207,7 @@ internal static partial class Program
             bus.WriteByte(0x820000 | (pointer + 4), 0);
             WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
         }
-        var icons = new FileSelectMapIcons(bus, system, AreaId.Brinstar);
+        var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
         OamBuffer Draw()
         {
             var oam = new OamBuffer();
@@ -248,14 +248,14 @@ internal static partial class Program
 
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus);
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {
-            var station = SuperMetroid.Core.Rooms.LoadStationEntry.Load(bus, (AreaId)savedArea, 0);
-            var room = SuperMetroid.Core.Rooms.CartridgeRoomHeader.Load(bus, station.RoomPointer);
+            var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
+            var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
             int x = room.MapX + (station.SamusX >> 8);
             int y = room.MapY + (station.SamusY >> 8) + 1;
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(x, y)] |= AreaMapLayout.GetBitMask(x);
@@ -310,7 +310,7 @@ internal static partial class Program
         Until(() => frame.Phase == "Room", 80);
         frame = game.Step(0x1000);
         Until(() => game.RuntimeForVerification is not null, 100);
-        AssertEqual(SuperMetroid.Core.Rooms.LoadStationEntry.Load(bus, AreaId.Maridia, 0).RoomPointer,
+        AssertEqual(SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
             game.RuntimeForVerification!.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
@@ -328,7 +328,7 @@ internal static partial class Program
 
     private static void VerifyFileSelectMapNavigation()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
         {
             var navigation = new FileSelectMapNavigation(bus, 4, confirm);
@@ -375,8 +375,8 @@ internal static partial class Program
 
     private static void VerifyFileSelectMapScroll()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AreaMapCartridgeData map = AreaMapRomData.Load(bus, AreaId.Crateria);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, 0, 0);
         system.MarkExploredMapTile(AreaId.Crateria, 63, 31);

@@ -54,7 +54,7 @@ internal static partial class MorphBallEyeAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
         VerifyRoomPopulation(bus, FinalMissileRoom, FinalMissileState,
             FinalMissilePopulation, FinalMissileRecords);
@@ -65,7 +65,7 @@ internal static partial class MorphBallEyeAudit
         VerifyInstructionListsAndSpritemaps(bus);
         VerifyCollectedItemPersistence();
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, FinalMissileRoom);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FinalMissileRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyInitializationAndOwnershipGate(bus, room, assets);
         VerifyActivationTrackingBeamAndDeactivation(bus, room, assets);
@@ -85,7 +85,7 @@ internal static partial class MorphBallEyeAudit
 
     private static void VerifyDefinition(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x8f8c ||
             definition.Health != 20 || definition.Damage != 0 ||
             definition.XRadius != 8 || definition.YRadius != 8 ||
@@ -131,7 +131,7 @@ internal static partial class MorphBallEyeAudit
         ushort populationPointer,
         IReadOnlyList<EyeRecord> expected)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         if (room.State.Pointer != statePointer ||
             room.State.EnemyPopulationPointer != populationPointer)
         {
@@ -479,7 +479,7 @@ internal static partial class MorphBallEyeAudit
 
     private static void VerifyMorphBallRoomBeamApex(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MorphBallRoom);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MorphBallRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedEye loaded = Load(bus, room, assets, MorphBallPopulation);
         RoomEnemySlot body = loaded.Enemies.Slots[1];

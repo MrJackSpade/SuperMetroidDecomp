@@ -19,8 +19,8 @@ internal static partial class MetroidAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MetroidRoomHeader);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetroidRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyDefinition(bus);
 
@@ -44,7 +44,7 @@ internal static partial class MetroidAudit
 
     private static void VerifyDefinition(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, MetroidDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, MetroidDefinition);
         if (definition.Bank != 0xa3 ||
             definition.InitializationAiPointer != 0xea4f ||
             definition.MainAiPointer != 0xeb98 ||

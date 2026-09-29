@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCeresFlightActorDefinitions()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
         VerifyActor(retail, front, "front stars");
         AssertEqual(ReadWord(retail, 0x8bbe84), front.InitialTimer, "front stars initial timer");

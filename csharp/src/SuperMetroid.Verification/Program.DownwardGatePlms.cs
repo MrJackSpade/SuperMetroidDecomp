@@ -72,7 +72,7 @@ internal static partial class Program
 
     private static void VerifyDownwardGateHeaderDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort header in new ushort[]
                  { RoomPlmHeaders.DownwardGate, RoomPlmHeaders.DownwardGateShotBlock })
@@ -93,7 +93,7 @@ internal static partial class Program
 
     private static void VerifyDownwardGateDrawDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         int count = 0;
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
@@ -132,7 +132,7 @@ internal static partial class Program
 
     private static void VerifyDownwardGateProgramDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         int wordCount = 0;
         foreach ((ushort address, ushort compiled) in

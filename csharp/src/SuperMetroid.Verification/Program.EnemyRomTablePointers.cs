@@ -37,7 +37,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach ((int start, int byteLength) in RepresentativeEnemyRomRanges())
         {
             _ = bus.ReadByte(start);

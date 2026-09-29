@@ -15,7 +15,7 @@ internal static class XrayChargeComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "4893532C55D1162C79764520CEE8F4674F1FF9F1AACBBEC4856136215862B288")
             throw new InvalidDataException("Use the accepted xray-charge native v3 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 22500 || rows.Any(row => row.Length != 29))
             throw new InvalidDataException("Unexpected xray-charge trace dimensions.");

@@ -28,7 +28,7 @@ internal static class XrayClimbComparisonAudit
         if (rows.Any(row => row.Length != 11))
             throw new InvalidDataException("Malformed X-Ray climb row.");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int mismatches = 0;
         for (int rowIndex = 0; rowIndex < rows.Length; rowIndex++)
         {

@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] addresses = MotherBrainFakeDeathPlmProgramDefinitions
             .NativeWordAddresses().ToArray();

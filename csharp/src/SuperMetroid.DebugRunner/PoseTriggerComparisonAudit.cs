@@ -11,7 +11,7 @@ internal static class PoseTriggerComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "D226C25CF44C0A12037EB06B6C33A474A59957A8DB8AF076B6DAFFC4D59152C8")
             throw new InvalidDataException("Use the accepted pose-trigger v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

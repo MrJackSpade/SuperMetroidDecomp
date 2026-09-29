@@ -16,7 +16,7 @@ internal static partial class RetailPlmPopulationAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string symbolPath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "upstream-sm",
@@ -112,7 +112,7 @@ internal static partial class RetailPlmPopulationAudit
     public static int LocateScrollOwners(string romPath, params int[] targetBlockIndices)
     {
         ArgumentNullException.ThrowIfNull(targetBlockIndices);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string symbolPath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "upstream-sm",

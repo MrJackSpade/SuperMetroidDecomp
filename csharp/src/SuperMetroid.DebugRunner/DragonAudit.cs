@@ -19,11 +19,11 @@ internal static class DragonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeader(retailBus);
         VerifyAllRetailPopulationPairs(retailBus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             retailBus,
             RoomPointer,
             new RoomStateSelectionContext(
@@ -622,7 +622,7 @@ internal static class DragonAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0600 || definition.PalettePointer != 0xe57b ||
             definition.Health != 300 || definition.Damage != 24 ||
             definition.XRadius != 8 || definition.YRadius != 0x001c ||

@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int samples = 0;
         for (int area = 0; area < 6; area++)
         {
@@ -60,7 +60,7 @@ internal static partial class Program
             AssertTrue(cancel ? legacy.OptionsRequested : legacy.LoadRequested, "map fixture completes requested route");
         }
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var leftBus = new SuperMetroidAddressSpace(rom); var rightBus = new SuperMetroidAddressSpace(rom);
+        var leftBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         foreach (var owner in new[] { leftBus, rightBus })
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };

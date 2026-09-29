@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <remarks>
 /// Hardware registers and cartridge windows are intentionally unmapped.
 /// </remarks>
-public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
+public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
 {
     /// <summary>Two complete 64 KiB WRAM banks, <c>$7E</c> and <c>$7F</c>.</summary>
     public const int WorkRamByteCount = 0x20000;

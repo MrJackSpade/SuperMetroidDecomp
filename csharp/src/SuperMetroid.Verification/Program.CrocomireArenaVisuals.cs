@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCrocomireArenaVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "crocomire-arena-visual-" + Guid.NewGuid().ToString("N")));

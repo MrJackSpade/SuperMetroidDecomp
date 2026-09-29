@@ -37,9 +37,9 @@ internal static partial class Program
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, installationRoot);
-            var nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
             var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            AssertEqual(0, installedMemory.Rom.Length,
+            AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
                 "direct-room fixture has no installed cartridge allocation");
             var native = new SuperMetroidGame(nativeBus);
             var installed = new SuperMetroidGame(

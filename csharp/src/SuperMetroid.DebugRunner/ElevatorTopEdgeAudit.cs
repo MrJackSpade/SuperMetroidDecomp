@@ -25,7 +25,7 @@ internal static class ElevatorTopEdgeAudit
             nativeArrival[0] != "frame,samusY,cameraY,cameraSubY,status"))
             throw new InvalidDataException("Incomplete or unrecognized original-CPU elevator arrival trace.");
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

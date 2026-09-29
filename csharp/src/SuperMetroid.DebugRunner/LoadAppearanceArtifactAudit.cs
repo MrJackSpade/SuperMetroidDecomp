@@ -18,7 +18,7 @@ internal static class LoadAppearanceArtifactAudit
     /// </summary>
     public static int RunRegression(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var savedSamus = new SamusState
         {
             Health = 99,
@@ -88,7 +88,7 @@ internal static class LoadAppearanceArtifactAudit
         if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
             throw new InvalidDataException("Load-appearance replay ROM SHA-256 does not match.");
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var saveRam = new SuperMetroidSaveRam(bus);
         int selectedSlot = saveRam.ReadSelectedSlot();

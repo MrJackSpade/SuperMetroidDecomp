@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyTreadmillVisual()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var rooms = JsonDocument.Parse(File.ReadAllText("standalone-assets/maps/room-placements.json"));
         foreach (var placement in rooms.RootElement.EnumerateArray())
         {

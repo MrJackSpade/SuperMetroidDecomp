@@ -12,7 +12,7 @@ internal static class CapturedBoyonFreezeAudit
         Directory.CreateDirectory(directory);
         string copy = Path.Combine(directory, "SuperMetroid-debug-slot-0.smstate");
         File.Copy(statePath, copy);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         try
         {
             var store = new DebuggerSaveStateStore(romPath, bus.Rom, directory);

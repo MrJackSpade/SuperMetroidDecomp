@@ -12,7 +12,7 @@ internal static class PauseMessageGateAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
             bus,

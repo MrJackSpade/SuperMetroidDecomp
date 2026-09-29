@@ -14,7 +14,7 @@ internal static class MotherBrainRecordingAudit
         var recording = ControllerInputRecording.Read(path);
         if (!SHA256.HashData(File.ReadAllBytes(romPath)).AsSpan().SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("The replay ROM does not match the recorded revision.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
         var ports = new byte[4];

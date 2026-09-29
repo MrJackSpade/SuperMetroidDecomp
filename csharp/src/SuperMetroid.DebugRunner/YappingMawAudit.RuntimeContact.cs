@@ -15,7 +15,7 @@ internal static partial class YappingMawAudit
         VerifyNativeExtensionRange(rom);
         foreach (var (jump, insideRoot) in new[] { (false, false), (true, false), (false, true) })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
@@ -92,8 +92,8 @@ internal static partial class YappingMawAudit
 
     private static void VerifyNativeExtensionRange(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, AuditRoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         foreach (ushort distance in new ushort[] { 33, 40, 48, 63, 64, 65, 96 })
         {

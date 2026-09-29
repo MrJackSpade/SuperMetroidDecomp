@@ -11,7 +11,7 @@ internal static class ShineStorageAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "EF2CE1E9112C7F0DAB9A1615766B83B3C9DEF85CCB6BFCF8B441E81A9501E638")
             throw new InvalidDataException("Use accepted shine-storage-465-v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int records = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))

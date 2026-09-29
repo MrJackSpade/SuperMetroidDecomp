@@ -22,10 +22,10 @@ internal static class BullAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         // Bull exists only in Sponge Bath's post-Phantoon state. The selector input is still
         // the ordinary area-boss bit consumed by the retail room header—not a patched state.
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             SpongeBathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));

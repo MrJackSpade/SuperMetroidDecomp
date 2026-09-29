@@ -14,7 +14,7 @@ internal static partial class Program
     private static void VerifyMurderBeam()
     {
         var bus = new ProjectileSoundRoutingForbiddenBus(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         var level = new RoomLevelData(
             16,
             16,

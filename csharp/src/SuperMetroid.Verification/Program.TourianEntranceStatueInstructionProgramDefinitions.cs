@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyTourianEntranceStatueInstructionProgramDefinitions()
     {
         VerifyTourianEntranceStatueInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     }
 
     private static void VerifyTourianEntranceStatueInstructionProgramDefinitions(

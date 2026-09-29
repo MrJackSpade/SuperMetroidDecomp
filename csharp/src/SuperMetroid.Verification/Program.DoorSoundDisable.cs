@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyDoorSoundDisableGuard()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         audio.AdvanceFrame(bus, default);
         audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, 15);

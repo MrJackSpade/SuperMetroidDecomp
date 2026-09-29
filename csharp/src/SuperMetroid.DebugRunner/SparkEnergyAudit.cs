@@ -12,7 +12,7 @@ internal static class SparkEnergyAudit
             (water ? "59406F8B686F99FD126F88D170A7EBAE9BC58039D8297C73BCE5E580B01193D9" :
             "E33BA87405556B25520B2DF9B8A3E428295A4D7AA51F980981F0FB25D02C2BDE"))
             throw new InvalidDataException("Use the accepted dry-energy or water-travel capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

@@ -9,7 +9,7 @@ internal static class SpinjumpComparisonAudit
     {
         string[][] rows = File.ReadLines(trace).Skip(1).Select(x => x.Split(',')).ToArray();
         if (rows.Length != 5760) throw new InvalidDataException("Expected 144 cases of 40 frames.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int sample = 0, mismatches = 0;
         for (int water = 0; water < 2; water++)
         for (int left = 0; left < 2; left++)

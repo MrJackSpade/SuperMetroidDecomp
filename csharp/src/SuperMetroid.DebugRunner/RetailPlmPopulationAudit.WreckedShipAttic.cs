@@ -14,7 +14,7 @@ internal static partial class RetailPlmPopulationAudit
     /// </summary>
     public static int AuditWreckedShipAttic(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         if (ReadWord(bus, 0x84bb07) != RoomPlmInstructionLists.WreckedShipAttic ||
             ReadWord(bus, 0x840000 | RoomPlmInstructionLists.WreckedShipAttic) !=
                 RoomPlmInstructionCodes.InstallPreInstruction ||
@@ -38,9 +38,9 @@ internal static partial class RetailPlmPopulationAudit
         ushort statePointer,
         ushort expectedPopulation)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, WreckedShipAtticRoom) with
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, WreckedShipAtticRoom) with
         {
-            State = CartridgeRoomState.Load(bus, statePointer),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, statePointer),
         };
         if (room.State.PlmPointer != expectedPopulation)
         {

@@ -199,7 +199,7 @@ internal static class ZebetiteSkipAudit
         bool neutralJumpOnAlignment = false, int recoveryBackFrames = 0, int recoveryWaitFrames = 0,
         bool referenceIceInput = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

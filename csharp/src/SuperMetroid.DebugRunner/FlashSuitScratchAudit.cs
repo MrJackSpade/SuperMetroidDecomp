@@ -8,7 +8,7 @@ internal static class FlashSuitScratchAudit
 {
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != "C3CF44F4E8D518AD8360CE194E4FF760A0D72F2C7752D82A33953613D40BA894")

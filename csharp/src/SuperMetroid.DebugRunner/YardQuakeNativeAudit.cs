@@ -17,7 +17,7 @@ internal static class YardQuakeNativeAudit
         for (int control = 0; control < 3; control++)
         for (ushort facing = 0; facing < 2; facing++)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var population = new PopulationSelectionAddressSpace(bus,
                 [new RoomEnemyPopulationRecord(RoomEnemySystem.YardDefinition, 128, 128, 0,
                     (ushort)EnemyProperties.ProcessOffScreen, 0, 0, 0)]);

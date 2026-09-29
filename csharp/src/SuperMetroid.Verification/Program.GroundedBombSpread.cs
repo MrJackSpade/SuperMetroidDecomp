@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGroundedBombSpread()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(128, 128, new ushort[16384], new byte[16384], new ushort[16384], new byte[8]);
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })

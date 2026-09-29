@@ -15,7 +15,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyPauseMenuEquipmentInteraction()
     {
-        var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
         // Area zero's pause map is a literal 64x32 tilemap at $B5:9000, and its area label
         // uses a harmless zero-filled bank-$82 source. The visual bytes may remain zero for
@@ -157,7 +157,7 @@ internal static partial class Program
         WriteRomWord(rom, PauseReserveLabelRomData.SourceTable, 0x8000);
         WriteRomWord(rom, PauseReserveLabelRomData.SourceTable + 2, 0x8000);
         gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
-        var bus = new SuperMetroidAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         var samus = new SamusState
         {
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
@@ -396,12 +396,12 @@ internal static partial class Program
 
     private static void WriteRomLong(byte[] rom, int snesAddress, int value)
     {
-        int offset = SuperMetroidAddressSpace.ToRomOffset(snesAddress);
+        int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
         rom[offset + 1] = unchecked((byte)(value >> 8));
         rom[offset + 2] = unchecked((byte)(value >> 16));
     }
 
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
-        rom[SuperMetroidAddressSpace.ToRomOffset(snesAddress)] = value;
+        rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 }

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] words = SpeedBoosterBlockPlmProgramDefinitions
             .MechanicsWordAddresses().Order().ToArray();

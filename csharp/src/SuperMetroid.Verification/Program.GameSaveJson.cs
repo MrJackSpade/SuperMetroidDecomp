@@ -14,7 +14,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
             throw new FileNotFoundException("JSON save verification requires the private retail ROM.", romPath);
-        SuperMetroidAddressSpace source = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var saveRam = new SuperMetroidSaveRam(source);
         var samus = new SamusState
         {
@@ -82,7 +82,7 @@ internal static partial class Program
         AssertEqual(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Deserialize(json)),
             "JSON save formatting and property order are deterministic");
 
-        SuperMetroidAddressSpace restored = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored);
         AssertTrue(expectedSram.SequenceEqual(restored.SaveRam),
             "JSON save round trip preserves complete translated and untranslated SRAM");
@@ -122,7 +122,7 @@ internal static partial class Program
             string legacyPath = Path.Combine(temporaryDirectory, "game.srm");
             string jsonPath = Path.Combine(temporaryDirectory, "game.save.json");
             File.WriteAllBytes(legacyPath, expectedSram);
-            SuperMetroidAddressSpace migrated = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace migrated = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             GameSaveLoadResult firstLoad = GameSaveFileStore.LoadOrMigrate(
                 migrated,
                 jsonPath,
@@ -134,7 +134,7 @@ internal static partial class Program
             AssertTrue(expectedSram.SequenceEqual(migrated.SaveRam),
                 "legacy migration retains the exact SRAM image");
 
-            SuperMetroidAddressSpace jsonReload = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace jsonReload = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             GameSaveLoadResult secondLoad = GameSaveFileStore.LoadOrMigrate(
                 jsonReload,
                 jsonPath,

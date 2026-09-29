@@ -20,7 +20,7 @@ internal static class HandProbeComparisonAudit
             int poseIndex = int.Parse(row[2]);
             if (((((ship ? 1 : 0) * 2 + (probe ? 1 : 0)) * 4 + poseIndex) * 2 + (eligible ? 1 : 0)) != cases)
                 throw new InvalidDataException("Reordered hand cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             // Load the actual statue population even for the negative progression control,
             // then vary the flag sampled by the hand setup without rebuilding the room.

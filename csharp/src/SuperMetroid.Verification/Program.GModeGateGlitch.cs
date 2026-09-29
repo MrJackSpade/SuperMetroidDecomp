@@ -40,7 +40,7 @@ internal static partial class Program
         int expectedPassedFrame,
         int expectedOpenFrame)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -133,7 +133,7 @@ internal static partial class Program
 
     private static void VerifyIndirectGModeOmitsGateActor()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -159,7 +159,7 @@ internal static partial class Program
 
     private static void VerifyGModeSandOverload()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
         {
             Pose = SamusPoseIds.FacingRightNormalPose,
@@ -228,7 +228,7 @@ internal static partial class Program
 
     private static void VerifyGModeBlueDoorAllocation()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int width = 4;
         const int height = 4;
         const int doorIndex = 5;
@@ -272,7 +272,7 @@ internal static partial class Program
 
     private static void VerifyGModeDefaultBlockCollision()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         VerifyFullPoolBlock(
             RoomCollisionType.SpecialBlock,

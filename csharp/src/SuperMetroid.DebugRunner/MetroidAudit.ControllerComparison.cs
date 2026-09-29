@@ -8,7 +8,7 @@ internal static partial class MetroidAudit
     /// <summary>Compares real bomb placement, Samus movement and Metroid state with native EnemyMain.</summary>
     public static int CompareControllerBombs(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         using (var capture = File.OpenRead(trace))
         {
             string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(capture));

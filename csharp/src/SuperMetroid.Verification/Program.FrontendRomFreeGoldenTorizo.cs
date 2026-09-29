@@ -21,9 +21,9 @@ internal static partial class Program
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
-            var nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
             var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            AssertEqual(0, installedMemory.Rom.Length,
+            AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
                 "focused Golden Torizo fixture has no installed cartridge allocation");
             var guardedBus = new FrontendCartridgeReadGuard(installedMemory, nativeBus);
             var native = new SuperMetroidGame(nativeBus);

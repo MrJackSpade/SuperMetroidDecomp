@@ -16,7 +16,7 @@ internal static class RecordingRecoveryState
             throw new InvalidDataException("Recording ROM identity differs from recovery ROM.");
         // Refuse an existing directory so recovery never overwrites a player's slot.
         if (Directory.Exists(destination)) throw new IOException("Recovery destination already exists.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: true);
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
@@ -40,7 +40,7 @@ internal static class RecordingRecoveryState
     public static int Verify(string recordingPath, string romPath, string audioDirectory, string destination, int lastFrame)
     {
         var recording = ControllerInputRecording.Read(recordingPath);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         var store = new DebuggerSaveStateStore(romPath, bus.Rom, destination);
         // Deserialize the exact file and advance past its boundary using the recorded

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyIntroEggEffectDefinitions()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int pointer = IntroEggEffectInstructionDefinitions.StartPointer;
              pointer < IntroEggEffectInstructionDefinitions.EndPointer; pointer++)
             AssertEqual(retail.ReadByte(IntroEggEffectDefinitions.NativeDefinitionBank | pointer),

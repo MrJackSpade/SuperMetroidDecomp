@@ -93,7 +93,7 @@ internal static partial class Program
         try
         {
             var installation = new GameInstallation(testRoot);
-            SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             RoomPlmElevatorPlatformVisualFiles.Extract(rom,
                 installation.RoomPlmElevatorPlatformVisualDirectory,

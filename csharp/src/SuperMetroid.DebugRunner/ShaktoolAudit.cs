@@ -17,8 +17,8 @@ internal static partial class ShaktoolAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.State.Pointer != StatePointer ||
             room.State.EnemyPopulationPointer != PopulationPointer)
@@ -71,7 +71,7 @@ internal static partial class ShaktoolAudit
             }
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.Bank != 0xaa || definition.Health != 300 || definition.Damage != 120 ||
             definition.InitializationAiPointer != 0xde43 ||
             definition.MainAiPointer != 0xdca3 ||

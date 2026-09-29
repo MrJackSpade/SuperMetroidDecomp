@@ -6,13 +6,12 @@ namespace SuperMetroid.AssetExtraction;
 /// Import-time cartridge image and mutable memory. Gameplay code cannot reference this
 /// project, so owning the image here prevents a runtime address space from reading ROM.
 /// </summary>
-public sealed class CartridgeImportAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
+public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     IImportCartridgeSource
 {
     public const int RetailRomByteCount = 0x300000;
 
     private readonly byte[] _rom;
-    private readonly SuperMetroidAddressSpace _memory = new();
 
     public CartridgeImportAddressSpace(ReadOnlySpan<byte> unheaderedRom)
     {
@@ -26,8 +25,6 @@ public sealed class CartridgeImportAddressSpace : ISnesAddressSpace, ISnesMutabl
     }
 
     public ReadOnlySpan<byte> Rom => _rom;
-    public Span<byte> WorkRam => _memory.WorkRam;
-    public Span<byte> SaveRam => _memory.SaveRam;
 
     public static CartridgeImportAddressSpace LoadRetailRom(string path)
     {
@@ -62,10 +59,6 @@ public sealed class CartridgeImportAddressSpace : ISnesAddressSpace, ISnesMutabl
                 $"Cartridge address ${bank:X2}:{cpuAddress & 0xffff:X4} is not populated.");
         return _rom[offset];
     }
-
-    public byte ReadWorkRamByte(int cpuAddress) => _memory.ReadWorkRamByte(cpuAddress);
-    public byte ReadSaveRamByte(int cpuAddress) => _memory.ReadSaveRamByte(cpuAddress);
-    public void WriteByte(int address, byte value) => _memory.WriteByte(address, value);
 
     public static int ToRomOffset(int address)
     {

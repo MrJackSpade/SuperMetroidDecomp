@@ -9,8 +9,8 @@ internal static partial class Program
 {
     private static void VerifyMetroidBombPlacement()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CartridgeRoomHeader.Load(bus, 0xdae1);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
         VerifyMetroidBombRuntime(bus, room);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var enemies = new RoomEnemySystem();

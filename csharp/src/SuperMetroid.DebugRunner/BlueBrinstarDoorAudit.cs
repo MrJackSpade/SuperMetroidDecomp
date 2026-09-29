@@ -82,14 +82,14 @@ internal static class BlueBrinstarDoorAudit
         int heightOffset = 24,
         bool retryAfterClosing = false)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath(romPath));
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
 
-        CartridgeDoorHeader entryDoor = CartridgeDoorHeader.Load(
+        CartridgeDoorHeader entryDoor = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(
             bus,
             DoorPointers.BlueBrinstarDoubleMissileFromBoulders);
         if (entryDoor.DestinationRoomPointer != RoomHeaderPointers.BlueBrinstarDoubleMissile)

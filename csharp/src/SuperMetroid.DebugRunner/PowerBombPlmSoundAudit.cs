@@ -12,7 +12,7 @@ internal static class PowerBombPlmSoundAudit
         VerifyDeferredGateGuard(rom);
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             int block = 3 * runtime.LevelData!.WidthInBlocks + 3;
             runtime.LevelData.SetForegroundEntry(block, 0xf321);
@@ -44,7 +44,7 @@ internal static class PowerBombPlmSoundAudit
     {
         foreach (bool activeAtRequest in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var explosion = runtime.BombProjectiles.PowerBombExplosion;
             void Activate() { explosion.Arm(); explosion.Spawn(runtime.Samus!.XPosition, runtime.Samus.YPosition); }

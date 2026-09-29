@@ -79,7 +79,7 @@ internal static class FlyFamilyAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach (FlyProfile profile in Profiles)
         {
             VerifyHeader(bus, profile);
@@ -100,7 +100,7 @@ internal static class FlyFamilyAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus, FlyProfile profile)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
             bus,
             profile.DefinitionPointer);
 
@@ -736,7 +736,7 @@ internal static class FlyFamilyAudit
         SuperMetroidAddressSpace bus,
         FlyProfile profile)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, profile.RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, profile.RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

@@ -1270,7 +1270,7 @@ static void VerifyCeresRidleyRoomEntry()
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
     int nativeExplosionFrames = NativeProjectileLifetime(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {

@@ -13,7 +13,7 @@ internal static class XrayFirstUseAudit
         Directory.CreateDirectory(directory);
         SuperMetroidRuntime Create(byte staleByte)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

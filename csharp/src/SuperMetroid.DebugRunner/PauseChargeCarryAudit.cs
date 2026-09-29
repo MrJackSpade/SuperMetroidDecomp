@@ -13,7 +13,7 @@ internal static class PauseChargeCarryAudit
     /// <summary>A disposable in-memory save and flat room; never reads or writes player saves.</summary>
     internal static SuperMetroidGame CreateFixture(string rom, out SamusState seed)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var system = new Bank80SystemState();
         system.SetBossBits(0, BossBits.AreaTorizo);
         system.MarkSaveStationUsed(AreaId.Crateria, 0);

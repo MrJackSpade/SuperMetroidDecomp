@@ -9,7 +9,7 @@ internal static partial class Program
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)

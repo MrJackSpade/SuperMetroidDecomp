@@ -9,7 +9,7 @@ internal static class ShotBombComparisonAudit
 {
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "04951D7C788EF33D63D71BB64F0AA1129A32DACBB4963FB92189DD6624B32F66")
             throw new InvalidDataException("Expected the reviewed room-size-correct shot/bomb capture.");

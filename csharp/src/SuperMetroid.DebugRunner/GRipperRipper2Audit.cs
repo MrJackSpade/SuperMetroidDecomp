@@ -21,7 +21,7 @@ internal static class GRipperRipper2Audit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyGRipper(bus);
         VerifyRipper2(bus);
         Console.WriteLine(
@@ -34,7 +34,7 @@ internal static class GRipperRipper2Audit
 
     private static void VerifyGRipper(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, GRipperRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GRipperRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedRoom loaded = LoadRoom(bus, room, assets);
         RoomEnemySlot[] actors = loaded.Enemies.Slots
@@ -148,7 +148,7 @@ internal static class GRipperRipper2Audit
 
     private static void VerifyRipper2(SuperMetroidAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, Ripper2RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, Ripper2RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedRoom loaded = LoadRoom(bus, room, assets);
         RoomEnemySlot[] actors = loaded.Enemies.Slots

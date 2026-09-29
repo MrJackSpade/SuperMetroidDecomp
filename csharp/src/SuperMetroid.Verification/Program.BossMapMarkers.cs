@@ -11,7 +11,7 @@ internal static partial class Program
     {
         AssertEqual("B6A536857F129A6F1F8BC1C92EFDECCA8C58EBAF9AC626DC2EC6E3FB5EDC50DD",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))), "native boss-map trace");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var trace = File.OpenText(path);
         AssertEqual("area,map,bits,bytes,low,high", trace.ReadLine(), "boss-map schema");
         int cases = 0;
@@ -26,7 +26,7 @@ internal static partial class Program
             system.LoadBossBytes(bosses);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            new FileSelectMapIcons(bus, system, (AreaId)area).DrawBossMarkers(oam, 64, 16);
+            new FileSelectMapIcons(system, (AreaId)area).DrawBossMarkers(oam, 64, 16);
             string actual = $"{area},{map},{bits},{oam.NextByteOffset},{Convert.ToHexString(oam.LowTable[..oam.NextByteOffset])},{Convert.ToHexString(oam.HighTable)}";
             AssertEqual(trace.ReadLine(), actual, "native boss-marker OAM positions/artwork/palette/order/visibility");
             cases++;
@@ -37,7 +37,7 @@ internal static partial class Program
 
     private static void VerifyPauseBossMarkers()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
@@ -80,11 +80,11 @@ internal static partial class Program
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
-                var source = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 new SuperMetroidSaveRam(source).SaveSlot(0,
                     SuperMetroidSaveSnapshot.Capture(new SamusState(), system, (ushort)area, 0));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
-                var restored = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored);
                 var slot = new SuperMetroidSaveRam(restored).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
@@ -110,7 +110,7 @@ internal static partial class Program
                 runtime.InitializeStartingCeresRoom();
                 runtime.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Samus!, runtime.System);
-                ushort room = LoadStationEntry.Load(restored, (AreaId)area, 0).RoomPointer;
+                ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {
                     runtime.LoadCartridgeRoomForDebug(room, 0, 0);

@@ -12,7 +12,7 @@ internal static class ChargedWalljumpComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "6B2C108DA71D6DAFCC3AB6C36C8D4C9D94EC6368E25DC0EB0E90524D1B382F67")
             throw new InvalidDataException("Use the accepted charged-walljump native v3 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 7020 || rows.Any(row => row.Length != 25))
             throw new InvalidDataException("Unexpected charged-walljump trace dimensions.");

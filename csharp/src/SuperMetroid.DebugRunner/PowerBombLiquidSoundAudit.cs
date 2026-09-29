@@ -12,7 +12,7 @@ internal static class PowerBombLiquidSoundAudit
         VerifyPostDrawGuard(rom);
         foreach (bool active in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: true);
             var samus = runtime.Samus!;
             if (active)
@@ -39,7 +39,7 @@ internal static class PowerBombLiquidSoundAudit
     {
         foreach (bool activeAtRequest in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var samus = runtime.Samus!;
             var explosion = runtime.BombProjectiles.PowerBombExplosion;

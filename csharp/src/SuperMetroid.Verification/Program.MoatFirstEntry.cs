@@ -21,7 +21,7 @@ internal static partial class Program
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
             // Each history starts with fresh mutable WRAM as well as fresh owners.
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

@@ -18,8 +18,8 @@ internal static partial class PowampAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MountEverestRoom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MountEverestRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedPowamps loaded = LoadEnemies(bus, room, assets);
         VerifyPopulation(room, loaded.Enemies);

@@ -19,8 +19,8 @@ internal static partial class Program
                 var system = new Bank80SystemState();
                 for (int i = 0; i < rules.Length; i++)
                     if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].CellX, rules[i].CellY);
-                var native = new FileSelectMapIcons(bus, system, area);
-                var installed = new FileSelectMapIcons(guard, system, area);
+                var native = new FileSelectMapIcons(system, area);
+                var installed = new FileSelectMapIcons(system, area);
                 installed.BindStations(original.Stations);
                 AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
                 combinations++;
@@ -41,8 +41,8 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
         var state = new Bank80SystemState();
         state.MarkExploredMapTile(AreaId.Brinstar, 10, 8); // Edited visual cell, not native discovery cell.
-        var baseIcons = new FileSelectMapIcons(bus, state, AreaId.Brinstar);
-        var editIcons = new FileSelectMapIcons(guard, state, AreaId.Brinstar);
+        var baseIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
+        var editIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         editIcons.BindStations(edited.Stations);
         AssertTrue(Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
         state.MarkExploredMapTile(AreaId.Brinstar, 5, 8);

@@ -20,7 +20,7 @@ internal static partial class MetroidAudit
 
     private static void CapturePowerBombFarmingCase(string rom, string directory, ushort seed, int shots)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
         var samus = runtime.Samus!;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit);

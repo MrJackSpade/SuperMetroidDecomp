@@ -17,7 +17,7 @@ internal static class WallJumpComparisonAudit
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
             throw new InvalidDataException("Unexpected walljump matrix dimensions.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         VerifyDraygonReleaseHistory(bus);
         WallJumpLegacyHistoryAudit.Run(bus);

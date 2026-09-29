@@ -12,7 +12,7 @@ internal static class IceContactAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "5007128C0E926474328C3EABB2F9BE3B8E73D02DE877B383E627E91B4BB05CD3")
             throw new InvalidDataException("Use the accepted ice-contact-417-v1 capture.");
-        var bus = new TargetData(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new TargetData(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

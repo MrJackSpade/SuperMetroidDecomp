@@ -8,7 +8,7 @@ internal static class ComboActivationInputAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int failures = 0;
         foreach (SamusBeamFlags beam in new[] { SamusBeamFlags.Wave, SamusBeamFlags.Ice,
             SamusBeamFlags.Spazer, SamusBeamFlags.Plasma })

@@ -13,7 +13,7 @@ internal static class MoonfallComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "FAE378FC7BCE200B7815948D82EF94EB2C61BA484574C79F5FBBA2347BBD11ED")
             throw new InvalidDataException("Unaccepted Moonfall capture; use the archived native v6 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 37440 || rows.Any(row => row.Length != 19))
             throw new InvalidDataException("Unexpected Moonfall capture dimensions.");

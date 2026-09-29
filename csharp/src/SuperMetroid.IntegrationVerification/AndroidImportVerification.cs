@@ -15,22 +15,22 @@ internal static class AndroidImportVerification
         string bad = Path.Combine(root, "bad-import.tmp");
         File.WriteAllText(bad, "invalid data");
         bool failed = false;
-        try { AndroidFileImport.ImportState(root, rom, bad, 9); }
+        try { AndroidFileImport.ImportState(root, bad, 9); }
         catch (InvalidDataException) { failed = true; }
         if (!failed || !previous.AsSpan().SequenceEqual(File.ReadAllBytes(slot)))
             throw new InvalidDataException("Corrupt import replaced the existing slot.");
-        AndroidFileImport.ImportState(root, rom, validSeed, 9);
+        AndroidFileImport.ImportState(root, validSeed, 9);
         if (!File.ReadAllBytes(validSeed).AsSpan().SequenceEqual(File.ReadAllBytes(slot)))
             throw new InvalidDataException("Valid imported state bytes changed.");
         string backup = Directory.GetFiles(Path.Combine(root, "import-backups")).Single();
         if (!previous.AsSpan().SequenceEqual(File.ReadAllBytes(backup)))
             throw new InvalidDataException("State import did not preserve the exact previous slot.");
-        string emptyResult = AndroidFileImport.ImportState(root, rom, validSeed, 8);
+        string emptyResult = AndroidFileImport.ImportState(root, validSeed, 8);
         if (!emptyResult.Contains("slot was empty", StringComparison.Ordinal) ||
             Directory.GetFiles(Path.Combine(root, "import-backups")).Length != 1)
             throw new InvalidDataException("Empty-slot import claimed or created a nonexistent previous-state backup.");
 
-        var importedBus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var importedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         new SuperMetroidSaveRam(importedBus).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
         string json = Path.Combine(root, "import-source.json");
         File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(importedBus)));

@@ -9,7 +9,7 @@ internal static class DraygonCrystalRefillAudit
 {
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != "4A6BCFCBB8FE018A61139A83A2E93BD78ACA02D3207ADA66B510FB8C54D3834C")

@@ -15,7 +15,7 @@ internal sealed class RidleyDeathAudioSequence
     public RidleyDeathAudioSequence(string rom, string trace, int warmupFrames)
     {
         this.warmupFrames = warmupFrames;
-        bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string[] lines = File.ReadAllLines(trace);
         if (lines.Length < 2 || lines[0] != "frame,phase,kind,library,command,queueLimitOrDelayFrames")
             throw new InvalidDataException("Expected current Ridley death audio trace.");
@@ -26,7 +26,7 @@ internal sealed class RidleyDeathAudioSequence
         for (int frame = 0; frame < FrameCount; frame++)
             if (!rows.TryGetValue(frame, out var frameRows) || frameRows.Count(row => row[2] == "frame") != 1)
                 throw new InvalidDataException($"Missing/duplicate Ridley frame marker {frame}.");
-        var room = CartridgeRoomHeader.Load(bus, NorfairRidleyAudit.RoomPointer);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, NorfairRidleyAudit.RoomPointer);
         audio.QueueRoomMusic(room.State.MusicDataIndex, 5); // Reveal's native active-fight track.
         Console.WriteLine($"Ridley audio bank={room.State.MusicDataIndex:X2}, fight track=5; {FrameCount} captured frames.");
     }

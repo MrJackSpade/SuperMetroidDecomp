@@ -13,7 +13,7 @@ internal static class MagdolliteAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
 
         // Enemy populations live in bank $A1 and consist of sixteen-byte records. Find each
         // literal Magdollite definition word first; the surrounding aligned records reveal
@@ -29,7 +29,7 @@ internal static class MagdolliteAudit
             $"Magdollite definition occurrences in bank $A1: " +
             string.Join(", ", definitionOccurrences.Select(value => $"${value:X4}")));
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         Console.WriteLine("Magdollite definition: " + definition);
 
         // names.txt identifies Magdollite Tunnel as area two, room index thirty-five. Scan
@@ -45,7 +45,7 @@ internal static class MagdolliteAudit
 
             try
             {
-                CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+                CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
                     bus,
                     unchecked((ushort)roomPointer));
                 Console.WriteLine(
@@ -118,7 +118,7 @@ internal static class MagdolliteAudit
     private static void VerifyLiveRoomCycle(SuperMetroidAddressSpace bus)
     {
         const ushort roomPointer = 0xaeb4;
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

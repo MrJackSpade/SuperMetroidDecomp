@@ -11,7 +11,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         ushort[] pointers = SpcSoundEffectTables.StreamPointerTables[1];
         AssertEqual(127, pointers.Length, "sound library 2 has 127 authored command pointers");
         const int source = 0xcfa5bb;

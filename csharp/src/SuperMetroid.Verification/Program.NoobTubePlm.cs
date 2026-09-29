@@ -225,7 +225,7 @@ internal static partial class Program
 
     private static void VerifyNoobTubeProgramDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] wordAddresses = NoobTubePlmProgramDefinitions
             .MechanicsWordAddresses().ToArray();

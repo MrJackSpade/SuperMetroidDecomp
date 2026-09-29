@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifySpeedBoostPalettePointers()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = new SpeedBoostPointerReadGuard(rom);
         ushort[] equipment =
         [

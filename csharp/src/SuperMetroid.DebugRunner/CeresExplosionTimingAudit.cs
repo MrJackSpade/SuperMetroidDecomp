@@ -8,7 +8,7 @@ internal static class CeresExplosionTimingAudit
 {
     public static int Run(string romPath, string outputDirectory)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var scene = new CeresDestructionCinematicState(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var actorsField = typeof(CeresDestructionCinematicState).GetField("actors", flags)!;

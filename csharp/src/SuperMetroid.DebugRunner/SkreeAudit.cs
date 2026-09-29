@@ -16,9 +16,9 @@ internal static class SkreeAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var awakeEvents = new byte[] { 1 }; // Event zero selects normal state $8F:932E.
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             ParlorRoomPointer,
             new RoomStateSelectionContext(awakeEvents, 0, false, false));

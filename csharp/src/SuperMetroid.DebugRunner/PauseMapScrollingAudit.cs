@@ -7,7 +7,7 @@ internal static class PauseMapScrollingAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);
         var pause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria, 30, 16);

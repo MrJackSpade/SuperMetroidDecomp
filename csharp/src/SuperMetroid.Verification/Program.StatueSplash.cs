@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyStatueSplash()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CartridgeRoomHeader.Load(bus, 0xa66a);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa66a);
         var assets = CartridgeRoomAssets.Load(bus, room);
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)

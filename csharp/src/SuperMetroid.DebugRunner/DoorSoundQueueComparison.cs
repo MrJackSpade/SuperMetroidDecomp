@@ -8,7 +8,7 @@ internal static class DoorSoundQueueComparison
 {
     public static int RunCombined(string rom, string nativeCsv)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var lines = File.ReadAllLines(nativeCsv);
         if (lines.Length != 24577 || lines[0] != "counts,start,reverse,frame,library,read,write,state,current,delay,port,queued")
             throw new InvalidDataException("Unexpected combined original-CPU trace shape.");
@@ -55,7 +55,7 @@ internal static class DoorSoundQueueComparison
 
     public static int Run(string rom, string nativeCsv)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var lines = File.ReadAllLines(nativeCsv);
         if (lines.Length != 2305 || lines[0] != "library,count,start,lag,frame,read,write,state,current,delay,port,queued")
             throw new InvalidDataException("Unexpected original-CPU queue trace shape.");

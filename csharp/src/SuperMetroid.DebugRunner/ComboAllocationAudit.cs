@@ -10,7 +10,7 @@ internal static class ComboAllocationAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "6A50975CDAEA6A8465118CA7E27DC024BA7CB6A959DD4BDCEB26071921411CD8")
             throw new InvalidDataException("Use the accepted native combo activation v1 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

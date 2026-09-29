@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyShutterRiding()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
         {
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);

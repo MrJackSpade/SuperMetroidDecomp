@@ -9,7 +9,7 @@ internal static class GateGlitchRoomAudit
 {
     public static int InspectRetailRoom(string rom, ushort roomPointer)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -46,7 +46,7 @@ internal static class GateGlitchRoomAudit
 
     public static int SweepRightFacingRetailGate(string rom, ushort roomPointer)
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -137,7 +137,7 @@ internal static class GateGlitchRoomAudit
 
     public static int SearchEastTunnelFrozenSetup(string rom)
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int attempts = 0;
         int successes = 0;
         ushort maximumSamusX = 0;
@@ -221,7 +221,7 @@ internal static class GateGlitchRoomAudit
 
     public static int WriteEastTunnelNativeSeed(string rom, string path)
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -247,7 +247,7 @@ internal static class GateGlitchRoomAudit
 
     public static int RunJump(string rom, int shootFrame, int aimFrame = 0, bool releaseJump = false, bool releaseLeft = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -283,7 +283,7 @@ internal static class GateGlitchRoomAudit
     public static int Run(string rom, byte? gateArgument = null, string? nativeTrace = null)
     {
         var actualRecords = new List<string>();
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (gateArgument.HasValue) bus = new GateVariantBus(bus, gateArgument.Value);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

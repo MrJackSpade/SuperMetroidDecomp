@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyMessageSnapshots()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();
         byte[] graphics = new byte[SnesPpuLayout.VramByteCount];
         new Random(32107).NextBytes(graphics);

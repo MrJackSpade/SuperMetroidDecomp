@@ -24,12 +24,12 @@ internal static class WallSpacePirateAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
 
         // Event zero is the post-Ceres awakening event. The Climb's second state is the
         // ordinary Zebes state containing wall Pirates; the default state is empty/ruined.
         var awakeEvents = new byte[] { 1 };
-        CartridgeRoomHeader climb = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader climb = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             ClimbRoomPointer,
             new RoomStateSelectionContext(awakeEvents, 0, false, false));
@@ -74,7 +74,7 @@ internal static class WallSpacePirateAudit
 
         for (int index = 0; index < Definitions.Length; index++)
         {
-            RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definitions[index]);
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definitions[index]);
             if (definition.TileDataSize != 0x0c00 || definition.Health != Health[index] ||
                 definition.Damage != Damage[index] || definition.XRadius != 0x0010 ||
                 definition.YRadius != 0x0018 || definition.Bank != 0xb2 ||
@@ -111,7 +111,7 @@ internal static class WallSpacePirateAudit
     }
 
     private static void VerifyUntouchedClimbPopulation(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
@@ -154,7 +154,7 @@ internal static class WallSpacePirateAudit
     }
 
     private static ClimbResult VerifyClimbDirectionFamily(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets,
         int actorIndex,
@@ -210,7 +210,7 @@ internal static class WallSpacePirateAudit
     }
 
     private static AttackResult VerifySlowAttackJumpAndLasers(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
@@ -305,9 +305,9 @@ internal static class WallSpacePirateAudit
         return new AttackResult(state.SpawnedLaserCount);
     }
 
-    private static void VerifyFastRetailBranch(SuperMetroidAddressSpace bus)
+    private static void VerifyFastRetailBranch(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        CartridgeRoomHeader pit = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader pit = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             PitRoomPointer,
             new RoomStateSelectionContext(default, 0, true, false));
@@ -358,7 +358,7 @@ internal static class WallSpacePirateAudit
     }
 
     private static void VerifyCombat(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
@@ -490,9 +490,9 @@ internal static class WallSpacePirateAudit
             throw new InvalidDataException("Wall Pirate laser contact did not deal 15 damage.");
     }
 
-    private static void VerifyGoldPowerBombDamage(SuperMetroidAddressSpace bus)
+    private static void VerifyGoldPowerBombDamage(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, FastPillarsRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FastPillarsRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         LoadedWallPirates loaded = Load(bus, room, assets, 0, 0);
         RoomEnemySlot actor = KeepOnly(loaded, 0);
@@ -558,7 +558,7 @@ internal static class WallSpacePirateAudit
     }
 
     private static LoadedWallPirates Load(
-        SuperMetroidAddressSpace bus,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets,
         ushort samusX,

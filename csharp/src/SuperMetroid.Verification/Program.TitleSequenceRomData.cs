@@ -15,7 +15,7 @@ internal static partial class Program
     static void VerifyTitleSequenceRomData()
     {
         byte[] rom = CreateConstructedTitleRom();
-        var bus = new SuperMetroidAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
         var state = new TitleSequenceState(bus, titleGradientPresentation: gradient);
@@ -68,7 +68,7 @@ internal static partial class Program
             maximumFrames: 40,
             "title file-select handoff");
 
-        var skipped = new TitleSequenceState(new SuperMetroidAddressSpace(rom),
+        var skipped = new TitleSequenceState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
             titleGradientPresentation: gradient);
         skipped.Step((ushort)SnesButton.A);
         AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
@@ -103,7 +103,7 @@ internal static partial class Program
 
     private static byte[] CreateConstructedTitleRom()
     {
-        var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
         // Valid constructed fixed-color/control streams; retail tests check the real
         // gradient bands separately. Every zoom index selects the same black run.
         for (int index = 0; index < 16; index++)

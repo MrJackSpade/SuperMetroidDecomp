@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCrystalPaletteNative(string rom, string path)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         AssertEqual("7DD811C738134358AB18F3C4BD609F455E6099AC90A2FAA29C9B9FECE5F209C8",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))),
             "accepted native Crystal Flash palette trace");

@@ -12,7 +12,7 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
 
         for (int index = 0;

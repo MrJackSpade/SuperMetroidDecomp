@@ -38,12 +38,12 @@ internal static partial class YappingMawAudit
 
     public static int Run(string romPath, bool historyOnly = false)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
         VerifyRetailPopulations(bus);
         VerifyRomTables(bus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, AuditRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyGrabPoseHistory(bus, room, assets);
         Console.WriteLine("Yapping Maw pose-history checks passed (10 grab cases).");
@@ -60,7 +60,7 @@ internal static partial class YappingMawAudit
 
     private static void VerifyDefinition(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x9f4f ||
             definition.Health != 20 || definition.Damage != 30 ||
             definition.XRadius != 8 || definition.YRadius != 8 ||

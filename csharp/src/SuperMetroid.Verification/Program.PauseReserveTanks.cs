@@ -31,7 +31,7 @@ internal static partial class Program
 
     private static void VerifyPauseReserveTanks()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0;
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {

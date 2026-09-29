@@ -20,9 +20,9 @@ internal static class LowerNorfairRioAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyHeader(retailBus);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             retailBus,
             RoomPointer,
             new RoomStateSelectionContext(
@@ -366,7 +366,7 @@ internal static class LowerNorfairRioAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0800 || definition.PalettePointer != 0xc5fa ||
             definition.Health != 900 || definition.Damage != 120 ||
             definition.XRadius != 16 || definition.YRadius != 10 ||

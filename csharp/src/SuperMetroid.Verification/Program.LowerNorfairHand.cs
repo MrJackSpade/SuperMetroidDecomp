@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLowerNorfairHand()
     {
-        var source = SuperMetroidAddressSpace.LoadRetailRom(
+        var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var bus = new ChozoProgramAndDrawReadGuard(source);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);

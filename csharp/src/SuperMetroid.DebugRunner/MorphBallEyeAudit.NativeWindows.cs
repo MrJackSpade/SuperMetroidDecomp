@@ -6,7 +6,7 @@ internal static partial class MorphBallEyeAudit
 {
     public static int CompareNativeWindows(string romPath, string csvPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int checkedRows = 0, differingPixels = 0;
         bool exhaustive = File.ReadLines(csvPath).First().EndsWith(",originX,originY", StringComparison.Ordinal);
         var seen = new HashSet<(int Angle, int Width, int Y, int X)>();

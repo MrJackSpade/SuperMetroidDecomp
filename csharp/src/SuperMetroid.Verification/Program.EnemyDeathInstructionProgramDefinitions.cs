@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         VerifyEnemyDeathInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     private static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

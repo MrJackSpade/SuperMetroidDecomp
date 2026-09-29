@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void AuditMorphShutterApproaches(bool reproduceOnly = false, bool exportNativeArc = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
         var arc = new List<string>();
         string[]? nativeCheckedArc = reproduceOnly && !exportNativeArc

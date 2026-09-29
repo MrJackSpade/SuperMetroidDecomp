@@ -41,8 +41,8 @@ internal static class HeatRoomAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             HeatRoomAuditDefinitions.RoomHeader);
         AssertRepresentativeRecord(bus, room);
@@ -167,7 +167,7 @@ internal static class HeatRoomAudit
                      .Select(pointer => pointer!.Value)
                      .Distinct())
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, pointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             if (room.AreaIndex != AreaId.Norfair || room.State.FxPointer == 0)
                 continue;
             ushort record = RoomFxRomData.SelectRecord(bus, room.State.FxPointer, doorPointer: 0);

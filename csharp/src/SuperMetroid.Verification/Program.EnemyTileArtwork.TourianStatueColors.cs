@@ -102,13 +102,13 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, greyBytes);
         EnemyTileArtworkCatalog editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var nativeRoom = CreateGreyRoom(SuperMetroidAddressSpace.LoadRetailRom(romPath), null);
+        var nativeRoom = CreateGreyRoom(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), null);
         var installedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom(romPath), forbidden), stock);
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), stock);
         var editedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom(romPath), forbidden), editedGrey);
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), editedGrey);
         nativeRoom.TourianStatues.StepTiles(nativeRoom);
         installedRoom.TourianStatues.StepTiles(installedRoom);
         editedRoom.TourianStatues.StepTiles(editedRoom);

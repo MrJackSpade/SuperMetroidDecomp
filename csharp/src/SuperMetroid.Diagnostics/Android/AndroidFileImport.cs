@@ -26,20 +26,6 @@ internal static class AndroidFileImport
                 directory));
     }
 
-    /// <summary>Imports a state for an explicit cartridge-backed diagnostic session.</summary>
-    public static string ImportState(string root, string romPath, string source, int slot)
-    {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        return ImportStateCore(
-            root,
-            source,
-            slot,
-            directory => new DebuggerSaveStateStore(
-                romPath,
-                bus.Rom,
-                directory));
-    }
-
     private static string ImportStateCore(
         string root,
         string source,
@@ -67,12 +53,6 @@ internal static class AndroidFileImport
     /// <summary>Stages and fully validates an installed-game save without a cartridge payload.</summary>
     public static string StageRegularSave(string root, string source) =>
         StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge());
-
-    /// <summary>Stages a save for an explicit cartridge-backed diagnostic session.</summary>
-    public static string StageRegularSave(string root, string romPath, string source)
-    {
-        return StageRegularSaveCore(root, source, SuperMetroidAddressSpace.LoadRetailRom(romPath));
-    }
 
     private static string StageRegularSaveCore(
         string root,

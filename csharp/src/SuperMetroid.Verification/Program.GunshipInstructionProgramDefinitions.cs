@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyGunshipInstructionProgramDefinitions()
     {
         VerifyGunshipInstructionProgramDefinitions(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     }
 
     private static void VerifyGunshipInstructionProgramDefinitions(

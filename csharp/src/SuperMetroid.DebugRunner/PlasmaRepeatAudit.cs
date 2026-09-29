@@ -10,7 +10,7 @@ internal static class PlasmaRepeatAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "5E449DA6070CD93AC6246391C5125A6D96B27EBFEBAD77BEE323CBE85D4D8193")
             throw new InvalidDataException("Use the accepted plasma-repeat-420-v1 capture.");
-        var bus = new EmptyPopulation(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new EmptyPopulation(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         RoomEnemySystem enemies = null!;
         SamusProjectileSystem projectiles = null!;
         SamusBombProjectileSystem shared = null!;

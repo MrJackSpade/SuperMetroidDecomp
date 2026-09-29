@@ -13,7 +13,7 @@ internal static class RetailEndingTests
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var leftBus = new SuperMetroidAddressSpace(rom); var rightBus = new SuperMetroidAddressSpace(rom);
+            var leftBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             var leftAudio = new CartridgeAudioState(); var rightAudio = new CartridgeAudioState();
             var legacy = new EndingCreditsState(leftBus, leftAudio, hours, 59);
             var captured = new EndingCreditsState(rightBus, rightAudio, hours, 59);

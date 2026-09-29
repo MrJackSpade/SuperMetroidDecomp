@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyIntroPoseHistory()
     {
         VerifyIntroScenePoseHistory();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = 128, YPosition = 235 };
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
@@ -45,7 +45,7 @@ internal static partial class Program
 
     private static void VerifyIntroScenePoseHistory()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var intro = new IntroCinematicState(bus);
         T? ReadOwner<T>(string name) where T : class =>
             (T?)typeof(IntroCinematicState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(intro);

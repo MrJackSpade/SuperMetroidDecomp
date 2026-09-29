@@ -65,7 +65,7 @@ internal static class ZebetitePlayerSetupAudit
 
     internal static SuperMetroidRuntime CreateSetup(string romPath, bool initializeOnscreen, int startX, int startCamera)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

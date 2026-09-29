@@ -13,7 +13,7 @@ internal static partial class Program
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         ushort ceresRidleyDefinition = (ushort)typeof(RoomEnemySystem)
             .GetField("CeresRidleyDefinition", staticFlags)!.GetRawConstantValue()!;
-        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0;
              index < RidleyInstructionProgramDefinitions.MechanicsWordCount;

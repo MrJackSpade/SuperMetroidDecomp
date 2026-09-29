@@ -31,7 +31,7 @@ internal static partial class MetroidAudit
         // headers, not a synthetic enemy whose grapple reaction we selected ourselves.
         foreach (ushort roomPointer in MetroidGrappleAuditReferences.MochtroidRooms)
         {
-            var mockRoom = CartridgeRoomHeader.Load(bus, roomPointer);
+            var mockRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             var mockAssets = CartridgeRoomAssets.Load(bus, mockRoom);
             var loaded = Load(bus, mockRoom, mockAssets);
             var actor = loaded.Enemies.Slots.First(e =>

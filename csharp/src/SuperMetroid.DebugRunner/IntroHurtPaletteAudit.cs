@@ -10,7 +10,7 @@ internal static class IntroHurtPaletteAudit
 {
     public static int Run(string romPath, string outputDirectory)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var intro = new IntroCinematicState(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var samusField = typeof(IntroCinematicState).GetField("flashbackSamus", flags)!;

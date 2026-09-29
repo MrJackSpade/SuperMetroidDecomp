@@ -17,7 +17,7 @@ internal static partial class RetailPlmPopulationAudit
     /// </summary>
     public static int AuditScrollOwnership(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         ScrollAuditRoomState[] states = LoadScrollAuditStates();
         var failures = new List<ScrollOwnershipFailure>();
         var blockers = new List<ScrollAuditLoadBlocker>();
@@ -29,11 +29,11 @@ internal static partial class RetailPlmPopulationAudit
 
         foreach (ScrollAuditRoomState state in states)
         {
-            CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+            CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
             CartridgeRoomHeader room;
             try
             {
-                CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
+                CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
                 room = defaultRoom with { State = exactState };
             }
             catch (Exception exception)

@@ -31,7 +31,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.Get(invalidArea),
                 "compiled window lookup rejects unsupported areas without byte truncation");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] durations = [52, 54, 46, 52, 52, 35];
         int[] labelX = [91, 42, 94, 206, 206, 135];
         int[] labelY = [50, 127, 181, 80, 159, 139];
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, window).All(pixel => pixel == frameColor),
             "completed expansion disables window and displays entire empty room frame");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var returning = FileSelectMapWindow.CreateReturn(bus, 4);
         AssertEqual(8, returning.Left, "native return rectangle left inset");
         AssertEqual(248, returning.Right, "native return rectangle right inset");
@@ -116,7 +116,7 @@ internal static partial class Program
         AssertEqual(new Rgba32(255, 16, 8), main[0], "subscreen uses saturated five-bit addition");
         AssertEqual(new Rgba32(0, 0, 8), main[1], "keyed subscreen selects black fixed color");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var graphics = new FileSelectAreaMapGraphics(bus, 0);

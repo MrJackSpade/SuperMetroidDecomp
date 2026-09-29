@@ -31,7 +31,7 @@ internal static class VerticalSpeedComparisonAudit
         if (rows.Any(row => row.Length != 11))
             throw new InvalidDataException("Malformed vertical-speed row.");
 
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         const int width = 16, height = 255;
         var level = new RoomLevelData(width, height,
             new ushort[width * height], new byte[width * height],

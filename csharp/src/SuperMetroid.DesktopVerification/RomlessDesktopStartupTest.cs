@@ -36,7 +36,7 @@ internal static class RomlessDesktopStartupTest
             var memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
                 .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(host) ?? throw new InvalidOperationException("Host has no address space."));
-            if (!memory.Rom.IsEmpty)
+            if (memory.GetType().GetProperty("Rom") is not null)
                 throw new InvalidOperationException(
                     "Windows host retained cartridge bytes after ROM-less startup.");
             var game = (SuperMetroidGame)(typeof(PlayableGameControl)
@@ -75,7 +75,7 @@ internal static class RomlessDesktopStartupTest
             game = (SuperMetroidGame)(typeof(PlayableGameControl)
                 .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(host) ?? throw new InvalidOperationException("Restored host has no game."));
-            if (!memory.Rom.IsEmpty || game.FrameNumber != savedFrame)
+            if (memory.GetType().GetProperty("Rom") is not null || game.FrameNumber != savedFrame)
                 throw new InvalidOperationException(
                     "Windows debugger state did not restore the zero-ROM frame exactly.");
             step.Invoke(host, [(ushort?)0]);
@@ -115,7 +115,7 @@ internal static class RomlessDesktopStartupTest
                 .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(replayHost) ?? throw new InvalidOperationException(
                     "Replay host has no game."));
-            if (!replayMemory.Rom.IsEmpty || replayGame.FrameNumber != savedFrame ||
+            if (replayMemory.GetType().GetProperty("Rom") is not null || replayGame.FrameNumber != savedFrame ||
                 !replayGame.CurrentFrame.Pixels.AsSpan().SequenceEqual(savedPixels))
                 throw new InvalidOperationException(
                     "Zero-ROM Windows input replay diverged from the captured frame.");

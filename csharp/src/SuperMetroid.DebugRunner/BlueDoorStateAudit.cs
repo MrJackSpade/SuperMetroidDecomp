@@ -13,7 +13,7 @@ internal static class BlueDoorStateAudit
         Directory.CreateDirectory(directory);
         string copy = Path.Combine(directory, "SuperMetroid-debug-slot-0.smstate");
         File.Copy(statePath, copy);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var store = new DebuggerSaveStateStore(romPath, bus.Rom, directory);
         DebuggerSaveStateLoadResult loaded;
         try { loaded = store.Load(0); }

@@ -56,11 +56,11 @@ internal static class BoulderAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinitionHeader(bus);
         VerifyAllRetailPopulationRecords(bus);
 
-        CartridgeRoomHeader blueRoom = CartridgeRoomHeader.Load(bus, BlueBrinstarBoulderRoom);
+        CartridgeRoomHeader blueRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BlueBrinstarBoulderRoom);
         CartridgeRoomAssets blueAssets = CartridgeRoomAssets.Load(bus, blueRoom);
         LoadedBoulders blue = LoadPrefix(
             bus,
@@ -71,7 +71,7 @@ internal static class BoulderAudit
         VerifyInitializationAndDrawing(blueRoom, blueAssets, blue);
         VerifyStrictTriggerAndImpactLifecycle(blueAssets, blue);
 
-        CartridgeRoomHeader batRoom = CartridgeRoomHeader.Load(bus, BatCaveRoom);
+        CartridgeRoomHeader batRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BatCaveRoom);
         CartridgeRoomAssets batAssets = CartridgeRoomAssets.Load(bus, batRoom);
         LoadedBoulders right = LoadPrefix(
             bus,
@@ -94,7 +94,7 @@ internal static class BoulderAudit
 
     private static void VerifyDefinitionHeader(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, BoulderDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, BoulderDefinition);
         if (definition.Bank != 0xa6 || definition.InitializationAiPointer != 0x86f5 ||
             definition.MainAiPointer != 0x8793 || definition.TouchAiPointer != 0x8023 ||
             definition.ShotAiPointer != 0x802d || definition.Health != 20 ||

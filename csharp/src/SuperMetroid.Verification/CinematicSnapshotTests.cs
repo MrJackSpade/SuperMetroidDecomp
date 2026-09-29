@@ -12,7 +12,7 @@ internal static partial class Program
         VerifyCeresExplosionTimeline();
         VerifyZebesDoesNotWrapDuringDescent();
         VerifyIntroDisplayCapture();
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
@@ -110,8 +110,8 @@ internal static partial class Program
     private static void VerifyIntroDisplayCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var legacy = new IntroCinematicState(new SuperMetroidAddressSpace(rom));
-        var captured = new IntroCinematicState(new SuperMetroidAddressSpace(rom));
+        var legacy = new IntroCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var captured = new IntroCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var phases = new HashSet<IntroCinematicPhase>();
         int samples = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)

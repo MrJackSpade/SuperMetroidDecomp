@@ -13,8 +13,8 @@ internal static partial class Program
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var bus = new SuperMetroidAddressSpace(rom);
-            var otherBus = new SuperMetroidAddressSpace(rom);
+            var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+            var otherBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
             var legacy = new EndingCreditsState(bus, audio, hours, 59);
             var captured = new EndingCreditsState(otherBus, otherAudio, hours, 59);

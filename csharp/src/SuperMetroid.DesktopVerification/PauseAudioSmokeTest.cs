@@ -18,7 +18,7 @@ public static class PauseAudioSmokeTest
 {
     public static PauseAudioSmokeTestResult Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
             bus,

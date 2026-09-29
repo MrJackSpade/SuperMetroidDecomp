@@ -20,13 +20,13 @@ internal static class MapAssetExtractor
         if (!File.Exists(roomSymbolPath))
             throw new FileNotFoundException("Retail room symbol catalog was not found.", roomSymbolPath);
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string areasDirectory = Path.Combine(outputDirectory, "areas");
         Directory.CreateDirectory(areasDirectory);
         var areaRecords = new List<MapAreaAssetRecord>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
             string stem = $"{AreaIds.ToIndex(area):D2}-{area.ToString().ToLowerInvariant()}";
             string tilemapFile = Path.Combine("areas", stem + ".tilemap.bin");
             string revealFile = Path.Combine("areas", stem + ".station-reveal-mask.bin");
@@ -96,7 +96,7 @@ internal static class MapAssetExtractor
         MapRoomPlacementRecord[] rooms = File.ReadLines(roomSymbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
-            .Select(pointer => CartridgeRoomHeader.Load(bus, pointer!.Value))
+            .Select(pointer => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer!.Value))
             .OrderBy(room => room.Pointer)
             .Select(room => new MapRoomPlacementRecord(
                 $"0x{room.Pointer:X4}",

@@ -22,8 +22,8 @@ internal static class MotherBrainAudit
     public static int Run(string romPath)
     {
         MotherBrainAcidAudit.Run(romPath);
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 4 || room.HeightInScreens != 1 ||
             room.AreaIndex != AreaId.Tourian ||

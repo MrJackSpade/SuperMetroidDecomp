@@ -23,7 +23,7 @@ internal static class QuickDropCrumbleAudit
             int delay = int.Parse(seed[1]), age = int.Parse(seed[2]);
             if (int.Parse(seed[0]) * 30 + delay * 6 + age != cases)
                 throw new InvalidDataException("Reordered quick-drop cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

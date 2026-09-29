@@ -22,7 +22,7 @@ internal static class StopOnDimeComparisonAudit
             int medium = int.Parse(seed[2]), pattern = int.Parse(seed[3]);
             if (int.Parse(seed[0]) * 48 + int.Parse(seed[1]) * 24 + medium * 8 + pattern != cases)
                 throw new InvalidDataException("Reordered stop-on-dime cases.");
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, water: medium != 0, wideRunway: true);
             var level = runtime.LevelData!;
             for (int y = 0; y < level.HeightInBlocks; y++)

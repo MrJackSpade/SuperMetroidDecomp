@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = new ForbiddenPowerBombColorBus(bus);
         var scene = new CeresDestructionCinematicState(colors is null ? bus : guarded,
             fixedColors: colors);

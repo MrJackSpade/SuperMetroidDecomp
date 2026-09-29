@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyInstalledKraidColors(
-        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         KraidColorCatalog catalog = stock.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");

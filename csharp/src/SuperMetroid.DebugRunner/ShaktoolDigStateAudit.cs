@@ -10,7 +10,7 @@ internal static class ShaktoolDigStateAudit
 {
     public static int Run(string rom, string fixture)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         string directory = Path.Combine(Path.GetTempPath(), $"SuperMetroid-dig-{Guid.NewGuid():N}");
         Directory.CreateDirectory(directory);
         var store = new DebuggerSaveStateStore(rom, bus.Rom, directory);

@@ -10,7 +10,7 @@ internal static class WrapShotRoomAudit
     {
         foreach (ushort pointer in new[] { RoomHeaderPointers.LandingSite, RoomHeaderPointers.Crocomire, RoomHeaderPointers.GreenBrinstarMainShaft })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

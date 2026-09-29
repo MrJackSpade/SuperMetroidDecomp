@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyIntroBabyActorDefinitions()
     {
-        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((int start, int end) in new[]
         {
             (IntroBabyDiscoveryInstructionDefinitions.EggStart,
@@ -117,7 +117,7 @@ internal static partial class Program
         AssertTrue(IntroBabyDiscoveryCollisionDefinitions.SourceBytes.SequenceEqual(nativeCollision),
             "SR388 discovery physical level matches every cartridge source byte");
         var discovery = new IntroBabyDiscoveryState(guarded);
-        var referenceBus = SuperMetroidAddressSpace.LoadRetailRom(
+        var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(referenceBus,
             demoWordReader: pointer => (ushort)(

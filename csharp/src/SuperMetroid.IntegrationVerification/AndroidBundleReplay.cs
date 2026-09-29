@@ -32,8 +32,9 @@ internal static class AndroidBundleReplay
             throw new InvalidDataException("Recording seed must name a sibling preserved debugger state.");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        if (!SHA256.HashData(bus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
+        var importBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = importBus;
+        if (!SHA256.HashData(importBus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
@@ -49,7 +50,7 @@ internal static class AndroidBundleReplay
             }
             else
             {
-                var store = new DebuggerSaveStateStore(romPath, bus.Rom, temporary);
+                var store = new DebuggerSaveStateStore(romPath, importBus.Rom, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
                 var loaded = store.Load(0);

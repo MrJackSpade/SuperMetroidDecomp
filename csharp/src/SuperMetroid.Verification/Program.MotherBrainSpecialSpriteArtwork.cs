@@ -48,7 +48,7 @@ internal static partial class Program
         MotherBrainSpecialSpriteArtworkCatalog installed =
             stock.MotherBrainSpecialSprites ?? throw new InvalidDataException(
                 "Extracted Mother Brain special sprite PNGs were not bound.");
-        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteArtworkDefinitions.All)
         {
@@ -58,9 +58,9 @@ internal static partial class Program
                 $"installed {sheet.FileName} preserves native characters");
             SnesVram installedVram = TransferMotherBrainSpecialPages(stock,
                 new MotherBrainSpecialArtworkReadGuard(
-                    SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
+                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
             SnesVram cartridgeVram = TransferMotherBrainSpecialPages(null,
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet);
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet);
             for (int page = 0; page < sheet.PageCount; page++)
             {
                 int sourceOffset = page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
@@ -91,7 +91,7 @@ internal static partial class Program
             EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             SnesVram editedVram = TransferMotherBrainSpecialPages(edited,
                 new MotherBrainSpecialArtworkReadGuard(
-                    SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
+                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
             int firstDestination = sheet.FirstDestinationWord * 2;
             AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
                 editedVram.ReadByte(firstDestination),
@@ -151,14 +151,14 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainLegTileTransfers(
-        EnemyTileArtworkCatalog stock, SuperMetroidAddressSpace rom)
+        EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         var vram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
             new MotherBrainLegTransferReadGuard(
-                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessMotherBrainSpriteTileTransfer", flags)!;
@@ -216,12 +216,12 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainInstalledTransferBoundary(
-        EnemyTileArtworkCatalog stock, SuperMetroidAddressSpace rom)
+        EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
             "ApplyMotherBrainRainbowTileTransfer", flags)!;
-        var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var enemies = new RoomEnemySystem
         {
             TileArtwork = stock,

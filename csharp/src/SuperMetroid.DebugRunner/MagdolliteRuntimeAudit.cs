@@ -8,7 +8,7 @@ internal static class MagdolliteRuntimeAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         VerifyAttackBoundaries(bus);
         var runtime = FlatFloorMovementFixture.Create(bus, water: false);
         runtime.LoadCartridgeRoomForDebug(0xaeb4, 0, 0);

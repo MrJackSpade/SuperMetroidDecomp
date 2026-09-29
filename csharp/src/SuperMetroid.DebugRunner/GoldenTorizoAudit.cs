@@ -22,8 +22,8 @@ internal static partial class GoldenTorizoAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
         VerifyCaughtSuperCounterattack(bus, room, assets);
@@ -71,7 +71,7 @@ internal static partial class GoldenTorizoAudit
             }
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.Bank != 0xaa || definition.Health != 13500 ||
             definition.Damage != 160 || definition.BossId != 2 ||
             definition.InitializationAiPointer != 0xc87f ||

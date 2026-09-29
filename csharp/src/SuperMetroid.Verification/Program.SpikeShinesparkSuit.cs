@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifySpikeShinesparkSuit()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         // The ordinary spike method has a one-frame retained-suit window. Jump one
         // frame early installs the real Shinespark mover; Jump one frame late misses

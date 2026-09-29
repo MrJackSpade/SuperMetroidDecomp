@@ -18,7 +18,7 @@ internal static class MorphBounceComparisonAudit
         uint[] speeds = [0, 0x1ffff, 0x2c7ff, 0x2e3ff, 0x2e400, 0x2ffff, 0x30000, 0x50000];
         uint[] carries = [0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000];
         uint[] timingCarries = [0, 0xc000, 0x14000, 0x20000];
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int expectedCases = temporaryBlue ? 128 : speedball ? 400 : mockball ? 336 : morphTiming ? 144 : 256;
         if (rows.Length != expectedCases * frameCount || rows.Any(row => row.Length != (speedball ? 18 : 17)))

@@ -10,7 +10,7 @@ internal static class FrozenAiAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "CF8B8D22622DBD7463A79CAC01F5EFEE3ABD6E1B9B42D0C9EF6EB514A494376F")
             throw new InvalidDataException("Use the accepted frozen-ai-417-v1 capture.");
-        var bus = new EmptyPopulation(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new EmptyPopulation(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

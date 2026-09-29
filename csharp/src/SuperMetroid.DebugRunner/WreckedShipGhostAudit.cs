@@ -56,12 +56,12 @@ internal static class WreckedShipGhostAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
         VerifyRetailPopulations(bus);
         VerifyRomTables(bus);
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, AuditRoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyLifecycleAnimationAndPalettes(bus, room, assets);
         VerifyDirectionalSpawnSelection(bus, room, assets);
@@ -148,7 +148,7 @@ internal static class WreckedShipGhostAudit
 
     private static void VerifyDefinition(SuperMetroidAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x99ac ||
             definition.Health != 300 || definition.Damage != 60 ||
             definition.XRadius != 16 || definition.YRadius != 16 ||
@@ -178,7 +178,7 @@ internal static class WreckedShipGhostAudit
     {
         foreach (GhostPopulation expected in RetailPopulations)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, expected.RoomPointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, expected.RoomPointer);
             if (room.State.Pointer != expected.StatePointer ||
                 room.State.EnemyPopulationPointer != expected.PopulationPointer)
             {

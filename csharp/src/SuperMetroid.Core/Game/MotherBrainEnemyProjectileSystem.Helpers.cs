@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -670,6 +672,13 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 ? (ushort)(damage >> 1)
                 : damage;
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        if ((address & 0xff0000) == 0x860000 &&
+            CompiledEnemyVisualSelectors.TryGet(0x86, unchecked((ushort)address),
+                out ushort pointer))
+            return pointer;
+        throw new InvalidDataException(
+            $"Mother Brain projectile visual selector ${address:X6} is not compiled.");
+    }
 }

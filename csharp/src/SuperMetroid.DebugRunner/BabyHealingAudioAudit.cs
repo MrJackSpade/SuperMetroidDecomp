@@ -9,8 +9,8 @@ internal static class BabyHealingAudioAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, 0xdd58);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdd58);
         var assets = CartridgeRoomAssets.Load(bus, room);
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         int cases = 0;

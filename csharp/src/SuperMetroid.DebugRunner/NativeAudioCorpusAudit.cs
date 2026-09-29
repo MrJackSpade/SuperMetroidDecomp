@@ -125,7 +125,7 @@ internal static class NativeAudioCorpusAudit
                 foreach (bool saved in new[] { false, true })
                 foreach (SnesButton accept in new[] { SnesButton.A, SnesButton.Start })
                 {
-                    var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath ?? throw new ArgumentNullException(nameof(romPath)));
+                    var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath ?? throw new ArgumentNullException(nameof(romPath)));
                     if (saved) new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
                     var game = new SuperMetroidGame(bus);
                     int swooshes = 0;
@@ -148,7 +148,7 @@ internal static class NativeAudioCorpusAudit
                 string rom = romPath ?? throw new ArgumentNullException(nameof(romPath));
                 if (!SHA256.HashData(File.ReadAllBytes(rom)).AsSpan().SequenceEqual(recording.RomSha256))
                     throw new InvalidDataException("Recorded audio probe ROM digest mismatch.");
-                var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+                var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
                 recording.InitialSaveRam.CopyTo(bus.SaveRam);
                 var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
                 int pausedFrames = 0;

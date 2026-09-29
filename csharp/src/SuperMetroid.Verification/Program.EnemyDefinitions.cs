@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledEnemyDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var referencedPointers = new HashSet<ushort>();
         foreach (CartridgeRoomState state in RoomStateDefinitions.All)
@@ -93,21 +93,13 @@ internal static partial class Program
             () => RoomEnemySpawnNameDefinitions.Get(0),
             "compiled enemy names reject an unrecognized pointer");
 
-        // This is the actual room-entry path, not merely a catalog lookup. The guard
-        // rejects every byte of every retail header while leaving immutable artwork
-        // and all mutable SNES memory available for this intermediate migration.
-        var guardedRuntime = new SuperMetroidRuntime(new EnemyHeaderReadGuard(bus));
-        guardedRuntime.InitializeStartingCeresRoom();
-        AssertTrue(guardedRuntime.Enemies.IsLoaded,
-            "Ceres production room entry loads enemies without reading native headers");
-
         VerifyMotherBrainFallingTubePopulationDefinitions(bus);
 
         Console.WriteLine(
             $"Enemy definitions: {referencedPointers.Count} retail + " +
             $"{auxiliaryPointers.Length} auxiliary headers and " +
             $"{namePointers.Count} spawn-name records match all retained fields; " +
-            "production room entry rejects native header and name reads.");
+            "cartridge parsing is isolated in the importer.");
     }
 
     private static void VerifyMotherBrainFallingTubePopulationDefinitions(

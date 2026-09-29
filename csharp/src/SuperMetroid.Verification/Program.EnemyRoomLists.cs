@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledEnemyRoomLists()
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] populationPointers = RoomStateDefinitions.All
             .Select(state => state.EnemyPopulationPointer).Distinct().Order().ToArray();

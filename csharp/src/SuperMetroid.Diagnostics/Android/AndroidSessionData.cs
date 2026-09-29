@@ -68,150 +68,152 @@ internal sealed class AndroidSessionData : IDisposable
     public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
-        installedSession = cartridgePath is null;
+        // A caller-provided cartridge is an import input only. The session always
+        // opens the extracted installation and a RAM-only address space.
+        if (cartridgePath is not null)
+            SuperMetroid.AssetExtraction.GameAssetInstaller.Install(cartridgePath, root);
+        installedSession = true;
         string gameRoot = Path.Combine(root, "game");
         romPath = cartridgePath ?? Path.Combine(gameRoot, "SuperMetroid.smc");
         savePath = Path.Combine(root, "SuperMetroid.save.json");
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
         Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
-        Bus = cartridgePath is null
-            ? new SuperMetroid.AssetExtraction.GameInstallation(root).OpenRuntimeAddressSpace()
-            : SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        Bus = new SuperMetroid.AssetExtraction.GameInstallation(root).OpenRuntimeAddressSpace();
         GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
         AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
         Game = new SuperMetroidGame(Bus, Options);
         // Explicit diagnostic cartridge paths retain their legacy fixture setup;
         // ordinary installed Android sessions require the installed map catalog.
-        maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
+        maps = installedSession ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
         Game.BindCompiledRoomFxRecords(installedSession);
-        gameplayBasePalettes = cartridgePath is null
+        gameplayBasePalettes = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadGameplayBasePalettes() : null;
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
-        standardObjectArt = cartridgePath is null
+        standardObjectArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadStandardObjects() : null;
         Game.BindStandardObjectArt(standardObjectArt);
-        introCinematicArt = cartridgePath is null
+        introCinematicArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadIntroCinematicArt() : null;
         Game.BindIntroCinematicArt(introCinematicArt);
-        samusBodyArt = cartridgePath is null
+        samusBodyArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadSamusBodyArt() : null;
         Game.BindSamusBodyArt(samusBodyArt);
-        endingMode7Art = cartridgePath is null
+        endingMode7Art = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingMode7Art() : null;
         Game.BindEndingMode7Art(endingMode7Art);
-        endingObjectArt = cartridgePath is null
+        endingObjectArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingObjectArt() : null;
         Game.BindEndingObjectArt(endingObjectArt);
-        endingPaletteArt = cartridgePath is null
+        endingPaletteArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingPalettes() : null;
         Game.BindEndingPaletteArt(endingPaletteArt);
-        roomCharacters = cartridgePath is null
+        roomCharacters = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomCharacters() : null;
         Game.BindRoomCharacterArt(roomCharacters);
-        roomPalettes = cartridgePath is null
+        roomPalettes = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPalettes() : null;
         Game.BindRoomPaletteArt(roomPalettes);
-        roomMetatiles = cartridgePath is null
+        roomMetatiles = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomMetatiles() : null;
         Game.BindRoomMetatileArt(roomMetatiles);
-        roomVisualLayouts = cartridgePath is null
+        roomVisualLayouts = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomVisualLayouts() : null;
         Game.BindRoomVisualLayouts(roomVisualLayouts);
-        roomPlmShotBlockVisuals = cartridgePath is null
+        roomPlmShotBlockVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmShotBlockVisuals() : null;
         Game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
-        roomPlmGrappleBlockVisuals = cartridgePath is null
+        roomPlmGrappleBlockVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmGrappleBlockVisuals() : null;
         Game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
-        roomPlmStationVisuals = cartridgePath is null
+        roomPlmStationVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmStationVisuals() : null;
         Game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
-        roomPlmBlueDoorVisuals = cartridgePath is null
+        roomPlmBlueDoorVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmBlueDoorVisuals() : null;
         Game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
-        roomPlmColoredDoorVisuals = cartridgePath is null
+        roomPlmColoredDoorVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmColoredDoorVisuals() : null;
         Game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
-        roomPlmGreyDoorVisuals = cartridgePath is null
+        roomPlmGreyDoorVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmGreyDoorVisuals() : null;
         Game.BindRoomPlmGreyDoorVisuals(roomPlmGreyDoorVisuals);
-        roomPlmEyeDoorVisuals = cartridgePath is null
+        roomPlmEyeDoorVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmEyeDoorVisuals() : null;
         Game.BindRoomPlmEyeDoorVisuals(roomPlmEyeDoorVisuals);
-        roomPlmMotherBrainGlassVisuals = cartridgePath is null
+        roomPlmMotherBrainGlassVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmMotherBrainGlassVisuals() : null;
         Game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
-        roomPlmNoobTubeVisuals = cartridgePath is null
+        roomPlmNoobTubeVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmNoobTubeVisuals() : null;
         Game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
-        roomPlmDownwardGateVisuals = cartridgePath is null
+        roomPlmDownwardGateVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDownwardGateVisuals() : null;
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
-        roomPlmElevatorPlatformVisuals = cartridgePath is null
+        roomPlmElevatorPlatformVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmElevatorPlatformVisuals() : null;
         Game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
-        roomPlmEscapeGateVisuals = cartridgePath is null
+        roomPlmEscapeGateVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmEscapeGateVisuals() : null;
         Game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
-        roomPlmBombTorizoHandVisuals = cartridgePath is null
+        roomPlmBombTorizoHandVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmBombTorizoHandVisuals() : null;
         Game.BindRoomPlmBombTorizoHandVisuals(roomPlmBombTorizoHandVisuals);
-        roomPlmDraygonCannonVisuals = cartridgePath is null
+        roomPlmDraygonCannonVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDraygonCannonVisuals() : null;
         Game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);
-        roomPlmChozoStatueVisuals = cartridgePath is null
+        roomPlmChozoStatueVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmChozoStatueVisuals() : null;
         Game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
-        roomPlmLinkedRestoreVisuals = cartridgePath is null
+        roomPlmLinkedRestoreVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmLinkedRestoreVisuals() : null;
         Game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
-        roomPlmTourianAccessVisuals = cartridgePath is null
+        roomPlmTourianAccessVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmTourianAccessVisuals() : null;
         Game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
-        roomPlmSpeedBoosterVisuals = cartridgePath is null
+        roomPlmSpeedBoosterVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmSpeedBoosterVisuals() : null;
         Game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
-        roomPlmMaridiaElevatubeVisuals = cartridgePath is null
+        roomPlmMaridiaElevatubeVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmMaridiaElevatubeVisuals() : null;
         Game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
-        roomPlmSporeSpawnCeilingVisuals = cartridgePath is null
+        roomPlmSporeSpawnCeilingVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmSporeSpawnCeilingVisuals() : null;
         Game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
-        roomPlmSamusEaterVisuals = cartridgePath is null
+        roomPlmSamusEaterVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmSamusEaterVisuals() : null;
         Game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
-        roomPlmBotwoonWallVisuals = cartridgePath is null
+        roomPlmBotwoonWallVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmBotwoonWallVisuals() : null;
         Game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
-        roomPlmKraidVisuals = cartridgePath is null
+        roomPlmKraidVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmKraidVisuals() : null;
         Game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
-        roomPlmCrocomireVisuals = cartridgePath is null
+        roomPlmCrocomireVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCrocomireVisuals() : null;
         Game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
-        roomPlmMotherBrainFakeDeathVisuals = cartridgePath is null
+        roomPlmMotherBrainFakeDeathVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root)
                 .LoadRoomPlmMotherBrainFakeDeathVisuals() : null;
         Game.BindRoomPlmMotherBrainFakeDeathVisuals(roomPlmMotherBrainFakeDeathVisuals);
-        roomPlmCollectibleVisuals = cartridgePath is null
+        roomPlmCollectibleVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCollectibleVisuals() : null;
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
-        roomPlmDynamicCollectibleArt = cartridgePath is null
+        roomPlmDynamicCollectibleArt = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDynamicCollectibleArt() : null;
         Game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
-        xrayRevealVisuals = cartridgePath is null
+        xrayRevealVisuals = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadXrayRevealVisuals() : null;
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
-        roomBackgroundTilemaps = cartridgePath is null
+        roomBackgroundTilemaps = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomBackgroundTilemaps() : null;
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
-        roomSkyTilemaps = cartridgePath is null
+        roomSkyTilemaps = installedSession
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomSkyTilemaps() : null;
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);
-        projectiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
-        enemyTiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEnemyTiles() : null;
+        projectiles = installedSession ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
+        enemyTiles = installedSession ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEnemyTiles() : null;
         Game.BindProjectileCompositions(projectiles?.Catalog);
         Game.BindProjectileFrameBindings(projectiles?.FrameBindings);
         Game.BindBeamArtwork(projectiles?.BeamTiles);
@@ -226,7 +228,7 @@ internal sealed class AndroidSessionData : IDisposable
         assets = audioDirectory is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadAudio()
             : ExtractedAudioAssetCatalog.Load(audioDirectory);
-        if (cartridgePath is null)
+        if (installedSession)
         {
             ContentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
                 assets,
@@ -239,17 +241,10 @@ internal sealed class AndroidSessionData : IDisposable
                 $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         }
         Audio = new CartridgeAudioRenderer(assets);
-        states = installedSession
-            ? DebuggerSaveStateStore.ForInstalledGame(
-                root,
-                Options,
-                ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."))
-            : new DebuggerSaveStateStore(
-                romPath,
-                Bus.Rom,
-                Path.Combine(root, "debug-states"),
-                Options,
-                ContentIdentity);
+        states = DebuggerSaveStateStore.ForInstalledGame(
+            root,
+            Options,
+            ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."));
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }
@@ -265,12 +260,10 @@ internal sealed class AndroidSessionData : IDisposable
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath);
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
-    public string ImportState(string path, int slot) => installedSession
-        ? AndroidFileImport.ImportState(root, path, slot)
-        : AndroidFileImport.ImportState(root, romPath, path, slot);
-    public string ImportSave(string path) => installedSession
-        ? AndroidFileImport.StageRegularSave(root, path)
-        : AndroidFileImport.StageRegularSave(root, romPath, path);
+    public string ImportState(string path, int slot) =>
+        AndroidFileImport.ImportState(root, path, slot);
+    public string ImportSave(string path) =>
+        AndroidFileImport.StageRegularSave(root, path);
 
     public string SaveSlot(int slot)
     {

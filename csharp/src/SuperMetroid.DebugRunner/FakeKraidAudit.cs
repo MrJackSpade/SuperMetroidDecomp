@@ -23,8 +23,8 @@ internal static class FakeKraidAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyRetailRecords(bus, room);
@@ -100,7 +100,7 @@ internal static class FakeKraidAudit
             throw new InvalidDataException("Fake Kraid's retail population record changed.");
         }
 
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, Definition);
         if (definition.TileDataSize != 0x1000 || definition.PalettePointer != 0x998c ||
             definition.Health != 400 || definition.Damage != 100 ||
             definition.XRadius != 32 || definition.YRadius != 24 ||

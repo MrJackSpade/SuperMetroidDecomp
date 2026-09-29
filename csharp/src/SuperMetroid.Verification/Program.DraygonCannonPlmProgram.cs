@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyDraygonCannonPlmProgram()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         foreach ((ushort first, ushort last) in new[]
         {

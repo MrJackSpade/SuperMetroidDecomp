@@ -11,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMamaTurtleEnemyDefinitions()
     {
-        var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = new MamaTurtleDefinitionReadGuard(rom);
         foreach (ushort pointer in new ushort[]
                  {
@@ -20,11 +20,12 @@ internal static partial class Program
                  })
         {
             RoomEnemyDefinition expected = ReadNativeEnemyDefinition(rom, pointer);
-            RoomEnemyDefinition actual = RoomEnemySystem.ReadDefinition(guard, pointer);
+            AssertTrue(MamaTurtleEnemyDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition actual),
+                $"Mama Turtle header $A0:{pointer:X4} is compiled");
             AssertEqual(expected, actual, $"compiled enemy header $A0:{pointer:X4}");
         }
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(rom, 0xd055);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

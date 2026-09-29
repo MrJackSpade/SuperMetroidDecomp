@@ -21,8 +21,8 @@ internal static class KraidLintContactAudit
                 throw new InvalidDataException("Unrecognized original-CPU Kraid lint trace.");
             native = File.ReadAllLines(nativeCsv).Skip(1).Select(line => line.Split(',')).ToArray();
         }
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var room = CartridgeRoomHeader.Load(bus, 0xa59f);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa59f);
         var assets = CartridgeRoomAssets.Load(bus, room);
         int cases = 0;
         foreach (int activeSlot in new[] { 2, 3, 4 })

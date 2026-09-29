@@ -22,7 +22,7 @@ internal static class CeresDoorAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
         VerifyBothEarthquakeVariants(bus);
         VerifyRidleyRoomDestruction(bus);
@@ -36,7 +36,7 @@ internal static class CeresDoorAudit
 
     private static void VerifyDefinition(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, CeresDoorDefinition);
+        RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, CeresDoorDefinition);
         if (definition.Bank != 0xa6 || definition.Health != 40 || definition.Damage != 15 ||
             definition.XRadius != 8 || definition.YRadius != 0x20 ||
             definition.InitializationAiPointer != 0xf6c5 ||
@@ -338,8 +338,8 @@ internal static class CeresDoorAudit
         RoomStateSelectionContext? selection = null)
     {
         CartridgeRoomHeader room = selection is RoomStateSelectionContext selected
-            ? CartridgeRoomHeader.Load(bus, roomPointer, selected)
-            : CartridgeRoomHeader.Load(bus, roomPointer);
+            ? SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, selected)
+            : SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

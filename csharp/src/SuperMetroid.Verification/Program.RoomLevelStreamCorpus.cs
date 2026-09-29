@@ -13,7 +13,7 @@ internal static partial class Program
     private static void GenerateRoomLevelStreamCorpus()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string path = Path.GetFullPath(
             "csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreams.bin");
         using var file = new FileStream(path, FileMode.Create, FileAccess.Write);

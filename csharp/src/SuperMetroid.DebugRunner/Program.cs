@@ -1842,8 +1842,8 @@ if (args.Length >= 2 && args[0] == "--flyway-audit")
 if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
 {
     string climbRomPath = string.Join(' ', args[1..]).Trim('"');
-    SuperMetroidAddressSpace climbBus = SuperMetroidAddressSpace.LoadRetailRom(climbRomPath);
-    CartridgeRoomHeader climbRoom = CartridgeRoomHeader.Load(climbBus, 0x96ba);
+    SuperMetroidAddressSpace climbBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(climbRomPath);
+    CartridgeRoomHeader climbRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(climbBus, 0x96ba);
     CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(climbBus, climbRoom);
     var climbVram = new SnesVram();
     var climbCgram = new SnesCgram();
@@ -2070,8 +2070,8 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
 {
     string colosseumRomPath = string.Join(' ', args[1..]).Trim('"');
     SuperMetroidAddressSpace colosseumBus =
-        SuperMetroidAddressSpace.LoadRetailRom(colosseumRomPath);
-    CartridgeRoomHeader colosseumRoom = CartridgeRoomHeader.Load(colosseumBus, 0xd72a);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(colosseumRomPath);
+    CartridgeRoomHeader colosseumRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(colosseumBus, 0xd72a);
     CartridgeRoomAssets colosseumAssets = CartridgeRoomAssets.Load(colosseumBus, colosseumRoom);
     var colosseumVram = new SnesVram();
     var colosseumCgram = new SnesCgram();
@@ -2291,8 +2291,8 @@ if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
 {
     string benchmarkRomPath = string.Join(' ', args[1..]).Trim('"');
     SuperMetroidAddressSpace benchmarkBus =
-        SuperMetroidAddressSpace.LoadRetailRom(benchmarkRomPath);
-    CartridgeRoomHeader benchmarkRoom = CartridgeRoomHeader.Load(benchmarkBus, 0xe0b5);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(benchmarkRomPath);
+    CartridgeRoomHeader benchmarkRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(benchmarkBus, 0xe0b5);
     var benchmarkRuntime = new SuperMetroidRuntime(benchmarkBus);
     benchmarkRuntime.InitializeHud(HudSnapshot.CeresDebug);
     benchmarkRuntime.InitializeStartingCeresRoom();
@@ -2490,7 +2490,7 @@ if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
 if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
 {
     string frontendRomPath = string.Join(' ', args[1..]).Trim('"');
-    SuperMetroidAddressSpace frontendBus = SuperMetroidAddressSpace.LoadRetailRom(frontendRomPath);
+    SuperMetroidAddressSpace frontendBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(frontendRomPath);
     var titleAudit = new TitleSequenceState(frontendBus);
     Rgba32[] yearFrame = titleAudit.Render();
     if (yearFrame[0] != new Rgba32(0, 0, 0, 255))
@@ -2657,8 +2657,8 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
 if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
 {
     string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');
-    SuperMetroidAddressSpace ridleyBus = SuperMetroidAddressSpace.LoadRetailRom(ridleyRomPath);
-    CartridgeRoomHeader ridleyRoom = CartridgeRoomHeader.Load(ridleyBus, 0xe0b5);
+    SuperMetroidAddressSpace ridleyBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(ridleyRomPath);
+    CartridgeRoomHeader ridleyRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(ridleyBus, 0xe0b5);
     // Fresh Ceres encounter: retain the same mutable boss flag for door bytecode
     // reads and any subsequent native setter, rather than omitting the service.
     bool ridleyAreaBossDefeated = false;
@@ -3444,7 +3444,7 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
 {
     string ceresRomPath = string.Join(' ', args[1..^1]).Trim('"');
     string ceresOutputPath = args[^1].Trim('"');
-    SuperMetroidAddressSpace ceresBus = SuperMetroidAddressSpace.LoadRetailRom(ceresRomPath);
+    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace ceresBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(ceresRomPath);
     var ceresRuntime = new SuperMetroidRuntime(ceresBus);
 
     // Native loading initializes standard HUD/OBJ art before loading the destination room.
@@ -3814,7 +3814,7 @@ if (args.Length >= 3 && args[0] is
     // Rejoining the middle tokens also tolerates minimal Windows command hosts that strip
     // quotes around the conventional "Super Metroid.smc" filename before `dotnet run`.
     string frontendRomPath = string.Join(' ', args[1..^1]).Trim('"');
-    SuperMetroidAddressSpace frontendBus = SuperMetroidAddressSpace.LoadRetailRom(frontendRomPath);
+    SuperMetroidAddressSpace frontendBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(frontendRomPath);
     var frontend = new SuperMetroidGame(frontendBus);
     FrontendFrame frontendFrame = frontend.Step(0);
 
@@ -4288,7 +4288,7 @@ if (args.Length >= 3 && args[0] is
 }
 
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
-SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(options.RomPath);
+SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(options.RomPath);
 var runtime = new SuperMetroidRuntime(bus);
 runtime.MoonwalkEnabled = options.MoonwalkScript;
 
@@ -4826,7 +4826,7 @@ if (emptyRoomEnemies.EnemyCount != 0 ||
     throw new InvalidOperationException(
         "Crateria Map's empty population unexpectedly processed enemy graphics or slots.");
 }
-RoomEnemyDefinition motherBrainHeader = RoomEnemySystem.ReadDefinition(bus, 0xec3f);
+RoomEnemyDefinition motherBrainHeader = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, 0xec3f);
 if (motherBrainHeader.TileDataSize != 0x1000 ||
     motherBrainHeader.Health != 18000 ||
     motherBrainHeader.Damage != 120 ||

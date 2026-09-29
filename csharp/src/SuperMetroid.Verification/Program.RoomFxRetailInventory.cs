@@ -32,7 +32,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         RetailFxRoomState[] states = File.ReadLines(symbolPath)
             .Select(ParseRetailFxRoomState)
             .Where(state => state.HasValue)
@@ -47,7 +47,7 @@ internal static partial class Program
             .Distinct()
             .ToArray();
         CartridgeDoorHeader[] doors = RetailDoorHeaderCatalog.EnumeratePointers()
-            .Select(pointer => CartridgeDoorHeader.Load(bus, pointer))
+            .Select(pointer => SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, pointer))
             .ToArray();
 
         AssertEqual(RetailRoomFxRoomCount, roomPointers.Length,
@@ -77,10 +77,10 @@ internal static partial class Program
 
         foreach (RetailFxRoomState namedState in states)
         {
-            CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, namedState.RoomPointer);
+            CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer);
             CartridgeRoomHeader room = defaultRoom with
             {
-                State = CartridgeRoomState.Load(bus, namedState.StatePointer),
+                State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, namedState.StatePointer),
             };
             AssertTrue(auditedStatePointers.Add(room.State.Pointer),
                 $"room-FX state $8F:{room.State.Pointer:X4} audited once");
@@ -531,12 +531,12 @@ internal static partial class Program
     {
         RetailFxRoomState namedState = states.Single(state =>
         {
-            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, state.RoomPointer);
+            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
             return header.Identity == definition.Room;
         });
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, namedState.RoomPointer) with
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer) with
         {
-            State = CartridgeRoomState.Load(bus, namedState.StatePointer),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, namedState.StatePointer),
         };
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == definition.EntryDoor);
@@ -805,10 +805,10 @@ internal static partial class Program
         RoomIdentity identity)
     {
         RetailFxRoomState state = states.First(candidate =>
-            CartridgeRoomHeader.Load(bus, candidate.RoomPointer).Identity == identity);
-        return CartridgeRoomHeader.Load(bus, state.RoomPointer) with
+            SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, candidate.RoomPointer).Identity == identity);
+        return SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer) with
         {
-            State = CartridgeRoomState.Load(bus, state.StatePointer),
+            State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer),
         };
     }
 

@@ -19,7 +19,7 @@ internal static partial class Program
         SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool walkAfterShot in new[] { false, true })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
@@ -121,7 +121,7 @@ internal static partial class Program
 
     private static void VerifyPoseCollisionCameraCheckpoint()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var blocks = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
         var level = CreateRoom(16, 32, blocks, new byte[blocks.Length]);

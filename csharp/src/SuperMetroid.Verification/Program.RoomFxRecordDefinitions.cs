@@ -14,7 +14,7 @@ internal static partial class Program
     {
         if (File.Exists(RoomFxGeneratedPath))
             throw new IOException($"Refusing to overwrite existing compiled definitions: {RoomFxGeneratedPath}");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
         File.WriteAllText(RoomFxGeneratedPath, RenderRoomFxDefinitions(records.Values));
         Console.WriteLine($"Generated {records.Count} typed room-FX records at {RoomFxGeneratedPath}.");
@@ -23,7 +23,7 @@ internal static partial class Program
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
     private static void VerifyRoomFxRecordDefinitions(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
         AssertEqual(records.Count, RoomFxRecordDefinitions.All.Count,
             "compiled room-FX record inventory count");
@@ -53,7 +53,7 @@ internal static partial class Program
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
         var guarded = new RoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();

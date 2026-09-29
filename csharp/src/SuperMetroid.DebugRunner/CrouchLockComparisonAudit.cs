@@ -7,7 +7,7 @@ internal static class CrouchLockComparisonAudit
 {
     public static int Run(string rom, string trace)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 19200 || rows.Any(row => row.Length != 16))
             throw new InvalidDataException("Unexpected crouch-lock capture dimensions.");

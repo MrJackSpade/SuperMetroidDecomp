@@ -9,7 +9,7 @@ internal static class SpeedBoostAnimationAudit
 {
     public static int Run(string romPath, string capturePath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         string[] rows = File.ReadAllLines(capturePath);
         if (rows.Length != 65)
             throw new InvalidDataException("Expected all 64 native queue/animation contexts.");

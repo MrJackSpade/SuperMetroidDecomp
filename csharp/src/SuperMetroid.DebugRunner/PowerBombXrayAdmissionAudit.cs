@@ -13,7 +13,7 @@ internal static class PowerBombXrayAdmissionAudit
         foreach (bool left in new[] { false, true })
         foreach (var phase in new[] { "inactive", "armed", "exploding" })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false);
             var samus = runtime.Samus!;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.XrayScope;

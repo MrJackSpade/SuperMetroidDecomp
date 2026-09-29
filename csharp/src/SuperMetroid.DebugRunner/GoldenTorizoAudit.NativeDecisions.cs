@@ -14,8 +14,8 @@ internal static partial class GoldenTorizoAudit
 
     private static int CompareNativeDecisions(string rom, string trace, bool distance)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var loaded = Load(bus, room, assets, false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;

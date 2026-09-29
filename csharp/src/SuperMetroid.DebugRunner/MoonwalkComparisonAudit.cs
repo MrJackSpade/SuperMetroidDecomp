@@ -12,7 +12,7 @@ internal static class MoonwalkComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "DCAB63C8B61CCC2C78504F4CC0D65ABBA6F889D35B41870CAC45B41E7197F438")
             throw new InvalidDataException("Unaccepted Moonwalk capture; use the archived native v6 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 20160 || rows.Any(row => row.Length != 22))
             throw new InvalidDataException("Unexpected Moonwalk capture dimensions.");

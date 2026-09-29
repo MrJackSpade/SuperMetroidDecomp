@@ -9,7 +9,7 @@ internal static class AttractDemoDataAudit
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         byte[] originalSave = bus.SaveRam.ToArray();
         // Independent counts from the four sentinel-terminated bank-$82 room lists.
         int[] expectedCounts = [6, 6, 6, 5];
@@ -17,7 +17,7 @@ internal static class AttractDemoDataAudit
         for (int set = 0; set < AttractDemoRomData.SetCount; set++)
         {
             int scene = 0;
-            while (AttractDemoScene.Read(bus, set, scene) is { } entry)
+            while (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, set, scene) is { } entry)
             {
                 if (scene >= expectedCounts[set])
                     throw new InvalidDataException($"Demo set {set} exceeded its retail terminator.");
@@ -65,7 +65,7 @@ internal static class AttractDemoDataAudit
                 throw new InvalidDataException($"Demo set {set}: expected {expectedCounts[set]} scenes, read {scene}.");
             total += scene;
         }
-        AttractDemoScene first = AttractDemoScene.Read(bus, 0, 0)!;
+        AttractDemoScene first = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0)!;
         if (first.RoomPointer != 0x91f8 || first.CameraX != 0x400 || first.CameraY != 0x400 ||
             first.SamusX != 0x481 || first.SamusY != 0x440 || first.Duration != 0x4d3 ||
             first.SamusSetupPointer != 0x8a33)

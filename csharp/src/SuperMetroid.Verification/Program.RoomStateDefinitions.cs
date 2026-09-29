@@ -8,7 +8,7 @@ internal static partial class Program
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
@@ -22,7 +22,7 @@ internal static partial class Program
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
-            CartridgeRoomState native = CartridgeRoomHeader.Load(bus, roomPointer, context).State;
+            CartridgeRoomState native = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
             CartridgeRoomState compiled = RoomStateDefinitions.Get(native.Pointer);
             AssertEqual(native, compiled,
                 $"compiled room-state payload $8F:{native.Pointer:X4}");
@@ -37,7 +37,7 @@ internal static partial class Program
 
         ushort ceresPointer = LoadStationDefinitions.Get(
             SuperMetroid.Core.Game.AreaId.Ceres, 0).RoomPointer;
-        ushort ceresStatePointer = CartridgeRoomHeader.Load(bus, ceresPointer).State.Pointer;
+        ushort ceresStatePointer = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
         var guardedRuntime = new SuperMetroidRuntime(new RoomStateReadGuard(
             bus,
             RoomHeaderRomData.BankAddress | ceresStatePointer,

@@ -11,7 +11,7 @@ internal static class DoorSoundWaitAudit
 {
     public static int Run(string rom)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var runtime = FlatFloorMovementFixture.Create(bus, false);
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Climb, 256, 128);

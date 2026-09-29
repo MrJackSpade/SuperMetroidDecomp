@@ -10,13 +10,13 @@ internal static partial class Program
     private static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace oracleBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         HashSet<int> forbidden = BuildCompiledRoomDefinitionAddressSet(oracleBus);
         var guard = new CompiledRoomDefinitionReadGuard(
-            SuperMetroidAddressSpace.LoadRetailRom(romPath), forbidden);
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden);
 
         var expected = new SuperMetroidRuntime(
-            SuperMetroidAddressSpace.LoadRetailRom(romPath));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
         var actual = new SuperMetroidRuntime(guard);
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
@@ -128,7 +128,7 @@ internal static partial class Program
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                statePointers.Add(CartridgeRoomHeader.Load(
+                statePointers.Add(SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
                     tracingBus, roomPointer, context).State.Pointer);
             }
 

@@ -19,7 +19,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in

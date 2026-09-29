@@ -13,7 +13,7 @@ internal static class UnderwaterTurnProbe
 {
     public static int Run(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         TraceRetailRoom(bus);
         TraceConstructedFloor(bus);
         return 0;

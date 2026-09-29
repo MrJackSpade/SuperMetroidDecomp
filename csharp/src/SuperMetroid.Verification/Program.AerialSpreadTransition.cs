@@ -22,7 +22,7 @@ internal static partial class Program
         for (int timingCase = 0; timingCase < (wallRoute ? 14 : 10); timingCase++)
         {
             int delay = timingCase < 10 ? timingCase : timingCase + 30;
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = new SuperMetroidRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

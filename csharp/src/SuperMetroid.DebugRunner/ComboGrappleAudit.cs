@@ -10,7 +10,7 @@ internal static class ComboGrappleAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "8F43C1DE13732895F6044ACCF7A14AA3B1274252E37679CDC38B962A55339CDA")
             throw new InvalidDataException("Use the accepted combo-grapple v1 trace.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {

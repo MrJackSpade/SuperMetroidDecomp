@@ -8,7 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static void VerifyTourianStatueUnlockDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyTourianStatueUnlockDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         {
@@ -64,7 +64,7 @@ internal static partial class Program
     }
 
     private static void VerifyTourianStatueAnimatedTileMechanics(
-        SuperMetroidAddressSpace rom)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
@@ -169,7 +169,7 @@ internal static partial class Program
             $"statue $87:{definition.ObjectPointer:X4} cartridge $87:{pointer:X4}");
     }
 
-    private static ushort ReadTourianEyeWord(SuperMetroidAddressSpace bus, int address) =>
+    private static ushort ReadTourianEyeWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class TourianStatueEyeReadGuard(ISnesAddressSpace source) :

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyReserveMode(string nativeTracePath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[][] native = File.ReadLines(nativeTracePath).Skip(1)
             .Select(line => line.Split(',')
                 .Select(value => Convert.ToInt32(value, 16))

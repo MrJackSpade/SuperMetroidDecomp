@@ -10,7 +10,7 @@ internal static class OptionsHeadingAudit
     public static int Run(string rom, string directory)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
         var menu = new GameOptionsMenuState(bus);
         void Until(GameOptionsPhase phase)

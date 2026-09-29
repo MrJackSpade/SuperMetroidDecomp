@@ -40,7 +40,7 @@ public static class EnemyTileArtworkFiles
                     throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");
                 if (entries.ContainsKey(definitionPointer)) continue;
 
-                RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, definitionPointer);
+                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
                 byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);

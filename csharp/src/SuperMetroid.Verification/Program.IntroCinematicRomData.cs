@@ -96,7 +96,7 @@ internal static partial class Program
         if (!File.Exists(romPath))
             return;
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists))
             _ = bus.ReadByte(IntroCinematicRomData.Banks.CinematicCode | pointer);
         foreach (ushort pointer in bank8CLists)

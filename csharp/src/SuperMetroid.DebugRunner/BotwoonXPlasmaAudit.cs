@@ -12,7 +12,7 @@ internal static partial class BotwoonAudit
     /// </summary>
     public static int RunXPlasmaControls(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -68,8 +68,8 @@ internal static partial class BotwoonAudit
     /// </summary>
     public static int RunXPlasma(string romPath)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var loaded = Load(bus, room, assets, alreadyDefeated: false);
         AdvanceUntilShootable(loaded, assets.LevelData);

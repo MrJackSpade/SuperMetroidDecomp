@@ -12,18 +12,18 @@ internal static partial class Program
 {
 static void VerifyLoRomCrossBankCompressedData()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // The four-byte literal begins at $94:FFFC. Its final byte is $94:FFFF and the $FF
     // terminator is the physically adjacent byte at $95:8000. This is the same bank-cross
     // shape used by the real title graphics stream, reduced to a six-byte fixture.
     byte[] compressed = [0x03, 0x11, 0x22, 0x33, 0x44, 0xff];
-    int beforeCrossing = SuperMetroidAddressSpace.ToRomOffset(0x94fffc);
-    int afterCrossing = SuperMetroidAddressSpace.ToRomOffset(0x958000);
+    int beforeCrossing = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x94fffc);
+    int afterCrossing = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x958000);
     compressed.AsSpan(0, 4).CopyTo(rom.AsSpan(beforeCrossing));
     compressed.AsSpan(4, 2).CopyTo(rom.AsSpan(afterCrossing));
 
-    var bus = new SuperMetroidAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     byte[] output = RomDataReader.Decompress(bus, 0x94fffc, maximumCompressedBytes: 16);
     AssertEqual(4, output.Length, "cross-bank decompressed length");
     AssertEqual(0x11, output[0], "cross-bank first literal");
@@ -188,7 +188,7 @@ static void VerifyBgPriorityPlaneRendering()
 
 static void VerifyFileSelectFreshSaveTilemap()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
     // sufficient for this focused fixture, but each one still needs the native $FFFF
@@ -264,7 +264,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     var mapStations = new byte[Bank80SystemState.MapStationByteCount];
     mapStations[0] = 0xff;
 
-    var addressSpace = new SuperMetroidAddressSpace(rom);
+    var addressSpace = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var menu = new FileSelectMenuState(addressSpace);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
@@ -438,7 +438,7 @@ static void VerifySavedGameLoadAppearance()
         return;
     }
 
-    var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+    var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
     var saveRam = new SuperMetroidSaveRam(bus);
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
@@ -572,7 +572,7 @@ static void VerifyCinematicPaletteFader()
 
 static void VerifyDemoInputObject()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
     int objectAddress = DemoInputRomData.BankBase | DemoInputRomData.IntroMotherBrain.Object;
     WriteRomWord(rom, objectAddress, DemoInputRomData.Routines.NoOp); // Initializer: RTS.
     WriteRomWord(rom, objectAddress + 2, DemoInputRomData.Routines.NoOp); // Pre-instruction: RTS.
@@ -600,7 +600,7 @@ static void VerifyDemoInputObject()
             words[index]);
 
     var demo = new DemoInputState();
-    var bus = new SuperMetroidAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
     demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object);
@@ -636,7 +636,7 @@ static void VerifyDemoInputObject()
     if (File.Exists(retailPath))
     {
         var retailDemo = new DemoInputState();
-        var retailBus = new SuperMetroidAddressSpace(File.ReadAllBytes(retailPath));
+        var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(retailPath));
         retailDemo.Enable();
         retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object);
         for (int frame = 0; frame < elapsed; frame++)
@@ -664,7 +664,7 @@ static void VerifyDemoInputObject()
     WriteRomWord(rom, 0x918722, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918724, 0x8700);
 
-    bus = new SuperMetroidAddressSpace(rom);
+    bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
     demo.LoadObject(bus, 0x8720);
@@ -688,7 +688,7 @@ static void VerifyDemoInputObject()
     WriteRomWord(rom, 0x918734, 0x8750);
     WriteRomWord(rom, 0x918750, 0x8739);
     WriteRomWord(rom, 0x918752, DemoInputRomData.Instructions.Delete);
-    bus = new SuperMetroidAddressSpace(rom);
+    bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
     demo.LoadObject(bus, 0x8730);
@@ -709,7 +709,7 @@ static void VerifyDemoInputObject()
 
 static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
-    int offset = SuperMetroidAddressSpace.ToRomOffset(snesAddress);
+    int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
     rom[offset] = unchecked((byte)value);
     rom[offset + 1] = unchecked((byte)(value >> 8));
 }

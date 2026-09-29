@@ -30,8 +30,8 @@ internal static class PowerBombRuntimeAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             PowerBombRuntimeAuditDefinitions.AlphaPowerBombRoomHeader);
         if (room.Identity != new RoomIdentity(AreaId.Brinstar, 0x26))

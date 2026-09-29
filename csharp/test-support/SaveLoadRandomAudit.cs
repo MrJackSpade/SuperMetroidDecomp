@@ -13,12 +13,12 @@ internal static class SaveLoadRandomAudit
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "save-load-rng-assets-" + Guid.NewGuid().ToString("N")));
-        MapPresentationExtractor.Extract(SuperMetroidAddressSpace.LoadRetailRom(rom),
+        MapPresentationExtractor.Extract(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom),
             Path.Combine(root, "game", "maps"), "test-provenance");
         AreaMapPresentationCatalog presentation = new GameInstallation(root).LoadMaps();
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var save = new SuperMetroidSaveSnapshot
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,

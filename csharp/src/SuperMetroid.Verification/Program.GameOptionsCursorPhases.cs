@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyGameOptionsCursorPhases()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var controllerPage = NewMenu();
         for (int row = 0; row < GameOptionsRomData.Rows.PrimaryControllerSettings; row++)
         {

@@ -7,7 +7,7 @@ internal static class StateHostOptionsVerification
     public static int Run(string statePath, string iniPath)
     {
         string rom = Path.GetFullPath("Super Metroid.smc");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(iniPath), iniPath);
         if (!options.Invincibility || !options.InfiniteAmmo)
             throw new InvalidDataException("This reported-state audit requires both protection options enabled.");

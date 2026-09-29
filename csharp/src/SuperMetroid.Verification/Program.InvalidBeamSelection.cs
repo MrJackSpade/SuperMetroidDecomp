@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyInvalidBeamSelection()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,

@@ -16,8 +16,8 @@ internal static class AlcoonAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, CrateriaPowerBombsRoom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, CrateriaPowerBombsRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -230,7 +230,7 @@ internal static class AlcoonAudit
         // shipped actors exercise both walking facings but never reach the 112-pixel hide
         // threshold. Lower Norfair Spring Ball Maze is the all-Alcoon retail population
         // whose longer ledges exercise that remaining state transition without fixtures.
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, 0xb510);
+        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xb510);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

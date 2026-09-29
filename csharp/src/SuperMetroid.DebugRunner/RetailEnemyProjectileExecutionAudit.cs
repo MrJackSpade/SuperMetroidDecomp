@@ -34,7 +34,7 @@ internal static partial class RetailEnemyExecutionAudit
 
     public static int RunProjectileCombat(string romPath, ushort? definitionFilter = null)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         RetailRoomState[] states = LoadNamedRetailStates();
         var testedVariants = new HashSet<ProjectileVariant>();
         var reachedDefinitions = new HashSet<ushort>();
@@ -48,8 +48,8 @@ internal static partial class RetailEnemyExecutionAudit
         {
             try
             {
-                CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
-                CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+                CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
+                CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
                 if (definitionFilter is ushort requestedDefinition &&
                     !PopulationContainsDefinition(
                         bus,

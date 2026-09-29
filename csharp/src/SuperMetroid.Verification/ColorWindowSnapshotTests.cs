@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyColorWindowSnapshots()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var cgram = new SnesCgram();
         cgram.SetColor(0, 0x396b);
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();

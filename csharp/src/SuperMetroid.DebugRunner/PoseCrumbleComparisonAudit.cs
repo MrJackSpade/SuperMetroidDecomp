@@ -11,7 +11,7 @@ internal static class PoseCrumbleComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(capture))) !=
             "FB6559974148F212EEFB83864921D29FA0ECEE1BB3BDFD0BD588E89A7F50608E")
             throw new InvalidDataException("Use the accepted pose-crumble v1 capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, mismatches = 0;
         foreach (string line in File.ReadLines(capture).Skip(1))
         {

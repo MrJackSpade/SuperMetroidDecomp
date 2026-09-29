@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
     private static void VerifyInstalledKraidBackground(
-        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         KraidBackgroundArtwork art = stock.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
@@ -82,7 +82,7 @@ internal static partial class Program
     }
 
     private static void VerifyInstalledKraidHeadFrames(
-        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         ushort[] pointers = KraidHeadInstructionDefinitions.All.ToArray()
             .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
@@ -162,7 +162,7 @@ internal static partial class Program
     }
 
     private static void VerifyInstalledKraidBg3Restoration(
-        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
     {
         AssertEqual(24, (int)VramAssetId.GrappleVerticalSegmentTiles,
             "existing pending-VRAM asset identities remain stable");
@@ -250,7 +250,7 @@ internal static partial class Program
     }
 
     private static SnesVram RunKraidBg3Restoration(
-        SuperMetroidAddressSpace rom,
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom,
         EnemyTileArtworkCatalog? enemyArtwork,
         HudTileAtlas? hud,
         AreaMapPresentationCatalog? map,
@@ -298,7 +298,7 @@ internal static partial class Program
     }
 
     private static void VerifyInstalledKraidRoomBackground(
-        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomData.RoomBackgroundTileAddress,

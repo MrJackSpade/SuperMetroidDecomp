@@ -33,16 +33,16 @@ internal static class MapCrossViewAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         int comparisonCount = 0;
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             comparisonCount += VerifyRoom(bus, room, hasAreaMap: false);
             comparisonCount += VerifyRoom(bus, room, hasAreaMap: true);
         }
 
-        CartridgeRoomHeader reportedRoom = CartridgeRoomHeader.Load(
+        CartridgeRoomHeader reportedRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             MapCrossViewAuditDefinitions.WaterRoom);
         if (reportedRoom.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||

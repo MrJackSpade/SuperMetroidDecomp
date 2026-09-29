@@ -28,6 +28,90 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Mother Brain initial dummy visual operand $A9:{address:X4} is not compiled.");
 
+    /// <summary>
+    /// Selects the fixed extended spritemap following one timed body frame in
+    /// $A9:9730-$9A43 or the initial dummy at $A9:9C15. Repeated walk speeds
+    /// change only frame durations, not the authored visual sequence.
+    /// </summary>
+    internal static ushort ReadVisualSelector(ushort address)
+    {
+        if (address == InitialDummyVisualOperand)
+            return InitialDummyVisualFrame;
+
+        if (TryWalkFrame(address, ForwardWalkReallyFast, forward: true, out ushort frame) ||
+            TryWalkFrame(address, BackwardWalkSlow, forward: false, out frame))
+            return frame;
+
+        int offset = address - CrouchAndThenStandUp;
+        if ((uint)offset <= 0x30)
+        {
+            return offset switch
+            {
+                0x04 or 0x30 => 0x9fa0,
+                0x0a or 0x2a => 0xa2d6,
+                0x10 or 0x24 => 0xa28c,
+                0x18 or 0x1c => 0xa252,
+                _ => throw UnknownVisual(address),
+            };
+        }
+
+        if (TryStandFrame(address, StandAfterCrouchSlow, out frame) ||
+            TryStandFrame(address, StandAfterCrouchFast, out frame))
+            return frame;
+
+        return address switch
+        {
+            0x99e6 or 0x99fe or 0x9a14 or 0x9a30 => 0xa2d6,
+            0x99ec or 0x99f6 or 0x9a0e or 0x9a2a => 0x9fa0,
+            0x9a06 or 0x9a22 or 0x9a3e => 0xa252,
+            0x9a1a or 0x9a36 => 0xa28c,
+            _ => throw UnknownVisual(address),
+        };
+    }
+
+    private static bool TryWalkFrame(ushort address, ushort first, bool forward,
+        out ushort frame)
+    {
+        int delta = address - first;
+        if ((uint)delta >= 5 * 0x3a)
+        {
+            frame = 0;
+            return false;
+        }
+        int within = delta % 0x3a;
+        int index = within switch
+        {
+            0x04 => 0, 0x0a => 1, 0x10 => 2, 0x16 => 3, 0x1c => 4,
+            0x22 => 5, 0x28 => 6, 0x2e => 7, 0x36 => 8,
+            _ => -1,
+        };
+        if (index < 0)
+        {
+            frame = 0;
+            return false;
+        }
+        ReadOnlySpan<ushort> frames =
+            [0x9fa0, 0x9fea, 0xa03c, 0xa08e, 0xa0e0, 0xa12a, 0xa174, 0xa1be, 0xa208];
+        frame = frames[forward ? index : 8 - index];
+        return true;
+    }
+
+    private static bool TryStandFrame(ushort address, ushort start, out ushort frame)
+    {
+        frame = (address - start) switch
+        {
+            0x04 => 0xa252,
+            0x0a => 0xa28c,
+            0x10 => 0xa2d6,
+            0x16 => 0x9fa0,
+            _ => 0,
+        };
+        return frame != 0;
+    }
+
+    private static InvalidDataException UnknownVisual(ushort address) => new(
+        $"Mother Brain body visual operand $A9:{address:X4} is not compiled.");
+
     /// <summary>$A9:9730-$A9:9851, five forward-walk programs.</summary>
     private const ushort ForwardWalkReallyFast = 0x9730;
 

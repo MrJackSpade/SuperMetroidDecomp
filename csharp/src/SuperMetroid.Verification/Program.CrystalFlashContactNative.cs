@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCrystalFlashContactNative(string rom, string path)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         AssertEqual("A9E43DA426DD832D9DFBBCF820A374CDA109A2E715764E5012B6AF9174CCB5F3",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))),
             "accepted native contact lifetime trace");

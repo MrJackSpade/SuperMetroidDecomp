@@ -35,7 +35,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         TouchRange(bus, SamusPaletteRomData.Common.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
         TouchRange(bus, SamusPaletteRomData.HurtFlash.Colors,

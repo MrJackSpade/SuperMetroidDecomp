@@ -11,7 +11,7 @@ internal static class SparkCorrosiveAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "E779CABF32F0C8AB9E457583E22555638113DC1BBD80030A7906339C76B68638")
             throw new InvalidDataException("Use the accepted corrosive-travel capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..3])))

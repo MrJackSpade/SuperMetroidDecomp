@@ -14,7 +14,7 @@ internal static class PseudoScrewProjectileAudit
         var rows = File.ReadLines(capture).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 288 || rows.Any(row => row.Length != 13))
             throw new InvalidDataException("Incomplete projectile-contact matrix.");
-        var bus = new ProjectileFixture(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        var bus = new ProjectileFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         int failures = 0, protectedCases = 0, hurtCases = 0;
         foreach (var row in rows)
         {

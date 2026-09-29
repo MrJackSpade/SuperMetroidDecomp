@@ -11,7 +11,7 @@ internal static class ShineChargeAudit
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "7A829405877C9D40FCEB1C6792D20FADD0CF4C51B40396ED1EF43B3098C4FFE7")
             throw new InvalidDataException("Use accepted shine-charge capture.");
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         int records = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))

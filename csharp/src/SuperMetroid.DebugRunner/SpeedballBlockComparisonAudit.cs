@@ -8,7 +8,7 @@ internal static class SpeedballBlockComparisonAudit
 {
     public static int Run(string rom, string trace, bool families = false)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != (families ? 114 : 48) || rows.Any(row => row.Length != 10))
             throw new InvalidDataException("Unexpected Speedball contact capture dimensions.");

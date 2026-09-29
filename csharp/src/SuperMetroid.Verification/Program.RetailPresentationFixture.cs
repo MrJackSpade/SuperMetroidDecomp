@@ -19,7 +19,7 @@ internal static partial class Program
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "retail-presentation-fixture-" + Guid.NewGuid().ToString("N")));
         MapPresentationExtractor.Extract(
-            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")),
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")),
             Path.Combine(root, "game", "maps"), "test-provenance");
         return retailPresentationFixture = new GameInstallation(root).LoadMaps();
     }

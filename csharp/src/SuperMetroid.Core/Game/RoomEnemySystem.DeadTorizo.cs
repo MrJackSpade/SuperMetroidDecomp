@@ -176,6 +176,7 @@ public sealed partial class RoomEnemySystem
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
             _bus!,
+            EnemyWorkMemory,
             0x7e0000 | state.TablePointer,
             state.EntryCount,
             state.YLimit,

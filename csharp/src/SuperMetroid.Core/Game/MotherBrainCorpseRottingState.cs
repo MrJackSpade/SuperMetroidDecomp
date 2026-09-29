@@ -81,7 +81,7 @@ public sealed class MotherBrainCorpseRottingState
 
     /// <summary>
     /// Builds the native rot table and extracts the working corpse frame into WRAM.
-    /// Installed play uses the editable PNG; cartridge-only fixtures retain native reads.
+    /// The initial pixels come exclusively from the installed, editable PNG.
     /// </summary>
     public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas? artwork = null)
     {
@@ -115,14 +115,14 @@ public sealed class MotherBrainCorpseRottingState
     }
 
     /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
-    public static MotherBrainCorpseRotEntry ReadEntry(ISnesAddressSpace bus, int entryIndex)
+    public static MotherBrainCorpseRotEntry ReadEntry(ISnesMutableMemory memory, int entryIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if ((uint)entryIndex >= EntryCount)
             throw new ArgumentOutOfRangeException(nameof(entryIndex));
 
         CorpseRottingTableEntry entry = CorpseRottingTableProcessor.ReadEntry(
-            bus,
+            memory,
             RotTableAddress,
             EntryCount,
             entryIndex);
@@ -132,16 +132,18 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Runs one exact call of <c>ProcessCorpseRotting</c> for Mother Brain.</summary>
     public MotherBrainCorpseRottingStepResult Step(
         ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         ushort brainXPosition,
         ushort brainYPosition,
         ushort randomNumberSeed,
         ushort mainEnemyExecutionCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if (!IsInitialized)
         {
             throw new InvalidOperationException(
-                "Mother Brain corpse rotting must be initialized from the ROM-backed bus first.");
+                "Mother Brain corpse rotting must be initialized from installed artwork first.");
         }
 
         ProcessCallCount++;
@@ -149,11 +151,12 @@ public sealed class MotherBrainCorpseRottingState
 
         bool stillRotting = CorpseRottingTableProcessor.Step(
             bus,
+            memory,
             RotTableAddress,
             EntryCount,
             yLimit: EntryCount - 1,
             lateMoveEntryIndex: EntryCount - 2,
-            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(bus, yOffset, move),
+            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(bus, memory, yOffset, move),
             entryFinished: entryIndex =>
             {
                 // `$B223` samples the already-existing global seed; it does not advance
@@ -186,7 +189,7 @@ public sealed class MotherBrainCorpseRottingState
             DustRequests: dustRequests);
     }
 
-    private static void CopyOrMovePixelRow(ISnesAddressSpace bus, ushort yOffset, bool move)
+    private static void CopyOrMovePixelRow(ISnesAddressSpace bus, ISnesMutableMemory memory, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.
@@ -213,11 +216,11 @@ public sealed class MotherBrainCorpseRottingState
                 // Each tile pixel row consists of two independent 16-bit words: planes
                 // 0/1 at +0 and planes 2/3 at +$10. Read before any source clear so move
                 // retains the exact load/store ordering of `$EA40-$EB07`.
-                ushort planes01 = ReadWord(
-                    bus,
+                ushort planes01 = SnesWorkRam.ReadWord(
+                    memory,
                     GraphicsBufferAddress + columnOffset + sourceOffset);
-                ushort planes23 = ReadWord(
-                    bus,
+                ushort planes23 = SnesWorkRam.ReadWord(
+                    memory,
                     GraphicsBufferAddress + columnOffset + sourceOffset + 0x10);
                 WriteWord(
                     bus,
@@ -237,14 +240,6 @@ public sealed class MotherBrainCorpseRottingState
                 WriteWord(bus, GraphicsBufferAddress + columnOffset + sourceOffset + 0x10, 0);
             }
         }
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Mother Brain corpse graphics reads require live WRAM.");
-        return unchecked((ushort)(memory.ReadWorkRamByte(address) |
-            (memory.ReadWorkRamByte(address + 1) << 8)));
     }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)

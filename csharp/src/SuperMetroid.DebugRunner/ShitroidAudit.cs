@@ -457,7 +457,9 @@ internal static class ShitroidAudit
 
         foreach (DeadSidehopperEnemyState state in loaded.Enemies.DeadSidehoppers
                      .Where(state => state is not null).Cast<DeadSidehopperEnemyState>())
-            VerifyRotTableEndpoints(bus, state.TablePointer, state.EntryCount);
+            VerifyRotTableEndpoints(bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Corpse rot audit requires live WRAM."),
+                state.TablePointer, state.EntryCount);
 
         foreach (DeadTourianCorpseEnemyState state in loaded.Enemies.DeadTourianCorpses
                      .Where(state => state is not null).Cast<DeadTourianCorpseEnemyState>())
@@ -471,7 +473,9 @@ internal static class ShitroidAudit
                     $"Dead {state.Species} variant/row mismatch: " +
                     $"{state.VariantIndex}/{state.EntryCount}.");
             }
-            VerifyRotTableEndpoints(bus, state.TablePointer, state.EntryCount);
+            VerifyRotTableEndpoints(bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Corpse rot audit requires live WRAM."),
+                state.TablePointer, state.EntryCount);
             foreach (RoomEnemySystem.DeadTourianCorpseGraphicsCopy copy in
                      state.Variant.InitialGraphicsCopies)
                 VerifyGraphicsCopy(bus, copy.SourceOffset, copy.DestinationOffset, copy.Length);
@@ -814,17 +818,17 @@ internal static class ShitroidAudit
     }
 
     private static void VerifyRotTableEndpoints(
-        ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         ushort tablePointer,
         ushort entryCount)
     {
         CorpseRottingTableEntry first = CorpseRottingTableProcessor.ReadEntry(
-            bus,
+            memory,
             0x7e0000 | tablePointer,
             entryCount,
             0);
         CorpseRottingTableEntry last = CorpseRottingTableProcessor.ReadEntry(
-            bus,
+            memory,
             0x7e0000 | tablePointer,
             entryCount,
             entryCount - 1);

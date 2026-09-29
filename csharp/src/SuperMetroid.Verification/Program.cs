@@ -29,6 +29,11 @@ try
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--wram-helper-boundary"])
+{
+    VerifyWramHelperBoundary();
+    return 0;
+}
 if (args is ["--enemy-definition-boundary", string enemyDefinitionRom])
 {
     VerifyEnemyDefinitionBoundary(enemyDefinitionRom);

@@ -9,23 +9,23 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SamusProjectileInheritance
 {
-    internal static (short X, short Y) ReadVelocity(ISnesAddressSpace bus, ushort directionWord, short baseSpeed)
+    internal static (short X, short Y) ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
     {
         int direction = directionWord & 15;
         if (direction > 9)
             throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${direction:X2}.");
-        ushort upward = ReadWord(bus, SamusProjectileInheritanceAddresses.Up - 1);
+        ushort upward = SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Up - 1);
         int upContribution = (upward & 0xff00) == 0 ? 0 : (upward >> 2) | 0xc000;
         short x = unchecked((short)(direction switch
         {
-            1 or 2 or 3 => baseSpeed + ReadWord(bus, SamusProjectileInheritanceAddresses.Right - 1),
-            6 or 7 or 8 => -baseSpeed + ReadWord(bus, SamusProjectileInheritanceAddresses.Left - 1),
+            1 or 2 or 3 => baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Right - 1),
+            6 or 7 or 8 => -baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Left - 1),
             _ => 0,
         }));
         short y = unchecked((short)(direction switch
         {
             0 or 1 or 8 or 9 => -baseSpeed + upContribution,
-            3 or 4 or 5 or 6 => baseSpeed + ReadWord(bus, SamusProjectileInheritanceAddresses.Down - 1),
+            3 or 4 or 5 or 6 => baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Down - 1),
             _ => 0,
         }));
         return (x, y);
@@ -54,14 +54,6 @@ internal static class SamusProjectileInheritance
         };
         WriteWord(bus, address, unchecked((ushort)(signedDisplacement >> 16)));
         WriteWord(bus, address + 2, unchecked((ushort)signedDisplacement));
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Projectile inheritance requires live WRAM.");
-        return (ushort)(memory.ReadWorkRamByte(address) |
-            memory.ReadWorkRamByte(address + 1) << 8);
     }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)

@@ -247,7 +247,9 @@ public sealed class RoomLayer3FxState
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
-            FirefleaRoomFx.Step(bus, timeIsFrozen, firefleaDarknessLevel);
+            FirefleaRoomFx.Step(bus, bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Fireflea FX requires live WRAM."),
+                timeIsFrozen, firefleaDarknessLevel);
             return;
         }
         if (!IsRenderable || timeIsFrozen)

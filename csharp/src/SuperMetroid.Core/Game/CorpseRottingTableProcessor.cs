@@ -37,19 +37,19 @@ public static class CorpseRottingTableProcessor
 
     /// <summary>Reads one native table record without inventing a parallel host state.</summary>
     public static CorpseRottingTableEntry ReadEntry(
-        ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         int tableAddress,
         ushort entryCount,
         int entryIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if ((uint)entryIndex >= entryCount)
             throw new ArgumentOutOfRangeException(nameof(entryIndex));
 
         int entryAddress = checked(tableAddress + entryIndex * EntryByteCount);
         return new CorpseRottingTableEntry(
-            unchecked((short)ReadWord(bus, entryAddress)),
-            ReadWord(bus, entryAddress + 2));
+            unchecked((short)SnesWorkRam.ReadWord(memory, entryAddress)),
+            SnesWorkRam.ReadWord(memory, entryAddress + 2));
     }
 
     /// <summary>Runs one complete call of the shared cartridge table processor.</summary>
@@ -64,6 +64,7 @@ public static class CorpseRottingTableProcessor
     /// <returns>True while another rotting call is required; false on final completion.</returns>
     public static bool Step(
         ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         int tableAddress,
         ushort entryCount,
         ushort yLimit,
@@ -72,6 +73,7 @@ public static class CorpseRottingTableProcessor
         Action<ushort> entryFinished)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         ArgumentNullException.ThrowIfNull(copyOrMovePixelRow);
         ArgumentNullException.ThrowIfNull(entryFinished);
         if (entryCount == 0)
@@ -80,14 +82,14 @@ public static class CorpseRottingTableProcessor
         for (ushort entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             int entryAddress = checked(tableAddress + entryIndex * EntryByteCount);
-            short yOffset = unchecked((short)ReadWord(bus, entryAddress));
+            short yOffset = unchecked((short)SnesWorkRam.ReadWord(memory, entryAddress));
 
             // `$FFFF` marks a finished non-final entry. The assembly uses BMI, so every
             // signed-negative value is skipped rather than testing one invented sentinel.
             if (yOffset < 0)
                 continue;
 
-            ushort timer = ReadWord(bus, entryAddress + 2);
+            ushort timer = SnesWorkRam.ReadWord(memory, entryAddress + 2);
             if (timer != 0)
             {
                 timer = unchecked((ushort)(timer - 1));
@@ -119,14 +121,6 @@ public static class CorpseRottingTableProcessor
         }
 
         return true;
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Corpse-rotting table reads require live WRAM.");
-        return unchecked((ushort)(memory.ReadWorkRamByte(address) |
-            (memory.ReadWorkRamByte(address + 1) << 8)));
     }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)

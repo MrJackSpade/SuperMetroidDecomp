@@ -13,14 +13,14 @@ internal static class FirefleaRoomFx
         WriteWord(bus, FirefleaFxData.Darkness, 0);
     }
 
-    public static void Step(ISnesAddressSpace bus, bool frozen, ushort darkness)
+    public static void Step(ISnesAddressSpace bus, ISnesMutableMemory memory, bool frozen, ushort darkness)
     {
         // The enemy system owns deaths; the effect only samples that counter. WRAM
         // owns the flashing phase so exact-state saves retain it without a second clock.
         WriteWord(bus, FirefleaFxData.Darkness, darkness);
         if (frozen) return;
-        ushort timer = unchecked((ushort)(ReadWord(bus, FirefleaFxData.Timer) - 1));
-        ushort index = ReadWord(bus, FirefleaFxData.Index);
+        ushort timer = unchecked((ushort)(SnesWorkRam.ReadWord(memory, FirefleaFxData.Timer) - 1));
+        ushort index = SnesWorkRam.ReadWord(memory, FirefleaFxData.Index);
         if (timer == 0)
         {
             timer = FirefleaFxDefinitions.FlashDuration;
@@ -45,14 +45,6 @@ internal static class FirefleaRoomFx
         bus.WriteByte(PpuFixedColorMirrors.Green, (byte)(shade | 0x80));
         bus.WriteByte(PpuFixedColorMirrors.Blue, (byte)(shade | 0x40));
         bus.WriteByte(PpuFixedColorMirrors.Red, (byte)(shade | 0x20));
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("Fireflea FX requires WRAM access.");
-        return (ushort)(memory.ReadWorkRamByte(address) |
-            memory.ReadWorkRamByte(address + 1) << 8);
     }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)

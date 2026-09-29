@@ -12,6 +12,15 @@ internal static partial class Program
         byte[] sourceHash = SHA256.HashData(File.ReadAllBytes(sourceRom));
         Console.WriteLine($"Full installation fixture: {root}");
         var installation = GameAssetInstaller.Install(sourceRom, root, progress: new ImmediateInstallProgress());
+        if (OperatingSystem.IsWindows())
+        {
+            // An exclusive handle makes a startup ROM read fail deterministically.
+            // A complete installation must instead validate and use extracted assets.
+            using var lockedRom = new FileStream(installation.RomPath, FileMode.Open,
+                FileAccess.Read, FileShare.None);
+            AssertTrue(GameAssetInstaller.OpenOrRepair(root) is not null,
+                "complete host startup does not open the installed ROM");
+        }
         var stock = installation.LoadMaps();
         var projectileStock = installation.LoadProjectiles();
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);

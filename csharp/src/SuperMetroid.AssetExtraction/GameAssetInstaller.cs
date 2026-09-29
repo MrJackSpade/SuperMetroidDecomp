@@ -44,17 +44,19 @@ public static class GameAssetInstaller
     }
 
     /// <summary>
-    /// Host startup: repair from the installed ROM when available, otherwise
-    /// accept only a complete, validated extracted-content installation.
-    /// Repair without a cartridge is impossible, but valid assets can still run.
+    /// Host startup: use a complete, validated extracted-content installation
+    /// without opening the private ROM. Only an incomplete installation enters
+    /// the importer's cartridge-backed repair path.
     /// </summary>
     public static GameInstallation? OpenOrRepair(string root,
         CancellationToken cancellationToken = default, IProgress<string>? progress = null)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        GameInstallation? installed = TryOpenExtractedContent(root);
+        if (installed is not null) return installed;
         GameInstallation? repaired = EnsureInstalled(root, cancellationToken, progress);
         if (repaired is not null) return repaired;
-        cancellationToken.ThrowIfCancellationRequested();
-        return TryOpenExtractedContent(root);
+        return null;
     }
 
     /// <summary>

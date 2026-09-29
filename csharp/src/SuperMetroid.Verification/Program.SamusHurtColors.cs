@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -35,6 +36,9 @@ internal static partial class Program
 
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
+        AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
+            rom, new SnesCgram(), new SamusState { HurtFlashCounter = 1 }, 0),
+            "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Samus hurt JSON property fails loudly");
@@ -46,25 +50,43 @@ internal static partial class Program
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         SamusHurtColorCatalog catalog, bool cinematic)
     {
-        var native = new SamusState { HurtFlashCounter = 1 };
-        var installed = new SamusState { HurtFlashCounter = 1 };
-        native.LiquidPhysics.CinematicFunctionActive = cinematic;
-        installed.LiquidPhysics.CinematicFunctionActive = cinematic;
-        var nativeCgram = new SnesCgram();
-        var installedCgram = new SnesCgram();
+        var samus = new SamusState { HurtFlashCounter = 1 };
+        samus.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+            SamusSuitColorExtractor.Extract(rom)));
+        samus.LiquidPhysics.CinematicFunctionActive = cinematic;
+        var cgram = new SnesCgram();
         var guarded = new ForbiddenHurtColorBus(rom);
+        int expectedPaletteAddress = 0;
         for (int call = 1; call <= 7; call++)
         {
-            SamusHurtFlashPaletteStepResult expected = SamusHurtFlashPalette.Update(
-                rom, nativeCgram, native, 0);
-            SamusHurtFlashPaletteStepResult actual = SamusHurtFlashPalette.Update(
-                guarded, installedCgram, installed, 0, catalog);
-            AssertEqual(expected, actual, $"{(cinematic ? "intro" : "ordinary")} hurt call {call} result");
-            AssertEqual(native.HurtFlashCounter, installed.HurtFlashCounter,
+            SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
+                guarded, cgram, samus, 0, catalog);
+            SamusHurtFlashPaletteAction expectedAction = call == 7
+                ? SamusHurtFlashPaletteAction.NoPaletteChange
+                : (call & 1) != 0
+                    ? SamusHurtFlashPaletteAction.HurtFlash
+                    : cinematic
+                        ? SamusHurtFlashPaletteAction.IntroRestore
+                        : SamusHurtFlashPaletteAction.NormalSuitRestore;
+            AssertEqual(expectedAction, step.Action,
+                $"{(cinematic ? "intro" : "ordinary")} hurt call {call} action");
+            AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
+            if (call <= 6)
+            {
+                expectedPaletteAddress = (call & 1) != 0
+                    ? SamusHurtColorFormat.HurtSourceAddress
+                    : cinematic
+                        ? SamusHurtColorFormat.IntroSourceAddress
+                        : SamusRenderingRomData.Body.PowerSuitPalette;
+                AssertEqual((int?)expectedPaletteAddress, step.PaletteAddress,
+                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source");
+            }
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                AssertEqual(nativeCgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
-                    installedCgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                AssertEqual((ushort)(SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(
+                        CartridgeImportSource.Require(rom),
+                        expectedPaletteAddress + index * sizeof(ushort)) & 0x7fff),
+                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
                     $"{(cinematic ? "intro" : "ordinary")} hurt call {call} CGRAM {index}");
         }
         AssertEqual(0, guarded.ForbiddenReads,

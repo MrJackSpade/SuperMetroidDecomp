@@ -64,15 +64,13 @@ public static class SamusHurtFlashPalette
         {
             if ((counterBefore & 1) != 0)
             {
-                LoadPresentationOrNative(SamusHurtColorVariant.Hurt,
-                    SamusPaletteRomData.HurtFlash.Colors);
+                LoadPresentation(SamusHurtColorVariant.Hurt);
                 action = SamusHurtFlashPaletteAction.HurtFlash;
                 paletteAddress = SamusPaletteRomData.HurtFlash.Colors;
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
-                LoadPresentationOrNative(SamusHurtColorVariant.Intro,
-                    SamusPaletteRomData.HurtFlash.IntroColors);
+                LoadPresentation(SamusHurtColorVariant.Intro);
                 action = SamusHurtFlashPaletteAction.IntroRestore;
                 paletteAddress = SamusPaletteRomData.HurtFlash.IntroColors;
             }
@@ -109,15 +107,11 @@ public static class SamusHurtFlashPalette
             hurtSoundQueued,
             recovery);
 
-        void LoadPresentationOrNative(SamusHurtColorVariant variant, int nativeAddress)
+        void LoadPresentation(SamusHurtColorVariant variant)
         {
             if (presentationColors is null)
-            {
-                cgram.LoadFromBus(bus, nativeAddress,
-                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
-                return;
-            }
+                throw new InvalidOperationException(
+                    "Hurt-flash palette requires installed Samus hurt colors.");
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
                     presentationColors.Resolve(variant, index));

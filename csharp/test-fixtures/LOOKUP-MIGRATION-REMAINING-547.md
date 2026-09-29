@@ -1,5 +1,19 @@
 # Remaining lookup migration inventory (#547)
 
+## Kraid foot extended collision (2026-09-28)
+
+The installed Kraid-foot collision walker still fell through to bank-$A7 ROM:
+a focused native-vs-installed shot probe reproduced a guarded read at
+`$A7:8CE3`. The foot's initial `$A7:A565` frame and all 35 walking frames at
+`$A7:8CE3-$A7:8F47` now select 70 compiled physical components plus the one
+shared `$A7:9453` touch/shot rectangle. All 36 frame headers, component
+offsets/pointers, the hitbox record, and all 106 instruction-selected frame
+references are checked against the pinned cartridge. The actual production
+collision walker matches 15,552 native touch/shot boundary probes at normal
+and wrapping coordinates with cartridge reads denied. The Kraid-room direct
+comparison also matches 1,500 frames with right+fire held and installed ROM
+reads blocked. This does not claim a full Kraid fight or all controller routes.
+
 ## Kraid arm extended collision (2026-09-28)
 
 The `--rom-free-direct-room 'Super Metroid.smc' A59F 1500 0140`

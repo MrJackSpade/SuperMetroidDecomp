@@ -1911,6 +1911,11 @@ if (args is ["--verify-crocomire-body-collision"])
     VerifyCrocomireBodyCollisionDefinitions();
     return 0;
 }
+if (args is ["--kraid-foot-collision"])
+{
+    VerifyKraidFootCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(

@@ -3118,6 +3118,35 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+            enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
+            KraidFootCollisionDefinitions.TryGetComponents(
+                enemy.SpritemapPointer, out var footComponents))
+        {
+            // Kraid's foot art is replaceable, but each native extended frame
+            // still places two physical components against one shared hitbox list.
+            foreach (KraidFootCollisionComponent component in footComponents.Span)
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (KraidFootCollisionHitbox hitbox in
+                         KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         if (enemy.EnemyDefinitionPointer == KraidArmDefinition &&
             enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
             KraidArmCollisionDefinitions.TryGetComponents(

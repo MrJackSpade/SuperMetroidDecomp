@@ -13,6 +13,7 @@ internal static partial class Program
     private static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyKraidFootCollisionDefinitions();
         AssertEqual(193, KraidFootInstructionProgramDefinitions.MechanicsWordCount,
             "Kraid foot compiled mechanics word count");
         AssertEqual(106, KraidFootInstructionProgramDefinitions.PresentationWordCount,

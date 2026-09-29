@@ -876,6 +876,8 @@ internal static class EnemyAiCodePointers
     /// <summary>Bank-$A7 Kraid interaction callbacks.</summary>
     public static class BankA7
     {
+        /// <summary>Kraid background/foot touch callback at $A7:948B.</summary>
+        public const ushort KraidBackgroundTouch = 0x948b;
         /// <summary>Kraid arm touch callback at $A7:9490.</summary>
         public const ushort KraidArmTouch = 0x9490;
         /// <summary>Kraid no-op shot callback at $A7:94B5.</summary>

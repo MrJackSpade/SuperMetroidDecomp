@@ -116,6 +116,15 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   edits, equivalent PNG/JSON encodings, canonical dictionary order, and the actual
   merged result of older overrides with newer stock content. Computed identities
   add no serialized fields. Windows, Android and state import include this bundle.
+- Enemy gameplay acceptance: all 148 retail and five auxiliary headers, 302 ordered
+  populations/1,658 placements, 302 graphics sets/425 members and 90 spawn-name
+  records match the import oracle. All 68 vulnerability and 118 drop records match;
+  every header reference resolves, and 2,449 production vulnerability selections
+  plus area-specific freeze duration checks pass. A six-slot linked body/wing
+  population initializes with RAM-only memory. An authored PNG edit changes exactly
+  its native VRAM pixel while preserving every slot field, palette and quota.
+  Drop/pickup/death fixtures pass with explicit installed-color dependencies.
+  This verifies the source-identified conversion, not a gameplay search for reads.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;

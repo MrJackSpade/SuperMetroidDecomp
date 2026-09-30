@@ -271,10 +271,10 @@ verification evidence. The current high-level gap list is maintained in this REA
 
 ### Enemies
 
-The enemy pass is complete as a translated subsystem. `RoomEnemySystem` parses the terminated
-bank-$A1 populations, bank-$B4 graphics sets, and complete bank-$A0 definitions, preserving
-native slot order, spawn snapshots, graphics staging, boss bookkeeping, and the normal
-scheduler.
+The enemy pass is complete as a translated subsystem. `RoomEnemySystem` consumes compiled
+ordered populations, graphics sets and complete enemy definitions, preserving native slot
+order, spawn snapshots, graphics staging, boss bookkeeping and the normal scheduler.
+Installed PNG/JSON catalogs supply presentation; Core cannot read cartridge bytes.
 
 Every retail definition referenced by a named room-state population has a translated dispatch
 path. The audit suite covers initialization and main AI, instruction lists, long lifecycle and
@@ -530,8 +530,10 @@ that installed-content identity alongside the supported source-revision digest. 
 schemas remain loadable with an explicit compatibility warning. Installed hosts obtain the known
 revision digest from the verified catalog and no longer reopen the private ROM merely to hash it.
 
-Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
-catalog at runtime.
+Gameplay consumes compiled mechanics, installed presentation catalogs and active console
+memory. Cartridge decoding is isolated in AssetExtraction. See
+`test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md` for the source/type audit and remaining
+installation/platform acceptance; the ROM-free boundary is not whole-game parity proof.
 
 ## Testing policy
 

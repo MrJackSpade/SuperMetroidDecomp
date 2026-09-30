@@ -82,50 +82,9 @@ internal static partial class Program
             () => RoomEnemyGraphicsSetDefinitions.Get(0),
             "unknown graphics-set pointer fails loudly");
 
-        var guardedRuntime = new SuperMetroidRuntime(new EnemyRoomListReadGuard(bus));
-        guardedRuntime.InitializeStartingCeresRoom();
-        AssertTrue(guardedRuntime.Enemies.IsLoaded,
-            "production Ceres entry loads ordered enemies without room-list ROM reads");
         Console.WriteLine(
             $"Enemy room lists: {populationPointers.Length} populations/{populationRecords} " +
             $"placements and {graphicsPointers.Length} graphics sets/{graphicsRecords} " +
-            "members match ROM; guarded production entry passes.");
-    }
-
-    private sealed class EnemyRoomListReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        private static readonly HashSet<int> SourceBytes = BuildSourceBytes();
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SourceBytes.Contains(address))
-                throw new InvalidOperationException(
-                    $"Production room entry read enemy room-list source ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static HashSet<int> BuildSourceBytes()
-        {
-            var bytes = new HashSet<int>();
-            foreach (ushort pointer in RoomEnemyPopulationDefinitions.Pointers)
-            {
-                RoomEnemyPopulationDefinition list = RoomEnemyPopulationDefinitions.Get(pointer);
-                int address = RoomEnemyRomLayout.PopulationBank | pointer;
-                foreach (int item in Enumerable.Range(address, list.Records.Length * 16 + 3))
-                    bytes.Add(item);
-            }
-            foreach (ushort pointer in RoomEnemyGraphicsSetDefinitions.Pointers)
-            {
-                RoomEnemyGraphicsSetDefinition list = RoomEnemyGraphicsSetDefinitions.Get(pointer);
-                int address = RoomEnemyRomLayout.TilesetBank | pointer;
-                foreach (int item in Enumerable.Range(address, list.Records.Length * 4 + 2))
-                    bytes.Add(item);
-            }
-            return bytes;
-        }
+            "members match the independent import oracle, including order and quotas.");
     }
 }

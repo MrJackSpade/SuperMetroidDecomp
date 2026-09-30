@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -28,6 +29,16 @@ internal static partial class Program
     private static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
+        // Pseudo-Screw contact consumes the charge and restores suit colors. This
+        // focused death fixture must provide that presentation dependency explicitly;
+        // the runtime no longer decodes a missing palette from cartridge bytes.
+        PaletteRgb5[] colors = Enumerable.Range(0, SamusSuitColorFormat.ColorsPerSuit)
+            .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
+        samus.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+            SamusSuitColorCatalog.Write(new SamusSuitColorDocument
+            {
+                Version = SamusSuitColorFormat.Version, Power = colors, Varia = colors, Gravity = colors,
+            })));
         samus.HorizontalSpeed.ContactDamageIndex = 4;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.Slots[0];

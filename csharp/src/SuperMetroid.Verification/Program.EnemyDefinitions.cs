@@ -112,7 +112,7 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainFallingTube",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
-        busField.SetValue(enemies, new EnemyHeaderReadGuard(rom));
+        busField.SetValue(enemies, SuperMetroidAddressSpace.CreateWithoutCartridge());
 
         for (int index = 0; index < pointers.Length; index++)
         {
@@ -164,7 +164,7 @@ internal static partial class Program
             "constructed room fixture retains its authored falling-tube X position");
 
         Console.WriteLine(
-            "Mother Brain falling tubes: five complete ROM records, five guarded production " +
+            "Mother Brain falling tubes: five complete ROM records, five RAM-only production " +
             "spawns and one independent constructed placement pass.");
     }
 
@@ -183,30 +183,4 @@ internal static partial class Program
             Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
-    private sealed class EnemyHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        private static readonly HashSet<int> DefinitionBytes =
-            RoomEnemyDefinitionCatalog.Pointers
-                .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers)
-                .SelectMany(pointer => Enumerable.Range(
-                    RoomEnemyRomLayout.DefinitionBank | pointer, 64))
-                .Concat(RoomEnemySpawnNameDefinitions.Pointers
-                    .SelectMany(pointer => Enumerable.Range(
-                        RoomEnemyRomLayout.TilesetBank | pointer, 14)))
-                .Concat(MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray()
-                    .SelectMany(pointer => Enumerable.Range(0xa90000 | pointer, 16)))
-                .ToHashSet();
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DefinitionBytes.Contains(address))
-                throw new InvalidOperationException(
-                    $"Production room entry read enemy header/name definition ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// ROM-backed room-enemy loader, scheduler, instruction interpreter, and draw queues for
-/// the portions of bank $A0 currently exercised by normal Landing Site.
+/// Room-enemy loader, scheduler, instruction interpreter, and draw queues. Retail
+/// gameplay definitions are compiled; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
 /// This deliberately retains the cartridge's 32 fixed slots and its native slot offsets

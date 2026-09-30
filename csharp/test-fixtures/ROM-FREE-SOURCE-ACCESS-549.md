@@ -134,6 +134,23 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   pre-hash, cached-hash and current layouts with identical selected-content
   identity; seven malformed or unrelated layouts still reject. No generic
   unknown-field tolerance or cartridge restoration is involved.
+- Required title references: a source-identified fixture reproduced acceptance of
+  an unrelated frame in place of a required title selector. The loader and writer
+  now check all 31 identities from compiled title behavior, and extraction checks
+  the native selectors against that compiled set. All 31 independent substitutions
+  reject before drawing; reordered frames and edited OAM parts still load. Existing
+  title/OAM parity checks pass.
+- Installation override lifecycle: all 44 declared presentation directories and
+  45 public catalog loaders participate in the acceptance fixture. Its 1,091
+  override files remain byte-identical across ROM-unavailable startup, the actual
+  stock-repair transaction and regeneration from an outdated installation receipt.
+  Real OBJ PNG, narration-font PNG, palette JSON, WAV, authored SFX-duration and
+  instrument edits remain selected, with exact decoded payload assertions and
+  isolated identity changes. A fresh portable Android session binds the edited
+  audio/map identities without a cartridge allocation. Corrupt override data
+  reports its path and is retained, rather than repaired away or replaced by stock.
+  This is installer acceptance, not gameplay discovery or proof that every older
+  asset-document schema remains compatible.
 
 These focused checks exercise known conversions. They are not a room playthrough
 or proof of visual/gameplay parity for every event.
@@ -150,8 +167,10 @@ or proof of visual/gameplay parity for every event.
    Windows real-host and portable Android-host acceptance passed as recorded above;
    neither substitutes for running the APK on the device. This is final platform
    acceptance, not a way to hunt remaining reads.
-3. Verify current stock/override persistence and complete required-resource
-   validation across every installed domain. Keep missing-resource errors explicit.
+3. Complete required-resource/reference validation across every installed domain
+   and review compatibility of older override document formats. Current-format
+   override persistence through startup and the real repair/regeneration
+   transaction passes as recorded above. Keep missing-resource errors explicit.
 4. Review remaining cached/reference diagnostic assumptions separately. Historical
    successful frame probes do not authorize restoring Core cartridge capability.
 

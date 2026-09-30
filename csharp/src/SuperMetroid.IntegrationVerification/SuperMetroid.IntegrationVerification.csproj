@@ -8,4 +8,5 @@
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
   </ItemGroup>
   <Import Project="../../test-support/StateFixtures.projitems" />
+  <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

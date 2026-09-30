@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    // Match the existing console-host policy before import, replay or any native
+    // work. Failures belong in the outer stderr/nonzero boundary, never a dialog.
+    if (OperatingSystem.IsWindows())
+        NativeConsoleErrors.DisableDialogs();
     if (args is ["--projectile-host-binding", var projectileRom])
         return ProjectileHostBindingVerification.Run(projectileRom);
     if (args is ["--state-host-options", var statePath, var iniPath])

@@ -10,7 +10,27 @@ internal static partial class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        try
+        {
+            Run(args);
+        }
+        catch (Exception error)
+        {
+            // Initialization, message-loop and disposal failures need the same
+            // process boundary as the already-guarded asynchronous audit body.
+            Console.Error.WriteLine(error);
+            Environment.ExitCode = 1;
+        }
+    }
+
+    private static void Run(string[] args)
+    {
         NativeConsoleErrors.DisableDialogs();
+        if (args is ["--console-startup-failure-test"])
+        {
+            NativeConsoleErrors.VerifyDialogsDisabled();
+            throw new InvalidOperationException("Expected console startup-boundary fixture failure.");
+        }
         if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
             throw new InvalidOperationException("Could not initialize desktop verification with the game's PerMonitorV2 DPI policy.");
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);

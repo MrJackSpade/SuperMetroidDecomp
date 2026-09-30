@@ -5,7 +5,7 @@ They are deliberately not player dependencies and are not separate executables.
 
 - `RenderFixtures.projitems`: cartridge/render scenarios for DebugRunner and RenderVerification.
 - `StateFixtures.projitems`: private fixture loading for IntegrationVerification and DesktopVerification.
-- `WindowsConsole.projitems`: non-interactive native error handling for the two Windows verification runners.
+- `WindowsConsole.projitems`: non-interactive native error handling for Windows verification runners and the portable integration runner when hosted on Windows.
 
 Each consumer explicitly imports its group. These internal fixture types compile into each
 consumer; no runner reaches into another executable's source tree. The source audit retains

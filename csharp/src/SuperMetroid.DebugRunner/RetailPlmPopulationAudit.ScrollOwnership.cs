@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -105,7 +106,7 @@ internal static partial class RetailPlmPopulationAudit
                     assets.LevelData,
                     streamer,
                     vram,
-                    exactState.PlmPointer,
+                    RoomPlmPopulationImporter.Read(bus, exactState.PlmPointer),
                     system,
                     room.AreaIndex,
                     getSamus: () => samus,

@@ -21,6 +21,18 @@ internal static class BlueDoorPlmDrawDefinitions
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+    /// <summary>Opening frames also provide closed-cap appearance; the physical first-word collision differs.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
+        Lists.Values.Where(draw => VisualSource(draw.Pointer) == draw.Pointer);
+
+    internal static ushort VisualSource(ushort pointer) => pointer switch
+    {
+        LeftFrame0 - DrawListBytes => LeftFrame0,
+        RightFrame0 - DrawListBytes => RightFrame0,
+        UpFrame0 - DrawListBytes => UpFrame0,
+        DownFrame0 - DrawListBytes => DownFrame0,
+        _ => pointer,
+    };
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
@@ -28,6 +40,7 @@ internal static class BlueDoorPlmDrawDefinitions
 
     internal static string VisualId(ushort pointer)
     {
+        pointer = VisualSource(pointer);
         foreach ((ushort first, string direction) in new[]
                  {
                      (LeftFrame0, "left"), (RightFrame0, "right"),
@@ -45,7 +58,7 @@ internal static class BlueDoorPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Editable)
         {
             if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
             {
@@ -60,7 +73,7 @@ internal static class BlueDoorPlmDrawDefinitions
     private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(16);
+        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(20);
         AddFourFrames(lists, LeftFrame0, 0x8004,
             [0xc00c, 0xd02c, 0xd82c, 0xd80c],
             [0x800d, 0x802d, 0x882d, 0x880d],
@@ -81,6 +94,18 @@ internal static class BlueDoorPlmDrawDefinitions
             [0x8c3d, 0x8c3c, 0x883c, 0x883d],
             [0x8c1f, 0x8c1e, 0x881e, 0x881f],
             [0x8c3f, 0x8c3e, 0x883e, 0x883f]);
+        // Each preceding native closed-cap list draws the same four visual words
+        // as frame zero, but clears shootable type C on its first solid block.
+        // Compile all four orientations, including the two eye-door conversion users.
+        foreach (ushort first in new ushort[] { LeftFrame0, RightFrame0, UpFrame0, DownFrame0 })
+        {
+            RoomPlmShotBlockDrawDefinitions.Run opening = lists[first].Runs.Span[0];
+            ushort[] words = opening.LevelWords.ToArray();
+            words[0] = new RoomLevelWord(words[0]).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
+            ushort pointer = checked((ushort)(first - DrawListBytes));
+            lists.Add(pointer, new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
+                { new(opening.DirectionAndCount, words, 0, 0) }));
+        }
         return lists;
     }
 

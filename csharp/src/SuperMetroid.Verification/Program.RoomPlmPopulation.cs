@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -111,7 +113,7 @@ internal static partial class Program
         VerifyEscapeGateVisuals(rom);
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
-            "Door-closing definitions: all twelve fallback and seventeen resident selections match.");
+            "Door-closing definitions: all twelve fallback and eighteen resident selections match.");
     }
 
     /// <summary>
@@ -141,58 +143,22 @@ internal static partial class Program
                 ResidentDoorClosingDefinitions.Resolve(definition.Header),
                 $"resident door $84:{definition.Header:X4} resolves by identity");
 
-            // Only header+2 is present. If production regresses to reading header+4,
-            // TestAddressSpace supplies zero and the redirect fails the exact assertion.
+            // Typed placement metadata supplies the first list only. The transition
+            // must obtain its second list from the resident-door definition catalog,
+            // not from an arbitrary address space or a header+4 fixture byte.
             var bus = new TestAddressSpace();
             const ushort population = 0x9000;
-            const ushort initialList = 0x9100;
-            const ushort closedBlueList = 0x9200;
-            const ushort familyList = 0x9300;
-            const ushort openTriggerList = 0x9400;
-            const ushort openingList = 0x9500;
-            const ushort closedDraw = 0x9600;
-            WriteWord(bus,
-                0x840000 | unchecked((ushort)(definition.Header + 2)),
-                initialList);
-            WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)),
-                closedBlueList);
-            WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)),
-                familyList);
-
-            bool grey = definition.Header == RoomPlmHeaders.BombTorizoGreyDoor ||
-                definition.Header is >= RoomPlmHeaders.GreyDoorFacingLeft and
-                    <= RoomPlmHeaders.GreyDoorFacingDown;
-            if (grey)
-            {
-                WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)),
-                    closedDraw);
-                WriteWord(bus, 0x840000 | unchecked((ushort)(familyList + 2)),
-                    openTriggerList);
-                bus.WriteBytes(
-                    0x840000 | unchecked((ushort)(openTriggerList + 2)),
-                    [0x01, unchecked((byte)openingList), unchecked((byte)(openingList >> 8))]);
-            }
-            else
-            {
-                WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 14)),
-                    closedDraw);
-                bus.WriteBytes(
-                    0x840000 | unchecked((ushort)(familyList + 2)),
-                    [0x01, unchecked((byte)openingList), unchecked((byte)(openingList >> 8))]);
-            }
-
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            bus.WriteBytes(0x8f0000 | population,
+            var decoded = new RoomPlmPopulationDefinition(population,
             [
-                unchecked((byte)definition.Header),
-                unchecked((byte)(definition.Header >> 8)),
-                blockX,
-                blockY,
-                0x00,
-                0x80, // Negative argument bypasses persistence and always closes.
-                0x00,
-                0x00,
+                // Two directional caps are not placed in any retail room population,
+                // so they are absent from the 70-header population catalog. Decode
+                // their setup/first-list metadata here, in the import-side oracle.
+                new RoomPlmPlacement(new RoomPlmHeaderDefinition(definition.Header,
+                    ReadWord(rom, 0x840000 | definition.Header),
+                    ReadWord(rom, 0x840000 | unchecked((ushort)(definition.Header + 2)))),
+                    blockX, blockY, 0x8000), // Negative argument always closes.
             ]);
 
             RoomLevelData level = CreateRoom(
@@ -208,7 +174,7 @@ internal static partial class Program
                     level,
                     level.CreateBackgroundStreamer(),
                     new SnesVram(),
-                    population,
+                    decoded,
                     system,
                     AreaId.Crateria,
                     () => new SamusState(),
@@ -306,6 +272,7 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SeedRoomPlmPopulationRom(bus);
+        bus.WriteBytes(0x8f9100, [0x80]); // Dormant scroll fixture owns an empty terminated program.
         const ushort population = 0x9000;
         bus.WriteBytes(0x8f0000 | population, [
             // First resident takes native slot 39.
@@ -342,7 +309,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            population,
+            RoomPlmPopulationImporter.Read(bus, population),
             system,
             areaIndex: AreaId.Crateria,
             getSamus: () => samus,
@@ -453,7 +420,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 system,
                 AreaId.Crateria,
                 () => samus,
@@ -588,7 +555,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 system,
                 AreaId.Brinstar,
                 () => new SamusState(),
@@ -685,7 +652,7 @@ internal static partial class Program
                 level,
                 level.CreateBackgroundStreamer(),
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(),
                 AreaId.WreckedShip,
                 () => new SamusState(),
@@ -730,13 +697,12 @@ internal static partial class Program
 
     /// <summary>
     /// Exercises setup $B89C and all three callbacks installed by the cartridge's $B88A
-    /// list. The fixture uses a real sixteen-byte FX record shape and compiled stage records,
+    /// list. The fixture writes the explicit shared FX motion words and compiled stage records,
     /// so the test observes the same shared FX/event/earthquake owners as production.
     /// </summary>
     private static void VerifySpeedBoosterEscapePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9620;
-        const ushort fxRecord = 0x9820;
         const int width = 16;
         const int height = 16;
 
@@ -763,16 +729,8 @@ internal static partial class Program
 
         RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
         {
-            WriteWord(bus, 0x830000 | fxRecord, 0);
-            WriteWord(bus, 0x830000 | fxRecord + 2, baseY);
-            WriteWord(bus, 0x830000 | fxRecord + 4, targetY);
-            WriteWord(bus, 0x830000 | fxRecord + 6, velocity);
-            bus.WriteByte(0x830000 | fxRecord + 8, timer);
-            bus.WriteByte(0x830000 | fxRecord + 9, 0);
-            bus.WriteByte(0x830000 | fxRecord + 11, 2);
-            bus.WriteByte(0x830000 | fxRecord + 15, 0);
             var fx = new RoomLayer3FxState();
-            fx.Load(bus, new SnesVram(), new SnesCgram(), fxRecord, 0, 0);
+            fx.ApplyCartridgeMotionWrites(baseY, targetY, velocity, timer);
             return fx;
         }
 
@@ -789,7 +747,7 @@ internal static partial class Program
                     level,
                     level.CreateBackgroundStreamer(),
                     new SnesVram(),
-                    population,
+                    RoomPlmPopulationImporter.Read(bus, population),
                     system,
                     AreaId.Norfair,
                     () => samus,
@@ -921,10 +879,6 @@ internal static partial class Program
     {
         const ushort population = 0x96c0;
         const ushort malformedPopulation = 0x96e0;
-        const ushort offRoomList = 0x9700;
-        const ushort inRoomList = 0x9740;
-        const ushort offRoomDraw = 0x9780;
-        const ushort inRoomDraw = 0x9790;
         const int width = 16;
         const int height = 32;
         const int offRoomX = 1;
@@ -932,21 +886,12 @@ internal static partial class Program
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        SeedColoredDoorPopulationHeader(
-            bus,
-            RoomPlmHeaders.GreenDoorFacingRight,
-            offRoomList,
-            offRoomDraw);
-        SeedColoredDoorPopulationHeader(
-            bus,
-            RoomPlmHeaders.GreenDoorFacingLeft,
-            inRoomList,
-            inRoomDraw);
-        bus.WriteBytes(0x8f0000 | population,
+        var decoded = new RoomPlmPopulationDefinition(population,
         [
-            0x78, 0xc8, offRoomX, offRoomY, 0x27, 0x00,
-            0x72, 0xc8, inRoomX, inRoomY, 0x28, 0x00,
-            0x00, 0x00,
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.GreenDoorFacingRight),
+                offRoomX, offRoomY, 0x27),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.GreenDoorFacingLeft),
+                inRoomX, inRoomY, 0x28),
         ]);
 
         RoomLevelData level = CreateRoom(
@@ -962,7 +907,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                population,
+                decoded,
                 new Bank80SystemState(),
                 AreaId.Brinstar,
                 () => new SamusState(),
@@ -981,13 +926,13 @@ internal static partial class Program
         // Both resident actors execute their first draw. The off-room write remains in the
         // bounded native tail while the ordinary record updates logical terrain normally.
         plms.Step(bus, level, streamer, 0, 0, 0);
-        AssertEqual(0x8123, level.GetCollisionBlock(inRoomX, inRoomY).LevelWord,
+        AssertEqual(0xc004, level.GetCollisionBlock(inRoomX, inRoomY).LevelWord,
             "in-room record following the harmless tail actor still draws normally");
 
-        bus.WriteBytes(0x8f0000 | malformedPopulation,
+        var malformed = new RoomPlmPopulationDefinition(malformedPopulation,
         [
-            0x03, 0xb7, offRoomX, offRoomY, 0x00, 0x98,
-            0x00, 0x00,
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.ScrollTrigger),
+                offRoomX, offRoomY, 0x9800, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => new RoomPlmSystem().LoadRoomPopulation(
@@ -995,34 +940,12 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                malformedPopulation,
+                malformed,
                 new Bank80SystemState(),
                 AreaId.Brinstar,
                 () => new SamusState(),
                 () => false),
             "off-room scroll owner fails when setup consumes a required logical block");
-    }
-
-    private static void SeedColoredDoorPopulationHeader(
-        TestAddressSpace bus,
-        ushort header,
-        ushort instructionList,
-        ushort drawPointer)
-    {
-        const ushort closedBlueList = 0x97a0;
-        const ushort hitList = 0x97b0;
-        const ushort openingList = 0x97c0;
-        WriteWord(bus, 0x840000 | unchecked((ushort)(header + 2)), instructionList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 2)), closedBlueList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 6)), hitList);
-        bus.WriteBytes(0x840000 | unchecked((ushort)(hitList + 2)),
-        [
-            0x01,
-            unchecked((byte)openingList),
-            unchecked((byte)(openingList >> 8)),
-        ]);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 14)), drawPointer);
-        WriteOneBlockDraw(bus, drawPointer, 0x8123);
     }
 
     /// <summary>
@@ -1084,7 +1007,7 @@ internal static partial class Program
                 ordinaryLevel,
                 ordinaryStreamer,
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(guarded, population),
                 system,
                 AreaId.Tourian,
                 () => new SamusState(),
@@ -1120,7 +1043,7 @@ internal static partial class Program
             escapeLevel,
             escapeStreamer,
             new SnesVram(),
-            population,
+            RoomPlmPopulationImporter.Read(guarded, population),
             system,
             AreaId.Tourian,
             () => new SamusState(),
@@ -1331,7 +1254,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 system,
                 AreaId.Tourian,
                 () => new SamusState(),
@@ -1384,7 +1307,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                invalidPopulation,
+                RoomPlmPopulationImporter.Read(bus, invalidPopulation),
                 new Bank80SystemState(),
                 AreaId.Tourian,
                 () => new SamusState(),
@@ -1431,7 +1354,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
         AssertEqual(0, plms.LoadRoomPopulation(bus, level, streamer,
-                new SnesVram(), emptyPopulation, system, AreaId.Maridia,
+                new SnesVram(), RoomPlmPopulationImporter.Read(bus, emptyPopulation), system, AreaId.Maridia,
                 () => samus, () => false,
                 hasEvent: system.HasEvent, setEvent: system.SetEvent),
             "empty fixture reserves no PLM before Shaktool setup spawn");
@@ -1497,7 +1420,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            population,
+            RoomPlmPopulationImporter.Read(bus, population),
             system,
             areaIndex: AreaId.Norfair,
             getSamus: () => samus,
@@ -1616,9 +1539,8 @@ internal static partial class Program
         RoomLevelData level,
         int saveBlockIndex)
     {
-        // Empty room population plus the retail-shaped seven-word $86:E6D2 definition.
-        // The frame list is shortened to one visible map followed by the shared delete
-        // opcode; spawn coordinates and shared interpreter ownership remain unchanged.
+        // The native control stream is compiled. Constructed artwork is supplied by
+        // operand identity, rather than shortening a bank-$86 program on a fake bus.
         bus.WriteBytes(0xa19600, [0xff, 0xff]);
         bus.WriteBytes(0x86e6d2,
         [
@@ -1656,6 +1578,26 @@ internal static partial class Program
             samus: new SamusState());
         enemies.SpawnSaveStationElectricity(saveBlockIndex, level.WidthInBlocks);
 
+        var visible = new SpriteVisualPart
+        {
+            OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
+            Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
+        };
+        HashSet<ushort> electricityOperands = Enumerable.Range(0,
+            SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount)
+            .Select(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress).ToHashSet();
+        var artworkDocument = new EnemyProjectileSpritemapDocument
+        {
+            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
+            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
+                frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
+        };
+        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+            new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+            projectileSpritemaps: EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
+                EnemyProjectileSpritemapCatalog.Write(artworkDocument))));
+
         RoomEnemyProjectileSlot electricity = enemies.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         AssertEqual(0x0130, electricity.XPosition,
@@ -1664,8 +1606,10 @@ internal static partial class Program
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(0xb562, electricity.SpritemapPointer,
-            "save electricity runs through the shared bank-$86 frame-list interpreter");
+        AssertEqual(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(0),
+            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through the compiled interpreter");
+        AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
+            "installed program artwork does not retain a cartridge spritemap pointer");
         var oam = new OamBuffer();
         oam.BeginFrame();
         enemies.DrawEnemyProjectiles(oam, cameraX: 0x0100, cameraY: 0);
@@ -1700,7 +1644,7 @@ internal static partial class Program
                 level,
                 level.CreateBackgroundStreamer(),
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(),
                 0,
                 () => new SamusState(),
@@ -1722,6 +1666,27 @@ internal static partial class Program
 
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
+        GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
+            .Select(index => new GameplayMessageTitleCell { Raw = unchecked((ushort)(first + index)) }).ToArray();
+        var notices = new GameplayMessageNoticeDocument
+        {
+            Version = GameplayMessageNoticeDefinitions.Version,
+            Border = Cells(GameplayMessageRomData.Layout.TilemapWidth, 0x3801),
+            Notices = GameplayMessageNoticeDefinitions.MessageIds.ToArray().ToDictionary(id => id.ToString(), id =>
+                new GameplayMessageNotice
+                {
+                    RowCount = GameplayMessageNoticeDefinitions.ContentRows(id),
+                    Template = Cells(GameplayMessageNoticeDefinitions.ContentRows(id) * GameplayMessageRomData.Layout.TilemapWidth, 0x2800),
+                    Text = [new GameplayMessageTextRegion { Row = 0, Column = 0, Width = 4,
+                        Alignment = GameplayMessageNoticeDefinitions.LeftAlignment, Text = "TEST", Palette = 0 }],
+                    YesSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,
+                    NoSelection = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id) ? Cells(32, 0x5200) : null,
+                }),
+        };
+        using var noticeJson = new MemoryStream();
+        GameplayMessageNoticePresentation.Write(noticeJson, notices);
+        noticeJson.Position = 0;
+        GameplayMessageNoticePresentation presentation = GameplayMessageNoticePresentation.Load(noticeJson);
         const int definitions = 0x85869b;
         int message23 = definitions + (0x17 - 1) * 6;
         WriteWord(bus, message23, 0x8436);
@@ -1747,6 +1712,7 @@ internal static partial class Program
             WriteWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
 
         var message = new GameplayMessageBoxState();
+        message.BindPresentation(null, notices: presentation);
         message.Begin(bus, GameplayMessageIds.SaveConfirmation);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;

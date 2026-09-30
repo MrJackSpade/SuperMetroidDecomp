@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -91,7 +92,7 @@ internal static class GateGlitchRoomAudit
                 level,
                 streamer,
                 new SnesVram(),
-                runtime.ActiveRoom!.State.PlmPointer,
+                RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer),
                 new Bank80SystemState(),
                 runtime.ActiveRoom.AreaIndex,
                 () => samus,
@@ -311,7 +312,7 @@ internal static class GateGlitchRoomAudit
                 var plms = new RoomPlmSystem();
                 var streamer = level.CreateBackgroundStreamer(0);
                 plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(),
-                    runtime.ActiveRoom!.State.PlmPointer, new Bank80SystemState(),
+                    RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new Bank80SystemState(),
                     runtime.ActiveRoom.AreaIndex, () => samus, () => false);
                 for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, streamer, 0, 0, 0);
                 plms.TakeDownwardGateProjectileRequests();

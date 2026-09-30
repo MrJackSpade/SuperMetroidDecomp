@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -14,7 +15,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), 0x8412,
+        plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, 0x8412),
             system, AreaId.Crateria, () => null, () => true,
             hasEvent: system.HasEvent, setEvent: system.SetEvent);
         int origin = level.GetBlockIndex(15, 10);

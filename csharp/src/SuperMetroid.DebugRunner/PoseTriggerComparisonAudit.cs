@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -36,7 +37,7 @@ internal static class PoseTriggerComparisonAudit
             ISnesAddressSpace selected = item != 0 ? new RemoteItemPopulation(bus, 8, 10) : bus;
             if (item != 0)
             {
-                if (plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RemoteItemFixtureData.PopulationPointer,
+                if (plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer),
                     system, areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false) != 1)
                     throw new InvalidDataException("Expected one visible missile owner.");
                 plms.Step(selected, level, streamer, 0, 0, 0);

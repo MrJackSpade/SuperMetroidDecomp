@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -32,7 +33,7 @@ internal static class ItemAcquisitionComparisonAudit
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             if (plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(),
-                RemoteItemFixtureData.PopulationPointer, system, areaIndex: AreaId.Crateria,
+                RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer), system, areaIndex: AreaId.Crateria,
                 getSamus: () => samus, isAreaTorizoDefeated: () => false) != 1)
                 throw new InvalidDataException("Expected one missile owner.");
             // Reach each remaining timer through real draws, without editing private state.

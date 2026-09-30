@@ -42,5 +42,13 @@ internal static partial class Program
         AssertTrue(typeof(SuperMetroid.Core.Rooms.LibraryBackgroundLoader)
                 .GetMethod("ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic) is null,
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
+        AssertEqual(typeof(SuperMetroid.Core.Rooms.RoomPlmPopulationDefinition),
+            typeof(SuperMetroid.Core.Rooms.RoomPlmSystem)
+                .GetMethod("LoadRoomPopulation")!.GetParameters()[4].ParameterType,
+            "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
+        foreach (string importOnlyType in new[]
+                 { "SuperMetroid.Core.Assets.SmCompression", "SuperMetroid.Core.Rooms.RoomRenderer" })
+            AssertTrue(runtimeBus.Assembly.GetType(importOnlyType) is null,
+                $"Core must not compile the import-only {importOnlyType} type");
     }
 }

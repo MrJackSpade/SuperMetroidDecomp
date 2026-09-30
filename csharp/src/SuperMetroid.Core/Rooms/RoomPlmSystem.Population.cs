@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using System.Buffers.Binary;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -42,18 +41,18 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
-    /// Parses one zero-terminated room population exactly once, in increasing source-record
+    /// Allocates one decoded room population exactly once, in increasing source-record
     /// order. Each record is allocated before its setup routine runs, matching
     /// <c>Spawn_Room_PLM</c> at <c>$84:846A</c>. A setup may immediately delete its slot;
     /// the next record can consequently reuse that same highest native slot. Retail
-    /// room loads select the compiled records; constructed rooms keep the bus path.
+    /// loads require decoded records; no population or header can be read from a bus.
     /// </summary>
     public int LoadRoomPopulation(
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
-        ushort populationPointer,
+        RoomPlmPopulationDefinition population,
         Bank80SystemState system,
         AreaId areaIndex,
         Func<SamusState?> getSamus,
@@ -67,14 +66,14 @@ public sealed partial class RoomPlmSystem
         Action<ushort>? setEarthquakeType = null,
         Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
         Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null,
-        Action<ushort>? disableDraygonCannon = null,
-        bool useCompiledRetailPopulation = false)
+        Action<ushort>? disableDraygonCannon = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(streamer);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(system);
+        ArgumentNullException.ThrowIfNull(population);
         ArgumentNullException.ThrowIfNull(getSamus);
         ArgumentNullException.ThrowIfNull(isAreaTorizoDefeated);
 
@@ -104,41 +103,16 @@ public sealed partial class RoomPlmSystem
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
         _disableDraygonCannon = disableDraygonCannon;
 
-        ReadOnlyMemory<byte> compiledPopulation = useCompiledRetailPopulation
-            ? RoomPlmPopulationDefinitions.Get(populationPointer)
-            : default;
-        ushort cursor = populationPointer;
+        ushort populationPointer = population.Pointer;
         int spawnedRecordCount = 0;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
+        for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
         {
-            int compiledOffset = recordIndex * 6;
-            if (useCompiledRetailPopulation &&
-                compiledOffset > compiledPopulation.Length - 2)
-                throw new InvalidDataException(
-                    $"Compiled room PLM population $8F:{populationPointer:X4} ends without a terminator.");
-            ushort header = useCompiledRetailPopulation
-                ? BinaryPrimitives.ReadUInt16LittleEndian(
-                    compiledPopulation.Span.Slice(compiledOffset))
-                : ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return spawnedRecordCount;
-
+            RoomPlmPlacement placement = population.Placements.Span[recordIndex];
+            ushort header = placement.Header.Header;
             var record = new RoomPlmPopulationRecord(
-                PopulationPointer: populationPointer,
-                RecordIndex: recordIndex,
-                RecordPointer: cursor,
-                HeaderPointer: header,
-                BlockX: useCompiledRetailPopulation
-                    ? compiledPopulation.Span[compiledOffset + 2]
-                    : ReadNativeBankByte(bus, new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
-                BlockY: useCompiledRetailPopulation
-                    ? compiledPopulation.Span[compiledOffset + 3]
-                    : ReadNativeBankByte(bus, new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
-                RoomArgument: useCompiledRetailPopulation
-                    ? BinaryPrimitives.ReadUInt16LittleEndian(
-                        compiledPopulation.Span.Slice(compiledOffset + 4))
-                    : ReadBank8fWord(bus, unchecked((ushort)(cursor + 4))));
-            cursor = unchecked((ushort)(cursor + 6));
+                populationPointer, recordIndex,
+                unchecked((ushort)(populationPointer + recordIndex * RoomPlmPopulationFormat.RecordByteCount)),
+                header, placement.BlockX, placement.BlockY, placement.RoomArgument);
 
             int blockIndex;
             try
@@ -160,7 +134,7 @@ public sealed partial class RoomPlmSystem
             }
 
             PlmSlot? slot = AllocateRoomPopulationSlot(
-                bus, record, blockIndex, useCompiledRetailPopulation);
+                record, blockIndex, placement.Header.InitialInstruction);
             if (slot is null)
                 continue; // The native routine returns carry set when all forty IDs are live.
 
@@ -175,18 +149,14 @@ public sealed partial class RoomPlmSystem
                     isAreaTorizoDefeated,
                     record,
                     slot,
-                    useCompiledRetailPopulation))
+                    placement))
             {
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact ROM
                 // record without relying on a room-name special case.
                 ClearSlot(slot);
-                ushort setupPointer = useCompiledRetailPopulation
-                    ? RoomPlmHeaderDefinitions.Get(header).Setup
-                    : ReadBank84Word(bus, header);
-                ushort instructionList = useCompiledRetailPopulation
-                    ? RoomPlmHeaderDefinitions.Get(header).InitialInstruction
-                    : ReadBank84Word(bus, unchecked((ushort)(header + 2)));
+                ushort setupPointer = placement.Header.Setup;
+                ushort instructionList = placement.Header.InitialInstruction;
                 throw new NotSupportedException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
                     $"at $8F:{record.RecordPointer:X4} uses untranslated header " +
@@ -198,8 +168,7 @@ public sealed partial class RoomPlmSystem
             spawnedRecordCount++;
         }
 
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
+        return spawnedRecordCount;
     }
 
     /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -220,10 +189,9 @@ public sealed partial class RoomPlmSystem
         .ToArray();
 
     private PlmSlot? AllocateRoomPopulationSlot(
-        ISnesAddressSpace bus,
         RoomPlmPopulationRecord record,
         int blockIndex,
-        bool useCompiledRetailPopulation)
+        ushort initialInstruction)
     {
         for (int index = _slots.Length - 1; index >= 0; index--)
         {
@@ -235,12 +203,7 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = useCompiledRetailPopulation
-                ? RoomPlmHeaderDefinitions.Get(record.HeaderPointer).InitialInstruction
-                : DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
-                    record.HeaderPointer, out ushort compiledInstruction)
-                ? compiledInstruction
-                : ReadBank84Word(bus, unchecked((ushort)(record.HeaderPointer + 2)));
+            slot.InstructionPointer = initialInstruction;
             slot.InstructionTimer = 1;
             slot.RoomArgument = record.RoomArgument;
             return slot;
@@ -290,7 +253,7 @@ public sealed partial class RoomPlmSystem
         Func<bool> isAreaTorizoDefeated,
         RoomPlmPopulationRecord record,
         PlmSlot slot,
-        bool useCompiledRetailPopulation)
+        RoomPlmPlacement placement)
     {
         ushort header = record.HeaderPointer;
         if (TryIdentifyColoredDoor(
@@ -314,7 +277,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.DownwardsScrollExtension or
             RoomPlmHeaders.UpwardsScrollExtension)
         {
-            SetupScrollSlot(level, slot, header, useCompiledRetailPopulation);
+            SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span);
             return true;
         }
 
@@ -323,8 +286,8 @@ public sealed partial class RoomPlmSystem
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            SetupCollectibleSlot(bus, level, streamer, vram, system, slot, kind,
-                presentation, useCompiledRetailPopulation);
+            SetupCollectibleSlot(level, streamer, vram, system, slot, kind,
+                presentation, placement.DynamicGraphic);
             return true;
         }
 

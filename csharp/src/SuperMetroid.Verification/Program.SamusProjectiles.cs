@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -1545,7 +1546,7 @@ static void VerifySamusPowerBeamProjectiles()
             coloredDoors,
             coloredDoors.CreateBackgroundStreamer(),
             new SnesVram(),
-            coloredDoorPopulation,
+            RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation),
             new Bank80SystemState(),
             0,
             () => new SamusState(),
@@ -1606,7 +1607,7 @@ static void VerifySamusPowerBeamProjectiles()
             residentDoorLevel,
             residentDoorLevel.CreateBackgroundStreamer(),
             new SnesVram(),
-            residentDoorPopulation,
+            RoomPlmPopulationImporter.Read(bus, residentDoorPopulation),
             residentDoorSystem,
             0,
             () => new SamusState(),
@@ -1664,7 +1665,7 @@ static void VerifySamusPowerBeamProjectiles()
         reopenedDoorLevel,
         reopenedDoorLevel.CreateBackgroundStreamer(),
         new SnesVram(),
-        residentDoorPopulation,
+        RoomPlmPopulationImporter.Read(bus, residentDoorPopulation),
         residentDoorSystem,
         0,
         () => new SamusState(),
@@ -1753,7 +1754,7 @@ static void VerifySamusPowerBeamProjectiles()
             greyDoorLevel,
             greyDoorLevel.CreateBackgroundStreamer(),
             new SnesVram(),
-            greyDoorPopulation,
+            RoomPlmPopulationImporter.Read(bus, greyDoorPopulation),
             greyDoorSystem,
             areaIndex: AreaId.Crateria,
             getSamus: () => new SamusState(),
@@ -1825,7 +1826,7 @@ static void VerifySamusPowerBeamProjectiles()
         reloadedGreyLevel,
         reloadedGreyLevel.CreateBackgroundStreamer(),
         new SnesVram(),
-        greyDoorPopulation,
+        RoomPlmPopulationImporter.Read(bus, greyDoorPopulation),
         greyDoorSystem,
         areaIndex: AreaId.Crateria,
         getSamus: () => new SamusState(),

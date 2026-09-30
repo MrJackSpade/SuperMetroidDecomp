@@ -127,9 +127,8 @@ internal static partial class Program
         var vram = new SnesVram();
         var plms = new RoomPlmSystem { DynamicCollectibleArt = art };
         plms.LoadRoomPopulation(bus, level, level.CreateBackgroundStreamer(),
-            vram, 0x83fe, new Bank80SystemState(), AreaId.Crateria,
-            () => new SamusState(), () => false,
-            useCompiledRetailPopulation: true);
+            vram, RoomPlmPopulationDefinition.FromCompiled(0x83fe), new Bank80SystemState(), AreaId.Crateria,
+            () => new SamusState(), () => false);
         CollectiblePlmSnapshot item = plms.Collectibles.Single();
         byte[] tiles = vram.Bytes.Slice(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(

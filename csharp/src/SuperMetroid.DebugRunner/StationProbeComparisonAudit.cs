@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -31,7 +32,7 @@ internal static class StationProbeComparisonAudit
             var samus = new SamusState { Health = 50, MaxHealth = 99, MaxMissiles = 5,
                 XPosition = (ushort)(left ? 117 + gap : 139 - gap), YPosition = 139,
                 Pose = left ? SamusPoseIds.RanIntoWallLeftPose : SamusPoseIds.RanIntoWallRightPose };
-            plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RemoteItemFixtureData.PopulationPointer,
+            plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer),
                 new Bank80SystemState(), areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
             // Isolate the access tile created by the real station setup from its other tiles.
             for (int i = 0; i < 256; i++) if (i != 8 * 16 + column) { level.SetForegroundEntry(i, 0); level.SetBehavior(i, 0); }

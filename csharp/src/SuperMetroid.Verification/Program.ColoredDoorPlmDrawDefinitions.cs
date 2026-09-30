@@ -101,7 +101,7 @@ internal static partial class Program
             var guarded = new ColoredDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
-                    streamer, new SnesVram(), population,
+                    streamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population),
                     system, AreaId.Crateria,
                     () => new SamusState(), () => false),
                 $"resident colored-door header ${header:X4} loads");
@@ -178,7 +178,7 @@ internal static partial class Program
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
             var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
             AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
-                reopenedStreamer, new SnesVram(), population, system,
+                reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
                 AreaId.Crateria, () => new SamusState(), () => false),
                 $"opened colored door ${header:X4} reloads");
             reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);

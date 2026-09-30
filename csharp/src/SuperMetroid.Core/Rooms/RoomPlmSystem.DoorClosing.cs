@@ -48,16 +48,9 @@ public sealed partial class RoomPlmSystem
                 break;
             }
 
-            // Native reads the second list from header+4. Resident grey/coloured doors
-            // form a closed retail domain, so preserve that dispatcher identity in the
-            // compiled catalog. A different PLM family occupying the cap remains on the
-            // explicit cartridge path because its header semantics are not part of this
-            // door-family migration.
-            ushort closingList = resident.ColoredDoor is not null || resident.GreyDoor is not null
-                ? ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer)
-                : ReadBank84Word(
-                    bus,
-                    unchecked((ushort)(resident.HeaderPointer + 4)));
+            // Header+4 is definition metadata, not active memory. All resident
+            // closing actors, including the escape gate, resolve it by identity.
+            ushort closingList = ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer);
             if (closingList < 0x8000)
             {
                 throw new InvalidDataException(

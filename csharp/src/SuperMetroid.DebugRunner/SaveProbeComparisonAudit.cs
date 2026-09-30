@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -28,7 +29,7 @@ internal static class SaveProbeComparisonAudit
             var samus = new SamusState { Health = 99, MaxHealth = 99,
                 XPosition = (ushort)(center ? 136 : 132), YPosition = (ushort)(149 - gap),
                 Pose = SamusPoseIds.FacingRightNormalPose };
-            plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RemoteItemFixtureData.PopulationPointer,
+            plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer),
                 new Bank80SystemState(), areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
             for (int i = 0; i < 256; i++) if (i != 168) { level.SetForegroundEntry(i, 0); level.SetBehavior(i, 0); }
             samus.Kinematics.XRadius = 5; samus.Kinematics.YRadius = 12;

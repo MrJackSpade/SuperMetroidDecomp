@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>
 /// Fixed bank-$8F scroll mutation programs referenced by the 284 compiled retail
 /// PLM populations. These `(storage index, state)` pairs are room mechanics, not
-/// editable presentation data. Constructed room populations retain their bus data.
+/// editable presentation data. Constructed populations supply decoded programs.
 /// </summary>
 internal static partial class RoomPlmScrollProgramDefinitions
 {

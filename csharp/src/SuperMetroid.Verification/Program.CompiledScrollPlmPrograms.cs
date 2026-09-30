@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -33,7 +34,7 @@ internal static partial class Program
         // (8,13). Its $8F:94FA program changes storage cell zero to green.
         // Guard every compiled retail program range during the actual room PLM
         // load/touch/handler path. Constructed-room programs are exercised by
-        // VerifyRoomScrollPlms and must continue to read their supplied bus.
+        // VerifyRoomScrollPlms and supply decoded pairs before the handler runs.
         var guarded = new RetailScrollProgramReadGuard(rom);
         const int width = 64;
         var level = new RoomLevelData(width, 64,
@@ -41,10 +42,9 @@ internal static partial class Program
             new ushort[width * 64], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
-                level.CreateBackgroundStreamer(), new SnesVram(), 0x8230,
+                level.CreateBackgroundStreamer(), new SnesVram(), RoomPlmPopulationDefinition.FromCompiled(0x8230),
                 new Bank80SystemState(), AreaId.Crateria,
-                () => new SamusState(), () => false,
-                useCompiledRetailPopulation: true),
+                () => new SamusState(), () => false),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
             widthInScreens: 4, heightInScreens: 4,

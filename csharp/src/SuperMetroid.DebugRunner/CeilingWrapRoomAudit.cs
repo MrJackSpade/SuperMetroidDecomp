@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -65,7 +66,7 @@ internal static class CeilingWrapRoomAudit
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer(0);
             plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(),
-                runtime.ActiveRoom!.State.PlmPointer, new Bank80SystemState(),
+                RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new Bank80SystemState(),
                 runtime.ActiveRoom.AreaIndex, () => samus, () => false);
             var shots = new SamusProjectileSystem();
             var bombs = new SamusBombProjectileSystem();

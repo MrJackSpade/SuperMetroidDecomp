@@ -106,12 +106,12 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { NoobTubeVisuals = visuals };
         AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-                new SnesVram(), 0x9400, new Bank80SystemState(), AreaId.Maridia,
+                new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9400), new Bank80SystemState(), AreaId.Maridia,
                 () => new SamusState(), () => false,
                 hasEvent: _ => false,
                 setEvent: _ => { }),
             $"n00b tube loads for draw ${selected.Pointer:X4}");
-        plms.SetSoleInstructionPointerForVerification(probeList);
+        plms.SetSoleInstructionPointerForVerification(probeList, [1, selected.Pointer, RoomPlmInstructionCodes.Delete]);
         plms.Step(guarded, level, streamer, 0, 0, 0);
 
         int entryX = originX;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -43,7 +44,7 @@ internal static class WrapShotRoomAudit
                     var bombs = new SamusBombProjectileSystem();
                     var plms = new RoomPlmSystem();
                     plms.LoadRoomPopulation(bus, trial, trial.CreateBackgroundStreamer(0), new SnesVram(),
-                        runtime.ActiveRoom!.State.PlmPointer, new Bank80SystemState(), runtime.ActiveRoom.AreaIndex,
+                        RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new Bank80SystemState(), runtime.ActiveRoom.AreaIndex,
                         () => samus, () => false);
                     for (int frame = 0; frame < 40; frame++)
                     {

@@ -93,7 +93,7 @@ internal static partial class Program
             var guarded = new GreyDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-                    new SnesVram(), population, system,
+                    new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
                     AreaId.Crateria, () => new SamusState(), () => false),
                 $"resident grey-door header ${header:X4} loads");
             ushort initial = ReadWord(rom, 0x840000 | (header + 2));
@@ -169,7 +169,7 @@ internal static partial class Program
                     reopenedLevel.CreateBackgroundStreamer();
                 var reopened = new RoomPlmSystem { GreyDoorVisuals = stock };
                 AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
-                        reopenedStreamer, new SnesVram(), population, system,
+                        reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
                         AreaId.Crateria, () => new SamusState(), () => false),
                     $"opened grey door ${header:X4} reloads");
                 reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
@@ -256,7 +256,7 @@ internal static partial class Program
             reopenedLevel.CreateBackgroundStreamer();
         var reopened = new RoomPlmSystem();
         AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
-                reopenedStreamer, new SnesVram(), population, system,
+                reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
                 AreaId.Crateria, () => new SamusState(), () => false),
             "opened Bomb Torizo grey door reloads");
         reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);

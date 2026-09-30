@@ -15,7 +15,7 @@ internal static partial class Program
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmBlueDoorVisualEntry[] entries = lists.Select(draw =>
+        RoomPlmBlueDoorVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span.ToArray()
                     .Select(word => new RoomLevelWord(word).VisualWord).ToArray())).ToArray();
@@ -32,7 +32,8 @@ internal static partial class Program
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
             "stock blue-door visual retains native tile choice");
-        AssertEqual(16, lists.Length, "four orientations each have four blue-cap frames");
+        AssertEqual(20, lists.Length, "four orientations each have four animation frames and a closed physical layout");
+        AssertEqual(16, entries.Length, "closed cap aliases preserve all sixteen existing authored identities");
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
         {
             ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = list.Runs.Span;
@@ -152,7 +153,7 @@ internal static partial class Program
         editedFrame.Blocks[0] = originalVisual;
         VerifyBlueDoorVisualInstallation(rom, leftFirstDraw);
 
-        Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, sixteen physical draws, and editable visual blocks pass with source reads forbidden.");
+        Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)

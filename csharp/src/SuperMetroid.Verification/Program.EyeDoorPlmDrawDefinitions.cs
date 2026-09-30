@@ -15,7 +15,7 @@ internal static partial class Program
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             EyeDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmEyeDoorVisualEntry[] entries = lists.Select(draw =>
+        RoomPlmEyeDoorVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmEyeDoorVisualEntry(
                 EyeDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span.ToArray()
@@ -31,8 +31,14 @@ internal static partial class Program
         AssertEqual(stockWord, RoomPlmEyeDoorVisualCatalog.Stock().GetWord(0x9c5b, 0),
             "stock eye-door catalog retains native frame");
         rightEye.Blocks[0] = stockWord;
-        AssertEqual(23, lists.Length,
-            "mirrored eye, middle and bottom components select 23 distinct draw lists");
+        AssertEqual(24, lists.Length,
+            "mirrored eye, middle and bottom components include both four-block opening clears");
+        AssertEqual(23, entries.Length, "the mirrored clear preserves the existing authored visual identities");
+        for (int block = 0; block < 4; block++)
+            AssertEqual((ushort)(edited.GetWord(EyeDoorPlmDrawDefinitions.VisualSource(
+                EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
+                edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
+                "left opening clear mirrors its authored appearance without changing the override schema");
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
         {
             AssertEqual(1, list.Runs.Length,
@@ -64,7 +70,7 @@ internal static partial class Program
         rightEye.Blocks[0] = stockWord;
         VerifyEyeDoorVisualInstallation(rom);
         Console.WriteLine(
-            "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 23 physical draws, and editable stock/override appearance preserve collision.");
+            "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
     }
 
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -117,9 +123,10 @@ internal static partial class Program
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { EyeDoorVisuals = visuals };
+        BindEyeDoorFixturePrograms(plms, bus);
         var guarded = new EyeDoorDrawReadGuard(bus, lists);
         AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
-                new SnesVram(), 0x9000, new Bank80SystemState(), AreaId.Brinstar,
+                new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Brinstar,
                 () => new SamusState(), () => false,
                 spawnEyeDoorProjectile: _ => { }),
             $"{orientation} eye-door three-component population loads");
@@ -195,7 +202,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem();
         var guarded = new EyeDoorDrawReadGuard(bus, lists);
         AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
-                new SnesVram(), population, system, AreaId.Brinstar,
+                new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Brinstar,
                 () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
             $"{orientation} retail eye-door program loads all three components");
 
@@ -236,7 +243,7 @@ internal static partial class Program
             reopenedLevel.CreateBackgroundStreamer();
         var reopened = new RoomPlmSystem();
         AssertEqual(3, reopened.LoadRoomPopulation(guarded, reopenedLevel,
-                reopenedStreamer, new SnesVram(), population, system, AreaId.Brinstar,
+                reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Brinstar,
                 () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
             $"{orientation} opened eye-door room reloads three components");
         for (int frame = 0; frame < 16 && reopened.ActiveCount != 0; frame++)

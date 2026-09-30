@@ -217,7 +217,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Runs Setup_GreyDoor on a slot allocated in native record order.</summary>
-    private static void SetupGreyDoorSlot(
+    private void SetupGreyDoorSlot(
         ISnesAddressSpace bus,
         RoomLevelData level,
         Bank80SystemState system,

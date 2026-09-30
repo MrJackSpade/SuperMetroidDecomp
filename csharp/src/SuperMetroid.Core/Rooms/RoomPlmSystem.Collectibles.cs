@@ -125,7 +125,6 @@ public sealed partial class RoomPlmSystem
     /// loader. The setup remains table-driven by the cartridge header and presentation.
     /// </summary>
     private void SetupCollectibleSlot(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
@@ -133,7 +132,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
-        bool useCompiledRetailPopulation)
+        RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
@@ -143,8 +142,7 @@ public sealed partial class RoomPlmSystem
             system.HasRoomChozoBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
             ? LoadDynamicCollectibleGraphics(
-                bus, level, streamer, vram, kind, slot.HeaderPointer,
-                useCompiledRetailPopulation)
+                level, streamer, vram, kind, suppliedGraphic)
             : -1;
 
         ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
@@ -223,54 +221,20 @@ public sealed partial class RoomPlmSystem
     }
 
     private int LoadDynamicCollectibleGraphics(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
         InWorldCollectibleKind kind,
-        ushort header,
-        bool useCompiledRetailPopulation)
+        RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
-        ReadOnlyMemory<byte> graphics;
-        ReadOnlyMemory<byte> paletteOffsets;
-        if (useCompiledRetailPopulation)
-        {
-            // Retail's three presentation lists all upload the same tiles and palette
-            // offsets for a kind. The generated catalog proves that identity against
-            // the pinned cartridge; gameplay never needs to reread these ROM bytes.
-            RoomPlmDynamicCollectibleGraphic definition =
-                dynamicCollectibleArt?.Resolve(kind) ??
-                RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
-            graphics = definition.Tiles;
-            paletteOffsets = definition.PaletteOffsets;
-        }
-        else
-        {
-            // Constructed rooms deliberately retain their supplied bank-$84/$89
-            // instructions so synthetic PLM fixtures can author new item graphics.
-            ushort instructionList = ReadBank84Word(
-                bus, unchecked((ushort)(header + 2)));
-            ushort opcode = ReadBank84Word(bus, instructionList);
-            if (opcode != RoomPlmInstructionCodes.LoadItemGraphics)
-            {
-                throw new InvalidDataException(
-                    $"Collectible header $84:{header:X4} begins with ${opcode:X4}, not item-GFX load $8764.");
-            }
-            ushort graphicsPointer = ReadBank84Word(
-                bus, unchecked((ushort)(instructionList + 2)));
-            var suppliedGraphics = new byte[0x100];
-            for (int index = 0; index < suppliedGraphics.Length; index++)
-            {
-                suppliedGraphics[index] = ReadNativeBankByte(bus,
-                    new SnesAddress(0x89, unchecked((ushort)(graphicsPointer + index))));
-            }
-            var suppliedPalettes = new byte[8];
-            for (int child = 0; child < suppliedPalettes.Length; child++)
-                suppliedPalettes[child] = ReadNativeBankByte(bus,
-                    new SnesAddress(0x84, unchecked((ushort)(instructionList + 4 + child))));
-            graphics = suppliedGraphics;
-            paletteOffsets = suppliedPalettes;
-        }
+        // Retail's presentation lists share one installed upload per kind. A
+        // constructed population may supply an explicitly decoded graphic; neither
+        // source grants the handler a bank-$84/$89 reader.
+        RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ??
+            dynamicCollectibleArt?.Resolve(kind) ??
+            RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
+        ReadOnlyMemory<byte> graphics = definition.Tiles;
+        ReadOnlyMemory<byte> paletteOffsets = definition.PaletteOffsets;
 
         int graphicsSlot = _nextCollectibleGraphicsSlot;
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;

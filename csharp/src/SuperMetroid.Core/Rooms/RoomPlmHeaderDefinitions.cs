@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Native setup and first-instruction pointers for one retail room PLM header.</summary>
-internal readonly record struct RoomPlmHeaderDefinition(
+public readonly record struct RoomPlmHeaderDefinition(
     ushort Header, ushort Setup, ushort InitialInstruction);
 
 /// <summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -387,7 +388,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            population,
+            RoomPlmPopulationImporter.Read(bus, population),
             new Bank80SystemState(),
             AreaId.Crateria,
             getSamus: () => samus,
@@ -475,7 +476,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            population,
+            RoomPlmPopulationImporter.Read(bus, population),
             new Bank80SystemState(),
             AreaId.Maridia,
             getSamus: () => samus,

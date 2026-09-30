@@ -1440,7 +1440,7 @@ public sealed partial class RoomPlmSystem
             if (!slot.Active)
                 continue;
 
-            if (TryStepScrollPlm(bus, level, scrolls, slot))
+            if (TryStepScrollPlm(level, scrolls, slot))
                 continue;
 
             if (TryStepWreckedShipTreadmill(level, streamer, slot))
@@ -2314,8 +2314,9 @@ public sealed partial class RoomPlmSystem
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
-    // programs continue through the cartridge interpreter.
-    private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
+    // identities must have compiled mechanics or an explicitly authored fixture.
+    // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
+    private ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
             ? value
             : TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
@@ -2378,9 +2379,11 @@ public sealed partial class RoomPlmSystem
                 ? value
             : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : TryReadVerificationInstructionWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
-    private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
+    private byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
             ? value
             : TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
@@ -2428,6 +2431,8 @@ public sealed partial class RoomPlmSystem
             : EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : TryReadVerificationInstructionByte(address, out value)
                 ? value
             : ReadNativeBankByte(bus, new SnesAddress(0x84, address));
 

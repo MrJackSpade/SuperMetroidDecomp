@@ -51,7 +51,7 @@ internal static partial class Program
                 new ushort[width * width], definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { StationVisuals = visuals };
-            plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), population,
+            plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(), AreaId.Crateria,
                 () => new SamusState(), () => false);
             plms.Step(bus, level, streamer, 0, 0, 0);

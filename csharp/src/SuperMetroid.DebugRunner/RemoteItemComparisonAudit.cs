@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,7 @@ internal static class RemoteItemComparisonAudit
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             if (plms.LoadRoomPopulation(selected, level, streamer, new SnesVram(),
-                RemoteItemFixtureData.PopulationPointer, system, areaIndex: AreaId.Crateria,
+                RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer), system, areaIndex: AreaId.Crateria,
                 getSamus: () => samus, isAreaTorizoDefeated: () => false) != 1)
                 throw new InvalidDataException("Expected exactly one missile owner.");
             // Native seed represents the visible item after its first draw instruction.

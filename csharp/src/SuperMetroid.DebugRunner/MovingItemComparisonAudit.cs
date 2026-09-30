@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Globalization;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
@@ -55,7 +56,7 @@ internal static class MovingItemComparisonAudit
             samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
             var selected = new RemoteItemPopulation(bus, (byte)(left ? 61 : 66), 29);
             if (runtime.Plms.LoadRoomPopulation(selected, level, runtime.BackgroundStreamer!, runtime.Vram,
-                RemoteItemFixtureData.PopulationPointer, runtime.System, areaIndex: AreaId.Crateria,
+                RoomPlmPopulationImporter.Read(selected, RemoteItemFixtureData.PopulationPointer), runtime.System, areaIndex: AreaId.Crateria,
                 getSamus: () => samus, isAreaTorizoDefeated: () => false) != 1)
                 throw new InvalidDataException("Expected one moving-item owner.");
             runtime.Plms.Step(selected, level, runtime.BackgroundStreamer!, 0, 0, 0);

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -250,7 +251,7 @@ internal static partial class Program
                 interferenceLevel,
                 interferenceStreamer,
                 new SnesVram(),
-                yellowDoorPopulation,
+                RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation),
                 new Bank80SystemState(),
                 AreaId.Crateria,
                 () => new SamusState(),

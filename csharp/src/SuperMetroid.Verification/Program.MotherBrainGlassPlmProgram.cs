@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -54,7 +55,7 @@ internal static partial class Program
         bool eventSet = false;
         var plms = new RoomPlmSystem();
         AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-            new SnesVram(), 0x9000, new Bank80SystemState(), AreaId.Tourian,
+            new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Tourian,
             () => new SamusState(), () => false,
             hasAreaBossBit: _ => false,
             hasEvent: _ => eventSet,

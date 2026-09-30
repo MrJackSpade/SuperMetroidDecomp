@@ -27,20 +27,20 @@ public sealed class RoomPlmBlueDoorVisualCatalog
             if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
                 throw new InvalidDataException($"Blue-door visuals repeat frame {entry.Id}.");
         }
-        if (selected.Count != BlueDoorPlmDrawDefinitions.All.Count())
+        if (selected.Count != BlueDoorPlmDrawDefinitions.Editable.Count())
             throw new InvalidDataException("Blue-door visuals do not cover all compiled frames.");
         blocks = selected;
     }
 
     public static RoomPlmBlueDoorVisualCatalog Stock() => new(
-        BlueDoorPlmDrawDefinitions.All.Select(draw =>
+        BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span.ToArray()
                     .Select(word => new RoomLevelWord(word).VisualWord).ToArray())));
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words))
+        if (!blocks.TryGetValue(BlueDoorPlmDrawDefinitions.VisualSource(drawPointer), out ushort[]? words))
             throw new InvalidDataException($"Blue-door visuals lack frame ${drawPointer:X4}.");
         if ((uint)blockIndex >= (uint)words.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));

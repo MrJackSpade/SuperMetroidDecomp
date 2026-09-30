@@ -39,7 +39,6 @@ public sealed partial class RoomPlmSystem
     }
 
     private static bool TryStepScrollPlm(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         RoomScrollGrid? scrolls,
         PlmSlot slot)
@@ -51,20 +50,17 @@ public sealed partial class RoomPlmSystem
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
-        bool compiledRetail = slot.Scroll.UseCompiledRetailProgram;
-        ReadOnlyMemory<byte> compiledProgram = compiledRetail
-            ? RoomPlmScrollProgramDefinitions.Get(slot.RoomArgument)
-            : default;
-        ushort cursor = slot.RoomArgument;
+        // Legacy snapshots lack the decoded program. Their retained room argument
+        // is enough to rebind the immutable retail definition without opening a ROM.
+        ReadOnlyMemory<byte> program = slot.Scroll.Program is { } supplied
+            ? supplied : RoomPlmScrollProgramDefinitions.Get(slot.RoomArgument);
         for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
         {
             int offset = pairIndex * 2;
-            if (compiledRetail && offset >= compiledProgram.Length)
+            if (offset >= program.Length)
                 throw new InvalidDataException(
-                    $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
-            byte scrollIndex = compiledRetail
-                ? compiledProgram.Span[offset]
-                : ReadNativeBankByte(bus, new SnesAddress(0x8f, cursor));
+                    $"Scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
+            byte scrollIndex = program.Span[offset];
             if ((scrollIndex & 0x80) != 0)
             {
                 // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -80,19 +76,15 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            if (compiledRetail && offset + 1 >= compiledProgram.Length)
+            if (offset + 1 >= program.Length)
                 throw new InvalidDataException(
-                    $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
-            byte value = compiledRetail
-                ? compiledProgram.Span[offset + 1]
-                : ReadNativeBankByte(bus,
-                    new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
+                    $"Scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
+            byte value = program.Span[offset + 1];
             scrolls.SetStorage(
                 scrollIndex,
                 RoomScrollStates.FromCartridge(
                     value,
                     $"scroll PLM program $8F:{slot.RoomArgument:X4} pair {pairIndex}"));
-            cursor = unchecked((ushort)(cursor + 2));
         }
 
         throw new InvalidDataException(
@@ -101,7 +93,7 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
-        ushort header, bool useCompiledRetailPopulation)
+        ushort header, ReadOnlySpan<byte> program)
     {
         if (header != RoomPlmHeaders.ScrollTrigger)
         {
@@ -129,7 +121,8 @@ public sealed partial class RoomPlmSystem
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         slot.Scroll = new ScrollPlmState
         {
-            UseCompiledRetailProgram = useCompiledRetailPopulation,
+            UseCompiledRetailProgram = true,
+            Program = program.ToArray(),
         };
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(
@@ -141,8 +134,10 @@ public sealed partial class RoomPlmSystem
     private sealed class ScrollPlmState
     {
         public bool Triggered { get; set; }
-        /// <summary>Retail populations own compiled byte pairs; synthetic rooms retain bus data.</summary>
+        /// <summary>Legacy snapshot field only; it no longer selects an input reader.</summary>
         public bool UseCompiledRetailProgram { get; set; }
+        /// <summary>Validated decoded pairs. Null in historical states means rebind the retail identity.</summary>
+        public byte[]? Program { get; set; }
     }
 }
 

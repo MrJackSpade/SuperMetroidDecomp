@@ -6,20 +6,17 @@ internal readonly record struct ResidentDoorClosingDefinition(
     ushort ClosingInstructionList);
 
 /// <summary>
-/// Fixed secondary-list metadata read by <c>$82:E8EB Spawn_Door_Closing_PLM</c> from
-/// each resident grey or coloured bank-$84 door header.
+/// Fixed secondary-list metadata selected by <c>$82:E8EB Spawn_Door_Closing_PLM</c>
+/// for resident grey/coloured doors and the Mother Brain escape gate.
 /// </summary>
 /// <remarks>
-/// These are dispatcher identities, not the animation programs themselves. The selected
-/// lists remain cartridge-backed because their timer, sound, draw, and branch operations
-/// are interpreted in sequence. Compiling only the header-to-list relationship removes a
-/// fixed executable-header read without pretending that the mixed programs are immutable
-/// engine lookup records.
+/// These dispatcher identities select bounded compiled timer, sound, draw and branch
+/// programs. Neither selecting nor executing a list reads an executable cartridge header.
 /// </remarks>
 public static class ResidentDoorClosingDefinitions
 {
-    /// <summary>Number of retail resident grey and coloured door headers.</summary>
-    public const int Count = 17;
+    /// <summary>Number of retail resident door/gate headers with a secondary closing list.</summary>
+    public const int Count = 18;
 
     /// <summary>$84:BA4C, Bomb Torizo's Bomb-gated right-facing closing program.</summary>
     internal const ushort BombTorizoGreyDoor = 0xba4c;
@@ -91,6 +88,8 @@ public static class ResidentDoorClosingDefinitions
         new(RoomPlmHeaders.RedDoorFacingRight, RedFacingRight),
         new(RoomPlmHeaders.RedDoorFacingUp, RedFacingUp),
         new(RoomPlmHeaders.RedDoorFacingDown, RedFacingDown),
+        new(RoomPlmHeaders.MotherBrainEscapeRoomGate,
+            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
     ];
 
     /// <summary>Returns all retail resident-door closing definitions in header order.</summary>

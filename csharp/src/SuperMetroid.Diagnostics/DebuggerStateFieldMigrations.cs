@@ -216,15 +216,22 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not "<PlantHeldY>k__BackingField").ToArray();
         }
         if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+ScrollPlmState" &&
+            count < current.Length && current.Any(field => field.Name == "<Program>k__BackingField"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy scroll PLM lacks decoded pairs; rebinding its captured retail program identity without cartridge access.");
+            return SelectSerializedFields(type,
+                current.Where(field => field.Name != "<Program>k__BackingField").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+ScrollPlmState" &&
             count == 1 && current.Length == 2 &&
             current.Any(field => field.Name == "<UseCompiledRetailProgram>k__BackingField"))
         {
-            // Older snapshots still retain their cartridge and used the native
-            // byte-pair reader. Do not claim compiled ownership for a PLM state
-            // that was created before the population classifier existed.
+            // The legacy reader-selection field survives only for schema compatibility.
+            // Missing decoded pairs always rebind the captured retail program identity.
             Console.Error.WriteLine(
                 "WARNING: Legacy scroll PLM predates compiled retail data; " +
-                "retaining its cartridge-backed instruction path.");
+                "restoring its legacy metadata without enabling a cartridge reader.");
             return current.Where(field =>
                 field.Name != "<UseCompiledRetailProgram>k__BackingField").ToArray();
         }

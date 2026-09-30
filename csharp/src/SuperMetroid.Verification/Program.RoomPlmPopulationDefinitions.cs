@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -96,13 +97,12 @@ internal static partial class Program
             new ushort[width * height], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         int count = plms.LoadRoomPopulation(bus, level,
-            level.CreateBackgroundStreamer(), new SnesVram(), pointer,
+            level.CreateBackgroundStreamer(), new SnesVram(), (useCompiled ? RoomPlmPopulationDefinition.FromCompiled(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)),
             new Bank80SystemState(), AreaId.Crateria,
             () => new SamusState(), () => false,
             hasAreaBossBit: _ => false,
             hasEvent: _ => false,
-            setEvent: _ => { },
-            useCompiledRetailPopulation: useCompiled);
+            setEvent: _ => { });
         return (count, plms.PopulationSlots.ToArray());
     }
 

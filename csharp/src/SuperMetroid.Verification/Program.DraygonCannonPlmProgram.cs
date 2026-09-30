@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -76,7 +77,7 @@ internal static partial class Program
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
         plms.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
         AssertEqual(4, plms.LoadRoomPopulation(guarded, level, streamer,
-            new SnesVram(), 0x9000, new Bank80SystemState(), AreaId.Maridia,
+            new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Maridia,
             getSamus: () => null,
             isAreaTorizoDefeated: () => false,
             disableDraygonCannon: disabled.Add),

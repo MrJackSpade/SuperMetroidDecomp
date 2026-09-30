@@ -12,13 +12,13 @@ public static class RoomPlmEyeDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.All,
+            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable,
             EyeDoorPlmDrawDefinitions.VisualId);
 
     public static RoomPlmEyeDoorVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.All,
+            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable,
             EyeDoorPlmDrawDefinitions.VisualId,
             entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmEyeDoorVisualEntry(entry.Id, entry.Blocks))),

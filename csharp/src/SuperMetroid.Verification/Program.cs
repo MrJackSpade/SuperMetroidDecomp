@@ -34,6 +34,16 @@ if (args is ["--wram-helper-boundary"])
     VerifyWramHelperBoundary();
     return 0;
 }
+if (args is ["--plm-population-input-boundary"])
+{
+    VerifyPlmPopulationInputBoundary();
+    return 0;
+}
+if (args is ["--plm-draw-clone"])
+{
+    VerifyPlmDrawClone();
+    return 0;
+}
 if (args is ["--enemy-definition-boundary", string enemyDefinitionRom])
 {
     VerifyEnemyDefinitionBoundary(enemyDefinitionRom);
@@ -2705,11 +2715,6 @@ if (args is ["--samus-grapple"])
 if (args is ["--samus-xray"])
 {
     VerifySamusXray();
-    return 0;
-}
-if (args is ["--plm-draw-clone"])
-{
-    VerifyPlmDrawClone();
     return 0;
 }
 if (args is ["--grapple-resident-trigger"])

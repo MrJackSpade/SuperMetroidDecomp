@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -82,7 +83,7 @@ internal static partial class Program
                 level,
                 streamer,
                 new SnesVram(),
-                runtime.ActiveRoom!.State.PlmPointer,
+                RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer),
                 new Bank80SystemState(),
                 runtime.ActiveRoom.AreaIndex,
                 () => samus,

@@ -89,7 +89,7 @@ internal static partial class Program
         BackgroundTilemapStreamer closedStreamer = closedLevel.CreateBackgroundStreamer();
         var closed = new RoomPlmSystem { EscapeGateVisuals = edited };
         AssertEqual(1, closed.LoadRoomPopulation(guarded, closedLevel,
-                closedStreamer, new SnesVram(), population, system, AreaId.Tourian,
+                closedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
                 () => new SamusState(), () => false),
             "edited escape gate loads its real resident header");
         closed.Step(guarded, closedLevel, closedStreamer, 0, 0, 0);
@@ -107,7 +107,7 @@ internal static partial class Program
         BackgroundTilemapStreamer closingStreamer = closingLevel.CreateBackgroundStreamer();
         var closing = new RoomPlmSystem { EscapeGateVisuals = edited };
         AssertEqual(1, closing.LoadRoomPopulation(guarded, closingLevel,
-                closingStreamer, new SnesVram(), population, system, AreaId.Tourian,
+                closingStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
                 () => new SamusState(), () => false),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(

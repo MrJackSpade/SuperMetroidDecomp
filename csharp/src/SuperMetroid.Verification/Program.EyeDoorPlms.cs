@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -135,12 +136,13 @@ internal static partial class Program
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var plms = new RoomPlmSystem();
+        BindEyeDoorFixturePrograms(plms, bus);
         AssertEqual(3, plms.LoadRoomPopulation(
             bus,
             level,
             streamer,
             new SnesVram(),
-            populationPointer: 0x9000,
+            RoomPlmPopulationImporter.Read(bus, pointer: 0x9000),
             system,
             AreaId.Brinstar,
             getSamus: () => samus,
@@ -224,6 +226,20 @@ internal static partial class Program
                 $"{orientation} blue-door extension row {row} type");
             AssertEqual(unchecked((byte)-row), extension.Behavior,
                 $"{orientation} blue-door extension row {row} BTS");
+        }
+    }
+
+    private static void BindEyeDoorFixturePrograms(RoomPlmSystem plms, TestAddressSpace fixture)
+    {
+        // Decode only the seven explicitly authored control fragments. Draw payloads
+        // remain compiled domain records and are still forbidden by the read guard.
+        foreach ((ushort pointer, int length) in new (ushort, int)[]
+                 { (0xe000, 30), (0xe040, 9), (0xe080, 4), (0xe100, 16),
+                   (0xe140, 2), (0xe200, 16), (0xe240, 2) })
+        {
+            byte[] instructions = Enumerable.Range(0, length)
+                .Select(offset => fixture.ReadByte(0x840000 | (pointer + offset))).ToArray();
+            plms.SupplyInstructionFragmentForVerification(pointer, instructions);
         }
     }
 

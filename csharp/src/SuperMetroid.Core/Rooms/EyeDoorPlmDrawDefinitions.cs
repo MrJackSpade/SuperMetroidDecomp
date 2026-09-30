@@ -15,6 +15,8 @@ internal static class EyeDoorPlmDrawDefinitions
     private const ushort LeftBottomFirst = 0x9c3d;
     /// <summary>Left-facing eye's four-block clearing frame is $84:9C4F.</summary>
     private const ushort LeftEyeClear = 0x9c4f;
+    /// <summary>$84:9BF7 is the horizontally mirrored four-block clear used by the left eye's opening list.</summary>
+    internal const ushort MirroredOpeningClear = 0x9bf7;
     /// <summary>Right-facing eye animation begins at $84:9C5B.</summary>
     private const ushort RightEyeFirst = 0x9c5b;
     /// <summary>Right-facing middle component begins at $84:9C83.</summary>
@@ -26,6 +28,12 @@ internal static class EyeDoorPlmDrawDefinitions
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+    /// <summary>The mirrored clear shares one authored visual identity instead of invalidating existing 23-frame overrides.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
+        Lists.Values.Where(draw => draw.Pointer != MirroredOpeningClear);
+
+    internal static ushort VisualSource(ushort pointer) =>
+        pointer == MirroredOpeningClear ? LeftEyeClear : pointer;
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
@@ -54,7 +62,7 @@ internal static class EyeDoorPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Editable)
         {
             if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
             {
@@ -69,7 +77,8 @@ internal static class EyeDoorPlmDrawDefinitions
     private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(23);
+        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(24);
+        Add(lists, MirroredOpeningClear, 0x8004, [0x84aa, 0x84cc, 0x8ccc, 0x8caa]);
         Add(lists, LeftEyeFirst + 0, 0x8002, [0x84cc, 0x8ccc]);
         Add(lists, LeftEyeFirst + 8, 0x8002, [0x84cb, 0x8ccb]);
         Add(lists, LeftEyeFirst + 16, 0x8002, [0xc4ca, 0xdcca]);

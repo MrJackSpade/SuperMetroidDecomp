@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -3245,7 +3246,7 @@ internal static class MotherBrainAudit
                 assets.LevelData,
                 streamer,
                 vram,
-                room.State.PlmPointer,
+                RoomPlmPopulationImporter.Read(bus, room.State.PlmPointer),
                 random,
                 room.AreaIndex,
                 getSamus: () => samus,

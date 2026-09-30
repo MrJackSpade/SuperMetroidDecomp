@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -55,10 +56,9 @@ internal static partial class Program
         var vram = new SnesVram();
         var plms = new RoomPlmSystem();
         plms.LoadRoomPopulation(guarded, level,
-            level.CreateBackgroundStreamer(), vram, 0x83fe,
+            level.CreateBackgroundStreamer(), vram, RoomPlmPopulationDefinition.FromCompiled(0x83fe),
             new Bank80SystemState(), AreaId.Crateria,
-            () => new SamusState(), () => false,
-            useCompiledRetailPopulation: true);
+            () => new SamusState(), () => false);
         AssertTrue(plms.Collectibles.Any(item =>
                 item.Kind == InWorldCollectibleKind.Bombs),
             "retail Bombs item remains allocated after compiled graphics upload");

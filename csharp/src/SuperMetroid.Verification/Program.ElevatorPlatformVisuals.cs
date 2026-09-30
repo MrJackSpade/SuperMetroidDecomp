@@ -49,7 +49,7 @@ internal static partial class Program
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { ElevatorPlatformVisuals = visuals };
             AssertEqual(1, plms.LoadRoomPopulation(bus, level, streamer,
-                new SnesVram(), population, new Bank80SystemState(), AreaId.Crateria,
+                new SnesVram(), RoomPlmPopulationImporter.Read(bus, population), new Bank80SystemState(), AreaId.Crateria,
                 getSamus: () => null, isAreaTorizoDefeated: () => false),
                 "elevator visual fixture loads one real PLM");
             plms.Step(bus, level, streamer, 0, 0, 0);

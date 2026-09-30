@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -43,7 +44,7 @@ internal static partial class Program
                 level,
                 level.CreateBackgroundStreamer(),
                 new SnesVram(),
-                population,
+                RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(),
                 0,
                 () => new SamusState(),

@@ -107,7 +107,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { MotherBrainGlassVisuals = visuals };
         AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-                new SnesVram(), 0x9000, new Bank80SystemState(), AreaId.Tourian,
+                new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Tourian,
                 () => new SamusState(), () => false,
                 hasAreaBossBit: _ => false,
                 hasEvent: _ => false,
@@ -115,7 +115,7 @@ internal static partial class Program
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.SetSoleInstructionPointerForVerification(probeList);
+        plms.SetSoleInstructionPointerForVerification(probeList, [1, selected.Pointer]);
         plms.Step(guarded, level, streamer, 0, 0, 0);
 
         int entryX = originX;

@@ -28,14 +28,14 @@ public sealed class RoomPlmEyeDoorVisualCatalog
                 throw new InvalidDataException(
                     $"Eye-door visuals repeat frame {entry.Id}.");
         }
-        if (selected.Count != EyeDoorPlmDrawDefinitions.All.Count())
+        if (selected.Count != EyeDoorPlmDrawDefinitions.Editable.Count())
             throw new InvalidDataException(
                 "Eye-door visuals do not cover all compiled frames.");
         blocks = selected;
     }
 
     public static RoomPlmEyeDoorVisualCatalog Stock() => new(
-        EyeDoorPlmDrawDefinitions.All.Select(draw =>
+        EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmEyeDoorVisualEntry(
                 EyeDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span.ToArray()
@@ -43,10 +43,11 @@ public sealed class RoomPlmEyeDoorVisualCatalog
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words))
+        ushort visualSource = EyeDoorPlmDrawDefinitions.VisualSource(drawPointer);
+        if (!blocks.TryGetValue(visualSource, out ushort[]? words))
             throw new InvalidDataException($"Eye-door visuals lack frame ${drawPointer:X4}.");
         if ((uint)blockIndex >= (uint)words.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return words[blockIndex];
+        return (ushort)(words[blockIndex] ^ (drawPointer != visualSource ? (ushort)LevelBlockFlipFlags.Horizontal : 0));
     }
 }

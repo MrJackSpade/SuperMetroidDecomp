@@ -378,6 +378,16 @@ public sealed partial class SuperMetroidGame
                                 PublishIntro(intro);
                             }
                         }
+                        else if (selectedSlot.LoadingGameState == SaveLoadingGameStates.CeresDestruction)
+                        {
+                            StartSavedCeresDestruction(selectedSlot);
+                        }
+                        else if (selectedSlot.LoadingGameState == SaveLoadingGameStates.CeresElevatorArrival)
+                        {
+                            // The saved $1F word selects loading directly, without a map.
+                            GameState = SuperMetroidGameState.SetUpNewGame;
+                            PublishBlack();
+                        }
                         else
                         {
                             fileSelectMap = null;
@@ -671,6 +681,11 @@ public sealed partial class SuperMetroidGame
                 loadingExistingSave = true;
                 SuperMetroidSaveSlot mapSlot = saveRam.ReadSlot(selectedSaveSlot)
                     ?? throw new InvalidDataException("The selected save became invalid before map selection.");
+                if (mapSlot.LoadingGameState == SaveLoadingGameStates.CeresDestruction)
+                {
+                    StartSavedCeresDestruction(mapSlot);
+                    break;
+                }
                 if (mapSlot.Area != (ushort)AreaId.Ceres)
                 {
                     if (fileSelectMap is null)
@@ -847,20 +862,7 @@ public sealed partial class SuperMetroidGame
                     // GameState_33 saves the live area-six/station-zero slot only after
                     // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
                     // checkpoint the retail loader later replaces with Zebes arrival.
-                    SamusState samus = runtime.Samus
-                        ?? throw new InvalidOperationException(
-                            "Ceres blackout completed without a live Samus state.");
-                    saveRam.SaveSlot(
-                        selectedSaveSlot,
-                        SuperMetroidSaveSnapshot.Capture(
-                            samus,
-                            runtime.System,
-                            area: 6,
-                            saveStation: 0,
-                            gameTime: runtime.GameTime,
-                            controllerBindings: runtime.ControllerBindings,
-                            moonwalkEnabled: runtime.MoonwalkEnabled,
-                            iconCancelEnabled: runtime.IconCancelEnabled));
+                    AutomaticCheckpointSaver.SaveCeresDeparture(bus, runtime, selectedSaveSlot);
                     SaveRamChanged?.Invoke();
                     runtime.Enemies.CeresStatus = 0;
                     runtime.EscapeTimer.Clear();
@@ -1333,7 +1335,9 @@ public sealed partial class SuperMetroidGame
             "Death palette target was not prepared.")).Step(runtime.Cgram);
     }
 
-    private bool SetupSelectedGame()
+    /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
+    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
+    private void CreateSelectedGameRuntime()
     {
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         runtime = new SuperMetroidRuntime(
@@ -1395,6 +1399,37 @@ public sealed partial class SuperMetroidGame
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;
         runtime.IconCancelEnabled = options?.IconCancelEnabled ?? false;
+    }
+
+    /// <summary>
+    /// $82:EECC-$EED4 dispatches saved mode $22 to the initial destruction cinematic.
+    /// Restore the SRAM mirror/inventory, but do not initialize any Ceres room or actors.
+    /// The existing cinematic handoff later loads Zebes station eighteen.
+    /// </summary>
+    private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
+    {
+        CreateSelectedGameRuntime();
+        runtime!.RestoreSavedPlayerState(slot);
+        ApplySelectedGameOptions();
+        ceresDestruction = new CeresDestructionCinematicState(
+            bus, audio, mapPresentation?.PowerBombFixedColors,
+            introCinematicArt, mapPresentation?.RoomPaletteFx);
+        GameState = SuperMetroidGameState.CeresGoesBoom;
+        PublishBlack();
+    }
+
+    private void ApplySelectedGameOptions()
+    {
+        // Live edits in options take precedence over the snapshot loaded at file select.
+        if (options is null) return;
+        runtime!.ControllerBindings = options.ControllerBindings;
+        runtime.MoonwalkEnabled = options.MoonwalkEnabled;
+        runtime.IconCancelEnabled = options.IconCancelEnabled;
+    }
+
+    private bool SetupSelectedGame()
+    {
+        CreateSelectedGameRuntime();
 
         if (spacetimeIntroRestartSlot is { } restartSlot)
         {
@@ -1423,19 +1458,7 @@ public sealed partial class SuperMetroidGame
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
             restartedSamus.SelectedHudItem = 0;
             restartedSamus.AutoCancelHudItemIndex = 0;
-            runtime.System.LoadSavedLoadingGameState(
-                SaveLoadingGameStates.CeresElevatorArrival);
-            saveRam.SaveSlot(
-                selectedSaveSlot,
-                SuperMetroidSaveSnapshot.Capture(
-                    restartedSamus,
-                    runtime.System,
-                    area: (ushort)AreaId.Ceres,
-                    saveStation: 0,
-                    gameTime: runtime.GameTime,
-                    controllerBindings: runtime.ControllerBindings,
-                    moonwalkEnabled: runtime.MoonwalkEnabled,
-                    iconCancelEnabled: runtime.IconCancelEnabled));
+            AutomaticCheckpointSaver.SaveCeresArrival(bus, runtime, selectedSaveSlot);
             SaveRamChanged?.Invoke();
             spacetimeIntroRestartSlot = null;
             loadingExistingSave = false;
@@ -1462,25 +1485,24 @@ public sealed partial class SuperMetroidGame
                 SelectedItem: 0,
                 slot.ReserveEnergy,
                 slot.ReserveMode));
-            runtime.GameTime.Load(
-                slot.GameTimeFrames,
-                slot.GameTimeSeconds,
-                slot.GameTimeMinutes,
-                slot.GameTimeHours);
+            runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
+                slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
             // Every other station uses the general cartridge-backed loader below.
-            if (slot.Area == 6 && slot.SaveStation == 0)
+            if (slot.LoadingGameState == SaveLoadingGameStates.CeresElevatorArrival)
             {
+                // Room selection and actors must see the restored mirror, not a
+                // fresh runtime followed by an after-the-fact progression overwrite.
+                runtime.RestoreSavedPlayerState(slot);
                 runtime.InitializeStartingCeresRoom();
                 runtime.InitializeCeresStartSamus();
-                slot.ApplyTo(
-                    runtime.Samus ?? throw new InvalidOperationException(
-                        "Ceres initialization did not create Samus."),
-                    runtime.System);
+                slot.ApplyTo(runtime.Samus ?? throw new InvalidOperationException(
+                    "Ceres initialization did not create Samus."));
                 runtime.Samus.SelectedHudItem = 0;
                 runtime.Samus.AutoCancelHudItemIndex = 0;
+                ApplySelectedGameOptions();
                 return true;
             }
 
@@ -1489,12 +1511,7 @@ public sealed partial class SuperMetroidGame
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits
             // take precedence over that original snapshot, just like cartridge WRAM.
-            if (options is not null)
-            {
-                runtime.ControllerBindings = options.ControllerBindings;
-                runtime.MoonwalkEnabled = options.MoonwalkEnabled;
-                runtime.IconCancelEnabled = options.IconCancelEnabled;
-            }
+            ApplySelectedGameOptions();
             CartridgeRoomState loadedState = runtime.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
@@ -1518,28 +1535,15 @@ public sealed partial class SuperMetroidGame
         // loads the area-six station-zero room and finally runs SamusCode_08. This is the
         // same cartridge-backed sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime!.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        SamusState samus = runtime.Samus
-            ?? throw new InvalidOperationException("Ceres initialization did not create Samus.");
-
         // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero
         // and calls the ordinary `$81:8000` saver immediately before state $1F. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
-        saveRam.SaveSlot(
-            selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(
-                samus,
-                runtime.System,
-                area: 6,
-                saveStation: 0,
-                gameTime: runtime.GameTime,
-                controllerBindings: runtime.ControllerBindings,
-                moonwalkEnabled: runtime.MoonwalkEnabled,
-                iconCancelEnabled: runtime.IconCancelEnabled));
+        AutomaticCheckpointSaver.SaveCeresArrival(bus, runtime, selectedSaveSlot);
         SaveRamChanged?.Invoke();
         return true;
     }

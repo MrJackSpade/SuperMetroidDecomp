@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ceres-save-repair", var repairedInstallation, var originalSave, var repairedSave])
+{
+    VerifyCeresSaveRepair(repairedInstallation, originalSave, repairedSave);
+    return 0;
+}
+if (args is ["--ceres-save-startup", var ceresSaveInstallation])
+{
+    VerifyCeresSaveStartup(ceresSaveInstallation);
+    return 0;
+}
 if (args is ["--ceres-engine-palette-binding", var ceresPaletteInstallation])
 {
     VerifyCeresEnginePaletteBinding(ceresPaletteInstallation);

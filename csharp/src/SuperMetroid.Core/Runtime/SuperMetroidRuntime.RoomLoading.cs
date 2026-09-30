@@ -111,32 +111,9 @@ public sealed partial class SuperMetroidRuntime
         // boss/event/item bytes synchronously, while room-state selection and beam graphics
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
-        Samus = new SamusState
-        {
-            Pose = SamusPoseIds.FacingRightNormalPose,
-            AnimationFrame = 0,
-            XPosition = station.SamusX,
-            YPosition = station.SamusY,
-        };
-        BindSamusPalettePresentation();
-        slot.ApplyTo(Samus, System);
-        // `Samus_Initialize` at `$91:E00D` runs after the SRAM mirror has been restored
-        // and explicitly clears both `$09D2` and `$0A04`. The cartridge therefore stores
-        // the last HUD selection as part of its contiguous WRAM save block, but never
-        // carries that selection into a newly loaded game. Leaving missiles selected here
-        // opened the independent arm-cannon cover during pose `$00`; its direction-zero
-        // tile then appeared above Samus as a false "lightning" fragment throughout the
-        // load appearance.
-        Samus.SelectedHudItem = 0;
-        Samus.AutoCancelHudItemIndex = 0;
-        ControllerBindings = slot.ControllerBindings;
-        MoonwalkEnabled = slot.MoonwalkEnabled;
-        IconCancelEnabled = slot.IconCancelEnabled;
-        GameTime.Load(
-            slot.GameTimeFrames,
-            slot.GameTimeSeconds,
-            slot.GameTimeMinutes,
-            slot.GameTimeHours);
+        RestoreSavedPlayerState(slot);
+        Samus!.XPosition = station.SamusX;
+        Samus.YPosition = station.SamusY;
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != requestedArea)
         {
@@ -181,6 +158,32 @@ public sealed partial class SuperMetroidRuntime
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
         GroundedSamusMovementEnabled = false;
         return viewport;
+    }
+
+    /// <summary>
+    /// Restores the player and persistent mirror before selecting rooms or a saved
+    /// cinematic. A Ceres-destruction checkpoint has no playable Ceres room to load;
+    /// its inventory must nevertheless survive into the Zebes landing sequence.
+    /// </summary>
+    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+        Samus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            AnimationFrame = 0,
+        };
+        BindSamusPalettePresentation();
+        slot.ApplyTo(Samus, System);
+        // $91:E00D clears both persisted HUD selection words after mirror restore.
+        // Otherwise the arm-cannon cover can leak into the front-facing load pose.
+        Samus.SelectedHudItem = 0;
+        Samus.AutoCancelHudItemIndex = 0;
+        ControllerBindings = slot.ControllerBindings;
+        MoonwalkEnabled = slot.MoonwalkEnabled;
+        IconCancelEnabled = slot.IconCancelEnabled;
+        GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
+            slot.GameTimeMinutes, slot.GameTimeHours);
     }
 
     /// <summary>

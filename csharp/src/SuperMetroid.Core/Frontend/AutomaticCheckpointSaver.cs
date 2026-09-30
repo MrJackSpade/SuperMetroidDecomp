@@ -12,6 +12,33 @@ namespace SuperMetroid.Core.Frontend;
 internal static class AutomaticCheckpointSaver
 {
     /// <summary>
+    /// $8B:C100-$C116 publishes $1F before saving the initial Ceres checkpoint.
+    /// </summary>
+    public static void SaveCeresArrival(ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot) =>
+        SaveCeresCheckpoint(bus, runtime, slot, SaveLoadingGameStates.CeresElevatorArrival);
+
+    /// <summary>
+    /// $82:83D6-$83E3 publishes $22 before saving at the completed escape blackout.
+    /// This checkpoint resumes the destruction cinematic, never the escaping room.
+    /// </summary>
+    public static void SaveCeresDeparture(ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot) =>
+        SaveCeresCheckpoint(bus, runtime, slot, SaveLoadingGameStates.CeresDestruction);
+
+    private static void SaveCeresCheckpoint(
+        ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot, ushort loadingGameState)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(runtime);
+        SamusState samus = runtime.Samus
+            ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
+        runtime.System.LoadSavedLoadingGameState(loadingGameState);
+        new SuperMetroidSaveRam(bus).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(
+            samus, runtime.System, area: (ushort)AreaId.Ceres, saveStation: 0,
+            gameTime: runtime.GameTime, controllerBindings: runtime.ControllerBindings,
+            moonwalkEnabled: runtime.MoonwalkEnabled, iconCancelEnabled: runtime.IconCancelEnabled));
+    }
+
+    /// <summary>
     /// Saves Crateria station zero on the single frame where <c>GunshipTop_7</c> restores
     /// control after the arrival cutscene. Returns false on every other gameplay frame.
     /// </summary>
@@ -32,6 +59,7 @@ internal static class AutomaticCheckpointSaver
         // `$A2:A987` executes `ORA #$0001` on $D8F8 before changing load station 18 to
         // station zero and calling SaveToSram. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
+        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         runtime.System.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
         new SuperMetroidSaveRam(bus).SaveSlot(
             selectedSaveSlot,

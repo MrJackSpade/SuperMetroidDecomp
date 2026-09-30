@@ -94,6 +94,21 @@ audio is regenerated from the installed ROM; this restores stock audio. Player d
 preserved. An interrupted directory swap is recovered on the next launch. Concurrent
 installers cannot modify the same installation.
 
+## Normal Ceres checkpoints
+
+The cartridge's normal file-select save includes a startup mode, not just an
+area and station. Initial Ceres arrival saves `$1F` (`$8B:C100-$C116`). After
+the escape elevator finishes its blackout, the cartridge saves `$22`
+(`$82:83D6-$83E3`); loading that checkpoint resumes the destruction cinematic,
+not the escaping station. Landing on Zebes replaces it with the ordinary `$05`
+checkpoint (`$A2:A9A0-$A9B8`). These three writes and the file-select dispatch
+are implemented explicitly. No exception handler creates a normal checkpoint.
+
+Older port builds incorrectly left `$05` on the Ceres checkpoints. Loading does
+not guess a replacement mode from boss flags or silently rewrite these saves.
+An explicitly approved one-off repair can correct the mode in a separate JSON
+copy, leaving the active file and all other saved data untouched.
+
 ## Shared palette JSON validation
 
 Room and gameplay base palettes, map palettes and highlight cycles, title/opening/Ceres

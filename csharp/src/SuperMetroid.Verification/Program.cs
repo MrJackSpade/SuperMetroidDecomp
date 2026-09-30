@@ -34,6 +34,11 @@ if (args is ["--room-content-identity"])
     VerifyRoomContentIdentity();
     return 0;
 }
+if (args is ["--samus-content-identity"])
+{
+    VerifySamusContentIdentity();
+    return 0;
+}
 if (args is ["--wram-helper-boundary"])
 {
     VerifyWramHelperBoundary();

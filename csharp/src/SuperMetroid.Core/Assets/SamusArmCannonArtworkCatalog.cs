@@ -22,7 +22,19 @@ public sealed class SamusArmCannonArtworkCatalog
         this.attributes = attributes;
         this.tileSources = tileSources;
         this.tiles = tiles;
+        ContentIdentity = SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
+        {
+            content.AppendWords("pose pointers", this.posePointers);
+            content.Append("drawing data", this.drawingData);
+            content.AppendWords("attributes", this.attributes);
+            foreach (ushort[] direction in this.tileSources)
+                content.AppendWords("tile sources", direction);
+            content.Append("characters", this.tiles.Transfer.Span);
+        });
     }
+
+    /// <summary>SHA-256 of selected cannon placement, OBJ attributes, tile selectors and characters.</summary>
+    public string ContentIdentity { get; }
 
     public static SamusArmCannonArtworkCatalog Load(Stream json, Stream tilePng)
     {

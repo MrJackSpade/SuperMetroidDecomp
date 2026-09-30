@@ -18,7 +18,9 @@ internal static class AndroidFileImport
             SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(
                 installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
                 installation.LoadRoomMetatiles(), installation.LoadRoomBackgroundTilemaps(),
-                installation.LoadRoomSkyTilemaps(), installation.LoadRoomVisualLayouts()));
+                installation.LoadRoomSkyTilemaps(), installation.LoadRoomVisualLayouts())
+                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
+                    installation.LoadSamusBodyArt().ContentIdentity)));
         return ImportStateCore(
             root,
             source,

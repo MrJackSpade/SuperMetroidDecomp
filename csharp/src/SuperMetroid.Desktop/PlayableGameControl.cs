@@ -354,7 +354,8 @@ public sealed partial class PlayableGameControl : UserControl
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."),
             RoomPresentationIdentity.Create(roomCharacterArt, roomPaletteArt, roomMetatileArt,
-                roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts));
+                roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts)
+                .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBodyArt.ContentIdentity)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

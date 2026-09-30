@@ -183,7 +183,9 @@ internal sealed class AndroidSessionData : IDisposable
         ContentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
             assets, maps, projectiles,
             SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(roomCharacters, roomPalettes,
-                roomMetatiles, roomBackgroundTilemaps, roomSkyTilemaps, roomVisualLayouts));
+                roomMetatiles, roomBackgroundTilemaps, roomSkyTilemaps, roomVisualLayouts)
+                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
+                    samusBodyArt.ContentIdentity)));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

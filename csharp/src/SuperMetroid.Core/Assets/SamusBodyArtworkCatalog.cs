@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// and projectile timing remain in the compiled simulation. Definition addresses are kept
 /// so the debugger can still identify the original seven-byte DMA record.
 /// </remarks>
-public sealed class SamusBodyArtworkCatalog
+public sealed partial class SamusBodyArtworkCatalog
 {
     public const int FirstFrameAddress = 0x92DB48;
     public const int FrameEndExclusive = 0x92ED24;
@@ -110,7 +110,11 @@ public sealed class SamusBodyArtworkCatalog
         // The contiguous bank image also contains bytes reached only by a frame
         // counter running past its authored list. Validate a selection when it is
         // actually used, not every four-byte word in the backing ROM interval.
+        ContentIdentity = CreateContentIdentity();
     }
+
+    /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
+    public string ContentIdentity { get; }
 
     public ReadOnlySpan<ushort> TopSetPointers => topPointers;
     public ReadOnlySpan<ushort> BottomSetPointers => bottomPointers;

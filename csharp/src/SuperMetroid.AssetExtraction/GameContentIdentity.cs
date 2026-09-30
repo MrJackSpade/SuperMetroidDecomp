@@ -47,7 +47,7 @@ public sealed record GameContentIdentity(
         ExtractedAudioAssetCatalog audio,
         AreaMapPresentationCatalog maps,
         InstalledProjectilePresentation projectiles,
-        IReadOnlyDictionary<string, string>? additionalContentSha256 = null)
+        IEnumerable<KeyValuePair<string, string>>? additionalContentSha256 = null)
     {
         ArgumentNullException.ThrowIfNull(audio);
         ArgumentNullException.ThrowIfNull(maps);
@@ -69,7 +69,7 @@ public sealed record GameContentIdentity(
         string mapContentSha256,
         string projectileContentSha256,
         Guid compiledDefinitionsBuildId,
-        IReadOnlyDictionary<string, string>? additionalContentSha256 = null)
+        IEnumerable<KeyValuePair<string, string>>? additionalContentSha256 = null)
     {
         ValidateDigest(audioContentSha256, nameof(audioContentSha256));
         ValidateDigest(mapContentSha256, nameof(mapContentSha256));

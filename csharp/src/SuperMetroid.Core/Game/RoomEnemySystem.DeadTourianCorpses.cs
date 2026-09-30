@@ -160,6 +160,10 @@ public sealed partial class RoomEnemySystem
         if (definition.EntryCount == 0)
             throw new InvalidDataException($"Dead {profile.Species} has zero corpse rows.");
 
+        // Missing resources must not leave a registered corpse, changed slot or partially
+        // initialized WRAM behind when the host reports a recoverable error.
+        ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
+
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
         var state = new DeadTourianCorpseEnemyState(
@@ -188,7 +192,7 @@ public sealed partial class RoomEnemySystem
             _bus!,
             0x7e0000 | definition.RottingTablePointer,
             definition.EntryCount);
-        InitializeDeadTourianCorpseGraphics(variant);
+        InitializeDeadTourianCorpseGraphics(variant, installedTiles);
     }
 
     /// <summary>All three headers point main AI at shared dispatcher <c>$A9:D8DB</c>.</summary>
@@ -264,11 +268,9 @@ public sealed partial class RoomEnemySystem
         AppendDeadMonsterVramTransfers(state.VramTablePointer);
     }
 
-    private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant)
+    private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
+        ReadOnlySpan<byte> installedTiles)
     {
-        ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
-        if (installedTiles.IsEmpty)
-            throw new InvalidDataException("Dead Tourian corpses require installed artwork.");
         foreach (DeadTourianCorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)

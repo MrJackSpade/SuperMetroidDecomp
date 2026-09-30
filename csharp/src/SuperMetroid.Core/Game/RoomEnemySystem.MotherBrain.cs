@@ -27,9 +27,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain => _motherBrain;
 
-    private RoomCharacterAtlas? MotherBrainCorpseArtwork => TileArtwork is null
-        ? null
-        : TileArtwork.MotherBrainCorpse ?? throw new InvalidDataException(
+    private RoomCharacterAtlas MotherBrainCorpseArtwork =>
+        TileArtwork?.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
     private static bool IsMotherBrainDefinition(ushort definition) =>

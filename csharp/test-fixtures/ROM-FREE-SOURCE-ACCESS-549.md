@@ -225,8 +225,29 @@ Import-only extraction covers 114 OAM components/423 sprites and 252 BG2 runs/
 checks. Source inspection identified both missing frame catalogs and a missing
 compiled-selector dispatch; the focused instruction check failed on that dispatch
 before its correction. There is no runtime cartridge access.
-These fixtures do not newly verify every BG2 boss,
-melting/rotting effect, GPU output or historical color-document schema. Those
+The RAM-only melt/corpse fixtures compare authored replacements through both
+54-call Crocomire dissolves and all 118 Mother Brain rot calls. They assert every
+native erase-column height, HDMA/phase handoff, smoke cadence, row completion and
+dust/audio callback, plus 702 production RAM-to-VRAM corpse uploads. The graphics
+change while actor/collision values and fixed control clocks do not. Stock corpse
+pixels/staging and six initial sprite uploads are compared against an independent
+import-only oracle; overrides survive reload and malformed PNGs fail explicitly.
+
+Static inspection also identified missing-resource validation after mutation in
+these initializers. Regression assertions failed before the fixes on Mother Brain
+and dead Tourian corpse rot-table writes. Crocomire's phase/actor/buffer mutation
+was identified directly in the source; the new checks verify its resource errors
+leave those values unchanged. Missing/unknown resources
+now fail before those changes; all eight Zoomer/Ripper/Skree variants cover absent
+and incomplete catalogs. Crocomire JSON also rejects unknown/duplicate/case-aliased
+root/cell fields rather than silently losing edits. Required corpse artwork is no
+longer optional in the public initializer; compiler errors exposed and corrected
+its nullable callers without restoring a cartridge fallback.
+
+Focused commands: `--enemy-effect-resources`, `--crocomire-melt-json`,
+`--enemy-effect-isolation`, `--mother-brain-corpse-stock-artwork`.
+These fixtures do not newly verify every BG2 boss, other corpse family,
+GPU output or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.
 
 ## Remaining #549 acceptance

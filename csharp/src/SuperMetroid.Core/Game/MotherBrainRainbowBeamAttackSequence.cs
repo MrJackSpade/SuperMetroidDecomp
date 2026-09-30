@@ -423,7 +423,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
     /// </summary>
     public void InitializeCorpseRotting(ISnesAddressSpace bus) =>
-        _corpseRotting.Initialize(bus, _corpseArtwork);
+        _corpseRotting.Initialize(bus, _corpseArtwork ?? throw new InvalidDataException(
+            "Mother Brain corpse rotting requires installed tile artwork."));
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.

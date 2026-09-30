@@ -665,6 +665,18 @@ distortion timing, transfer destinations, and collision stay fixed.
 Pixels beyond each native image's written byte range are reserved and must
 remain zero. Stock melt sheets are hash-checked and repaired with the other
 enemy art, while valid overrides survive repair and application updates.
+Melt JSON rejects unknown fields and duplicate names, including case aliases,
+at the document root and inside cells. Existing case-insensitive field spelling
+is still accepted. Invalid or missing melt/corpse resources are rejected before
+their initializer changes actor state, phase counters or mutable graphics tables.
+The focused `--enemy-effect-isolation` verifier replaces both melt maps/images
+and Mother Brain corpse pixels with authored PNG/JSON. It checks both 54-call
+dissolves and the 118-call corpse rot, including exact erase/HDMA, row completion,
+smoke, transfer and audio schedules. Production receives RAM only; these checks
+verify identified conversion paths, not the complete battles or every corpse family.
+`--enemy-effect-resources` checks failure before mutation, `--crocomire-melt-json`
+checks strict fields, and `--mother-brain-corpse-stock-artwork` uses import-only
+stock data to check installed pixels, staging, sprite uploads and override reload.
 Crocomire's six skeleton-character uploads share the indexed 4-bpp
 `crocomire-skeleton-tiles.png` sheet in `game/enemy-tiles/`. Copy it to
 `overrides/enemy-tiles/` to replace the pixels used during his death sequence.

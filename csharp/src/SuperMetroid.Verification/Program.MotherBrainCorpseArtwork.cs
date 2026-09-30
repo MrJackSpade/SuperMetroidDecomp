@@ -7,6 +7,15 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyMotherBrainCorpseStockArtwork()
+    {
+        using var temporary = new MapCatalogTestDirectory();
+        var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        EnemyTileArtworkFiles.Extract(source, temporary.Root, SupportedCartridge.Sha256);
+        EnemyTileArtworkFiles.ValidateStock(temporary.Root);
+        VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null));
+    }
+
     private static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -19,11 +28,10 @@ internal static partial class Program
         AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
             "installed Mother Brain corpse PNG preserves all native source bytes");
 
-        SnesVram stockVram = TransferMotherBrainCorpsePages(
-            stock, new MotherBrainCorpseArtworkReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
-        SnesVram cartridgeVram = TransferMotherBrainCorpsePages(null,
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+        // Only the oracle/import above receives cartridge bytes. Production transfers and
+        // staging run against the same cartridge-incapable memory type as installed games.
+        SnesVram stockVram = TransferMotherBrainCorpsePages(stock,
+            SuperMetroidAddressSpace.CreateWithoutCartridge());
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
         {
             int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSources[page] -
@@ -35,25 +43,28 @@ internal static partial class Program
                 .SequenceEqual(native.AsSpan(sourceOffset,
                     MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
                 $"installed Mother Brain corpse VRAM page {page} matches the native transfer");
-            AssertTrue(stockVram.Bytes.Slice(destinationOffset,
-                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
-                .SequenceEqual(cartridgeVram.Bytes.Slice(destinationOffset,
-                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
-                $"installed and cartridge Mother Brain corpse VRAM page {page} agree");
         }
 
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        new MotherBrainCorpseRottingState().Initialize(nativeBus);
-        new MotherBrainCorpseRottingState().Initialize(
-            new MotherBrainCorpseArtworkReadGuard(installedBus), artwork);
+        var nativeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var installedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        // Independent $A9:E08B oracle: copy each right-hand frame's seven-tile row,
+        // omitting the transparent last tile in the first four rows. No runtime fallback.
+        for (int row = 0; row < 6; row++)
+            native.AsSpan(row * 0x200 + 0xc0, row < 4 ? 0xc0 : 0xe0).CopyTo(
+                nativeBus.WorkRam.Slice(0x9000 + row * 0xe0));
+        for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
+        {
+            int address = 0x9700 + index * 4;
+            nativeBus.WriteByte(0x7e0000 + address, (byte)(47 - index));
+            nativeBus.WriteByte(0x7e0000 + address + 2, (byte)(index * 2));
+        }
+        new MotherBrainCorpseRottingState().Initialize(installedBus, artwork);
         AssertMotherBrainCorpseBufferParity(nativeBus, installedBus);
 
         // The phase-three state machine owns a separate corpse processor. Verify
         // its explicit setup route as well as the room-entry processor above.
-        var sequenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        new MotherBrainRainbowBeamAttackSequence(artwork).InitializeCorpseRotting(
-            new MotherBrainCorpseArtworkReadGuard(sequenceBus));
+        var sequenceBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        new MotherBrainRainbowBeamAttackSequence(artwork).InitializeCorpseRotting(sequenceBus);
         AssertMotherBrainCorpseBufferParity(nativeBus, sequenceBus);
 
         string fileName = MotherBrainCorpseArtworkDefinitions.FileName;
@@ -72,30 +83,27 @@ internal static partial class Program
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        SnesVram editedVram = TransferMotherBrainCorpsePages(
-            edited, new MotherBrainCorpseArtworkReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
+        SnesVram editedVram = TransferMotherBrainCorpsePages(edited,
+            SuperMetroidAddressSpace.CreateWithoutCartridge());
         int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestinations[0] * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
             editedVram.ReadByte(editedVramOffset),
             "Mother Brain corpse PNG edit changes live sprite VRAM");
-        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        new MotherBrainCorpseRottingState().Initialize(
-            new MotherBrainCorpseArtworkReadGuard(editedBus), edited.MotherBrainCorpse);
-        AssertEqual((byte)(installedBus.ReadByte(0x7e9000) ^ 0x80),
-            editedBus.ReadByte(0x7e9000),
+        var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        new MotherBrainCorpseRottingState().Initialize(editedBus, edited.MotherBrainCorpse!);
+        AssertEqual((byte)(installedBus.ReadWorkRamByte(0x7e9000) ^ 0x80),
+            editedBus.ReadWorkRamByte(0x7e9000),
             "Mother Brain corpse PNG pixel edit changes live WRAM staging");
         for (int offset = 1; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
-            AssertEqual(installedBus.ReadByte(0x7e9000 + offset),
-                editedBus.ReadByte(0x7e9000 + offset),
+            AssertEqual(installedBus.ReadWorkRamByte(0x7e9000 + offset),
+                editedBus.ReadWorkRamByte(0x7e9000 + offset),
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
-        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var reloadedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainCorpse!;
-        new MotherBrainCorpseRottingState().Initialize(
-            new MotherBrainCorpseArtworkReadGuard(reloadedBus), reloaded);
-        AssertEqual(editedBus.ReadByte(0x7e9000), reloadedBus.ReadByte(0x7e9000),
+        new MotherBrainCorpseRottingState().Initialize(reloadedBus, reloaded);
+        AssertEqual(editedBus.ReadWorkRamByte(0x7e9000), reloadedBus.ReadWorkRamByte(0x7e9000),
             "Mother Brain corpse override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
@@ -103,11 +111,11 @@ internal static partial class Program
             () => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
             "malformed Mother Brain corpse override is rejected explicitly");
 
-        Console.WriteLine("  Mother Brain corpse art: indexed PNG source parity, six guarded sprite VRAM pages, room/sequence staging, visible edit, reload and invalid override pass.");
+        Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");
     }
 
     private static SnesVram TransferMotherBrainCorpsePages(
-        EnemyTileArtworkCatalog? artwork, ISnesAddressSpace bus)
+        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -129,46 +137,14 @@ internal static partial class Program
     }
 
     private static void AssertMotherBrainCorpseBufferParity(
-        ISnesAddressSpace expected, ISnesAddressSpace actual)
+        SuperMetroidAddressSpace expected, SuperMetroidAddressSpace actual)
     {
         for (int offset = 0; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
-            AssertEqual(expected.ReadByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
-                actual.ReadByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
+            AssertEqual(expected.ReadWorkRamByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
+                actual.ReadWorkRamByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
                 "installed Mother Brain corpse staging agrees with cartridge");
-    }
-
-    private sealed class MotherBrainCorpseArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
-    {
-        public byte ReadByte(int address)
-        {
-            RejectCorpseArtRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectCorpseArtRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Mother Brain corpse test source requires WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Mother Brain corpse test source requires SRAM.")).ReadSaveRamByte(address);
-
-        private static void RejectCorpseArtRead(int address)
-        {
-            if (address is >= MotherBrainCorpseArtworkDefinitions.SourceAddress and
-                < MotherBrainCorpseArtworkDefinitions.SourceAddress +
-                    MotherBrainCorpseArtworkDefinitions.ByteCount)
-                throw new InvalidOperationException(
-                    $"Mother Brain corpse attempted a visual ROM read at ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
+            AssertEqual(MotherBrainCorpseRottingState.ReadEntry(expected, index),
+                MotherBrainCorpseRottingState.ReadEntry(actual, index), "installed native rot-table initialization");
     }
 }

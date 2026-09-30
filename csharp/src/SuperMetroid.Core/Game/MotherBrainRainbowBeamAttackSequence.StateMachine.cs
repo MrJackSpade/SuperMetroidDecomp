@@ -925,7 +925,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // start at a late phase. Nothing touches this private table/buffer in between,
                 // so the delayed call is state-equivalent while preventing a fake host setup.
                 if (!_corpseRotting.IsInitialized)
-                    _corpseRotting.Initialize(bus, _corpseArtwork);
+                    InitializeCorpseRotting(bus);
 
                 MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
                     bus,

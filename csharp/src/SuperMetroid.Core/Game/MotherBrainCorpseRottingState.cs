@@ -83,11 +83,12 @@ public sealed class MotherBrainCorpseRottingState
     /// Builds the native rot table and extracts the working corpse frame into WRAM.
     /// The initial pixels come exclusively from the installed, editable PNG.
     /// </summary>
-    public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas? artwork = null)
+    public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas artwork)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ReadOnlySpan<byte> installedTiles = artwork is null ? [] : artwork.Transfer.Span;
-        if (artwork is not null && installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
+        ArgumentNullException.ThrowIfNull(artwork);
+        ReadOnlySpan<byte> installedTiles = artwork.Transfer.Span;
+        if (installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
             throw new InvalidDataException("Installed Mother Brain corpse PNG has the wrong tile count.");
 
         // `$DC40` starts at height-1 and writes four bytes per entry. Y decreases from the
@@ -103,9 +104,7 @@ public sealed class MotherBrainCorpseRottingState
                 int sourceAddress = checked((int)copy.SourceAddress) + byteIndex;
                 bus.WriteByte(
                     GraphicsBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles.IsEmpty
-                        ? throw new InvalidOperationException("Mother Brain corpse requires installed tile artwork.")
-                        : installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
+                    installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
             }
         }
 

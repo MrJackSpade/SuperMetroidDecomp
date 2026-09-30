@@ -10,6 +10,11 @@ public sealed partial class RoomEnemySystem
         ushort bodyInstructionList)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
+        // Resolve the complete resource before advancing the phase or touching actors,
+        // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
+        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
+            "Crocomire melting requires installed tilemap artwork.");
+        ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
         death.PixelsToErasePerColumn = 48;
         death.TargetHeightOrSkeletonTileIndex = 48;
         state.DeathSequenceIndex += 2;
@@ -34,11 +39,7 @@ public sealed partial class RoomEnemySystem
 
         Span<ushort> working = death.MutableBg2WorkingTilemap;
         working.Fill(CrocomireBlankBg2Tile);
-        int copiedWords;
-        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed tilemap artwork.");
-        ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
-        copiedWords = tilemap.Length;
+        int copiedWords = tilemap.Length;
         tilemap.CopyTo(working[32..]);
 
         // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
@@ -50,20 +51,23 @@ public sealed partial class RoomEnemySystem
     private void InitializeCrocomireMeltingGraphics(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
+        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(
+            death.MeltingTableOffset);
+        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
+            "Crocomire melting requires installed graphics artwork.");
+
+        // Both assets have already passed geometry/padding validation during installation.
+        // CopyPassTo checks scratch capacity before its first write. Only then publish the
+        // new phase and distortion state; no cartridge reader is available as a fallback.
+        artwork.CopyPassTo(pass.HeaderOffset, death.MutableMeltingGraphics);
         FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
         state.DeathSequenceIndex += 2;
         death.DistortionStep = 0x0100;
         death.MeltingColumnCursor = 0;
 
-        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(
-            death.MeltingTableOffset);
         death.MaximumAdjustedDestinationY = pass.MaximumAdjustedDestinationY;
         death.AdjustedDestinationY = death.MaximumAdjustedDestinationY;
         death.DistortionEndY = pass.DistortionEndY;
-        Span<byte> graphics = death.MutableMeltingGraphics;
-        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed graphics artwork.");
-        artwork.CopyPassTo(pass.HeaderOffset, graphics);
 
         // Keep the native cursor so serialized mid-melt states resume at the same record.
         death.MeltingTableOffset = pass.TransferStartOffset;

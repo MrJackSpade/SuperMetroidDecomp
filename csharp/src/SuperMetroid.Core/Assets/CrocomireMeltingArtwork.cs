@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -89,8 +90,11 @@ public sealed class CrocomireMeltingArtwork
         CrocomireMeltingTilemapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CrocomireMeltingTilemapDocument>(
-                json, TilemapJsonOptions)
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            // Preserve the schema's existing case-insensitive spelling, but reject aliases
+            // of the same property before deserialization can silently overwrite them.
+            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement, StringComparer.OrdinalIgnoreCase);
+            document = parsed.RootElement.Deserialize<CrocomireMeltingTilemapDocument>(TilemapJsonOptions)
                 ?? throw new InvalidDataException("Crocomire melt tilemap JSON is null.");
         }
         catch (JsonException error)
@@ -125,6 +129,7 @@ public sealed class CrocomireMeltingArtwork
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
 

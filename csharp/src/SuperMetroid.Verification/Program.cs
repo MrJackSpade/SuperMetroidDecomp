@@ -71,6 +71,27 @@ if (args is ["--enemy-animation-isolation"])
     VerifyEnemyAnimationIsolation();
     return 0;
 }
+if (args is ["--enemy-effect-resources"])
+{
+    VerifyEnemyEffectResources();
+    return 0;
+}
+if (args is ["--enemy-effect-isolation"])
+{
+    VerifyCrocomireEffectIsolation();
+    VerifyMotherBrainRotIsolation();
+    return 0;
+}
+if (args is ["--mother-brain-corpse-stock-artwork"])
+{
+    VerifyMotherBrainCorpseStockArtwork();
+    return 0;
+}
+if (args is ["--crocomire-melt-json"])
+{
+    VerifyCrocomireMeltJson();
+    return 0;
+}
 if (args is ["--mother-brain-body-presentation"])
 {
     VerifyMotherBrainBodyPresentation();

@@ -563,11 +563,10 @@ public sealed partial class SamusState
             Pose < SamusPoseIds.MorphBallGroundLeftPose)
         {
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
-            // of using the pose-definition graphics offset. Reading the cartridge table
-            // directly retains ordinary crouch/morph/stand/unmorph values and the four
-            // valid-but-unused zero records `$39/$3A/$3F/$40`. The installed visual
-            // bytes preserve those values; an out-of-range diagnostic index still reads
-            // the native adjacent bank data instead of inventing a replacement.
+            // of using the pose-definition graphics offset. Installed visual bytes
+            // retain ordinary crouch/morph/stand/unmorph values and the four
+            // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
+            // selection rejects; neighboring cartridge bytes are not a runtime fallback.
             int postureIndex = (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame;
             if (TileTransfers.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))

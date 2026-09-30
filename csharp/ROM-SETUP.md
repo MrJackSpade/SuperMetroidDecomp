@@ -200,6 +200,15 @@ sizes and references within the supplied drawing-data and tile ranges. Neither
 file changes the HUD selection, cover opening/closing cadence, projectile
 origin, damage, or equipment behavior. Stock JSON and PNG hashes are checked
 independently before overrides load.
+For a developer check using an existing extracted installation, run
+`SuperMetroid.RenderVerification --installed-samus-isolation <installation-root>`.
+It edits an isolated copy and checks the selected movement, pose-collision and
+special-sequence owners against stock presentation frame by frame. It does not
+import a ROM or touch player data. This complements the separate
+`--installed-samus-artwork <installation-root>` software/GPU pixel checks;
+neither command establishes whole-game parity. Exact coverage and remaining
+gates are recorded in `test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md`.
+
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

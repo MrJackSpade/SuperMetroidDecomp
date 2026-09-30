@@ -5,6 +5,12 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--installed-samus-isolation", var samusInstallationRoot])
+    {
+        using var fixture = new InstalledSamusArtworkFixture(samusInstallationRoot, editLayout: true);
+        InstalledSamusIsolationTests.Run(fixture, samusInstallationRoot);
+        return;
+    }
     if (args is ["--installed-samus-artwork", var installationRoot])
     {
         using var fixture = new InstalledSamusArtworkFixture(installationRoot);

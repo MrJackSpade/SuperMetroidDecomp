@@ -27,6 +27,7 @@ This audit supersedes the strategy in the archived room census. It records the
 | PLM instruction and draw lookup | Bounded compiled family definitions and installed visual catalogs. `ReadBank84Word` / `ReadNativeBankByte` are deleted. Low-window wrapped instructions/draws consume explicit live WRAM; they cannot reinterpret a missing upper-bank definition as cartridge bytes. Internal authored verification fragments are bounded, nonserialized fixture input, not a generic byte provider. |
 | Enemy control/collision/composition | Compiled definition, phase, instruction, collision and visual-selector records. Former generic enemy word/long/source readers are deleted. `IRoomEnemyFixtureSource` is typed internal fixture metadata; OAM composition uses required installed catalogs. |
 | Samus horizontal speed | Compiled indexed/standalone mechanics records. Restored low-bank aliases read the six explicit live WRAM words. `ReadMappedByte` is deleted; no SRAM/cartridge/peripheral byte fallback masquerades as physics. |
+| Samus body and special sequences | Compiled pose/input/delay programs, physical projectile origins, collision radii, liquid/knockback and special-owner state. Installed body selectors, OAM placement, graphics offsets and normal/cycle/Crystal Flash/death colors are presentation only. `ReadGraphicsYOffset` feeds drawing and visual charge/Grapple flares; physical beam/Grapple origins use the separate compiled correction. No generic cartridge provider exists. |
 | Generic OAM / enemy OAM | Required installed spritemap/frame catalogs. Generic bus-backed sprite decoding and enemy sprite fallback were removed. Import/reference spritemap oracles remain outside Core. |
 | VRAM DMA / queued writes | `ExecuteQueuedMemoryWrite`, `ExecuteHardwareMemoryDmaWrite` and queue drainage require `ISnesMutableMemory`. Installed asset transfers accept validated payloads or `VramAssetId`; legacy source-address identities resolve only bounded named art transfers. Unresolved cartridge windows reject, not read. |
 | Background command lists | Core executes decoded background programs. Native command-list byte decoding is AssetExtraction's `LibraryBackgroundProgramImporter`, not a diagnostic-only reader left in Core. |
@@ -389,6 +390,52 @@ This supplies GPU presentation evidence for those finite, statically identified 
 not discovery of remaining ROM reads or full gameplay/animation-transition acceptance.
 Other enemy/boss/cinematic paths remain separate gates. Actual Android startup is
 verified separately below; this renderer fixture does not establish Android pixel parity.
+
+## Samus movement and special sequence isolation
+
+The guarded RenderVerification command `--installed-samus-isolation <installation-root>`
+adds paired acceptance for the production owners identified in the Samus source audit.
+It loads only already-extracted files. A disposable copy receives the same 26 edited
+PNGs as the pixel fixture plus real JSON changes to body DMA selectors, OAM X placement,
+graphics/landing/posture/drained Y offsets and death colors/selections. Three additional
+edited JSON files pass through the production normal-suit, full-body-cycle and Crystal
+Flash color compilers. No importer, player installation, INI, save or ROM is opened by
+this command. A fresh source bundle may be prepared separately by the explicit importer.
+
+Debug and Release pass 57 finite scenarios with 12,449 complete mutable-state
+comparisons and 6,187 production draws. The field-level snapshot includes private fields,
+reference identity and cycles, all motion/subpositions, collision radii, pose/history,
+animation buffers/timers, health/ammo, sound publications and special-owner state.
+It excludes only nonserialized host catalog bindings and the body's five derived
+render outputs (four OAM selector/origin fields and the pending split-DMA owner).
+Sensitivity checks require mismatched whole/fractional position, animation frame,
+collision radius and private Crystal Flash state to fail. Paired WRAM/SRAM and room
+collision words also remain equal. Each draw is checked against its own pre-draw
+mechanics, not just the other actor.
+
+The fixtures cover both facings in air, full water and lava: running, authored turn
+completion, normal/Hi-Jump launch-to-floor trajectories, crouch/morph/unmorph and
+knockback. Four low-ceiling cases assert actual allowed/rejected pose expansion.
+Special owners complete both 258-call Crystal Flashes (thirty ammo drains and release),
+180-call stored-shine expiration, all six shinespark launches through collision/energy
+termination and crash/release, both 163-call suit transformations with identical window
+geometry, nine 211-call death sequences (three source postures by three suits), 42-call
+reserve refill and both drained falling/standing/crouching/release routes. Assertions
+require actual motion, collision, resource changes and terminal states, not only equality
+or no-crash. Crystal Flash body/bubble colors are checked against the exact selected
+catalog values.
+
+The replacements visibly reach 6,185 differing OAM observations, 6,187 differing VRAM
+observations and 12,449 differing CGRAM observations. These are changed-buffer counts,
+not additional GPU/pixel comparisons; the independent software/GPU PNG test above stays
+separate. Two obsolete comments about neighboring-ROM and missing-catalog fallbacks were
+corrected; no production algorithm, format, runtime state field or compiled timing changed.
+
+This is bounded mechanics isolation for the listed owners, not exhaustive pose/input,
+wall-jump/grapple/X-ray, every environment boundary or enemy interaction acceptance.
+Required-reference and older-format admission review and the wider installation contract
+remain open in #541/#549. No tests were used to discover remaining cartridge reads, and
+the deleted Core capability was not restored.
 
 ## Android platform startup acceptance
 

@@ -184,8 +184,8 @@ public sealed class SamusDrainedState
     /// While command `$16`'s `$8000` flag is set, this handler has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
     /// complete 16-color Hyper Beam palette before touching either timer. Installed
-    /// artwork supplies those colors without a cartridge read; the native path remains
-    /// available when no presentation catalog is bound. The Baby
+    /// artwork supplies those colors; a missing catalog is an error, not a native-byte
+    /// fallback. The Baby
     /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>

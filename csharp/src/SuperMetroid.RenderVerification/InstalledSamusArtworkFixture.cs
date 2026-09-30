@@ -12,8 +12,9 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
     internal SamusBodyArtworkCatalog Stock { get; }
     internal SamusBodyArtworkCatalog Edited { get; }
     internal int EditedPngCount { get; }
+    internal GameInstallation Installation { get; }
 
-    internal InstalledSamusArtworkFixture(string installationRoot)
+    internal InstalledSamusArtworkFixture(string installationRoot, bool editLayout = false)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
         // Validate before copying: an absent/outdated installation must not silently
@@ -24,6 +25,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         try
         {
             var installation = new GameInstallation(root);
+            Installation = installation;
             Directory.CreateDirectory(installation.SamusBodyDirectory);
             Directory.CreateDirectory(installation.SamusBodyOverrideDirectory);
             foreach (string path in Directory.EnumerateFiles(source))
@@ -42,6 +44,7 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
                 SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
             EditedPngCount = SamusBodyArtworkCatalog.TopSetCount +
                 SamusBodyArtworkCatalog.BottomSetCount + 2;
+            if (editLayout) SamusIsolationArtworkEdits.WriteBody(installation);
             Edited = installation.LoadSamusBodyArt();
             if (Stock.ContentIdentity == Edited.ContentIdentity)
                 throw new InvalidOperationException("PNG replacements did not change selected Samus content.");

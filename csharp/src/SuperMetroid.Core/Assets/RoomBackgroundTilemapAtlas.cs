@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -16,16 +17,8 @@ public sealed class RoomBackgroundTilemapAtlas
     {
         ArgumentNullException.ThrowIfNull(json);
         int pageCount = RoomBackgroundTilemapFormat.ValidatePageCount(expectedByteCount);
-        RoomBackgroundTilemapDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(json, JsonOptions)
-                ?? throw new InvalidDataException("Room background tilemap JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room background tilemap JSON.", error);
-        }
+        RoomBackgroundTilemapDocument document = JsonAssetDocument.Read<RoomBackgroundTilemapDocument>(
+            json, JsonOptions, "room background tilemap");
         if (document.Version != RoomBackgroundTilemapFormat.Version ||
             document.Pages is null || document.Pages.Length != pageCount)
             throw new InvalidDataException(
@@ -74,6 +67,7 @@ public sealed class RoomBackgroundTilemapAtlas
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
 }

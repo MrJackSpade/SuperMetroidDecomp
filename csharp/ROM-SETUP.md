@@ -709,6 +709,18 @@ each with 32×11 ordered cells. Copy a file to `overrides/enemy-tiles/` with
 the same name to edit its tile references. Each cell names `tileColumn`,
 `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Kraid's engine still
 owns frame selection and duration, growth, collision, and VRAM transfer timing.
+The head and body-map loaders reject unknown fields and duplicate properties,
+including differently cased aliases. Historical single-field casing remains
+readable. Priority is cleared only in the native copied body regions; the
+untouched lower-map tail retains its authored words before the final blank row.
+Head uploads target VRAM directly and do not replace the working body map used
+by later rise, growth and sink uploads.
+`--kraid-installed-presentation` checks all four head replacements through 599
+paired production ticks, exact frame holds, sound callbacks and physical mouth
+windows. It also checks installed body/head maps, backdrop pixels and the four
+HUD-restoration quarters against import-only stock data. Production paths receive
+RAM only. This is focused presentation/control acceptance, not a full boss battle
+or GPU-output comparison.
 The fixed backdrop characters revealed after growth or defeat are the
 `kraid-room-background.png` indexed sheet in the same directory. Its pixel
 indices, not the PNG's preview colors, become 4-bpp VRAM characters. Copy it
@@ -746,8 +758,13 @@ Each file contains one or two ordered 32x32 pages of 8x8 tile references with
 `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Copy a file
 to `overrides/room-backgrounds/` under the same name to edit it, then restart.
 The library-background command sequence, WRAM staging, VRAM transfer order and
-door conditions remain engine behavior, not editable data. These files cover
-the 58 compressed room BG tilemaps. Seven contiguous scrolling-sky pages are
+door conditions remain engine behavior, not editable data. The shared tilemap
+loaders reject unknown fields, duplicate/case-aliased
+properties, invalid dimensions and invalid cells explicitly.
+`--tilemap-json-contracts` verifies exact one/two-page and Kraid-head word
+roundtrips, historical casing and 44 malformed-document rejections.
+The installed library files cover the 58 compressed room BG tilemaps.
+Seven contiguous scrolling-sky pages are
 installed alongside them as `scrolling-sky-*.json`; copies under
 `overrides/room-backgrounds/` change both door-selected and per-frame sky rows.
 All 68 retail library-background command lists, including Landing Site's six

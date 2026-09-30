@@ -23,11 +23,8 @@ internal static partial class Program
                 KraidBackgroundRomData.DecompressedTilemapBytes)),
             "installed Kraid lower BG2 tile references preserve source words");
 
-        KraidEnemyState native = BuildKraidWorkingMap(rom, null);
-        var guard = new KraidCompressedSourceGuard(rom);
-        KraidEnemyState installed = BuildKraidWorkingMap(guard, stock);
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed Kraid BG2 construction does not decompress either ROM source");
+        KraidEnemyState native = ReadImportedKraidWorkingMap(rom);
+        KraidEnemyState installed = BuildKraidWorkingMap(stock);
         AssertTrue(installed.BackgroundTilemapWords.SequenceEqual(native.BackgroundTilemapWords),
             "installed Kraid BG2 construction preserves all native working words");
         AssertEqual(native.BackgroundTilemapsPrepared, installed.BackgroundTilemapsPrepared,
@@ -55,7 +52,7 @@ internal static partial class Program
             RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages },
                 KraidBackgroundRomData.DecompressedTilemapBytes);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        KraidEnemyState changed = BuildKraidWorkingMap(new KraidCompressedSourceGuard(rom), edited);
+        KraidEnemyState changed = BuildKraidWorkingMap(edited);
         AssertEqual((ushort)(native.BackgroundTilemapWords[0] ^ 1),
             changed.BackgroundTilemapWords[0],
             "edited Kraid BG2 reference changes the visible working-map cell");
@@ -66,8 +63,7 @@ internal static partial class Program
         AssertEqual((byte)(nativeVram.ReadByte(KraidBackgroundRomData.LiveBg2TilemapWord * 2) ^ 1),
             editedVram.ReadByte(KraidBackgroundRomData.LiveBg2TilemapWord * 2),
             "edited Kraid BG2 reference changes the transferred VRAM tile word");
-        AssertTrue(BuildKraidWorkingMap(new KraidCompressedSourceGuard(rom),
-                EnemyTileArtworkFiles.Load(directory, overrides))
+        AssertTrue(BuildKraidWorkingMap(EnemyTileArtworkFiles.Load(directory, overrides))
             .BackgroundTilemapWords.SequenceEqual(changed.BackgroundTilemapWords),
             "Kraid BG2 override survives catalog reload");
 
@@ -98,13 +94,8 @@ internal static partial class Program
                 AssertEqual((ushort)(native[word * 2] | native[word * 2 + 1] << 8),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
 
-            (KraidEnemyState baseline, SnesVram nativeVram) = RunKraidHeadFrame(rom, null,
-                pointer);
-            var guard = new KraidCompressedSourceGuard(rom);
-            (KraidEnemyState selected, SnesVram installedVram) = RunKraidHeadFrame(
-                guard, stock, pointer);
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                $"Kraid head ${pointer:X4} production transfer avoids ROM artwork");
+            (KraidEnemyState baseline, SnesVram nativeVram) = ReadImportedKraidHeadFrame(rom, pointer);
+            (KraidEnemyState selected, SnesVram installedVram) = RunKraidHeadFrame(stock, pointer);
             AssertTrue(selected.BackgroundTilemapWords.SequenceEqual(
                     baseline.BackgroundTilemapWords),
                 $"Kraid head ${pointer:X4} preserves the live working map");
@@ -133,11 +124,8 @@ internal static partial class Program
                 WriteIndented = true,
             }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        var editedGuard = new KraidCompressedSourceGuard(rom);
-        (_, SnesVram changedVram) = RunKraidHeadFrame(editedGuard, edited, editedPointer);
-        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
-            "edited Kraid head frame avoids cartridge art reads");
-        (_, SnesVram stockVram) = RunKraidHeadFrame(rom, null, editedPointer);
+        (_, SnesVram changedVram) = RunKraidHeadFrame(edited, editedPointer);
+        (_, SnesVram stockVram) = ReadImportedKraidHeadFrame(rom, editedPointer);
         int address = KraidBackgroundRomData.LiveBg2TilemapWord * 2;
         AssertEqual((byte)(stockVram.ReadByte(address) ^ 1), changedVram.ReadByte(address),
             "edited Kraid head tile changes the first live VRAM reference");
@@ -145,7 +133,6 @@ internal static partial class Program
                 .SequenceEqual(changedVram.Bytes[(address + 1)..]),
             "Kraid head edit leaves all later VRAM bytes unchanged");
         (_, SnesVram reloadedVram) = RunKraidHeadFrame(
-            new KraidCompressedSourceGuard(rom),
             EnemyTileArtworkFiles.Load(directory, overrides), editedPointer);
         AssertTrue(reloadedVram.Bytes.SequenceEqual(changedVram.Bytes),
             "Kraid head tilemap edit survives a catalog reload");
@@ -177,21 +164,25 @@ internal static partial class Program
         AssertTrue(stock.HudTiles.Transfer.Span[..native.Length].SequenceEqual(native),
             "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
 
-        SnesVram baselineQueued = RunKraidBg3Restoration(rom, null, null, null,
-            useQueue: true);
-        SnesVram baselineDirect = RunKraidBg3Restoration(rom, null, null, null,
-            useQueue: false);
-        AssertTrue(baselineDirect.Bytes.SequenceEqual(baselineQueued.Bytes),
-            "native direct and NMI-queued Kraid BG3 restoration agree");
-        SnesVram installedQueued = RunKraidBg3Restoration(rom, enemyArtwork,
+        var baselineQueued = new SnesVram();
+        baselineQueued.LoadBytes(KraidBackgroundRomData.StandardBg3VramWord * 2, native);
+        SnesVram installedQueued = RunKraidBg3Restoration(enemyArtwork,
             stock.HudTiles, stock, useQueue: true);
-        SnesVram installedDirect = RunKraidBg3Restoration(rom, enemyArtwork,
+        SnesVram installedDirect = RunKraidBg3Restoration(enemyArtwork,
             stock.HudTiles, stock, useQueue: false);
         AssertTrue(installedQueued.Bytes.SequenceEqual(baselineQueued.Bytes),
             "installed NMI-queued Kraid BG3 restoration preserves native VRAM");
         AssertTrue(installedDirect.Bytes.SequenceEqual(baselineQueued.Bytes),
             "installed direct Kraid BG3 restoration preserves native VRAM");
-        var runtime = new SuperMetroidRuntime(rom) { MapPresentation = stock };
+        // These checks exercise asset binding/queue restoration, not starting colors.
+        // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
+        PaletteRgb5[] Colors(int count) => Enumerable.Range(0, count)
+            .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
+        GameplayBasePaletteCatalog initial = GameplayBasePaletteCatalog.Load(new EnemyIdentityFixture().Json(
+            new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
+                Colors(GameplayBasePaletteFormat.SpriteColorCount))));
+        var runtime = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(),
+            initialPaletteArt: initial) { MapPresentation = stock };
         runtime.Enemies.TileArtwork = enemyArtwork;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
@@ -203,7 +194,8 @@ internal static partial class Program
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
-        var restored = new SuperMetroidRuntime(rom);
+        var restored = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(),
+            initialPaletteArt: initial);
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             restored.VramWrites.Enqueue(
@@ -219,7 +211,7 @@ internal static partial class Program
                 restored.VramWrites.Entries[quarter].AssetId,
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
         restored.VramWrites.DrainTo(restored.Vram,
-            ReferenceMutableMemory.From(new KraidCompressedSourceGuard(rom)), restored);
+            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), restored);
         AssertTrue(restored.Vram.Bytes.SequenceEqual(baselineQueued.Bytes),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
@@ -234,7 +226,7 @@ internal static partial class Program
             IndexedPng.Write(output, image.Width, image.Height,
                 image.Pixels, image.Palette);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
-        SnesVram changed = RunKraidBg3Restoration(rom, enemyArtwork,
+        SnesVram changed = RunKraidBg3Restoration(enemyArtwork,
             edited.HudTiles, edited, useQueue: true);
         int destination = KraidBackgroundRomData.StandardBg3VramWord * sizeof(ushort);
         AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
@@ -244,39 +236,26 @@ internal static partial class Program
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
         AreaMapPresentationCatalog reloaded = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
-        AssertTrue(RunKraidBg3Restoration(rom, enemyArtwork,
+        AssertTrue(RunKraidBg3Restoration(enemyArtwork,
                 reloaded.HudTiles, reloaded, useQueue: true)
             .Bytes.SequenceEqual(changed.Bytes),
             "Kraid BG3 uses the current HUD PNG override after catalog reload");
     }
 
     private static SnesVram RunKraidBg3Restoration(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom,
-        EnemyTileArtworkCatalog? enemyArtwork,
-        HudTileAtlas? hud,
-        AreaMapPresentationCatalog? map,
+        EnemyTileArtworkCatalog enemyArtwork,
+        HudTileAtlas hud,
+        AreaMapPresentationCatalog map,
         bool useQueue)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = enemyArtwork is null ? null : new KraidCompressedSourceGuard(rom);
-        ISnesAddressSpace bus = guard is null ? rom : guard;
+        var bus = SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem
         {
             TileArtwork = enemyArtwork,
             HudTileArtwork = hud,
         };
         var vram = new SnesVram();
-        if (enemyArtwork is null)
-        {
-            // The expected image is import-only. Core no longer implements the
-            // old missing-artwork DMA path, even for diagnostic callers.
-            for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
-                ImportedVramOracle.ExecuteQueued(vram, rom,
-                    KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
-                    KraidBackgroundRomData.StandardBg3TransferBytes,
-                    (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3TransferBytes / 2));
-            return vram;
-        }
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         var transfer = typeof(RoomEnemySystem)
@@ -295,17 +274,14 @@ internal static partial class Program
             {
                 AssertEqual(1, queue.Entries.Count,
                     $"Kraid BG3 quarter {quarter} produces one native NMI record");
-                if (enemyArtwork is not null)
-                    AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
-                        queue.Entries[0].AssetId,
-                        $"Kraid BG3 quarter {quarter} queues installed art");
-                queue.DrainTo(vram, ReferenceMutableMemory.From(bus), map);
+                AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
+                    queue.Entries[0].AssetId,
+                    $"Kraid BG3 quarter {quarter} queues installed art");
+                queue.DrainTo(vram, bus, map);
             }
             AssertEqual(quarter + 1, state.DeathBg3TransferCount,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
         }
-        AssertEqual(0, guard?.ForbiddenReadAttempts ?? 0,
-            "installed Kraid BG3 restore never reads the source ROM characters");
         return vram;
     }
 
@@ -317,11 +293,9 @@ internal static partial class Program
             KraidBackgroundRomData.RoomBackgroundTileBytes);
         AssertTrue(stock.KraidBackground!.RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
             "installed Kraid room-background PNG preserves native planar characters");
-        SnesVram baseline = UploadKraidRoomBackground(rom, null);
-        var guard = new KraidCompressedSourceGuard(rom);
-        SnesVram installed = UploadKraidRoomBackground(guard, stock);
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed Kraid room-background upload avoids ROM characters");
+        var baseline = new SnesVram();
+        baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);
+        SnesVram installed = UploadKraidRoomBackground(stock);
         AssertTrue(installed.Bytes.SequenceEqual(baseline.Bytes),
             "installed Kraid room-background upload preserves full native VRAM");
 
@@ -338,10 +312,7 @@ internal static partial class Program
             IndexedPng.Write(output, image.Width, image.Height,
                 image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        var editedGuard = new KraidCompressedSourceGuard(rom);
-        SnesVram changed = UploadKraidRoomBackground(editedGuard, edited);
-        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
-            "edited Kraid room-background PNG avoids ROM reads");
+        SnesVram changed = UploadKraidRoomBackground(edited);
         int destination = KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort);
         AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
             changed.ReadByte(destination),
@@ -349,8 +320,7 @@ internal static partial class Program
         AssertTrue(baseline.Bytes[(destination + 1)..]
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "Kraid backdrop PNG edit leaves later VRAM bytes unchanged");
-        SnesVram reloaded = UploadKraidRoomBackground(new KraidCompressedSourceGuard(rom),
-            EnemyTileArtworkFiles.Load(directory, overrides));
+        SnesVram reloaded = UploadKraidRoomBackground(EnemyTileArtworkFiles.Load(directory, overrides));
         AssertTrue(reloaded.Bytes.SequenceEqual(changed.Bytes),
             "Kraid room-background PNG override survives catalog reload");
 
@@ -363,21 +333,13 @@ internal static partial class Program
             "malformed Kraid room-background PNG override fails at load");
     }
 
-    private static SnesVram UploadKraidRoomBackground(
-        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork)
+    private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        if (artwork is null)
-        {
-            ImportedVramOracle.ExecuteQueued(vram, bus,
-                KraidBackgroundRomData.RoomBackgroundTileAddress,
-                KraidBackgroundRomData.RoomBackgroundTileBytes,
-                KraidBackgroundRomData.RoomBackgroundTileVramWord);
-            return vram;
-        }
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         var upload = typeof(RoomEnemySystem).GetMethod("UploadKraidRoomBackgroundTiles", flags)!
             .CreateDelegate<Action>(enemies);
@@ -386,12 +348,13 @@ internal static partial class Program
     }
 
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
-        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork, ushort pointer)
+        EnemyTileArtworkCatalog artwork, ushort pointer)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         var transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
             .CreateDelegate<Action<KraidEnemyState, ushort>>(enemies);
@@ -400,12 +363,12 @@ internal static partial class Program
         return (state, vram);
     }
 
-    private static KraidEnemyState BuildKraidWorkingMap(
-        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork)
+    private static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
         var initialize = typeof(RoomEnemySystem)
             .GetMethod("InitializeKraidBackground", flags)!
             .CreateDelegate<Action<KraidEnemyState>>(enemies);
@@ -431,38 +394,4 @@ internal static partial class Program
         return vram;
     }
 
-    private sealed class KraidCompressedSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        private static readonly ushort[] HeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
-            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
-            .Select(frame => frame.Tilemap).Distinct().ToArray();
-
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address == KraidBackgroundRomData.UpperTilemap ||
-                address == KraidBackgroundRomData.LowerTilemap ||
-                address is >= KraidBackgroundRomData.RoomBackgroundTileAddress and <
-                    KraidBackgroundRomData.RoomBackgroundTileAddress +
-                    KraidBackgroundRomData.RoomBackgroundTileBytes ||
-                address is >= KraidBackgroundRomData.StandardBg3TilesAddress and <
-                    KraidBackgroundRomData.StandardBg3TilesAddress +
-                    HudTileAtlasFormat.CharacterByteCount ||
-                HeadPointers.Any(pointer =>
-                        address >= (KraidBackgroundRomData.NativeBank | pointer) &&
-                        address < (KraidBackgroundRomData.NativeBank | pointer) +
-                            KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Kraid BG2 tried to decompress ROM source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

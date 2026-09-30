@@ -107,6 +107,16 @@ if (args is ["--boss-display-stock"])
     VerifyBossDisplayStock();
     return 0;
 }
+if (args is ["--tilemap-json-contracts"])
+{
+    VerifyTilemapJsonContracts();
+    return 0;
+}
+if (args is ["--kraid-installed-presentation"])
+{
+    VerifyKraidInstalledPresentation();
+    return 0;
+}
 if (args is ["--mother-brain-body-stock-presentation"])
 {
     VerifyMotherBrainBodyStockPresentation();

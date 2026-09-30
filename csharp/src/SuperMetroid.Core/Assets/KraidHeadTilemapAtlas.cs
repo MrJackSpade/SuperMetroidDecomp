@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -15,16 +16,8 @@ public sealed class KraidHeadTilemapAtlas
 
     public static KraidHeadTilemapAtlas Load(Stream json)
     {
-        KraidHeadTilemapDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<KraidHeadTilemapDocument>(json, JsonOptions)
-                ?? throw new InvalidDataException("Kraid head tilemap JSON is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Kraid head tilemap JSON.", error);
-        }
+        KraidHeadTilemapDocument document = JsonAssetDocument.Read<KraidHeadTilemapDocument>(
+            json, JsonOptions, "Kraid head tilemap");
         if (document.Version != KraidHeadTilemapFormat.Version ||
             document.Width != KraidHeadTilemapFormat.Width ||
             document.Height != KraidHeadTilemapFormat.Height ||
@@ -88,6 +81,7 @@ public sealed class KraidHeadTilemapAtlas
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
 }

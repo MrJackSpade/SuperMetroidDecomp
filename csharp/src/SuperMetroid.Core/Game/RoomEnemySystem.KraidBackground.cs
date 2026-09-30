@@ -30,16 +30,17 @@ public sealed partial class RoomEnemySystem
         // The lower stream is decompressed directly over `$7E:2000-$2FFF`, which is also
         // Kraid's working tilemap. `$A7:AB19` then copies only its first $600 bytes upward
         // to `$2800` before the upper stream replaces `$2000-$27FF`. The untouched
-        // `$2E00-$2FFF` tail therefore remains lower-stream data. Clearing the managed
-        // buffer first left those eight rows as tile word zero; once growth raised BG2 and
+        // `$2E00-$2FFF` tail therefore remains lower-stream data. Priority is cleared only
+        // in the copied regions, not that untouched tail. Clearing the managed buffer
+        // first left those eight rows as tile word zero; once growth raised BG2 and
         // enabled priority, character zero became a conspicuous repeated rectangle above
         // Kraid's head.
         for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
-            working[word] = WithoutKraidBg2Priority(ReadLittleEndianWord(lower, word));
+            working[word] = ReadLittleEndianWord(lower, word);
         for (int word = 0; word < KraidBackgroundRomData.LowerSourceCopyWords; word++)
         {
             working[KraidBackgroundRomData.WorkingLowerHalfWord + word] =
-                working[word];
+                WithoutKraidBg2Priority(working[word]);
         }
         for (int word = 0; word < KraidBackgroundRomData.VisiblePageWords; word++)
             working[word] = WithoutKraidBg2Priority(ReadLittleEndianWord(upper, word));
@@ -78,23 +79,27 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
     {
-        Span<ushort> working = state.BackgroundTilemapWords;
+        ReadOnlySpan<ushort> source;
         if (sourcePointer >= KraidBackgroundRomData.HeadRomWindowStart)
         {
             KraidBackgroundArtwork art = TileArtwork?.KraidBackground
                 ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
-            art.HeadWords(sourcePointer).CopyTo(working);
+            source = art.HeadWords(sourcePointer);
         }
         else
         {
-            // Native low-half pointers alias live WRAM/register state, not immutable
+            // Supported native low-half pointers alias live WRAM, not immutable
             // head art. Preserve that exceptional cartridge behavior exactly.
+            var alias = new ushort[KraidBackgroundRomData.HeadTilemapWords];
             int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
             for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
-                working[word] = SnesWorkRam.ReadWord(EnemyWorkMemory, sourceAddress + word * 2);
+                alias[word] = SnesWorkRam.ReadWord(EnemyWorkMemory, sourceAddress + word * 2);
+            source = alias;
         }
+        // $A7:AF5D queues this source directly to VRAM. Mirroring it into the
+        // body's WRAM map changes later growth/sink uploads and is not native behavior.
         _vram!.ExecuteWordTransfer(
-            working[..KraidBackgroundRomData.HeadTilemapWords],
+            source,
             KraidBackgroundRomData.LiveBg2TilemapWord,
             wordIncrement: 1);
         state.HeadTilemapUploadCount++;

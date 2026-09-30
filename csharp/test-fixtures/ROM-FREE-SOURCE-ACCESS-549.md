@@ -265,6 +265,38 @@ schema 26 retains its authored data and inherits the 56 new stock binding roots.
 Missing composition or selected BG2 catalogs fail before VRAM writes.
 
 Focused commands: `--boss-display-bindings`, `--boss-display-stock`.
+Kraid's installed-presentation fixture verifies all 2,048 working-map words,
+including the 224 untouched lower-tail words and final 32-word blank row. The
+constructed tail assertion failed before correcting the overly broad priority
+clear at word 1,792 (expected 9,984, got 1,792); pinned `$A7:AB19` clears priority
+only in the copied region. The import-only oracle independently constructs the
+expected map and decodes all four head images and 91 control words. Production
+construction, head transfer, backdrop uploads and direct/queued HUD restoration
+receive only mutable memory and mandatory installed artwork; the obsolete
+missing-art/ROM fallback test baselines and permissive read guards are removed.
+The head-transfer assertion also failed before removing a nonnative write into
+the body working map: `$A7:AF5D` queues head art directly to VRAM. Head admission
+now leaves that source map untouched, so later growth/sink uploads cannot inherit
+the head image. This correction applies to installed and live-WRAM head sources.
+
+Four authored head replacements retain all compiled physical selectors,
+durations, mouth hitbox pointers and sound callbacks over 599 paired production
+ticks, 21 exact admissions, three sound events and 96,360 actual mouth-collision
+samples. Every hold/termination tick checks the complete VRAM image for unwanted
+uploads and verifies the body map is unchanged. The low-half alias fixture checks
+the exact live-WRAM-to-VRAM words and that source RAM also remains unchanged.
+All seven body/head/backdrop files reject omission in both stock validation and
+installation loading. Installed overrides retain their exact selected identity
+after reload; stock hash tampering and malformed overrides fail. This is head-program and
+transfer acceptance, not complete Kraid AI/progression or GPU-output parity.
+
+The shared room-background and Kraid-head JSON loaders now reject unknown and
+duplicate/case-aliased fields before compiling tile words, while retaining
+historical unambiguous casing. The unknown-field rejection assertion failed
+before the production fix. Exact bit/page-order roundtrips and all 44 invalid
+documents pass through the real loaders.
+
+Focused commands: `--kraid-installed-presentation`, `--tilemap-json-contracts`.
 These fixtures do not newly verify every other BG2 boss, other corpse family,
 GPU output, full battle progression or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.

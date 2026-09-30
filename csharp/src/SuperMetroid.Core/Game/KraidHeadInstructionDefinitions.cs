@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Compiled control metadata for Kraid's private bank-$A7 head programs. The selected
-/// tilemaps remain cartridge presentation assets; durations, collision-shape selection,
+/// tilemaps come from installed presentation assets; durations, collision-shape selection,
 /// sound callbacks, and program flow are immutable gameplay definitions.
 /// </summary>
 internal static class KraidHeadInstructionDefinitions

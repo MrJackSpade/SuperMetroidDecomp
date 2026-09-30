@@ -39,6 +39,10 @@ internal static class TitleSpriteExtractor
             }
         }
 
+        if (!pointers.SetEquals(TitleSpriteDefinitions.NativePointers.ToArray()))
+            throw new InvalidDataException(
+                "Imported title selectors do not match the compiled title artwork identities.");
+
         return pointers.Order().Select(pointer => new TitleSpriteFrame
         {
             Pointer = pointer,

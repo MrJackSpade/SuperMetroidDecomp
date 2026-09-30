@@ -149,6 +149,14 @@ public sealed class TitleGraphicsPresentation
             if (!result.TryAdd(checked((ushort)frame.Pointer), new SpriteComposition(parts)))
                 throw new InvalidDataException($"Duplicate title frame $8C:{frame.Pointer:X4}.");
         }
+        // A correctly sized document can still replace a required selector with an
+        // unrelated identity. Validate the engine's whole selection set now, before
+        // any title frame runs, rather than failing later in DrawSprite.
+        foreach (ushort pointer in TitleSpriteDefinitions.NativePointers)
+            if (!result.ContainsKey(pointer))
+                throw new InvalidDataException(
+                    $"Title composition is missing required frame $8C:{pointer:X4}; " +
+                    "keep the compiled frame identities when editing visual parts.");
         return result;
     }
 }

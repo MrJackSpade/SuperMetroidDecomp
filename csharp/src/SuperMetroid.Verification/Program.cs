@@ -29,6 +29,11 @@ try
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--title-artwork-references"])
+{
+    VerifyTitleArtworkReferences();
+    return 0;
+}
 if (args is ["--room-content-identity"])
 {
     VerifyRoomContentIdentity();

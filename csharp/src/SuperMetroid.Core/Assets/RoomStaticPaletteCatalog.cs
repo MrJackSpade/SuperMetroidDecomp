@@ -18,7 +18,12 @@ public sealed class RoomStaticPaletteCatalog
                     $"Room palette catalog lacks graphics set ${graphicsSet:X2} source ${source:X6}.");
         }
         this.bySource = new Dictionary<int, RoomStaticPalette>(bySource);
+        ContentIdentity = SelectedPresentationHash.FromTransfers(
+            nameof(RoomStaticPaletteCatalog), this.bySource, palette => palette.Transfer);
     }
+
+    /// <summary>SHA-256 of the selected, decoded room colors in stable source order.</summary>
+    public string ContentIdentity { get; }
 
     public RoomStaticPalette Get(int sourceAddress) =>
         bySource.TryGetValue(sourceAddress, out RoomStaticPalette? palette)

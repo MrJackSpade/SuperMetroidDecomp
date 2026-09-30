@@ -23,9 +23,14 @@ public sealed class RoomCharacterAtlasCatalog
                     $"Room character catalog lacks graphics set ${graphicsSet:X2} source ${source:X6}.");
         }
         this.bySource = new Dictionary<int, RoomCharacterAtlas>(bySource);
+        ContentIdentity = SelectedPresentationHash.FromTransfers(
+            nameof(RoomCharacterAtlasCatalog), this.bySource, atlas => atlas.Transfer, Cre.Transfer);
     }
 
     public RoomCharacterAtlas Cre { get; }
+
+    /// <summary>SHA-256 of every selected character transfer, including CRE and shared sheets.</summary>
+    public string ContentIdentity { get; }
 
     /// <summary>Resolves an already-compiled room sheet by its native source identity.</summary>
     public RoomCharacterAtlas Get(int sourceAddress)

@@ -37,6 +37,7 @@ This audit supersedes the strategy in the archived room census. It records the
 | Embedded Core resources | Exactly `SuperMetroid.defaults.ini` and the bounded room-level corpus. No raw ROM or bank image is embedded. |
 | Desktop / Android startup | `GameAssetInstaller.OpenOrRepair` first validates extracted content without opening ROM. Only incomplete installs call `EnsureInstalled`; explicit import uses `Install`. `GameInstallation.OpenRuntimeAddressSpace` validates extracted content and returns mutable-memory-only state. Hosts do not acquire a cartridge reader. |
 | Import repair / reference diagnostics | AssetExtraction may open the user's image to create/repair resources. Verifier/debug oracles use that explicit import capability outside Core; it is never reintroduced to make gameplay compile. |
+| Legacy debugger cartridge payload | State import recognizes the exact retired address-space `_rom` field and drains its bounded payload through AssetExtraction without allocating or retaining a ROM image. Retired graph aliases reject; restored state contains only WRAM/SRAM. |
 
 The source audit includes direct readers, byte/word/long wrappers, indirect CPU
 helpers, DMA/VRAM providers, decompression, embedded resources, file APIs, reflection
@@ -77,6 +78,20 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   no-dialog policy before fallible work. The Windows verifier catches initialization
   and message-loop failures as well as its asynchronous body. A deliberate startup
   exception verifies actual Win32 error-mode flags, full stderr stack and exit code 1.
+- Room-content identity: six selected, decoded domains (characters and CRE, palettes,
+  metatiles and CRE, library backgrounds, scrolling skies and room layouts) participate
+  in the aggregate. Focused authored fixtures verify insertion-order independence,
+  isolated edits, immutable selection snapshots and domain-specific drift warnings.
+- Artifact headers: recordings retain versions one/two and add a bounded named-component
+  table in version three. Debugger states retain older envelopes and add the same table
+  in version five. Missing legacy fingerprints warn instead of blocking restoration;
+  malformed counts, names, hashes, duplicates and truncated data reject explicitly.
+- Legacy state import: an authored three-field address-space fixture preserves both
+  physical memory arrays while discarding its retired cartridge payload; references
+  to that discarded payload reject. The state audit restores schema-three/four
+  envelopes, both preserved #350/#353 captures, and 45 exact continuation frames
+  (pixels, PCM and acknowledgements). The save manager's missing typed SRAM alias
+  rebinds to its captured bus, without inventing or reopening cartridge state.
 
 These focused checks exercise known conversions. They are not a room playthrough
 or proof of visual/gameplay parity for every event.
@@ -84,8 +99,8 @@ or proof of visual/gameplay parity for every event.
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
-   compiled Core build, selected audio, maps and projectiles. Other selected room,
-   enemy, Samus, HUD/cinematic/ending and PLM presentation domains must participate
+   compiled Core build, selected audio, maps, projectiles and the six room-art domains
+   above. Other selected enemy, Samus, cinematic/ending and PLM presentation domains must participate
    before it represents the complete installation.
 2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
    Windows real-host and portable Android-host acceptance passed as recorded above;

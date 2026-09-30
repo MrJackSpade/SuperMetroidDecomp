@@ -352,13 +352,17 @@ public sealed partial class PlayableGameControl : UserControl
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
-            projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."));
+            projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."),
+            RoomPresentationIdentity.Create(roomCharacterArt, roomPaletteArt, roomMetatileArt,
+                roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +
             $"audio={installedContentIdentity.AudioContentSha256}, " +
             $"maps={installedContentIdentity.MapContentSha256}, " +
             $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
+        foreach ((string domain, string digest) in installedContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
+            Console.WriteLine($"Installed content component: {domain}={digest}.");
         if (replay is not null)
             ReportReplayContentCompatibility();
         stateStore = CreateStateStore();

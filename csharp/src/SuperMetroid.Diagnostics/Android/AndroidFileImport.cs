@@ -14,7 +14,11 @@ internal static class AndroidFileImport
         var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
             installation.LoadAudio(),
             installation.LoadMaps(),
-            installation.LoadProjectiles());
+            installation.LoadProjectiles(),
+            SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(
+                installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
+                installation.LoadRoomMetatiles(), installation.LoadRoomBackgroundTilemaps(),
+                installation.LoadRoomSkyTilemaps(), installation.LoadRoomVisualLayouts()));
         return ImportStateCore(
             root,
             source,

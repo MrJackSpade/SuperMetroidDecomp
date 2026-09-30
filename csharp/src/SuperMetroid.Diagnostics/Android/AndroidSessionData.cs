@@ -181,12 +181,16 @@ internal sealed class AndroidSessionData : IDisposable
             ? installation.LoadAudio()
             : ExtractedAudioAssetCatalog.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
-            assets, maps, projectiles);
+            assets, maps, projectiles,
+            SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(roomCharacters, roomPalettes,
+                roomMetatiles, roomBackgroundTilemaps, roomSkyTilemaps, roomVisualLayouts));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +
             $"audio={ContentIdentity.AudioContentSha256}, maps={ContentIdentity.MapContentSha256}, " +
             $"projectiles={ContentIdentity.ProjectileContentSha256}.");
+        foreach ((string domain, string digest) in ContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
+            Console.WriteLine($"Installed content component: {domain}={digest}.");
         Audio = new CartridgeAudioRenderer(assets);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,

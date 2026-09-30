@@ -10,7 +10,10 @@ internal static class ControllerInputRecordingFormat
     public const uint LegacyFormatVersion = 1;
 
     /// <summary>Recording format which adds installed-content identity.</summary>
-    public const uint CurrentFormatVersion = 2;
+    public const uint IdentifiedFormatVersion = 2;
+
+    /// <summary>Recording format adding a bounded named-catalog table after the fixed header.</summary>
+    public const uint CurrentFormatVersion = 3;
 
     /// <summary>Byte length of every SHA-256 digest stored by the format.</summary>
     public const int DigestByteCount = 32;

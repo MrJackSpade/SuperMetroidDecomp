@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -56,7 +58,21 @@ public sealed class RoomVisualLayoutCatalog
     {
         ArgumentNullException.ThrowIfNull(layouts);
         this.layouts = new Dictionary<int, RoomVisualLayout>(layouts);
+        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomVisualLayoutCatalog), content =>
+        {
+            foreach ((int source, RoomVisualLayout layout) in this.layouts.OrderBy(pair => pair.Key))
+            {
+                content.Append("source", source);
+                content.Append("width", layout.WidthInBlocks);
+                content.Append("height", layout.HeightInBlocks);
+                content.AppendWords("foreground", layout.ForegroundVisualWords.Span);
+                content.AppendWords("background", layout.BackgroundVisualWords.Span);
+            }
+        });
     }
+
+    /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>
+    public string ContentIdentity { get; }
 
     public RoomVisualLayout Get(int sourceAddress) =>
         layouts.TryGetValue(sourceAddress, out RoomVisualLayout? layout)

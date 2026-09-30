@@ -19,26 +19,30 @@ public static class DebuggerSaveStateSmokeTest
     {
         string fullRomPath = Path.GetFullPath(romPath);
         CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
-        using var audio = new SpcAudioEngine();
-        for (int frame = 0; frame < 90; frame++)
-        {
-            FrontendFrame current = game.Step(0);
-            audio.RenderFrame(current.AudioCommands);
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
-        }
-
         string temporaryDirectory = Path.Combine(
             Path.GetTempPath(),
             $"SuperMetroid-state-audit-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temporaryDirectory);
         try
         {
+            GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
+                Path.Combine(temporaryDirectory, "installed"));
+            var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
+            var maps = installation.LoadMaps();
+            game.BindMapPresentation(maps);
+            using var audio = new SpcAudioEngine(installation.AudioDirectory);
+            for (int frame = 0; frame < 90; frame++)
+            {
+                FrontendFrame current = game.Step(0);
+                audio.RenderFrame(current.AudioCommands);
+                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            }
             GameContentIdentity contentIdentity = GameContentIdentity.Create(
                 new string('A', 64),
                 new string('B', 64),
                 new string('C', 64),
-                Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"));
+                Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"),
+                new Dictionary<string, string> { ["room-layouts"] = new string('E', 64) });
             var store = new DebuggerSaveStateStore(
                 fullRomPath,
                 bus.Rom,
@@ -57,6 +61,7 @@ public static class DebuggerSaveStateSmokeTest
                 directoryOverride: temporaryDirectory).Load(0);
             if (installedLoad.Warnings.Count != 0)
                 throw new InvalidDataException("Installer-verified debugger state identity did not match the retail source revision.");
+            VerifyNamedComponentStateCompatibility(store, saved.Path);
             VerifyInstalledRecorder(temporaryDirectory, bus.SaveRam, contentIdentity);
             // Change only the two build IDs: the exact graph must remain loadable and its
             // deterministic continuation below must still match, including PCM and pixels.
@@ -82,12 +87,16 @@ public static class DebuggerSaveStateSmokeTest
             DebuggerSaveStateLoadResult loaded = store.Load(0);
             if (loaded.Warnings.Count != 2)
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
+            // The real hosts rebind nonserialized installed catalogs after restoration.
+            // The audit must use that contract too, not an implicit cartridge fallback.
+            loaded.Game.BindMapPresentation(maps);
 
             GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
                 new string('D', 64),
                 contentIdentity.MapContentSha256,
                 contentIdentity.ProjectileContentSha256,
-                contentIdentity.CompiledDefinitionsBuildId);
+                contentIdentity.CompiledDefinitionsBuildId,
+                contentIdentity.AdditionalContentSha256);
             DebuggerSaveStateLoadResult changedAudio = new DebuggerSaveStateStore(
                 fullRomPath,
                 bus.Rom,
@@ -100,7 +109,7 @@ public static class DebuggerSaveStateSmokeTest
                     "Selected-audio drift did not supplement the two assembly-build warnings.");
             }
             using var restoredAudio = new SpcAudioEngine(
-                ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
+                installation.LoadAudio(),
                 loaded.AudioPlayer ?? throw new InvalidDataException("Restored state omitted managed audio."));
             if (loaded.Game.FrameNumber != saved.FrameNumber)
             {
@@ -158,8 +167,8 @@ public static class DebuggerSaveStateSmokeTest
             { schemaRejected = true; }
             if (!schemaRejected) throw new InvalidDataException("Unknown state schema was accepted.");
 
-            var legacyStore = new DebuggerSaveStateStore(fullRomPath, bus.Rom, temporaryDirectory);
-            legacyStore.Save(3, bus, game, audio.Player);
+            // Slot three's genuine legacy envelope was built from the same saved graph
+            // by VerifyNamedComponentStateCompatibility; new saves require an identity.
             DebuggerSaveStateLoadResult legacy = store.Load(3);
             if (legacy.Warnings.Count != 1 ||
                 !legacy.Warnings[0].Contains("no installed-content identity", StringComparison.Ordinal))
@@ -182,7 +191,7 @@ public static class DebuggerSaveStateSmokeTest
                 Console.WriteLine($"Loaded preserved named fixture {fixture.Item1}: room={preserved.Metadata.RoomPointer:X4}.");
             }
             Console.WriteLine(
-                "Debugger compatibility: schema-three migration, schema-four content/build " +
+                "Debugger compatibility: schema-three/four migration, schema-five named content/build " +
                 "warnings, exact continuation, ROM rejection and named delegates agree.");
 
             return new DebuggerSaveStateSmokeTestResult(
@@ -196,6 +205,45 @@ public static class DebuggerSaveStateSmokeTest
         {
             Directory.Delete(temporaryDirectory, recursive: true);
         }
+    }
+
+    /// <summary>
+    /// Strip only the new table to reconstruct a genuine schema-four envelope around the
+    /// unchanged graph. This proves old states remain loadable and missing identities warn.
+    /// </summary>
+    private static void VerifyNamedComponentStateCompatibility(DebuggerSaveStateStore store, string savedPath)
+    {
+        byte[] current = File.ReadAllBytes(savedPath);
+        int tableOffset = DebuggerStateFormat.Magic.Length + sizeof(int) +
+            2 * DebuggerStateFormat.GuidBytes + DebuggerStateFormat.DigestBytes +
+            sizeof(int) + DebuggerStateFormat.GuidBytes + 4 * DebuggerStateFormat.DigestBytes;
+        using var table = new MemoryStream(current, writable: false);
+        table.Position = tableOffset;
+        IReadOnlyDictionary<string, byte[]> components = GameContentComponentFormat.Read(table);
+        if (components.Count != 1 || !components.ContainsKey("room-layouts"))
+            throw new InvalidDataException("Schema-five state omitted the named room identity.");
+        int tableEnd = checked((int)table.Position);
+        var old = new byte[current.Length - (tableEnd - tableOffset)];
+        current.AsSpan(0, tableOffset).CopyTo(old);
+        current.AsSpan(tableEnd).CopyTo(old.AsSpan(tableOffset));
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
+            old.AsSpan(DebuggerStateFormat.Magic.Length), DebuggerStateFormat.IdentifiedVersion);
+        File.WriteAllBytes(store.GetSlotPath(4), old);
+        DebuggerSaveStateLoadResult restored = store.Load(4);
+        if (restored.Warnings.Count != 1 ||
+            !restored.Warnings[0].Contains("no room-layouts content identity", StringComparison.Ordinal))
+            throw new InvalidDataException("Schema-four state did not warn about its absent room identity.");
+        if (restored.Game.FrameNumber != store.Load(0).Game.FrameNumber)
+            throw new InvalidDataException("Schema-four migration shifted the state graph.");
+
+        int identityOffset = DebuggerStateFormat.Magic.Length + sizeof(int) +
+            2 * DebuggerStateFormat.GuidBytes + DebuggerStateFormat.DigestBytes;
+        var legacy = new byte[current.Length - (tableEnd - identityOffset)];
+        current.AsSpan(0, identityOffset).CopyTo(legacy);
+        current.AsSpan(tableEnd).CopyTo(legacy.AsSpan(identityOffset));
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
+            legacy.AsSpan(DebuggerStateFormat.Magic.Length), DebuggerStateFormat.NamedDelegateVersion);
+        File.WriteAllBytes(store.GetSlotPath(3), legacy);
     }
 
     private static void VerifyNamedDelegateRoundTrip()

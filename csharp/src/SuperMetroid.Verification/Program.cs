@@ -29,6 +29,11 @@ try
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--room-content-identity"])
+{
+    VerifyRoomContentIdentity();
+    return 0;
+}
 if (args is ["--wram-helper-boundary"])
 {
     VerifyWramHelperBoundary();

@@ -28,4 +28,11 @@ public sealed record GameContentIdentitySnapshot
 
     /// <summary>SHA-256 aggregate over source, build, and selected component identities.</summary>
     public required byte[] CompositeSha256 { get; init; }
+
+    /// <summary>
+    /// Named SHA-256 identities of further selected catalogs. Empty for older artifacts;
+    /// absent domains are reported as unknown rather than assumed compatible.
+    /// </summary>
+    public IReadOnlyDictionary<string, byte[]> AdditionalContentSha256 { get; init; } =
+        new Dictionary<string, byte[]>(StringComparer.Ordinal);
 }

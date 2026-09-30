@@ -94,6 +94,63 @@ internal static partial class Program
         AssertTrue(identity.CompositeSha256.SequenceEqual(actualIdentity.CompositeSha256),
             "input recording aggregate identity");
 
+        var components = new Dictionary<string, byte[]>(StringComparer.Ordinal)
+        {
+            ["room-layouts"] = Enumerable.Repeat((byte)0x55, 32).ToArray(),
+            ["room-characters"] = Enumerable.Repeat((byte)0x66, 32).ToArray(),
+        };
+        ControllerInputRecording expectedV3 = expected with
+        {
+            ContentIdentity = identity with { AdditionalContentSha256 = components },
+        };
+        using var v3Bytes = new MemoryStream();
+        expectedV3.Write(v3Bytes);
+        AssertEqual(3u, BinaryPrimitives.ReadUInt32LittleEndian(v3Bytes.ToArray().AsSpan(8)),
+            "named-catalog input recording uses version three");
+        v3Bytes.Position = 0;
+        ControllerInputRecording actualV3 = ControllerInputRecording.Read(v3Bytes);
+        foreach ((string domain, byte[] componentDigest) in components)
+            AssertTrue(componentDigest.SequenceEqual(actualV3.ContentIdentity!.AdditionalContentSha256[domain]),
+                $"recording preserves named {domain} identity");
+        AssertTrue(saveRam.SequenceEqual(actualV3.InitialSaveRam), "named-component table preserves SRAM alignment");
+        AssertTrue(inputs.SequenceEqual(actualV3.ControllerInputs), "named-component table preserves input alignment");
+
+        using var reorderedBytes = new MemoryStream();
+        (expectedV3 with
+        {
+            ContentIdentity = expectedV3.ContentIdentity! with
+            {
+                AdditionalContentSha256 = components.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value),
+            },
+        }).Write(reorderedBytes);
+        AssertTrue(v3Bytes.ToArray().SequenceEqual(reorderedBytes.ToArray()), "named table has canonical ordering");
+        byte[] damaged = v3Bytes.ToArray();
+        int tableOffset = ControllerInputRecordingFormat.CurrentHeaderByteCount;
+        BinaryPrimitives.WriteInt32LittleEndian(damaged.AsSpan(tableOffset), int.MaxValue);
+        AssertThrows<InvalidDataException>(() => ControllerInputRecording.Read(new MemoryStream(damaged)),
+            "named recording rejects unbounded component counts before allocation");
+        AssertThrows<EndOfStreamException>(
+            () => ControllerInputRecording.Read(new MemoryStream(v3Bytes.ToArray()[..(tableOffset + 10)])),
+            "named recording rejects a truncated component name");
+        AssertThrows<InvalidDataException>(() => GameContentComponentFormat.Write(new MemoryStream(),
+            new Dictionary<string, byte[]> { ["../path"] = new byte[32] }), "component names cannot be paths");
+        AssertThrows<InvalidDataException>(() => GameContentComponentFormat.Write(new MemoryStream(),
+            new Dictionary<string, byte[]> { ["room"] = new byte[31] }), "component hashes must be complete");
+        using var duplicateBytes = new MemoryStream();
+        using (var duplicateWriter = new BinaryWriter(duplicateBytes, System.Text.Encoding.ASCII, leaveOpen: true))
+        {
+            duplicateWriter.Write(2);
+            for (int index = 0; index < 2; index++)
+            {
+                duplicateWriter.Write(4);
+                duplicateWriter.Write("room"u8);
+                duplicateWriter.Write(new byte[32]);
+            }
+        }
+        duplicateBytes.Position = 0;
+        AssertThrows<InvalidDataException>(() => GameContentComponentFormat.Read(duplicateBytes),
+            "component reader rejects duplicate names");
+
         AssertThrows<InvalidDataException>(
             () => (expected with
             {
@@ -107,7 +164,7 @@ internal static partial class Program
             "input recording rejects a truncated version-two identity header");
 
         Console.WriteLine(
-            "  Controller input recording: v1 compatibility, v2 installed identity, " +
+            "  Controller input recording: v1/v2 compatibility, v3 named identities, " +
             "deterministic seed, words, and strict truncation guards pass.");
     }
 }

@@ -47,7 +47,9 @@ public sealed record ControllerInputRecording
 
         uint formatVersion = ContentIdentity is null
             ? ControllerInputRecordingFormat.LegacyFormatVersion
-            : ControllerInputRecordingFormat.CurrentFormatVersion;
+            : ContentIdentity.AdditionalContentSha256.Count == 0
+                ? ControllerInputRecordingFormat.IdentifiedFormatVersion
+                : ControllerInputRecordingFormat.CurrentFormatVersion;
         int headerByteCount = ContentIdentity is null
             ? ControllerInputRecordingFormat.LegacyHeaderByteCount
             : ControllerInputRecordingFormat.CurrentHeaderByteCount;
@@ -106,6 +108,8 @@ public sealed record ControllerInputRecording
                     ControllerInputRecordingFormat.CurrentHeaderByteCount]);
         }
         destination.Write(header);
+        if (formatVersion == ControllerInputRecordingFormat.CurrentFormatVersion)
+            GameContentComponentFormat.Write(destination, ContentIdentity!.AdditionalContentSha256);
         destination.Write(InitialSaveRam);
 
         Span<byte> word = stackalloc byte[sizeof(ushort)];
@@ -131,11 +135,12 @@ public sealed record ControllerInputRecording
         {
             ControllerInputRecordingFormat.LegacyFormatVersion =>
                 ControllerInputRecordingFormat.LegacyHeaderByteCount,
-            ControllerInputRecordingFormat.CurrentFormatVersion =>
+            ControllerInputRecordingFormat.IdentifiedFormatVersion or
+                ControllerInputRecordingFormat.CurrentFormatVersion =>
                 ControllerInputRecordingFormat.CurrentHeaderByteCount,
             _ => throw new InvalidDataException(
                 $"Controller recording version {version} is not supported " +
-                $"(expected {ControllerInputRecordingFormat.LegacyFormatVersion} or " +
+                $"(expected versions {ControllerInputRecordingFormat.LegacyFormatVersion} through " +
                 $"{ControllerInputRecordingFormat.CurrentFormatVersion})."),
         };
         Span<byte> header = stackalloc byte[headerByteCount];
@@ -143,7 +148,7 @@ public sealed record ControllerInputRecording
         source.ReadExactly(header[prefix.Length..]);
 
         GameContentIdentitySnapshot? contentIdentity = null;
-        if (version == ControllerInputRecordingFormat.CurrentFormatVersion)
+        if (version >= ControllerInputRecordingFormat.IdentifiedFormatVersion)
         {
             int identityVersion = BinaryPrimitives.ReadInt32LittleEndian(
                 header[ControllerInputRecordingFormat.ContentIdentityOffset..]);
@@ -164,6 +169,11 @@ public sealed record ControllerInputRecording
                 CompositeSha256 = header[ControllerInputRecordingFormat.CompositeDigestOffset..
                     ControllerInputRecordingFormat.CurrentHeaderByteCount].ToArray(),
             };
+            if (version == ControllerInputRecordingFormat.CurrentFormatVersion)
+                contentIdentity = contentIdentity with
+                {
+                    AdditionalContentSha256 = GameContentComponentFormat.Read(source),
+                };
         }
 
         byte optionFlags = header[20];
@@ -264,6 +274,7 @@ public sealed record ControllerInputRecording
             ValidateDigest(contentIdentity.MapContentSha256, "map");
             ValidateDigest(contentIdentity.ProjectileContentSha256, "projectile");
             ValidateDigest(contentIdentity.CompositeSha256, "composite");
+            GameContentComponentFormat.Validate(contentIdentity.AdditionalContentSha256);
         }
         if (InitialSaveRam.Length != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)
         {

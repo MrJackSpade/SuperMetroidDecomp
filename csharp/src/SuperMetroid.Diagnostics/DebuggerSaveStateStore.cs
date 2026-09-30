@@ -176,6 +176,7 @@ internal sealed class DebuggerSaveStateStore
         int version = reader.ReadInt32();
         if (version is not (
                 DebuggerStateFormat.CurrentVersion or
+                DebuggerStateFormat.IdentifiedVersion or
                 DebuggerStateFormat.NamedDelegateVersion or
                 DebuggerStateFormat.LegacyTokenVersion))
         {
@@ -195,8 +196,8 @@ internal sealed class DebuggerSaveStateStore
                 $"Debugger state slot {slot} was captured from a different ROM (SHA-256 mismatch).");
         }
 
-        GameContentIdentitySnapshot? storedContentIdentity = version == DebuggerStateFormat.CurrentVersion
-            ? ReadContentIdentity(reader)
+        GameContentIdentitySnapshot? storedContentIdentity = version >= DebuggerStateFormat.IdentifiedVersion
+            ? ReadContentIdentity(reader, version == DebuggerStateFormat.CurrentVersion)
             : null;
         if (contentIdentity is not null)
         {
@@ -289,9 +290,11 @@ internal sealed class DebuggerSaveStateStore
         WriteDigest(writer, identity.MapContentSha256, "map");
         WriteDigest(writer, identity.ProjectileContentSha256, "projectile");
         WriteDigest(writer, identity.CompositeSha256, "composite");
+        writer.Flush();
+        GameContentComponentFormat.Write(writer.BaseStream, identity.AdditionalContentSha256);
     }
 
-    private static GameContentIdentitySnapshot ReadContentIdentity(BinaryReader reader)
+    private static GameContentIdentitySnapshot ReadContentIdentity(BinaryReader reader, bool hasComponents)
     {
         int formatVersion = reader.ReadInt32();
         if (formatVersion <= 0)
@@ -305,6 +308,9 @@ internal sealed class DebuggerSaveStateStore
             MapContentSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "map content digest"),
             ProjectileContentSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "projectile content digest"),
             CompositeSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "composite content digest"),
+            AdditionalContentSha256 = hasComponents
+                ? GameContentComponentFormat.Read(reader.BaseStream)
+                : new Dictionary<string, byte[]>(StringComparer.Ordinal),
         };
     }
 

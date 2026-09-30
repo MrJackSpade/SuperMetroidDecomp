@@ -121,6 +121,38 @@ Run `dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release 
 and repeat with Debug. Native error boxes are disabled and managed exceptions go
 to stderr with exit code one. There is no interactive window or game launch.
 
+## Installed Samus artwork
+
+`--installed-samus-artwork <installation-root>` checks edited artwork through the
+production Samus upload and drawing paths. Supply an already-extracted installation
+containing `game/samus-body`. The checker copies only that presentation directory to
+an isolated temporary installation, writes 26 real PNG overrides, reloads them through
+the normal loader, and removes its own copy afterward. It does not open a ROM, call
+an importer, or change the player's installation, overrides, settings or saves.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --installed-samus-artwork <installation-root>
+```
+
+The replacement cycles every nonzero four-bit index while preserving transparent zero,
+palette metadata and unused cells. An independent pixel substitution oracle checks
+the precise change, not merely a different image or a successful render. Both hardware
+Direct3D11 and WARP then compare complete frames against the software renderer,
+including reuse of retained stock packets after replacement uploads.
+
+On the current extracted stock data, each backend passes 435 split body DMA definitions,
+253 initial pose draws, 12 queued cannon characters and five queued death uploads:
+2,115 full-frame comparisons and 272,007 recolored pixels. Pending transfer identities,
+split sizes, neighboring VRAM, OAM placement, pose, fixed-point motion, collision radii,
+health, hurt timers and animation counters are checked separately. Pending definition
+setters are used only by the fixture to construct the same state restored by a debugger
+snapshot; the actual upload and drawing routines are production code.
+
+This is finite presentation acceptance for those source-identified owners. It does not
+discover cartridge reads by playing the game, validate all Samus animation transitions,
+establish independent cartridge image parity, or complete the enemy/boss artwork and
+Android GPU acceptance requirements.
+
 ## Dependency and ownership review
 
 [Vortice 3.8.3](https://www.nuget.org/packages/Vortice.Direct3D11/3.8.3) provides

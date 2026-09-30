@@ -315,6 +315,32 @@ These fixtures do not newly verify every other BG2 boss, other corpse family,
 GPU output, full battle progression or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.
 
+## Samus disk artwork renderer acceptance
+
+The guarded RenderVerification command `--installed-samus-artwork <installation-root>`
+loads existing extracted Samus resources without opening a cartridge or invoking an
+importer. Its isolated copy contains 26 real edited PNGs: all 24 body atlases, the arm
+cannon atlas and death-explosion atlas. The regular installation loader selects those
+overrides before the real body DMA, queued NMI upload and pose drawing owners execute.
+
+Every one of the 435 split body definitions is exercised as a pending debugger-state
+transfer rebound to the replacement catalog. The fixture checks the exact whole VRAM
+image, split sizes and source identities. All 253 initial pose draws additionally check
+OAM placement, physical coordinates/subpositions/speeds, collision radii, health, hurt
+timers and animation counters. The twelve cannon and five death uploads keep their
+queued source, destination, length and queue-clearing behavior.
+
+The pixel oracle requires every visible nonzero index to receive its precise authored
+replacement; zero remains unchanged. Each stock, edited and retained-stock-after-edit
+packet also receives a complete software-versus-GPU RGBA comparison. Debug and Release
+pass on RTX 3090 hardware and WARP: 2,115 comparisons and 272,007 recolored pixels per
+backend/configuration. The fixture deletes only its own temporary extracted copy and
+does not modify any player data or publish artwork.
+
+This supplies GPU presentation evidence for those finite, statically identified paths,
+not discovery of remaining ROM reads or full gameplay/animation-transition acceptance.
+Other enemy/boss/cinematic paths and on-device Android acceptance remain separate gates.
+
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,

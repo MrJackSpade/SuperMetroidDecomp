@@ -72,7 +72,7 @@ public static partial class GameplayDisplayCapture
         bool closed = settingUp || restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
             : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition);
-        var layer = new XrayGameplayRenderLayer(gameplay,
+        var layer = new GameplayColorMathRenderLayer(gameplay,
             lines,
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);
         return new(memory, new RenderLayer[] { layer }, basis.ObjectSelection, basis.Brightness);

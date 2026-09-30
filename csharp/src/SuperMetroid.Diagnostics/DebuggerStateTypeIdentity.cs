@@ -16,6 +16,14 @@ internal static class DebuggerStateTypeIdentity
     public static Type? Resolve(string name)
     {
         string[] identity = name.Split(',', 3, StringSplitOptions.TrimEntries);
+        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
+            identity[0] == "SuperMetroid.Core.Rendering.XrayGameplayRenderLayer")
+        {
+            // This source-only rename leaves every field and the portable layer-16
+            // envelope unchanged. Resolve both the object and its declaring-field
+            // identity so historical graphs retain exact composition data.
+            return typeof(SuperMetroid.Core.Rendering.GameplayColorMathRenderLayer);
+        }
         if (identity.Length >= 2 && identity[0] == LegacyRootName && identity[1] == LegacyAssemblyName)
             return typeof(DebuggerSaveStateStore).Assembly.GetType(LegacyRootName, throwOnError: true);
         if (name == RoomLoadCallbacksIdentity ||

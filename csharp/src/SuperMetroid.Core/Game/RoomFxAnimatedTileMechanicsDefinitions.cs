@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Game;
 /// animated-tile objects in bank <c>$87</c>.
 /// </summary>
 /// <remarks>
-/// Frame source pointers deliberately are not stored here. They select replaceable
-/// character artwork and remain cartridge-backed presentation data. This catalog owns
+/// Frame source pointers deliberately are not stored here. They identify replaceable
+/// installed character artwork. This catalog owns
 /// only the instruction cursor, transfer geometry, duration, and loop control required
 /// to schedule that artwork.
 /// </remarks>
@@ -72,11 +72,17 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
                 new(0x82db, 0x000a),
                 new(0x82df, 0x000a),
             ]),
+        new(
+            AnimatedTileObjectPointers.Spores,
+            instructionPointer: 0x82ed,
+            transferByteCount: 0x0030,
+            encodedVramDestination: 0x4280,
+            [new(0x82ed, 10), new(0x82f1, 10), new(0x82f5, 10)]),
     ];
     private static readonly IReadOnlyList<RoomFxAnimatedTileObjectDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
-    /// <summary>The five simple retail objects translated by this owner.</summary>
+    /// <summary>The six simple retail objects translated by this owner.</summary>
     public static IReadOnlyList<RoomFxAnimatedTileObjectDefinition> All => ReadOnlyDefinitions;
 
     /// <summary>Resolves a bank-$87 object header selected by translated room setup.</summary>
@@ -180,6 +186,6 @@ public readonly record struct RoomFxAnimatedTileFrameDefinition(
     ushort InstructionPointer,
     ushort Duration)
 {
-    /// <summary>The cartridge-backed artwork pointer immediately after this control word.</summary>
+    /// <summary>Native artwork-operand identity immediately after this compiled control word.</summary>
     public ushort SourceOperandPointer => unchecked((ushort)(InstructionPointer + 2));
 }

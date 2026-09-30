@@ -40,7 +40,7 @@ internal static class XrayGameplayTests
                 | (half ? SnesColorMathControl.Half : 0) | (subtract ? SnesColorMathControl.Subtract : 0);
             var bg3 = sub ? new Bg2BppColorMathRenderLayer(0x5C00, 0x1000, 32, 32,
                 ExpandedColorMathOperation.Add, new BackgroundLineScroll[224]) : null;
-            var layer = new XrayGameplayRenderLayer(new(registers), lines, reveal, controls, true, 7, 7, 7, bg3);
+            var layer = new GameplayColorMathRenderLayer(new(registers), lines, reveal, controls, true, 7, 7, 7, bg3);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 0, 15);
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
@@ -80,7 +80,7 @@ internal static class XrayGameplayTests
             {
                 // Native Phantoon configuration adds BG2 to main BG1/eligible OBJ,
                 // without putting the body in the main-screen priority contest.
-                var additive = new XrayGameplayRenderLayer(new(registers with
+                var additive = new GameplayColorMathRenderLayer(new(registers with
                 {
                     MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
                 }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
@@ -108,7 +108,7 @@ internal static class XrayGameplayTests
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, SnesPpuLayout.GameplayBg1TilemapWord + 8 * 32 + 8, 1);
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, SnesPpuLayout.GameplayBg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new XrayGameplayRenderLayer(new(registers),
+                var dark = new GameplayColorMathRenderLayer(new(registers),
                     Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
                     SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract,
                     false, 18, 18, 18);
@@ -140,7 +140,7 @@ internal static class XrayGameplayTests
             var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new BackgroundLineScroll(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
-            var layer = new XrayGameplayRenderLayer(gameplay, lines, frame % 2 == 0, (SnesColorMathControl)random.Next(256),
+            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, (SnesColorMathControl)random.Next(256),
                 bg2Subscreen || frame % 3 != 0, (byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32),
                 bg2Subscreen ? null : bg3, bg2Subscreen);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, (byte)random.Next(256), (byte)(frame % 16));

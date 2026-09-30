@@ -4,20 +4,20 @@ using System.Buffers;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Source-aware reference for the native X-ray Mode-1/window/color-math configuration.</summary>
-public static class SoftwareXrayGameplayRenderer
+/// <summary>Source-aware reference for native Mode-1/window/color-math configurations.</summary>
+public static class SoftwareGameplayColorMathRenderer
 {
-    public static Rgba32[] Render(PpuMemorySnapshot snapshot, XrayGameplayRenderLayer layer, byte objectSelection)
+    public static Rgba32[] Render(PpuMemorySnapshot snapshot, GameplayColorMathRenderLayer layer, byte objectSelection)
         => Render(new SoftwarePpuSnapshotMemory(snapshot), layer, objectSelection, null);
 
-    internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, XrayGameplayRenderLayer layer,
+    internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[]? outputBuffer)
     {
         if (layer.Gameplay.Registers.MainScreenWindowMask != SnesMainScreenLayers.None)
-            throw new NotSupportedException("Combining captured hardware windows with X-ray composition is not translated.");
+            throw new NotSupportedException("Combining captured hardware windows with gameplay color math is not translated.");
         int count = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels;
         if (outputBuffer is not null && outputBuffer.Length != count)
-            throw new ArgumentException("Unexpected X-ray output dimensions.", nameof(outputBuffer));
+            throw new ArgumentException("Unexpected gameplay color-math output dimensions.", nameof(outputBuffer));
         var output = outputBuffer ?? new Rgba32[count];
         var objects = ArrayPool<Rgba32>.Shared.Rent(count);
         try
@@ -34,7 +34,7 @@ public static class SoftwareXrayGameplayRenderer
         finally { ArrayPool<Rgba32>.Shared.Return(objects); }
     }
 
-    private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, XrayGameplayRenderLayer layer,
+    private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
     {
         var r = layer.Gameplay.Registers;

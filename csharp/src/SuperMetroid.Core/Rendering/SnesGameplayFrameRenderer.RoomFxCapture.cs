@@ -14,6 +14,7 @@ public static partial class SnesGameplayFrameRenderer
             RoomFxType.Water => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            RoomFxType.Spores => LayerBlendingConfiguration.Spores,
             _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
         };
         if (fx.Type == RoomFxType.Water && fx.LayerBlendConfiguration is not
@@ -23,7 +24,7 @@ public static partial class SnesGameplayFrameRenderer
         if (fx.LayerBlendConfiguration != required) throw new InvalidDataException("Room FX has an incompatible layer-blending configuration.");
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && unchecked((short)fx.CurrentYPosition) < 0) return null;
-        bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog;
+        bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
         var scrolls = new BackgroundLineScroll[Height];
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int y = HudHeight; y < Height; y++)
@@ -41,5 +42,21 @@ public static partial class SnesGameplayFrameRenderer
             ((atmosphere ? RoomFxRomData.Layer3.FullScreenAtmosphereVerticalCoordinateMask : RoomFxRomData.Layer3.LiquidVerticalCoordinateMask) + 1)
                 / SnesPpuLayout.BackgroundTileSizePixels,
             HudHeight, subtract ? ExpandedColorMathOperation.Subtract : ExpandedColorMathOperation.Add, scrolls);
+    }
+
+    /// <summary>
+    /// FX $08 retains the winning main-screen source until color math. A post-frame
+    /// overlay would incorrectly brighten foreground terrain (and OBJ palettes 0-3).
+    /// Use the same literal Mode-1 composition as the other source-aware effects.
+    /// </summary>
+    public static GameplayColorMathRenderLayer CaptureSpores(OrdinaryGameplayRenderLayer gameplay,
+        RoomLayer3FxRenderSnapshot fx)
+    {
+        if (fx.Type != RoomFxType.Spores)
+            throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
+        var emptyWindows = new XrayWindowLine[Height];
+        Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
+        return new(gameplay, emptyWindows, false, (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources,
+            true, 0, 0, 0, CaptureRoomLayer3Fx(fx));
     }
 }

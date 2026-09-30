@@ -535,6 +535,55 @@ interference with Crystal Flash, Android pixel parity or whole-game acceptance.
 No tests were used to discover cartridge reads, and no Core ROM capability
 was added back.
 
+## Spore effect integration and editable artwork
+
+Static inspection found that FX type `$08` had an installed BG3 tilemap but
+neither a renderable owner nor its three animated character frames. Before
+the fix, the focused installed-content checker failed because the production
+owner returned no display capture. Pinned disassembly `362be646` identifies
+the ten-tick three-frame loop at `$87:82ED`, the 48-byte transfer to `$4280`,
+camera-anchored signed 8.8 scroll at `$88:DA47`, and CGADSUB `$32` at `$88:80AB`.
+
+The importer appends nine spores characters after the historical room-FX,
+treadmill and statue prefix. Importer and runtime share one ordered segment
+catalog. Core schedules installed frames using compiled control data; it
+does not read frame operands or artwork from a cartridge. Current stock map
+and installation format versions are 78 and 82. All three earlier override
+geometries preserve their edited prefix and inherit only absent tail pixels.
+
+The shared Mode-1 operation is now named `GameplayColorMathRenderLayer`,
+because X-ray, Phantoon, Fireflea and spores already use the same source-aware
+composition. Portable layer ID 16, its field layout and shader operation are
+unchanged. A narrow debugger identity alias loads the old X-ray-named object
+and declaring-field identities without changing its memory or composition.
+
+`SuperMetroid.RenderVerification --installed-spores <current-installation>
+<pre-spores-installation> <native-art-directory>` takes extracted installations
+and the three previously extracted `AnimatedTiles_Spores_*.bin` oracle files,
+not a ROM or a replay. Debug and Release each verify all four compiled spores
+records: 4,200 stock/edited control comparisons, 4,168 changed frame transfers,
+freeze/resume, signed accumulator wrap, camera changes, identical serialized
+control state, unchanged WRAM/SRAM, and no liquid/audio/quake side effects.
+The current atlas prefix and native three-frame art match byte-for-byte;
+all older sheet geometries and every statue alias remain valid.
+
+An independent 512-case integer pixel oracle covers BG1 exclusion, BG2 and
+backdrop addition, all OBJ palettes/priorities, and unchanged HUD pixels.
+Hardware and WARP each match 540 complete frame packets after serialization.
+The old debugger object/field identity restores the same pixels, and the
+existing 177-case source-aware X-ray and 176-window suites still pass per
+backend. Twelve missing, hash-corrupt, hash-valid malformed and bad-override
+cases preserve errors and identify the exact stock/override path. Bad data
+is retained; removing edits restores the stock content identity.
+
+Windows and Android Release builds pass. The real installation lifecycle
+checks 44 directories, 45 catalog loaders and 1,092 override files through
+ROM-unavailable startup, fresh host binding, repair and regeneration. All ten
+compile-only cartridge-boundary cases pass. This completes the source-selected
+spores defect and its file diagnostics, not every environmental effect or
+whole-game/platform acceptance gate. No tests discovered cartridge reads,
+no Core reader was restored, and no player files were changed.
+
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,

@@ -83,13 +83,13 @@ internal static partial class Program
                 $"object $87:{definition.ObjectPointer:X4} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(5, RoomFxAnimatedTileMechanicsDefinitions.All.Count,
+        AssertEqual(6, RoomFxAnimatedTileMechanicsDefinitions.All.Count,
             "simple room-FX animated-tile object count");
-        AssertEqual(23, frameCount, "simple room-FX animated-tile frame count");
-        AssertEqual(48, mechanicsWordCount,
+        AssertEqual(26, frameCount, "simple room-FX animated-tile frame count");
+        AssertEqual(56, mechanicsWordCount,
             "simple room-FX animated-tile compiled mechanics word count");
         Console.WriteLine(
-            "  Room-FX animated tiles: 48 control words and 23 artwork-source identities across 5 objects are compiled.");
+            "  Room-FX animated tiles: 56 control words and 26 artwork-source identities across 6 objects are compiled.");
     }
 
     private static void VerifyMechanicsWord(

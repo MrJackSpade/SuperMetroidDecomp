@@ -13,7 +13,7 @@ public static class SoftwareLayeredSnapshotRenderer
         // The fused ordinary/X-ray gameplay base owns and fills its output. Creating a
         // backdrop here first would immediately discard a native-sized large object
         // every frame. Other layer sequences still require the initialized backdrop.
-        bool ownsOutput = !snapshot.Layers.IsEmpty && snapshot.Layers[0] is OrdinaryGameplayRenderLayer or XrayGameplayRenderLayer;
+        bool ownsOutput = !snapshot.Layers.IsEmpty && snapshot.Layers[0] is OrdinaryGameplayRenderLayer or GameplayColorMathRenderLayer;
         Rgba32[] output = ownsOutput ? Array.Empty<Rgba32>() : SnesLayerCompositor.CreateBackdrop(memory.Cgram,
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, gameplayOutputBuffer);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
@@ -29,8 +29,8 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
-                case XrayGameplayRenderLayer gameplayXray:
-                    output = SoftwareXrayGameplayRenderer.Render(memory, gameplayXray, snapshot.ObjectSelection, gameplayOutputBuffer);
+                case GameplayColorMathRenderLayer gameplayXray:
+                    output = SoftwareGameplayColorMathRenderer.Render(memory, gameplayXray, snapshot.ObjectSelection, gameplayOutputBuffer);
                     break;
                 case XrayWindowRenderLayer xray:
                     Rgba32[] revealed = Render(xray.Reveal);

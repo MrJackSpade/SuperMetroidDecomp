@@ -48,7 +48,7 @@ internal static class PhantoonTransparencyAudit
                 if (opaque[i].R == 0 && opaque[i].G == 0 && opaque[i].B == 0 &&
                     (background[i].R != 0 || background[i].G != 0 || background[i].B != 0)) opaqueErased++;
             opaqueControlWorst = Math.Max(opaqueControlWorst, opaqueErased);
-            if (full.Layers[0] is XrayGameplayRenderLayer { SubscreenUsesBg2: true })
+            if (full.Layers[0] is GameplayColorMathRenderLayer { SubscreenUsesBg2: true })
             {
                 additiveFrames++;
                 bool contributes = false;

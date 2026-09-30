@@ -55,7 +55,7 @@ internal static class PhantoonHitFadeAudit
                 referenceLayers[0] = without;
                 var background = SoftwareLayeredSnapshotRenderer.Render(new(full.Memory, referenceLayers, full.ObjectSelection, full.Brightness));
                 var actual = SoftwareLayeredSnapshotRenderer.Render(full);
-                bool additive = full.Layers[0] is XrayGameplayRenderLayer { SubscreenUsesBg2: true };
+                bool additive = full.Layers[0] is GameplayColorMathRenderLayer { SubscreenUsesBg2: true };
                 int contributing = 0;
                 if (additive)
                 {

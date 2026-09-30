@@ -62,6 +62,12 @@ public static class AnimatedTileObjectPointers
     /// $88:C4B9. Its five-frame loop uploads $50 bytes to VRAM word $4280.
     /// </summary>
     public const ushort Rain = 0x82e7;
+
+    /// <summary>
+    /// <c>AnimatedTilesObject_Spores</c> at $87:82FD, spawned by FX type $08 at
+    /// $88:DA25. Three ten-tick frames upload $30 bytes to VRAM word $4280.
+    /// </summary>
+    public const ushort Spores = 0x82fd;
 }
 
 /// <summary>Named entry points within the translated Wrecked Ship instruction streams.</summary>

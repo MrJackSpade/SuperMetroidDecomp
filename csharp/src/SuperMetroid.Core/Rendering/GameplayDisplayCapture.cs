@@ -29,7 +29,15 @@ public static partial class GameplayDisplayCapture
             // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
             // color window replaces room liquid/fog blending while the beam owns HDMA.
             if (runtime.Enemies.MotherBrain?.RainbowBeamHdma.Active != true && runtime.DisplayedRoomLayer3Fx is { } fx)
-                AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
+            {
+                if (fx.Type == RoomFxType.Spores)
+                {
+                    if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+                        throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
+                    layers[0] = SnesGameplayFrameRenderer.CaptureSpores(ordinary, fx);
+                }
+                else AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
+            }
             if (runtime.CeresHaze.Enabled)
                 AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed,
                     runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends));

@@ -129,9 +129,9 @@ internal static partial class Program
         byte shade = (byte)(bus.ReadByte(0x74) & 31);
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         var ordinaryDarkness = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
-        AssertTrue(ordinaryDarkness.Layers[0] is XrayGameplayRenderLayer,
+        AssertTrue(ordinaryDarkness.Layers[0] is GameplayColorMathRenderLayer,
             "normal Fireflea display retains source identity for darkness subtraction");
-        var darkLayer = (XrayGameplayRenderLayer)ordinaryDarkness.Layers[0];
+        var darkLayer = (GameplayColorMathRenderLayer)ordinaryDarkness.Layers[0];
         AssertEqual((byte)0xA2, (byte)darkLayer.ColorMath,
             "normal Fireflea darkens BG2/backdrop, not foreground or Samus");
         AssertTrue(darkLayer.Lines.ToArray().All(line => line.Left > line.Right),
@@ -143,8 +143,8 @@ internal static partial class Program
         AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
-        AssertTrue(packet.Layers[0] is XrayGameplayRenderLayer, "Fireflea capture uses source-aware X-ray compositor");
-        var layer = (XrayGameplayRenderLayer)packet.Layers[0];
+        AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");
+        var layer = (GameplayColorMathRenderLayer)packet.Layers[0];
         AssertTrue(!layer.RevealBlocks && !layer.AddSubscreen, "Fireflea preserves room maps and uses fixed-color subtraction");
         AssertEqual((byte)0xB3, (byte)layer.ColorMath, "Fireflea native CGADSUB");
         AssertEqual(shade, layer.FixedRed, "Fireflea fixed red survives 90 frozen runtime frames");
@@ -153,7 +153,7 @@ internal static partial class Program
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
         var restored = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
-        AssertEqual((byte)0xA2, (byte)((XrayGameplayRenderLayer)restored.Layers[0]).ColorMath,
+        AssertEqual((byte)0xA2, (byte)((GameplayColorMathRenderLayer)restored.Layers[0]).ColorMath,
             "Fireflea teardown restores room subtraction rather than unblended rendering");
     }
 }

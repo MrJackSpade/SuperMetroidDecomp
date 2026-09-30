@@ -26,7 +26,7 @@ internal static partial class Program
         AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-        var actualDarkness = (XrayGameplayRenderLayer)GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers[0];
+        var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers[0];
         AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");
         var baseLayer = (OrdinaryGameplayRenderLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
@@ -39,7 +39,7 @@ internal static partial class Program
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
-            var layer = new XrayGameplayRenderLayer(objects, closed, false,
+            var layer = new GameplayColorMathRenderLayer(objects, closed, false,
                 actualDarkness.ColorMath, false, darkness, darkness, darkness);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, new RenderLayer[] { layer }, source.ObjectSelection, source.Brightness));
             bright ??= pixels;

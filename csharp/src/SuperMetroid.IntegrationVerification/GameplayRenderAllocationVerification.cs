@@ -38,7 +38,7 @@ internal static class GameplayRenderAllocationVerification
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
         var xray = new LayeredRenderSnapshot(memory,
-            [new XrayGameplayRenderLayer(new OrdinaryGameplayRenderLayer(registers),
+            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers),
                 Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true,
                 SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half,
                 false, 3, 7, 11)], 3, 15);

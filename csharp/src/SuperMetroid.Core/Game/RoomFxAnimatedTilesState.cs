@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Game;
 /// The simple looping bank-$87 animated-tile object spawned directly by a room-FX type.
 /// </summary>
 /// <remarks>
-/// Lava, acid, and rain do not obtain their visible characters from the room tileset.
-/// Their bank-$88 type initializer calls <c>SpawnAnimtiles</c> with one of three object
+/// Lava, acid, rain, and spores do not obtain their visible characters from the room tileset.
+/// Their bank-$88 type initializer calls <c>SpawnAnimtiles</c> with one of four object
 /// headers. Each header owns an instruction list, transfer size, and VRAM destination.
 /// Keeping this as an instruction-list owner matters: copying one convenient frame would
 /// make the first still image look plausible while discarding the cartridge's cadence and
@@ -41,6 +41,7 @@ internal sealed class RoomFxAnimatedTilesState
             RoomFxType.Lava => AnimatedTileObjectPointers.Lava,
             RoomFxType.Acid => AnimatedTileObjectPointers.Acid,
             RoomFxType.Rain => AnimatedTileObjectPointers.Rain,
+            RoomFxType.Spores => AnimatedTileObjectPointers.Spores,
             _ => 0,
         };
         LoadDefinition(bus, definition);
@@ -91,7 +92,7 @@ internal sealed class RoomFxAnimatedTilesState
         ushort cursor = instructionPointer;
         for (int guard = 0; guard < 32; guard++)
         {
-            ushort instructionOrDuration = ReadMechanicsWord(bus, cursor);
+            ushort instructionOrDuration = ReadMechanicsWord(cursor);
             if ((instructionOrDuration & 0x8000) == 0)
             {
                 if (instructionOrDuration == 0)
@@ -123,7 +124,7 @@ internal sealed class RoomFxAnimatedTilesState
                     return;
 
                 case AnimatedTileInstructionCodes.Goto:
-                    cursor = ReadMechanicsWord(bus, unchecked((ushort)(cursor + 2)));
+                    cursor = ReadMechanicsWord(unchecked((ushort)(cursor + 2)));
                     break;
 
                 default:
@@ -152,7 +153,7 @@ internal sealed class RoomFxAnimatedTilesState
         compiledMechanics = null;
     }
 
-    private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
+    private ushort ReadMechanicsWord(ushort pointer)
     {
         if (compiledMechanics is null)
             throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");

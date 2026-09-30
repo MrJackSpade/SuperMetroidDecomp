@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// timer loaded by <c>$89:AB82</c>. This owner retains those words even when that effect's
 /// renderer is not translated yet, allowing bank-$84 PLMs to make their native shared-state
 /// writes without inventing another representation for the corresponding bank-$88 state.
-/// The translated BG3 effects are lava, acid, water, Landing Site rain, and Climb fog.
+/// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 public sealed class RoomLayer3FxState
 {
@@ -95,7 +95,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
     public bool IsRenderable => Type is
-        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog;
+        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
     /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
     public ushort CurrentYPosition { get; private set; } = ushort.MaxValue;
@@ -284,6 +284,16 @@ public sealed class RoomLayer3FxState
             horizontalAccumulator = unchecked((ushort)(
                 horizontalAccumulator + horizontalVelocity));
             previousCameraX = cameraX;
+            return;
+        }
+
+        if (Type == RoomFxType.Spores)
+        {
+            // $88:DA47 samples each signed accumulator before adding its velocity.
+            // Unlike rain, spores are anchored to the current camera, not its delta.
+            VerticalScroll = unchecked((ushort)(cameraY + SignedHighByte(verticalAccumulator)));
+            verticalAccumulator = unchecked((ushort)(verticalAccumulator - RoomFxRomData.Spores.VerticalVelocity));
+            HorizontalScroll = unchecked((ushort)(cameraX + SignedHighByte(horizontalAccumulator)));
             return;
         }
 

@@ -363,22 +363,19 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
                     stock.MotherBrainRoomColors)), currentStock);
         }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain room colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        RoomFxAnimatedTileAtlas roomFxAnimatedTiles;
-        try
-        {
-            RoomFxAnimatedTileAtlas currentStock = RoomFxAnimatedTileAtlas.Load(
-                new MemoryStream(stock.RoomFxAnimatedTiles, writable: false));
-            roomFxAnimatedTiles = RoomFxAnimatedTileAtlas.Load(
-                new MemoryStream(Select(RoomFxAnimatedTileAtlasFormat.FileName,
-                    stock.RoomFxAnimatedTiles), writable: false), currentStock);
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room-FX animated-tile artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps;
-        try { roomFxLayer3Tilemaps = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(Select(RoomFxLayer3TilemapFormat.FileName, stock.RoomFxLayer3Tilemaps))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room-FX BG3 tilemaps in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        RoomFxPaletteBlendCatalog roomFxPaletteBlends;
-        try { roomFxPaletteBlends = RoomFxPaletteBlendCatalog.Load(new MemoryStream(Select(RoomFxPaletteBlendDefinitions.FileName, stock.RoomFxPaletteBlends))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room-FX blend palettes in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        RoomFxAnimatedTileAtlas currentRoomFxStock = CompileFxFile(
+            Path.Combine(stockDirectory, RoomFxAnimatedTileAtlasFormat.FileName),
+            stock.RoomFxAnimatedTiles, stream => RoomFxAnimatedTileAtlas.Load(stream));
+        RoomFxAnimatedTileAtlas roomFxAnimatedTiles = CompileFxFile(
+            SelectedPath(RoomFxAnimatedTileAtlasFormat.FileName),
+            Select(RoomFxAnimatedTileAtlasFormat.FileName, stock.RoomFxAnimatedTiles),
+            stream => RoomFxAnimatedTileAtlas.Load(stream, currentRoomFxStock));
+        RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = CompileFxFile(
+            SelectedPath(RoomFxLayer3TilemapFormat.FileName),
+            Select(RoomFxLayer3TilemapFormat.FileName, stock.RoomFxLayer3Tilemaps), RoomFxLayer3TilemapCatalog.Load);
+        RoomFxPaletteBlendCatalog roomFxPaletteBlends = CompileFxFile(
+            SelectedPath(RoomFxPaletteBlendDefinitions.FileName),
+            Select(RoomFxPaletteBlendDefinitions.FileName, stock.RoomFxPaletteBlends), RoomFxPaletteBlendCatalog.Load);
         PowerBombFixedColorCatalog powerBombFixedColors;
         try { powerBombFixedColors = PowerBombFixedColorCatalog.Load(new MemoryStream(Select(PowerBombFixedColorFormat.FileName, stock.PowerBombFixedColors))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Power Bomb fixed colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
@@ -422,6 +419,12 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         catalog.MotherBrainRoomColors = motherBrainRoomColors;
         return catalog;
 
+        string SelectedPath(string name)
+        {
+            string? edited = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
+            return Path.GetFullPath(edited is not null && File.Exists(edited) ? edited : Path.Combine(stockDirectory, name));
+        }
+
         byte[] Select(string name, byte[] baseline)
         {
             string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
@@ -441,6 +444,21 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
 
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
+
+    private static T CompileFxFile<T>(string path, byte[] bytes, Func<Stream, T> compile)
+    {
+        try
+        {
+            using var stream = new MemoryStream(bytes, writable: false);
+            return compile(stream);
+        }
+        catch (InvalidDataException error)
+        {
+            // Attribute both required stock and optional edits to the actual file,
+            // retaining the codec error instead of reporting only its directory.
+            throw new InvalidDataException($"Invalid room-FX presentation '{Path.GetFullPath(path)}': {error.Message}", error);
+        }
+    }
 
     private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack, byte[] SpriteJson, byte[] SpritePng, byte[] PauseTiles, byte[] PauseBackdrops, byte[] PauseWireframes, byte[] PauseSelectors, byte[] PauseReserveTanks, byte[] PauseReserveUi, byte[] PauseEquipmentBase, byte[] PauseEquipmentLabels, byte[] EscapeTimer, byte[] EscapeTimerTiles, byte[] GameplayHud, byte[] GameOver, byte[] GameOptions, byte[] FileSelect, byte[] GameplayMessageTitles, byte[] GameplayMessagePanels, byte[] GameplayMessageNotices, byte[] EscapeTypewriter, byte[] IntroNarration, byte[] IntroFont, byte[] EndingText, byte[] EndingFont, byte[] StaffCredits, byte[] TitleMode7Tiles, byte[] TitleMode7Map, byte[] TitleObjectTiles, byte[] TitleBabyTiles, byte[] TitlePalette, byte[] TitleGradient, byte[] RoomPaletteFx, byte[] MotherBrainHealthPalette, byte[] MotherBrainRainbowPalette, byte[] MotherBrainRoomColors, byte[] RoomFxAnimatedTiles, byte[] RoomFxLayer3Tilemaps, byte[] RoomFxPaletteBlends, byte[] PowerBombFixedColors, byte[] SamusVisorColors, byte[] SamusHurtColors, byte[] SamusHyperBeamColors) ReadVerifiedStock(string directory)
     {
@@ -569,11 +587,14 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         byte[] motherBrainRoomColors = ReadChecked(MotherBrainRoomColorFormat.FileName);
         _ = MotherBrainRoomColorPresentation.Load(new MemoryStream(motherBrainRoomColors));
         byte[] roomFxAnimatedTiles = ReadChecked(RoomFxAnimatedTileAtlasFormat.FileName);
-        _ = RoomFxAnimatedTileAtlas.Load(new MemoryStream(roomFxAnimatedTiles));
+        _ = CompileFxFile(Path.Combine(directory, RoomFxAnimatedTileAtlasFormat.FileName),
+            roomFxAnimatedTiles, stream => RoomFxAnimatedTileAtlas.Load(stream));
         byte[] roomFxLayer3Tilemaps = ReadChecked(RoomFxLayer3TilemapFormat.FileName);
-        _ = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(roomFxLayer3Tilemaps));
+        _ = CompileFxFile(Path.Combine(directory, RoomFxLayer3TilemapFormat.FileName),
+            roomFxLayer3Tilemaps, RoomFxLayer3TilemapCatalog.Load);
         byte[] roomFxPaletteBlends = ReadChecked(RoomFxPaletteBlendDefinitions.FileName);
-        _ = RoomFxPaletteBlendCatalog.Load(new MemoryStream(roomFxPaletteBlends));
+        _ = CompileFxFile(Path.Combine(directory, RoomFxPaletteBlendDefinitions.FileName),
+            roomFxPaletteBlends, RoomFxPaletteBlendCatalog.Load);
         byte[] powerBombFixedColors = ReadChecked(PowerBombFixedColorFormat.FileName);
         _ = PowerBombFixedColorCatalog.Load(new MemoryStream(powerBombFixedColors));
         byte[] samusVisorColors = ReadChecked(SamusVisorColorFormat.FileName);
@@ -602,7 +623,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
             byte[] bytes = File.ReadAllBytes(Path.Combine(directory, file));
             if (!string.Equals(expected, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock map {file} failed its SHA-256 check. Put edits in the overrides directory, not stock content.");
+                throw new InvalidDataException($"Stock map '{Path.GetFullPath(Path.Combine(directory, file))}' failed its SHA-256 check. Put edits in the overrides directory, not stock content.");
             return bytes;
         }
     }
@@ -618,7 +639,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 77;
+    public const int Version = 78;
     /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
     public const int SharedResourceCount = 61;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>

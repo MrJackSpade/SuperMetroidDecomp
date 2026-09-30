@@ -18,11 +18,12 @@ public enum SnesColorMathControl : byte
 }
 
 /// <summary>
-/// X-ray's Mode-1 window composition, retaining source identity until color math.
-/// Gameplay contains either the original BG2 registers or the reveal-map registers;
-/// memory belongs to the containing scene. This operation also owns the unchanged HUD.
+/// Mode-1 composition retaining the winning BG/OBJ source until CGADSUB color math.
+/// X-ray, Phantoon, Fireflea and spores share this native operation; an all-empty
+/// window applies math everywhere without revealing blocks. Memory belongs to the
+/// containing scene, and the fused operation also owns the unchanged HUD.
 /// </summary>
-public sealed record XrayGameplayRenderLayer : RenderLayer
+public sealed record GameplayColorMathRenderLayer : RenderLayer
 {
     private readonly XrayWindowLine[] lines;
     public OrdinaryGameplayRenderLayer Gameplay { get; }
@@ -37,7 +38,7 @@ public sealed record XrayGameplayRenderLayer : RenderLayer
     /// <summary>Select the gameplay BG2 plane as the color-math operand instead of a BG3 plane.</summary>
     public bool SubscreenUsesBg2 { get; }
 
-    public XrayGameplayRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines,
+    public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines,
         bool revealBlocks, SnesColorMathControl colorMath, bool addSubscreen,
         byte fixedRed, byte fixedGreen, byte fixedBlue, Bg2BppColorMathRenderLayer? subscreen = null,
         bool subscreenUsesBg2 = false)
@@ -46,7 +47,7 @@ public sealed record XrayGameplayRenderLayer : RenderLayer
         if (subscreenUsesBg2 && (subscreen is not null || !addSubscreen))
             throw new ArgumentException("BG2 subscreen requires subscreen arithmetic and cannot also select BG3.", nameof(subscreenUsesBg2));
         if (lines.Length != SnesPpuLayout.ScreenHeightPixels)
-            throw new ArgumentException("X-ray requires one interval for each physical scanline.", nameof(lines));
+            throw new ArgumentException("Gameplay color math requires one interval for each physical scanline.", nameof(lines));
         if (fixedRed > 31 || fixedGreen > 31 || fixedBlue > 31)
             throw new ArgumentOutOfRangeException(nameof(fixedRed), "COLDATA components must be five-bit values.");
         Gameplay = gameplay;

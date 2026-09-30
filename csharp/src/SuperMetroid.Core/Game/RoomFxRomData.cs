@@ -153,6 +153,15 @@ public static class RoomFxRomData
             [0xfa00, 0x0600, 0xfc00, 0x0400];
     }
 
+    /// <summary>FX type $08's literal scroll and source-blending operands.</summary>
+    public static class Spores
+    {
+        /// <summary>$88:DA73 adds $FFC0 to BG3's signed 8.8 Y accumulator.</summary>
+        public const ushort VerticalVelocity = 0x0040;
+        /// <summary>$88:80AB writes CGADSUB=$32: BG2, OBJ palettes 4-7 and backdrop, not BG1.</summary>
+        public const byte ColorMathSources = 0x32;
+    }
+
     /// <summary>Bank-$88 water-surface HDMA constants at <c>$88:C3FF-$C644</c>.</summary>
     public static class Water
     {

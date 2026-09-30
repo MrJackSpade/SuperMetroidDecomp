@@ -3,7 +3,7 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The cartridge's five simple bank-$87 room-FX animated-tile objects use contiguous
+/// The cartridge's six simple bank-$87 room-FX animated-tile objects use contiguous
 /// frame artwork within each object. These addresses identify visual bytes only;
 /// duration, loop control, transfer size and VRAM destination remain compiled in
 /// <see cref="RoomFxAnimatedTileMechanicsDefinitions"/>.
@@ -20,6 +20,8 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     public const int AcidFirstSource = 0x87a6a4;
     /// <summary>$87:A874, five rain frames selected by $87:82CF.</summary>
     public const int RainFirstSource = 0x87a874;
+    /// <summary>$87:A7E4, three spores frames selected by $87:82ED.</summary>
+    public const int SporesFirstSource = 0x87a7e4;
 
     /// <summary>Returns the native source identity for one compiled frame cursor.</summary>
     public static int SourceAddress(RoomFxAnimatedTileObjectDefinition definition,
@@ -33,6 +35,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
             AnimatedTileObjectPointers.Lava => LavaFirstSource,
             AnimatedTileObjectPointers.Acid => AcidFirstSource,
             AnimatedTileObjectPointers.Rain => RainFirstSource,
+            AnimatedTileObjectPointers.Spores => SporesFirstSource,
             _ => throw new InvalidDataException(
                 $"No compiled artwork source for room-FX object $87:{definition.ObjectPointer:X4}."),
         };

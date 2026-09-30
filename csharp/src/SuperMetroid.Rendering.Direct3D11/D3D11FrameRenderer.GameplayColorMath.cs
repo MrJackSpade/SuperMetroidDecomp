@@ -5,10 +5,10 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
-    private unsafe void DispatchXrayGameplay(LayeredRenderSnapshot scene, XrayGameplayRenderLayer layer)
+    private unsafe void DispatchGameplayColorMath(LayeredRenderSnapshot scene, GameplayColorMathRenderLayer layer)
     {
         if (layer.Gameplay.Registers.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
-            throw new NotSupportedException("Combining captured hardware windows with GPU X-ray composition is not translated.");
+            throw new NotSupportedException("Combining captured hardware windows with GPU gameplay color math is not translated.");
         var r = layer.Gameplay.Registers;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;

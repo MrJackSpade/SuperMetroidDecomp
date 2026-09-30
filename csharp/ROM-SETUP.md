@@ -403,14 +403,22 @@ stock while preserving their edits. Copy this file to
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
 The `game/maps/room-fx-animated-tiles.png` indexed 2-bpp strip contains the
-native lava, acid, rain, and Maridia sand frames followed by Wrecked Ship's
-four 32-byte treadmill frames. Copy it to `overrides/maps/` to change the
-pixels; the boss-bit wait, direction-specific frame order, one-frame cadence,
-and VRAM destination remain compiled. The appended treadmill tiles are also
-used by queued NMI transfers, so installed play does not read their graphics
-or source-pointer operands from bank $87. An older 89-tile override still
-loads: its edited pixels are retained and the new treadmill frames come from
-current checked stock content. Malformed PNGs fail loudly.
+native lava, acid, rain, and Maridia sand frames, Wrecked Ship's four 32-byte
+treadmill frames, the Tourian statue strip, then three 48-byte spores frames.
+Copy it to `overrides/maps/` to change the pixels. Activation, frame order,
+cadence, loop control and VRAM destinations remain compiled. Queued NMI
+transfers use the selected installed art rather than reading bank $87.
+Older sheets ending before treadmills, statues or spores retain their edits
+and inherit only the missing tail from current checked stock content. Adding
+spores does not shift any existing character or statue transfer alias.
+
+Spores use a ten-tick three-frame loop and camera-anchored quarter-pixel
+vertical scroll. Their installed `room-fx-layer3-tilemaps.json` page and
+`room-fx-blend-palettes.json` colors can also be replaced. Native source-aware
+color math keeps the effect behind BG1 terrain and excludes OBJ palettes
+zero through three; it never tints the HUD or enables liquid physics.
+Malformed FX artwork/tilemap/palette files fail with the exact selected path;
+valid edits cannot conceal missing or damaged required stock files.
 
 `game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors and the
 `ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Copy it to `overrides/maps/` to recolor

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 public static partial class GameplayDisplayCapture
 {
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
-    private static XrayGameplayRenderLayer CaptureFirefleaDarkness(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
+    private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");

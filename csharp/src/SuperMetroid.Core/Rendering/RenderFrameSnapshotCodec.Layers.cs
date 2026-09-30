@@ -6,7 +6,7 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
-            case XrayGameplayRenderLayer gameplayXray:
+            case GameplayColorMathRenderLayer gameplayXray:
                 writer.Write((byte)RenderPacketLayerKind.XrayGameplay);
                 WriteGameplayLayer(writer, gameplayXray.Gameplay);
                 foreach (XrayWindowLine line in gameplayXray.Lines) { writer.Write(line.Left); writer.Write(line.Right); }
@@ -177,7 +177,7 @@ public static partial class RenderFrameSnapshotCodec
         return new(add, fixedColor);
     }
 
-    private static XrayGameplayRenderLayer ReadXrayGameplay(BinaryReader reader, ushort version)
+    private static GameplayColorMathRenderLayer ReadXrayGameplay(BinaryReader reader, ushort version)
     {
         var gameplay = ReadGameplayLayer(reader, version);
         var lines = new XrayWindowLine[Hardware.SnesPpuLayout.ScreenHeightPixels];

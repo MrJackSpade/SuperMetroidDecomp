@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Replaceable metatile references for one cartridge-defined X-ray reveal.</summary>
@@ -61,6 +63,23 @@ public sealed class XrayOverlayVisualCatalog
 
     public ushort ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
 
+    /// <summary>Identity of selected item metatiles and room overlay coordinates/tiles, in native record order.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(XrayOverlayVisualCatalog), content =>
+    {
+        content.AppendWords("item metatiles", itemMetatiles);
+        foreach ((ushort pointer, XrayRoomOverlayVisual[] tiles) in rooms.OrderBy(pair => pair.Key))
+        {
+            content.Append("room overlay", pointer);
+            content.Append("tiles", tiles.Length);
+            foreach (XrayRoomOverlayVisual tile in tiles)
+            {
+                content.Append("x", tile.X);
+                content.Append("y", tile.Y);
+                content.Append("word", tile.Word);
+            }
+        }
+    });
+
     public IReadOnlyList<XrayRoomOverlayVisual> RoomTiles(ushort pointer) =>
         rooms.TryGetValue(pointer, out XrayRoomOverlayVisual[]? tiles) ? tiles :
         throw new InvalidDataException($"Missing installed X-ray room overlay ${pointer:X4}.");
@@ -119,6 +138,21 @@ public sealed class XrayRevealVisualCatalog
 
     /// <summary>Installed item and special-room visuals; null only in noninstalled fixtures.</summary>
     public XrayOverlayVisualCatalog? Overlays { get; }
+
+    /// <summary>Identity of every selected drawable rule and its installed overlays, excluding command mechanics.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(XrayRevealVisualCatalog), content =>
+    {
+        for (int index = 0; index < words.Length; index++)
+            if (words[index] is { } visual)
+            {
+                content.Append("type and bts", index);
+                content.AppendWords("visual operands",
+                    [visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight]);
+            }
+        content.Append("has overlays", Overlays is null ? 0 : 1);
+        if (Overlays is not null)
+            content.Append("overlays", Convert.FromHexString(Overlays.ContentIdentity));
+    });
 
     /// <summary>Substitutes visual operands without altering the compiled native command.</summary>
     public XrayRevealDefinition Apply(RoomCollisionType type, byte bts,

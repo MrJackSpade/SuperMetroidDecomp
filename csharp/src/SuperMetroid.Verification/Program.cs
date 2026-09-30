@@ -34,6 +34,11 @@ if (args is ["--room-content-identity"])
     VerifyRoomContentIdentity();
     return 0;
 }
+if (args is ["--gameplay-content-identity"])
+{
+    VerifyGameplayContentIdentity();
+    return 0;
+}
 if (args is ["--plm-content-identity"])
 {
     VerifyPlmContentIdentity();

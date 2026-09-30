@@ -18,6 +18,13 @@ public sealed class GameplayBasePaletteCatalog
     public ReadOnlySpan<ushort> Initial => initial;
     public ReadOnlySpan<ushort> CommonSprites => commonSprites;
 
+    /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePaletteCatalog), content =>
+    {
+        content.AppendWords("initial", initial);
+        content.AppendWords("common sprites", commonSprites);
+    });
+
     public void LoadInitial(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);

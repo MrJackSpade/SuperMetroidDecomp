@@ -82,6 +82,18 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   metatiles and CRE, library backgrounds, scrolling skies and room layouts) participate
   in the aggregate. Focused authored fixtures verify insertion-order independence,
   isolated edits, immutable selection snapshots and domain-specific drift warnings.
+- Samus-content identity: body pixels, frame selectors and visual offsets, sprite
+  layouts, atmospheric attributes, death art/colors and cannon positioning/transfers
+  contribute to the selected bundle. An authored fixture verifies 26 independent
+  edits, canonical sprite-map records and specific host compatibility warnings.
+- Room-actor identity: all 26 PLM visual catalogs and permanent-item character/palette
+  uploads have independent named digests. Focused fixtures match production stock
+  selection, verify edits in every domain, preserve native draw-run order/boundaries,
+  and cover dynamic item palette changes without altering PLM mechanics.
+- Shared gameplay identity: starting/common sprite colors, common OBJ pixels and
+  X-ray visual operands/item reveals/room overlays contribute separately. Authored
+  fixtures cover all four operands, overlay positions and order, canonical records,
+  independent host warnings, and equivalent decoded PNG/JSON content.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;
@@ -99,9 +111,11 @@ or proof of visual/gameplay parity for every event.
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
-   compiled Core build, selected audio, maps, projectiles and the six room-art domains
-   above. Other selected enemy, Samus, cinematic/ending and PLM presentation domains must participate
-   before it represents the complete installation.
+   compiled Core build, selected audio, maps, projectiles, six room-art domains,
+   Samus, all 27 room-actor domains and shared gameplay/X-ray presentation.
+   Remaining selected enemy and cinematic/ending catalogs must participate before
+   it represents the complete installation. Audit any further host-bound resources
+   against that inventory rather than assuming a passed subset is exhaustive.
 2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
    Windows real-host and portable Android-host acceptance passed as recorded above;
    neither substitutes for running the APK on the device. This is final platform

@@ -14,6 +14,10 @@ public sealed class RoomCharacterAtlas
 
     public ReadOnlyMemory<byte> Transfer => planar;
 
+    /// <summary>Identity of selected decoded pixels; PNG metadata and display padding do not participate.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomCharacterAtlas),
+        content => content.Append("characters", planar));
+
     /// <summary>Loads exactly the number of characters in the corresponding native stream.</summary>
     public static RoomCharacterAtlas Load(Stream png, int nativeByteCount)
     {

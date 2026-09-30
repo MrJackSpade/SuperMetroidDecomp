@@ -237,43 +237,12 @@ public sealed class EnemySpritemapCatalog
             identities.Add(frame.Name, (frame.Bank << 16) | frame.Pointer);
         }
         var displayFrames = new Dictionary<int, int>();
-        // Versions fourteen through thirty-two already had editable display bindings. Keep
-        // those user choices when newly added frames are supplied by stock;
-        // older versions had only art and inherit all stock bindings.
-        bool hasAuthoredBindings = !legacyOverride ||
-            document.Version is EnemySpritemapDefinitions.PreTripperKamerVersion or
-                EnemySpritemapDefinitions.PreShaktoolVersion or
-                EnemySpritemapDefinitions.PreMetroidVersion or
-                EnemySpritemapDefinitions.PreShutterVersion or
-                EnemySpritemapDefinitions.PreMorphBallEyeVersion or
-                EnemySpritemapDefinitions.PreFaceBlockVersion or
-                EnemySpritemapDefinitions.PreKagoVersion or
-                EnemySpritemapDefinitions.PreFlyVersion or
-                EnemySpritemapDefinitions.PreSciserVersion or
-                EnemySpritemapDefinitions.PreFuneNamiheVersion or
-                EnemySpritemapDefinitions.PreRidleySupplementVersion or
-                EnemySpritemapDefinitions.PreDeadTorizoVersion or
-                EnemySpritemapDefinitions.PreMotherBrainVersion or
-                EnemySpritemapDefinitions.PreKiHunterVersion or
-                EnemySpritemapDefinitions.PreYappingMawVersion or
-                EnemySpritemapDefinitions.PreRoomSpriteObjectVersion or
-                EnemySpritemapDefinitions.PreDraygonBreathVersion or
-                EnemySpritemapDefinitions.PreDraygonIntroVersion or
-                EnemySpritemapDefinitions.PreElevatorVersion or
-                EnemySpritemapDefinitions.PreKamerVersion or
-                EnemySpritemapDefinitions.PreCeresDoorVersion or
-                EnemySpritemapDefinitions.PreHZoomerVersion or
-                EnemySpritemapDefinitions.PreSbugVersion or
-                EnemySpritemapDefinitions.PreChootVersion or
-                EnemySpritemapDefinitions.PreAlcoonVersion or
-                EnemySpritemapDefinitions.PreBeetomVersion or
-                EnemySpritemapDefinitions.PreHopperVersion or
-                EnemySpritemapDefinitions.PreBullVersion or
-                EnemySpritemapDefinitions.PrePuyoVersion or
-                EnemySpritemapDefinitions.PreCeresBabyVersion or
-                EnemySpritemapDefinitions.PreRioVersion or
-                EnemySpritemapDefinitions.PreLowerNorfairRioVersion or
-                EnemySpritemapDefinitions.PreNorfairRioVersion;
+        // Schema/count validation above has already rejected unknown versions.
+        // Every accepted schema after the binding boundary owns its authored
+        // selection; only earlier art-only schemas inherit stock bindings.
+        // Do not maintain a second version list that can silently lose new edits.
+        bool hasAuthoredBindings =
+            document.Version > EnemySpritemapDefinitions.PreDisplayBindingsVersion;
         if (hasAuthoredBindings)
         {
             if (document.DisplayFrames is null ||

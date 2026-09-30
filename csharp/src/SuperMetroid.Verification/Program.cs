@@ -59,6 +59,11 @@ if (args is ["--enemy-content-identity"])
     VerifyEnemyContentIdentity();
     return 0;
 }
+if (args is ["--enemy-legacy-overrides"])
+{
+    VerifyEnemyLegacyOverrides();
+    return 0;
+}
 if (args is ["--catalog-identity-state-compatibility"])
 {
     VerifyCatalogIdentityStateCompatibility();

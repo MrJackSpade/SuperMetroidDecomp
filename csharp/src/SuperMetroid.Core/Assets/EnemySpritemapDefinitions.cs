@@ -104,6 +104,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreCeresBabyFrameCount = 259;
     internal const int PreCeresDoorVersion = 14;
     internal const int PreCeresDoorFrameCount = 244;
+    /// <summary>Last art-only composition schema; later accepted schemas own editable display bindings.</summary>
     internal const int PreDisplayBindingsVersion = 13;
     internal const int PreDisplayBindingsFrameCount = 244;
     internal const int PreMagdolliteVersion = 12;

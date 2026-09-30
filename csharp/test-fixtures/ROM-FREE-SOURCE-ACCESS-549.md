@@ -149,6 +149,15 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   the native selectors against that compiled set. All 31 independent substitutions
   reject before drawing; reordered frames and edited OAM parts still load. Existing
   title/OAM parity checks pass.
+- Enemy composition override compatibility: source review identified that schemas
+  47 through 59 silently ignored authored display bindings because a second version
+  list stopped at 46. The authored regression failed on schema 47 before the fix.
+  The loader now uses the validated art-only/binding schema boundary. All 57
+  accepted schemas (4 through 60) preserve exact frame art, display selections,
+  inherited stock frames and reload identity without mutating stock. All 47
+  binding-capable schemas reject missing, incomplete, wrong-key, unknown-target
+  and cross-bank bindings. These fixtures use only constructed JSON; they do not
+  run gameplay, open a ROM or establish compatibility for other asset formats.
 - Installation override lifecycle: all 44 declared presentation directories and
   45 public catalog loaders participate in the acceptance fixture. Its 1,091
   override files remain byte-identical across ROM-unavailable startup, the actual

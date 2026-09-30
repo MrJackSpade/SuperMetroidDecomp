@@ -86,8 +86,9 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   state save/load and exact captured replay pixels pass with its test-owned ROM
   moved out of the installation. The portable Android host passes 90 title frames,
   state save/load, content validation, repair/recovery and save/config preservation
-  with no installed ROM. The Android platform project also builds; this is not yet
-  a fresh on-device cold-start check.
+  with no installed ROM. The actual Release AOT APK also passes two fresh cold
+  starts on the Retroid Pocket Classic with extracted resources only, as recorded
+  in the Android platform acceptance section below.
 - Diagnostic failure boundaries: the integration runner installs the shared Windows
   no-dialog policy before fallible work. The Windows verifier catches initialization
   and message-loop failures as well as its asynchronous body. A deliberate startup
@@ -339,7 +340,38 @@ does not modify any player data or publish artwork.
 
 This supplies GPU presentation evidence for those finite, statically identified paths,
 not discovery of remaining ROM reads or full gameplay/animation-transition acceptance.
-Other enemy/boss/cinematic paths and on-device Android acceptance remain separate gates.
+Other enemy/boss/cinematic paths remain separate gates. Actual Android startup is
+verified separately below; this renderer fixture does not establish Android pixel parity.
+
+## Android platform startup acceptance
+
+The Release AOT APK passed two independent cold processes on the Retroid Pocket
+Classic on 2026-09-30. Its isolated package contained only 1,093 extracted files
+(77,480,674 bytes), no ROM, SRAM or debugger state. Both processes reached the real
+`TitleScreen` (host frames 1,567 and 1,569), with 60.0 emulation/paint FPS and zero
+audio underruns in each final one-second timing window. Diagnostic package and
+staging cleanup succeeded; the player's testing package and saves were untouched.
+APK SHA-256: `20892A9C5BC0D502AD32C7C12896EFCA19611FAD39AF4EC6A69CD5ADD1CCFF40`.
+
+The reusable `verify-android-rom-free.ps1` tool requires strict validation of both
+the source bundle and its ROM-free staged copy before touching the device. The
+initial cached fixture had a current installation receipt but an outdated enemy
+manifest (48 instead of 65) and a missing required PLM directory. The strict API
+preserves the exact failure rather than reducing it to an ambiguous setup screen.
+Fresh content was generated only by the explicit asset importer. A sleeping device
+also prevents the production focus gate from running; the tool wakes it without
+changing settings and requires actual rendered-title timing, not just Activity launch.
+
+The guarded `--extracted-validation-contract` check verifies valid extracted-only
+startup plus missing-root, old-receipt, wrong-provenance, index-hash, stale-nested-
+manifest and missing-PLM-domain failures. Each rejection identifies its exact path;
+the normal startup query still returns null for repair admission. Hashes of every
+stock file remain unchanged by validation, and no cartridge is created or imported.
+This checks the statically identified shared startup inventory without gameplay probes.
+
+See [Android diagnostic handoff](../ANDROID-TESTING.md) for commands. These results
+complete the on-device cold-start gate, not all Android gameplay, long-run performance,
+GPU pixel parity, or the remaining content/reference audit.
 
 ## Remaining #549 acceptance
 
@@ -349,15 +381,11 @@ Other enemy/boss/cinematic paths and on-device Android acceptance remain separat
    ending domains, plus the opening-cinematic/Ceres and complete enemy bundles.
    Audit any further resources and compiled/default presentation against that
    inventory rather than assuming a passed subset is exhaustive.
-2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
-   Windows real-host and portable Android-host acceptance passed as recorded above;
-   neither substitutes for running the APK on the device. This is final platform
-   acceptance, not a way to hunt remaining reads.
-3. Complete required-resource/reference validation across every installed domain
+2. Complete required-resource/reference validation across every installed domain
    and review compatibility of older override document formats. Current-format
    override persistence through startup and the real repair/regeneration
    transaction passes as recorded above. Keep missing-resource errors explicit.
-4. Review remaining cached/reference diagnostic assumptions separately. Historical
+3. Review remaining cached/reference diagnostic assumptions separately. Historical
    successful frame probes do not authorize restoring Core cartridge capability.
 
 Do not close #549 or describe the whole game as validated until its remaining

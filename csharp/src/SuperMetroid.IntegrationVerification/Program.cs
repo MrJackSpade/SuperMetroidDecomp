@@ -8,6 +8,23 @@ try
     // work. Failures belong in the outer stderr/nonzero boundary, never a dialog.
     if (OperatingSystem.IsWindows())
         NativeConsoleErrors.DisableDialogs();
+    if (args is ["--validate-extracted-installation", var extractedRoot])
+    {
+        var validated = SuperMetroid.AssetExtraction.GameAssetInstaller.ValidateExtractedContent(extractedRoot);
+        Console.WriteLine($"PASS all required extracted resources: {validated.ContentDirectory}; no ROM import or repair.");
+        return 0;
+    }
+    if (args is ["--prepare-extracted-installation", var importRom, var importRoot])
+    {
+        if (Directory.Exists(importRoot))
+            throw new IOException($"The diagnostic import destination already exists: {importRoot}");
+        var installed = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(importRom, importRoot);
+        SuperMetroid.AssetExtraction.GameAssetInstaller.ValidateExtractedContent(installed.Root);
+        Console.WriteLine($"PASS fresh extracted installation: {installed.Root}; source ROM was imported, not mapped into gameplay.");
+        return 0;
+    }
+    if (args is ["--extracted-validation-contract", var contractRoot])
+        return ExtractedInstallationValidationVerification.Run(contractRoot);
     if (args is ["--projectile-host-binding", var projectileRom])
         return ProjectileHostBindingVerification.Run(projectileRom);
     if (args is ["--state-host-options", var statePath, var iniPath])

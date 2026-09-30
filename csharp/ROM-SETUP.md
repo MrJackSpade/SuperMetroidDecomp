@@ -602,12 +602,14 @@ Version-four and version-five overrides retain their existing display bindings
 and inherit later boss frames from verified stock. Version-six overrides retain
 their Draygon and Spore Spawn edits and display bindings; the twelve formerly
 misnamed `draygon_oam_EE65`–`draygon_oam_EF61` keys migrate by unchanged frame
-pointer to `spore_spawn_oam_*`. All versions one through twenty-six retain their
-authored art and inherit later stock frames. Versions four through twenty-six
-also retain their display bindings. Use a current version-twenty-six copy to
+pointer to `spore_spawn_oam_*`. All versions one through twenty-seven retain their
+authored art and inherit later stock frames. Versions four through twenty-seven
+also retain their display bindings. Use a current version-twenty-seven copy to
 edit the complete inventory. New display bindings cannot cross between Draygon and
-Spore Spawn. Draygon's other 34 selected extended frames contain BG2 tilemap
-commands and live in a separate file.
+Spore Spawn. Schema twenty-seven adds 22 `phantoon_bg2_*` and 34 `draygon_bg2_*`
+display-binding keys; their tilemap commands remain in the separate BG2 files.
+Those native BG2-only roots have empty component arrays in stock. An override
+may add ordinary OAM components to them without inventing stock sprites.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 
@@ -625,11 +627,13 @@ on every frame. `--enemy-animation-stock-parity` separately compares the explici
 declared Boyon and Torizo control/selector records with the pinned import source.
 Neither check is a whole-game playthrough or proof of every boss effect's parity.
 
-Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than
+Phantoon's stock body, eye, tentacles, and mouth use BG2 tilemap writes rather than
 ordinary OAM parts. Copy `game/enemy-tiles/phantoon-bg2-frames.json` to
 `overrides/enemy-tiles/` to edit its 22 named visual frames. Each ordered write
 has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
-array of SNES tile words. Frame selection and write timing stay in the engine;
+array of SNES tile words. Its multipart `displayFrames` bindings select the
+matching BG2 pose and any authored OAM components together. Physical frame
+selection and write timing stay in the engine;
 the JSON contains no hitbox, damage, or instruction data. Invalid or missing
 frames fail during load, and the stock file is manifest-hash checked.
 Draygon's 34 BG2 frames use the same visual-only tilemap format in
@@ -638,6 +642,21 @@ to edit the ordered tile words or their 32-by-64 tilemap positions. Its native
 frame selectors, producer timing, hitboxes, and damage callbacks remain outside
 the appearance file. The stock file is hash-checked and malformed overrides
 fail during load.
+Crocomire's fifty fight-body poses use multipart OAM and, for 42 mixed poses,
+`crocomire-bg2-frames.json`. One body `displayFrames` binding selects both halves;
+the BG2 writer no longer draws the original pose when its limbs are remapped.
+Draygon's bindings may select either an OAM or BG2 pose within Draygon's family.
+All these writes retain the native new-instruction-frame gate. Selecting an
+OAM-only pose writes no BG2 commands; it does not implicitly clear the tilemap.
+
+`--boss-display-bindings` verifies all 154 Crocomire, Phantoon and Draygon poses
+with exact packed OAM, ordered BG2 writes, replacement bindings and write gating.
+RAM-only fixtures also check twelve exact native sprite-clipping cases,
+208,208 physical shot/touch samples and 450 native
+duration/goto steps with unchanged state and audio requests. The separate
+`--boss-display-stock` imports the declared roots, compares native visual and
+collision records, and checks installation hashes, override reload and required
+resources. These are focused draw/clock checks, not complete boss-AI playthroughs.
 Mother Brain's seventeen body poses use both OAM limbs in the same multipart
 composition file and sixteen BG2 frames in `mother-brain-body-bg2-frames.json`.
 The initial dummy pose has only OAM. Copy either file to `overrides/enemy-tiles/`

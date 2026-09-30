@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The 34 bank-$A5 Draygon extended frames whose sole zero-offset component
-/// points to a $FFFE BG2 tilemap stream. The remaining 60 selected frames are
+/// points to a $FFFE BG2 tilemap stream. The remaining 48 selected frames are
 /// ordinary OAM components in <see cref="EnemyExtendedFrameDefinitions"/>.
 /// Hitbox pointers and instruction timing are not part of this visual catalog.
 /// </summary>

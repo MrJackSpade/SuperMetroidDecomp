@@ -172,10 +172,10 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   binding-capable schemas reject missing, incomplete, wrong-key, unknown-target
   and cross-bank bindings. These fixtures use only constructed JSON; they do not
   run gameplay, open a ROM or establish compatibility for other asset formats.
-- Extended and projectile override compatibility: all 26 accepted extended-frame
+- Extended and projectile override compatibility: all 27 accepted extended-frame
   schemas and all 11 enemy-projectile schemas preserve exact edited art and
   inherited newer stock. The extended fixtures cover all ordered components and
-  OAM parts, 23 binding-capable schemas, schema-six Spore Spawn aliases, malformed
+  OAM parts, 24 binding-capable schemas, schema-six Spore Spawn aliases, malformed
   bindings and cross-family rejection. Projectile fixtures cover every ordinary
   and program-selected frame, all nine program-frame schemas, historical sets
   that are not current-catalog prefixes, and incomplete/wrong-key rejection.
@@ -210,6 +210,7 @@ program or change its instruction clock.
 | Multipart enemy drawing and collision | Native frame identity, compiled physical components, hitbox lists and shot/touch dispatch | `enemy-walking-pirate-compositions.json` visual components/parts and family-scoped bindings |
 | Enemy projectiles and pickups | Compiled definitions/programs, spawn coordinates, velocities, clocks, damage and drop decisions | `enemy-projectile-compositions.json` direct/program-selected OAM parts |
 | Mother Brain body animation | Compiled body commands, physical frame identities, movement, pose/form, instruction clock and quake/footstep events | Seventeen installed multipart OAM poses and sixteen BG2 poses; one display binding selects both halves; character, head/neck and special-sprite artwork remains installed |
+| Crocomire, Phantoon and Draygon frames | Compiled physical frame selectors, collision lists, callbacks and new-frame write gate | One shared binding selects both OAM components and the matching BG2 writes; native BG2-only stock roots have no OAM |
 | Crocomire melting and skeleton | Compiled pass/transfer/erasure scheduling, phase transitions and completion | Indexed melt/skeleton sheets and installed melt/BG2 maps |
 | Corpse rotting | Explicit live-WRAM row scheduler, fixed delays and completion callbacks | Installed corpse character sheets processed by the scheduler |
 | Kraid and other boss draw hooks | Compiled pose/phase/hitbox/progression selections | Installed BG2, multipart OAM, special uploads and named color catalogs |
@@ -246,8 +247,26 @@ its nullable callers without restoring a cartridge fallback.
 
 Focused commands: `--enemy-effect-resources`, `--crocomire-melt-json`,
 `--enemy-effect-isolation`, `--mother-brain-corpse-stock-artwork`.
-These fixtures do not newly verify every BG2 boss, other corpse family,
-GPU output or historical color-document schema. Those
+The boss display fixtures separately verify all 154 Crocomire/Phantoon/Draygon
+poses with exact packed OAM and ordered BG2 output, empty stock BG2-only roots,
+authored sprite additions, remaps across OAM/BG2 poses and native write gating.
+The Crocomire remap assertion failed before the shared-selection fix: OAM drew
+the selected pose while BG2 still drew the original physical pose. Phantoon and
+Draygon's BG2-only bypass was identified statically and now uses the same binding.
+All 208,208 production shot/touch samples retain the physical callback, including
+18,015 positive hits; 450 focused instruction steps retain their exact duration/
+goto clock and 50 frame admissions. These steps do not exercise complete boss AI.
+Twelve exact carry/sign and component-window cases verify the newly authored
+BG2-only sprites use native wrapping/clipping. The import-only oracle compares
+2,145 sprites, 1,037 BG2 runs/9,260 tile words and 22 compiled collision lists, while the
+production draw path receives only RAM. Installation checks cover stock hashes,
+selected bindings/identity/reload, missing files and malformed versions; legacy
+schema 26 retains its authored data and inherits the 56 new stock binding roots.
+Missing composition or selected BG2 catalogs fail before VRAM writes.
+
+Focused commands: `--boss-display-bindings`, `--boss-display-stock`.
+These fixtures do not newly verify every other BG2 boss, other corpse family,
+GPU output, full battle progression or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.
 
 ## Remaining #549 acceptance

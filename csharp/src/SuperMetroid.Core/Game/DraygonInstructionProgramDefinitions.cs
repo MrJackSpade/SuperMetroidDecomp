@@ -5,7 +5,8 @@ internal readonly record struct DraygonInstructionMechanicsWord(ushort Address, 
 
 /// <summary>
 /// Compiled engine-control words for Draygon's body, eye, tail, and arms programs.
-/// Interleaved extended-spritemap pointers remain live cartridge presentation data.
+/// Interleaved physical frame identities are compiled selectors; installed display
+/// bindings may replace their OAM/BG2 art without changing mechanics or timing.
 /// </summary>
 internal static class DraygonInstructionProgramDefinitions
 {

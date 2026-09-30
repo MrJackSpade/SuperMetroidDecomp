@@ -921,16 +921,16 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                if (TryDrawInstalledEnemyBg2Frame(slot))
-                    continue;
-
-                ApplyInstalledCrocomireBodyBg2(slot);
-                ApplyInstalledMotherBrainBodyBg2(slot);
-
                 if (TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
                         slot.SpritemapPointer,
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {
+                    // Resolve both halves through one presentation binding. Validate
+                    // the composition before any BG2 side effects; physical selectors
+                    // continue to belong to compiled animation and collision programs.
+                    ushort selected = TileArtwork.ExtendedFrames.GetDisplayPointer(
+                        slot.Definition.Bank, slot.SpritemapPointer);
+                    ApplyInstalledEnemyBg2Frame(slot, selected);
                     // This installed frame owns only the composite's visual offsets
                     // and OAM parts. Collision still uses the original engine-owned
                     // extended hitbox records, never the editable JSON geometry.

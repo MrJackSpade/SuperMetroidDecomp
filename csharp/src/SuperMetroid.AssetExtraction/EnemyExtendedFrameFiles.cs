@@ -31,9 +31,12 @@ internal static class EnemyExtendedFrameFiles
                 StringComparison.Ordinal) ? (byte)0x10 : (byte)0;
             bool motherBrainMixed = bank == MotherBrainBodyVisualDefinitions.Bank &&
                 MotherBrainBodyVisualDefinitions.HasBg2(pointer);
+            bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
             int maximumNativeComponents = motherBrainMixed
                 ? MotherBrainBodyVisualDefinitions.MaximumNativeComponents
-                : EnemyExtendedFrameDefinitions.MaximumComponents;
+                : bg2Only ? bank == PhantoonBg2FrameDefinitions.Bank
+                    ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
+                    : EnemyExtendedFrameDefinitions.MaximumComponents;
             if (count < 1 || count > maximumNativeComponents ||
                 padding != expectedPadding)
                 throw new InvalidDataException(
@@ -53,12 +56,15 @@ internal static class EnemyExtendedFrameFiles
                     // Multipart bodies combine ordinary OAM with BG2 streams
                     // in one native extended root. Its BG2 half is extracted
                     // separately, never misrepresented as sprite artwork.
-                    if (motherBrainMixed || definition.Name.StartsWith("crocomire_body_oam_",
+                    if (bg2Only || motherBrainMixed || definition.Name.StartsWith("crocomire_body_oam_",
                             StringComparison.Ordinal))
                         continue;
                     throw new InvalidDataException(
                         $"Extended frame ${bank:X2}:{pointer:X4} contains a BG2 command, not OAM.");
                 }
+                if (bg2Only)
+                    throw new InvalidDataException(
+                        $"BG2-only frame ${bank:X2}:{pointer:X4} unexpectedly contains ordinary OAM.");
                 components.Add(new EnemyExtendedVisualComponent
                 {
                     OffsetX = x,
@@ -67,7 +73,7 @@ internal static class EnemyExtendedFrameFiles
                         spritePointer),
                 });
             }
-            if (components.Count == 0 ||
+            if ((components.Count == 0 && !bg2Only) ||
                 !frames.TryAdd(definition.Name, components.ToArray()))
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} has no OAM or repeats an identity.");

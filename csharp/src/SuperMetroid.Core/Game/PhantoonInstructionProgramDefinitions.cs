@@ -7,7 +7,8 @@ internal readonly record struct PhantoonInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing, control flow, and callback operands for Phantoon's four enemy
-/// records. Extended-spritemap operands remain live cartridge presentation data.
+/// records. Physical frame selectors are compiled separately; installed display
+/// bindings may replace their BG2/OAM art without changing mechanics or timing.
 /// </summary>
 internal static class PhantoonInstructionProgramDefinitions
 {

@@ -97,6 +97,16 @@ if (args is ["--mother-brain-body-presentation"])
     VerifyMotherBrainBodyPresentation();
     return 0;
 }
+if (args is ["--boss-display-bindings"])
+{
+    VerifyBossDisplayBindings();
+    return 0;
+}
+if (args is ["--boss-display-stock"])
+{
+    VerifyBossDisplayStock();
+    return 0;
+}
 if (args is ["--mother-brain-body-stock-presentation"])
 {
     VerifyMotherBrainBodyStockPresentation();

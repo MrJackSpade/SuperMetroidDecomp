@@ -82,7 +82,7 @@ public sealed class EnemyExtendedFrameCatalog
         return TryGet(bank, nativePointer, out components);
     }
 
-    /// <summary>Resolves the matching BG2 half of a mixed display frame without mutating its physical selector.</summary>
+    /// <summary>Resolves the matching BG2 half of a display frame without mutating its physical selector.</summary>
     internal ushort GetDisplayPointer(byte bank, ushort nativePointer) =>
         displayFrames.TryGetValue((bank << 16) | nativePointer, out int selected)
             ? unchecked((ushort)selected) : nativePointer;
@@ -114,6 +114,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount,
             EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreMotherBrainBodyFrameCount,
@@ -216,8 +219,8 @@ public sealed class EnemyExtendedFrameCatalog
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
-                visual is null || visual.Length is < 1 or >
-                    EnemyExtendedFrameDefinitions.MaximumComponents)
+                visual is null || visual.Length > EnemyExtendedFrameDefinitions.MaximumComponents ||
+                (visual.Length == 0 && !EnemyExtendedFrameDefinitions.IsBg2Only(definition)))
                 throw new InvalidDataException(
                     $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
             var compiled = new EnemyExtendedDrawComponent[visual.Length];
@@ -292,7 +295,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
             or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
-            or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion)
+            or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
+            or EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -329,8 +333,12 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("torizo_falling_left_", StringComparison.Ordinal);
             if (left.StartsWith("spore_spawn_oam_", StringComparison.Ordinal))
                 return right.StartsWith("spore_spawn_oam_", StringComparison.Ordinal);
-            if (left.StartsWith("draygon_oam_", StringComparison.Ordinal))
-                return right.StartsWith("draygon_oam_", StringComparison.Ordinal);
+            if (left.StartsWith("phantoon_bg2_", StringComparison.Ordinal))
+                return right.StartsWith("phantoon_bg2_", StringComparison.Ordinal);
+            if (left.StartsWith("draygon_oam_", StringComparison.Ordinal) ||
+                left.StartsWith("draygon_bg2_", StringComparison.Ordinal))
+                return right.StartsWith("draygon_oam_", StringComparison.Ordinal) ||
+                    right.StartsWith("draygon_bg2_", StringComparison.Ordinal);
             if (left.StartsWith("ridley_body_", StringComparison.Ordinal))
                 return right.StartsWith("ridley_body_", StringComparison.Ordinal);
             if (left.StartsWith("ceres_steam_oam_", StringComparison.Ordinal))

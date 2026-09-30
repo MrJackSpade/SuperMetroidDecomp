@@ -5,75 +5,53 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Installed extended-enemy BG2 presentation dispatch.</summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>Draws the selected mixed body's BG2 half; the common draw emits its OAM half.</summary>
-    private void ApplyInstalledMotherBrainBodyBg2(RoomEnemySlot slot)
-    {
-        if (slot.EnemyDefinitionPointer != MotherBrainBodyDefinition ||
-            TileArtwork?.ExtendedFrames is not { } frames)
-            return;
-        ushort selected = frames.GetDisplayPointer(slot.Definition.Bank, slot.SpritemapPointer);
-        if (!MotherBrainBodyVisualDefinitions.HasBg2(selected))
-            return;
-        if (TileArtwork.MotherBrainBodyBg2Frames?.TryGet(selected,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) != true)
-            throw new InvalidDataException(
-                $"Installed Mother Brain body frame $A9:{selected:X4} has no BG2 presentation.");
-        if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
-            foreach (EnemyBg2TilemapWrite write in writes.Span)
-                ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
-    }
-
     /// <summary>
-    /// Crocomire's native extended roots interleave ordinary OAM and BG2
-    /// streams. Apply only their installed BG2 half here; the common installed
-    /// extended-frame draw immediately afterward emits their OAM half.
+    /// Draws the BG2 half of the already resolved visual frame. The common writer
+    /// emits its OAM half, which may legitimately be empty for BG2-only poses.
+    /// Native new-frame gating and physical collision selectors remain compiled.
+    /// Selecting an OAM-only pose performs no BG2 write; it does not invent a clear.
     /// </summary>
-    private void ApplyInstalledCrocomireBodyBg2(RoomEnemySlot slot)
+    private void ApplyInstalledEnemyBg2Frame(RoomEnemySlot slot, ushort selected)
     {
-        if (slot.EnemyDefinitionPointer != CrocomireDefinition ||
-            slot.Definition.Bank != CrocomireBodyVisualDefinitions.Bank ||
-            !CrocomireBodyVisualDefinitions.HasBg2(slot.SpritemapPointer) ||
-            TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
-                slot.SpritemapPointer, out _) != true)
+        ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
+        string? family = null;
+        bool found = false;
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            slot.Definition.Bank == MotherBrainBodyVisualDefinitions.Bank &&
+            MotherBrainBodyVisualDefinitions.HasBg2(selected))
+        {
+            family = "Mother Brain body";
+            found = TileArtwork!.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
+        }
+        else if (slot.EnemyDefinitionPointer == CrocomireDefinition &&
+            slot.Definition.Bank == CrocomireBodyVisualDefinitions.Bank &&
+            CrocomireBodyVisualDefinitions.HasBg2(selected))
+        {
+            family = "Crocomire body";
+            found = TileArtwork!.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
+        }
+        else if (IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) &&
+            slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
+            PhantoonBg2FrameDefinitions.IsFrame(selected))
+        {
+            family = "Phantoon";
+            found = TileArtwork!.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
+        }
+        else if (IsDraygonDefinition(slot.EnemyDefinitionPointer) &&
+            slot.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
+            DraygonBg2FrameDefinitions.IsFrame(selected))
+        {
+            family = "Draygon";
+            found = TileArtwork!.DraygonBg2Frames?.TryGet(selected, out writes) == true;
+        }
+        if (family is null)
             return;
-        if (TileArtwork.CrocomireBg2Frames?.TryGet(slot.SpritemapPointer,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) != true)
+        if (!found)
             throw new InvalidDataException(
-                $"Installed Crocomire body frame $A4:{slot.SpritemapPointer:X4} has no BG2 presentation.");
+                $"Installed {family} frame ${slot.Definition.Bank:X2}:{selected:X4} has no BG2 presentation.");
         if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
             foreach (EnemyBg2TilemapWrite write in writes.Span)
                 ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
-    }
-
-    /// <summary>
-    /// Executes an installed extended BG2 visual stream for the converted boss
-    /// families. The native new-frame bit gates writes; collision remains on
-    /// the separate gameplay path and is never read from editable visual JSON.
-    /// </summary>
-    private bool TryDrawInstalledEnemyBg2Frame(RoomEnemySlot slot)
-    {
-        if (TileArtwork is null)
-            return false;
-        ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
-        if (slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank)
-        {
-            if (TileArtwork.PhantoonBg2Frames?.TryGet(slot.SpritemapPointer,
-                    out writes) != true)
-                return false;
-        }
-        else if (slot.Definition.Bank == DraygonBg2FrameDefinitions.Bank)
-        {
-            if (TileArtwork.DraygonBg2Frames?.TryGet(slot.SpritemapPointer,
-                    out writes) != true)
-                return false;
-        }
-        else
-            return false;
-
-        if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
-            foreach (EnemyBg2TilemapWrite write in writes.Span)
-                ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
-        return true;
     }
 
 

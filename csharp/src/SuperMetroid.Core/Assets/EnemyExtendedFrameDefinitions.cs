@@ -11,7 +11,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
 /// Bomb Torizo's dormant statue frame, Golden Torizo's initial, awakening and
 /// walking, turning and jump-back poses, Kraid's independently animated arm,
-/// and the OAM half of Mother Brain's mixed body poses.
+/// Mother Brain's mixed body poses, and Phantoon/Draygon BG2-only poses.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -63,7 +63,10 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int CompleteTorizoAdditionalFrameCount = 27;
     internal const int PreMotherBrainBodyVersion = 25;
     internal const int PreMotherBrainBodyFrameCount = 447;
-    internal const int Version = 26;
+    /// <summary>Schema 26 predates shared display bindings for BG2-only boss roots.</summary>
+    internal const int PreBg2BossBindingsVersion = 26;
+    internal const int PreBg2BossBindingsFrameCount = 464;
+    internal const int Version = 27;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -72,6 +75,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int NinjaFrameCount = 76;
     internal const int RidleyFrameCount = 11;
     internal const int DraygonOamFrameCount = 48;
+    internal const int DraygonBg2FrameCount = 34;
+    internal const int PhantoonBg2FrameCount = 22;
     internal const int SporeSpawnOamFrameCount = 12;
     internal const int CeresSteamFrameCount = 28;
     internal const int OumFrameCount = 30;
@@ -103,7 +108,8 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
-        CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount;
+        CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount +
+        DraygonBg2FrameCount + PhantoonBg2FrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -180,6 +186,11 @@ internal static class EnemyExtendedFrameDefinitions
     private static readonly EnemyExtendedFrameDefinition[] FrameDefinitions = Build();
 
     internal static ReadOnlySpan<EnemyExtendedFrameDefinition> Frames => FrameDefinitions;
+
+    /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>
+    internal static bool IsBg2Only(EnemyExtendedFrameDefinition frame) =>
+        frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer) ||
+        frame.Bank == DraygonBg2FrameDefinitions.Bank && DraygonBg2FrameDefinitions.IsFrame(frame.Pointer);
 
     private static EnemyExtendedFrameDefinition[] Build()
     {
@@ -541,8 +552,15 @@ internal static class EnemyExtendedFrameDefinitions
         if (frames.Count != PreMotherBrainBodyFrameCount)
             throw new InvalidDataException("Complete Torizo artwork coverage changed.");
         frames.AddRange(MotherBrainBodyVisualDefinitions.Frames.ToArray());
-        if (frames.Count != ExpectedFrameCount)
+        if (frames.Count != PreBg2BossBindingsFrameCount)
             throw new InvalidDataException("Mother Brain body artwork coverage changed.");
+        frames.AddRange(PhantoonBg2FrameDefinitions.Frames.ToArray().Select(frame =>
+            new EnemyExtendedFrameDefinition(PhantoonBg2FrameDefinitions.Bank, frame.Pointer,
+                $"phantoon_bg2_{frame.Pointer:X4}")));
+        frames.AddRange(DraygonBg2FrameDefinitions.Frames.ToArray().Select(frame =>
+            new EnemyExtendedFrameDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name)));
+        if (frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException("BG2-only boss display-binding coverage changed.");
         return frames.ToArray();
     }
 }

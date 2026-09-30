@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ceres-engine-palette-binding", var ceresPaletteInstallation])
+{
+    VerifyCeresEnginePaletteBinding(ceresPaletteInstallation);
+    return 0;
+}
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();

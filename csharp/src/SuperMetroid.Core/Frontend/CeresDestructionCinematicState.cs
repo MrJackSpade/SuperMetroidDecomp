@@ -30,6 +30,7 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     private RoomPaletteFxSystem? paletteFx;
+    [NonSerialized] private IPaletteFxColorSource? paletteFxColors;
     private IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
     private IntroDiscoverySprite? zebesTitleActor;
@@ -54,10 +55,12 @@ internal sealed partial class CeresDestructionCinematicState
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
-        IntroCinematicArtworkCatalog? artwork = null)
+        IntroCinematicArtworkCatalog? artwork = null,
+        IPaletteFxColorSource? paletteFxColors = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+        this.paletteFxColors = paletteFxColors;
         this.artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         spriteArtwork = new CeresSceneSpritePresentation(
@@ -77,6 +80,17 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
     internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
         stationExplosion.PresentationColors = colors;
+
+    /// <summary>
+    /// Reattaches installed palette colors without restarting the cinematic's
+    /// engine-flicker program. The provider is host-owned, just like room FX;
+    /// retain it for lazy owner creation and older debugger-state reconstruction.
+    /// </summary>
+    internal void BindPaletteFxColors(IPaletteFxColorSource? colors)
+    {
+        paletteFxColors = colors;
+        paletteFx?.BindPresentationColors(colors);
+    }
 
     /// <summary>
     /// Rebinds host-owned artwork after restoring a debugger state. Only the native
@@ -315,6 +329,7 @@ internal sealed partial class CeresDestructionCinematicState
             if (paletteFx is null)
             {
                 paletteFx = new RoomPaletteFxSystem();
+                paletteFx.BindPresentationColors(paletteFxColors);
                 paletteFx.SpawnDefinition(bus, CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
             paletteFx.Step(bus, cgram, 0, 0, false, false);

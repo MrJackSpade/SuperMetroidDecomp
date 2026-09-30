@@ -866,7 +866,7 @@ public sealed partial class SuperMetroidGame
                     runtime.EscapeTimer.Clear();
                     ceresDestruction = new CeresDestructionCinematicState(
                         bus, audio, mapPresentation?.PowerBombFixedColors,
-                        introCinematicArt);
+                        introCinematicArt, mapPresentation?.RoomPaletteFx);
                     GameState = SuperMetroidGameState.CeresGoesBoom;
                     PublishBlack();
                 }
@@ -875,7 +875,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.CeresGoesBoom:
                 ceresDestruction ??= new CeresDestructionCinematicState(
                     bus, audio, mapPresentation?.PowerBombFixedColors,
-                    introCinematicArt);
+                    introCinematicArt, mapPresentation?.RoomPaletteFx);
                 ceresDestruction.Step();
                 PublishCeresDestruction(ceresDestruction);
                 if (ceresDestruction.Finished)

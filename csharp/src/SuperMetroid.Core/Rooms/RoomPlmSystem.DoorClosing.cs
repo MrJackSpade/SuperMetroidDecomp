@@ -120,7 +120,7 @@ public sealed partial class RoomPlmSystem
             coloredDoor.Phase = ColoredDoorPhase.Waiting;
             coloredDoor.InitialDrawCompleted = true;
             coloredDoor.HasPendingHit = false;
-            DrawRomInstruction(
+            DrawPlmInstruction(
                 bus,
                 level,
                 streamer,
@@ -141,7 +141,7 @@ public sealed partial class RoomPlmSystem
             greyDoor.Phase = GreyDoorPhase.Locked;
             greyDoor.InitialDrawCompleted = true;
             greyDoor.HasPendingHit = false;
-            DrawRomInstruction(
+            DrawPlmInstruction(
                 bus,
                 level,
                 streamer,

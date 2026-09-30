@@ -493,7 +493,7 @@ public sealed partial class RoomPlmSystem
         ushort layer1XPosition,
         ushort layer1YPosition,
         ushort bg1XOffset) =>
-        DrawRomInstruction(
+        DrawPlmInstruction(
             bus,
             level,
             streamer,

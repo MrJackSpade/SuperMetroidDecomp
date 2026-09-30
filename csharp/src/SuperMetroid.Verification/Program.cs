@@ -39,6 +39,11 @@ if (args is ["--plm-population-input-boundary"])
     VerifyPlmPopulationInputBoundary();
     return 0;
 }
+if (args is ["--mechanics-workram-boundary"])
+{
+    VerifyMechanicsWorkRamBoundary();
+    return 0;
+}
 if (args is ["--plm-draw-clone"])
 {
     VerifyPlmDrawClone();

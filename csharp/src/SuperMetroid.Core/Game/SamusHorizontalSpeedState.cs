@@ -806,13 +806,15 @@ public sealed class SamusHorizontalSpeedState
                 "is not an authored mechanics record or mutable low-bank alias.");
         }
 
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
+            throw new InvalidOperationException("A wrapped speed table requires live WRAM.");
         return new SpeedTableEntry(
-            ReadWord(bus, address + 0),
-            ReadWord(bus, address + 2),
-            ReadWord(bus, address + 4),
-            ReadWord(bus, address + 6),
-            ReadWord(bus, address + 8),
-            ReadWord(bus, address + 10));
+            SnesWorkRam.ReadWord(memory, address + 0),
+            SnesWorkRam.ReadWord(memory, address + 2),
+            SnesWorkRam.ReadWord(memory, address + 4),
+            SnesWorkRam.ReadWord(memory, address + 6),
+            SnesWorkRam.ReadWord(memory, address + 8),
+            SnesWorkRam.ReadWord(memory, address + 10));
     }
 
     /// <summary>
@@ -1024,25 +1026,6 @@ public sealed class SamusHorizontalSpeedState
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(ReadMappedByte(bus, address) |
-            (ReadMappedByte(bus, address + 1) << 8)));
-
-    private static byte ReadMappedByte(ISnesAddressSpace bus, int address)
-    {
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        return SnesDmaSourceMap.Classify(source) switch
-        {
-            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Samus speed table requires live WRAM.")).ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Samus speed table requires live SRAM.")).ReadSaveRamByte(address),
-            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
-                $"Samus speed byte ${address:X6} is not a compiled mechanics record."),
-            _ => throw new InvalidOperationException(
-                $"CPU read ${source.Bank:X2}:{source.Offset:X4} is outside the runtime address map."),
-        };
-    }
 }
 
 /// <summary>One native 12-byte <c>SamusSpeedTableEntry</c> from cartridge bank $90.</summary>

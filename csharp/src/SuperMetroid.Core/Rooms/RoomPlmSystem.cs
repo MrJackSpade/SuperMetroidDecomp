@@ -1554,7 +1554,7 @@ public sealed partial class RoomPlmSystem
                     unchecked((ushort)(slot.InstructionPointer + 2)));
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                 slot.InstructionTimer = instruction;
-                DrawRomInstruction(
+                DrawPlmInstruction(
                     bus,
                     level,
                     streamer,
@@ -1830,7 +1830,7 @@ public sealed partial class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
-    private void DrawRomInstruction(
+    private void DrawPlmInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -1839,10 +1839,10 @@ public sealed partial class RoomPlmSystem
         ushort layer1XPosition,
         ushort layer1YPosition,
         ushort bg1XOffset) =>
-        DrawRomInstruction(bus, level, streamer, 0, blockIndex, drawPointer,
+        DrawPlmInstruction(bus, level, streamer, 0, blockIndex, drawPointer,
             layer1XPosition, layer1YPosition, bg1XOffset);
 
-    private void DrawRomInstruction(
+    private void DrawPlmInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -2111,13 +2111,15 @@ public sealed partial class RoomPlmSystem
         int entryX = originX;
         int entryY = originY;
         ushort cursor = drawPointer;
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
+            throw new InvalidOperationException("A WRAM-authored PLM draw needs live mutable memory.");
 
-        // Retail movement-owned draw lists have at most two records and two words apiece.
-        // A generous structural guard makes malformed fixtures/ROM deterministic instead of
-        // allowing a missing terminator to wander through all of bank $84.
+        // A pointer that wrapped into the low bank-$84 mirror may consume active WRAM.
+        // Every cartridge-resident draw must already have a compiled definition above;
+        // the explicit WRAM API rejects all cartridge and peripheral offsets.
         for (int entryNumber = 0; entryNumber < 32; entryNumber++)
         {
-            ushort directionAndCount = ReadBank84Word(bus, cursor);
+            ushort directionAndCount = ReadPlmWorkRamWord(memory, cursor);
             bool vertical = (directionAndCount & 0x8000) != 0;
             int count = directionAndCount & 0x7fff;
             if (count is <= 0 or > 0xff)
@@ -2131,14 +2133,14 @@ public sealed partial class RoomPlmSystem
             {
                 int x = entryX + (vertical ? 0 : blockOffset);
                 int y = entryY + (vertical ? blockOffset : 0);
-                ushort levelWord = ReadBank84Word(bus, cursor);
+                ushort levelWord = ReadPlmWorkRamWord(memory, cursor);
                 cursor = unchecked((ushort)(cursor + 2));
                 DrawPlmWordAt(level, streamer, drawPointer, x, y, levelWord,
                     layer1XPosition, layer1YPosition, bg1XOffset);
             }
 
-            byte relativeX = ReadNativeBankByte(bus, new SnesAddress(0x84, cursor));
-            byte relativeY = ReadNativeBankByte(bus, new SnesAddress(0x84, unchecked((ushort)(cursor + 1))));
+            byte relativeX = ReadPlmWorkRamByte(memory, cursor);
+            byte relativeY = ReadPlmWorkRamByte(memory, unchecked((ushort)(cursor + 1)));
             if (relativeX == 0 && relativeY == 0)
                 return;
 
@@ -2307,10 +2309,11 @@ public sealed partial class RoomPlmSystem
         return blockX >= leftBlock && blockX < leftBlock + 17;
     }
 
-    private static ushort ReadBank84Word(ISnesAddressSpace bus, ushort address) =>
-        unchecked((ushort)(
-            ReadNativeBankByte(bus, new SnesAddress(0x84, address)) |
-            (ReadNativeBankByte(bus, new SnesAddress(0x84, unchecked((ushort)(address + 1)))) << 8)));
+    private static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
+        SnesWorkRam.ReadWord(memory, (int)new SnesAddress(0x84, offset));
+
+    private static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
+        memory.ReadWorkRamByte((int)new SnesAddress(0x84, offset));
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
@@ -2381,7 +2384,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : TryReadVerificationInstructionWord(address, out value)
                 ? value
-            : ReadBank84Word(bus, address);
+            : ReadPlmWorkRamWord(bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address);
 
     private byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
@@ -2434,30 +2438,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : TryReadVerificationInstructionByte(address, out value)
                 ? value
-            : ReadNativeBankByte(bus, new SnesAddress(0x84, address));
-
-    /// <summary>
-    /// Reads a native PLM pointer after its 16-bit bank offset wraps. The usual
-    /// upper-bank source is cartridge data; a low-window wrap reaches WRAM or an
-    /// unmapped CPU window, not more cartridge bytes.
-    /// </summary>
-    private static byte ReadNativeBankByte(ISnesAddressSpace bus, SnesAddress address) =>
-        SnesDmaSourceMap.Classify(address) switch
-        {
-            SnesDmaSourceKind.WorkRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "Low-window PLM data requires WRAM.")).ReadWorkRamByte((int)address),
-            SnesDmaSourceKind.SaveRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "PLM data in an SRAM window requires SRAM.")).ReadSaveRamByte((int)address),
-            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
-                $"PLM bank data {address} has no compiled instruction or draw definition."),
-            _ => throw new InvalidDataException(
-                $"PLM data read {address} is outside mapped cartridge/WRAM/SRAM data."),
-        };
-
-    /// <summary>Explicit CPU-bus boundary for native bank-$84 PLM pointers.</summary>
-    private static int Bank84(ushort offset) => (int)new SnesAddress(0x84, offset);
+            : ReadPlmWorkRamByte(bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address);
 
     private sealed class PlmSlot
     {

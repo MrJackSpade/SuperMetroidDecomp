@@ -145,7 +145,7 @@ public sealed partial class RoomPlmSystem
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
             level.SetPlmBehavior(slot.BlockIndex, blueBts);
-            DrawRomInstruction(
+            DrawPlmInstruction(
                 bus,
                 level,
                 streamer,
@@ -161,7 +161,7 @@ public sealed partial class RoomPlmSystem
 
         if (!door.InitialDrawCompleted)
         {
-            DrawRomInstruction(
+            DrawPlmInstruction(
                 bus,
                 level,
                 streamer,

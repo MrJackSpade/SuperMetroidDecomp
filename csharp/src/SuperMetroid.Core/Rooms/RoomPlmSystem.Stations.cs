@@ -572,7 +572,7 @@ public sealed partial class RoomPlmSystem
                 $"{station.Kind} station animation $84:{station.AnimationList:X4} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
-        DrawRomInstruction(
+        DrawPlmInstruction(
             bus,
             level,
             streamer,
@@ -633,7 +633,7 @@ public sealed partial class RoomPlmSystem
             throw new InvalidDataException(
                 $"Save-station animation list $84:{list:X4} has timer {timer}, expected 4.");
         }
-        DrawRomInstruction(
+        DrawPlmInstruction(
             bus,
             level,
             streamer,
@@ -720,7 +720,7 @@ public sealed partial class RoomPlmSystem
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
         ushort drawPointer = definition.DrawPointer(extended);
-        DrawRomInstruction(
+        DrawPlmInstruction(
             bus,
             level,
             streamer,

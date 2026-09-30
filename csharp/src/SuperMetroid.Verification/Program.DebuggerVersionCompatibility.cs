@@ -11,6 +11,7 @@ internal static partial class Program
         VerifyLegacyShinesparkGraph();
         VerifyFieldIdentityRestorationIgnoresMetadataOrder();
         VerifyLegacyRoomVisualLayoutState();
+        VerifyLegacyMutableMemoryGraph();
         MethodInfo expected = typeof(Program).GetMethod(nameof(DebuggerSignatureProbe), BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (bool wrongParameter in new[] { false, true })
         {
@@ -307,11 +308,17 @@ internal static partial class Program
 /// <summary>Stable wire identifiers emitted by the debugger object-graph serializer.</summary>
 internal static class DebuggerGraphWireDefinitions
 {
+    /// <summary>Refers to an object already emitted in the graph.</summary>
+    public const byte ReferenceObjectMarker = 1;
+
     /// <summary>Introduces an object/value not previously emitted in the graph.</summary>
     public const byte NewObjectMarker = 2;
 
     /// <summary>Identifies a primitive-value payload.</summary>
     public const byte PrimitivePayloadKind = 0;
+
+    /// <summary>Identifies a primitive-array payload with dimensions and a bounded byte stream.</summary>
+    public const byte PrimitiveArrayPayloadKind = 2;
 
     /// <summary>Identifies an object payload serialized as named instance fields.</summary>
     public const byte FieldsPayloadKind = 5;

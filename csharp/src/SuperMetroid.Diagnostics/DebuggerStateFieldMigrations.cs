@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroidSaveRam) && count == 1 && current.Length == 2 &&
+            current.Any(field => field.Name == "mutableMemory"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy save manager lacks its typed SRAM capability; rebinding to its existing mutable bus.");
+            return current.Where(field => field.Name != "mutableMemory").ToArray();
+        }
         if (type == typeof(RoomLevelData) && count == current.Length - 2 &&
             current.Any(field => field.Name == "_visualStreamingForegroundAllocation") &&
             current.Any(field => field.Name == "_visualStreamingBackgroundAllocation"))
@@ -526,6 +532,14 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroidSaveRam && serializedCount == 1)
+        {
+            Type type = typeof(SuperMetroidSaveRam);
+            object? bus = type.GetField("bus", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(instance);
+            if (bus is not SuperMetroid.Core.Hardware.ISnesMutableMemory)
+                throw new InvalidDataException("Legacy save manager's bus cannot supply active SRAM.");
+            type.GetField("mutableMemory", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, bus);
+        }
         if (instance is RoomLevelData && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(RoomLevelData)) - 2)
         {

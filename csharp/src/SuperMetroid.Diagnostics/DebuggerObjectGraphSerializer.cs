@@ -189,6 +189,8 @@ internal static class DebuggerObjectGraphSerializer
             if (marker == ObjectMarker.Reference)
             {
                 int id = reader.ReadInt32();
+                if (references.TryGetValue(id, out object? retired) && retired is RetiredCartridgePayload)
+                    throw new InvalidDataException("Debugger state attempts to reuse its retired cartridge payload.");
                 return references.TryGetValue(id, out object? existing)
                     ? existing
                     : throw new InvalidDataException(
@@ -316,6 +318,9 @@ internal static class DebuggerObjectGraphSerializer
                 Register(referenceId, instance);
             FieldInfo[] currentFields = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
+            if (type == typeof(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace) &&
+                currentFields.Length == 2 && count == 3)
+                return ReadLegacyAddressSpace(instance, currentFields, count);
             if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && currentFields.Length == 20)
             {
                 var preSuppressionFields = DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, 17);
@@ -352,6 +357,66 @@ internal static class DebuggerObjectGraphSerializer
             DebuggerStateFieldMigrations.InitializeMissingFields(instance, count);
             return instance;
         }
+
+        /// <summary>
+        /// Restore only the two physical mutable-memory fields. The removed _rom field is
+        /// recognized by exact declaring type/name, drained by import tooling, and replaced
+        /// by a reference tombstone so it cannot leak back through another graph alias.
+        /// </summary>
+        private object ReadLegacyAddressSpace(object instance, FieldInfo[] currentFields, int count)
+        {
+            var remaining = currentFields.ToDictionary(field => field.Name, StringComparer.Ordinal);
+            bool discardedRom = false;
+            for (int index = 0; index < count; index++)
+            {
+                Type declaringType = ResolveAllowedType(reader.ReadString());
+                string name = reader.ReadString();
+                if (declaringType != instance.GetType())
+                    throw new InvalidDataException("Legacy address-space field has the wrong declaring type.");
+                if (name == "_rom" && !discardedRom)
+                {
+                    DiscardLegacyCartridgeArray();
+                    discardedRom = true;
+                }
+                else if (remaining.Remove(name, out FieldInfo? field))
+                {
+                    object? data = Read();
+                    int expectedLength = name == "_workRam"
+                        ? SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.WorkRamByteCount
+                        : SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.SaveRamByteCount;
+                    if (data is not byte[] bytes || bytes.Length != expectedLength)
+                        throw new InvalidDataException($"Legacy address-space {name} has the wrong memory size.");
+                    field.SetValue(instance, bytes);
+                }
+                else
+                    throw new InvalidDataException($"Legacy address-space field {name} is unknown or duplicated.");
+            }
+            if (!discardedRom || remaining.Count != 0)
+                throw new InvalidDataException("Legacy address space did not restore both physical memory arrays.");
+            Console.Error.WriteLine("WARNING: Legacy debugger state's cartridge copy was discarded; " +
+                "restored WRAM/SRAM only. Installed catalogs must be rebound by the host.");
+            return instance;
+        }
+
+        private void DiscardLegacyCartridgeArray()
+        {
+            if ((ObjectMarker)reader.ReadByte() != ObjectMarker.New)
+                throw new InvalidDataException("Legacy cartridge field is not an owned byte-array payload.");
+            int id = reader.ReadInt32();
+            if (ResolveAllowedType(reader.ReadString()) != typeof(byte[]) ||
+                (PayloadKind)reader.ReadByte() != PayloadKind.PrimitiveArray)
+                throw new InvalidDataException("Legacy cartridge field is not a primitive byte array.");
+            int rank = reader.ReadInt32();
+            int length = reader.ReadInt32();
+            int lowerBound = reader.ReadInt32();
+            int byteLength = reader.ReadInt32();
+            if (rank != 1 || lowerBound != 0 || byteLength != length)
+                throw new InvalidDataException("Legacy cartridge array has inconsistent dimensions.");
+            Register(id, new RetiredCartridgePayload());
+            SuperMetroid.AssetExtraction.LegacyCartridgeStateImport.DiscardPayload(reader.BaseStream, byteLength);
+        }
+
+        private sealed class RetiredCartridgePayload;
 
         private int ReadNonnegativeLength(string label)
         {

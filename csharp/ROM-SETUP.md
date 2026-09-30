@@ -209,6 +209,13 @@ import a ROM or touch player data. This complements the separate
 neither command establishes whole-game parity. Exact coverage and remaining
 gates are recorded in `test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md`.
 
+`--installed-samus-file-contracts <installation-root>` checks all 34 Samus PNG/JSON
+resources using disposable copies. Invalid stock and edits report the exact file in the
+error message and retain the original codec exception; edits never hide bad stock.
+JSON fields are required, unknown or duplicated fields are rejected, and older version
+markers fail rather than silently changing appearance. Complete zero-valued fields must
+remain present: omitting a frame selector or an OAM coordinate is not equivalent to zero.
+
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

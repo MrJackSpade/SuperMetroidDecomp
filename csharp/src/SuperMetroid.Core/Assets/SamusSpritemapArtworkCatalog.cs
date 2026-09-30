@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable visual composition behind the bank-$92 Samus OAM pointer table.</summary>
@@ -95,4 +97,7 @@ public sealed class SamusSpritemapArtworkCatalog
 public sealed record SamusSpritemapDefinition(ushort Pointer, SamusSpritePart[] Parts);
 
 /// <summary>Encoded X/size word, signed-wrap Y byte, and complete OBJ attribute word.</summary>
-public readonly record struct SamusSpritePart(ushort X, byte Y, ushort Attributes);
+public readonly record struct SamusSpritePart(
+    [property: JsonRequired] ushort X,
+    [property: JsonRequired] byte Y,
+    [property: JsonRequired] ushort Attributes);

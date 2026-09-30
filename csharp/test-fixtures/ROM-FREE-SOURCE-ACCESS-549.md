@@ -433,9 +433,38 @@ corrected; no production algorithm, format, runtime state field or compiled timi
 
 This is bounded mechanics isolation for the listed owners, not exhaustive pose/input,
 wall-jump/grapple/X-ray, every environment boundary or enemy interaction acceptance.
-Required-reference and older-format admission review and the wider installation contract
-remain open in #541/#549. No tests were used to discover remaining cartridge reads, and
+The file-boundary checks below cover selected required-reference and version rejections;
+the wider installation contract remains open in #541/#549. No tests were used to discover remaining cartridge reads, and
 the deleted Core capability was not restored.
+
+## Samus file admission and diagnostics
+
+`SuperMetroid.RenderVerification --installed-samus-file-contracts <installation-root>`
+exercises the statically inventoried body, atmosphere, cannon and death loaders with
+copied extracted files. Before the fix, the fixture reproduced pathless hash/codec and
+catalog errors, accepted unknown or duplicated properties, and seven missing value-type
+frame/OAM fields silently becoming zero. The loaders now retain the exact selected file
+in the outer exception message and preserve the original exception. Nested component
+errors do not get misattributed to the enclosing body manifest. Cannon JSON and PNG
+admission have separate contexts, and JSON transfer metadata is checked before PNG
+decoding so invalid sizes are attributed to the manifest.
+
+All 34 required PNG/JSON files are tested in Debug and Release: **301 exact-path
+rejections and 30 stock-equivalent overrides**. Cases include missing/hash-corrupt stock,
+malformed overrides, hash-valid malformed stock before a valid override, missing/unknown/
+duplicate JSON fields (including nested value records), unsupported version numbers,
+null records, required spritemap/base/DMA/provenance references, invalid image dimensions
+and painting unused body characters. Every failing file is retained, missing files stay
+missing, and all fixture stock bytes and the final selected identity are unchanged.
+
+Fresh explicit import produces byte-identical output for all 34 Samus files. Release
+Android and the Windows checker build; the existing renderer/isolation checks remain
+separate acceptance evidence. The console no-dialog policy now also runs inside the
+outer catch before fallible work, so a policy initialization failure is guarded too.
+These are presentation-file admission changes, not gameplay or ROM-read discovery.
+Unsupported version markers are rejected; authentic older installation schemas, debugger
+formats, exhaustive frame references and the wider category/platform gates are not all
+established by this finite fixture. No Core cartridge capability was restored.
 
 ## Android platform startup acceptance
 

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,6 +17,8 @@ public static class SamusDeathPaletteArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -62,21 +65,21 @@ public static class SamusDeathPaletteArtworkFiles
 
     public static SamusDeathPaletteArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        ArtworkManifest manifest = Read<ArtworkManifest>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, ManifestFileName)));
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Samus death-palette manifest does not match the pinned cartridge.");
-        byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory, ArtworkFileName));
-        if (!string.Equals(manifest.ArtworkSha256, Convert.ToHexString(SHA256.HashData(stock)),
-            StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Stock Samus death-palette artwork failed its manifest hash.");
-        _ = Build(Read<ArtworkDocument>(stock));
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, ArtworkFileName);
-        return Build(Read<ArtworkDocument>(overridePath is not null && File.Exists(overridePath)
-            ? File.ReadAllBytes(overridePath) : stock));
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
+        return manifestFile.WithContext(() => LoadArtwork());
+
+        SamusDeathPaletteArtworkCatalog LoadArtwork()
+        {
+            if (manifest.Version != FormatVersion ||
+                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Samus death-palette manifest does not match the pinned cartridge.");
+            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory, ArtworkFileName), manifest.ArtworkSha256);
+            _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions)));
+            SamusArtworkFile selected = stock.Select(overrideDirectory);
+            return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions)));
+        }
     }
 
     private static SamusDeathPaletteArtworkCatalog Build(ArtworkDocument document)
@@ -100,19 +103,6 @@ public static class SamusDeathPaletteArtworkFiles
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
-    private static T Read<T>(byte[] bytes)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(bytes, JsonOptions) ??
-                throw new InvalidDataException($"Samus death {typeof(T).Name} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid Samus death {typeof(T).Name}.", error);
-        }
-    }
 
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);

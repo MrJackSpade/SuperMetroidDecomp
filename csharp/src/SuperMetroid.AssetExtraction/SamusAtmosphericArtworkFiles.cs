@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,6 +17,8 @@ public static class SamusAtmosphericArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -45,21 +48,21 @@ public static class SamusAtmosphericArtworkFiles
 
     public static SamusAtmosphericArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        ArtworkManifest manifest = Read<ArtworkManifest>(Path.Combine(stockDirectory, ManifestFileName));
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Samus atmospheric artwork manifest does not match the pinned cartridge.");
-        byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory, ArtworkFileName));
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), manifest.ArtworkSha256,
-            StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Stock Samus atmospheric artwork failed its manifest hash.");
-        _ = Build(Read<ArtworkDocument>(stock), "stock");
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, ArtworkFileName);
-        return overridePath is not null && File.Exists(overridePath)
-            ? Build(Read<ArtworkDocument>(File.ReadAllBytes(overridePath)), overridePath)
-            : Build(Read<ArtworkDocument>(stock), "stock");
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
+        return manifestFile.WithContext(() => LoadArtwork());
+
+        SamusAtmosphericArtworkCatalog LoadArtwork()
+        {
+            if (manifest.Version != FormatVersion ||
+                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Samus atmospheric artwork manifest does not match the pinned cartridge.");
+            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory, ArtworkFileName), manifest.ArtworkSha256);
+            _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions), stock.Path));
+            SamusArtworkFile selected = stock.Select(overrideDirectory);
+            return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions), selected.Path));
+        }
     }
 
     private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
@@ -88,21 +91,6 @@ public static class SamusAtmosphericArtworkFiles
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
-    private static T Read<T>(string path) => Read<T>(File.ReadAllBytes(path));
-
-    private static T Read<T>(byte[] bytes)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(bytes, JsonOptions) ??
-                throw new InvalidDataException($"Samus atmospheric {typeof(T).Name} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid Samus atmospheric {typeof(T).Name}.", error);
-        }
-    }
 
     private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);

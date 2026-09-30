@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,8 @@ public static class SamusArmCannonArtworkFiles
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -51,10 +54,10 @@ public static class SamusArmCannonArtworkFiles
         byte[] planar = new byte[SamusArmCannonArtworkFormat.TileSourcePointers.Length *
             SamusRenderingRomData.ArmCannon.TileUploadByteCount];
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.TileSourcePointers.Length; tile++)
-        for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileUploadByteCount; offset++)
-            planar[tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount + offset] =
-                bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
-                    (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
+            for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileUploadByteCount; offset++)
+                planar[tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount + offset] =
+                    bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
+                        (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.TileSourcePointers.Length,
             out int width, out int height);
@@ -84,41 +87,32 @@ public static class SamusArmCannonArtworkFiles
 
     public static SamusArmCannonArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        Manifest manifest;
-        try
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
+        return manifestFile.WithContext(() => LoadArtwork());
+
+        SamusArmCannonArtworkCatalog LoadArtwork()
         {
-            manifest = JsonSerializer.Deserialize<Manifest>(
-                File.ReadAllBytes(Path.Combine(stockDirectory, ManifestFileName)), JsonOptions)
-                ?? throw new InvalidDataException("Arm-cannon manifest is empty.");
+            if (manifest.Version != SamusArmCannonArtworkFormat.Version ||
+                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
+            SamusArtworkFile stockJson = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
+                SamusArmCannonArtworkFormat.JsonFileName), manifest.JsonSha256);
+            SamusArtworkFile stockPng = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
+                SamusArmCannonArtworkFormat.TileFileName), manifest.PngSha256);
+            _ = Compile(stockJson, stockPng);
+            return Compile(stockJson.Select(overrideDirectory), stockPng.Select(overrideDirectory));
         }
-        catch (JsonException error)
+
+        static SamusArmCannonArtworkCatalog Compile(SamusArtworkFile json, SamusArtworkFile png)
         {
-            throw new InvalidDataException("Arm-cannon manifest is invalid.", error);
+            var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
+            var tiles = png.Compile(stream => RoomCharacterAtlas.Load(stream,
+                SamusArmCannonArtworkFormat.TileSourcePointers.Length *
+                    SamusRenderingRomData.ArmCannon.TileUploadByteCount));
+            return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
         }
-        if (manifest.Version != SamusArmCannonArtworkFormat.Version ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
-        byte[] stockJson = File.ReadAllBytes(Path.Combine(stockDirectory,
-            SamusArmCannonArtworkFormat.JsonFileName));
-        byte[] stockPng = File.ReadAllBytes(Path.Combine(stockDirectory,
-            SamusArmCannonArtworkFormat.TileFileName));
-        if (!string.Equals(manifest.JsonSha256, Convert.ToHexString(SHA256.HashData(stockJson)),
-                StringComparison.OrdinalIgnoreCase) ||
-            !string.Equals(manifest.PngSha256, Convert.ToHexString(SHA256.HashData(stockPng)),
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Stock arm-cannon artwork failed its manifest hash.");
-        _ = SamusArmCannonArtworkCatalog.Load(new MemoryStream(stockJson), new MemoryStream(stockPng));
-        string? jsonOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
-            SamusArmCannonArtworkFormat.JsonFileName);
-        string? pngOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
-            SamusArmCannonArtworkFormat.TileFileName);
-        byte[] selectedJson = jsonOverride is not null && File.Exists(jsonOverride)
-            ? File.ReadAllBytes(jsonOverride) : stockJson;
-        byte[] selectedPng = pngOverride is not null && File.Exists(pngOverride)
-            ? File.ReadAllBytes(pngOverride) : stockPng;
-        return SamusArmCannonArtworkCatalog.Load(new MemoryStream(selectedJson),
-            new MemoryStream(selectedPng));
     }
 
     private sealed record Manifest(int Version, string SourceCartridgeSha256,

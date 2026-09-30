@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -24,6 +25,8 @@ public static class SamusBodyArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -96,38 +99,44 @@ public static class SamusBodyArtworkFiles
 
     public static SamusBodyArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        Manifest stock = ReadManifest(Path.Combine(stockDirectory, ManifestFileName));
-        ValidateManifest(stock);
+        SamusArtworkFile stockFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        Manifest stock = stockFile.Json<Manifest>(JsonOptions);
         // Always verify installed stock first; a replacement never conceals corruption.
-        _ = BuildCatalog(stockDirectory, stock, null);
-        string? overrideManifest = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, ManifestFileName);
-        Manifest selected = overrideManifest is not null && File.Exists(overrideManifest)
-            ? ReadManifest(overrideManifest) : stock;
-        ValidateManifest(selected);
-        if (selected.Hashes.Count != stock.Hashes.Count ||
-            stock.Hashes.Any(entry => !selected.Hashes.TryGetValue(entry.Key, out string? hash) ||
-                !string.Equals(hash, entry.Value, StringComparison.OrdinalIgnoreCase)))
-            throw new InvalidDataException("Samus body override must retain stock PNG provenance hashes.");
-        if (selected.Top.Length != stock.Top.Length || selected.Bottom.Length != stock.Bottom.Length ||
-            !selected.TopPointers.AsSpan().SequenceEqual(stock.TopPointers) ||
-            !selected.BottomPointers.AsSpan().SequenceEqual(stock.BottomPointers) ||
-            selected.Top.Where((set, i) => set.Length != stock.Top[i].Length).Any() ||
-            selected.Bottom.Where((set, i) => set.Length != stock.Bottom[i].Length).Any())
-            throw new InvalidDataException("Samus body override changes native definition identities.");
-        for (int set = 0; set < stock.Top.Length; set++)
-        for (int position = 0; position < stock.Top[set].Length; position++)
-            if (selected.Top[set][position].SourceAddress != stock.Top[set][position].SourceAddress)
-                throw new InvalidDataException("Samus body override changes a native top source identity.");
-        for (int set = 0; set < stock.Bottom.Length; set++)
-        for (int position = 0; position < stock.Bottom[set].Length; position++)
-            if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
-                throw new InvalidDataException("Samus body override changes a native bottom source identity.");
-        if (!selected.SpritemapPointers.AsSpan().SequenceEqual(stock.SpritemapPointers) ||
-            selected.Spritemaps.Length != stock.Spritemaps.Length ||
-            selected.Spritemaps.Where((entry, i) => entry.Pointer != stock.Spritemaps[i].Pointer).Any())
-            throw new InvalidDataException("Samus body override changes native spritemap identities.");
-        return BuildCatalog(stockDirectory, selected, overrideDirectory);
+        _ = stockFile.WithContext(() =>
+        {
+            ValidateManifest(stock);
+            return BuildCatalog(stockDirectory, stock, null);
+        });
+        SamusArtworkFile selectedFile = stockFile.Select(overrideDirectory);
+        return selectedFile.WithContext(() => LoadSelected(selectedFile.Json<Manifest>(JsonOptions)));
+
+        SamusBodyArtworkCatalog LoadSelected(Manifest selected)
+        {
+            ValidateManifest(selected);
+            if (selected.Hashes.Count != stock.Hashes.Count ||
+                stock.Hashes.Any(entry => !selected.Hashes.TryGetValue(entry.Key, out string? hash) ||
+                    !string.Equals(hash, entry.Value, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidDataException("Samus body override must retain stock PNG provenance hashes.");
+            if (selected.Top.Length != stock.Top.Length || selected.Bottom.Length != stock.Bottom.Length ||
+                !selected.TopPointers.AsSpan().SequenceEqual(stock.TopPointers) ||
+                !selected.BottomPointers.AsSpan().SequenceEqual(stock.BottomPointers) ||
+                selected.Top.Where((set, i) => set.Length != stock.Top[i].Length).Any() ||
+                selected.Bottom.Where((set, i) => set.Length != stock.Bottom[i].Length).Any())
+                throw new InvalidDataException("Samus body override changes native definition identities.");
+            for (int set = 0; set < stock.Top.Length; set++)
+                for (int position = 0; position < stock.Top[set].Length; position++)
+                    if (selected.Top[set][position].SourceAddress != stock.Top[set][position].SourceAddress)
+                        throw new InvalidDataException("Samus body override changes a native top source identity.");
+            for (int set = 0; set < stock.Bottom.Length; set++)
+                for (int position = 0; position < stock.Bottom[set].Length; position++)
+                    if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
+                        throw new InvalidDataException("Samus body override changes a native bottom source identity.");
+            if (!selected.SpritemapPointers.AsSpan().SequenceEqual(stock.SpritemapPointers) ||
+                selected.Spritemaps.Length != stock.Spritemaps.Length ||
+                selected.Spritemaps.Where((entry, i) => entry.Pointer != stock.Spritemaps[i].Pointer).Any())
+                throw new InvalidDataException("Samus body override changes native spritemap identities.");
+            return BuildCatalog(stockDirectory, selected, overrideDirectory);
+        }
     }
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
@@ -209,33 +218,39 @@ public static class SamusBodyArtworkFiles
         for (int set = 0; set < metadata.Length; set++)
         {
             string name = FileName(upperHalf, set);
-            byte[] stockPng = File.ReadAllBytes(Path.Combine(stockDirectory, name));
-            if (!manifest.Hashes.TryGetValue(name, out string? expectedHash) ||
-                !string.Equals(expectedHash, Convert.ToHexString(SHA256.HashData(stockPng)),
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock Samus body PNG {name} failed its manifest hash.");
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            byte[] selected = overridePath is not null && File.Exists(overridePath)
-                ? File.ReadAllBytes(overridePath) : stockPng;
+            if (!manifest.Hashes.TryGetValue(name, out string? expectedHash))
+                throw new InvalidDataException($"Samus body manifest omits the provenance hash for {name}.");
+            // Sizes belong to JSON, not to the PNG codec. Reject them under the
+            // manifest's context before reading any image that uses the sizes.
+            foreach (DefinitionEntry entry in metadata[set])
+                if (entry is null || entry.FirstSize == 0 ||
+                    entry.FirstSize + entry.SecondSize > SamusBodyArtworkCatalog.BytesPerDefinitionSlot ||
+                    (entry.FirstSize + entry.SecondSize) % 32 != 0)
+                    throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
+            SamusArtworkFile selected = SamusArtworkFile.Stock(Path.Combine(stockDirectory, name), expectedHash)
+                .Select(overrideDirectory);
             int height = checked(metadata[set].Length * DefinitionHeight);
-            IndexedPngImage image = IndexedPng.Read(new MemoryStream(selected, false), TileWidth, height);
-            byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, TileWidth, height, 4);
-            result[set] = new SamusBodyTileDefinition[metadata[set].Length];
-            for (int position = 0; position < result[set].Length; position++)
+            result[set] = selected.Compile(stream => DecodeSet(stream));
+
+            SamusBodyTileDefinition[] DecodeSet(Stream stream)
             {
-                DefinitionEntry entry = metadata[set][position];
-                int byteCount = entry.FirstSize + entry.SecondSize;
-                if (entry.FirstSize == 0 || byteCount > SamusBodyArtworkCatalog.BytesPerDefinitionSlot ||
-                    byteCount % 32 != 0)
-                    throw new InvalidDataException($"Samus body definition {name}/{position} has invalid sizes.");
-                ReadOnlySpan<byte> slot = planar.AsSpan(
-                    position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot,
-                    SamusBodyArtworkCatalog.BytesPerDefinitionSlot);
-                if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
-                    throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
-                result[set][position] = new SamusBodyTileDefinition(
-                    entry.SourceAddress, entry.FirstSize, entry.SecondSize,
-                    slot[..byteCount].ToArray());
+                IndexedPngImage image = IndexedPng.Read(stream, TileWidth, height);
+                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, TileWidth, height, 4);
+                var definitions = new SamusBodyTileDefinition[metadata[set].Length];
+                for (int position = 0; position < definitions.Length; position++)
+                {
+                    DefinitionEntry entry = metadata[set][position];
+                    int byteCount = entry.FirstSize + entry.SecondSize;
+                    ReadOnlySpan<byte> slot = planar.AsSpan(
+                        position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot,
+                        SamusBodyArtworkCatalog.BytesPerDefinitionSlot);
+                    if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
+                        throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
+                    definitions[position] = new SamusBodyTileDefinition(
+                        entry.SourceAddress, entry.FirstSize, entry.SecondSize,
+                        slot[..byteCount].ToArray());
+                }
+                return definitions;
             }
         }
         return result;
@@ -256,22 +271,10 @@ public static class SamusBodyArtworkFiles
             manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
             manifest.Bottom.Length != SamusBodyArtworkCatalog.BottomSetCount ||
             manifest.GraphicsYOffsets.Length != SamusBodyArtworkCatalog.PoseCount ||
-            manifest.Top.Any(set => set is null || set.Length == 0) ||
-            manifest.Bottom.Any(set => set is null || set.Length == 0))
+            manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
+            manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
+            manifest.Spritemaps.Any(entry => entry is null))
             throw new InvalidDataException("Samus body manifest does not match this installation.");
-    }
-
-    private static Manifest ReadManifest(string path)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(path), JsonOptions) ??
-                throw new InvalidDataException($"Samus body manifest {path} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid Samus body manifest {path}.", error);
-        }
     }
 
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>

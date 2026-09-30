@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -234,7 +235,10 @@ public sealed partial class SamusBodyArtworkCatalog
 
 /// <summary>Four-byte native selector: upper set/position, then lower set/position.</summary>
 public readonly record struct SamusBodyFrameSelection(
-    byte TopSet, byte TopPosition, byte BottomSet, byte BottomPosition);
+    [property: JsonRequired] byte TopSet,
+    [property: JsonRequired] byte TopPosition,
+    [property: JsonRequired] byte BottomSet,
+    [property: JsonRequired] byte BottomPosition);
 
 /// <summary>One native seven-byte transfer compiled from palette-indexed PNG tiles.</summary>
 public sealed class SamusBodyTileDefinition

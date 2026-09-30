@@ -2,9 +2,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
-NativeConsoleErrors.DisableDialogs();
 try
 {
+    NativeConsoleErrors.DisableDialogs();
+    if (args is ["--installed-samus-file-contracts", var samusFileRoot])
+    {
+        InstalledSamusFileContractTests.Run(samusFileRoot);
+        return;
+    }
     if (args is ["--installed-samus-isolation", var samusInstallationRoot])
     {
         using var fixture = new InstalledSamusArtworkFixture(samusInstallationRoot, editLayout: true);

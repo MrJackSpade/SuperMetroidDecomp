@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,6 +15,8 @@ public static class SamusDeathTileArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -27,9 +30,9 @@ public static class SamusDeathTileArtworkFiles
         if (segments.Length != SamusDeathTileAtlasFormat.SegmentCount)
             throw new InvalidDataException("Samus death atlas does not cover every native tile transfer.");
         for (int segment = 0; segment < segments.Length; segment++)
-        for (int offset = 0; offset < SamusSpecialSequenceRomData.Death.TileSegmentByteCount; offset++)
-            planar[segment * SamusSpecialSequenceRomData.Death.TileSegmentByteCount + offset] =
-                bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
+            for (int offset = 0; offset < SamusSpecialSequenceRomData.Death.TileSegmentByteCount; offset++)
+                planar[segment * SamusSpecialSequenceRomData.Death.TileSegmentByteCount + offset] =
+                    bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,
             out int width, out int height);
@@ -46,35 +49,20 @@ public static class SamusDeathTileArtworkFiles
 
     public static SamusDeathTileAtlas Load(string stockDirectory, string? overrideDirectory)
     {
-        ArtworkManifest manifest = ReadManifest(Path.Combine(stockDirectory,
-            SamusDeathTileAtlasFormat.ManifestFileName));
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Samus death-tile manifest does not match the pinned cartridge.");
-        byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory,
-            SamusDeathTileAtlasFormat.ArtworkFileName));
-        if (!string.Equals(manifest.ArtworkSha256, Convert.ToHexString(SHA256.HashData(stock)),
-            StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Stock Samus death-tile PNG failed its manifest hash.");
-        _ = SamusDeathTileAtlas.Load(new MemoryStream(stock, writable: false));
-        string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
-            SamusDeathTileAtlasFormat.ArtworkFileName);
-        byte[] selected = overridePath is not null && File.Exists(overridePath)
-            ? File.ReadAllBytes(overridePath) : stock;
-        return SamusDeathTileAtlas.Load(new MemoryStream(selected, writable: false));
-    }
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, SamusDeathTileAtlasFormat.ManifestFileName));
+        ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
+        return manifestFile.WithContext(() => LoadArtwork());
 
-    private static ArtworkManifest ReadManifest(string path)
-    {
-        try
+        SamusDeathTileAtlas LoadArtwork()
         {
-            return JsonSerializer.Deserialize<ArtworkManifest>(File.ReadAllBytes(path), JsonOptions) ??
-                throw new InvalidDataException($"Samus death-tile manifest {path} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid Samus death-tile manifest {path}.", error);
+            if (manifest.Version != FormatVersion ||
+                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Samus death-tile manifest does not match the pinned cartridge.");
+            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
+                SamusDeathTileAtlasFormat.ArtworkFileName), manifest.ArtworkSha256);
+            _ = stock.Compile(SamusDeathTileAtlas.Load);
+            return stock.Select(overrideDirectory).Compile(SamusDeathTileAtlas.Load);
         }
     }
 

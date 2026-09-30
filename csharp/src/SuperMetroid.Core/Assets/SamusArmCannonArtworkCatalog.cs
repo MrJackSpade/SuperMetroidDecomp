@@ -39,6 +39,23 @@ public sealed class SamusArmCannonArtworkCatalog
     {
         ArgumentNullException.ThrowIfNull(json);
         ArgumentNullException.ThrowIfNull(tilePng);
+        Placement placement = LoadPlacement(json);
+        RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
+            SamusArmCannonArtworkFormat.TileSourcePointers.Length *
+                SamusRenderingRomData.ArmCannon.TileUploadByteCount);
+        return FromPlacement(placement, tiles);
+    }
+
+    // Placement and PNG admission are distinct file boundaries. The installer can
+    // identify the failing file without attributing JSON errors to the tile sheet.
+    internal sealed record Placement(ushort[] PosePointers, byte[] DrawingData,
+        ushort[] Attributes, ushort[][] TileSources);
+
+    internal static SamusArmCannonArtworkCatalog FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
+        new(placement.PosePointers, placement.DrawingData, placement.Attributes, placement.TileSources, tiles);
+
+    internal static Placement LoadPlacement(Stream json)
+    {
         SamusArmCannonArtworkDocument document;
         try
         {
@@ -88,11 +105,7 @@ public sealed class SamusArmCannonArtworkCatalog
                 throw new InvalidDataException(
                     $"Arm-cannon direction {direction} selects a missing tile.");
         }
-        RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
-            SamusArmCannonArtworkFormat.TileSourcePointers.Length *
-                SamusRenderingRomData.ArmCannon.TileUploadByteCount);
-        return new SamusArmCannonArtworkCatalog(pointers, data, attributes,
-            sources, tiles);
+        return new Placement(pointers, data, attributes, sources);
     }
 
     public static byte[] Write(SamusArmCannonArtworkDocument document)

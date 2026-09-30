@@ -1,4 +1,15 @@
-# ROM-free retail-room census (#549)
+# Archived retail-room census evidence (#549)
+
+This file preserves dated diagnostic results, **not the current migration strategy**.
+The instructions and source-reader descriptions below describe older commits.
+Do not run these gameplay/census/probe commands to discover cartridge reads.
+The current source/type-boundary inventory and remaining acceptance work are in
+[ROM-FREE-SOURCE-ACCESS-549.md](ROM-FREE-SOURCE-ACCESS-549.md).
+
+As of the 2026-09-29 migration, Core has no cartridge reader or ROM allocation;
+the concrete `SuperMetroidAddressSpace.ReadByte` reference API and Core import
+fallbacks described below have been removed. Native reference decoding lives in
+AssetExtraction. A passing archived gameplay path cannot establish completeness.
 
 ## Compiler-guided read-API migration (2026-09-28)
 

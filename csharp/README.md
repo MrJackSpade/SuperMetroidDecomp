@@ -1,8 +1,12 @@
 # C# port workspace
 
-This directory contains the actively developed C# translation. Most player installations
-retain a private ROM copy; a complete extracted installation can now start experimentally
-without that copy, but not every gameplay route is ROM-independent yet. It targets
+This directory contains the actively developed C# translation. Cartridge access belongs to
+asset import, not gameplay: Core contains no ROM allocation, cartridge reader, cartridge
+decompressor, or importer reference. A complete extracted installation opens mutable WRAM/SRAM
+and installed presentation resources without opening the retained private ROM. Source-level
+boundary auditing and platform acceptance are tracked in
+[the ROM-free migration audit](test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md); this architectural
+boundary is not a claim of complete gameplay parity. It targets
 `.NET 10` on Windows and treats warnings as errors. Open `SuperMetroid.slnx` in Visual Studio
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
@@ -52,8 +56,10 @@ playable in sequence.
 dotnet run --project src/SuperMetroid.Game
 ```
 
-First launch offers a ROM picker and extracts the required audio automatically. Later launches
-use the installed copy in `%LOCALAPPDATA%/SuperMetroid/game/`. The supported image is Japan/USA
+First launch offers a ROM picker and extracts the required assets automatically. Later launches
+validate and use the extracted resources in `%LOCALAPPDATA%/SuperMetroid/game/` without
+opening its private ROM copy. An incomplete installation enters the import/repair path.
+The supported image is Japan/USA
 NTSC v1.0, with or without a copier header. See [ROM setup](ROM-SETUP.md) for storage and CLI usage.
 Startup also accepts one explicit ROM path or the `SUPERMETROID_ROM` environment variable:
 
@@ -298,7 +304,8 @@ Implemented room infrastructure includes:
 - translated encounter mutations for Bomb Torizo, Spore Spawn, Botwoon, Crocomire, Shitroid,
   and Mother Brain.
 
-Room loading now parses every six-byte population record exactly once in ROM order. It allocates
+Room loading now consumes immutable decoded PLM placements exactly once in native order. Core
+cannot parse population/header/scroll/item-graphics bytes from a cartridge bus. It allocates
 the native forty-slot pool from highest ID downward before dispatching reusable setup handlers;
 synchronous-delete setups free their physical slot for the next record just as `$84:846A` does.
 Unsupported headers throw with population pointer, record index, header/setup/list pointers,
@@ -308,7 +315,8 @@ family and its shared bank-$A5 firing-control words.
 
 Room headers expose FX, X-ray, room-main, PLM, background, and setup pointers, but only the
 translated consumers are executed. Room loading now selects the door-matched sixteen-byte FX
-record and runs its bank-$8D palette-object bitset through a shared ROM interpreter; unsupported
+record from compiled definitions and runs its bank-$8D palette-object bitset through a shared
+compiled-program interpreter; unsupported
 setup/pre-instruction/audio side effects fail with their native pointers. FX types, liquid/tide
 state, palette blending, bank-$87 animated tiles, and X-ray room-data-driven BG2 substitution are
 not general yet. Arbitrary room setup code and room-main code are also not generally dispatched;

@@ -13,12 +13,11 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
         if (planar.Length != SamusDeathTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException("Samus death tile atlas has the wrong transfer size.");
         this.planar = planar;
-        ContentIdentity = SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
-            content => content.Append("death characters", this.planar));
     }
 
     /// <summary>SHA-256 of all five selected death-explosion character uploads.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
+        content => content.Append("death characters", this.planar));
 
     public static SamusDeathTileAtlas Load(Stream png)
     {

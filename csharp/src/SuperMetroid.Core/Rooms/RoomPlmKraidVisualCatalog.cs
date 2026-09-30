@@ -12,7 +12,7 @@ public sealed record RoomPlmKraidVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmKraidVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmKraidVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -38,7 +38,6 @@ public sealed class RoomPlmKraidVisualCatalog
             throw new InvalidDataException(
                 "Kraid room visuals do not cover all ten compiled draws.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmKraidVisualCatalog), blocks);
     }
 
     public static RoomPlmKraidVisualCatalog Stock() => new(

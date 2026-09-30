@@ -14,7 +14,7 @@ public sealed record RoomPlmShotBlockVisualEntry(ushort DrawPointer, ushort[][] 
 public sealed class RoomPlmShotBlockVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmShotBlockVisualCatalog), words);
 
     private readonly Dictionary<ushort, ushort[][]> words;
 
@@ -47,7 +47,6 @@ public sealed class RoomPlmShotBlockVisualCatalog
         if (selected.Count != RoomPlmShotBlockDrawDefinitions.All.Count())
             throw new InvalidDataException("Shot-block visuals do not cover all compiled draw lists.");
         words = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmShotBlockVisualCatalog), words);
     }
 
     /// <summary>Native visual selections, useful when no installed override is present.</summary>

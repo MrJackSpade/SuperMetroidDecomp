@@ -12,7 +12,7 @@ public sealed record RoomPlmSporeSpawnCeilingVisualEntry(string Id, ushort[] Blo
 public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmSporeSpawnCeilingVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -39,7 +39,6 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
             throw new InvalidDataException(
                 "Spore Spawn ceiling visuals do not cover all four compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmSporeSpawnCeilingVisualCatalog), blocks);
     }
 
     public static RoomPlmSporeSpawnCeilingVisualCatalog Stock() => new(

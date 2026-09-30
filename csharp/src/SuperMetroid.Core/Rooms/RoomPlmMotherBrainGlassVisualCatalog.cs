@@ -13,7 +13,7 @@ public sealed record RoomPlmMotherBrainGlassVisualEntry(string Id, ushort[] Bloc
 public sealed class RoomPlmMotherBrainGlassVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainGlassVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -40,7 +40,6 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
             throw new InvalidDataException(
                 "Mother Brain glass visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainGlassVisualCatalog), blocks);
     }
 
     public static RoomPlmMotherBrainGlassVisualCatalog Stock() => new(

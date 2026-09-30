@@ -14,7 +14,7 @@ public sealed record RoomPlmMotherBrainFakeDeathVisualEntry(
 public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -40,7 +40,6 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         if (blocks.Count != MotherBrainFakeDeathPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Mother Brain fake-death visuals do not cover all twenty-two draws.");
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), blocks);
     }
 
     public static RoomPlmMotherBrainFakeDeathVisualCatalog Stock() => new(

@@ -12,7 +12,7 @@ public sealed record RoomPlmEscapeGateVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmEscapeGateVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEscapeGateVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -36,7 +36,6 @@ public sealed class RoomPlmEscapeGateVisualCatalog
             throw new InvalidDataException(
                 "Escape-gate visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEscapeGateVisualCatalog), blocks);
     }
 
     public static RoomPlmEscapeGateVisualCatalog Stock() => new(

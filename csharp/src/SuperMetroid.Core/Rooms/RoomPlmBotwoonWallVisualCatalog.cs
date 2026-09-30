@@ -13,7 +13,8 @@ public sealed record RoomPlmBotwoonWallVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmBotwoonWallVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmBotwoonWallVisualCatalog),
+        content => content.AppendWords("blocks", blocks));
 
     private readonly ushort[] blocks;
 
@@ -30,8 +31,6 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             throw new InvalidDataException(
                 "Botwoon wall visuals must contain exactly one nine-block clear frame.");
         blocks = selected[0].Blocks.ToArray();
-        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomPlmBotwoonWallVisualCatalog),
-            content => content.AppendWords("blocks", blocks));
     }
 
     public static RoomPlmBotwoonWallVisualCatalog Stock() => new(

@@ -327,16 +327,34 @@ internal static class DebuggerObjectGraphSerializer
                 DebuggerLegacyShinesparkReader.Restore(legacySpark, preSuppressionFields, reader, ResolveAllowedType, Read);
                 return instance;
             }
-            FieldInfo[] expected = DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, count);
+            bool hasRetiredIdentity = count == currentFields.Length + 1 &&
+                DebuggerPresentationIdentityFieldDefinitions.Contains(type);
+            FieldInfo[] expected = hasRetiredIdentity ? currentFields :
+                DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, count);
             var remaining = currentFields.ToDictionary(
                 field => (field.DeclaringType!, field.Name),
                 field => field);
             var restored = new HashSet<FieldInfo>();
+            bool discardedIdentity = false;
             for (int index = 0; index < count; index++)
             {
                 string declaringName = reader.ReadString();
                 string fieldName = reader.ReadString();
                 Type declaringType = ResolveAllowedType(declaringName);
+                if (hasRetiredIdentity && declaringType == type &&
+                    fieldName == DebuggerPresentationIdentityFieldDefinitions.RetiredFieldName)
+                {
+                    // Pre-fingerprint layouts already match current fields. Only the brief
+                    // cached-hash layout needs this exact extra member drained. Never trust
+                    // its value: the restored catalog recomputes identity from selected data.
+                    if (discardedIdentity || Read() is not string digest ||
+                        digest.Length != DebuggerPresentationIdentityFieldDefinitions.DigestHexLength ||
+                        digest.Any(character => !char.IsAsciiHexDigit(character)))
+                        throw new InvalidDataException(
+                            $"Legacy {type.FullName} presentation identity is duplicated or is not SHA-256.");
+                    discardedIdentity = true;
+                    continue;
+                }
                 if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
                 {
                     throw new InvalidDataException(
@@ -346,7 +364,7 @@ internal static class DebuggerObjectGraphSerializer
                 field.SetValue(instance, Read());
                 restored.Add(field);
             }
-            if (!restored.SetEquals(expected))
+            if (!restored.SetEquals(expected) || hasRetiredIdentity && !discardedIdentity)
             {
                 throw new InvalidDataException(
                     $"Serialized {type.FullName} field set does not match its supported " +
@@ -354,7 +372,8 @@ internal static class DebuggerObjectGraphSerializer
                     string.Join(", ", currentFields.Except(restored).Select(field => field.Name)) +
                     ".");
             }
-            DebuggerStateFieldMigrations.InitializeMissingFields(instance, count);
+            DebuggerStateFieldMigrations.InitializeMissingFields(instance,
+                hasRetiredIdentity ? currentFields.Length : count);
             return instance;
         }
 

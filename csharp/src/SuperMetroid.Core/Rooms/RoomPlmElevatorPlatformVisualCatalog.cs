@@ -12,7 +12,7 @@ public sealed record RoomPlmElevatorPlatformVisualEntry(string Id, ushort[][] Ru
 public sealed class RoomPlmElevatorPlatformVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmElevatorPlatformVisualCatalog), words);
 
     private readonly Dictionary<ushort, ushort[][]> words;
 
@@ -48,7 +48,6 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
             throw new InvalidDataException(
                 "Elevator-platform visuals do not cover all compiled frames.");
         words = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmElevatorPlatformVisualCatalog), words);
     }
 
     public static RoomPlmElevatorPlatformVisualCatalog Stock() => new(

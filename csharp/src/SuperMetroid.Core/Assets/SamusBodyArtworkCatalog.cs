@@ -110,11 +110,10 @@ public sealed partial class SamusBodyArtworkCatalog
         // The contiguous bank image also contains bytes reached only by a frame
         // counter running past its authored list. Validate a selection when it is
         // actually used, not every four-byte word in the backing ROM interval.
-        ContentIdentity = CreateContentIdentity();
     }
 
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => CreateContentIdentity();
 
     public ReadOnlySpan<ushort> TopSetPointers => topPointers;
     public ReadOnlySpan<ushort> BottomSetPointers => bottomPointers;

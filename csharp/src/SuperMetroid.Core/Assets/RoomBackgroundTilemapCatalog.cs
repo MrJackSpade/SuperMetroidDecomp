@@ -15,12 +15,11 @@ public sealed class RoomBackgroundTilemapCatalog
                 $"Room background catalog requires " +
                 $"{RoomBackgroundTilemapFormat.RetailCompressedSourceCount} complete sources.");
         this.bySource = new Dictionary<int, RoomBackgroundTilemapAtlas>(bySource);
-        ContentIdentity = SelectedPresentationHash.FromTransfers(
-            nameof(RoomBackgroundTilemapCatalog), this.bySource, atlas => atlas.Transfer);
     }
 
     /// <summary>SHA-256 of every selected library-background page in stable source order.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
+        nameof(RoomBackgroundTilemapCatalog), this.bySource, atlas => atlas.Transfer);
 
     public RoomBackgroundTilemapAtlas Get(int sourceAddress) =>
         bySource.TryGetValue(sourceAddress, out RoomBackgroundTilemapAtlas? atlas)

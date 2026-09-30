@@ -13,7 +13,7 @@ public sealed record RoomPlmDraygonCannonVisualEntry(string Id, ushort[] Blocks)
 public sealed class RoomPlmDraygonCannonVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDraygonCannonVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -40,7 +40,6 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
             throw new InvalidDataException(
                 "Draygon cannon visuals do not cover all reachable compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDraygonCannonVisualCatalog), blocks);
     }
 
     public static RoomPlmDraygonCannonVisualCatalog Stock() => new(

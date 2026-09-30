@@ -12,7 +12,8 @@ public sealed record RoomPlmSpeedBoosterVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmSpeedBoosterVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
+        content => content.Append("visual word", visualWord));
 
     private readonly ushort visualWord;
 
@@ -29,8 +30,6 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
             throw new InvalidDataException(
                 "Speed Booster visuals require exactly one bomb-reveal visual block.");
         visualWord = blocks[0];
-        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
-            content => content.Append("visual word", visualWord));
     }
 
     public static RoomPlmSpeedBoosterVisualCatalog Stock() => new(

@@ -38,20 +38,19 @@ public sealed class SamusDeathPaletteArtworkCatalog
         this.suitless = suitless.Select(row => (ushort[])row.Clone()).ToArray();
         this.whiteout = (ushort[])whiteout.Clone();
         this.explosionPaletteIndices = (ushort[])explosionPaletteIndices.Clone();
-        ContentIdentity = SelectedPresentationHash.Create(nameof(SamusDeathPaletteArtworkCatalog), content =>
-        {
-            foreach (ushort[][] family in this.suited)
-            foreach (ushort[] row in family)
-                content.AppendWords("suited row", row);
-            foreach (ushort[] row in this.suitless)
-                content.AppendWords("suitless row", row);
-            content.AppendWords("whiteout", this.whiteout);
-            content.AppendWords("explosion palette indices", this.explosionPaletteIndices);
-        });
     }
 
     /// <summary>SHA-256 of selected suited/suitless colors, whiteout shades and explosion selectors.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathPaletteArtworkCatalog), content =>
+    {
+        foreach (ushort[][] family in this.suited)
+        foreach (ushort[] row in family)
+            content.AppendWords("suited row", row);
+        foreach (ushort[] row in this.suitless)
+            content.AppendWords("suitless row", row);
+        content.AppendWords("whiteout", this.whiteout);
+        content.AppendWords("explosion palette indices", this.explosionPaletteIndices);
+    });
 
     public ushort SuitedColor(int suit, int palette, int color) => suited[suit][palette][color];
     public ushort SuitlessColor(int palette, int color) => suitless[palette][color];

@@ -12,7 +12,7 @@ public sealed record RoomPlmStationVisualEntry(string Id, ushort[][] Runs);
 public sealed class RoomPlmStationVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmStationVisualCatalog), words);
 
     private readonly Dictionary<ushort, ushort[][]> words;
 
@@ -45,7 +45,6 @@ public sealed class RoomPlmStationVisualCatalog
         if (selected.Count != RoomPlmStationDrawDefinitions.All.Count())
             throw new InvalidDataException("Station visuals do not cover all compiled frames.");
         words = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmStationVisualCatalog), words);
     }
 
     public static RoomPlmStationVisualCatalog Stock() => new(

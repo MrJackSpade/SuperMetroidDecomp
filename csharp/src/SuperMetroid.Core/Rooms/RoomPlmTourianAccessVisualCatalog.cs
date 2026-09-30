@@ -12,7 +12,7 @@ public sealed record RoomPlmTourianAccessVisualEntry(string Id, ushort[] Blocks)
 public sealed class RoomPlmTourianAccessVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmTourianAccessVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -39,7 +39,6 @@ public sealed class RoomPlmTourianAccessVisualCatalog
             throw new InvalidDataException(
                 "Tourian access visuals do not cover all five compiled layouts.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmTourianAccessVisualCatalog), blocks);
     }
 
     public static RoomPlmTourianAccessVisualCatalog Stock() => new(

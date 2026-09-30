@@ -12,7 +12,7 @@ public sealed record RoomPlmBlueDoorVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmBlueDoorVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBlueDoorVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -35,7 +35,6 @@ public sealed class RoomPlmBlueDoorVisualCatalog
         if (selected.Count != BlueDoorPlmDrawDefinitions.Editable.Count())
             throw new InvalidDataException("Blue-door visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBlueDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmBlueDoorVisualCatalog Stock() => new(

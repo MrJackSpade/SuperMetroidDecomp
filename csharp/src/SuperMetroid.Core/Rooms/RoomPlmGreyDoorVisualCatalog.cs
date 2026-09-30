@@ -12,7 +12,7 @@ public sealed record RoomPlmGreyDoorVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmGreyDoorVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGreyDoorVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -37,7 +37,6 @@ public sealed class RoomPlmGreyDoorVisualCatalog
             throw new InvalidDataException(
                 "Grey-door visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGreyDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmGreyDoorVisualCatalog Stock() => new(

@@ -126,6 +126,14 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   envelopes, both preserved #350/#353 captures, and 45 exact continuation frames
   (pixels, PCM and acknowledgements). The save manager's missing typed SRAM alias
   rebinds to its captured bus, without inventing or reopening cartridge state.
+- Catalog state compatibility: a pre-fingerprint blue-door fixture reproduced the
+  field-count failure introduced by a cached identity. All 39 affected room, Samus
+  and PLM catalogs now compute their digests without serialized hash fields.
+  Explicit schema rules accept the brief cached-hash layouts only for those named
+  types and the exact retired SHA-256 field. Focused fixtures restore all 39
+  pre-hash, cached-hash and current layouts with identical selected-content
+  identity; seven malformed or unrelated layouts still reject. No generic
+  unknown-field tolerance or cartridge restoration is involved.
 
 These focused checks exercise known conversions. They are not a room playthrough
 or proof of visual/gameplay parity for every event.

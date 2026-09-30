@@ -23,12 +23,11 @@ public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
                 throw new InvalidDataException($"Scrolling sky page {index} has the wrong length.");
             atlas.Transfer.Span.CopyTo(pages.AsSpan(index * RoomSkyTilemapFormat.PageByteCount));
         }
-        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
-            content => content.Append("pages", pages));
     }
 
     /// <summary>SHA-256 of all seven selected sky pages in their scrolling order.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomSkyTilemapCatalog),
+        content => content.Append("pages", pages));
 
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {

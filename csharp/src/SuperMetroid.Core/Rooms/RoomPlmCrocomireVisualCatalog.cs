@@ -12,7 +12,7 @@ public sealed record RoomPlmCrocomireVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmCrocomireVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmCrocomireVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -38,7 +38,6 @@ public sealed class RoomPlmCrocomireVisualCatalog
         if (blocks.Count != CrocomireArenaPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Crocomire visuals do not cover all five compiled draws.");
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmCrocomireVisualCatalog), blocks);
     }
 
     public static RoomPlmCrocomireVisualCatalog Stock() => new(

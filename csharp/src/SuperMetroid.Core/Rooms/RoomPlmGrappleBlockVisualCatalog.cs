@@ -12,7 +12,7 @@ public sealed record RoomPlmGrappleBlockVisualEntry(ushort DrawPointer, ushort V
 public sealed class RoomPlmGrappleBlockVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog), words);
 
     private readonly Dictionary<ushort, ushort> words;
 
@@ -36,7 +36,6 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
             throw new InvalidDataException(
                 "Grapple-block visuals do not cover all compiled draw lists.");
         words = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog), words);
     }
 
     public static RoomPlmGrappleBlockVisualCatalog Stock() => new(

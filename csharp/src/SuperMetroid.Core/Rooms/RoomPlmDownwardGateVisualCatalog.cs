@@ -12,7 +12,7 @@ public sealed record RoomPlmDownwardGateVisualEntry(string Id, ushort[][] Runs);
 public sealed class RoomPlmDownwardGateVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDownwardGateVisualCatalog), words);
 
     private readonly Dictionary<ushort, ushort[][]> words;
 
@@ -45,7 +45,6 @@ public sealed class RoomPlmDownwardGateVisualCatalog
         if (selected.Count != DownwardGatePlmDrawDefinitions.All.Count())
             throw new InvalidDataException("Downward gate visuals do not cover all compiled frames.");
         words = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDownwardGateVisualCatalog), words);
     }
 
     public static RoomPlmDownwardGateVisualCatalog Stock() => new(

@@ -12,7 +12,7 @@ public sealed record RoomPlmNoobTubeVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmNoobTubeVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmNoobTubeVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -37,7 +37,6 @@ public sealed class RoomPlmNoobTubeVisualCatalog
             throw new InvalidDataException(
                 "N00b-tube visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmNoobTubeVisualCatalog), blocks);
     }
 
     public static RoomPlmNoobTubeVisualCatalog Stock() => new(

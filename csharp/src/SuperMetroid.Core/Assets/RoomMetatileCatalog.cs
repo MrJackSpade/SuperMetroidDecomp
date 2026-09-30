@@ -20,14 +20,13 @@ public sealed class RoomMetatileCatalog
                     $"Room metatile catalog lacks graphics set ${graphicsSet:X2} source ${source:X6}.");
         }
         this.bySource = new Dictionary<int, RoomMetatileAtlas>(bySource);
-        ContentIdentity = SelectedPresentationHash.FromTransfers(
-            nameof(RoomMetatileCatalog), this.bySource, atlas => atlas.Transfer, Cre.Transfer);
     }
 
     public RoomMetatileAtlas Cre { get; }
 
     /// <summary>SHA-256 of selected metatile words, including flips, palettes, and priority.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
+        nameof(RoomMetatileCatalog), this.bySource, atlas => atlas.Transfer, Cre.Transfer);
 
     public RoomMetatileAtlas Get(int sourceAddress) =>
         bySource.TryGetValue(sourceAddress, out RoomMetatileAtlas? atlas)

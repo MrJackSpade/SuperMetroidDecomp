@@ -52,27 +52,26 @@ public sealed class SamusSpritemapArtworkCatalog
         foreach (ushort index in this.topBases.Concat(this.bottomBases))
             if (index >= PointerCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
-        ContentIdentity = SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
-        {
-            content.AppendWords("top bases", this.topBases);
-            content.AppendWords("bottom bases", this.bottomBases);
-            content.AppendWords("pointers", this.pointers);
-            foreach ((ushort pointer, SamusSpritemapDefinition definition) in this.definitions.OrderBy(pair => pair.Key))
-            {
-                content.Append("pointer", pointer);
-                content.Append("part count", definition.Parts.Length);
-                foreach (SamusSpritePart part in definition.Parts)
-                {
-                    content.Append("x", part.X);
-                    content.Append("y", part.Y);
-                    content.Append("attributes", part.Attributes);
-                }
-            }
-        });
     }
 
     /// <summary>SHA-256 of selected pose bases, frame pointers and ordered OBJ composition parts.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+    {
+        content.AppendWords("top bases", this.topBases);
+        content.AppendWords("bottom bases", this.bottomBases);
+        content.AppendWords("pointers", this.pointers);
+        foreach ((ushort pointer, SamusSpritemapDefinition definition) in this.definitions.OrderBy(pair => pair.Key))
+        {
+            content.Append("pointer", pointer);
+            content.Append("part count", definition.Parts.Length);
+            foreach (SamusSpritePart part in definition.Parts)
+            {
+                content.Append("x", part.X);
+                content.Append("y", part.Y);
+                content.Append("attributes", part.Attributes);
+            }
+        }
+    });
 
     public ReadOnlySpan<ushort> TopBases => topBases;
     public ReadOnlySpan<ushort> BottomBases => bottomBases;

@@ -12,7 +12,7 @@ public sealed record RoomPlmBombTorizoHandVisualEntry(string Id, ushort[] Blocks
 public sealed class RoomPlmBombTorizoHandVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBombTorizoHandVisualCatalog), blocks);
 
     private readonly Dictionary<ushort, ushort[]> blocks;
 
@@ -39,7 +39,6 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
             throw new InvalidDataException(
                 "Bomb Torizo hand visuals do not cover all compiled frames.");
         blocks = selected;
-        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBombTorizoHandVisualCatalog), blocks);
     }
 
     public static RoomPlmBombTorizoHandVisualCatalog Stock() => new(

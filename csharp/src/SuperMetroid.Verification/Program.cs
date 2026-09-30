@@ -54,6 +54,11 @@ if (args is ["--enemy-content-identity"])
     VerifyEnemyContentIdentity();
     return 0;
 }
+if (args is ["--catalog-identity-state-compatibility"])
+{
+    VerifyCatalogIdentityStateCompatibility();
+    return 0;
+}
 if (args is ["--plm-content-identity"])
 {
     VerifyPlmContentIdentity();

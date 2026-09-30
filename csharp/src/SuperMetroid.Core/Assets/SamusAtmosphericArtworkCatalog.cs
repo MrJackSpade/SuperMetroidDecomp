@@ -21,15 +21,14 @@ public sealed class SamusAtmosphericArtworkCatalog
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
         this.typeOne = (ushort[])typeOne.Clone();
         this.sharedTypeFour = (ushort[])sharedTypeFour.Clone();
-        ContentIdentity = SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), content =>
-        {
-            content.AppendWords("type one", this.typeOne);
-            content.AppendWords("shared type four", this.sharedTypeFour);
-        });
     }
 
     /// <summary>SHA-256 of both selected atmospheric small-OBJ lists.</summary>
-    public string ContentIdentity { get; }
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), content =>
+    {
+        content.AppendWords("type one", this.typeOne);
+        content.AppendWords("shared type four", this.sharedTypeFour);
+    });
 
     public ReadOnlySpan<ushort> TypeOne => typeOne;
     public ReadOnlySpan<ushort> SharedTypeFour => sharedTypeFour;

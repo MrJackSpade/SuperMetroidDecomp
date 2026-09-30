@@ -49,17 +49,8 @@ public sealed class GameplayBasePaletteCatalog
 
     public static GameplayBasePaletteCatalog Load(Stream json)
     {
-        GameplayBasePaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(json,
-                GameplayBasePaletteFormat.JsonOptions) ??
-                throw new InvalidDataException("Gameplay base palette JSON is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid gameplay base palette JSON.", error);
-        }
+        GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
+            json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
         if (document.Version != GameplayBasePaletteFormat.Version)
             throw new InvalidDataException("Gameplay base palette has an unsupported version.");
         return new GameplayBasePaletteCatalog(
@@ -113,5 +104,6 @@ public static class GameplayBasePaletteFormat
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
     };
 }

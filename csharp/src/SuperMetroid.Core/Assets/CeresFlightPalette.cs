@@ -16,18 +16,8 @@ public sealed class CeresFlightPalette
 
     public static CeresFlightPalette Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        CeresFlightPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<CeresFlightPaletteDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Ceres flight palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Ceres flight palette JSON.", error);
-        }
+        CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, "Ceres flight palette");
         if (document.Version != CeresFlightPaletteFormat.Version ||
             document.Colors is not { Length: SnesCgram.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");

@@ -18,10 +18,8 @@ public sealed class MapStaticPalettes
 
     public static MapStaticPalettes Load(Stream json)
     {
-        MapStaticPalettesDocument document;
-        try { document = JsonSerializer.Deserialize<MapStaticPalettesDocument>(json, MapPresentationFormat.JsonOptions)
-            ?? throw new InvalidDataException("Map palettes are null."); }
-        catch (JsonException error) { throw new InvalidDataException("Invalid map palettes JSON.", error); }
+        MapStaticPalettesDocument document = JsonAssetDocument.Read<MapStaticPalettesDocument>(
+            json, MapPresentationFormat.JsonOptions, "map palettes");
         if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.RetailCount - 1)
             throw new InvalidDataException("Map palettes require version 1 and the six Zebes world-map selections.");
         var world = new Dictionary<AreaId, ushort[]>();

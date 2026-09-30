@@ -17,17 +17,8 @@ public sealed class RoomStaticPalette
 
     public static RoomStaticPalette Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        RoomStaticPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<RoomStaticPaletteDocument>(json, JsonOptions)
-                ?? throw new InvalidDataException("Room palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room palette JSON.", error);
-        }
+        RoomStaticPaletteDocument document = JsonAssetDocument.Read<RoomStaticPaletteDocument>(
+            json, JsonOptions, "room palette");
         if (document.Version != RoomStaticPaletteFormat.Version ||
             document.Colors is null || document.Colors.Length != RoomStaticPaletteFormat.ColorCount)
             throw new InvalidDataException(
@@ -67,6 +58,7 @@ public sealed class RoomStaticPalette
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
     };
 }
 

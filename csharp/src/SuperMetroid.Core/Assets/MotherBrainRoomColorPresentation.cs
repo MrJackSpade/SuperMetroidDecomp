@@ -99,17 +99,8 @@ public sealed class MotherBrainRoomColorPresentation
     public static MotherBrainRoomColorPresentation Load(Stream json,
         MotherBrainRoomColorPresentation? currentStock = null)
     {
-        MotherBrainRoomColorDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Mother Brain room colors are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Mother Brain room-color JSON.", error);
-        }
+        MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
+            json, MapPresentationFormat.JsonOptions, "Mother Brain room colors");
         bool previousWithStock = currentStock is not null &&
             document.Version is MotherBrainRoomColorFormat.PreRoomEntryVersion or
                 MotherBrainRoomColorFormat.PreRecoveryLightsVersion;

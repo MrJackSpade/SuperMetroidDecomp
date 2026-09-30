@@ -119,17 +119,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     public static MotherBrainRainbowPalettePresentation Load(Stream json,
         MotherBrainRainbowPalettePresentation? currentStock = null)
     {
-        MotherBrainRainbowPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Mother Brain rainbow palette is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Mother Brain rainbow palette JSON.", error);
-        }
+        MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, "Mother Brain rainbow palette");
         if (document.Version != MotherBrainRainbowPaletteFormat.Version &&
             !(document.Version == MotherBrainRainbowPaletteFormat.PreFakeDeathVersion && currentStock is not null))
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");

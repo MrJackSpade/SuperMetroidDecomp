@@ -32,17 +32,8 @@ public sealed class MotherBrainHealthPalettePresentation
 
     public static MotherBrainHealthPalettePresentation Load(Stream json)
     {
-        MotherBrainHealthPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Mother Brain health palette is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Mother Brain health palette JSON.", error);
-        }
+        MotherBrainHealthPaletteDocument document = JsonAssetDocument.Read<MotherBrainHealthPaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, "Mother Brain health palette");
         if (document.Version != MotherBrainHealthPaletteFormat.Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
         return new(Convert(document.Body, nameof(document.Body)),

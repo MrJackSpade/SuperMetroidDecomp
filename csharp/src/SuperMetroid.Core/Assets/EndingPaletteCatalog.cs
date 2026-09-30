@@ -47,18 +47,8 @@ public sealed class EndingPalette
 
     public static EndingPalette Load(Stream json, EndingPaletteId id)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        EndingPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<EndingPaletteDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException($"Ending {id} palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid ending {id} palette JSON.", error);
-        }
+        EndingPaletteDocument document = JsonAssetDocument.Read<EndingPaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, $"ending {id} palette");
         int count = EndingPaletteDefinitions.ColorCount(id);
         if (document.Version != EndingPaletteDefinitions.Version ||
             document.Colors is null || document.Colors.Length != count)

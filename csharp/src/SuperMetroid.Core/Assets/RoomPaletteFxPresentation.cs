@@ -21,18 +21,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     public static RoomPaletteFxPresentation Load(Stream json,
         RoomPaletteFxPresentation? previousVersionFallback = null)
     {
-        RoomPaletteFxPresentationDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-                json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Room palette-FX presentation is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room palette-FX presentation JSON.", error);
-        }
+        RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
+            json, MapPresentationFormat.JsonOptions, "room palette-FX presentation");
 
         if (document.Version != RoomPaletteFxPresentationFormat.Version &&
             !(document.Version == RoomPaletteFxPresentationFormat.PreviousVersion &&

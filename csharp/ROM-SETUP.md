@@ -93,6 +93,25 @@ audio is regenerated from the installed ROM; this restores stock audio. Player d
 preserved. An interrupted directory swap is recovered on the next launch. Concurrent
 installers cannot modify the same installation.
 
+## Shared palette JSON validation
+
+Room and gameplay base palettes, map palettes and highlight cycles, title/opening/Ceres
+palettes, ending palettes, Mother Brain colors, and room palette effects reject unknown
+fields and duplicate names at every object level. This includes repeated world-map
+selections and RGB components. An invalid override reports an error; it is not silently
+accepted with a field ignored or overwritten.
+
+Room static and gameplay base palettes retain their historical case-insensitive field
+names, but two spellings of the same field in one object are ambiguous and rejected.
+The other listed formats retain their case-sensitive names. RGB5 components must all
+be present and range from 0 to 31; keep the documented row and palette sizes.
+
+Supported older overrides still inherit only newer color families from validated stock:
+version 17 room effects inherit Samus heat colors, version 1/2 Mother Brain room colors
+inherit their missing room-entry/recovery families, and version 2 Mother Brain rainbow
+colors inherit the fake-death fade. Existing edited families remain selected. These
+migrations require current installed stock, not a runtime cartridge reader.
+
 ## Command line and verification
 
 From the repository root:
@@ -109,6 +128,8 @@ dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release 
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
 # Check all opening character PNGs, live VRAM replacement, and stock repair.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
+# Constructed palette JSON contracts, supported legacy overrides and exact BG/OBJ pixels; no retail ROM needed.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --palette-json-contracts
 ```
 
 The integration verifier accepts an optional second argument containing reference audio

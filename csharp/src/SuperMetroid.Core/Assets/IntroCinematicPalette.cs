@@ -22,18 +22,8 @@ public sealed class IntroCinematicPalette
 
     public static IntroCinematicPalette Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        IntroCinematicPaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Opening palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid opening palette JSON.", error);
-        }
+        IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, "opening palette");
         if (document.Version != IntroCinematicPaletteFormat.Version ||
             document.Colors is not { Length: SnesCgram.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");

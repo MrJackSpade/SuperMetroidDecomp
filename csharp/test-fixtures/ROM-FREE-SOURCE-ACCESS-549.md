@@ -57,6 +57,20 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
 
 ## Identified conversion evidence
 
+- Shared palette contracts: a static loader inventory identified twelve older RGB5
+  formats without duplicate-field checks. All now use the recursive shared JSON
+  validator; room-static and gameplay-base schemas also reject unknown fields.
+  The focused `--palette-json-contracts` fixture first reproduced 45 silently
+  accepted documents, then passed 1,667 rejection cases across eighteen selections
+  (including all seven ending palettes and every named room-effect family).
+  Constructed data verifies required fields, frame/row sizes, RGB bounds, nested
+  duplicates, world selections, historical casing and four stock-assisted legacy
+  migrations. With mutable-memory-only runtime objects, 160 title-FX ticks and
+  90 map-cycle ticks preserve every native slot cursor/timer, heat phase, sound
+  and music publication, and map frame/timer. Exact software BG and OBJ pixels
+  reflect the replacement colors. This verifies these palette contracts and
+  selected visual timing paths, not all palette schemas, combat, GPU rendering
+  or on-device Android behavior.
 - PLM typed-input check: 284 compiled populations / 941 records, owned immutable
   pairs, native allocation/deletion/reuse order, RAM-only scroll execution, bounded
   input validation and two historical scroll-state layouts.

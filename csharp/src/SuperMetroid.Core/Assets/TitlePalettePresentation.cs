@@ -45,18 +45,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
     public static TitlePalettePresentation Load(Stream json)
     {
-        TitlePaletteDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<TitlePaletteDocument>(
-                json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Title palette presentation is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid title palette presentation JSON.", error);
-        }
+        TitlePaletteDocument document = JsonAssetDocument.Read<TitlePaletteDocument>(
+            json, MapPresentationFormat.JsonOptions, "title palette presentation");
 
         if (document.Version != TitlePaletteFormat.Version ||
             document.Colors is null ||

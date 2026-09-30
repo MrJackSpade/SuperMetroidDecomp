@@ -112,6 +112,11 @@ if (args is ["--tilemap-json-contracts"])
     VerifyTilemapJsonContracts();
     return 0;
 }
+if (args is ["--palette-json-contracts"])
+{
+    VerifyPaletteJsonContracts();
+    return 0;
+}
 if (args is ["--kraid-installed-presentation"])
 {
     VerifyKraidInstalledPresentation();

@@ -67,6 +67,16 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
 - Explicit WRAM check: live low-window instruction/draw data, exact terrain and
   tilemap updates, next-pass slot deletion, all six horizontal-speed words, and
   rejection of peripheral/uncompiled cartridge offsets.
+- Installed-only acceptance: Windows host cold startup, six title frames,
+  state save/load and exact captured replay pixels pass with its test-owned ROM
+  moved out of the installation. The portable Android host passes 90 title frames,
+  state save/load, content validation, repair/recovery and save/config preservation
+  with no installed ROM. The Android platform project also builds; this is not yet
+  a fresh on-device cold-start check.
+- Diagnostic failure boundaries: the integration runner installs the shared Windows
+  no-dialog policy before fallible work. The Windows verifier catches initialization
+  and message-loop failures as well as its asynchronous body. A deliberate startup
+  exception verifies actual Win32 error-mode flags, full stderr stack and exit code 1.
 
 These focused checks exercise known conversions. They are not a room playthrough
 or proof of visual/gameplay parity for every event.
@@ -77,9 +87,10 @@ or proof of visual/gameplay parity for every event.
    compiled Core build, selected audio, maps and projectiles. Other selected room,
    enemy, Samus, HUD/cinematic/ending and PLM presentation domains must participate
    before it represents the complete installation.
-2. Verify Windows and Android cold-start from complete extracted content with the
-   cartridge unavailable, including real host bindings and content validation.
-   This is final platform acceptance, not a way to hunt remaining reads.
+2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
+   Windows real-host and portable Android-host acceptance passed as recorded above;
+   neither substitutes for running the APK on the device. This is final platform
+   acceptance, not a way to hunt remaining reads.
 3. Verify current stock/override persistence and complete required-resource
    validation across every installed domain. Keep missing-resource errors explicit.
 4. Review remaining cached/reference diagnostic assumptions separately. Historical

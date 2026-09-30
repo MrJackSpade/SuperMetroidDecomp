@@ -62,6 +62,8 @@ if (args is ["--enemy-content-identity"])
 if (args is ["--enemy-legacy-overrides"])
 {
     VerifyEnemyLegacyOverrides();
+    VerifyEnemyExtendedLegacyOverrides();
+    VerifyEnemyProjectileLegacyOverrides();
     return 0;
 }
 if (args is ["--catalog-identity-state-compatibility"])

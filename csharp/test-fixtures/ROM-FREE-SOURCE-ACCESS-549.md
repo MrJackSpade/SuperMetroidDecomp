@@ -158,6 +158,16 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   binding-capable schemas reject missing, incomplete, wrong-key, unknown-target
   and cross-bank bindings. These fixtures use only constructed JSON; they do not
   run gameplay, open a ROM or establish compatibility for other asset formats.
+- Extended and projectile override compatibility: all 25 accepted extended-frame
+  schemas and all 11 enemy-projectile schemas preserve exact edited art and
+  inherited newer stock. The extended fixtures cover all ordered components and
+  OAM parts, 22 binding-capable schemas, schema-six Spore Spawn aliases, malformed
+  bindings and cross-family rejection. Projectile fixtures cover every ordinary
+  and program-selected frame, all nine program-frame schemas, historical sets
+  that are not current-catalog prefixes, and incomplete/wrong-key rejection.
+  Reload identity and stock immutability pass for every schema. This completes
+  compatibility checks for these three enemy composition formats only; palette,
+  room and other legacy asset formats still require their own review.
 - Installation override lifecycle: all 44 declared presentation directories and
   45 public catalog loaders participate in the acceptance fixture. Its 1,091
   override files remain byte-identical across ROM-unavailable startup, the actual

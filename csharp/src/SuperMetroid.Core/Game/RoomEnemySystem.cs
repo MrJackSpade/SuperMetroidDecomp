@@ -109,7 +109,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
     public IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => _graphicsSet;
 
-    /// <summary>Installed indexed enemy tiles; null retains the cartridge-backed diagnostic path.</summary>
+    /// <summary>
+    /// Installed enemy presentation. Drawing or a named artwork transfer requires its
+    /// corresponding catalog; null does not enable a cartridge-backed fallback.
+    /// </summary>
     [field: NonSerialized]
     public EnemyTileArtworkCatalog? TileArtwork { get; set; }
 

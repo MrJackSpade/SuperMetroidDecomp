@@ -93,7 +93,9 @@ internal static partial class Program
         private Dictionary<TKey, TValue> Ordered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> source) where TKey : notnull =>
             (reverse ? source.Reverse() : source).ToDictionary();
 
-        public EnemyTileArtworkCatalog Build()
+        public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
+            EnemyExtendedFrameCatalog? extendedFrames = null,
+            EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
         {
             Register("dma-source");
             Register("sheet-id");
@@ -160,7 +162,7 @@ internal static partial class Program
             return new EnemyTileArtworkCatalog(sheets, palettes,
                 crocomireMelting: CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
                     Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)),
-                spritemaps: Oam(), extendedFrames: Extended(),
+                spritemaps: spritemaps ?? Oam(), extendedFrames: extendedFrames ?? Extended(),
                 kraidBackground: new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
                     Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
                     Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)),
@@ -171,7 +173,7 @@ internal static partial class Program
                     ("secondary", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Secondary)),
                     ("deathArm", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.DeathArm))),
                 gunshipLiftoff: new GunshipLiftoffArtworkCatalog(gunship), ceresDoorVisual: door, dmaSources: dma,
-                projectileSpritemaps: Projectiles(),
+                projectileSpritemaps: projectileSpritemaps ?? Projectiles(),
                 magdollitePaletteCycle: ColorCatalog(MagdollitePaletteCycle.Load, ("frames", MagdollitePaletteRomData.FrameCount, MagdollitePaletteRomData.AnimatedColorCount)),
                 workRobotPaletteCycle: ColorCatalog(WorkRobotPaletteCycle.Load, ("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteRomData.ColorCount)),
                 crocomireColors: ColorCatalog(CrocomireColorCatalog.Load,

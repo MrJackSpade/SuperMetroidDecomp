@@ -66,6 +66,16 @@ if (args is ["--enemy-legacy-overrides"])
     VerifyEnemyProjectileLegacyOverrides();
     return 0;
 }
+if (args is ["--enemy-animation-isolation"])
+{
+    VerifyEnemyAnimationIsolation();
+    return 0;
+}
+if (args is ["--enemy-animation-stock-parity"])
+{
+    VerifyEnemyAnimationStockParity();
+    return 0;
+}
 if (args is ["--catalog-identity-state-compatibility"])
 {
     VerifyCatalogIdentityStateCompatibility();

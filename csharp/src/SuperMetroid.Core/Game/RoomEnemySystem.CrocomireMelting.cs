@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>ROM-table loading, per-column erasure, and BG2 distortion for both melts.</summary>
+/// <summary>Installed melt artwork, compiled transfer scheduling, per-column erasure and BG2 distortion.</summary>
 public sealed partial class RoomEnemySystem
 {
     private void InitializeCrocomireMeltingTilemap(

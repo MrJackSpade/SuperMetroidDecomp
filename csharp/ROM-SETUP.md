@@ -540,14 +540,16 @@ setting `"boyon_idle_0": "boyon_idle_1"` displays the second Boyon composition
 whenever the first is selected by gameplay. Native frame duration, collision
 selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
-fail with a load error. Other enemy families still use their ROM spritemaps until
-their visual frames are extracted.
-Existing version-four through version-thirty-two overrides remain valid:
+fail with a load error. Runtime drawing has no ROM-spritemap fallback. The current
+document's named `frames` entries are the authoritative replacement inventory;
+the examples above are not an exhaustive family list. A required installed
+composition that is unavailable fails explicitly.
+Existing version-four through version-sixty overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Version-fourteen through version-thirty-two overrides also retain their edited
+content. Version-fourteen through version-sixty overrides also retain their edited
 `displayFrames` bindings; earlier versions inherit stock identity selections. Save a
-current version-thirty-three copy to edit the full room sprite-object catalog or
-its display bindings. A bound catalog missing one of these frames fails with an
+current version-sixty copy to edit the complete named composition catalog or
+its display bindings. A bound catalog missing a required frame fails with an
 error instead of silently rereading cartridge art.
 The Evir character sheet is the ordinary extracted enemy PNG; the boss-room
 intro reuses that sheet for its VRAM upload rather than reading raw cartridge bytes.
@@ -584,8 +586,8 @@ times and VRAM destinations stay fixed; edits are resolved when each queued
 upload reaches NMI, including after restoring an older pending debugger state.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
-`overrides/enemy-tiles/` to edit the 131 Pirate, 11 Ridley-body, 48 Draygon,
-and 12 Spore Spawn ordinary-OAM extended frames. Each frame contains
+`overrides/enemy-tiles/` to edit named Pirate, Ridley-body, Draygon, Spore Spawn,
+Torizo and other multipart OAM frames listed in the current document. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Its `displayFrames` table can remap any named visual
 frame to another frame of the same enemy family, without changing the native
@@ -600,12 +602,29 @@ Version-four and version-five overrides retain their existing display bindings
 and inherit later boss frames from verified stock. Version-six overrides retain
 their Draygon and Spore Spawn edits and display bindings; the twelve formerly
 misnamed `draygon_oam_EE65`–`draygon_oam_EF61` keys migrate by unchanged frame
-pointer to `spore_spawn_oam_*`. Use a current version-seven copy to edit those
-families separately. New display bindings cannot cross between Draygon and
+pointer to `spore_spawn_oam_*`. All versions one through twenty-five retain their
+authored art and inherit later stock frames. Versions four through twenty-five
+also retain their display bindings. Use a current version-twenty-five copy to
+edit the complete inventory. New display bindings cannot cross between Draygon and
 Spore Spawn. Draygon's other 34 selected extended frames contain BG2 tilemap
 commands and live in a separate file.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
+
+Enemy animation remains tied to compiled gameplay frames. `displayFrames` changes
+which picture is drawn at a native frame; it does not edit durations, movement,
+attack callbacks, projectile origins, collision geometry, or boss progression.
+Projectile `programFrames` likewise replaces drawing at fixed instruction-frame
+boundaries rather than supplying executable instructions.
+
+The focused verifier flag `--enemy-animation-isolation` checks this contract with
+constructed JSON and a RAM-only room: Boyon's idle/bounce sequence, Golden Torizo's
+six-shot attack, physical shot/touch windows, and boss death/drop publication.
+It asserts exact packed OAM from the authored replacements and compares mechanics
+on every frame. `--enemy-animation-stock-parity` separately compares the explicitly
+declared Boyon and Torizo control/selector records with the pinned import source.
+Neither check is a whole-game playthrough or proof of every boss effect's parity.
+
 Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than
 ordinary OAM parts. Copy `game/enemy-tiles/phantoon-bg2-frames.json` to
 `overrides/enemy-tiles/` to edit its 22 named visual frames. Each ordered write

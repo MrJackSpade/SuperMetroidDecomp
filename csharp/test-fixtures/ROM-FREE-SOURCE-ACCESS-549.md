@@ -125,6 +125,20 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   its native VRAM pixel while preserving every slot field, palette and quota.
   Drop/pickup/death fixtures pass with explicit installed-color dependencies.
   This verifies the source-identified conversion, not a gameplay search for reads.
+- Enemy animation isolation: constructed ordinary, extended and projectile JSON
+  replaces frame bindings, silhouette/offsets, component order, tile selection,
+  palette attributes and flips. A RAM-only fixture compares all public value
+  state, every physical enemy/projectile slot, full WRAM/SRAM, audio/music calls,
+  RNG state/consumption and boss-event publication on each frame. Boyon covers
+  240 frames, seven native visual frames, 31 Y positions and two bounce callbacks.
+  Golden Torizo covers its fixed 72-frame attack, six exact firing frames, 24,336
+  physical shot/touch samples and 374 death frames. Exact authored OAM assertions
+  verify the selected display sequence rather than merely a different image.
+  Boss bit/drop/music publication remains on death frame 372 (zero-based).
+  A separate import-only oracle matches 18 Boyon and 1,761 Torizo control words,
+  574 visual selectors, and the right-orb program's additional 23 control words,
+  ten selectors, six physical frames and seven hitbox lists. This is acceptance
+  of a source-identified separation, not discovery of reads through simulation.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;
@@ -182,6 +196,28 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
 
 These focused checks exercise known conversions. They are not a room playthrough
 or proof of visual/gameplay parity for every event.
+
+## Enemy animation ownership
+
+Native frame identities are retained in simulation state because physical hitboxes
+and callbacks depend on them. Editable JSON binds those identities to installed
+display frames only when drawing. Artwork cannot replace the compiled control
+program or change its instruction clock.
+
+| Source boundary | Simulation ownership | Installed presentation |
+| --- | --- | --- |
+| Ordinary enemy interpreter | Bounded compiled instruction words, durations, branches and callbacks; compiled native visual selectors | `enemy-compositions.json` OAM parts and same-bank display bindings |
+| Multipart enemy drawing and collision | Native frame identity, compiled physical components, hitbox lists and shot/touch dispatch | `enemy-walking-pirate-compositions.json` visual components/parts and family-scoped bindings |
+| Enemy projectiles and pickups | Compiled definitions/programs, spawn coordinates, velocities, clocks, damage and drop decisions | `enemy-projectile-compositions.json` direct/program-selected OAM parts |
+| Mother Brain body animation | Compiled body commands, movement, pose/form, instruction clock and quake/footstep events | Installed character uploads, head/neck and special-sprite artwork at compiled selections; body composition editability still needs its own audit |
+| Crocomire melting and skeleton | Compiled pass/transfer/erasure scheduling, phase transitions and completion | Indexed melt/skeleton sheets and installed melt/BG2 maps |
+| Corpse rotting | Explicit live-WRAM row scheduler, fixed delays and completion callbacks | Installed corpse character sheets processed by the scheduler |
+| Kraid and other boss draw hooks | Compiled pose/phase/hitbox/progression selections | Installed BG2, multipart OAM, special uploads and named color catalogs |
+
+The current focused isolation fixture directly verifies ordinary/extended OAM,
+projectile art and Torizo death timing. It does not newly verify every BG2 boss,
+melting/rotting effect, GPU output or historical color-document schema. Those
+remaining acceptance checks must not be represented as completed by this fixture.
 
 ## Remaining #549 acceptance
 

@@ -134,7 +134,7 @@ public sealed class FileSelectPresentation
         FileSelectPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
+            document = JsonAssetDocument.Read<FileSelectPresentationDocument>(
                 bytes, MapPresentationFormat.JsonOptions) ??
                 throw new InvalidDataException("File-select presentation document is null.");
         }

@@ -85,7 +85,7 @@ public sealed class GameplayMessageNoticePresentation
         GameplayMessageNoticeDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameplayMessageNoticeDocument>(
+            document = JsonAssetDocument.Read<GameplayMessageNoticeDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Gameplay-message notice document is null.");
         }

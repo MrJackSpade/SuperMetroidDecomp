@@ -115,6 +115,14 @@ migrations require current installed stock, not a runtime cartridge reader.
 
 ## Room and cinematic JSON validation
 
+The installed map/menu/title bundle also rejects duplicate properties recursively.
+This covers area maps and labels, pause layouts, HUD and message boxes, file select,
+options, narration and ending text/credits, title compositions and scanline gradients.
+Repeating even an identical value is an error, not a last-value-wins edit. Existing
+schema versions, required fields and field-name casing rules are unchanged. The
+stock map manifest and station-reveal document use the same validation boundary;
+they are required stock metadata, not editable exploration rules.
+
 Room background/sky and metatile manifests, room visual layouts and X-ray reveal
 documents reject unknown fields, duplicate names and missing required fields.
 This includes nested entries and X-ray coordinates: omitting `x`, `y` or a visual

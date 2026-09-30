@@ -23,7 +23,7 @@ public sealed class TitleGradientPresentation
         TitleGradientDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<TitleGradientDocument>(
+            document = JsonAssetDocument.Read<TitleGradientDocument>(
                 json,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Title gradient presentation is null.");

@@ -63,7 +63,7 @@ public sealed class TitleGraphicsPresentation
         TitleMode7MapDocument map;
         try
         {
-            map = JsonSerializer.Deserialize<TitleMode7MapDocument>(
+            map = JsonAssetDocument.Read<TitleMode7MapDocument>(
                 mode7MapJson,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
@@ -100,7 +100,7 @@ public sealed class TitleGraphicsPresentation
         TitleMode7MapDocument restored;
         try
         {
-            restored = JsonSerializer.Deserialize<TitleMode7MapDocument>(bytes, MapPresentationFormat.JsonOptions)
+            restored = JsonAssetDocument.Read<TitleMode7MapDocument>(bytes, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
         }
         catch (JsonException error)

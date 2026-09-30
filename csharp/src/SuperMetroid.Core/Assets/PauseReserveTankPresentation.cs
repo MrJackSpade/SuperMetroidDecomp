@@ -21,7 +21,7 @@ public sealed class PauseReserveTankPresentation
     public static PauseReserveTankPresentation Load(Stream json)
     {
         PauseReserveTankDocument document;
-        try { document = JsonSerializer.Deserialize<PauseReserveTankDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Reserve tank document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
         if (document.Version != PauseReserveTankDefinitions.Version || (uint)document.Palette > 7 ||

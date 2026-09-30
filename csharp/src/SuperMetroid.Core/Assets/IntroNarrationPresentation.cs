@@ -60,7 +60,7 @@ public sealed class IntroNarrationPresentation
         IntroNarrationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<IntroNarrationDocument>(
+            document = JsonAssetDocument.Read<IntroNarrationDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Opening-narration document is null.");
         }

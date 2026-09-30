@@ -27,7 +27,7 @@ public sealed class PauseSelectorPresentation
     public static PauseSelectorPresentation Load(Stream json)
     {
         PauseSelectorDocument document;
-        try { document = JsonSerializer.Deserialize<PauseSelectorDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Pause selector document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
         if (document.Version != PauseSelectorDefinitions.Version || document.InitialDurationTicks is < 1 or > PauseSelectorDefinitions.MaximumDuration ||

@@ -66,7 +66,7 @@ public sealed class GameplayMessageTitlePresentation
         GameplayMessageTitleDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameplayMessageTitleDocument>(
+            document = JsonAssetDocument.Read<GameplayMessageTitleDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Gameplay-message title document is null.");
         }

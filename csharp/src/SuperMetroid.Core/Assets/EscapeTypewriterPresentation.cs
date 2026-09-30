@@ -36,7 +36,7 @@ public sealed class EscapeTypewriterPresentation
         EscapeTypewriterDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EscapeTypewriterDocument>(
+            document = JsonAssetDocument.Read<EscapeTypewriterDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Escape typewriter document is null.");
         }

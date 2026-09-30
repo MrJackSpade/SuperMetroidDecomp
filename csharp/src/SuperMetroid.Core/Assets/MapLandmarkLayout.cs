@@ -14,7 +14,7 @@ public sealed class MapLandmarkLayout
     public static MapLandmarkLayout Load(Stream json)
     {
         MapLandmarkDocument document;
-        try { document = JsonSerializer.Deserialize<MapLandmarkDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Map landmark layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
         var ids = MapLandmarkDefinitions.AllIds().ToArray();

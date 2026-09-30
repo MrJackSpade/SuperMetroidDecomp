@@ -13,7 +13,7 @@ public sealed class MapScreenPresentation
     public static MapScreenPresentation Load(Stream json)
     {
         MapScreenDocument document;
-        try { document = JsonSerializer.Deserialize<MapScreenDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapScreenDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Map-screen document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map-screen JSON.", error); }
         if (document.Version != MapScreenDefinitions.Version || document.Pages is null || document.Pages.Count != MapScreenDefinitions.PageCount)

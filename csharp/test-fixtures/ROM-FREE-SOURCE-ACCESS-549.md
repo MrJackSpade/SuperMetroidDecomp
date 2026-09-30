@@ -584,6 +584,25 @@ spores defect and its file diagnostics, not every environmental effect or
 whole-game/platform acceptance gate. No tests discovered cartridge reads,
 no Core reader was restored, and no player files were changed.
 
+## Map menu and title JSON admission
+
+The source inventory identified thirty older map/menu/title loader classes still
+using direct JSON deserialization. A focused extracted-file fixture reproduced
+73 silently accepted duplicate-property documents before the conversion. Those
+loaders now use the shared recursive property validator for stream and buffered
+input. No schema version, required field, casing rule, visual/control selection,
+stock hash or import recipe changed.
+
+`SuperMetroid.IntegrationVerification --map-presentation-json-contracts
+<installation-root>` checks all 55 manifest-bound JSON resources plus the manifest.
+Debug and Release reject 111 root/nested duplicate documents, including dictionary
+keys and a hash-valid defective stock reveal mask. All 54 editable resources retain
+their whitespace-edited bytes and selected identity on a fresh reload. Rejected
+documents are retained; removing edits restores the exact stock identity, and all
+stock file hashes remain unchanged. This verifies installed JSON admission and
+identity participation for this bundle, not render or gameplay parity. No ROM is
+opened and no gameplay/read-discovery probe runs inside the fixture.
+
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,

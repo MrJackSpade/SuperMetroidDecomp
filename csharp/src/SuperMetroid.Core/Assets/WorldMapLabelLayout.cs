@@ -14,7 +14,7 @@ public sealed class WorldMapLabelLayout
     public static WorldMapLabelLayout Load(Stream json)
     {
         WorldMapLabelDocument document;
-        try { document = JsonSerializer.Deserialize<WorldMapLabelDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("World-map label layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)

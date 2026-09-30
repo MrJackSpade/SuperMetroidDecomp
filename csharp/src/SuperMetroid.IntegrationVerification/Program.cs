@@ -25,6 +25,8 @@ try
     }
     if (args is ["--extracted-validation-contract", var contractRoot])
         return ExtractedInstallationValidationVerification.Run(contractRoot);
+    if (args is ["--map-presentation-json-contracts", var presentationRoot])
+        return MapPresentationJsonContractVerification.Run(presentationRoot);
     if (args is ["--projectile-host-binding", var projectileRom])
         return ProjectileHostBindingVerification.Run(projectileRom);
     if (args is ["--state-host-options", var statePath, var iniPath])

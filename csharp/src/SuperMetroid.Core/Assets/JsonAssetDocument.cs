@@ -5,6 +5,18 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Rejects ambiguous authored properties before deserializing installed presentation data.</summary>
 internal static class JsonAssetDocument
 {
+    /// <summary>Uses the document type as the diagnostic identity for older presentation compilers.</summary>
+    internal static T Read<T>(Stream json, JsonSerializerOptions options) =>
+        Read<T>(json, options, typeof(T).Name);
+
+    /// <summary>Validates already-buffered presentation bytes with the same property rules as streams.</summary>
+    internal static T Read<T>(byte[] json, JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        using var stream = new MemoryStream(json, writable: false);
+        return Read<T>(stream, options, typeof(T).Name);
+    }
+
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
         ArgumentNullException.ThrowIfNull(json);

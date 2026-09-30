@@ -13,7 +13,7 @@ public sealed class MapSaveMarkerLayout
     public static MapSaveMarkerLayout Load(Stream json)
     {
         MapSaveMarkerDocument document;
-        try { document = JsonSerializer.Deserialize<MapSaveMarkerDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Save marker layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid save marker layout JSON.", error); }
         var ids = MapSaveMarkerDefinitions.AllIds().ToArray();

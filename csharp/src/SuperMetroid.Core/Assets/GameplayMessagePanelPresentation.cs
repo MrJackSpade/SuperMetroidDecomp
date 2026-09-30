@@ -63,7 +63,7 @@ public sealed class GameplayMessagePanelPresentation
         GameplayMessagePanelDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameplayMessagePanelDocument>(
+            document = JsonAssetDocument.Read<GameplayMessagePanelDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Gameplay-message panel document is null.");
         }

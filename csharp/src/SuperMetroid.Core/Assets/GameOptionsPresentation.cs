@@ -133,7 +133,7 @@ public sealed class GameOptionsPresentation
         GameOptionsPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
+            document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(
                 bytes, MapPresentationFormat.JsonOptions) ??
                 throw new InvalidDataException("Options presentation document is null.");
         }

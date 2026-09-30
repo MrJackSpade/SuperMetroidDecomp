@@ -465,7 +465,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         AreaMapCatalogManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<AreaMapCatalogManifest>(
+            manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
                 File.ReadAllBytes(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile)), MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
@@ -481,7 +481,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         Dictionary<string, int[]> masks;
         try
         {
-            masks = JsonSerializer.Deserialize<Dictionary<string, int[]>>(ReadChecked(AreaMapCatalogFormat.StationRevealFile), MapPresentationFormat.JsonOptions)
+            masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(ReadChecked(AreaMapCatalogFormat.StationRevealFile), MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Station reveal content is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }

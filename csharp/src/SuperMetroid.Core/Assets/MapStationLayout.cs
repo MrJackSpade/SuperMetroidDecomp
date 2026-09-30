@@ -14,7 +14,7 @@ public sealed class MapStationLayout
     public static MapStationLayout Load(Stream json)
     {
         MapStationLayoutDocument document;
-        try { document = JsonSerializer.Deserialize<MapStationLayoutDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Map station layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map station layout JSON.", error); }
         var rules = MapStationDiscoveryRules.All.ToArray();

@@ -66,7 +66,7 @@ public sealed class PauseReserveUiPresentation
     public static PauseReserveUiPresentation Load(Stream json)
     {
         PauseReserveUiDocument document;
-        try { document = JsonSerializer.Deserialize<PauseReserveUiDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Pause reserve UI document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
         if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||

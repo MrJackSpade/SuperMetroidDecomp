@@ -90,7 +90,7 @@ public sealed class GameOverPresentation
         GameOverPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameOverPresentationDocument>(
+            document = JsonAssetDocument.Read<GameOverPresentationDocument>(
                 bytes, MapPresentationFormat.JsonOptions) ??
                 throw new InvalidDataException("Game-over presentation document is null.");
         }

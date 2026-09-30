@@ -31,7 +31,7 @@ public sealed class CreditsPresentation
         CreditsPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CreditsPresentationDocument>(
+            document = JsonAssetDocument.Read<CreditsPresentationDocument>(
                 source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Credits document is null.");
         }

@@ -57,7 +57,7 @@ public sealed class EscapeTimerPresentation
         EscapeTimerPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json,
+            document = JsonAssetDocument.Read<EscapeTimerPresentationDocument>(json,
                 MapPresentationFormat.JsonOptions) ??
                 throw new InvalidDataException("Escape timer presentation document is null.");
         }

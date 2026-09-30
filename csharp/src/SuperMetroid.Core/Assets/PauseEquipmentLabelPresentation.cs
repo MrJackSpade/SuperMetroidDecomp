@@ -110,7 +110,7 @@ public sealed class PauseEquipmentLabelPresentation
         PauseEquipmentLabelDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions)
+            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Pause equipment label document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }

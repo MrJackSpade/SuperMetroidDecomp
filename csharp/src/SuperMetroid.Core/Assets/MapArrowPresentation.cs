@@ -16,7 +16,7 @@ public sealed class MapArrowPresentation
     public static MapArrowPresentation Load(Stream json)
     {
         MapArrowDocument document;
-        try { document = JsonSerializer.Deserialize<MapArrowDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapArrowDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Map arrow presentation is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map arrow JSON.", error); }
         if (document.Version != MapArrowFormat.Version || document.Arrows is null || document.Arrows.Count != MapArrowDefinitions.Count)

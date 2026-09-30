@@ -17,7 +17,7 @@ public sealed class PauseBackdropPresentation
     public static PauseBackdropPresentation Load(Stream json)
     {
         PauseBackdropDocument document;
-        try { document = JsonSerializer.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Pause backdrop document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
         if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.RetailCount)

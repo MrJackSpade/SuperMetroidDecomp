@@ -167,7 +167,7 @@ public sealed class GameplayHudPresentation
         GameplayHudPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(source,
+            document = JsonAssetDocument.Read<GameplayHudPresentationDocument>(source,
                 MapPresentationFormat.JsonOptions) ??
                 throw new InvalidDataException("Gameplay HUD presentation document is null.");
         }

@@ -47,7 +47,7 @@ public sealed class EndingTextPresentation
         EndingTextDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EndingTextDocument>(source,
+            document = JsonAssetDocument.Read<EndingTextDocument>(source,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Ending-text document is null.");
         }

@@ -60,7 +60,7 @@ public sealed class PauseEquipmentBasePresentation
     public static PauseEquipmentBasePresentation Load(Stream json)
     {
         PauseEquipmentBaseDocument document;
-        try { document = JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Pause equipment base document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment base JSON.", error); }
         if (document.Version != PauseEquipmentBaseDefinitions.Version || document.Cells is null ||

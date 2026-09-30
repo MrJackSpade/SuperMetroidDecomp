@@ -36,7 +36,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         MapPresentationDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<MapPresentationDocument>(json, MapPresentationFormat.JsonOptions)
+            document = JsonAssetDocument.Read<MapPresentationDocument>(json, MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Map presentation document is null.");
         }
         catch (JsonException error)

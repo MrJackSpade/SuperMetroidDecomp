@@ -22,7 +22,7 @@ public sealed class PauseWireframePresentation
     public static PauseWireframePresentation Load(Stream json)
     {
         PauseWireframeDocument document;
-        try { document = JsonSerializer.Deserialize<PauseWireframeDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseWireframeDocument>(json, MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Pause wireframe document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause wireframe JSON.", error); }
         if (document.Version != PauseWireframeDefinitions.Version || document.Frames is null || document.Frames.Count != PauseWireframeDefinitions.Count)

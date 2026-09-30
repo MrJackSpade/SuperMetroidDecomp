@@ -496,6 +496,45 @@ See [Android diagnostic handoff](../ANDROID-TESTING.md) for commands. These resu
 complete the on-device cold-start gate, not all Android gameplay, long-run performance,
 GPU pixel parity, or the remaining content/reference audit.
 
+## Power Bomb and Crystal Flash color isolation
+
+Static inspection of `SamusPowerBombExplosionState.StepCrystalFlashAfterglow`
+identified an editable-color dependency in the cleanup condition. The focused
+fixture reproduced a black JSON override ending the effect at frame 19 instead
+of the stock frame 36. Pinned `bank_88.asm` at `362be646` and `sm_88.c` at
+`578f90b3` confirm that $88:A35D tests the native RGB5 registers for zero.
+The four reachable $88:8D85 rows have a maximum component of 14+row. That
+operand is now compiled independently of presentation, captured on entry to
+afterglow, and decremented with the unchanged signed-timer cadence. Stock
+color fades remain exact; editing colors cannot change the effect lifetime.
+
+`--installed-power-bomb-isolation <installation-root>` loads already-extracted
+data and writes five isolated on-disk overrides: black, white, red, blue and
+a varying gradient. Debug and Release pass 655 whole mutable-state/window
+comparisons and 621 changed color observations. Every Power Bomb ends on frame
+95 and every Crystal Flash on frame 36. The 645 active edited packets per
+configuration pass full software-versus-Direct3D RGBA checks on hardware and
+WARP after packet serialization. A black backdrop independently checks the
+exact edited RGB at the window center, rather than only a changed image.
+Every reachable radius (8,192 values) matches the extracted stock lifetime
+operand. All stock file bytes and selected identity survive the override test.
+
+The new serialized control counter has an explicit old-layout migration.
+All 131 stock effect checkpoints restore and resume both current and legacy
+graphs with identical stock state, colors and cleanup frames. Ninety edited
+Crystal Flash afterglow checkpoints retain their current control count after
+restoring and rebinding stock presentation. Old-layout projections warn and
+preserve their captured historical color-fade remainder once. An old modded
+capture cannot reconstruct its counterfactual stock elapsed time; the warning
+states this limitation rather than silently resetting or rejecting the state.
+Reset clears both control and display state. Windows and Android builds pass.
+
+This fixes one source-identified presentation/mechanics coupling in #542/#549.
+It does not establish every liquid/HDMA/environmental effect, native backdrop
+interference with Crystal Flash, Android pixel parity or whole-game acceptance.
+No tests were used to discover cartridge reads, and no Core ROM capability
+was added back.
+
 ## Remaining #549 acceptance
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,

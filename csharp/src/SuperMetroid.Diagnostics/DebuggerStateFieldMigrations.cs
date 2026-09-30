@@ -21,6 +21,14 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusPowerBombExplosionState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "_crystalFlashAfterglowStepsRemaining"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy Crystal Flash state lacks a separate control fade count; " +
+                "preserving its captured remaining component fade once, independently of newly bound colors. " +
+                "For an old modded capture this preserves its historical timing, not a recoverable stock timeline.");
+            return current.Where(field => field.Name != "_crystalFlashAfterglowStepsRemaining").ToArray();
+        }
         if (type == typeof(EnemyTileArtworkCatalog) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<MotherBrainBodyBg2Frames>k__BackingField"))
         {
@@ -538,6 +546,19 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SamusPowerBombExplosionState explosion && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(SamusPowerBombExplosionState)) - 1)
+        {
+            // Old stock captures encode the exact remaining native fade in COLDATA.
+            // Older modded captures cannot recover the counterfactual stock elapsed
+            // time. Preserve their captured historical remainder with an explicit
+            // warning rather than resetting the phase or rejecting the player's state.
+            byte remaining = explosion.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow
+                ? Math.Max(explosion.FixedColorRed, Math.Max(explosion.FixedColorGreen, explosion.FixedColorBlue))
+                : (byte)0;
+            typeof(SamusPowerBombExplosionState).GetField("_crystalFlashAfterglowStepsRemaining",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(explosion, remaining);
+        }
         if (instance is SuperMetroidSaveRam && serializedCount == 1)
         {
             Type type = typeof(SuperMetroidSaveRam);

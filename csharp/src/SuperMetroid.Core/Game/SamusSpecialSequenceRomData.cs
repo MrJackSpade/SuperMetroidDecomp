@@ -130,6 +130,29 @@ public static class SamusSpecialSequenceRomData
         public const ushort ExplosionYellowLimit = 0x8600;
         /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
         public const ushort CrystalFlashRadiusLimit = 0x2000;
+        /// <summary>
+        /// Maximum component of the first native Crystal Flash color at $88:8D85:
+        /// RGB5 (14,14,10). This is a lifetime operand, not replacement artwork.
+        /// </summary>
+        private const byte CrystalFlashInitialFadeSteps = 14;
+        /// <summary>
+        /// $88:A5BE-$A5CC divides the consumed unsigned 8.8 radius by $0800 to
+        /// select a color. Crystal Flash reaches only the first four yellow rows.
+        /// </summary>
+        private const int CrystalFlashColorRadiusShift = 11;
+        /// <summary>
+        /// Compiled $88:A35D wake criterion for a stock Crystal Flash: the maximum
+        /// native component is 14+row for the four reachable $88:8D85 rows. Keeping
+        /// this operand independent of editable RGB preserves the native fade count,
+        /// signed-timer cadence and cleanup frame without storing presentation colors.
+        /// </summary>
+        public static byte CrystalFlashAfterglowSteps(ushort consumedRadius)
+        {
+            if (consumedRadius >= CrystalFlashRadiusLimit)
+                throw new ArgumentOutOfRangeException(nameof(consumedRadius),
+                    "Crystal Flash consumes a radius below its compiled expansion limit.");
+            return (byte)(CrystalFlashInitialFadeSteps + (consumedRadius >> CrystalFlashColorRadiusShift));
+        }
         /// <summary>$88:8B96, byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
         public const byte AfterglowTimerReload = 3;
     }

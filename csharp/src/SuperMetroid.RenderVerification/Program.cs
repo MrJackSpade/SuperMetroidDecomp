@@ -5,6 +5,11 @@ using SuperMetroid.Rendering.Direct3D11;
 try
 {
     NativeConsoleErrors.DisableDialogs();
+    if (args is ["--installed-power-bomb-isolation", var powerBombRoot])
+    {
+        InstalledPowerBombIsolationTests.Run(powerBombRoot);
+        return;
+    }
     if (args is ["--installed-samus-file-contracts", var samusFileRoot])
     {
         InstalledSamusFileContractTests.Run(samusFileRoot);

@@ -419,6 +419,21 @@ and hardware rendering; haze activation, scanline bands, and fade timing remain
 compiled. Each channel must be 0–31. Older overrides without the two tint
 fields keep the stock blue/red colors.
 
+`game/maps/power-bomb-fixed-colors.json` contains the 16 pre-explosion and
+32 explosion RGB5 rows used by Power Bombs, Crystal Flash and the Ceres
+explosion. Copy it to `overrides/maps/` to recolor them. Radius math, window
+geometry and cleanup timing remain compiled. Crystal Flash's stock fade
+lifetime is separate from the edited colors: black does not end it early,
+and brighter replacements do not prolong it. Unused replacement color is
+cleared when its window ends. Older debugger states warn during migration;
+an old modded capture retains its historical remaining fade because its
+counterfactual stock elapsed time was never recorded.
+
+`SuperMetroid.RenderVerification --installed-power-bomb-isolation <installation-root>`
+checks real disk overrides, complete effect lifetimes, state restoration and
+software/Direct3D output without importing a cartridge or touching player data.
+See the source-access audit for exact coverage and remaining environmental gates.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

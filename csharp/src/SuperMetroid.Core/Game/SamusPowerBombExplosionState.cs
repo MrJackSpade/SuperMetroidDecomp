@@ -97,6 +97,11 @@ public sealed class SamusPowerBombExplosionState
     // $19B4's low byte is initialized to 32 by the last white-explosion frame.
     private byte _afterglowStepsRemaining;
 
+    // Crystal Flash's native completion operand was the largest stock COLDATA
+    // component. Persist it separately so rebinding editable colors cannot alter
+    // HDMA ownership or the wake/cleanup frame, including after state restoration.
+    private byte _crystalFlashAfterglowStepsRemaining;
+
     /// <summary>
     /// Implements $90:BF9D's early power-bomb lock before a projectile slot is initialized.
     /// </summary>
@@ -129,6 +134,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = 0;
         _afterglowTimer = 0;
         _afterglowStepsRemaining = 0;
+        _crystalFlashAfterglowStepsRemaining = 0;
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
@@ -161,6 +167,7 @@ public sealed class SamusPowerBombExplosionState
         FixedColorBlue = 0;
         _afterglowTimer = 0;
         _afterglowStepsRemaining = 0;
+        _crystalFlashAfterglowStepsRemaining = 0;
     }
 
     /// <summary>
@@ -245,6 +252,7 @@ public sealed class SamusPowerBombExplosionState
         FixedColorBlue = 0;
         _afterglowTimer = 0;
         _afterglowStepsRemaining = 0;
+        _crystalFlashAfterglowStepsRemaining = 0;
     }
 
     /// <summary>
@@ -429,6 +437,8 @@ public sealed class SamusPowerBombExplosionState
         // The sleeping list clears the HDMA timer before installing `$88:A35D`. As with
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = 0;
+        _crystalFlashAfterglowStepsRemaining =
+            SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
@@ -438,12 +448,13 @@ public sealed class SamusPowerBombExplosionState
         if ((_afterglowTimer & 0x8000) == 0)
             return false;
 
-        // Unlike ordinary Power Bomb stage five, `$88:A35D` uses the three current color
-        // components as its completion criterion. This retains the final radius window
-        // while each nonzero component fades. The byte reload retains the underflowed
-        // high byte, so the signed timer remains negative on the next call.
-        if ((FixedColorRed | FixedColorGreen | FixedColorBlue) != 0)
+        // `$88:A35D` wakes once the stock components reach zero. The compiled operand
+        // tracks the same number of decrements; editable colors only affect the fade
+        // displayed inside the retained final window. The byte reload still preserves
+        // the underflowed high byte, so every following call remains signed-negative.
+        if (_crystalFlashAfterglowStepsRemaining != 0)
         {
+            _crystalFlashAfterglowStepsRemaining--;
             if (FixedColorRed != 0)
                 FixedColorRed--;
             if (FixedColorGreen != 0)
@@ -468,6 +479,11 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = 0;
         RenderedExplosionRadius = 0;
+        // Replacement colors may be brighter than the stock lifetime operand. Once
+        // the HDMA window is released, do not retain their unused display remainder.
+        FixedColorRed = 0;
+        FixedColorGreen = 0;
+        FixedColorBlue = 0;
         return true;
     }
 

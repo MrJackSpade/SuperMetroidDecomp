@@ -925,6 +925,7 @@ public sealed partial class RoomEnemySystem
                     continue;
 
                 ApplyInstalledCrocomireBodyBg2(slot);
+                ApplyInstalledMotherBrainBodyBg2(slot);
 
                 if (TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
                         slot.SpritemapPointer,
@@ -2562,6 +2563,8 @@ public sealed partial class RoomEnemySystem
             return MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector(
                 operandAddress);
         }
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition)
+            return MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(operandAddress);
         if (slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition)
             return MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
                 operandAddress);

@@ -2,9 +2,27 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Common cartridge and installed extended-enemy BG2 stream dispatch.</summary>
+/// <summary>Installed extended-enemy BG2 presentation dispatch.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Draws the selected mixed body's BG2 half; the common draw emits its OAM half.</summary>
+    private void ApplyInstalledMotherBrainBodyBg2(RoomEnemySlot slot)
+    {
+        if (slot.EnemyDefinitionPointer != MotherBrainBodyDefinition ||
+            TileArtwork?.ExtendedFrames is not { } frames)
+            return;
+        ushort selected = frames.GetDisplayPointer(slot.Definition.Bank, slot.SpritemapPointer);
+        if (!MotherBrainBodyVisualDefinitions.HasBg2(selected))
+            return;
+        if (TileArtwork.MotherBrainBodyBg2Frames?.TryGet(selected,
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) != true)
+            throw new InvalidDataException(
+                $"Installed Mother Brain body frame $A9:{selected:X4} has no BG2 presentation.");
+        if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+            foreach (EnemyBg2TilemapWrite write in writes.Span)
+                ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
+    }
+
     /// <summary>
     /// Crocomire's native extended roots interleave ordinary OAM and BG2
     /// streams. Apply only their installed BG2 half here; the common installed

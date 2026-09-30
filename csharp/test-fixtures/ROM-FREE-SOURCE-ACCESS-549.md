@@ -108,11 +108,11 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   canonical frame lookup, legacy caret selection and equivalent PNG/JSON encodings.
   Windows, Android and state import use the same selected bundle digest.
 - Enemy identity: the selected enemy bundle includes definition-keyed character
-  and palette sheets, bounded DMA aliases, and all 34 boss/enemy subdomains.
+  and palette sheets, bounded DMA aliases, and all 35 boss/enemy subdomains.
   Plain and extended OAM frames retain ordered parts and components, display
   bindings, and instruction-selected projectile compositions. Special uploads,
   BG2 write destinations and tile runs, and every installed color-animation row
-  contribute to the digest. A ROM-free authored fixture verifies 359 independent
+  contribute to the digest. A ROM-free authored fixture verifies 365 independent
   edits, equivalent PNG/JSON encodings, canonical dictionary order, and the actual
   merged result of older overrides with newer stock content. Computed identities
   add no serialized fields. Windows, Android and state import include this bundle.
@@ -172,10 +172,10 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   binding-capable schemas reject missing, incomplete, wrong-key, unknown-target
   and cross-bank bindings. These fixtures use only constructed JSON; they do not
   run gameplay, open a ROM or establish compatibility for other asset formats.
-- Extended and projectile override compatibility: all 25 accepted extended-frame
+- Extended and projectile override compatibility: all 26 accepted extended-frame
   schemas and all 11 enemy-projectile schemas preserve exact edited art and
   inherited newer stock. The extended fixtures cover all ordered components and
-  OAM parts, 22 binding-capable schemas, schema-six Spore Spawn aliases, malformed
+  OAM parts, 23 binding-capable schemas, schema-six Spore Spawn aliases, malformed
   bindings and cross-family rejection. Projectile fixtures cover every ordinary
   and program-selected frame, all nine program-frame schemas, historical sets
   that are not current-catalog prefixes, and incomplete/wrong-key rejection.
@@ -209,13 +209,23 @@ program or change its instruction clock.
 | Ordinary enemy interpreter | Bounded compiled instruction words, durations, branches and callbacks; compiled native visual selectors | `enemy-compositions.json` OAM parts and same-bank display bindings |
 | Multipart enemy drawing and collision | Native frame identity, compiled physical components, hitbox lists and shot/touch dispatch | `enemy-walking-pirate-compositions.json` visual components/parts and family-scoped bindings |
 | Enemy projectiles and pickups | Compiled definitions/programs, spawn coordinates, velocities, clocks, damage and drop decisions | `enemy-projectile-compositions.json` direct/program-selected OAM parts |
-| Mother Brain body animation | Compiled body commands, movement, pose/form, instruction clock and quake/footstep events | Installed character uploads, head/neck and special-sprite artwork at compiled selections; body composition editability still needs its own audit |
+| Mother Brain body animation | Compiled body commands, physical frame identities, movement, pose/form, instruction clock and quake/footstep events | Seventeen installed multipart OAM poses and sixteen BG2 poses; one display binding selects both halves; character, head/neck and special-sprite artwork remains installed |
 | Crocomire melting and skeleton | Compiled pass/transfer/erasure scheduling, phase transitions and completion | Indexed melt/skeleton sheets and installed melt/BG2 maps |
 | Corpse rotting | Explicit live-WRAM row scheduler, fixed delays and completion callbacks | Installed corpse character sheets processed by the scheduler |
 | Kraid and other boss draw hooks | Compiled pose/phase/hitbox/progression selections | Installed BG2, multipart OAM, special uploads and named color catalogs |
 
 The current focused isolation fixture directly verifies ordinary/extended OAM,
-projectile art and Torizo death timing. It does not newly verify every BG2 boss,
+projectile art and Torizo death timing. A separate Mother Brain fixture checks
+all seventeen body poses, exact OAM/BG2 output, mixed display remaps, native
+new-frame write gating and 300 production instruction steps with unchanged
+body movement, clock, pose, BG2 counter-scroll and mutable memory. The installed
+frame inventory equals the complete compiled body/hand-beam selector set.
+Import-only extraction covers 114 OAM components/423 sprites and 252 BG2 runs/
+2,035 tile words, with stock-hash, override, malformed-resource and state-layout
+checks. Source inspection identified both missing frame catalogs and a missing
+compiled-selector dispatch; the focused instruction check failed on that dispatch
+before its correction. There is no runtime cartridge access.
+These fixtures do not newly verify every BG2 boss,
 melting/rotting effect, GPU output or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.
 

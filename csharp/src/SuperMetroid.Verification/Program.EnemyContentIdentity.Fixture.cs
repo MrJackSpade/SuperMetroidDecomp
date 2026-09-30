@@ -95,7 +95,8 @@ internal static partial class Program
 
         public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
-            EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
+            EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
+            MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
         {
             Register("dma-source");
             Register("sheet-id");
@@ -222,6 +223,8 @@ internal static partial class Program
                 phantoonBg2Frames: PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)),
                 draygonBg2Frames: DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)),
                 crocomireBg2Frames: CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)),
+                motherBrainBodyBg2Frames: motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
+                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)),
                 motherBrainCorpse: Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile),
                 motherBrainEscapeText: Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile),
                 motherBrainSpecialSprites: special,

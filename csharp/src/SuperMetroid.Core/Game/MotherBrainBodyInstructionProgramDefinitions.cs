@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Game;
 /// durations control body movement, pose, footsteps, and AI-visible timing, so they belong
 /// to the translated mechanics model. The word following each duration is an extended
 /// spritemap pointer and belongs to presentation. The initial dummy's fixed visual
-/// selector is compiled separately for installed play; the animation diagnostic may
-/// still use a mutable cartridge operand for its constructed fixtures.
+/// selector is compiled separately for installed play. Editable display bindings
+/// select installed OAM/BG2 art without changing these physical frame identities.
 /// </remarks>
 internal static class MotherBrainBodyInstructionProgramDefinitions
 {

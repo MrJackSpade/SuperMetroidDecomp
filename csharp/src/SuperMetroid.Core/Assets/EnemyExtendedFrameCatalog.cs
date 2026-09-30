@@ -82,6 +82,11 @@ public sealed class EnemyExtendedFrameCatalog
         return TryGet(bank, nativePointer, out components);
     }
 
+    /// <summary>Resolves the matching BG2 half of a mixed display frame without mutating its physical selector.</summary>
+    internal ushort GetDisplayPointer(byte bank, ushort nativePointer) =>
+        displayFrames.TryGetValue((bank << 16) | nativePointer, out int selected)
+            ? unchecked((ushort)selected) : nativePointer;
+
     /// <summary>
     /// Validates named frames and compiles visual-only OAM pieces. A complete
     /// current stock catalog lets older overrides retain their edits while newly
@@ -109,6 +114,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreMotherBrainBodyFrameCount,
             EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreCompleteTorizoFrameCount,
@@ -283,7 +291,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbVersion
             or EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
-            or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion)
+            or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
+            or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -304,6 +313,8 @@ public sealed class EnemyExtendedFrameCatalog
 
         static bool SameFrameFamily(string left, string right)
         {
+            if (left.StartsWith("mother_brain_body_oam_", StringComparison.Ordinal))
+                return right.StartsWith("mother_brain_body_oam_", StringComparison.Ordinal);
             if (left.StartsWith("torizo_combat_", StringComparison.Ordinal))
                 return right.StartsWith("torizo_combat_", StringComparison.Ordinal);
             if (left.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))

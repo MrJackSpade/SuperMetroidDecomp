@@ -40,7 +40,7 @@ internal static class EnemyBg2FrameFiles
                     throw new InvalidDataException(
                         $"{family} frame ${bank:X2}:{frame.Pointer:X4} component {component} is not a BG2 stream.");
                 }
-                // Crocomire stores nonzero OAM-style offsets even on BG2
+                // Mixed body roots store OAM-style offsets even on BG2
                 // components. ProcessExtendedTilemap ignores both fields.
                 if (!allowMixedOam &&
                     (ReadWord(bus, record) != 0 || ReadWord(bus, record + 2) != 0))

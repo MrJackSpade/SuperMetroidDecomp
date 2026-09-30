@@ -22,6 +22,14 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
     /// <summary>Number of dust records preceding the beam attack.</summary>
     public const int DustRecordCount = 8;
 
+    /// <summary>All fifteen visual operands; dust coordinates, durations and opcodes are excluded.</summary>
+    internal static ReadOnlySpan<ushort> PresentationOperands => VisualOperands;
+    private static readonly ushort[] VisualOperands =
+        new ushort[] { Start + 4, Start + 8, Start + 12 }
+            .Concat(Enumerable.Range(0, DustRecordCount).Select(index =>
+                checked((ushort)(FirstDustRecord + index * DustRecordStride + 10))))
+            .Concat(new ushort[] { End - 20, End - 14, End - 10, End - 6 }).ToArray();
+
     /// <summary>Whether the aligned word belongs to the compiled hand-beam list.</summary>
     public static bool ContainsWord(ushort address) =>
         address is >= Start and <= End && ((address - Start) & 1) == 0;

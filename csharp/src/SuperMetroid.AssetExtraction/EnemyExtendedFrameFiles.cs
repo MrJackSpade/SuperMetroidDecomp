@@ -29,7 +29,12 @@ internal static class EnemyExtendedFrameFiles
             // high byte as native presentation metadata.
             byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
                 StringComparison.Ordinal) ? (byte)0x10 : (byte)0;
-            if (count is < 1 or > EnemyExtendedFrameDefinitions.MaximumComponents ||
+            bool motherBrainMixed = bank == MotherBrainBodyVisualDefinitions.Bank &&
+                MotherBrainBodyVisualDefinitions.HasBg2(pointer);
+            int maximumNativeComponents = motherBrainMixed
+                ? MotherBrainBodyVisualDefinitions.MaximumNativeComponents
+                : EnemyExtendedFrameDefinitions.MaximumComponents;
+            if (count < 1 || count > maximumNativeComponents ||
                 padding != expectedPadding)
                 throw new InvalidDataException(
                     $"Extended frame ${bank:X2}:{pointer:X4} has invalid component header.");
@@ -45,10 +50,10 @@ internal static class EnemyExtendedFrameFiles
                 if (ReadWord(bus, bank, spritePointer) ==
                     EnemyBg2FrameLayout.StreamMarker)
                 {
-                    // Crocomire's body combines ordinary OAM with BG2 streams
+                    // Multipart bodies combine ordinary OAM with BG2 streams
                     // in one native extended root. Its BG2 half is extracted
                     // separately, never misrepresented as sprite artwork.
-                    if (definition.Name.StartsWith("crocomire_body_oam_",
+                    if (motherBrainMixed || definition.Name.StartsWith("crocomire_body_oam_",
                             StringComparison.Ordinal))
                         continue;
                     throw new InvalidDataException(

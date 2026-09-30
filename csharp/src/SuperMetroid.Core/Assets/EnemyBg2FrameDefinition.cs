@@ -14,8 +14,8 @@ internal static class EnemyBg2FrameLayout
     internal const ushort WorkingRamBase = 0x2000;
     internal const int TilemapWidth = 32;
     internal const int TilemapHeight = 64;
-    /// <summary>The extended-spritemap root stores at most eight components.</summary>
-    internal const int MaximumComponents = 8;
+    /// <summary>The largest installed mixed root has ten native components (Mother Brain).</summary>
+    internal const int MaximumComponents = MotherBrainBodyVisualDefinitions.MaximumNativeComponents;
     /// <summary>Defensive bound for one $FFFE stream's terminated command list.</summary>
     internal const int MaximumCommandsPerStream = 128;
 }

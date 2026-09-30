@@ -602,9 +602,9 @@ Version-four and version-five overrides retain their existing display bindings
 and inherit later boss frames from verified stock. Version-six overrides retain
 their Draygon and Spore Spawn edits and display bindings; the twelve formerly
 misnamed `draygon_oam_EE65`–`draygon_oam_EF61` keys migrate by unchanged frame
-pointer to `spore_spawn_oam_*`. All versions one through twenty-five retain their
-authored art and inherit later stock frames. Versions four through twenty-five
-also retain their display bindings. Use a current version-twenty-five copy to
+pointer to `spore_spawn_oam_*`. All versions one through twenty-six retain their
+authored art and inherit later stock frames. Versions four through twenty-six
+also retain their display bindings. Use a current version-twenty-six copy to
 edit the complete inventory. New display bindings cannot cross between Draygon and
 Spore Spawn. Draygon's other 34 selected extended frames contain BG2 tilemap
 commands and live in a separate file.
@@ -638,8 +638,23 @@ to edit the ordered tile words or their 32-by-64 tilemap positions. Its native
 frame selectors, producer timing, hitboxes, and damage callbacks remain outside
 the appearance file. The stock file is hash-checked and malformed overrides
 fail during load.
-Other extended enemy families still use cartridge visual records until their
-compositions are extracted separately.
+Mother Brain's seventeen body poses use both OAM limbs in the same multipart
+composition file and sixteen BG2 frames in `mother-brain-body-bg2-frames.json`.
+The initial dummy pose has only OAM. Copy either file to `overrides/enemy-tiles/`
+to edit its appearance. A body `displayFrames` binding selects both halves of
+the requested pose; its native physical frame, movement, collision, instruction
+clock and BG2 counter-scroll remain compiled. BG2 writes retain the native
+new-instruction-frame gate. Stock installation hashes include the new file,
+and malformed overrides fail explicitly. Existing overrides keep their edits
+when stock content is repaired to the current manifest.
+
+`--mother-brain-body-presentation` checks exact authored limb OAM, BG2 runs,
+display remaps and write gating with RAM-only fixtures, and compares production
+body instruction state through both walks and a crouch. The separate
+`--mother-brain-body-stock-presentation` imports all declared body roots and
+checks installation hashes and override loading. These are focused checks of
+the source-identified conversion, not a battle playthrough or a search for reads.
+Other unsupported frames fail explicitly; there is no runtime ROM fallback.
 Crocomire's first and second melting images are the separate indexed files
 `crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
 Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and

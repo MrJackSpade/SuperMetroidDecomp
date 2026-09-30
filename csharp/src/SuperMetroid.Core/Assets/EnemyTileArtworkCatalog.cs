@@ -57,6 +57,7 @@ public sealed class EnemyTileArtworkCatalog
             content.AppendIdentity("MotherBrainSpecialSprites", MotherBrainSpecialSprites?.ContentIdentity);
             content.AppendIdentity("CrocomireSkeleton", CrocomireSkeleton?.ContentIdentity);
             content.AppendIdentity("CrocomireBg2Frames", CrocomireBg2Frames?.ContentIdentity);
+            content.AppendIdentity("MotherBrainBodyBg2Frames", MotherBrainBodyBg2Frames?.ContentIdentity);
             content.AppendIdentity("TorizoInstructionVram", TorizoInstructionVram?.ContentIdentity);
             content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);
             content.AppendIdentity("CeresEscapeOverlayTilemaps", CeresEscapeOverlayTilemaps?.ContentIdentity);
@@ -103,7 +104,8 @@ public sealed class EnemyTileArtworkCatalog
         TorizoInstructionVramArtwork? torizoInstructionVram = null,
         CeresEscapeTileArtwork? ceresEscapeTiles = null,
         CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
-        EnemyAuxiliaryColorCatalog? auxiliaryColors = null)
+        EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
+        MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -155,6 +157,7 @@ public sealed class EnemyTileArtworkCatalog
         PhantoonBg2Frames = phantoonBg2Frames;
         DraygonBg2Frames = draygonBg2Frames;
         CrocomireBg2Frames = crocomireBg2Frames;
+        MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames;
         MotherBrainCorpse = motherBrainCorpse;
         MotherBrainEscapeText = motherBrainEscapeText;
         MotherBrainSpecialSprites = motherBrainSpecialSprites;
@@ -197,6 +200,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable BG2 half of Crocomire's mixed fight-body frames.</summary>
     public CrocomireBg2FrameCatalog? CrocomireBg2Frames { get; }
+
+    /// <summary>Editable BG2 body poses paired with the installed Mother Brain OAM limbs.</summary>
+    public MotherBrainBodyBg2FrameCatalog? MotherBrainBodyBg2Frames { get; }
 
     /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting WRAM staging.</summary>
     public RoomCharacterAtlas? MotherBrainCorpse { get; }
@@ -308,7 +314,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 63;
+    public const int Version = 64;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

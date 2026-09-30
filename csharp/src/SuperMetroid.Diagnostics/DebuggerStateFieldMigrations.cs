@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(EnemyTileArtworkCatalog) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<MotherBrainBodyBg2Frames>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy enemy catalog lacks Mother Brain body BG2 presentation; the host must rebind its current installed artwork.");
+            return current.Where(field => field.Name != "<MotherBrainBodyBg2Frames>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroidSaveRam) && count == 1 && current.Length == 2 &&
             current.Any(field => field.Name == "mutableMemory"))
         {

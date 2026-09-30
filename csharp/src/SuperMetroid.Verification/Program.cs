@@ -71,6 +71,16 @@ if (args is ["--enemy-animation-isolation"])
     VerifyEnemyAnimationIsolation();
     return 0;
 }
+if (args is ["--mother-brain-body-presentation"])
+{
+    VerifyMotherBrainBodyPresentation();
+    return 0;
+}
+if (args is ["--mother-brain-body-stock-presentation"])
+{
+    VerifyMotherBrainBodyStockPresentation();
+    return 0;
+}
 if (args is ["--enemy-animation-stock-parity"])
 {
     VerifyEnemyAnimationStockParity();

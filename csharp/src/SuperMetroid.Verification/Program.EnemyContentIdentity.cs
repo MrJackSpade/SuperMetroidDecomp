@@ -33,7 +33,7 @@ internal static partial class Program
         Type[] childTypes = typeof(EnemyTileArtworkCatalog).GetProperties()
             .Where(property => property.Name != nameof(EnemyTileArtworkCatalog.ContentIdentity))
             .Select(property => property.PropertyType).ToArray();
-        AssertEqual(34, childTypes.Length, "all enemy bundle subdomains are accounted for");
+        AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Append(typeof(EnemyTileArtworkCatalog)).Append(typeof(EnemyPaletteSheet)))
         {
             AssertTrue(type.GetProperty("ContentIdentity") is not null,
@@ -41,7 +41,7 @@ internal static partial class Program
             AssertTrue(type.GetField("<ContentIdentity>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic) is null,
                 type.Name + " adds no persisted derived-identity field");
         }
-        Console.WriteLine($"  Enemy content: {fixture.Edits.Count} independent edits across all 34 subdomains, " +
+        Console.WriteLine($"  Enemy content: {fixture.Edits.Count} independent edits across all 35 subdomains, " +
             "OAM/BG2 ordering, display bindings, legacy stock merges, encoding invariance and host warnings pass without a ROM.");
 
         static GameContentIdentity EnemyIdentity(string digest) => GameContentIdentity.Create(

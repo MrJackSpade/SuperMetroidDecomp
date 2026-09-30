@@ -10,7 +10,8 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
 /// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
 /// Bomb Torizo's dormant statue frame, Golden Torizo's initial, awakening and
-/// walking, turning and jump-back poses, and Kraid's independently animated arm.
+/// walking, turning and jump-back poses, Kraid's independently animated arm,
+/// and the OAM half of Mother Brain's mixed body poses.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -60,7 +61,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreCompleteTorizoVersion = 24;
     internal const int PreCompleteTorizoFrameCount = 420;
     internal const int CompleteTorizoAdditionalFrameCount = 27;
-    internal const int Version = 25;
+    internal const int PreMotherBrainBodyVersion = 25;
+    internal const int PreMotherBrainBodyFrameCount = 447;
+    internal const int Version = 26;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -100,7 +103,7 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
-        CompleteTorizoAdditionalFrameCount;
+        CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -535,8 +538,11 @@ internal static class EnemyExtendedFrameDefinitions
                 frames.Add(new EnemyExtendedFrameDefinition(TorizoInstructionProgramDefinitions.Bank,
                     pointer, $"torizo_combat_{pointer:X4}"));
         }
-        if (frames.Count != ExpectedFrameCount)
+        if (frames.Count != PreMotherBrainBodyFrameCount)
             throw new InvalidDataException("Complete Torizo artwork coverage changed.");
+        frames.AddRange(MotherBrainBodyVisualDefinitions.Frames.ToArray());
+        if (frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException("Mother Brain body artwork coverage changed.");
         return frames.ToArray();
     }
 }

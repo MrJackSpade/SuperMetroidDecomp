@@ -1,5 +1,16 @@
 # Compiled shared enemy math (#547)
 
+## Current boundary and historical evidence
+
+This file records individual implementation slices and their verification at the
+time. Statements about remaining ROM fallbacks and gameplay-probe coverage are
+historical, not instructions to search for another read. Core's cartridge reader
+and payload are now deleted; imports/reference oracles are outside Core, and
+the build rejects their reintroduction through project references or known shims.
+Use `ROM-FREE-SOURCE-ACCESS-549.md` for the current source/type access inventory
+and `LOOKUP-MIGRATION-REMAINING-547.md` for the current lookup boundary summary.
+The broader required-resource/presentation/compatibility acceptance remains open.
+
 ## Ceres elevator arrival projectile definitions
 
 The two fixed enemy-projectile headers at `$86:A387/$A395` and their complete

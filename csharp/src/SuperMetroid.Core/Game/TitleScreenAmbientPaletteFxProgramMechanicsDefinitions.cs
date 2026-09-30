@@ -27,8 +27,8 @@ public enum TitleScreenAmbientPaletteFxProgramOwner
 /// eight control words match. Even records write <c>[13FF,0BB1]</c> and
 /// odd records write <c>[00AC,0145]</c>; the four distinct cartridge
 /// colors are retained as authored presentation data. All 36 colors in
-/// these two loops remain installed presentation data; diagnostic sessions
-/// without an installed presentation retain the cartridge-backed color path.
+/// these two loops require installed presentation data; missing colors report
+/// an error rather than falling back to a runtime cartridge read.
 /// ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>

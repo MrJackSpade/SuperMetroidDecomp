@@ -1,5 +1,33 @@
 # Remaining lookup migration inventory (#547)
 
+## Current source boundary
+
+The entries below are a chronological investigation record, not the current
+remaining-read checklist. Their historical bus fallbacks, guarded cartridge
+comparisons and gameplay-probe instructions must not be used to resume discovery.
+The current access-path inventory is in `ROM-FREE-SOURCE-ACCESS-549.md`.
+
+The generic CPU/cartridge reader, raw ROM payload and native decompressor have
+been removed from Core. Import/reference readers live in AssetExtraction;
+Core cannot reference that assembly or link the retired reader shims. Former
+callers now consume compiled mechanics, installed presentation or explicit
+WRAM/SRAM/peripheral data. A missing domain definition reports an error; it
+does not fall back to ROM. Compilation and source/type inventory drive changes.
+
+The common sine/angle/linear/quadratic helpers and enemy touch/shot/Power Bomb
+callback classifiers use immutable compiled definitions. Literal RTL callbacks
+remain distinct from common-damage and private handlers. The CPU operand and
+long-indirect helpers classify mutable memory/peripheral/open-bus sources and
+reject cartridge windows. Neither has a production Core caller. The unused
+native `SamusBeamPaletteLoader` wrapper was removed after a repository-wide
+call-site search found no references.
+
+The wider installation, presentation, required-reference and compatibility
+acceptance remains open under #530/#549. The absence of a cartridge capability
+does not prove every compiled value or visual behavior correct. Existing
+per-slice reference comparisons remain historical evidence; this source audit
+does not claim that those older verifier entry points were rerun successfully.
+
 ## Removed generic dynamic CPU-read adapter (2026-09-29)
 
 `SnesCpuMappedData.ReadByte` has been deleted. The compiler identified its

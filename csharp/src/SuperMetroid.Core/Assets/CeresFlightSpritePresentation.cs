@@ -12,6 +12,9 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(CeresFlightSpritePresentation), frames);
+
     private CeresFlightSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

@@ -16,6 +16,18 @@ public sealed class CeresDestructionActorLayout
 
     public CeresDestructionActorPlacement this[int actorIndex] => placements[actorIndex];
 
+    /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresDestructionActorLayout), content =>
+    {
+        content.Append("actors", placements.Length);
+        foreach (CeresDestructionActorPlacement placement in placements)
+        {
+            content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
+            content.Append("x", placement.X);
+            content.Append("y", placement.Y);
+        }
+    });
+
     public static CeresDestructionActorLayout Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);

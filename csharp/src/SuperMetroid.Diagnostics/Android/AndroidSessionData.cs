@@ -217,7 +217,9 @@ internal sealed class AndroidSessionData : IDisposable
                 .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Create(
                     gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
                 .Concat(SuperMetroid.AssetExtraction.EndingPresentationIdentity.Create(
-                    endingMode7Art, endingObjectArt, endingPaletteArt)));
+                    endingMode7Art, endingObjectArt, endingPaletteArt))
+                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.IntroCinematicDirectoryName,
+                    introCinematicArt.ContentIdentity)));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

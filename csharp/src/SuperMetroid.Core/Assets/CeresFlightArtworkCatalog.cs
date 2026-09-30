@@ -29,6 +29,17 @@ public sealed class CeresFlightArtworkCatalog
     public CeresFlightSpritePresentation Sprites { get; }
     public CeresFlightActorLayout Actors { get; }
 
+    /// <summary>Identity of all selected approach maps, characters, colors, OAM frames and placements.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
+    {
+        content.Append("mode7-characters", Mode7Characters.Span);
+        content.Append("mode7-maps", Mode7Maps.Span);
+        content.Append("object-characters", ObjectCharacters.Span);
+        content.Append("palette", Palette.Transfer.Span);
+        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
+        content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
+    });
+
     public static CeresFlightArtworkCatalog Load(Stream mode7Png, Stream mapJson,
         Stream objectPng, Stream paletteJson, Stream spritesJson, Stream actorsJson)
     {

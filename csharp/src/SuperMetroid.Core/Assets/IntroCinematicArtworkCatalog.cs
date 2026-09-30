@@ -102,6 +102,29 @@ public sealed class IntroCinematicArtworkCatalog
     public CeresFlightArtworkCatalog CeresFlight { get; }
     /// <summary>Destruction maps and subsequent Zebes reveal art.</summary>
     public CeresDestructionArtworkCatalog CeresDestruction { get; }
+
+    /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroCinematicArtworkCatalog), content =>
+    {
+        content.Append("background-characters", BackgroundCharacters.Transfer.Span);
+        content.Append("intro-characters", IntroObjectCharacters.Transfer.Span);
+        content.Append("cinematic-characters", CinematicObjectCharacters.Transfer.Span);
+        content.Append("background-pages", BackgroundPages.Span);
+        content.Append("portrait-map", PortraitTilemap.Span);
+        content.Append("narration-map", InitialNarrationTilemap.Span);
+        content.AppendWords("final-line", FinalLine.Words.Span);
+        content.Append("eye-frames", Convert.FromHexString(EyeFrames.ContentIdentity));
+        content.Append("caret-sprites", Convert.FromHexString(CaretSprites.ContentIdentity));
+        content.Append("mother-brain-sprites", Convert.FromHexString(MotherBrainSprites.ContentIdentity));
+        content.Append("mother-brain-explosion-sprites", Convert.FromHexString(MotherBrainExplosionSprites.ContentIdentity));
+        content.Append("rinka-sprites", Convert.FromHexString(RinkaSprites.ContentIdentity));
+        content.Append("egg-sprites", Convert.FromHexString(EggEffectSprites.ContentIdentity));
+        content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActorSprites.ContentIdentity));
+        content.Append("scientist-sprites", Convert.FromHexString(ScientistSprites.ContentIdentity));
+        content.Append("palette", Palette.Transfer.Span);
+        content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
+        content.Append("ceres-destruction", Convert.FromHexString(CeresDestruction.ContentIdentity));
+    });
 }
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>

@@ -8,6 +8,9 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroDiscoveryActorSpritePresentation), frames);
+
     private IntroDiscoveryActorSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

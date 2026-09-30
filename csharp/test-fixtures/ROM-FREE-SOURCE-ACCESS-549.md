@@ -100,6 +100,13 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   authored fixture verifies 53 independent edits, palette inheritance, part and
   transfer order, canonical frame lookup, and equivalent PNG/JSON encodings.
   Computed identities add no debugger-serialized catalog fields.
+- Opening-cinematic identity: the installed bundle includes character sheets, all
+  four ordered BG pages, portrait/narration/divider maps, every eye frame, nine
+  OAM composition families, colors, Ceres flight/destruction maps and Zebes reveal
+  art. All five flight, six reveal and three destruction actors contribute their
+  selected coordinates. A ROM-free fixture verifies 64 independent edits,
+  canonical frame lookup, legacy caret selection and equivalent PNG/JSON encodings.
+  Windows, Android and state import use the same selected bundle digest.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;
@@ -119,9 +126,11 @@ or proof of visual/gameplay parity for every event.
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
    compiled Core build, selected audio, maps, projectiles, six room-art domains,
    Samus, all 27 room-actor domains, shared gameplay/X-ray presentation and three
-   ending domains. Remaining selected enemy and opening-cinematic catalogs must participate before
-   it represents the complete installation. Audit any further host-bound resources
-   against that inventory rather than assuming a passed subset is exhaustive.
+   ending domains, plus the opening-cinematic/Ceres bundle. The remaining selected
+   enemy catalog must participate before the identity represents the complete
+   host-bound installation. Audit any further resources and compiled/default
+   presentation against that inventory rather than assuming a passed subset is
+   exhaustive.
 2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
    Windows real-host and portable Android-host acceptance passed as recorded above;
    neither substitutes for running the APK on the device. This is final platform

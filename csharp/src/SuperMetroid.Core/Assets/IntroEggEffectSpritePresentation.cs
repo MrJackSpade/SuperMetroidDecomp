@@ -8,6 +8,9 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroEggEffectSpritePresentation), frames);
+
     private IntroEggEffectSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

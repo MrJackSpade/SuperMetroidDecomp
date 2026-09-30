@@ -44,6 +44,11 @@ if (args is ["--ending-content-identity"])
     VerifyEndingContentIdentity();
     return 0;
 }
+if (args is ["--intro-content-identity"])
+{
+    VerifyIntroContentIdentity();
+    return 0;
+}
 if (args is ["--plm-content-identity"])
 {
     VerifyPlmContentIdentity();

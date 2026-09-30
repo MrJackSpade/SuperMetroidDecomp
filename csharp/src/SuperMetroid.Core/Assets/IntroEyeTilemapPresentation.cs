@@ -10,6 +10,14 @@ public sealed class IntroEyeTilemapPresentation
 
     private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames;
 
+    /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
+    {
+        content.Append("frames", frames.Length);
+        foreach (ushort[] frame in frames)
+            content.AppendWords("frame", frame);
+    });
+
     public ReadOnlySpan<ushort> FrameWords(int index)
     {
         if ((uint)index >= frames.Length)

@@ -54,6 +54,35 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   failures must catch them inside the test harness rather than leaking them from the
   process.
 
+## Testing ownership and scope
+
+- The agent is the DEVELOPER, not the TESTER. The user is the project tester.
+  The user owns exploratory playtesting, bug discovery, and final whole-game
+  validation; the agent implements requested work
+  and confirms specific changes. Do not take over the user's testing role.
+- NEVER USE TEST CASES TO SEARCH FOR PROBLEMS. Automated tests, replays, frame
+  probes, room sweeps, parameter searches, and expanded test matrices must not
+  be used to hunt for unreported defects or choose the next implementation task.
+- Test cases exist ONLY to confirm an identified change or reproduce/confirm a
+  reported problem. Before adding or running a case, identify the requested
+  change or reported defect and the exact property the case confirms. If it is
+  being run to discover what else might be broken, do not run it.
+- A focused reproduction of a reported failure, including the mandatory
+  reproduction after a failed fix, is confirmation work, not exploratory testing.
+  Keep it scoped to that report; do not expand it into a playthrough or new bug hunt.
+- Whole-game validation is an END GOAL, not a checkpoint for every fix. Do not
+  hold a completed change or usable build for exhaustive parity, every-room,
+  every-effect, or whole-game acceptance. Perform proportionate confirmation of
+  the change, commit/push it, and hand it back for the user's testing.
+- Ticket goals and acceptance text must describe the specific implementation or
+  reported defect. Never add whole-game validation as an individual ticket's goal
+  or per-fix gate. Scope confirmation to the changed contract and reported property;
+  do not turn unspecified "remaining acceptance" into an agent-owned test campaign.
+- Source inspection and compiler/type-boundary work needed to implement the
+  requested task remain appropriate. They do not authorize a test-driven search
+  for additional work. Mark implemented player-facing fixes
+  `awaiting-player-validation`; passing agent checks is not player confirmation.
+
 ## Regression tests
 
 - Tests may use synthetic rooms, constructed cartridge data, fake address spaces, and other focused fixtures. A regression test does not need to drive a real retail room when a smaller fixture faithfully reproduces the reported failure.
@@ -69,9 +98,11 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Inventory cartridge access statically from the source and its call graph. Separate
   extraction/startup imports from executable gameplay dependencies, and use API or
   type-boundary changes that make unresolved gameplay reads visible at build time.
-- Tests may verify a specifically identified conversion and its behavior, but must
-  not be used to search for the next cartridge read. Completion requires a source-
-  level audit of every access path as well as ROM-free runtime verification.
+- Tests may confirm a specifically identified conversion and its behavior, but must
+  never search for remaining reads or unrelated defects. Establish ROM-capability
+  removal through source/type ownership and compiler boundaries. A focused host
+  check may confirm a particular integration change; whole-game validation remains
+  the user's end goal, not a prerequisite for each conversion or build handoff.
 
 ## Issue report versions
 

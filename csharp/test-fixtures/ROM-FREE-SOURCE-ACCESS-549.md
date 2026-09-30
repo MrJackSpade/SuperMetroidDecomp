@@ -12,7 +12,33 @@ to discover the next read. Focused tests verify an already identified conversion
 they do not establish that unexecuted paths are ROM-free.
 
 This audit supersedes the strategy in the archived room census. It records the
-2026-09-29 compiler-guided migration; #549 remains open for the acceptance work below.
+2026-09-29 compiler-guided migration; #549 remains open for concrete implementation
+tracking below and subsequent player confirmation.
+
+## Testing ownership and completion scope
+
+The user is the tester. The user owns exploratory playtesting, discovering bugs,
+and final whole-game validation. The agent implements requested changes and
+reported fixes, with focused confirmation of those changes only.
+
+NEVER USE TEST CASES TO SEARCH FOR PROBLEMS. Tests, replays, frame probes, room
+sweeps and parameter matrices must not discover unreported defects or select
+the next task. A case must identify the requested change or reported problem
+and the exact property it confirms. Reproducing a reported failure is allowed;
+expanding that reproduction into a new bug hunt is not.
+
+Whole-game validation remains the END GOAL. It is not a checkpoint for each fix,
+conversion or build handoff. Confirm the specific change proportionately, then
+commit/push and return it for player testing. The prior broad acceptance wording
+in this audit is not authority to delay handoff for whole-game parity or to grow
+new test campaigns. Historical test results below are records, not instructions
+to repeat or expand those campaigns.
+
+On 2026-09-30, all 51 open GitHub issue bodies were reviewed and updated with
+this ownership rule. Broader verification and completion directives were narrowed
+to the affected implementation or reported defect. Issue states, labels and
+existing reproduction links were preserved; no gameplay tests were run for this
+policy audit.
 
 ## Access-path inventory
 
@@ -603,7 +629,12 @@ stock file hashes remain unchanged. This verifies installed JSON admission and
 identity participation for this bundle, not render or gameplay parity. No ROM is
 opened and no gameplay/read-discovery probe runs inside the fixture.
 
-## Remaining #549 acceptance
+## Remaining implementation tracking
+
+Track concrete unfinished implementation requirements and reported defects,
+not an expanding agent-owned test campaign. The inventory below identifies
+implementation areas to assess from source; it does not require exploratory
+tests, exhaustive per-domain parity or whole-game validation before handoff.
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
    compiled Core build, selected audio, maps, projectiles, six room-art domains,
@@ -618,5 +649,6 @@ opened and no gameplay/read-discovery probe runs inside the fixture.
 3. Review remaining cached/reference diagnostic assumptions separately. Historical
    successful frame probes do not authorize restoring Core cartridge capability.
 
-Do not close #549 or describe the whole game as validated until its remaining
-acceptance criteria are satisfied.
+When the requested implementation is ready, hand over the usable build and mark
+the issue `awaiting-player-validation`. Only the user confirms playability and
+eventual whole-game validation; agent checks must not be presented as either.

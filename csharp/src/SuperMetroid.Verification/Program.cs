@@ -39,6 +39,11 @@ if (args is ["--room-content-identity"])
     VerifyRoomContentIdentity();
     return 0;
 }
+if (args is ["--projectile-file-contracts", var projectileInstallation])
+{
+    VerifyProjectileFileContracts(projectileInstallation);
+    return 0;
+}
 if (args is ["--gameplay-content-identity"])
 {
     VerifyGameplayContentIdentity();

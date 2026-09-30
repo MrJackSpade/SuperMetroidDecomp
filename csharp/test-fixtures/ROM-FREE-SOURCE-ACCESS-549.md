@@ -57,6 +57,14 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
 
 ## Identified conversion evidence
 
+- Projectile file admission: a static loader inventory found pathless hash/codec
+  and manifest failures. A focused extracted-file fixture reproduced 96 omissions.
+  The shared loader now retains each file path and original codec exception,
+  requires complete manifest fields and validates all stock before overrides.
+  `--projectile-file-contracts` passes 121 exact-path cases across all 24 PNG/JSON
+  resources and their manifest in Debug and Release, preserving defective edits,
+  stock hashes, selected identities and every assembled beam transfer. This is
+  file-boundary acceptance, not new gameplay or read-discovery evidence.
 - Shared palette contracts: a static loader inventory identified twelve older RGB5
   formats without duplicate-field checks. All now use the recursive shared JSON
   validator; room-static and gameplay-base schemas also reject unknown fields.

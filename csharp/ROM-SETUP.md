@@ -1192,8 +1192,15 @@ palette. Crystal Flash completion restores the selected override normally.
 Restart to load edits. Loading a debugger state retains the current session's
 selected composition and beam catalogs rather than restoring old artwork from the state.
 Startup logs stock and selected hashes. Invalid overrides fail loudly; removing
-the override restores stock on restart. Explicit developer-ROM sessions outside
-the installed-content workflow retain ROM-backed rendering.
+the override restores stock on restart. Projectile hash and codec failures identify
+the exact stock or selected override path, retaining the underlying exception.
+All required manifest fields must be present. A valid override cannot hide invalid
+stock, and a rejected edit is never silently replaced. Core rendering has no ROM
+fallback; explicit native image decoding remains import/reference tooling only.
+
+The guarded `--projectile-file-contracts <installation-root>` verifier checks these
+file boundaries using an already-extracted installation, without opening its ROM
+or advancing gameplay.
 
 ## Verified build
 

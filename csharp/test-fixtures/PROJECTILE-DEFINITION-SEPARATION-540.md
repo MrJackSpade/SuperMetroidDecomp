@@ -1,4 +1,53 @@
-# Remaining projectile definition ownership (#540 / #547)
+# Projectile definition ownership (#540 / #547)
+
+## Current runtime boundary
+
+Core's cartridge reader, payload and native decompressor are deleted. Projectile
+and Grapple mechanics use compiled definitions; installed indexed PNG/JSON
+catalogs supply visual frames, beam/trail/endpoint characters, palettes, flare
+placement and displayed swing frames. `ProjectilePresentationFiles` currently
+requires manifest version 13, including Hyper Beam FX colors. Native decoding
+and comparison oracles belong to AssetExtraction and reference tooling only.
+See [the source access audit](ROM-FREE-SOURCE-ACCESS-549.md) for ownership details.
+
+The per-slice notes below are historical evidence. Their statements about
+remaining bus/ROM fallbacks describe earlier intermediate states, not supported
+current behavior or a reason to restore the removed API. Do not discover reads
+through gameplay, replays or tests; inventory source and enforce the type boundary.
+Focused tests may verify known definitions and conversions.
+
+## Installed projectile file admission
+
+Source inspection identified pathless errors in the shared projectile loader.
+`--projectile-file-contracts <installation-root>` first reproduced 96 hash,
+codec and manifest failures that omitted the failing path. The loader now keeps
+each stock/selected file's path through decoding, wraps codec failures with the
+original exception and rejects incomplete manifest fields through the shared
+recursive JSON contract. Stock validation still finishes before selecting any
+override; invalid stock cannot be hidden by a valid replacement.
+
+The fixture copies only extracted projectile files to its owned temporary
+directory. All 24 PNG/JSON resources are checked for missing stock, hash
+tampering, invalid overrides and hash-valid invalid stock behind a valid override.
+Malformed/missing/provenance-invalid manifests and nested duplicate beam keys
+also fail. Debug and Release pass 121 exact-path rejection cases. Defective files
+remain untouched, all stock-equivalent selections retain byte identity and all
+twelve assembled beam transfers match the existing independent catalog path.
+The internal atlas assembler owns its array and avoids an extra PNG decode.
+No drawing, physics, sound routing, resource format or saved runtime field changed.
+
+Fresh explicit import before/after the change produces all 1,094 stock files
+byte-identically. The actual override lifecycle passes 44 directories, 45 catalog
+loaders and 1,092 files through startup without ROM, portable host binding, stock
+repair and extraction upgrade. Windows Debug/Release and Android Release builds
+pass with zero errors; this change was not deployed to the player's device.
+
+Remaining broader acceptance: paired weapon/Grapple presentation and mechanical
+isolation, required-reference and older-format review, and #530/#549 integration.
+File-admission checks alone do not establish complete projectile/Grapple behavior
+or GPU parity. Keep the broader issue open until its actual requirements pass.
+
+## Historical implementation slices
 
 ## Implemented timed-frame visual-binding slice
 

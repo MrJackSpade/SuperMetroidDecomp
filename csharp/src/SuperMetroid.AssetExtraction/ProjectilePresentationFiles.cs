@@ -15,6 +15,7 @@ public static class ProjectilePresentationFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -57,128 +58,116 @@ public static class ProjectilePresentationFiles
     /// <summary>Validates stock even when overridden. Invalid overrides never fall back to stock.</summary>
     public static InstalledProjectilePresentation Load(string stockDirectory, string? overrideDirectory)
     {
-        Manifest manifest;
-        try
-        {
-            using var document = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(stockDirectory, ManifestFileName)));
-            ValidateObject(document.RootElement);
-            manifest = document.RootElement.Deserialize<Manifest>(Options)
-                ?? throw new InvalidDataException("Missing projectile manifest.");
-        }
-        catch (JsonException error) { throw new InvalidDataException("Invalid projectile manifest JSON.", error); }
+        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
+        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        using var manifestStream = File.OpenRead(manifestPath);
+        Manifest manifest = JsonAssetDocument.Read<Manifest>(manifestStream, Options,
+            $"projectile manifest {manifestPath}");
         if (manifest.Version != Version || manifest.RomSha256 != SupportedCartridge.Sha256)
-            throw new InvalidDataException("Projectile manifest revision does not match the supported cartridge.");
-        byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory, ProjectileSpriteDefinitions.FileName));
-        string stockHash = Convert.ToHexString(SHA256.HashData(stock));
-        if (!string.Equals(stockHash, manifest.ContentSha256, StringComparison.Ordinal))
-            throw new InvalidDataException("Projectile stock composition hash mismatch.");
-        _ = ProjectileSpriteCatalog.Load(new MemoryStream(stock, writable: false));
-        byte[] stockFrameBindings = File.ReadAllBytes(Path.Combine(stockDirectory, ProjectileFrameBindingFormat.FileName));
-        if (Hash(stockFrameBindings) != manifest.FrameBindingsSha256)
-            throw new InvalidDataException("Projectile stock frame-binding hash mismatch.");
-        _ = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockFrameBindings, writable: false));
+            throw new InvalidDataException($"Projectile manifest {manifestPath} does not match the supported cartridge/revision.");
+        ProjectileFile Stock(string name, string? expectedHash) => ReadStock(stockDirectory, name, expectedHash);
+        ProjectileFile stock = Stock(ProjectileSpriteDefinitions.FileName, manifest.ContentSha256);
+        _ = stock.Compile(ProjectileSpriteCatalog.Load);
+        ProjectileFile stockFrameBindings = Stock(ProjectileFrameBindingFormat.FileName, manifest.FrameBindingsSha256);
+        _ = stockFrameBindings.Compile(ProjectileFrameBindingCatalog.Load);
         if (manifest.BeamHashes is null || manifest.BeamHashes.Count != BeamTileAtlasDefinitions.SelectionCount)
-            throw new InvalidDataException("Projectile manifest must identify every beam PNG.");
-        var stockBeams = new Dictionary<string, byte[]>();
+            throw new InvalidDataException($"Projectile manifest {manifestPath} must identify every beam PNG.");
+        var stockBeams = new Dictionary<string, ProjectileFile>();
         for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
         {
             string name = BeamTileAtlasDefinitions.FileName(i);
-            byte[] bytes = File.ReadAllBytes(Path.Combine(stockDirectory, name));
-            if (!manifest.BeamHashes.TryGetValue(name, out string? expected) || Hash(bytes) != expected)
-                throw new InvalidDataException($"Beam PNG stock hash mismatch: {name}.");
-            stockBeams.Add(name, bytes);
+            if (!manifest.BeamHashes.TryGetValue(name, out string? expected))
+                throw new InvalidDataException($"Projectile manifest {manifestPath} is missing beam {name}.");
+            ProjectileFile file = Stock(name, expected);
+            _ = file.Compile(BeamTileAtlas.Load);
+            stockBeams.Add(name, file);
         }
-        _ = BeamTileCatalog.Load(stockBeams);
-        byte[] stockPalettes = File.ReadAllBytes(Path.Combine(stockDirectory, BeamPaletteDefinitions.FileName));
-        if (Hash(stockPalettes) != manifest.PaletteSha256)
-            throw new InvalidDataException("Beam palette stock hash mismatch.");
-        _ = BeamPaletteCatalog.Load(new MemoryStream(stockPalettes));
-        byte[] stockHyperBeamFxColors = File.ReadAllBytes(Path.Combine(stockDirectory, HyperBeamFxColorFormat.FileName));
-        if (Hash(stockHyperBeamFxColors) != manifest.HyperBeamFxColorsSha256)
-            throw new InvalidDataException("Hyper Beam FX color stock hash mismatch.");
-        _ = HyperBeamFxColorCatalog.Load(new MemoryStream(stockHyperBeamFxColors));
-        byte[] stockTrails = File.ReadAllBytes(Path.Combine(stockDirectory, ProjectileTrailVisualDefinitions.FileName));
-        if (Hash(stockTrails) != manifest.TrailSha256)
-            throw new InvalidDataException("Projectile trail stock hash mismatch.");
-        _ = ProjectileTrailCatalog.Load(new MemoryStream(stockTrails));
-        byte[] stockTrailTiles = File.ReadAllBytes(Path.Combine(stockDirectory, ProjectileTrailAtlasDefinitions.FileName));
-        if (Hash(stockTrailTiles) != manifest.TrailTilesSha256)
-            throw new InvalidDataException("Projectile trail PNG stock hash mismatch.");
-        _ = ProjectileTrailAtlas.Load(new MemoryStream(stockTrailTiles));
-        byte[] stockFlarePlacement = File.ReadAllBytes(Path.Combine(stockDirectory, ChargeFlarePlacementDefinitions.FileName));
-        if (Hash(stockFlarePlacement) != manifest.FlarePlacementSha256)
-            throw new InvalidDataException("Charge-flare placement stock hash mismatch.");
-        _ = ChargeFlarePlacementCatalog.Load(new MemoryStream(stockFlarePlacement));
-        byte[] stockFlareCompositions = File.ReadAllBytes(Path.Combine(stockDirectory, ChargeFlareSpriteDefinitions.FileName));
-        if (Hash(stockFlareCompositions) != manifest.FlareCompositionsSha256)
-            throw new InvalidDataException("Charge-flare compositions stock hash mismatch.");
-        _ = ChargeFlareSpriteCatalog.Load(new MemoryStream(stockFlareCompositions));
-        byte[] stockGrappleTiles = File.ReadAllBytes(Path.Combine(stockDirectory, GrappleTileDefinitions.FileName));
-        if (Hash(stockGrappleTiles) != manifest.GrappleTilesSha256)
-            throw new InvalidDataException("Grapple PNG stock hash mismatch.");
-        _ = GrappleTileAtlas.Load(new MemoryStream(stockGrappleTiles));
-        byte[] stockGrappleSprites = File.ReadAllBytes(Path.Combine(stockDirectory, GrappleSpriteDefinitions.FileName));
-        if (Hash(stockGrappleSprites) != manifest.GrappleSpritesSha256)
-            throw new InvalidDataException("Grapple sprite stock hash mismatch.");
-        _ = GrappleSpriteCatalog.Load(new MemoryStream(stockGrappleSprites));
-        byte[] stockGrappleFlare = File.ReadAllBytes(Path.Combine(stockDirectory, GrappleFlarePlacementDefinitions.FileName));
-        if (Hash(stockGrappleFlare) != manifest.GrappleFlareSha256)
-            throw new InvalidDataException("Grapple flare placement stock hash mismatch.");
-        _ = ChargeFlarePlacementCatalog.Load(new MemoryStream(stockGrappleFlare));
-        byte[] stockGrappleSwing = File.ReadAllBytes(Path.Combine(stockDirectory, GrappleSwingFrameDefinitions.FileName));
-        if (Hash(stockGrappleSwing) != manifest.GrappleSwingSha256)
-            throw new InvalidDataException("Grapple swing-frame stock hash mismatch.");
-        _ = GrappleSwingFrameCatalog.Load(new MemoryStream(stockGrappleSwing));
+        ProjectileFile stockPalettes = Stock(BeamPaletteDefinitions.FileName, manifest.PaletteSha256);
+        _ = stockPalettes.Compile(BeamPaletteCatalog.Load);
+        ProjectileFile stockHyperBeamFxColors = Stock(HyperBeamFxColorFormat.FileName, manifest.HyperBeamFxColorsSha256);
+        _ = stockHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load);
+        ProjectileFile stockTrails = Stock(ProjectileTrailVisualDefinitions.FileName, manifest.TrailSha256);
+        _ = stockTrails.Compile(stream => ProjectileTrailCatalog.Load(stream));
+        ProjectileFile stockTrailTiles = Stock(ProjectileTrailAtlasDefinitions.FileName, manifest.TrailTilesSha256);
+        _ = stockTrailTiles.Compile(ProjectileTrailAtlas.Load);
+        ProjectileFile stockFlarePlacement = Stock(ChargeFlarePlacementDefinitions.FileName, manifest.FlarePlacementSha256);
+        _ = stockFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load);
+        ProjectileFile stockFlareCompositions = Stock(ChargeFlareSpriteDefinitions.FileName, manifest.FlareCompositionsSha256);
+        _ = stockFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load);
+        ProjectileFile stockGrappleTiles = Stock(GrappleTileDefinitions.FileName, manifest.GrappleTilesSha256);
+        _ = stockGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream));
+        ProjectileFile stockGrappleSprites = Stock(GrappleSpriteDefinitions.FileName, manifest.GrappleSpritesSha256);
+        _ = stockGrappleSprites.Compile(GrappleSpriteCatalog.Load);
+        ProjectileFile stockGrappleFlare = Stock(GrappleFlarePlacementDefinitions.FileName, manifest.GrappleFlareSha256);
+        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load);
+        ProjectileFile stockGrappleSwing = Stock(GrappleSwingFrameDefinitions.FileName, manifest.GrappleSwingSha256);
+        _ = stockGrappleSwing.Compile(GrappleSwingFrameCatalog.Load);
         // Finish stock validation before opening any optional replacement.
-        byte[] Select(string name, byte[] baseline)
-        {
-            string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            return path is not null && File.Exists(path) ? File.ReadAllBytes(path) : baseline;
-        }
-        byte[] selected = Select(ProjectileSpriteDefinitions.FileName, stock);
-        byte[] selectedFrameBindings = Select(ProjectileFrameBindingFormat.FileName, stockFrameBindings);
-        var selectedBeams = stockBeams.ToDictionary(pair => pair.Key, pair => Select(pair.Key, pair.Value));
-        byte[] selectedPalettes = Select(BeamPaletteDefinitions.FileName, stockPalettes);
-        byte[] selectedHyperBeamFxColors = Select(HyperBeamFxColorFormat.FileName, stockHyperBeamFxColors);
-        byte[] selectedTrails = Select(ProjectileTrailVisualDefinitions.FileName, stockTrails);
-        byte[] selectedTrailTiles = Select(ProjectileTrailAtlasDefinitions.FileName, stockTrailTiles);
-        byte[] selectedFlarePlacement = Select(ChargeFlarePlacementDefinitions.FileName, stockFlarePlacement);
-        byte[] selectedFlareCompositions = Select(ChargeFlareSpriteDefinitions.FileName, stockFlareCompositions);
-        byte[] selectedGrappleTiles = Select(GrappleTileDefinitions.FileName, stockGrappleTiles);
-        byte[] selectedGrappleSprites = Select(GrappleSpriteDefinitions.FileName, stockGrappleSprites);
-        byte[] selectedGrappleFlare = Select(GrappleFlarePlacementDefinitions.FileName, stockGrappleFlare);
-        byte[] selectedGrappleSwing = Select(GrappleSwingFrameDefinitions.FileName, stockGrappleSwing);
-        return new(ProjectileSpriteCatalog.Load(new MemoryStream(selected, writable: false)),
+        ProjectileFile Select(ProjectileFile baseline) => baseline.Select(overrideDirectory);
+        ProjectileFile selected = Select(stock);
+        ProjectileFile selectedFrameBindings = Select(stockFrameBindings);
+        var selectedBeams = stockBeams.ToDictionary(pair => pair.Key, pair => Select(pair.Value));
+        ProjectileFile selectedPalettes = Select(stockPalettes);
+        ProjectileFile selectedHyperBeamFxColors = Select(stockHyperBeamFxColors);
+        ProjectileFile selectedTrails = Select(stockTrails);
+        ProjectileFile selectedTrailTiles = Select(stockTrailTiles);
+        ProjectileFile selectedFlarePlacement = Select(stockFlarePlacement);
+        ProjectileFile selectedFlareCompositions = Select(stockFlareCompositions);
+        ProjectileFile selectedGrappleTiles = Select(stockGrappleTiles);
+        ProjectileFile selectedGrappleSprites = Select(stockGrappleSprites);
+        ProjectileFile selectedGrappleFlare = Select(stockGrappleFlare);
+        ProjectileFile selectedGrappleSwing = Select(stockGrappleSwing);
+        return new(selected.Compile(ProjectileSpriteCatalog.Load),
             Identity(stock, stockBeams, stockPalettes, stockHyperBeamFxColors, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles, stockGrappleSprites, stockGrappleFlare, stockGrappleSwing, stockFrameBindings), Identity(selected, selectedBeams, selectedPalettes, selectedHyperBeamFxColors, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles, selectedGrappleSprites, selectedGrappleFlare, selectedGrappleSwing, selectedFrameBindings),
-            BeamTileCatalog.Load(selectedBeams, BeamPaletteCatalog.Load(new MemoryStream(selectedPalettes)),
-                HyperBeamFxColorCatalog.Load(new MemoryStream(selectedHyperBeamFxColors))),
-            ProjectileTrailCatalog.Load(new MemoryStream(selectedTrails), ProjectileTrailAtlas.Load(new MemoryStream(selectedTrailTiles))),
-            ChargeFlarePlacementCatalog.Load(new MemoryStream(selectedFlarePlacement)),
-            ChargeFlareSpriteCatalog.Load(new MemoryStream(selectedFlareCompositions)),
-            GrappleTileAtlas.Load(new MemoryStream(selectedGrappleTiles), GrappleSpriteCatalog.Load(new MemoryStream(selectedGrappleSprites)),
-                ChargeFlarePlacementCatalog.Load(new MemoryStream(selectedGrappleFlare)), GrappleSwingFrameCatalog.Load(new MemoryStream(selectedGrappleSwing))),
-            ProjectileFrameBindingCatalog.Load(new MemoryStream(selectedFrameBindings, writable: false)));
+            BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount)
+                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(index)].Compile(BeamTileAtlas.Load)).ToArray(),
+                selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
+            selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
+            selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
+            selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
+            selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),
+                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
+            selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
+    }
+
+    private static ProjectileFile ReadStock(string directory, string name, string? expectedHash)
+    {
+        string path = Path.Combine(directory, name);
+        byte[] bytes = File.ReadAllBytes(path);
+        if (!string.Equals(Hash(bytes), expectedHash, StringComparison.Ordinal))
+            throw new InvalidDataException($"Projectile stock hash mismatch: {path}.");
+        return new(path, bytes);
+    }
+
+    /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>
+    private sealed record ProjectileFile(string Path, byte[] Bytes)
+    {
+        internal T Compile<T>(Func<Stream, T> compile)
+        {
+            using var stream = new MemoryStream(Bytes, writable: false);
+            try { return compile(stream); }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid projectile asset {Path}: {error.Message}", error);
+            }
+        }
+
+        internal ProjectileFile Select(string? directory)
+        {
+            string? replacement = directory is null ? null : System.IO.Path.Combine(directory, System.IO.Path.GetFileName(Path));
+            return replacement is not null && File.Exists(replacement)
+                ? new(replacement, File.ReadAllBytes(replacement)) : this;
+        }
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams, byte[] palettes, byte[] hyperBeamFxColors, byte[] trails, byte[] trailTiles, byte[] flarePlacement, byte[] flareCompositions, byte[] grappleTiles, byte[] grappleSprites, byte[] grappleFlare, byte[] grappleSwing, byte[] frameBindings)
+    private static string Identity(ProjectileFile composition, Dictionary<string, ProjectileFile> beams, ProjectileFile palettes, ProjectileFile hyperBeamFxColors, ProjectileFile trails, ProjectileFile trailTiles, ProjectileFile flarePlacement, ProjectileFile flareCompositions, ProjectileFile grappleTiles, ProjectileFile grappleSprites, ProjectileFile grappleFlare, ProjectileFile grappleSwing, ProjectileFile frameBindings)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
-        string hashes = Hash(composition);
+        string hashes = Hash(composition.Bytes);
         for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
-            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)]);
-        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes) + Hash(hyperBeamFxColors) + Hash(trails) + Hash(trailTiles) + Hash(flarePlacement) + Hash(flareCompositions) + Hash(grappleTiles) + Hash(grappleSprites) + Hash(grappleFlare) + Hash(grappleSwing) + Hash(frameBindings)));
-    }
-    private static void ValidateObject(JsonElement element)
-    {
-        if (element.ValueKind != JsonValueKind.Object)
-            throw new InvalidDataException("Projectile manifest requires an object.");
-        var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var property in element.EnumerateObject())
-        {
-            if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate projectile manifest property.");
-            if (property.Value.ValueKind == JsonValueKind.Object) ValidateObject(property.Value);
-        }
+            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)].Bytes);
+        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes.Bytes) + Hash(hyperBeamFxColors.Bytes) + Hash(trails.Bytes) + Hash(trailTiles.Bytes) + Hash(flarePlacement.Bytes) + Hash(flareCompositions.Bytes) + Hash(grappleTiles.Bytes) + Hash(grappleSprites.Bytes) + Hash(grappleFlare.Bytes) + Hash(grappleSwing.Bytes) + Hash(frameBindings.Bytes)));
     }
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
 }

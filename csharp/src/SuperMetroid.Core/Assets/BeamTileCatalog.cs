@@ -11,6 +11,16 @@ public sealed class BeamTileCatalog : IVramAssetProvider
     private BeamTileCatalog(BeamTileAtlas[] sheets, BeamPaletteCatalog? palettes,
         HyperBeamFxColorCatalog? hyperBeamFxColors)
     { this.sheets = sheets; Palettes = palettes; HyperBeamFxColors = hyperBeamFxColors; }
+
+    /// <summary>Builds a catalog from file-context-validated atlases without decoding PNGs twice.</summary>
+    internal static BeamTileCatalog FromAtlases(BeamTileAtlas[] sheets, BeamPaletteCatalog palettes,
+        HyperBeamFxColorCatalog hyperBeamFxColors)
+    {
+        ArgumentNullException.ThrowIfNull(sheets);
+        if (sheets.Length != BeamTileAtlasDefinitions.SelectionCount || sheets.Any(sheet => sheet is null))
+            throw new ArgumentException("Every beam selection needs a compiled atlas.", nameof(sheets));
+        return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);
+    }
     public static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
         BeamPaletteCatalog? palettes = null, HyperBeamFxColorCatalog? hyperBeamFxColors = null)
     {

@@ -70,6 +70,10 @@ internal sealed record CeresEscapeOverlayTilemapDocument
 /// <summary>Editable visual tilemap words for Ceres's five fixed warning overlays.</summary>
 public sealed class CeresEscapeOverlayTilemapCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
+        "enemy-ceres-escape-overlay-v1", pages, bytes => bytes);
+
     private readonly Dictionary<int, byte[]> pages;
 
     private CeresEscapeOverlayTilemapCatalog(Dictionary<int, byte[]> pages) =>

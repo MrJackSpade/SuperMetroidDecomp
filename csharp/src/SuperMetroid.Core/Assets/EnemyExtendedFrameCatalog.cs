@@ -15,6 +15,27 @@ internal readonly record struct EnemyExtendedDrawComponent(
 /// </summary>
 public sealed class EnemyExtendedFrameCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-extended-oam-v1", content =>
+        {
+            foreach ((int frame, EnemyExtendedDrawComponent[] components) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", frame);
+                content.Append("components", components.Length);
+                foreach (EnemyExtendedDrawComponent component in components)
+                {
+                    content.Append("offset-x", component.OffsetX);
+                    content.Append("offset-y", component.OffsetY);
+                    content.AppendEnemyParts(component.Parts.Span);
+                }
+            }
+            foreach ((int native, int selected) in displayFrames.OrderBy(pair => pair.Key))
+            {
+                content.Append("native-binding", native);
+                content.Append("selected-binding", selected);
+            }
+        });
+
     private readonly Dictionary<int, EnemyExtendedDrawComponent[]> frames;
     private readonly Dictionary<int, int> displayFrames;
 

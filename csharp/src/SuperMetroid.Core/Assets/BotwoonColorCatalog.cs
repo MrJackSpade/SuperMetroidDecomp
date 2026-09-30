@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable health-band RGB5 images for Botwoon's sprite palette.</summary>
 public sealed class BotwoonColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
+        {
+            content.AppendWordFrames("health", health);
+        });
+
     private readonly ushort[][] health;
 
     private BotwoonColorCatalog(ushort[][] health) => this.health = health;

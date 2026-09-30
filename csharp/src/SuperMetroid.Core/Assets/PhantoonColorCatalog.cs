@@ -10,6 +10,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class PhantoonColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
+        {
+            content.AppendWords("fadeOut", fadeOut);
+            content.AppendWords("powerOn", powerOn);
+            content.AppendWordFrames("healthBands", healthBands);
+        });
+
     private readonly ushort[][] healthBands;
     private readonly ushort[] fadeOut;
     private readonly ushort[] powerOn;

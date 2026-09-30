@@ -10,6 +10,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class DachoraColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
+        {
+            content.AppendWords("normal", normal);
+            content.AppendWordFrames("speed", speed);
+            content.AppendWordFrames("shine", shine);
+        });
+
     private readonly ushort[] normal;
     private readonly ushort[][] speed;
     private readonly ushort[][] shine;

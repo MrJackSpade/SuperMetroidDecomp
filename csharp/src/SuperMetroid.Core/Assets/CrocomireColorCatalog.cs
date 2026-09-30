@@ -11,6 +11,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrocomireColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
+        {
+            content.AppendWords("fightBody", fightBody);
+            content.AppendWords("initialWall", initialWall);
+            content.AppendWords("initialProjectile", initialProjectile);
+            content.AppendWords("skeletonArm", skeletonArm);
+            content.AppendWords("wallSpikes", wallSpikes);
+        });
+
     private readonly ushort[] fightBody;
     private readonly ushort[] initialWall;
     private readonly ushort[] initialProjectile;

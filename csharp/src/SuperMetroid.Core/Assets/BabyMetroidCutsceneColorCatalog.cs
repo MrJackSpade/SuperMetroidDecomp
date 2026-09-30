@@ -7,6 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable initial and six fade RGB5 images for the Mother Brain cutscene Baby.</summary>
 public sealed class BabyMetroidCutsceneColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
+        {
+            content.AppendWords("initial", initial);
+            content.AppendWordFrames("fade", fade);
+        });
+
     private readonly ushort[] initial;
     private readonly ushort[][] fade;
 

@@ -10,6 +10,15 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrocomireMeltingArtwork
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
+        {
+            content.Append("first", first.Transfer.Span);
+            content.Append("second", second.Transfer.Span);
+            content.AppendWords("first-map", firstTilemap);
+            content.AppendWords("second-map", secondTilemap);
+        });
+
     private readonly RoomCharacterAtlas first;
     private readonly RoomCharacterAtlas second;
     private readonly ushort[] firstTilemap;

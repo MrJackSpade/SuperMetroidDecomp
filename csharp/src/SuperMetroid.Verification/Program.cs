@@ -49,6 +49,11 @@ if (args is ["--intro-content-identity"])
     VerifyIntroContentIdentity();
     return 0;
 }
+if (args is ["--enemy-content-identity"])
+{
+    VerifyEnemyContentIdentity();
+    return 0;
+}
 if (args is ["--plm-content-identity"])
 {
     VerifyPlmContentIdentity();

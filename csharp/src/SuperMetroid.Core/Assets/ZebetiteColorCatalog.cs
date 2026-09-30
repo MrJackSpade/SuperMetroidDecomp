@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable RGB5 artwork for Zebetite's eight-frame two-color pulse.</summary>
 public sealed class ZebetiteColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
+        {
+            content.AppendWordFrames("frames", frames);
+        });
+
     private readonly ushort[][] frames;
 
     private ZebetiteColorCatalog(ushort[][] frames) => this.frames = frames;

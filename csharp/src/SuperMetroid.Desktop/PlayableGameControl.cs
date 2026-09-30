@@ -386,7 +386,8 @@ public sealed partial class PlayableGameControl : UserControl
                     roomPlmDynamicCollectibleArt))
                 .Concat(GameplayPresentationIdentity.Create(gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
                 .Concat(EndingPresentationIdentity.Create(endingMode7Art, endingObjectArt, endingPaletteArt))
-                .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, introCinematicArt.ContentIdentity)));
+                .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, introCinematicArt.ContentIdentity))
+                .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, enemyTileArtwork.ContentIdentity)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

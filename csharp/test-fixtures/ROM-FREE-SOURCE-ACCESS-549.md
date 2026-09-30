@@ -107,6 +107,15 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   selected coordinates. A ROM-free fixture verifies 64 independent edits,
   canonical frame lookup, legacy caret selection and equivalent PNG/JSON encodings.
   Windows, Android and state import use the same selected bundle digest.
+- Enemy identity: the selected enemy bundle includes definition-keyed character
+  and palette sheets, bounded DMA aliases, and all 34 boss/enemy subdomains.
+  Plain and extended OAM frames retain ordered parts and components, display
+  bindings, and instruction-selected projectile compositions. Special uploads,
+  BG2 write destinations and tile runs, and every installed color-animation row
+  contribute to the digest. A ROM-free authored fixture verifies 359 independent
+  edits, equivalent PNG/JSON encodings, canonical dictionary order, and the actual
+  merged result of older overrides with newer stock content. Computed identities
+  add no serialized fields. Windows, Android and state import include this bundle.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;
@@ -126,11 +135,9 @@ or proof of visual/gameplay parity for every event.
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
    compiled Core build, selected audio, maps, projectiles, six room-art domains,
    Samus, all 27 room-actor domains, shared gameplay/X-ray presentation and three
-   ending domains, plus the opening-cinematic/Ceres bundle. The remaining selected
-   enemy catalog must participate before the identity represents the complete
-   host-bound installation. Audit any further resources and compiled/default
-   presentation against that inventory rather than assuming a passed subset is
-   exhaustive.
+   ending domains, plus the opening-cinematic/Ceres and complete enemy bundles.
+   Audit any further resources and compiled/default presentation against that
+   inventory rather than assuming a passed subset is exhaustive.
 2. Complete Android on-device cold-start acceptance with the cartridge unavailable.
    Windows real-host and portable Android-host acceptance passed as recorded above;
    neither substitutes for running the APK on the device. This is final platform

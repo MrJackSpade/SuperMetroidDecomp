@@ -6,6 +6,19 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class KraidBackgroundArtwork
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v1", content =>
+        {
+            content.Append("upper", Upper.Transfer.Span);
+            content.Append("lower", Lower.Transfer.Span);
+            content.Append("background-tiles", RoomBackgroundTiles.Transfer.Span);
+            foreach ((ushort pointer, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
+            {
+                content.Append("head-frame", pointer);
+                content.AppendWords("head-words", head.Words.Span);
+            }
+        });
+
     private readonly Dictionary<ushort, KraidHeadTilemapAtlas> heads;
 
     public KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,

@@ -10,6 +10,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class SporeSpawnColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+        {
+            content.AppendWords("spores", spores);
+            content.AppendWordFrames("health", health);
+            content.AppendWordFrames("deathSprite", deathSprite);
+            content.AppendWordFrames("deathLevel", deathLevel);
+            content.AppendWordFrames("deathBackground", deathBackground);
+        });
+
     private readonly ushort[] spores;
     private readonly ushort[][] health;
     private readonly ushort[][] deathSprite;

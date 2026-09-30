@@ -13,6 +13,21 @@ internal readonly record struct EnemyBg2TilemapWrite(
 /// </summary>
 internal sealed class EnemyBg2FrameCatalog
 {
+    /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
+    internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v1", content =>
+        {
+            foreach ((ushort frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", frame);
+                content.Append("writes", writes.Length);
+                foreach (EnemyBg2TilemapWrite write in writes)
+                {
+                    content.Append("destination", write.DestinationWord);
+                    content.AppendWords("tiles", write.Tiles.Span);
+                }
+            }
+        });
+
     private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
 
     private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>

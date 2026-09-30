@@ -89,6 +89,30 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Ordered animation rows retain their boundaries, including empty rows.</summary>
+    public void AppendWordFrames(string label, IReadOnlyList<ushort[]> frames)
+    {
+        Append(label, frames.Count);
+        foreach (ushort[] frame in frames)
+            AppendWords("row", frame);
+    }
+
+    /// <summary>Null fixture domains differ from installed content without storing a derived hash.</summary>
+    public void AppendIdentity(string label, string? identity) =>
+        Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
+
+    /// <summary>Preserves OAM part order, offsets, size, flips, priority, palette and tile selection.</summary>
+    public void AppendEnemyParts(ReadOnlySpan<SuperMetroid.Core.Hardware.EnemySpritemapPart> parts)
+    {
+        Append("parts", parts.Length);
+        foreach (var part in parts)
+        {
+            Append("x-and-size", part.X.Raw);
+            Append("y", part.Y);
+            Append("attributes", part.Attributes.Raw);
+        }
+    }
+
     private void AppendLength(int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];

@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class WorkRobotPaletteCycle
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
+        {
+            content.AppendWordFrames("frames", frames);
+        });
+
     private readonly ushort[][] frames;
 
     private WorkRobotPaletteCycle(ushort[][] frames) => this.frames = frames;

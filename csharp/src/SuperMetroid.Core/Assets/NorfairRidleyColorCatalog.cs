@@ -8,6 +8,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable initial OBJ colors and fifteen arena-reveal BG colors for Lower Norfair Ridley.</summary>
 public sealed class NorfairRidleyColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+        {
+            content.AppendWords("initial", initial);
+            content.AppendWordFrames("reveal", reveal);
+        });
+
     private readonly ushort[] initial;
     private readonly ushort[][] reveal;
 

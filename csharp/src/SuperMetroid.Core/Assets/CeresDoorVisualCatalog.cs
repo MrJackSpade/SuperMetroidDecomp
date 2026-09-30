@@ -8,6 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres-door tile DMA and RGB5 palettes; actor timing remains engine-owned.</summary>
 public sealed class CeresDoorVisualCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
+        {
+            content.Append("tiles", tiles.Transfer.Span);
+            content.AppendWords("normal", normal);
+            content.AppendWords("escape", escape);
+            content.AppendWordFrames("animation", animation);
+            content.Append("mode7-frames", mode7DoorFrames.Length);
+            foreach (byte[] frame in mode7DoorFrames)
+                content.Append("mode7-frame", frame);
+        });
+
     private readonly RoomCharacterAtlas tiles;
     private readonly ushort[] normal;
     private readonly ushort[] escape;

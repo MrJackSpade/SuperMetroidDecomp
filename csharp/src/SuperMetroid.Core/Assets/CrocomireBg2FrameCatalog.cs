@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG2 writes for Crocomire's mixed fight-body frames.</summary>
 public sealed class CrocomireBg2FrameCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => frames.ContentIdentity;
+
     private readonly EnemyBg2FrameCatalog frames;
 
     private CrocomireBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;

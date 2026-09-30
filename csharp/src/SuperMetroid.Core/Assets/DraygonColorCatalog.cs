@@ -11,6 +11,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class DraygonColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+        {
+            content.AppendWords("intro", intro);
+            content.AppendWords("background", background);
+            content.AppendWords("sprite", sprite);
+            content.AppendWords("whiteFlash", whiteFlash);
+            content.AppendWordFrames("healthBands", healthBands);
+        });
+
     private readonly ushort[] intro;
     private readonly ushort[] background;
     private readonly ushort[] sprite;

@@ -8,6 +8,21 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Named, editable bank-$8D enemy-projectile OAM compositions.</summary>
 public sealed class EnemyProjectileSpritemapCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v1", content =>
+        {
+            foreach ((ushort frame, EnemySpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", frame);
+                content.AppendEnemyParts(parts);
+            }
+            foreach ((ushort operand, EnemySpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key))
+            {
+                content.Append("program-operand", operand);
+                content.AppendEnemyParts(parts);
+            }
+        });
+
     private readonly Dictionary<ushort, EnemySpritemapPart[]> frames;
     private readonly Dictionary<ushort, EnemySpritemapPart[]> programFrames;
 

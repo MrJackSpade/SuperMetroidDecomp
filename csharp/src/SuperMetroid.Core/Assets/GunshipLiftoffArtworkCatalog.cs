@@ -36,6 +36,14 @@ internal static class GunshipLiftoffTransferDefinitions
 /// <summary>Five installed, palette-indexed takeoff frames resolved at accepted NMI.</summary>
 public sealed class GunshipLiftoffArtworkCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-gunship-liftoff-v1", content =>
+        {
+            content.Append("frames", frames.Length);
+            foreach (RoomCharacterAtlas frame in frames)
+                content.Append("tiles", frame.Transfer.Span);
+        });
+
     private readonly RoomCharacterAtlas[] frames;
 
     internal GunshipLiftoffArtworkCatalog(RoomCharacterAtlas[] frames)

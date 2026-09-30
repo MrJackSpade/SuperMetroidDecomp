@@ -11,6 +11,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class ChozoAndTubeColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
+        {
+            content.AppendWords("tubeCracks", tubeCracks);
+            content.AppendWords("wreckedShip", wreckedShip);
+            content.AppendWords("lowerNorfair", lowerNorfair);
+        });
+
     private readonly ushort[] tubeCracks;
     private readonly ushort[] wreckedShip;
     private readonly ushort[] lowerNorfair;

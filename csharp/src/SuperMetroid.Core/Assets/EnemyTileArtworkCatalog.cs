@@ -8,6 +8,61 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class EnemyTileArtworkCatalog
 {
+    /// <summary>
+    /// Complete selected enemy presentation, including legacy-override merges, display
+    /// bindings, DMA aliases, special uploads and colors. Gameplay definitions are excluded.
+    /// This is computed rather than persisted in an exact debugger snapshot.
+    /// </summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-bundle-v1", content =>
+        {
+            foreach ((ushort definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
+            {
+                content.Append("definition", definition);
+                content.Append("tiles", sheet.Transfer.Span);
+                content.AppendIdentity("palette", palettes[definition].ContentIdentity);
+            }
+            foreach (var pair in byDmaSource.OrderBy(pair => pair.Key.Source).ThenBy(pair => pair.Key.ByteCount))
+            {
+                content.Append("dma-source", pair.Key.Source);
+                content.Append("dma-length", pair.Key.ByteCount);
+                content.Append("dma-tiles", pair.Value.Transfer.Span);
+            }
+            content.AppendIdentity("CrocomireMelting", CrocomireMelting?.ContentIdentity);
+            content.AppendIdentity("Spritemaps", Spritemaps?.ContentIdentity);
+            content.AppendIdentity("ExtendedFrames", ExtendedFrames?.ContentIdentity);
+            content.AppendIdentity("KraidBackground", KraidBackground?.ContentIdentity);
+            content.AppendIdentity("KraidColors", KraidColors?.ContentIdentity);
+            content.AppendIdentity("GunshipLiftoff", GunshipLiftoff?.ContentIdentity);
+            content.AppendIdentity("CeresDoorVisual", CeresDoorVisual?.ContentIdentity);
+            content.AppendIdentity("ProjectileSpritemaps", ProjectileSpritemaps?.ContentIdentity);
+            content.AppendIdentity("MagdollitePaletteCycle", MagdollitePaletteCycle?.ContentIdentity);
+            content.AppendIdentity("WorkRobotPaletteCycle", WorkRobotPaletteCycle?.ContentIdentity);
+            content.AppendIdentity("CrocomireColors", CrocomireColors?.ContentIdentity);
+            content.AppendIdentity("DraygonColors", DraygonColors?.ContentIdentity);
+            content.AppendIdentity("PhantoonColors", PhantoonColors?.ContentIdentity);
+            content.AppendIdentity("ChozoAndTubeColors", ChozoAndTubeColors?.ContentIdentity);
+            content.AppendIdentity("SporeSpawnColors", SporeSpawnColors?.ContentIdentity);
+            content.AppendIdentity("DachoraColors", DachoraColors?.ContentIdentity);
+            content.AppendIdentity("ShitroidColors", ShitroidColors?.ContentIdentity);
+            content.AppendIdentity("BabyMetroidCutsceneColors", BabyMetroidCutsceneColors?.ContentIdentity);
+            content.AppendIdentity("BotwoonColors", BotwoonColors?.ContentIdentity);
+            content.AppendIdentity("MotherBrainDeathColors", MotherBrainDeathColors?.ContentIdentity);
+            content.AppendIdentity("ZebetiteColors", ZebetiteColors?.ContentIdentity);
+            content.AppendIdentity("NorfairRidleyColors", NorfairRidleyColors?.ContentIdentity);
+            content.AppendIdentity("TourianStatueColors", TourianStatueColors?.ContentIdentity);
+            content.AppendIdentity("PhantoonBg2Frames", PhantoonBg2Frames?.ContentIdentity);
+            content.AppendIdentity("DraygonBg2Frames", DraygonBg2Frames?.ContentIdentity);
+            content.AppendIdentity("MotherBrainCorpse", MotherBrainCorpse?.ContentIdentity);
+            content.AppendIdentity("MotherBrainEscapeText", MotherBrainEscapeText?.ContentIdentity);
+            content.AppendIdentity("MotherBrainSpecialSprites", MotherBrainSpecialSprites?.ContentIdentity);
+            content.AppendIdentity("CrocomireSkeleton", CrocomireSkeleton?.ContentIdentity);
+            content.AppendIdentity("CrocomireBg2Frames", CrocomireBg2Frames?.ContentIdentity);
+            content.AppendIdentity("TorizoInstructionVram", TorizoInstructionVram?.ContentIdentity);
+            content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);
+            content.AppendIdentity("CeresEscapeOverlayTilemaps", CeresEscapeOverlayTilemaps?.ContentIdentity);
+            content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
+        });
+
     private readonly Dictionary<ushort, RoomCharacterAtlas> sheets;
     private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;

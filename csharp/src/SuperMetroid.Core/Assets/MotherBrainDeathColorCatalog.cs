@@ -7,6 +7,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Mother Brain death-fade and exploded-door RGB5 images.</summary>
 public sealed class MotherBrainDeathColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
+        {
+            content.AppendWords("explodedDoor", explodedDoor);
+            content.AppendWordFrames("bodyFade", bodyFade);
+            content.AppendWordFrames("legFade", legFade);
+            content.AppendWordFrames("corpseFade", corpseFade);
+        });
+
     private readonly ushort[][] bodyFade;
     private readonly ushort[][] legFade;
     private readonly ushort[][] corpseFade;

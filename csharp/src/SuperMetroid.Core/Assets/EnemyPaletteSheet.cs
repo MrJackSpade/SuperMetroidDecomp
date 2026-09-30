@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>One editable sixteen-color RGB5 OBJ palette; selection and animation remain engine-owned.</summary>
 public sealed class EnemyPaletteSheet
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("EnemyPaletteSheet-v1", content =>
+        {
+            content.AppendWords("colors", colors);
+        });
+
     public const int ColorCount = 16;
     private readonly ushort[] colors;
     private EnemyPaletteSheet(ushort[] colors) => this.colors = colors;

@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class DraygonBg2FrameCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => frames.ContentIdentity;
+
     private readonly EnemyBg2FrameCatalog frames;
 
     private DraygonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;

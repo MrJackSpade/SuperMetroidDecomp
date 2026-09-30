@@ -8,6 +8,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable entrance, eye-glow, and grey-transition RGB5 colors for the Tourian statue.</summary>
 public sealed class TourianStatueColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
+        {
+            content.AppendWords("baseColors", baseColors);
+            content.AppendWords("statueColors", statueColors);
+            content.AppendWords("greyColors", greyColors);
+            content.AppendWordFrames("eyeColors", eyeColors);
+        });
+
     private readonly ushort[] baseColors;
     private readonly ushort[] statueColors;
     private readonly ushort[][] eyeColors;

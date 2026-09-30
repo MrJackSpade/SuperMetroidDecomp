@@ -7,6 +7,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable live-Shitroid RGB5 images; native timer and fade destinations stay compiled.</summary>
 public sealed class ShitroidColorCatalog
 {
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
+        {
+            content.AppendWords("sidehopper", sidehopper);
+            content.AppendWords("shitroid", shitroid);
+            content.AppendWords("deadSidehopper", deadSidehopper);
+            content.AppendWordFrames("normal", normal);
+        });
+
     private readonly ushort[][] normal;
     private readonly ushort[] sidehopper;
     private readonly ushort[] shitroid;

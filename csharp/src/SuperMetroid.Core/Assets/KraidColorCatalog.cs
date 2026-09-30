@@ -7,6 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Kraid RGB5 sources; boss phase and fade arithmetic stay engine-owned.</summary>
 public sealed class KraidColorCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
+        {
+            foreach ((KraidPaletteSource source, ushort[] row) in colors.OrderBy(pair => pair.Key))
+            {
+                content.Append("source", (int)source);
+                content.AppendWords("colors", row);
+            }
+        });
+
     private readonly Dictionary<KraidPaletteSource, ushort[]> colors;
 
     private KraidColorCatalog(Dictionary<KraidPaletteSource, ushort[]> colors) =>

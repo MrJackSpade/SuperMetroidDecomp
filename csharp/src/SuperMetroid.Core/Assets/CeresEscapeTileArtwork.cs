@@ -40,6 +40,14 @@ internal static class CeresEscapeTileArtworkDefinitions
 /// </summary>
 public sealed class CeresEscapeTileArtwork
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("CeresEscapeTileArtwork-v1", content =>
+        {
+            content.Append("pages", pages.Length);
+            foreach (RoomCharacterAtlas page in pages)
+                content.Append("tiles", page.Transfer.Span);
+        });
+
     private readonly RoomCharacterAtlas[] pages;
 
     internal CeresEscapeTileArtwork(RoomCharacterAtlas[] pages)

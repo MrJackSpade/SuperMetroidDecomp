@@ -7,6 +7,21 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Installed enemy OAM compositions keyed by native visual identity.</summary>
 public sealed class EnemySpritemapCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-oam-v1", content =>
+        {
+            foreach ((int frame, EnemySpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", frame);
+                content.AppendEnemyParts(parts);
+            }
+            foreach ((int native, int selected) in displayFrames.OrderBy(pair => pair.Key))
+            {
+                content.Append("native-binding", native);
+                content.Append("selected-binding", selected);
+            }
+        });
+
     private readonly Dictionary<int, EnemySpritemapPart[]> frames;
     private readonly Dictionary<int, int> displayFrames;
 

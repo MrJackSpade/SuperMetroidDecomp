@@ -57,6 +57,14 @@ internal static class TorizoInstructionVramArtworkDefinitions
 /// </summary>
 public sealed class TorizoInstructionVramArtwork
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
+        {
+            content.Append("pages", pages.Length);
+            foreach (RoomCharacterAtlas page in pages)
+                content.Append("tiles", page.Transfer.Span);
+        });
+
     private readonly RoomCharacterAtlas[] pages;
 
     internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)

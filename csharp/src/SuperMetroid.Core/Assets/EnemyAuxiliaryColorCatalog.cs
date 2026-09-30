@@ -6,6 +6,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Installed RGB5 animation rows independent of cartridge storage and enemy mechanics.</summary>
 public sealed class EnemyAuxiliaryColorCatalog
 {
+    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
+        {
+            foreach ((EnemyAuxiliaryPalette palette, ushort[][] rows) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("palette", (int)palette);
+                content.AppendWordFrames("frames", rows);
+            }
+        });
+
     private readonly Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames;
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames) => this.frames = frames;
 

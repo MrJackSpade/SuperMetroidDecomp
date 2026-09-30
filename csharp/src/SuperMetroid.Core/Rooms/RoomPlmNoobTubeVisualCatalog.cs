@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One visual n00b-tube frame's blocks in native run order.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmNoobTubeVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmNoobTubeVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmNoobTubeVisualCatalog(IEnumerable<RoomPlmNoobTubeVisualEntry> entries)
@@ -32,6 +37,7 @@ public sealed class RoomPlmNoobTubeVisualCatalog
             throw new InvalidDataException(
                 "N00b-tube visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmNoobTubeVisualCatalog), blocks);
     }
 
     public static RoomPlmNoobTubeVisualCatalog Stock() => new(

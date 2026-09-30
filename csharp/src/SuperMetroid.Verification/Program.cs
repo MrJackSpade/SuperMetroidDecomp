@@ -34,6 +34,11 @@ if (args is ["--room-content-identity"])
     VerifyRoomContentIdentity();
     return 0;
 }
+if (args is ["--plm-content-identity"])
+{
+    VerifyPlmContentIdentity();
+    return 0;
+}
 if (args is ["--samus-content-identity"])
 {
     VerifySamusContentIdentity();

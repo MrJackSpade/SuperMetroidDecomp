@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one compiled bank-$84 shot-block draw list.</summary>
@@ -11,6 +13,9 @@ public sealed record RoomPlmShotBlockVisualEntry(ushort DrawPointer, ushort[][] 
 /// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
 public sealed class RoomPlmShotBlockVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
@@ -42,6 +47,7 @@ public sealed class RoomPlmShotBlockVisualCatalog
         if (selected.Count != RoomPlmShotBlockDrawDefinitions.All.Count())
             throw new InvalidDataException("Shot-block visuals do not cover all compiled draw lists.");
         words = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmShotBlockVisualCatalog), words);
     }
 
     /// <summary>Native visual selections, useful when no installed override is present.</summary>

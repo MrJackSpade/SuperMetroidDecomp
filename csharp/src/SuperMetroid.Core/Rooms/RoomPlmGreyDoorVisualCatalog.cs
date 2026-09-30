@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only blocks for a grey-door cap or shared door-clear frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmGreyDoorVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmGreyDoorVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmGreyDoorVisualEntry> entries)
@@ -32,6 +37,7 @@ public sealed class RoomPlmGreyDoorVisualCatalog
             throw new InvalidDataException(
                 "Grey-door visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGreyDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmGreyDoorVisualCatalog Stock() => new(

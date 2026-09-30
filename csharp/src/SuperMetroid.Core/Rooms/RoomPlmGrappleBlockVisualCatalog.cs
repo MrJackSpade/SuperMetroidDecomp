@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable visual reference for a compiled breakable-Grapple draw list.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmGrappleBlockVisualEntry(ushort DrawPointer, ushort V
 /// </summary>
 public sealed class RoomPlmGrappleBlockVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort> words;
 
     public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
@@ -31,6 +36,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
             throw new InvalidDataException(
                 "Grapple-block visuals do not cover all compiled draw lists.");
         words = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog), words);
     }
 
     public static RoomPlmGrappleBlockVisualCatalog Stock() => new(

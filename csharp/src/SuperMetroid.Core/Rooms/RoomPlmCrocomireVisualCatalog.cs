@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable tile appearances for one Crocomire arena draw layout.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmCrocomireVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmCrocomireVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmCrocomireVisualCatalog(
@@ -33,6 +38,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
         if (blocks.Count != CrocomireArenaPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Crocomire visuals do not cover all five compiled draws.");
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmCrocomireVisualCatalog), blocks);
     }
 
     public static RoomPlmCrocomireVisualCatalog Stock() => new(

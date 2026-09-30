@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The editable nine-tile appearance of Botwoon's defeated wall.</summary>
@@ -10,6 +12,9 @@ public sealed record RoomPlmBotwoonWallVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmBotwoonWallVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly ushort[] blocks;
 
     public RoomPlmBotwoonWallVisualCatalog(
@@ -25,6 +30,8 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             throw new InvalidDataException(
                 "Botwoon wall visuals must contain exactly one nine-block clear frame.");
         blocks = selected[0].Blocks.ToArray();
+        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomPlmBotwoonWallVisualCatalog),
+            content => content.AppendWords("blocks", blocks));
     }
 
     public static RoomPlmBotwoonWallVisualCatalog Stock() => new(

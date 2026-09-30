@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The elevatube PLM's single editable visible block.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmMaridiaElevatubeVisualEntry(string Id, ushort[] Bloc
 /// </summary>
 public sealed class RoomPlmMaridiaElevatubeVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly ushort visualWord;
 
     public RoomPlmMaridiaElevatubeVisualCatalog(
@@ -24,6 +29,8 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
             throw new InvalidDataException(
                 "Maridia elevatube visuals require exactly one visual block.");
         visualWord = blocks[0];
+        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomPlmMaridiaElevatubeVisualCatalog),
+            content => content.Append("visual word", visualWord));
     }
 
     public static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(

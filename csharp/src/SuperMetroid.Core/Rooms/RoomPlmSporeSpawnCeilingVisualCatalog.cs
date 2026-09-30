@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable Spore Spawn ceiling frame in native draw-run order.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmSporeSpawnCeilingVisualEntry(string Id, ushort[] Blo
 /// </summary>
 public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmSporeSpawnCeilingVisualCatalog(
@@ -34,6 +39,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
             throw new InvalidDataException(
                 "Spore Spawn ceiling visuals do not cover all four compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmSporeSpawnCeilingVisualCatalog), blocks);
     }
 
     public static RoomPlmSporeSpawnCeilingVisualCatalog Stock() => new(

@@ -185,7 +185,35 @@ internal sealed class AndroidSessionData : IDisposable
             SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(roomCharacters, roomPalettes,
                 roomMetatiles, roomBackgroundTilemaps, roomSkyTilemaps, roomVisualLayouts)
                 .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
-                    samusBodyArt.ContentIdentity)));
+                    samusBodyArt.ContentIdentity))
+                .Concat(SuperMetroid.AssetExtraction.RoomPlmPresentationIdentity.Create(
+                    roomPlmShotBlockVisuals,
+                    roomPlmGrappleBlockVisuals,
+                    roomPlmStationVisuals,
+                    roomPlmBlueDoorVisuals,
+                    roomPlmColoredDoorVisuals,
+                    roomPlmGreyDoorVisuals,
+                    roomPlmEyeDoorVisuals,
+                    roomPlmMotherBrainGlassVisuals,
+                    roomPlmNoobTubeVisuals,
+                    roomPlmDownwardGateVisuals,
+                    roomPlmElevatorPlatformVisuals,
+                    roomPlmEscapeGateVisuals,
+                    roomPlmBombTorizoHandVisuals,
+                    roomPlmDraygonCannonVisuals,
+                    roomPlmChozoStatueVisuals,
+                    roomPlmLinkedRestoreVisuals,
+                    roomPlmTourianAccessVisuals,
+                    roomPlmSpeedBoosterVisuals,
+                    roomPlmMaridiaElevatubeVisuals,
+                    roomPlmSporeSpawnCeilingVisuals,
+                    roomPlmSamusEaterVisuals,
+                    roomPlmBotwoonWallVisuals,
+                    roomPlmKraidVisuals,
+                    roomPlmCrocomireVisuals,
+                    roomPlmMotherBrainFakeDeathVisuals,
+                    roomPlmCollectibleVisuals,
+                    roomPlmDynamicCollectibleArt)));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

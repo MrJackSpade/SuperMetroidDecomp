@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual blocks for one eye-door draw frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmEyeDoorVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmEyeDoorVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmEyeDoorVisualCatalog(IEnumerable<RoomPlmEyeDoorVisualEntry> entries)
@@ -32,6 +37,7 @@ public sealed class RoomPlmEyeDoorVisualCatalog
             throw new InvalidDataException(
                 "Eye-door visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEyeDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmEyeDoorVisualCatalog Stock() => new(

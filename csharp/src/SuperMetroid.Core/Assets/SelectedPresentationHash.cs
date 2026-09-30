@@ -35,6 +35,25 @@ internal sealed class SelectedPresentationHash
             }
         });
 
+    public static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[]> frames) =>
+        FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
+
+    public static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort> frames) =>
+        FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
+
+    /// <summary>Preserves draw-run and word order while canonicalizing frame-key insertion order.</summary>
+    public static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[][]> frames) =>
+        Create(domain, content =>
+        {
+            foreach ((ushort pointer, ushort[][] runs) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", pointer);
+                content.Append("runs", runs.Length);
+                foreach (ushort[] run in runs)
+                    content.AppendWords("words", run);
+            }
+        });
+
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
         byte[] name = Encoding.UTF8.GetBytes(label);

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one downward-gate frame or shot trigger.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmDownwardGateVisualEntry(string Id, ushort[][] Runs);
 /// </summary>
 public sealed class RoomPlmDownwardGateVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
@@ -40,6 +45,7 @@ public sealed class RoomPlmDownwardGateVisualCatalog
         if (selected.Count != DownwardGatePlmDrawDefinitions.All.Count())
             throw new InvalidDataException("Downward gate visuals do not cover all compiled frames.");
         words = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDownwardGateVisualCatalog), words);
     }
 
     public static RoomPlmDownwardGateVisualCatalog Stock() => new(

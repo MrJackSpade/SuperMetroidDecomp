@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable tile/flip/palette reference for one collectible draw frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmCollectibleVisualEntry(string Id, ushort VisualWord)
 /// </summary>
 public sealed class RoomPlmCollectibleVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort> words;
 
     public RoomPlmCollectibleVisualCatalog(
@@ -29,6 +34,7 @@ public sealed class RoomPlmCollectibleVisualCatalog
         if (selected.Count != RoomPlmCollectibleDrawDefinitions.All.Length)
             throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
         words = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmCollectibleVisualCatalog), words);
     }
 
     public static RoomPlmCollectibleVisualCatalog Stock() => new(

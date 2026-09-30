@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one named station frame or access state.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmStationVisualEntry(string Id, ushort[][] Runs);
 /// </summary>
 public sealed class RoomPlmStationVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmStationVisualCatalog(IEnumerable<RoomPlmStationVisualEntry> entries)
@@ -40,6 +45,7 @@ public sealed class RoomPlmStationVisualCatalog
         if (selected.Count != RoomPlmStationDrawDefinitions.All.Count())
             throw new InvalidDataException("Station visuals do not cover all compiled frames.");
         words = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmStationVisualCatalog), words);
     }
 
     public static RoomPlmStationVisualCatalog Stock() => new(

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One visual glass frame's blocks in native run order.</summary>
@@ -10,6 +12,9 @@ public sealed record RoomPlmMotherBrainGlassVisualEntry(string Id, ushort[] Bloc
 /// </summary>
 public sealed class RoomPlmMotherBrainGlassVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmMotherBrainGlassVisualCatalog(
@@ -35,6 +40,7 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
             throw new InvalidDataException(
                 "Mother Brain glass visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainGlassVisualCatalog), blocks);
     }
 
     public static RoomPlmMotherBrainGlassVisualCatalog Stock() => new(

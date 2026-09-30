@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only tile references for one blue-door orientation and frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmBlueDoorVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmBlueDoorVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmBlueDoorVisualEntry> entries)
@@ -30,6 +35,7 @@ public sealed class RoomPlmBlueDoorVisualCatalog
         if (selected.Count != BlueDoorPlmDrawDefinitions.Editable.Count())
             throw new InvalidDataException("Blue-door visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBlueDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmBlueDoorVisualCatalog Stock() => new(

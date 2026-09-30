@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one Mother Brain escape-gate frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmEscapeGateVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmEscapeGateVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmEscapeGateVisualCatalog(IEnumerable<RoomPlmEscapeGateVisualEntry> entries)
@@ -31,6 +36,7 @@ public sealed class RoomPlmEscapeGateVisualCatalog
             throw new InvalidDataException(
                 "Escape-gate visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEscapeGateVisualCatalog), blocks);
     }
 
     public static RoomPlmEscapeGateVisualCatalog Stock() => new(

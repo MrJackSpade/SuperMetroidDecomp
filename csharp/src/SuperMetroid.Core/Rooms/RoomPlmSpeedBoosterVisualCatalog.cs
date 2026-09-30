@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The visible block selected by one Speed Booster terrain frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmSpeedBoosterVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmSpeedBoosterVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly ushort visualWord;
 
     public RoomPlmSpeedBoosterVisualCatalog(
@@ -24,6 +29,8 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
             throw new InvalidDataException(
                 "Speed Booster visuals require exactly one bomb-reveal visual block.");
         visualWord = blocks[0];
+        ContentIdentity = SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
+            content => content.Append("visual word", visualWord));
     }
 
     public static RoomPlmSpeedBoosterVisualCatalog Stock() => new(

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable tile appearance for one Mother Brain fake-death draw.</summary>
@@ -11,6 +13,9 @@ public sealed record RoomPlmMotherBrainFakeDeathVisualEntry(
 /// </summary>
 public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmMotherBrainFakeDeathVisualCatalog(
@@ -35,6 +40,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         if (blocks.Count != MotherBrainFakeDeathPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Mother Brain fake-death visuals do not cover all twenty-two draws.");
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), blocks);
     }
 
     public static RoomPlmMotherBrainFakeDeathVisualCatalog Stock() => new(

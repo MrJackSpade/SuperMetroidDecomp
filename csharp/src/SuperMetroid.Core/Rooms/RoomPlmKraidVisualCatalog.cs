@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable Kraid ceiling or spike draw in native block order.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmKraidVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmKraidVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmKraidVisualCatalog(IEnumerable<RoomPlmKraidVisualEntry> entries)
@@ -33,6 +38,7 @@ public sealed class RoomPlmKraidVisualCatalog
             throw new InvalidDataException(
                 "Kraid room visuals do not cover all ten compiled draws.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmKraidVisualCatalog), blocks);
     }
 
     public static RoomPlmKraidVisualCatalog Stock() => new(

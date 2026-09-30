@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One linked-block restoration image in cartridge run order.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmLinkedRestoreVisualEntry(string Id, ushort[] Blocks)
 /// </summary>
 public sealed class RoomPlmLinkedRestoreVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmLinkedRestoreVisualCatalog(
@@ -34,6 +39,7 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
             throw new InvalidDataException(
                 "Linked restoration visuals do not cover all six compiled layouts.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), blocks);
     }
 
     public static RoomPlmLinkedRestoreVisualCatalog Stock() => new(

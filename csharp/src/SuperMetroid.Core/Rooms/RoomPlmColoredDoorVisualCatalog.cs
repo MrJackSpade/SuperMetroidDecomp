@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only block references for one colored-door orientation and frame.</summary>
@@ -9,6 +11,9 @@ public sealed record RoomPlmColoredDoorVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmColoredDoorVisualCatalog
 {
+    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    public string ContentIdentity { get; }
+
     private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmColoredDoorVisualCatalog(
@@ -33,6 +38,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
             throw new InvalidDataException(
                 "Colored-door visuals do not cover all compiled frames.");
         blocks = selected;
+        ContentIdentity = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmColoredDoorVisualCatalog), blocks);
     }
 
     public static RoomPlmColoredDoorVisualCatalog Stock() => new(

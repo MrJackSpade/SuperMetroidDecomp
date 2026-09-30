@@ -355,7 +355,35 @@ public sealed partial class PlayableGameControl : UserControl
             projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."),
             RoomPresentationIdentity.Create(roomCharacterArt, roomPaletteArt, roomMetatileArt,
                 roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts)
-                .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBodyArt.ContentIdentity)));
+                .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBodyArt.ContentIdentity))
+                .Concat(RoomPlmPresentationIdentity.Create(
+                    roomPlmShotBlockVisuals,
+                    roomPlmGrappleBlockVisuals,
+                    roomPlmStationVisuals,
+                    roomPlmBlueDoorVisuals,
+                    roomPlmColoredDoorVisuals,
+                    roomPlmGreyDoorVisuals,
+                    roomPlmEyeDoorVisuals,
+                    roomPlmMotherBrainGlassVisuals,
+                    roomPlmNoobTubeVisuals,
+                    roomPlmDownwardGateVisuals,
+                    roomPlmElevatorPlatformVisuals,
+                    roomPlmEscapeGateVisuals,
+                    roomPlmBombTorizoHandVisuals,
+                    roomPlmDraygonCannonVisuals,
+                    roomPlmChozoStatueVisuals,
+                    roomPlmLinkedRestoreVisuals,
+                    roomPlmTourianAccessVisuals,
+                    roomPlmSpeedBoosterVisuals,
+                    roomPlmMaridiaElevatubeVisuals,
+                    roomPlmSporeSpawnCeilingVisuals,
+                    roomPlmSamusEaterVisuals,
+                    roomPlmBotwoonWallVisuals,
+                    roomPlmKraidVisuals,
+                    roomPlmCrocomireVisuals,
+                    roomPlmMotherBrainFakeDeathVisuals,
+                    roomPlmCollectibleVisuals,
+                    roomPlmDynamicCollectibleArt)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

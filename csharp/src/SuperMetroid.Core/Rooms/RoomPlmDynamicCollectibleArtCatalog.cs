@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable pixels and tile-palette selectors for one permanent-item kind.</summary>
@@ -44,7 +46,20 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
         if (seen.Any(present => !present))
             throw new InvalidDataException(
                 "Permanent-item artwork is missing one or more item kinds.");
+        ContentIdentity = SelectedPresentationHash.Create(
+            nameof(RoomPlmDynamicCollectibleArtCatalog), content =>
+            {
+                foreach (RoomPlmDynamicCollectibleGraphic graphic in graphics)
+                {
+                    content.Append("kind", (int)graphic.Kind);
+                    content.Append("characters", graphic.Tiles.Span);
+                    content.Append("palette selectors", graphic.PaletteOffsets.Span);
+                }
+            });
     }
+
+    /// <summary>Canonical identity of the selected item pixels and palette selectors.</summary>
+    public string ContentIdentity { get; }
 
     /// <summary>Copies the compiled cartridge appearance for installations without overrides.</summary>
     public static RoomPlmDynamicCollectibleArtCatalog Stock() => new(

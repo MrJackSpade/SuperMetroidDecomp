@@ -107,6 +107,14 @@ public sealed class EndingPaletteCatalog
     }
 
     public EndingPalette this[EndingPaletteId id] => palettes[(int)id];
+
+    /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
+    {
+        content.Append("palette-count", palettes.Length);
+        foreach (EndingPalette palette in palettes)
+            content.Append("palette", palette.Transfer.Span);
+    });
 }
 
 /// <summary>Native source addresses, exact sizes, and file identities for ending colors.</summary>

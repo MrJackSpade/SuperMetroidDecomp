@@ -22,7 +22,8 @@ internal static class AndroidFileImport
                 .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
                     installation.LoadSamusBodyArt().ContentIdentity))
                 .Concat(SuperMetroid.AssetExtraction.RoomPlmPresentationIdentity.Load(installation))
-                .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Load(installation)));
+                .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Load(installation))
+                .Concat(SuperMetroid.AssetExtraction.EndingPresentationIdentity.Load(installation)));
         return ImportStateCore(
             root,
             source,

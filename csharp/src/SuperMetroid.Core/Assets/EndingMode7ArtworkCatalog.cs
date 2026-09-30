@@ -99,6 +99,18 @@ public sealed class EndingMode7ArtworkCatalog
     /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
     public EndingRewardIconArtwork RewardIcon { get; }
 
+    /// <summary>Identity of each decoded scene's two transfer lanes and the full reward-icon transfer.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingMode7ArtworkCatalog), content =>
+    {
+        content.Append("scene-count", scenes.Length);
+        foreach (EndingMode7SceneArtwork scene in scenes)
+        {
+            content.Append("map", scene.Map.Span);
+            content.Append("characters", scene.Characters.Span);
+        }
+        content.Append("reward-icon", RewardIcon.Transfer.Span);
+    });
+
     public EndingMode7SceneArtwork this[EndingMode7SceneId id] =>
         (uint)id < scenes.Length ? scenes[(int)id] :
             throw new ArgumentOutOfRangeException(nameof(id));

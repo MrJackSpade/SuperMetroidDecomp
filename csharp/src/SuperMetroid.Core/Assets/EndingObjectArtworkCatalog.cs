@@ -92,6 +92,29 @@ public sealed class EndingObjectArtworkCatalog
     /// <summary>Post-shot logo's ordered 32x32 tile and palette references.</summary>
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
 
+    /// <summary>Identity of every selected ending/credits character, map and ordered OAM composition.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingObjectArtworkCatalog), content =>
+    {
+        content.Append("clouds", Clouds.Transfer.Span);
+        content.Append("explosion", Explosion.Transfer.Span);
+        content.Append("waiting-samus", WaitingSamus.Transfer.Span);
+        content.Append("shooting-screen", ShootingScreen.Transfer.Span);
+        content.Append("suitless-samus", SuitlessSamus.Transfer.Span);
+        content.Append("waiting-map", WaitingTilemap.Transfer.Span);
+        content.Append("post-credits-fragment-a", PostCreditsFragmentA.Transfer.Span);
+        content.Append("post-credits-fragment-b", PostCreditsFragmentB.Transfer.Span);
+        content.Append("logo-characters", PostShotLogoTiles.Transfer.Span);
+        content.Append("logo-map", PostShotLogoMap.Transfer.Span);
+        content.Append("fragment-count", fragments.Length);
+        foreach (RoomCharacterAtlas fragment in fragments)
+            content.Append("fragment", fragment.Transfer.Span);
+        content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
+        content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
+        content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));
+        content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
+        content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
+    });
+
     /// <summary>Four ordered $0800-byte OBJ fragments uploaded at VRAM $E000..$FFFF.</summary>
     public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
         (uint)id < fragments.Length ? fragments[(int)id] :

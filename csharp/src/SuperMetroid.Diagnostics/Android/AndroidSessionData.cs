@@ -215,7 +215,9 @@ internal sealed class AndroidSessionData : IDisposable
                     roomPlmCollectibleVisuals,
                     roomPlmDynamicCollectibleArt))
                 .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Create(
-                    gameplayBasePalettes, standardObjectArt, xrayRevealVisuals)));
+                    gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
+                .Concat(SuperMetroid.AssetExtraction.EndingPresentationIdentity.Create(
+                    endingMode7Art, endingObjectArt, endingPaletteArt)));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

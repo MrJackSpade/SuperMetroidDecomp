@@ -94,6 +94,12 @@ analyzers enabled; suppressing analysis or restoring readers is not a migration 
   X-ray visual operands/item reveals/room overlays contribute separately. Authored
   fixtures cover all four operands, overlay positions and order, canonical records,
   independent host warnings, and equivalent decoded PNG/JSON content.
+- Ending identity: all three Mode-7 backdrops, the complete reward icon, character
+  sheets and ordered fragments, both BG maps, five OAM composition families, and
+  all seven static/animated palettes participate in three named domains. A ROM-free
+  authored fixture verifies 53 independent edits, palette inheritance, part and
+  transfer order, canonical frame lookup, and equivalent PNG/JSON encodings.
+  Computed identities add no debugger-serialized catalog fields.
 - Artifact headers: recordings retain versions one/two and add a bounded named-component
   table in version three. Debugger states retain older envelopes and add the same table
   in version five. Missing legacy fingerprints warn instead of blocking restoration;
@@ -112,8 +118,8 @@ or proof of visual/gameplay parity for every event.
 
 1. Expand `GameContentIdentity`: it currently fingerprints source provenance,
    compiled Core build, selected audio, maps, projectiles, six room-art domains,
-   Samus, all 27 room-actor domains and shared gameplay/X-ray presentation.
-   Remaining selected enemy and cinematic/ending catalogs must participate before
+   Samus, all 27 room-actor domains, shared gameplay/X-ray presentation and three
+   ending domains. Remaining selected enemy and opening-cinematic catalogs must participate before
    it represents the complete installation. Audit any further host-bound resources
    against that inventory rather than assuming a passed subset is exhaustive.
 2. Complete Android on-device cold-start acceptance with the cartridge unavailable.

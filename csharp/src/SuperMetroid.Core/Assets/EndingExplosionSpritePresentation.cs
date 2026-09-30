@@ -11,6 +11,9 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
     private EndingExplosionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingExplosionSpritePresentation), frames);
+
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {

@@ -11,6 +11,9 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     private EndingCloudSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
+    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingCloudSpritePresentation), frames);
+
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {

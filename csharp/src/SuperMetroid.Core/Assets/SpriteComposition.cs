@@ -7,6 +7,19 @@ public sealed class SpriteComposition
 {
     private readonly CompiledSpritePart[] parts;
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
+
+    /// <summary>Hashes only compiled visual fields, preserving the draw order and palette inheritance.</summary>
+    internal void AppendIdentity(SelectedPresentationHash content)
+    {
+        content.Append("parts", parts.Length);
+        foreach (CompiledSpritePart part in parts)
+        {
+            content.Append("x-and-size", part.X.Raw);
+            content.Append("y", part.Y);
+            content.Append("attributes", part.Attributes.Raw);
+            content.Append("inherit-palette", part.InheritPalette ? 1 : 0);
+        }
+    }
     public void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);

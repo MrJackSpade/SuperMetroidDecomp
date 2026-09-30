@@ -54,6 +54,17 @@ internal sealed class SelectedPresentationHash
             }
         });
 
+    /// <summary>Frame lookup order is irrelevant; ordered parts remain significant for OAM drawing.</summary>
+    public static string FromCompositions(string domain, IReadOnlyDictionary<ushort, SpriteComposition> frames) =>
+        Create(domain, content =>
+        {
+            foreach ((ushort pointer, SpriteComposition frame) in frames.OrderBy(pair => pair.Key))
+            {
+                content.Append("frame", pointer);
+                frame.AppendIdentity(content);
+            }
+        });
+
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
         byte[] name = Encoding.UTF8.GetBytes(label);

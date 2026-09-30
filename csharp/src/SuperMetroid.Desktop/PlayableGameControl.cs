@@ -384,7 +384,8 @@ public sealed partial class PlayableGameControl : UserControl
                     roomPlmMotherBrainFakeDeathVisuals,
                     roomPlmCollectibleVisuals,
                     roomPlmDynamicCollectibleArt))
-                .Concat(GameplayPresentationIdentity.Create(gameplayBasePalettes, standardObjectArt, xrayRevealVisuals)));
+                .Concat(GameplayPresentationIdentity.Create(gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
+                .Concat(EndingPresentationIdentity.Create(endingMode7Art, endingObjectArt, endingPaletteArt)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

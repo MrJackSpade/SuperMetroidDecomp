@@ -127,6 +127,33 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   player validation fails, and close the issue when the player confirms the fix.
   An open issue without this label must not be assumed to be awaiting validation.
 
+## Single ticket development
+
+- Work on only ONE ticket at a time. The GitHub label `in-progress` is the
+  repository's active development status and must be assigned before beginning
+  a ticket's diagnosis, implementation, or confirmation work.
+- Before starting a ticket, query the repository for open tickets marked
+  `in-progress`. If any exists, continue that ticket; do not start another.
+  If multiple active tickets already exist, report the conflict rather than
+  selecting another ticket or silently clearing their status.
+- While an `in-progress` ticket exists, taking work on any other ticket is
+  FORBIDDEN. Do not investigate, implement, or confirm another ticket, including
+  a related child or follow-up, until the active ticket is development complete.
+  Difficulty, waiting, a blocker, or convenient adjacent work does not permit
+  switching tickets or clearing the active status.
+- Development complete means the requested implementation is finished, its
+  specific change has passed proportionate confirmation, and the completed work
+  is committed and pushed. Do not invent whole-game coverage requirements or
+  use exploratory tests to delay this status.
+- Remove `in-progress` only when development is complete. For a player-facing
+  change awaiting the user's confirmation, replace it with
+  `awaiting-player-validation`; pending player validation does not prevent
+  beginning the next ticket. Closure still follows the existing player-confirmation
+  rule or the user's explicit instruction.
+- Tracking umbrellas and their implementation children are not simultaneous
+  active tickets. Finish the current ticket before taking a different ticket,
+  and keep the status accurate across turns and handoffs.
+
 ## Emulation scope limits
 
 - Techniques and reported behavior that require unbounded memory corruption are

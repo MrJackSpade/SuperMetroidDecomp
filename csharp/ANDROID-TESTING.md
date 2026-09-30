@@ -46,7 +46,7 @@ Build the guarded validator and the separate Release AOT package:
 
 ```powershell
 dotnet build csharp/src/SuperMetroid.IntegrationVerification/SuperMetroid.IntegrationVerification.csproj -c Release
-dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -p:ApplicationId=org.supermetroid.csharp.romfree549 -p:AndroidHostProbes=false
+dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -t:Rebuild -p:ApplicationId=org.supermetroid.csharp.romfree549 -p:AndroidHostProbes=false
 ```
 
 Supply an existing extracted installation and the SDK's `aapt.exe`. If the fixture
@@ -79,7 +79,20 @@ an outdated enemy manifest and a missing required PLM domain. It copies extracte
 resources only and verifies that strict failures retain the exact path, startup
 repair admission returns null, and no asset bytes are repaired or imported.
 
-Rebuild the normal Android project without the `ApplicationId` override afterward.
+Rebuild the normal Android project without the `ApplicationId` override afterward:
+
+```powershell
+dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -t:Rebuild -p:AndroidHostProbes=false
+& "C:/Program Files (x86)/Android/android-sdk/build-tools/36.0.0/aapt.exe" dump badging "csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.testing-Signed.apk"
+```
+
+Require `package: name='org.supermetroid.csharp.testing'` before any player update.
+Changing `ApplicationId` with an incremental build can rename the APK while retaining
+the previous manifest package and provider authority; the SDK does not reliably
+invalidate that cached manifest. Use `-t:Rebuild` in both directions and verify the
+actual APK manifest, not its filename. The acceptance script already refuses APKs
+whose manifest is not the isolated diagnostic package.
+
 The optional source fixture remains separate from the script's temporary staging;
 remove only that explicitly created fixture when finished. Never clear player data.
 

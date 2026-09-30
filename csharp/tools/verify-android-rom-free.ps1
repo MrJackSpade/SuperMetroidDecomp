@@ -53,7 +53,8 @@ try {
     & dotnet $ValidatorPath --validate-extracted-installation $InstallationRoot
     if ($LASTEXITCODE -ne 0) { throw 'Source bundle failed the strict current required-resource preflight; device was not modified.' }
     $gateBadging = & $AaptPath dump badging $gateApk 2>&1
-    if ($LASTEXITCODE -ne 0 -or ($gateBadging -join "`n") -notmatch "(?m)^package: name='$gatePackage' ") {
+    $gateRequiredPackage = "(?m)^package: name='$([regex]::Escape($gatePackage))' "
+    if ($LASTEXITCODE -ne 0 -or ($gateBadging -join "`n") -notmatch $gateRequiredPackage) {
         throw "Refusing to install an APK whose manifest is not the isolated package $gatePackage."
     }
     $gateExisting = Invoke-GateAdb @('shell', 'pm', 'list', 'packages', $gatePackage)

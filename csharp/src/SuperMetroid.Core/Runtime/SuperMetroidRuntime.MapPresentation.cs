@@ -16,7 +16,6 @@ public sealed partial class SuperMetroidRuntime
             Hud.BindPresentation(value?.GameplayHud, Samus);
             MessageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
-            RoomPaletteFx.BindPresentationColors(value?.RoomPaletteFx);
             RoomLayer3Fx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             RoomLayer3Fx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             RoomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;

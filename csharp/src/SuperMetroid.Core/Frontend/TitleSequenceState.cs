@@ -169,7 +169,6 @@ public sealed class TitleSequenceState
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
     {
         titlePalettePresentation = presentation;
-        consolePaletteFx.BindPresentationColors(presentation);
         // EnterImmediateTitleObjects already overlaid these two cells before a saved
         // title-screen state was captured. Reapply the currently installed colors so
         // loading that state cannot pin the previous installation's glyph colors.
@@ -324,7 +323,9 @@ public sealed class TitleSequenceState
         StepBabyMetroidAnimation();
         // The title calls the same bank-$8D interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.Step(bus, cgram, 0, 0, false, false);
+        consolePaletteFx.Step(bus, cgram,
+            titlePalettePresentation ?? throw new InvalidOperationException(
+                "Title palette FX requires installed title colors."), 0, 0, false, false);
         // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
@@ -334,7 +335,6 @@ public sealed class TitleSequenceState
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
-        consolePaletteFx.BindPresentationColors(titlePalettePresentation);
         consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
         consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }

@@ -10,6 +10,7 @@
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
     <Compile Include="../../test-support/SaveLoadRandomAudit.cs" Link="SaveLoadRandomAudit.cs" />
     <Compile Include="../../test-support/ReferenceBusReadExtensions.cs" Link="ReferenceBusReadExtensions.cs" />
+    <Compile Include="../../test-support/ReferencePaletteFxColorSource.cs" Link="ReferencePaletteFxColorSource.cs" />
     <Compile Include="../../test-support/ImportedSpritemapOracle.cs" Link="ImportedSpritemapOracle.cs" />
     <Compile Include="../../test-support/ImportedVramOracle.cs" Link="ImportedVramOracle.cs" />
   </ItemGroup>

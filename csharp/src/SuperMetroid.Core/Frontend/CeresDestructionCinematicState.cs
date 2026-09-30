@@ -89,7 +89,6 @@ internal sealed partial class CeresDestructionCinematicState
     internal void BindPaletteFxColors(IPaletteFxColorSource? colors)
     {
         paletteFxColors = colors;
-        paletteFx?.BindPresentationColors(colors);
     }
 
     /// <summary>
@@ -329,10 +328,11 @@ internal sealed partial class CeresDestructionCinematicState
             if (paletteFx is null)
             {
                 paletteFx = new RoomPaletteFxSystem();
-                paletteFx.BindPresentationColors(paletteFxColors);
                 paletteFx.SpawnDefinition(bus, CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
-            paletteFx.Step(bus, cgram, 0, 0, false, false);
+            paletteFx.Step(bus, cgram,
+                paletteFxColors ?? throw new InvalidOperationException(
+                    "Ceres palette FX requires installed palette colors."), 0, 0, false, false);
             if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }

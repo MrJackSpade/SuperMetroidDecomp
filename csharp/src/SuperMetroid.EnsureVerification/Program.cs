@@ -6,15 +6,23 @@ namespace SuperMetroid.EnsureVerification;
 
 internal static partial class Program
 {
-    private static int Main()
+    private static int Main(string[] args)
     {
         try
         {
             if (OperatingSystem.IsWindows())
                 NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+            if (args is ["--palette-fx-contract"])
+            {
+                VerifyPaletteFxDependencyContract();
+                return 0;
+            }
+            if (args.Length != 0)
+                throw new ArgumentException("Unknown verification arguments.", nameof(args));
             VerifyEnsure();
             VerifyAnalyzer();
-            Console.WriteLine("Ensure API and analyzer checks passed.");
+            VerifyPaletteFxDependencyContract();
+            Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;
         }
         catch (Exception exception)

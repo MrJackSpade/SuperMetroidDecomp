@@ -272,7 +272,6 @@ internal static partial class Program
         var guardedBus = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
-        installed.BindPresentationColors(presentation);
         foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
                  TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -286,8 +285,8 @@ internal static partial class Program
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, 0, 0, false, false);
-            installed.Step(guardedBus, installedCgram, 0, 0, false, false);
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+            installed.Step(guardedBus, installedCgram, presentation, 0, 0, false, false);
             if (!nativeCgram.Colors.SequenceEqual(installedCgram.Colors))
             {
                 throw new InvalidDataException(

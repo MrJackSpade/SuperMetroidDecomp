@@ -21,7 +21,6 @@ internal static partial class Program
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var stockFx = new RoomPaletteFxSystem();
         var editedFx = new RoomPaletteFxSystem();
-        stockFx.BindPresentationColors(original); editedFx.BindPresentationColors(replacement);
         foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
         {
             stockFx.SpawnDefinition(stockBus, definition.DefinitionPointer, 0);
@@ -34,8 +33,8 @@ internal static partial class Program
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(stockBus, stockCgram, 0, 0, false, false);
-            editedFx.Step(editedBus, editedCgram, 0, 0, false, false);
+            stockFx.Step(stockBus, stockCgram, original, 0, 0, false, false);
+            editedFx.Step(editedBus, editedCgram, replacement, 0, 0, false, false);
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertTrue(stockBus.WorkRam.SequenceEqual(editedBus.WorkRam), "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)

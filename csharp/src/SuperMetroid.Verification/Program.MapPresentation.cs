@@ -1074,8 +1074,8 @@ internal static partial class Program
             };
             stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
             editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
-            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
-            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
+            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, original.RoomPaletteFx, 0, 0, false, false);
+            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, edited.RoomPaletteFx, 0, 0, false, false);
             AssertTrue(
                 stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
                 editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],

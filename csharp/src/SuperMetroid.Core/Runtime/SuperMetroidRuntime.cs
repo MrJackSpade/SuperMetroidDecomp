@@ -1589,6 +1589,8 @@ public sealed partial class SuperMetroidRuntime
             RoomPaletteFx.Step(
                 _addressSpace,
                 Cgram,
+                mapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+                    "Gameplay palette FX requires installed map presentation colors."),
                 Samus?.YPosition ?? 0,
                 Samus?.EquippedItems ?? 0,
                 enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,

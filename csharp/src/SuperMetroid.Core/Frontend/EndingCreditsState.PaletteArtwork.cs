@@ -28,14 +28,12 @@ internal sealed partial class EndingCreditsState
     internal void BindPaletteFxColors(RoomPaletteFxPresentation? value)
     {
         paletteFxArtwork = value;
-        paletteFx.BindPresentationColors(value);
     }
 
     /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
     private void ResetPaletteFx()
     {
         paletteFx = new RoomPaletteFxSystem();
-        paletteFx.BindPresentationColors(paletteFxArtwork);
     }
 
     private void LoadStaticPalette(EndingPaletteId id, int sourceColor, int count,

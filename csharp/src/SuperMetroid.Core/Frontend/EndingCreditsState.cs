@@ -406,7 +406,9 @@ internal sealed partial class EndingCreditsState
         }
 
         // The native cinematic invokes the shared bank-$8D interpreter after actors.
-        paletteFx.Step(bus, cgram, 0, 0, false, false);
+        paletteFx.Step(bus, cgram,
+            paletteFxArtwork ?? throw new InvalidOperationException(
+                "Ending palette FX requires installed palette colors."), 0, 0, false, false);
         if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         cinematicFrame++;

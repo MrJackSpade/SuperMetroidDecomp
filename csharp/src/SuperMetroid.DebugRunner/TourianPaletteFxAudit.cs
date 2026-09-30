@@ -15,8 +15,8 @@ internal static class TourianPaletteFxAudit
             var fx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             for (int i = 0; i < count; i++) fx.SpawnDefinition(bus, 0xf7a1, 0);
-            fx.Step(bus, cgram, 0, 0, false, false);
-            fx.Step(bus, cgram, 0, 0, false, false);
+            fx.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+            fx.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
             if (fx.ActiveCount != expectedCounts[count - 1])
                 throw new InvalidDataException($"F621 with {count} allocations left {fx.ActiveCount} objects, expected {expectedCounts[count - 1]}.");
         }

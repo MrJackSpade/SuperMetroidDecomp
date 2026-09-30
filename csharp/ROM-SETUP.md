@@ -385,6 +385,18 @@ use the shared `game/maps/room-palette-effects.json` resource. Copy it to
 `overrides/maps/` to edit those RGB5 frames. The ending still owns the cartridge
 object allocation, cycle timing, color destinations and scene transitions.
 
+Developer dependency boundary: `RoomPaletteFxSystem.Step` requires a non-null
+`IPaletteFxColorSource` argument. There is no optional binding API or cached
+provider on the interpreter; gameplay, title, Ceres destruction and ending
+owners explicitly supply their installed catalog on every execution. Restored
+states use the host's current catalog without restarting palette timers. Missing
+arguments, wrong types and nullable sources fail compilation (nullable warnings
+are errors). This checks the dependency handoff, not the contents of external
+JSON: resource loaders still validate those files. Deliberate `null!`/reflection
+bypasses fail before the interpreter mutates its slots or CGRAM.
+Run the focused compiler contract with
+`dotnet run --project csharp/src/SuperMetroid.EnsureVerification -- --palette-fx-contract`.
+
 Mother Brain's rainbow and drained-phase colors are installed as
 `game/maps/mother-brain-rainbow-palette.json`. Copy it to the same filename under
 `overrides/maps/` to edit the body, brain, and leg palettes. `beamInitial` is the

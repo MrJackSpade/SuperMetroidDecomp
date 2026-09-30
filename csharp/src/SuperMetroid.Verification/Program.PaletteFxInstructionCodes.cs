@@ -143,7 +143,7 @@ internal static partial class Program
         AssertTrue(paletteFx.IsDefinitionActive(
                 PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition),
             "empty room palette-FX definition occupies a slot before its first handler pass");
-        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         AssertTrue(!paletteFx.IsDefinitionActive(
                 PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition),
             "empty room palette-FX definition deletes itself on its first handler pass");
@@ -199,7 +199,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step < definition.CycleFrames * 2; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} repeats after two complete cycles");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -268,11 +268,11 @@ internal static partial class Program
                  step < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} fade remains active through its final hold");
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -341,12 +341,12 @@ internal static partial class Program
              step < TitleLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
             "title-logo fade remains active through its final hold");
-        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         AssertTrue(!paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
             "title-logo fade deletes after its final hold");
@@ -417,12 +417,12 @@ internal static partial class Program
              step < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
             "post-credits icon glare remains active through its final hold");
-        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         AssertTrue(!paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
             "post-credits icon glare deletes after its final hold");
@@ -510,11 +510,11 @@ internal static partial class Program
                  step < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} loading remains active through its final hold");
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} loading deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -594,7 +594,7 @@ internal static partial class Program
              step <= UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
@@ -667,7 +667,7 @@ internal static partial class Program
              step <= ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
@@ -733,7 +733,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} explosion fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -795,7 +795,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} explosion ambience completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -859,7 +859,7 @@ internal static partial class Program
                  step <= ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} whiteout deletes after its final hold");
@@ -931,7 +931,7 @@ internal static partial class Program
              step <= ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
@@ -1004,7 +1004,7 @@ internal static partial class Program
              step <= ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
@@ -1073,7 +1073,7 @@ internal static partial class Program
              step <= ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
@@ -1133,7 +1133,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} glow completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -1198,7 +1198,7 @@ internal static partial class Program
                  step <= PlanetZebesTextPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} PLANET ZEBES fade deletes after its final hold");
@@ -1301,7 +1301,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -1349,7 +1349,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.CycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -1392,7 +1392,7 @@ internal static partial class Program
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(guarded, UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames; step++)
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
             "upper-Crateria escape flash completes and repeats its cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
@@ -1455,7 +1455,7 @@ internal static partial class Program
                  step <= OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -1539,7 +1539,7 @@ internal static partial class Program
              step <= OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
 
         AssertTrue(paletteFx.IsDefinitionActive(
@@ -1615,7 +1615,7 @@ internal static partial class Program
                  step <= TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -1680,7 +1680,7 @@ internal static partial class Program
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} completes and repeats its full cycle");
@@ -1767,7 +1767,7 @@ internal static partial class Program
             for (int step = 0;
                  step <= NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
-                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
                 $"{definition.Owner} completes and repeats its full cycle");
@@ -1856,7 +1856,7 @@ internal static partial class Program
              step <= BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, cgram, 0, 0, false, false);
+            paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
@@ -1956,7 +1956,7 @@ internal static partial class Program
                  step <= TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, cgram, 0, 0, false, false);
+                paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition),
@@ -1985,8 +1985,8 @@ internal static partial class Program
             TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer, 0);
         deletionFx.SpawnDefinition(bus, 0xf795, 0);
         deletionFx.SpawnDefinition(bus, 0xf799, 0);
-        deletionFx.Step(bus, new SnesCgram(), 0, 0, false, false);
-        deletionFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        deletionFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+        deletionFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
         AssertTrue(!deletionFx.IsDefinitionActive(
                 TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer),
             "Tourian glow pre-instruction deletes its owner when two later slots exist");
@@ -2047,7 +2047,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    new SnesCgram(),
+                    new SnesCgram(), new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
@@ -2142,7 +2142,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    cgram,
+                    cgram, new ReferencePaletteFxColorSource(guarded),
                     samusY:
                         CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY,
                     equippedItems: 0,
@@ -2165,14 +2165,14 @@ internal static partial class Program
             resetFx.SpawnDefinition(resetGuard, definition.DefinitionPointer, equippedItems: 0);
             resetFx.Step(
                 resetGuard,
-                new SnesCgram(),
+                new SnesCgram(), new ReferencePaletteFxColorSource(resetGuard),
                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY,
                 0,
                 false,
                 false);
             resetFx.Step(
                 resetGuard,
-                new SnesCgram(),
+                new SnesCgram(), new ReferencePaletteFxColorSource(resetGuard),
                 unchecked((ushort)(
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY -
                     1)),
@@ -2257,7 +2257,7 @@ internal static partial class Program
         {
             paletteFx.Step(
                 guarded,
-                cgram,
+                cgram, new ReferencePaletteFxColorSource(guarded),
                 samusY: 0,
                 equippedItems: 0,
                 enemyZeroIsDead: false,
@@ -2359,7 +2359,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    cgram,
+                    cgram, new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
@@ -2379,7 +2379,7 @@ internal static partial class Program
 
             paletteFx.Step(
                 guarded,
-                cgram,
+                cgram, new ReferencePaletteFxColorSource(guarded),
                 samusY: 0,
                 equippedItems: 0,
                 enemyZeroIsDead: false,
@@ -2460,7 +2460,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    cgram,
+                    cgram, new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
@@ -2480,7 +2480,7 @@ internal static partial class Program
 
             paletteFx.Step(
                 guarded,
-                cgram,
+                cgram, new ReferencePaletteFxColorSource(guarded),
                 samusY: 0,
                 equippedItems: 0,
                 enemyZeroIsDead: true,
@@ -2575,7 +2575,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    new SnesCgram(),
+                    new SnesCgram(), new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
@@ -2670,7 +2670,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    cgram,
+                    cgram, new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
@@ -2760,7 +2760,7 @@ internal static partial class Program
             {
                 paletteFx.Step(
                     guarded,
-                    cgram,
+                    cgram, new ReferencePaletteFxColorSource(guarded),
                     samusY: 0,
                     equippedItems,
                     enemyZeroIsDead: false,
@@ -2898,7 +2898,7 @@ internal static partial class Program
         {
             paletteFx.Step(
                 bus,
-                cgram,
+                cgram, new ReferencePaletteFxColorSource(bus),
                 samusY: samus.YPosition,
                 equippedItems: samus.EquippedItems,
                 enemyZeroIsDead: false,
@@ -3596,7 +3596,7 @@ internal static partial class Program
 
         (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
             CreateSingleAudioInstruction(PaletteFxInstructionCodes.QueueMusic, operand: 0x05);
-        paletteFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        paletteFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
         AssertEqual(1, paletteFx.MusicRequests.Count,
             "constructed palette-FX music opcode publishes once");
         AssertEqual(MusicCommand.SelectTrack(5), paletteFx.MusicRequests[0].Command,
@@ -3612,7 +3612,7 @@ internal static partial class Program
     {
         (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
             CreateSingleAudioInstruction(instruction, sound);
-        paletteFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        paletteFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
         AssertEqual(1, paletteFx.SoundRequests.Count,
             $"constructed {expectedLibrary} palette-FX sound opcode publishes once");
         AssertEqual(new SoundEffectId(expectedLibrary, sound),
@@ -3661,7 +3661,7 @@ internal static partial class Program
         {
             paletteFx.Step(
                 bus,
-                cgram,
+                cgram, new ReferencePaletteFxColorSource(bus),
                 samusY: 0,
                 equippedItems: 0,
                 enemyZeroIsDead: false,
@@ -3687,7 +3687,7 @@ internal static partial class Program
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
         paletteFx.Step(
             bus,
-            cgram,
+            cgram, new ReferencePaletteFxColorSource(bus),
             samusY: 0,
             equippedItems: 0,
             enemyZeroIsDead: false,

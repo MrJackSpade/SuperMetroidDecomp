@@ -46,7 +46,6 @@ internal static partial class Program
         var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
-        installed.BindPresentationColors(presentation);
         foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
                  NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -59,8 +58,8 @@ internal static partial class Program
         int frames = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, 0, 0, false, false);
-            installed.Step(guarded, installedCgram, 0, 0, false, false);
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+            installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 $"installed Norfair palette equals native output on frame {frame}");
             AssertEqual(native.SamusInHeatPaletteIndex, installed.SamusInHeatPaletteIndex,
@@ -395,7 +394,6 @@ internal static partial class Program
             var guard = new TitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
-            installed.BindPresentationColors(presentation);
             ushort equipment = definition.Suit switch
             {
                 PaletteFxHeatSuit.Power => 0,
@@ -410,8 +408,8 @@ internal static partial class Program
             int steps = 1 + definition.Frames.Sum(frame => frame.Duration);
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(bus, nativeCgram, 0, equipment, false, false);
-                installed.Step(guard, installedCgram, 0, equipment, false, false);
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, equipment, false, false);
+                installed.Step(guard, installedCgram, presentation, 0, equipment, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }
@@ -455,15 +453,14 @@ internal static partial class Program
             var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
-            installed.BindPresentationColors(presentation);
             native.SpawnDefinition(bus, definition, equippedItems: 0);
             installed.SpawnDefinition(guarded, definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                native.Step(bus, nativeCgram, samusY, 0, false, false);
-                installed.Step(guarded, installedCgram, samusY, 0, false, false);
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), samusY, 0, false, false);
+                installed.Step(guarded, installedCgram, presentation, samusY, 0, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -514,7 +511,6 @@ internal static partial class Program
             var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
-            installed.BindPresentationColors(presentation);
             native.SpawnDefinition(bus, definition, equippedItems: 0);
             installed.SpawnDefinition(guarded, definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -522,8 +518,8 @@ internal static partial class Program
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(bus, nativeCgram, 0, 0, false, false);
-                installed.Step(guarded, installedCgram, 0, 0, false, false);
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+                installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -563,7 +559,6 @@ internal static partial class Program
         var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
-        installed.BindPresentationColors(presentation);
         foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
                  MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -576,8 +571,8 @@ internal static partial class Program
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, 0, 0, false, false);
-            installed.Step(guarded, installedCgram, 0, 0, false, false);
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
+            installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 $"installed Maridia palette equals native output on frame {frame}");
         }
@@ -672,8 +667,6 @@ internal static partial class Program
             new MemoryStream(Json(), writable: false));
         var stockOwner = new RoomPaletteFxSystem();
         var editedOwner = new RoomPaletteFxSystem();
-        stockOwner.BindPresentationColors(currentStock);
-        editedOwner.BindPresentationColors(editedHeat);
         stockOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
             equippedItems: 0);
         editedOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
@@ -682,8 +675,8 @@ internal static partial class Program
         // visible CGRAM word should change, not phase or sound side effects.
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        stockOwner.Step(bus, stockCgram, 0, 0, false, false);
-        editedOwner.Step(bus, editedCgram, 0, 0, false, false);
+        stockOwner.Step(bus, stockCgram, currentStock, 0, 0, false, false);
+        editedOwner.Step(bus, editedCgram, editedHeat, 0, 0, false, false);
         AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors),
             "editing Samus's Power Suit heat color changes visible CGRAM");
         AssertEqual(stockOwner.SamusInHeatPaletteIndex,

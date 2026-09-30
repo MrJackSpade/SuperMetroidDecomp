@@ -23,7 +23,6 @@ public sealed class RoomPaletteFxSystem
         .ToArray();
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
-    [NonSerialized] private IPaletteFxColorSource? presentationColors;
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
     private ushort samusInHeatPaletteIndex;
     private ushort previousSamusInHeatPaletteIndex;
@@ -52,13 +51,6 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
     public bool IsDefinitionActive(ushort definition) =>
         slots.Any(slot => slot.Id == definition);
-
-    /// <summary>
-    /// Binds host-authored colors after construction or debugger-state restoration.
-    /// Program timing and control words are always resolved from compiled mechanics.
-    /// </summary>
-    public void BindPresentationColors(IPaletteFxColorSource? source) =>
-        presentationColors = source;
 
     /// <summary>
     /// Installs a constructed instruction program for focused interpreter verification
@@ -141,9 +133,16 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Runs one native <c>PaletteFXObject_Handler</c> pass in descending slot order.</summary>
+    /// <remarks>
+    /// Colors are a required execution dependency, not an optional bind operation.
+    /// Every caller, including a restored owner, must supply its current installed
+    /// presentation on every step. Construction creates only serializable program
+    /// state; it cannot hide an unbound color source until a later instruction.
+    /// </remarks>
     public void Step(
         ISnesAddressSpace bus,
         SnesCgram cgram,
+        IPaletteFxColorSource colors,
         ushort samusY,
         ushort equippedItems,
         bool enemyZeroIsDead,
@@ -154,6 +153,7 @@ public sealed class RoomPaletteFxSystem
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentNullException.ThrowIfNull(colors);
         audioPowerBomb = powerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.
@@ -186,7 +186,7 @@ public sealed class RoomPaletteFxSystem
             if (slot.InstructionTimer != 0)
                 continue;
 
-            ExecuteProgram(bus, cgram, slot);
+            ExecuteProgram(bus, cgram, colors, slot);
         }
     }
 
@@ -362,6 +362,7 @@ public sealed class RoomPaletteFxSystem
     private void ExecuteProgram(
         ISnesAddressSpace bus,
         SnesCgram cgram,
+        IPaletteFxColorSource colors,
         PaletteFxSlot slot)
     {
         ushort cursor = slot.InstructionPointer;
@@ -371,7 +372,7 @@ public sealed class RoomPaletteFxSystem
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;
-                WritePaletteRecord(bus, cgram, slot, unchecked((ushort)(cursor + 2)));
+                WritePaletteRecord(bus, cgram, colors, slot, unchecked((ushort)(cursor + 2)));
                 return;
             }
 
@@ -466,16 +467,17 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
-    private void WritePaletteRecord(
+    private static void WritePaletteRecord(
         ISnesAddressSpace bus,
         SnesCgram cgram,
+        IPaletteFxColorSource colors,
         PaletteFxSlot slot,
         ushort cursor)
     {
         ushort colorByteIndex = slot.ColorByteIndex;
         for (int guard = 0; guard < 256; guard++)
         {
-            ushort word = ReadBank8dWord(bus, cursor);
+            ushort word = ReadPaletteRecordWord(cursor, colors);
             if ((word & 0x8000) == 0)
             {
                 if ((colorByteIndex & 1) != 0 || colorByteIndex >= SnesCgram.ByteCount)
@@ -532,7 +534,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
-    private ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
+    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
@@ -541,7 +543,16 @@ public sealed class RoomPaletteFxSystem
             return compiled;
         }
 
-        if (presentationColors?.TryReadColor(pointer, out ushort color) == true)
+        throw new InvalidDataException(
+            $"Palette-FX mechanics word $8D:{pointer:X4} has no compiled definition.");
+    }
+
+    /// <summary>Reads a mixed color/wait record through its explicitly supplied presentation.</summary>
+    private static ushort ReadPaletteRecordWord(ushort pointer, IPaletteFxColorSource colors)
+    {
+        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled))
+            return compiled;
+        if (colors.TryReadColor(pointer, out ushort color))
             return color;
 
         throw new InvalidDataException(

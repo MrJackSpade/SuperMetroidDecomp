@@ -84,7 +84,7 @@ internal static class PowerBombRoomEffectSoundAudit
             int sounds = 0;
             for (ushort frame = 0; frame < 32; frame++)
             {
-                palette.Step(bus, cgram, 0, 0, false, false, samus, frame, explosion);
+                palette.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false, samus, frame, explosion);
                 foreach (var request in palette.SoundRequests)
                 {
                     sounds++;

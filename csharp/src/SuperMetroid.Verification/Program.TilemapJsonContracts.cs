@@ -10,6 +10,7 @@ internal static partial class Program
     /// <summary>Exercises the actual shared room/Kraid loaders, not a parallel JSON validator.</summary>
     private static void VerifyTilemapJsonContracts()
     {
+        VerifyEnvironmentalTilemapJsonContracts();
         int rejected = 0;
         foreach (int pages in new[] { 1, 2 })
         {

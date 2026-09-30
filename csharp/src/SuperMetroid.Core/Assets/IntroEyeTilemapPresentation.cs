@@ -28,17 +28,8 @@ public sealed class IntroEyeTilemapPresentation
     public static IntroEyeTilemapPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
-        IntroEyeTilemapDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<IntroEyeTilemapDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Opening eye tilemap JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid opening eye tilemap JSON.", error);
-        }
+        IntroEyeTilemapDocument document = JsonAssetDocument.Read<IntroEyeTilemapDocument>(
+            json, MapPresentationFormat.JsonOptions, "opening eye tilemap");
         if (document.Version != IntroEyeTilemapFormat.Version ||
             document.Frames is not { Length: IntroEyeTilemapFormat.FrameCount })
             throw new InvalidDataException("Opening eye tilemap requires four ordered frames.");

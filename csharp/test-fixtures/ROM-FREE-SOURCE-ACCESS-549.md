@@ -316,6 +316,45 @@ These fixtures do not newly verify every other BG2 boss, other corpse family,
 GPU output, full battle progression or historical color-document schema. Those
 remaining acceptance checks must not be represented as completed by this fixture.
 
+## Room and cinematic JSON admission
+
+Source inspection identified five other Core tilemap compilers bypassing the
+shared recursive JSON validator: room metatiles, the six room-FX BG3 pages,
+intro eye rectangles, the intro divider and the five Ceres warning pages.
+Five installed room-visual loaders also bypassed it: background, sky and metatile
+manifests, room layouts and X-ray reveals. Constructed fixtures first reproduced
+31 accepted malformed compiler documents and 39 accepted malformed installed
+documents. Missing X-ray coordinates and visual operands could silently become
+valid zero values instead of reporting an incomplete edit.
+
+All ten paths now use `JsonAssetDocument` and reject unknown or ambiguous fields,
+including nested duplicates and case aliases in case-insensitive formats.
+Installed record documents require every nonoptional constructor field. X-ray
+file admission uses a private required-field document before converting to the
+unchanged runtime value type; valid zero coordinates remain supported.
+Historical unambiguous casing remains accepted only where already supported.
+Invalid selected files remain untouched and errors identify their exact path.
+
+`--tilemap-json-contracts` passes 70 rejection cases for the five newly covered
+compilers plus the existing 44 background/Kraid cases. Independent expected-word
+comparisons cover all metatile quadrant bits, all six 32x33 room-FX pages, all
+four eye rectangles, the 128-cell divider and all five Ceres pages.
+`--room-asset-json-contracts <installation-root>` copies only existing extracted
+files, rejects 46 invalid manifests/overrides and checks unchanged stock hashes
+and selected-content identities. Both focused commands pass in Debug and Release.
+Fresh explicit import before and after the fix produces all 1,094 stock files
+byte-for-byte identically, including X-ray JSON and every manifest. No format
+version or runtime save-state type changed.
+
+The related room, gameplay and intro identity suites pass. The real installation
+lifecycle also passes all 44 override directories, 45 catalog loaders and 1,092
+files through ROM-unavailable startup, portable host binding, stock repair and
+extraction upgrade. Windows Debug and Android Release builds pass with zero errors.
+
+This is admission and stock-format acceptance for the statically identified
+loaders, not new gameplay, GPU or per-scene timing acceptance. Core cartridge
+capability remains deleted. These tests did not discover remaining ROM reads.
+
 ## Samus disk artwork renderer acceptance
 
 The guarded RenderVerification command `--installed-samus-artwork <installation-root>`

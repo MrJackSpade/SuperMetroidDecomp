@@ -112,6 +112,11 @@ if (args is ["--tilemap-json-contracts"])
     VerifyTilemapJsonContracts();
     return 0;
 }
+if (args is ["--room-asset-json-contracts", var roomAssetRoot])
+{
+    VerifyRoomAssetJsonContracts(roomAssetRoot);
+    return 0;
+}
 if (args is ["--palette-json-contracts"])
 {
     VerifyPaletteJsonContracts();

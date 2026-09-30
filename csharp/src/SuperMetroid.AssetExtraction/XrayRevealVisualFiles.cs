@@ -21,6 +21,8 @@ public static class XrayRevealVisualFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
         Converters = { new JsonStringEnumConverter() },
     };
@@ -141,7 +143,8 @@ public static class XrayRevealVisualFiles
         }
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
             selected.Rooms.Select(room => (room.Pointer,
-                (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles)));
+                (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
+                    new XrayRoomOverlayVisual(tile.X, tile.Y, tile.Word)).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
     }
 
@@ -162,7 +165,7 @@ public static class XrayRevealVisualFiles
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
-                room.Tiles.Any(tile => tile.Word > 0x0fff))
+                room.Tiles.Any(tile => tile is null || tile.Word > 0x0fff))
                 throw new InvalidDataException(
                     $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
         }
@@ -258,7 +261,7 @@ public static class XrayRevealVisualFiles
 
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
     {
-        var tiles = new List<XrayRoomOverlayVisual>();
+        var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
             ushort coordinate = ReadAbsoluteWord(bus, XrayOverlayRomData.RoomBank | cursor);
@@ -272,7 +275,7 @@ public static class XrayRevealVisualFiles
             if (word > 0x0fff)
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
-            tiles.Add(new XrayRoomOverlayVisual((byte)coordinate,
+            tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,
                 (byte)(coordinate >> 8), word));
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
@@ -286,15 +289,8 @@ public static class XrayRevealVisualFiles
 
     private static T ReadJson<T>(byte[] bytes, string path) where T : class
     {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(bytes, JsonOptions) ??
-                throw new InvalidDataException($"X-ray JSON {path} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid X-ray JSON {path}.", error);
-        }
+        using var stream = new MemoryStream(bytes, writable: false);
+        return JsonAssetDocument.Read<T>(stream, JsonOptions, $"X-ray {path}");
     }
 
     private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256,
@@ -303,5 +299,9 @@ public static class XrayRevealVisualFiles
         ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
         string Shape, ushort TopLeft, ushort TopRight, ushort BottomLeft, ushort BottomRight);
-    private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayVisual[] Tiles);
+    private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayTileDocument[] Tiles);
+
+    // Keep file admission separate from the runtime value type. A missing coordinate
+    // must not become the struct's legal zero/default value during deserialization.
+    private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word);
 }

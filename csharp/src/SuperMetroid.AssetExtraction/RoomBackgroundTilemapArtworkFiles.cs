@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -42,17 +43,9 @@ public static class RoomBackgroundTilemapArtworkFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
-        RoomBackgroundFileManifest manifest;
-        try
-        {
-            manifest = JsonSerializer.Deserialize<RoomBackgroundFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
-                ?? throw new InvalidDataException("Room background manifest is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid room background manifest {manifestPath}.", error);
-        }
+        using var manifestStream = File.OpenRead(manifestPath);
+        RoomBackgroundFileManifest manifest = JsonAssetDocument.Read<RoomBackgroundFileManifest>(
+            manifestStream, JsonOptions, $"room background manifest {manifestPath}");
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -99,6 +92,8 @@ public static class RoomBackgroundTilemapArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 

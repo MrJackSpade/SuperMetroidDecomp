@@ -16,17 +16,8 @@ public sealed class IntroFinalLineTilemap
     public static IntroFinalLineTilemap Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
-        IntroFinalLineTilemapDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(json,
-                MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Opening divider tilemap JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid opening divider tilemap JSON.", error);
-        }
+        IntroFinalLineTilemapDocument document = JsonAssetDocument.Read<IntroFinalLineTilemapDocument>(
+            json, MapPresentationFormat.JsonOptions, "opening divider tilemap");
         if (document.Version != IntroFinalLineTilemapFormat.Version ||
             document.Cells is not { Length: IntroFinalLineTilemapFormat.CellCount })
             throw new InvalidDataException("Opening divider tilemap requires 128 ordered cells.");

@@ -19,10 +19,11 @@ pass one ROM path or set `SUPERMETROID_ROM`. Setup installs into
 file no longer needs to be available. Setup errors leave the picker available to retry.
 
 If the installed ROM copy is absent but every extracted asset passes validation,
-the desktop host can start with no cartridge bytes in memory. This is an
-**experimental ROM-free route**, not a claim that every later gameplay path has
-been migrated: an unported cartridge lookup still fails loudly. Setup retains
-the private ROM copy by default and never removes it automatically. Without that
+the desktop host starts using installed presentation and compiled mechanics.
+Core has no cartridge reader, payload, decompressor or import dependency;
+unresolved definitions cannot fall back to a ROM read. This boundary is not a
+claim that every gameplay or presentation behavior has passed parity acceptance.
+Setup retains the private ROM copy by default and never removes it automatically. Without that
 copy, damaged or missing extracted assets require re-importing the source ROM.
 
 An existing `SuperMetroid.ini` beside the executable takes precedence over the AppData
@@ -112,6 +113,22 @@ inherit their missing room-entry/recovery families, and version 2 Mother Brain r
 colors inherit the fake-death fade. Existing edited families remain selected. These
 migrations require current installed stock, not a runtime cartridge reader.
 
+## Room and cinematic JSON validation
+
+Room background/sky and metatile manifests, room visual layouts and X-ray reveal
+documents reject unknown fields, duplicate names and missing required fields.
+This includes nested entries and X-ray coordinates: omitting `x`, `y` or a visual
+operand is an error, not an implicit zero. A supplied zero remains valid where
+the format permits it. Errors identify the selected file; invalid overrides are
+not replaced or erased.
+
+Metatile compositions, room-FX BG3 pages, intro eye rectangles, the intro divider
+and Ceres warning tilemaps also reject unknown and duplicate fields before
+compiling tile words. Existing field-name casing rules are unchanged: a format
+that previously accepted unambiguous case differences still does, but two
+spellings of the same property in one object are rejected. These checks do not
+change valid stock files, format versions, drawing or gameplay behavior.
+
 ## Command line and verification
 
 From the repository root:
@@ -130,6 +147,10 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-a
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
 # Constructed palette JSON contracts, supported legacy overrides and exact BG/OBJ pixels; no retail ROM needed.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --palette-json-contracts
+# Constructed room/environment/intro tile-word and malformed-document checks; no ROM needed.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --tilemap-json-contracts
+# Manifest/layout/X-ray admission checks using only an already-extracted installation.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-asset-json-contracts "C:\private\SuperMetroid"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio
@@ -405,8 +426,8 @@ edit the index, which is regenerated when stock content is repaired.
 
 Landing Site's dedicated setup path uses these same installed CRE and area
 sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
-allocation remains cartridge-backed because those words also drive collision
-and placement; artwork overrides do not edit room geometry.
+allocation comes from the compiled bounded room-level corpus because those words
+also drive collision and placement; artwork overrides do not edit room geometry.
 
 Copy a sheet to the matching filename under `overrides/room-characters/`, edit it,
 and restart. The selected sheet is loaded on desktop and Android; debugger-state
@@ -1108,8 +1129,9 @@ the ROM during X-ray setup. Stock hashes are checked and user overrides survive
 stock repair.
 
 The room-ID guide makes visual-layout files discoverable, but shared sheet and
-palette filenames still encode source identities. Other PLM families and
-remaining runtime ROM dependencies are broader migration work.
+palette filenames still encode source identities. Further required-reference,
+override-format compatibility and presentation-parity review remains tracked in
+#530 and #549; Core does not retain a runtime ROM fallback for that work.
 
 ## Projectile composition and beam PNG overrides
 

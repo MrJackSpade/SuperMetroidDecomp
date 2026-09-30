@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -21,16 +22,8 @@ public sealed class RoomMetatileAtlas
     {
         ArgumentNullException.ThrowIfNull(json);
         int expectedCount = RoomMetatileFormat.ValidateBlockCount(expectedNativeByteCount);
-        RoomMetatileDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<RoomMetatileDocument>(json, JsonOptions)
-                ?? throw new InvalidDataException("Room metatile JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room metatile JSON.", error);
-        }
+        RoomMetatileDocument document = JsonAssetDocument.Read<RoomMetatileDocument>(
+            json, JsonOptions, "room metatile");
         if (document.Version != RoomMetatileFormat.Version || document.Blocks is null ||
             document.Blocks.Length != expectedCount)
             throw new InvalidDataException(
@@ -80,6 +73,7 @@ public sealed class RoomMetatileAtlas
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
 }

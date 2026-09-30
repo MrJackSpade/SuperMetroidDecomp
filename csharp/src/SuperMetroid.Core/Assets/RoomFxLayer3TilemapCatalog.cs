@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -16,16 +17,8 @@ public sealed class RoomFxLayer3TilemapCatalog
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
-        RoomFxLayer3TilemapDocument document;
-        try
-        {
-            document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(json, JsonOptions)
-                ?? throw new InvalidDataException("Room-FX BG3 tilemap JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room-FX BG3 tilemap JSON.", error);
-        }
+        RoomFxLayer3TilemapDocument document = JsonAssetDocument.Read<RoomFxLayer3TilemapDocument>(
+            json, JsonOptions, "room-FX BG3 tilemap");
         if (document.Version != RoomFxLayer3TilemapFormat.Version ||
             document.Pages is null ||
             document.Pages.Count != RoomFxLayer3TilemapFormat.Types.Count)
@@ -80,6 +73,7 @@ public sealed class RoomFxLayer3TilemapCatalog
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
 }

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -38,17 +39,9 @@ public static class RoomSkyTilemapArtworkFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, RoomSkyTilemapFormat.ManifestFileName);
-        RoomSkyFileManifest manifest;
-        try
-        {
-            manifest = JsonSerializer.Deserialize<RoomSkyFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
-                ?? throw new InvalidDataException("Scrolling-sky manifest is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid scrolling-sky manifest {manifestPath}.", error);
-        }
+        using var manifestStream = File.OpenRead(manifestPath);
+        RoomSkyFileManifest manifest = JsonAssetDocument.Read<RoomSkyFileManifest>(
+            manifestStream, JsonOptions, $"scrolling-sky manifest {manifestPath}");
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -90,6 +83,8 @@ public static class RoomSkyTilemapArtworkFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 

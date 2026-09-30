@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -23,6 +24,8 @@ public static class RoomVisualLayoutFiles
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectRequiredConstructorParameters = true,
         WriteIndented = true,
     };
 
@@ -60,17 +63,9 @@ public static class RoomVisualLayoutFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
-        LayoutFileManifest manifest;
-        try
-        {
-            manifest = JsonSerializer.Deserialize<LayoutFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
-                ?? throw new InvalidDataException("Room-layout manifest is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid room-layout manifest {manifestPath}.", error);
-        }
+        using var manifestStream = File.OpenRead(manifestPath);
+        LayoutFileManifest manifest = JsonAssetDocument.Read<LayoutFileManifest>(
+            manifestStream, JsonOptions, $"room-layout manifest {manifestPath}");
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -95,16 +90,9 @@ public static class RoomVisualLayoutFiles
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;
             byte[] json = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
-            RoomVisualLayoutDocument document;
-            try
-            {
-                document = JsonSerializer.Deserialize<RoomVisualLayoutDocument>(json, JsonOptions)
-                    ?? throw new InvalidDataException("Room layout document is empty.");
-            }
-            catch (JsonException error)
-            {
-                throw new InvalidDataException($"Invalid room layout {selectedPath}.", error);
-            }
+            using var jsonStream = new MemoryStream(json, writable: false);
+            RoomVisualLayoutDocument document = JsonAssetDocument.Read<RoomVisualLayoutDocument>(
+                jsonStream, JsonOptions, $"room layout {selectedPath}");
             if (document.FormatVersion != FormatVersion ||
                 document.SourceAddress != entry.SourceAddress ||
                 document.WidthInBlocks != width ||

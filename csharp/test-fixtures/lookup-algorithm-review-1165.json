@@ -1080,7 +1080,41 @@
                                                              "ManagedSpcPlayer.WriteVolume"
                                                          ],
                                            "domain":  "Stored index0..21; actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
-                                           "interpretation":  "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position)."
+                                           "interpretation":  "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position).",
+                                           "investigation":  {
+                                                                 "status":  "Exact generator unresolved; no retention disposition",
+                                                                 "originalEvidence":  "All 22 ROM bytes at CF:8A25 match kVolumeTable[22] in pinned upstream-sm/src/spc_player.c. Supported ROM SHA-256 checked before static comparison.",
+                                                                 "consumerEvidence":  "WriteVolume selects local samples only when high byte is below 21. At 21..255 it reads two mutable RAM bytes starting 1E1D+index. Each side interpolates with low-byte fraction, scales channel gain, applies phase inversion, then reflects position with ushort(1400-position).",
+                                                                 "numericalEvidence":  "Center gain is 81 while endpoint is 127. This differs materially from linear/raised-cosine/smoothstep center 63.5 and equal-power sine/square-root center 89.80256; rounding or reduced pi cannot explain those gaps.",
+                                                                 "candidateAnalysis":  [
+                                                                                           {
+                                                                                               "formula":  "127*x",
+                                                                                               "nearestIntegerMismatches":  19
+                                                                                           },
+                                                                                           {
+                                                                                               "formula":  "127*sin(pi*x/2)",
+                                                                                               "nearestIntegerMismatches":  17
+                                                                                           },
+                                                                                           {
+                                                                                               "formula":  "127*sin(pi*x/2)^2",
+                                                                                               "nearestIntegerMismatches":  15
+                                                                                           },
+                                                                                           {
+                                                                                               "formula":  "127*sqrt(x)",
+                                                                                               "nearestIntegerMismatches":  18
+                                                                                           },
+                                                                                           {
+                                                                                               "formula":  "127*x*x",
+                                                                                               "nearestIntegerMismatches":  19
+                                                                                           },
+                                                                                           {
+                                                                                               "formula":  "127*x*x*(3-2*x)",
+                                                                                               "nearestIntegerMismatches":  16
+                                                                                           }
+                                                                                       ],
+                                                                 "analysisDomain":  "x=index/20, indices 0..20, nearest integer floor(value+0.5). Static numerical investigation of this identified conversion; these are counterexamples to those formulas only.",
+                                                                 "nextWork":  "Investigate a supported piecewise or quantized gain construction. Preserve mutable overreads in the caller. Smoothness and failed candidate formulas do not establish arbitrary authored data or impossibility."
+                                                             }
                                        },
                                        {
                                            "id":  "dsp-gaussian-coefficients",

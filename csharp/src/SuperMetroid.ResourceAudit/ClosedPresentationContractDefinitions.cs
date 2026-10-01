@@ -28,6 +28,7 @@ internal static class ClosedPresentationContractDefinitions
         .. BackgroundTransferClosedContractDefinitions.All,
         .. RoomArtworkClosedContractDefinitions.All,
         .. AreaMapClosedContractDefinitions.All,
+        .. VramDmaPresentationContractDefinitions.All,
         .. RoomRevealClosedContractDefinitions.All,
         .. LibraryBackgroundClosedContractDefinitions.All,
         .. RoomLayoutClosedContractDefinitions.All,

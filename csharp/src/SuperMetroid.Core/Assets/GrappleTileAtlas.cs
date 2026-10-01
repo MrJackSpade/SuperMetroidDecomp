@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Indexed Grapple artwork resolved at NMI, without embedding PNG data in pending state.</summary>
-public sealed class GrappleTileAtlas : IVramAssetProvider
+public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTransferSource
 {
     private readonly byte[] tiles;
     public GrappleSpriteCatalog? Sprites { get; }
@@ -20,6 +20,18 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
     {
         var transfer = GrappleTileDefinitions.TransferFor(asset);
         return tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
+    }
+    /// <summary>Resolves native endpoint/segment queue records without requiring an eager queue rewrite.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        foreach (var transfer in GrappleTileDefinitions.Transfers)
+            if (transfer.SourceAddress == sourceAddress && transfer.ByteCount == byteCount)
+            {
+                data = Resolve(transfer.Asset);
+                return true;
+            }
+        data = default;
+        return false;
     }
     public void QueuePoint(VramWriteQueue queue, ushort frame)
     {

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable four-bit OBJ characters used by the Ceres and Zebes escape timers.</summary>
-public sealed class EscapeTimerTileAtlas
+public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] transfer;
 
@@ -32,6 +32,23 @@ public sealed class EscapeTimerTileAtlas
             EscapeTimerTileAtlasFormat.SecondByteCount),
         _ => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
     };
+
+    /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        if (sourceAddress == EscapeTimerTileRomData.FirstSourceAddress && byteCount == EscapeTimerTileAtlasFormat.FirstByteCount)
+        {
+            data = Resolve(VramAssetId.EscapeTimerFirstTiles);
+            return true;
+        }
+        if (sourceAddress == EscapeTimerTileRomData.SecondSourceAddress && byteCount == EscapeTimerTileAtlasFormat.SecondByteCount)
+        {
+            data = Resolve(VramAssetId.EscapeTimerSecondTiles);
+            return true;
+        }
+        data = default;
+        return false;
+    }
 
     /// <summary>Queues both native records in their original order and at their original destinations.</summary>
     public void QueueTo(VramWriteQueue queue)

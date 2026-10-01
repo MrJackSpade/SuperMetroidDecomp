@@ -3,11 +3,23 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Standard 2-bpp HUD/minimap artwork and the native clearing half of its queued transfer.</summary>
-public sealed class HudTileAtlas
+public sealed class HudTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] transfer;
     private HudTileAtlas(byte[] transfer) => this.transfer = transfer;
     internal ReadOnlyMemory<byte> Transfer => transfer;
+
+    /// <summary>Resolves the complete native gameplay upload, including its clearing half, from current PNG content.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        if (sourceAddress == HudTileAtlasFormat.SourceAddress && byteCount == HudTileAtlasFormat.TransferByteCount)
+        {
+            data = transfer;
+            return true;
+        }
+        data = default;
+        return false;
+    }
 
     /// <summary>One native 0x400-byte death-restoration slice of the shared BG3 characters.</summary>
     public ReadOnlyMemory<byte> KraidRestoreQuarter(int index)

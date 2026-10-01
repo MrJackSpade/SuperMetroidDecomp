@@ -20,4 +20,7 @@
   <Target Name="AuditPlmPrograms" AfterTargets="Build" Condition="'$(RunPlmProgramAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --plm-program-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
   </Target>
+  <Target Name="AuditQueuedVramDma" AfterTargets="Build" Condition="'$(RunQueuedVramDmaAudit)' == 'true'">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot; --vram-dma-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
+  </Target>
 </Project>

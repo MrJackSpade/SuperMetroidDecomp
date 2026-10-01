@@ -8,6 +8,14 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        // Old pending native records and new typed records share the selected
+        // artwork. Do not send these immutable sources to the RAM-only DMA path.
+        if (MapPresentation?.HudTiles.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
+        if (MapPresentation?.EscapeTimerTiles.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
+        if (grappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         if (MapPresentation is not null &&
             sourceAddress == GameplayHudDefinitions.TopRowAddress &&
             byteCount == GameplayHudDefinitions.TopRowByteCount)

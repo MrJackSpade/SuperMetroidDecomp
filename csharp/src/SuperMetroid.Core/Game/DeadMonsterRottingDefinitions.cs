@@ -61,6 +61,10 @@ internal static class DeadMonsterRottingDefinitions
         Transfers.TryGetValue(table, out DeadMonsterVramTransferDefinition[]? records)
             ? records : throw new InvalidDataException($"Corpse transfer table $A9:{table:X4} has no compiled definition.");
 
+    /// <summary>Immutable descriptor inventory for source audits; never reads the mutable corpse pixels.</summary>
+    internal static IEnumerable<DeadMonsterVramTransferDefinition> AllTransfers =>
+        Transfers.Values.SelectMany(records => records);
+
     internal static ushort SandDestination(ushort line) =>
         line < SandDestinations.Length ? SandDestinations[line] : throw new ArgumentOutOfRangeException(nameof(line));
     internal static ushort SandSource(ushort line) =>

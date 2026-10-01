@@ -2347,7 +2347,9 @@ public sealed partial class RoomPlmSystem
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
+                ? value
+            : RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord(address, out value)
+                ? value
             : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
             : RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(address, out value)

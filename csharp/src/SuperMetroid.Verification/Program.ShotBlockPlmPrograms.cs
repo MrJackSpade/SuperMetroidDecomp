@@ -6,6 +6,47 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyShotBlockProgramOperands()
+    {
+        // #1157: the first draw operand of a permanent 1x1 shot block ($84:CBBC)
+        // was absent from the compiled program. Exercise the actual interpreter
+        // against RAM-only memory, not the old import-capable reference guard.
+        ShotBlockFixture reported = NewShotBlockFixture(4);
+        reported.Plms.Step(new SuperMetroidAddressSpace(), reported.Level,
+            reported.Streamer, 0, 0, 0);
+        AssertEqual((ushort)0x0053,
+            reported.Level.GetCollisionBlockByIndex(27).LevelWord,
+            "reported permanent shot block draws its first break frame without a cartridge read");
+
+        // The same timed-record contract owns all eight ordinary shot-block lists.
+        // Confirm their break/restore pointer sequence, including the multi-block
+        // parent restoration, rather than merely asserting that execution survived.
+        for (byte behavior = 0; behavior < 8; behavior++)
+        {
+            ShotBlockFixture fixture = NewShotBlockFixture(behavior);
+            var memory = new SuperMetroidAddressSpace();
+            fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, 0, 0, 0);
+            AssertEqual((ushort)0x0053,
+                fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+                $"shot-block BTS {behavior} first physical break frame");
+            for (int frame = 1; frame < 420; frame++)
+                fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, 0, 0, 0);
+            ushort expected = behavior switch
+            {
+                0 => 0xc052,
+                1 => 0xc096,
+                2 => 0xc098,
+                3 => 0xc099,
+                _ => 0x00ff,
+            };
+            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+                $"shot-block BTS {behavior} restores or permanently clears the native parent");
+            AssertEqual(0, fixture.Plms.ActiveCount,
+                $"shot-block BTS {behavior} finishes its compiled program");
+        }
+        Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
+    }
+
     private static void VerifyShotBlockPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(

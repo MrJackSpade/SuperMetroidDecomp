@@ -131,6 +131,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("EndingObjectArtworkCatalog", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)VramAssetId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
+        ("AreaMapPresentationCatalog", "Get", "area") => new(0, AreaIds.RetailCount),
         _ => null,
     };
 }

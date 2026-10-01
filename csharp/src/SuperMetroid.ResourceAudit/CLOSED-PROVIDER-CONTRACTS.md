@@ -508,3 +508,18 @@ Seventeen constructed source calls first expose absent adapters. Nine qualify an
 eight invalid/unsupported requests stay unresolved; changing required character
 admission revokes its proof. Build and prior checks pass. No ROM, saves, art, room,
 camera, upload, rendering or gameplay runs; production behavior is unchanged.
+
+## Atomic area maps - eight additional original boundaries
+
+The sole private-constructor path installs all seven area views before publishing
+the catalog. Each map's full cell plane and independent exploration planes are
+compiled by its loader. The same path requires HUD characters and both timer pages.
+Resolve owns only the standard HUD, four Kraid restoration quarters and two escape
+timer pages. Its constant identity domain is deliberately narrower than VramAssetId.
+
+Ten constructed source calls expose absent adapters first; six qualify and four
+remain unresolved (invalid area, foreign/None upload IDs, partial enemy catalog).
+Changing the atomic install loop revokes both operations. This is successful-loader
+resource completeness, not filesystem availability, selected host instance, map
+centering, reveal correctness, upload destinations or rendered pixels. No ROM,
+saves, artwork files, menu or gameplay was opened; production behavior is unchanged.

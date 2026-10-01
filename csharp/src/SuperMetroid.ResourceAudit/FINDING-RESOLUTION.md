@@ -686,3 +686,22 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 39 unresolved**, all 352 consumers retained. Optional
   dictionary keys, atlas geometry, caller selection, destinations and pixels are
   not certified. Production is unchanged; #1156 remains in progress.
+
+## Atomic area maps - eight further source-proven boundaries
+
+- **Findings:** seven area lookups and the map/HUD/timer upload handoff had no
+  definition adapter.
+- **Cause/classification:** the catalog's sole private construction path installs
+  every one of the seven areas atomically. Its required HUD store and two timer
+  pages also exist before publication. A source-guarded rule now models only those
+  seven areas and seven owned upload IDs, not all VRAM IDs or partial catalogs.
+- **Confirmation:** ten constructed calls first expose absent adapters. Six valid
+  requests qualify; an invalid area, two foreign upload IDs and a partial enemy
+  catalog stay unresolved. Changing the atomic area loop revokes both operations.
+  Release build and all auditor contract checks pass; no ROM, save, presentation
+  file, menu, rendering or gameplay was opened.
+- **Accounting:** 320 guarded classifications plus two metadata corrections
+  account for **322 of the original 353 boundaries**. Current report: **zero
+  missing identities, 31 unresolved**, all 352 consumer sites retained. File
+  availability, host instance binding, map centering/visibility, upload placement
+  and pixels are not certified. Production is unchanged; #1156 stays in progress.

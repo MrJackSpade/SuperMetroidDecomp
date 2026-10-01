@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -50,6 +51,11 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
         ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
         ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),
+        ("AreaMapPresentationCatalog", "Resolve", "asset") =>
+            [(int)VramAssetId.StandardHudTiles, (int)VramAssetId.KraidBg3RestoreQuarter0,
+             (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
+             (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,
+             (int)VramAssetId.EscapeTimerSecondTiles],
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

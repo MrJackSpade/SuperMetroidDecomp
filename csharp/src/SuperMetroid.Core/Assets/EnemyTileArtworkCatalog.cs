@@ -187,6 +187,10 @@ public sealed partial class EnemyTileArtworkCatalog
         if (CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount,
                 out data) == true)
             return true;
+        // The hand PLM queues its fragment sheet through NMI, unlike the enemy
+        // instruction uploads that apply directly. Both use current installed art.
+        if (TorizoInstructionVram?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         data = default;
         return false;
     }
@@ -215,7 +219,7 @@ public sealed partial class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 66;
+    public const int Version = 67;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

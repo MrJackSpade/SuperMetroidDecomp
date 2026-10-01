@@ -23,6 +23,12 @@ internal static partial class Program
                 PlmProgramContractChecks.Run();
                 return 0;
             }
+            if (args is ["--enemy-artwork-contract-check"])
+            {
+                EnemyTileArtworkPresentationContractChecks.Run();
+                Console.WriteLine("Enemy artwork admission/resolver static contracts passed.");
+                return 0;
+            }
             if (args is ["--work-robot-resource-check"])
             {
                 WorkRobotResourceChecks.Run();

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -76,6 +77,26 @@ internal static class PlmProgramContractChecks
             .Visit(RoomPlmInstructionLists.PermanentShotBlock2x1, "reported CBBC omission");
         Require(regression.Findings.Single().Address == omitted, "The reported CBBC hole must fail this audit.");
 
+        // #1162: complete operands are insufficient when the source artwork was
+        // never installed. Recreate that precise missing-provider handoff statically.
+        var missingArtwork = new PlmProgramAuditReport();
+        new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
+            RoomPlmProgramDefinitions.TryReadByte, _ => true, missingArtwork,
+            (_, _) => false).Visit(BombTorizoHandPlmProgramDefinitions.DebrisUploadInstruction, "reported missing debris art");
+        Require(missingArtwork.Findings.Single().Code == "missing-artwork-transfer" &&
+            missingArtwork.ArtworkTransfers == 1,
+            "The Bomb Torizo DMA must fail static closure when its artwork provider is absent.");
+        var installedArtwork = new PlmProgramAuditReport();
+        new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
+            RoomPlmProgramDefinitions.TryReadByte, _ => true, installedArtwork)
+            .Visit(BombTorizoHandPlmProgramDefinitions.DebrisUploadInstruction, "installed debris art");
+        Require(installedArtwork.Findings.Count == 0 && installedArtwork.ArtworkTransfers == 1,
+            "The actual Torizo DMA must resolve the complete installed page.");
+        TorizoInstructionTileSheetDefinition debris = TorizoInstructionVramArtworkDefinitions.ChozoDebris;
+        Require(PlmVramArtworkAudit.OwnsInstalledTransfer(debris.SourceAddress, debris.ByteCount) &&
+            !PlmVramArtworkAudit.OwnsInstalledTransfer(debris.SourceAddress, debris.ByteCount + 1),
+            "PLM DMA artwork admission is bounded to the installed page, not the source bank.");
+
         ConfirmRestoredRecords();
         var original = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration("bool Read() { return true; }")!;
         var changed = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration("bool Read() { return false; }")!;
@@ -84,7 +105,7 @@ internal static class PlmProgramContractChecks
             PlmProgramSource.TokenHash(original) == PlmProgramSource.TokenHash(trivia),
             "Behavioral source changes must revoke the reviewed contract; whitespace/comments must not.");
         Console.WriteLine("PLM audit contracts passed: absent word/byte/draw, both branch paths, linked wake root, " +
-            "unknown opcode, cycles, reported CBBC omission and corrected native records.");
+            "unknown opcode, cycles, reported CBBC omission, missing DMA artwork and corrected native records.");
     }
 
     private static void ConfirmRestoredRecords()

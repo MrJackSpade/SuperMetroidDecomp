@@ -42,10 +42,15 @@ internal static class TorizoInstructionVramArtworkDefinitions
         new(TorizoInstructionTileRomData.GoldenRightAttackSource,
             TorizoInstructionTileRomData.GoldenRightAttackByteCount, "golden-torizo-right-attack-tiles.png");
 
+    /// <summary>PLM-uploaded Bomb Torizo Chozo fragments, <c>Tiles_BombTorizosCrumblingChozo</c> at $AD:B200.</summary>
+    internal static readonly TorizoInstructionTileSheetDefinition ChozoDebris =
+        new(TorizoInstructionTileRomData.ChozoDebrisSource,
+            TorizoInstructionTileRomData.ChozoDebrisByteCount, "torizo-chozo-debris-tiles.png");
+
     private static readonly TorizoInstructionTileSheetDefinition[] Pages =
     [
         SharedDeath, StatueCrumble, LeftAttack, RightAttack,
-        GoldenAwakening, GoldenLeftAttack, GoldenRightAttack,
+        GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
     ];
 
     internal static ReadOnlySpan<TorizoInstructionTileSheetDefinition> All => Pages;

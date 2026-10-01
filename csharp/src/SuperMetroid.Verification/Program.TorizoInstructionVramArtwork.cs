@@ -149,7 +149,7 @@ internal static partial class Program
             "invalid Golden Torizo PNG fails loudly");
 
         Console.WriteLine(
-            "Torizo instruction VRAM: 52 native descriptors, seven installed tile PNGs, " +
+            "Torizo instruction VRAM: 52 native descriptors, eight installed tile PNGs, " +
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
 
         ushort ReadWord(int address) =>

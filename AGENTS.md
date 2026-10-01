@@ -112,6 +112,9 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Use the version supplied by the player; carry it forward for subsequent reports
   in the same testing session until the player specifies a different version.
   Never infer the affected version from the current repository or latest release.
+- The player explicitly uses the latest test build handed off by this agent unless
+  they say otherwise. Carry that supplied build forward; do not repeatedly ask
+  whether they used an older build. This does not mean the latest GitHub release.
 - If the version is unknown, record `Unknown (awaiting player version)` and ask
   for it. Update the issue when supplied, preserving earlier reported versions.
 

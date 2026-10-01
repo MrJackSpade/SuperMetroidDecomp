@@ -25,11 +25,15 @@ internal static class EnemyArtworkDomainAudit
         bool ceres = CeresEscapeTileArtworkDefinitions.All.ToArray().Any(page =>
             source >= page.SourceAddress && source < page.SourceAddress + page.ByteCount);
         bool overlay = CeresEscapeOverlayTilemapDefinitions.All.ToArray().Any(page => page.SourceAddress == source);
-        if (!ordinary && !ceres && !overlay) return null; // Valid unowned-source false query.
+        bool torizo = TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page =>
+            source >= page.SourceAddress && source < page.SourceAddress + page.ByteCount);
+        if (!ordinary && !ceres && !overlay && !torizo) return null; // Valid unowned-source false query.
         bool complete = EnemyTileSourceDefinitions.All.Any(definition =>
             definition.SourceAddress == source && definition.ByteCount == byteCount) ||
             CeresEscapeTileArtworkDefinitions.Contains(source, byteCount) ||
-            CeresEscapeOverlayTilemapDefinitions.IsSource(source, byteCount);
-        return complete ? null : "Owned enemy DMA source/length is not a complete ordinary sheet, bounded Ceres tile slice, or exact overlay page.";
+            CeresEscapeOverlayTilemapDefinitions.IsSource(source, byteCount) ||
+            TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page => byteCount > 0 &&
+                source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - byteCount);
+        return complete ? null : "Owned enemy DMA source/length is not a complete ordinary sheet, bounded Ceres/Torizo tile slice, or exact overlay page.";
     }
 }

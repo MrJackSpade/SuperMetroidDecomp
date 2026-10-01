@@ -37,4 +37,9 @@ internal static class TorizoInstructionTileRomData
     internal const int GoldenRightAttackSource = 0xafca00;
     /// <summary>Length of the Golden Torizo alternate right-side tile page.</summary>
     internal const int GoldenRightAttackByteCount = 0x0040;
+
+    /// <summary><c>Tiles_BombTorizosCrumblingChozo</c>, $AD:B200: fragment OBJ characters uploaded by PLM $84:D376.</summary>
+    internal const int ChozoDebrisSource = 0xadb200;
+    /// <summary>The PLM transfers 32 four-bit characters, $0400 bytes, into VRAM word $6E00.</summary>
+    internal const int ChozoDebrisByteCount = 0x0400;
 }

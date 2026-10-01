@@ -1373,6 +1373,11 @@ if (args is ["--bomb-torizo-hand-plm-program"])
     VerifyBombTorizoHandPlm();
     return 0;
 }
+if (args is ["--bomb-torizo-hand-artwork"])
+{
+    VerifyBombTorizoHandArtwork();
+    return 0;
+}
 if (args is ["--noob-tube-plm-draws"])
 {
     VerifyNoobTubePlmDrawDefinitions(

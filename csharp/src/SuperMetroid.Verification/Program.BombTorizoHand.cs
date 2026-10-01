@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -9,7 +10,7 @@ internal static partial class Program
     /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, odd-byte DMA,
     /// eight debris requests, final music command, and cartridge-timed deletion together.
     /// </summary>
-    static void VerifyBombTorizoHandPlm()
+    static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
     {
         VerifyBombTorizoHandProgramDefinitions();
         VerifyBombTorizoHandVisualInstallation();
@@ -136,6 +137,30 @@ internal static partial class Program
             "hand DMA source address");
         AssertEqual(0x6e00, plms.VramWriteRequests[0].EncodedVramDestination,
             "hand DMA VRAM destination");
+
+        if (installedArtwork is not null)
+        {
+            // #1162: checking only the emitted descriptor missed the actual failure.
+            // Drain that exact production request through the runtime's installed-art
+            // provider and RAM-only memory boundary, as the accepted NMI does.
+            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+            var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(memory,
+                initialPaletteArt: BombTorizoHandFixturePalette());
+            runtime.Enemies.TileArtwork = installedArtwork;
+            PlmVramWriteRequest request = plms.VramWriteRequests[0];
+            runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,
+                request.EncodedVramDestination);
+            runtime.VramWrites.DrainTo(runtime.Vram, memory, runtime);
+            AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
+                request.SizeInBytes, out ReadOnlyMemory<byte> expected),
+                "Bomb Torizo PLM transfer resolves installed artwork");
+            for (int offset = 0; offset < expected.Length; offset++)
+                AssertEqual(expected.Span[offset],
+                    runtime.Vram.ReadByte(request.EncodedVramDestination * 2 + offset),
+                    $"Bomb Torizo debris DMA installs exact tile byte {offset:X4}");
+            AssertEqual(0, runtime.VramWrites.TailInBytes,
+                "successful debris DMA clears the pending queue");
+        }
 
         var parameters = new List<ushort>();
         for (int frame = 0; frame < 400 && plms.HasActiveHeader(0xd6ea); frame++)

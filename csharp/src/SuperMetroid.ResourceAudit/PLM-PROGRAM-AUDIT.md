@@ -38,6 +38,11 @@ the same build gate, so a missing record cannot be packaged silently.
   unaligned VRAM-copy fields and four glass-shard parameters. Both conditional edges,
   loops and link targets are followed. Delete/sleep terminate the current path;
   other independently declared components still remain in the inventory.
+- #1162 extends VRAM-copy checking beyond descriptor completeness: immutable
+  cartridge-art sources must fit a reviewed installed sheet/page. Source guards
+  include extraction, manifest/PNG loading, complete catalog admission and the
+  actual NMI resolver. A named range alone does not prove it is installed. Mutable
+  transfers must remain in a mapped RAM domain, including native source wrapping.
 - Scroll programs, collectible state machines, station animations and treadmills
   have explicit alternative owners, recorded in JSON. They are not suppressed
   missing generic instruction streams. Coloured/grey closing lists, gates, elevator
@@ -88,3 +93,15 @@ Addresses and definitions were checked against the pinned bank-$84 source and,
 for the existing block confirmations, the project's cartridge import fixture.
 Reference labels alone are not substituted for revision-specific values (the
 max-one sound lists use the cartridge's direct `$8C7C` entry).
+
+## Follow-up: Bomb Torizo debris transfer (#1162)
+
+The original operand/draw audit did not certify the installed source bytes of
+`$87E5` DMA records. Its zero findings therefore missed the `$AD:B200` fragment
+page selected by `$84:D376`. The focused hand fixture reproduced the exact NMI
+exception before the fix; it now drains the actual PLM request through the
+RAM-only runtime resolver and checks all 1,024 destination bytes. The importer
+exports `torizo-chozo-debris-tiles.png`; manifest version 67 forces existing
+installations to import the newly required page without altering settings/saves.
+The audited definition comparison checks this DMA and self-checks confirm that
+removing its provider or exceeding its page bounds produces a finding.

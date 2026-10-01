@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -14,6 +15,7 @@ internal sealed class PlmProgramAuditReport
     public int TimedDraws { get; set; }
     public int WordOperands { get; set; }
     public int ByteOperands { get; set; }
+    public int ArtworkTransfers { get; set; }
     public List<PlmProgramFinding> Findings { get; } = [];
     public List<PlmProgramClassification> Classifications { get; } = [];
 }
@@ -28,9 +30,11 @@ internal static class PlmProgramAudit
         var report = new PlmProgramAuditReport();
         var source = new PlmProgramSource(root, report);
         source.VerifyInterpreter();
+        PlmVramArtworkAudit.VerifySource(root, report);
         Dictionary<ushort, string> words = source.InventoryWords();
         var walker = new Walker(RoomPlmProgramDefinitions.TryReadWord,
-            RoomPlmProgramDefinitions.TryReadByte, source.OwnsDraw, report);
+            RoomPlmProgramDefinitions.TryReadByte, source.OwnsDraw, report,
+            PlmVramArtworkAudit.OwnsInstalledTransfer);
 
         // Header/list identity inventories are independent of the definitions being
         // checked. A completely absent family is caught even if it exports no words.
@@ -74,6 +78,7 @@ internal static class PlmProgramAudit
         Console.WriteLine($"Static PLM program audit: {words.Count} defined word positions; " +
             $"{report.Records} records; {report.TimedDraws} timed draws; " +
             $"{report.WordOperands} word / {report.ByteOperands} byte operands; " +
+            $"{report.ArtworkTransfers} artwork transfers; " +
             $"{report.Classifications.Count} typed-owner roots; {report.Findings.Count} findings.");
         Console.WriteLine("No ROM, saves, inputs, gameplay or replay execution was used.");
         foreach (PlmProgramFinding finding in report.Findings.Take(40))
@@ -118,7 +123,8 @@ internal static class PlmProgramAudit
     };
 
     internal sealed class Walker(WordReader readWord, ByteReader readByte,
-        Func<ushort, bool> ownsDraw, PlmProgramAuditReport report)
+        Func<ushort, bool> ownsDraw, PlmProgramAuditReport report,
+        Func<int, int, bool>? ownsArtwork = null)
     {
         private readonly HashSet<ushort> visited = [];
         private readonly HashSet<ushort> covered = [];
@@ -164,6 +170,24 @@ internal static class PlmProgramAudit
                 {
                     report.ByteOperands++;
                     if (!readByte(At(offset), out _)) Missing("missing-byte", At(offset), "Opcode byte operand is absent.");
+                }
+                if (opcode == RoomPlmInstructionCodes.CopyFromRamToVram &&
+                    readWord(At(2), out ushort count) && readWord(At(4), out ushort sourceOffset) &&
+                    readByte(At(6), out byte sourceBank))
+                {
+                    var address = new SnesAddress(sourceBank, sourceOffset);
+                    SnesDmaSourceKind kind = SnesDmaSourceMap.Classify(address);
+                    if (kind == SnesDmaSourceKind.Cartridge)
+                    {
+                        report.ArtworkTransfers++;
+                        if (!(ownsArtwork ?? PlmVramArtworkAudit.OwnsInstalledTransfer)((int)address, count))
+                            Missing("missing-artwork-transfer", cursor,
+                                $"DMA ${(int)address:X6}, {count} bytes has no reviewed installed-artwork provider.");
+                    }
+                    else if (count == 0 || kind == SnesDmaSourceKind.Unmapped ||
+                        Enumerable.Range(0, count).Any(offset =>
+                            SnesDmaSourceMap.Classify(address.AddWithinBank(offset)) != kind))
+                        Missing("unresolved-memory-transfer", cursor, "DMA is empty, unmapped or crosses memory-domain boundaries.");
                 }
                 Mark(format.Length);
                 if (format.FallThrough) pending.Push(At(format.Length));

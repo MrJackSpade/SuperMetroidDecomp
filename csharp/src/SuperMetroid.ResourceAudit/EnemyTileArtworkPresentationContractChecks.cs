@@ -47,11 +47,16 @@ internal static class EnemyTileArtworkPresentationContractChecks
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
             Pages = CeresEscapeOverlayTilemapDefinitions.All.ToArray().ToDictionary(page => page.Name, page => new ushort[page.WordCount]) }));
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
+        var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All.ToArray()
+            .Select(page => Sheet(page.ByteCount)).ToArray());
         EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes,
-            dmaSources: sources, ceresEscapeTiles: ceres, ceresEscapeOverlayTilemaps: overlays);
+            dmaSources: sources, ceresEscapeTiles: ceres, ceresEscapeOverlayTilemaps: overlays,
+            torizoInstructionVram: torizo);
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
         Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes), "required Ceres DMA extensions");
+        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes,
+            ceresEscapeTiles: ceres, ceresEscapeOverlayTilemaps: overlays), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionPointer];
         sheets.Remove(first.DefinitionPointer); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");

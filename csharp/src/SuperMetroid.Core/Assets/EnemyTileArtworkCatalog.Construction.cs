@@ -7,7 +7,7 @@ public sealed partial class EnemyTileArtworkCatalog
 {
     /// <summary>
     /// Publishes complete ordinary enemy sheets, palettes and DMA aliases.
-    /// The Ceres transfer extensions are required; other boss attachments retain
+    /// The Ceres and Torizo transfer extensions are required; other boss attachments retain
     /// their independently validated contracts and are not certified here.
     /// </summary>
     public static EnemyTileArtworkCatalog FromInstalledArtwork(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
@@ -56,6 +56,8 @@ public sealed partial class EnemyTileArtworkCatalog
         ValidateInstalledSheets(sheets, palettes);
         if (ceresEscapeTiles is null || ceresEscapeOverlayTilemaps is null)
             throw new InvalidDataException("Installed enemy DMA artwork requires both Ceres transfer providers.");
+        if (torizoInstructionVram is null)
+            throw new InvalidDataException("Installed enemy DMA artwork requires the Torizo transfer provider.");
         return new EnemyTileArtworkCatalog(
             sheets, palettes, crocomireMelting, spritemaps,
             extendedFrames, kraidBackground, kraidColors, gunshipLiftoff,

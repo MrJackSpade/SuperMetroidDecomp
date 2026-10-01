@@ -1,10 +1,10 @@
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>Complete terrain-reveal and permanent-item stores, not optional room overlays.</summary>
+/// <summary>Complete terrain-reveal, installed overlay, and permanent-item stores.</summary>
 internal static class RoomRevealClosedContractDefinitions
 {
     private static readonly ReviewedSource XrayCatalog = new(
-        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "58B78A15B566829A9DC52ACDD0DE305D41BDB31AA9D89860DFBAF96F2C5AB562");
+        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "3134D5D237A23A4F9BE14067D3A8A0F61D604C2858A930F76A116BD158510BE9");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
@@ -14,9 +14,12 @@ internal static class RoomRevealClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "A9FE5E7572CA7816F9E24FE49FB051DA2B34E614914486B7A07B3C66E26B3E1E"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "49C2C8C13ACB4E2BA5D3C6AC304EE5E6735AF025F14F735DF6ED7500A4C6544F")],
             "Construction requires every drawable compiled collision/BTS pair. The two-input Apply derives the native command from that same pair before selecting its visual operands; callers cannot supply a mismatched command. Non-reveal pairs return null and extensions retain their compiled command without an artwork lookup. This proves drawable membership, not room overlays, traversal, metatile positions, beam geometry or pixels."),
-        new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-eight-item-metatiles", ["ItemMetatile"],
-            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "AA2E43C1A69E6A3E643B779D30026FC182F83B07E000BA7253EC0342E3A1D0DD")],
-            "Public construction requires exactly eight item metatiles and independently copies them. Only slots zero through seven qualify. The separately optional room-overlay dictionary is not proven complete by this rule; its RoomTiles operation remains unresolved."),
+        new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
+            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "AA2E43C1A69E6A3E643B779D30026FC182F83B07E000BA7253EC0342E3A1D0DD"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRoomOverlaySourceDefinitions.cs", "C79999DAC9FCE3E71C9EB58227A08EC29C4D6DEAFDDD3F94707FCB50FDA22FC2"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "87BB9CE1AE9275FEAC95A16A27B39921E738994EEF4342AABF4C1BF3DEB83B7B"),
+             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "456E784B457DC4B8361279DDA9069B6B039AA160EF819498EF60DF7F410A1D4B")],
+            "Public construction requires eight valid item metatiles and every nonzero overlay source selected by immutable compiled room states, copying all tiles. Only item slots zero through seven and required overlay keys qualify. A semantic Core-use guard rejects the internal partial fixture factory. This proves membership, not arbitrary pointers, overlay coordinates, caller selection, traversal, host binding, placement or pixels."),
         new("SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog", "plm-complete-seventeen-item-uploads", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "20C0F14DBDC85E704D21CAB64040C054F87B9BE1F818A7762C7EA52BA7DDF80F"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "0691A7AF56C3A993FDB62346BD2BFF1EC58FFEEBCF5A9B5292CED34E6E717023"),

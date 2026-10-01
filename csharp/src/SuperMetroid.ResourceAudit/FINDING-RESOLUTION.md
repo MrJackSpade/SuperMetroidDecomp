@@ -792,3 +792,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 23 unresolved**, all 352 consumers retained. This proves
   required sheet/page availability, not arbitrary IDs, caller transfer selection,
   binding, destinations, timing or pixels. #1156 remains active.
+
+## Required X-ray room overlays - one further accounted boundary
+
+- **Finding:** the room-overlay lookup remained unresolved because the public
+  constructor, unlike the importer, allowed all required room overlays to be absent.
+- **Reproduced cause/solution:** an eight-item catalog with no room overlays was
+  accepted; the focused assertion failed before the change. Production construction
+  now requires every nonzero overlay identity selected by immutable compiled room
+  states. The content-identity fixture uses a separate internal partial factory;
+  a semantic guard revokes production completeness if Core uses it. Item/reveal
+  proofs were re-reviewed after the shared source changed; their contracts remain.
+- **Confirmation:** missing overlays are rejected, and a complete authored overlay
+  is independently copied. Three source calls first expose absent adapters; two
+  qualify and zero remains unresolved as a resource key. A constructed Core use of
+  the partial factory revokes the proof. Existing reveal checks retain their invalid
+  item/kind cases. Audit/Verification builds and all auditor checks pass. No ROM,
+  save, installed reveal file, room, X-ray gameplay or renderer ran.
+- **Accounting:** 329 guarded classifications plus two metadata corrections
+  account for **331 of the original 353 boundaries**. Current report: **zero
+  missing identities, 22 unresolved**, all 352 consumers retained. This proves
+  required overlay membership, not arbitrary pointers, authored coordinates,
+  source selection, traversal, host binding, placement or pixels. #1156 stays active.

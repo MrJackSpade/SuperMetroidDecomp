@@ -106,7 +106,7 @@ internal static partial class Program
         if (edit == "overlay-order") Array.Reverse(tiles);
         (ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[] rooms =
             [(0x8000, tiles), (0x8002, new XrayRoomOverlayVisual[] { new(8, 9, 10) })];
-        var overlays = new XrayOverlayVisualCatalog(items, reverse ? rooms.Reverse() : rooms);
+        var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);
     }

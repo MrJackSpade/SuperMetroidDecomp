@@ -60,6 +60,8 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomVisualLayoutCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sourceAddress") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => sheet.SourceAddress).ToArray(),
+        ("XrayOverlayVisualCatalog", "RoomTiles", "pointer") => XrayRoomOverlaySourceDefinitions.All
+            .Select(pointer => (int)pointer).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

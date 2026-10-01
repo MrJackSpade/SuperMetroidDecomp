@@ -592,3 +592,21 @@ unowned key stays unresolved. Removing the size check revokes the source-guarded
 proof. Audit/Verification builds and all auditor checks pass. No ROM, save, installed
 artwork, battle, renderer or gameplay runs. Required sheet/page availability does
 not establish arbitrary selectors, host binding, placement, clocks or pixels.
+
+## Required X-ray room overlays - one additional original boundary
+
+The importer already required room-overlay identities, but public catalog
+construction admitted an empty room dictionary. A constructed eight-item catalog
+with no overlays reproduced that admission gap before the fix. Public construction
+now requires every nonzero key selected by immutable compiled room states and
+independently copies all tiles. Partial synthetic overlays use a separate internal
+factory; a semantic symbol guard revokes production closure if Core uses it.
+
+Three constructed source calls expose absent adapters first; two qualify and zero
+stays unresolved as a resource key. Caller-array independence and missing-overlay
+rejection pass, and a constructed Core partial-factory caller revokes the proof.
+The shared-source item/reveal contracts were re-reviewed and their prior invalid
+item/kind checks still pass. Audit/Verification builds and all auditor checks pass.
+No ROM, saves, installed reveals, room, renderer or gameplay ran. Only required
+membership is certified, not arbitrary keys, coordinates, traversal, binding,
+placement or pixels.

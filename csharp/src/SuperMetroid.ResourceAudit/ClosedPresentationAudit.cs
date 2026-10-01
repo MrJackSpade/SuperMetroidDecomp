@@ -56,6 +56,12 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "FromLayoutsForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
                             factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName));
+            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "FromOverlaysForVerification")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
+                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog).FullName));
             if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()

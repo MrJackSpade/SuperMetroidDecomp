@@ -44,6 +44,13 @@ public sealed class XrayOverlayVisualCatalog
 
     public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
+        : this(itemMetatiles, rooms, requireCompleteInstallation: true)
+    {
+    }
+
+    private XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
+        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
+        bool requireCompleteInstallation)
     {
         ArgumentNullException.ThrowIfNull(itemMetatiles);
         ArgumentNullException.ThrowIfNull(rooms);
@@ -59,7 +66,16 @@ public sealed class XrayOverlayVisualCatalog
                 !this.rooms.TryAdd(pointer, tiles.ToArray()))
                 throw new InvalidDataException($"Invalid X-ray room overlay ${pointer:X4}.");
         }
+        if (requireCompleteInstallation)
+            foreach (ushort pointer in XrayRoomOverlaySourceDefinitions.All)
+                if (!this.rooms.ContainsKey(pointer))
+                    throw new InvalidDataException($"Missing required X-ray room overlay ${pointer:X4}.");
     }
+
+    /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
+    internal static XrayOverlayVisualCatalog FromOverlaysForVerification(IEnumerable<ushort> itemMetatiles,
+        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms) =>
+        new(itemMetatiles, rooms, requireCompleteInstallation: false);
 
     public ushort ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
 

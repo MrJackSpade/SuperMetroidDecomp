@@ -52,8 +52,8 @@ internal static class RoomRevealPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters");
-        Require(after.Classifications.Count == 7 && after.UnresolvedCount == 3 && after.MissingCount == 0 &&
-            after.Consumers.Count == 10, "complete reveals and item slots qualify, not missing overlay coverage or non-dynamic kinds");
+        Require(after.Classifications.Count == 8 && after.UnresolvedCount == 2 && after.MissingCount == 0 &&
+            after.Consumers.Count == 10, "complete reveals, item slots and required overlays qualify, not invalid slots or non-dynamic kinds");
         const string catalog = "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("drawable != (words[", "false && drawable != (words[", StringComparison.Ordinal),

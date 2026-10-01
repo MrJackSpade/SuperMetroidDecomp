@@ -63,8 +63,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea radii and gunship motion policies for #1165'"
     },
     "fireflea-melt-algorithms": {
+      "sha": "b52f5ef47548f6632a73dcf135fad7b1b694cf18",
       "subject": "Convert Fireflea shade rules and Crocomire masks for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea shade rules and Crocomire masks for #1165'"
+    },
+    "grapple-launch-algorithms": {
+      "subject": "Convert grapple launch direction mappings for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert grapple launch direction mappings for #1165'"
     }
   },
   "tables": [
@@ -486,6 +491,66 @@
     ],
     "integrationConfirmation": "Existing Fireflea shade/timer/freeze/death-offset and COLDATA checks, and Crocomire 49-column four-bitplane production erase silhouette; source reads forbidden. Fireflea fixture updated to select a compiled default-door FX record instead of obsolete synthetic $83:9400."
   },
+  "grappleFiringReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+    "implementationCommit": "grapple-launch-algorithms",
+    "reviewedEvidence": "Read complete pinned bank_9B.asm launch/angle/origin definitions and firing routine; independently compare all thirty launch words to recorded NTSC ROM. Read BeginFiring, locked connection and late draw-origin consumers. Prior sine-generator claims are hypotheses, not authority.",
+    "domain": "byte direction 0..9. Launch preserves IndexOutOfRangeException for 10+; Origin preserves InvalidDataException. BeginFiring cancels high-nibble sentinels and rejects other nonfireable directions before selection. No supported overreads or unaligned selectors.",
+    "tables": [
+      {
+        "id": "grapple-launch-x", "state": "converted",
+        "nativeIdentity": "$9B:C0DB GrappleBeamFireVelocityTable.X",
+        "consumers": ["SamusGrappleMovement.BeginFiring", "LookupTableResearch historical comparison"],
+        "interpretation": "Signed 8.8 velocity word; caller copies verbatim before extension substeps.",
+        "disposition": "Explicit direction cases select zero, signed diagonal 2172 or cardinal 3060.",
+        "rationale": "Clear cardinal/diagonal vector selection. Magnitudes are 12*181 and 12*255, consistent with quantizing byte sine before scaling; full-precision radius-3072 trig would differ. Cases use exact independently confirmed magnitudes, without requiring a runtime sine generator or historical provenance claim.",
+        "proofTest": "VerifyGrappleLaunchXSelection"
+      },
+      {
+        "id": "grapple-launch-y", "state": "converted",
+        "nativeIdentity": "$9B:C0EF GrappleBeamFireVelocityTable.Y",
+        "consumers": ["SamusGrappleMovement.BeginFiring", "LookupTableResearch historical comparison"],
+        "interpretation": "Signed 8.8 velocity word; screen-positive Y points down.",
+        "disposition": "Explicit direction cases select signed cardinal/diagonal or zero, including duplicate upward/downward facing directions.",
+        "rationale": "Same independently confirmed component magnitudes as X, with separate signed direction policy and proof. No floating-point rounding or approximate circular generation.",
+        "proofTest": "VerifyGrappleLaunchYSelection"
+      },
+      {
+        "id": "grapple-launch-angle", "state": "converted",
+        "nativeIdentity": "$9B:C104 GrappleBeamFireAngles",
+        "consumers": ["SamusGrappleMovement.BeginFiring: angle and mirrored angle", "LookupTableResearch historical comparison"],
+        "interpretation": "Unsigned full-turn angle word, direction index doubled for native word access.",
+        "disposition": "q=d for d<=4 else d-1; angle=(0x8000+0x2000*q) modulo65536.",
+        "rationale": "Uniform eighth-turn steps with duplicate downward directions explain all ten original words, including wrap at down and return to up. Explicit unchecked ushort conversion preserves word wrapping.",
+        "proofTest": "VerifyGrappleLaunchAngleAlgorithm"
+      },
+      {
+        "id": "grapple-origin-x", "state": "retained",
+        "nativeIdentity": "$9B:C122/$9B:C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX, identical aliases",
+        "consumers": ["SamusGrappleMovement.BeginFiring", "ConnectAcceptedFiring locked body positioning", "RefreshFiringDrawOrigins"],
+        "interpretation": "Signed pixel hand anchor, independent of flare artwork offsets.",
+        "disposition": "Retain ten explicit pose-authored offsets; both native copies are one logical mapping.",
+        "rationale": "All original words inspected. Cardinal/diagonal offsets do not follow a radial curve, and downward facing offsets +3/-4 break pure mirroring. Formula plus pose exceptions or repeated case arms would obscure a compact authored layout. No generator evidence justifies numerical fitting."
+      },
+      {
+        "id": "grapple-origin-y-default", "state": "retained",
+        "nativeIdentity": "$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY",
+        "consumers": ["BeginFiring for nonrunning movement", "ConnectAcceptedFiring locked body positioning", "RefreshFiringDrawOrigins"],
+        "interpretation": "Signed pixel hand anchor; launch/draw subtract pose correction, locked positioning consumes raw offset.",
+        "disposition": "Retain ten authored vertical offsets.",
+        "rationale": "Facing symmetry exists, but -16,-12,2,0,6 is not uniform radial/linear spacing. A reflected half-table adds indirection for little benefit; keep pose-specific values clear. Full original word set and all correction boundaries independently inspected."
+      },
+      {
+        "id": "grapple-origin-y-running", "state": "retained",
+        "nativeIdentity": "$9B:C186 GrappleBeamFireOffsets_Running_OriginY",
+        "consumers": ["BeginFiring when movement kind is Running", "RefreshFiringDrawOrigins when Running"],
+        "interpretation": "Signed pixel hand anchor; only horizontal entries differ from no-run, using -2 instead of +2.",
+        "disposition": "Retain explicit separate running-origin policy.",
+        "rationale": "Mirroring or reusing default data plus a horizontal correction is possible but less direct than this short independently checked authored mapping. Numeric curve fitting has no support. Running selection and presentation ownership remain unchanged."
+      }
+    ],
+    "confirmationScope": "Three original-data proofs extracted from existing verifier. Complete 10-direction domains and invalid boundary inputs; source confirms all production callers retain API and indexing. No broad pose/input sweep needed for replacing these pure lookups."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
@@ -512,6 +577,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms"
   ]
 }

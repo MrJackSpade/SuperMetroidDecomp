@@ -7,6 +7,9 @@ internal static partial class Program
 {
     private static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyGrappleLaunchXSelection(rom);
+        VerifyGrappleLaunchYSelection(rom);
+        VerifyGrappleLaunchAngleAlgorithm(rom);
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
@@ -29,7 +32,6 @@ internal static partial class Program
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
-            AssertEqual((vx, vy, angle), GrappleFiringDefinitions.Launch(direction), "Native Grapple launch words");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 // Use actual authored aim/movement combinations while sweeping every
@@ -158,6 +160,30 @@ internal static partial class Program
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
+    private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
+        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
+            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity");
+
+    private static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
+        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
+            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity");
+
+    private static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
+            direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle");
+
+    private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
+        Func<byte, ushort> select, string label)
+    {
+        for (byte direction = 0; direction < 10; direction++)
+        {
+            int address = source + 2 * direction;
+            ushort original = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
+    }
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
         IImportCartridgeSource, ISnesMutableMemory
     {

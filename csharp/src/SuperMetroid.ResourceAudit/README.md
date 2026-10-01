@@ -61,6 +61,8 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   closure rules. They are guarded by provider/definition fingerprints, not baselines.
   Changed contracts, new operations, invalid constants and unbounded string names remain
   failures. See [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) for scope/proof.
+  Named menu selections additionally compare compiler-resolved constant/conditional
+  name sets against their loader-required keys; unknown name flow stays unresolved.
 
 Samus projectile exports are inventoried, but dynamic projectile-to-artwork mappings are
 not certified merely because an exported sprite exists. There is no claim of whole-game

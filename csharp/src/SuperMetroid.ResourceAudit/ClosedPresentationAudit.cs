@@ -39,11 +39,7 @@ internal sealed class ClosedPresentationAudit
                 foreach (string method in contract.Methods)
                     exports.Add("closed-presentation-contract", contract.Type + "." + method);
         }
-        // The reviewed file-select loader validates exactly these named sets.
-        foreach (string name in FileSelectPresentationDefinitions.PatchNames)
-            exports.Add("file-select-patch", name);
-        foreach (string name in FileSelectPresentationDefinitions.DynamicAnchorNames)
-            exports.Add("file-select-dynamic-anchor", name);
+        NamedPresentationAudit.Install(exports);
     }
 
     internal static bool MatchesReviewedSource(string text, ReviewedSource source) =>
@@ -78,21 +74,16 @@ internal sealed class ClosedPresentationAudit
             Gap(invalid);
             return true;
         }
-        if (contract.Type == typeof(FileSelectPresentation).FullName && method.Name is "DynamicAnchor" or "ApplyPatch")
+        NamedSelectionResult? named = NamedPresentationAudit.Inspect(operation, owner, location, exports, report);
+        if (named == NamedSelectionResult.Unresolved)
         {
-            IArgumentOperation argument = operation.Arguments.Single(arg => arg.Parameter?.Name == "name");
-            if (argument.Value.ConstantValue is not { HasValue: true, Value: string name })
-            {
-                Gap("Named file-select selection is not compiler-resolved; closed array coverage does not prove arbitrary strings.");
-                return true;
-            }
-            string domain = method.Name == "DynamicAnchor" ? "file-select-dynamic-anchor" : "file-select-patch";
-            report.Require(domain, owner, name, location, exports);
-            if (!exports.Contains(domain, name))
-            {
-                report.Consumers.Add(new(domain, owner, location, arguments, "missing"));
-                return true;
-            }
+            Gap("Named selection has no compiler-resolved finite constant set; complete array coverage does not prove arbitrary strings.");
+            return true;
+        }
+        if (named == NamedSelectionResult.Missing)
+        {
+            report.Consumers.Add(new(method.ContainingType.Name, owner, location, arguments, "missing"));
+            return true;
         }
         report.Require("closed-presentation-contract", owner, contract.Type + "." + method.Name, location, exports);
         references++;
@@ -120,6 +111,13 @@ internal sealed class ClosedPresentationAudit
                 ("FileSelectPresentation", "DrawHelmet", "frame") => (0, 7),
                 ("FileSelectPresentation", "CursorPosition", "selected") => (0, 5),
                 ("MotherBrainRoomColorPresentation", "ApplyRecoveryLights", "frame") => (0, 6),
+                ("GameOptionsPresentation", "ApplyControllerLabel", "action" or "button") => (0, 6),
+                ("GameOptionsPresentation", "DrawCursor", "frame") => (0, 3),
+                ("GameOverPresentation", "DrawBaby", "frame") => (0, 2),
+                ("GameOverPresentation", "DrawCursor", "frame") => (0, 3),
+                ("GameOverPresentation", "ApplyBabyPalette", "palette") => (0, 3),
+                ("PauseReserveUiPresentation", "ApplyDigit", "position") => (0, 2),
+                ("PauseReserveUiPresentation", "ApplyDigit", "value") => (0, 9),
                 _ => null,
             };
             if (range is null || argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;

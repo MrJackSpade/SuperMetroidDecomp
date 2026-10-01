@@ -75,9 +75,57 @@ Private construction prevents partially validated providers.
 ## Scoped confirmation
 
 `--self-check` uses the actual reviewed source declarations and constructed consumer
-calls, not a room or gameplay frame. Before applying the adapter, the nine fixture
-calls are unresolved. With it, the four valid reviewed calls are classified, a missing
-anchor remains concrete, and invalid indices, unreviewed page selection and dynamic
-patch names remain unresolved. Mutating digit-selection code or adding an external
+calls, not a room or gameplay frame. Before applying the adapter, eighteen fixture
+calls are unresolved. With it, nine valid reviewed calls are classified, missing
+anchor/conditional-label keys remain concrete, and seven invalid/unreviewed/dynamic
+selections remain unresolved. Mutating digit-selection code or adding an external
 `IconNames` mutation revokes the proof at the real consumer adapter. These checks
 confirm only the identified adapter contracts; they do not discover new player bugs.
+
+## Options v1 — twelve original consumer boundaries
+
+`GameOptionsPresentation.Load` requires exactly all six pages, seven controller labels,
+two special toggles, seven label anchors, four language regions, three heading/cursor
+sets and seven heading/cursor compositions. Each cursor set has its specified 5/9/3
+anchors. Private construction cannot bypass these validations.
+
+- `LoadBackground`, `ApplyLanguage`: fixed loaded page/highlight fields.
+- `ApplyControllerLabel`: action and button selectors are bounded to 0..6, and all
+  seven controller-label names and anchors are required.
+- `DrawCursor`: the four generated cursor names are exhaustive and guarded.
+- `CreatePage`, `ApplySpecialToggle`, `CursorPosition`, `DrawHeading`: always require
+  a separate finite named-key proof. The current five constant pages and two constant
+  toggle calls qualify; the three helper-selected page/menu calls remain unresolved.
+
+## Game over v1 — seven original consumer boundaries
+
+`GameOverPresentation.Load` requires the complete tilemap, all eight sprite names
+(three baby frames, egg, four cursor frames), and all four baby palettes, each with
+sixteen colors. The only constructor is private.
+
+- `LoadTilemapTo`, `DrawEgg`: fixed loaded resources.
+- `DrawBaby`, `ApplyBabyPalette`: finite enum switches cover every valid frame/palette
+  and explicitly reject values outside the supported enums.
+- `DrawCursor`: all four cursor frames are installed and range-checked.
+
+## Pause reserve UI v1 — six original consumer boundaries
+
+`PauseReserveUiPresentation.Load` requires all four labels, ten complete digits,
+ten unique arrow cells, 32 full animation frames and both fixed arrow colors.
+Only its private constructor can publish a provider.
+
+- `ApplyDigit`: positions 0..2 and digit values 0..9 are range-checked.
+- `ApplyArrowTilePalettes`: uses the two loaded palette choices and validated offsets.
+- `ApplyArrowColors`: masks every frame value into the complete 32-frame array,
+  or selects the fixed solid colors; destination CGRAM indices are not resource IDs.
+- `ApplyLabel`: the three current calls select Mode, ReserveTank or Auto/Manual.
+  Each name must be independently checked; a conditional requires both branches.
+
+## Finite named-key analysis
+
+`NamedPresentationAudit` handles compiler constants, conversions and conditional
+unions only. If the compiler knows the condition, only the selected branch is required;
+otherwise both branches must resolve to constants. Missing keys in either branch remain
+concrete omissions. Unknown parameters, mutable variables and function results remain
+unresolved. This deliberately does not infer names from similar strings or assume an
+arbitrary method argument matches its provider's catalog.

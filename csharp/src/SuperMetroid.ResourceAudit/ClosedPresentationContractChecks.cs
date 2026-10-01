@@ -22,7 +22,9 @@ internal static class ClosedPresentationContractChecks
             using SuperMetroid.Core.Hardware;
             class Consumer {
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
-                    MotherBrainRoomColorPresentation colors, SnesCgram cgram, Span<ushort> tiles,
+                    MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
+                    GameOverPresentation gameOver, PauseReserveUiPresentation reserve,
+                    SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
                     OamBuffer oam, int dynamicIndex, string dynamicName) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(99, 0);
@@ -33,6 +35,17 @@ internal static class ClosedPresentationContractChecks
                     menu.CopyPage(dynamicName, tiles);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 1);
+                    options.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+                    options.ApplySpecialToggle(bytes, dynamicIndex > 0
+                        ? GameOptionsPresentationDefinitions.IconCancelToggle
+                        : GameOptionsPresentationDefinitions.MoonwalkToggle, false);
+                    options.CreatePage(dynamicName);
+                    gameOver.DrawBaby(oam, SuperMetroid.Core.Frontend.GameOverBabyFrame.Open);
+                    gameOver.DrawBaby(oam, (SuperMetroid.Core.Frontend.GameOverBabyFrame)99);
+                    reserve.ApplyLabel(bytes, dynamicIndex > 0 ? "Auto" : "Manual");
+                    reserve.ApplyLabel(bytes, dynamicIndex > 0 ? "Auto" : "Missing.Label");
+                    reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
+                    reserve.ApplyDigit(bytes, 0, 10);
                 }
             }
             """;
@@ -48,17 +61,19 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 9, "the fixture must reproduce the identified missing-adapter boundaries first");
+        Require(before.UnresolvedCount == 18, "the fixture must reproduce the identified missing-adapter boundaries first");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 4 && report.MissingCount == 1 && report.UnresolvedCount == 4,
+        Require(report.Classifications.Count == 9 && report.MissingCount == 2 && report.UnresolvedCount == 7,
             "only reviewed valid-domain operations and installed constant names qualify; invalid/new/dynamic selections must fail");
-        Require(report.Findings.Single(item => item.Code == AuditReport.Missing).Resource == "Missing.Anchor",
+        Require(report.Findings.Where(item => item.Code == AuditReport.Missing).Select(item => item.Resource)
+            .Order(StringComparer.Ordinal).SequenceEqual(["Missing.Anchor", "Missing.Label"]),
             "a compiler-resolved uninstalled name must remain a concrete missing identity");
-        Require(report.Consumers.Count == 9, "classifications must retain every inventoried call");
+        Require(report.Consumers.Count == 18, "classifications must retain every inventoried call");
 
-        ReviewedSource guard = ClosedPresentationContractDefinitions.All[0].Sources[0];
+        ReviewedSource guard = ClosedPresentationContractDefinitions.All.Single(contract =>
+            contract.Type == typeof(GameplayHudPresentation).FullName).Sources[0];
         SyntaxTree provider = trees.Single(tree => tree.FilePath == guard.Path);
         string original = provider.GetText().ToString();
         string changed = original.Replace("glyphs[(value / divisor) % 10]", "glyphs[(value / divisor) % 9]", StringComparison.Ordinal);

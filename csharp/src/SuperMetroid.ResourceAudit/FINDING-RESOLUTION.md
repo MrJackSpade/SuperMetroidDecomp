@@ -303,3 +303,26 @@ remain explicitly failing findings, not silently waived or treated as proven res
   for **54 of the original 353 unresolved boundaries**. Current audit: **zero missing
   identities, 299 unresolved**, all still visible as failing findings. The two dynamic
   file-select page/border names are deliberately among the remaining findings.
+
+## Options/game-over/reserve UI — 25 further source-proven boundaries
+
+- **Findings:** twelve options calls, seven game-over calls and six reserve-UI calls
+  lacked definition coverage despite using complete loader-validated resource domains.
+- **Cause/classification:** the source pass did not recognize fixed menu fields, exhaustive
+  baby-frame/palette enum selectors, bounded controller/cursor/digit indices or masked
+  arrow frames. New method-specific rules account for those domains using full reviewed
+  provider/definition source guards. Named options pages/toggles and reserve labels are
+  compared independently with their required key sets.
+- **Finite names:** the named adapter now resolves constant conditional unions. The
+  Auto/Manual branch requires both installed names, not just whichever is currently
+  selected. Unknown parameters/function results remain unresolved; three options helper
+  selections and the two file-select dynamic-name calls have not been waived.
+- **Confirmation:** the scoped source fixture reproduces eighteen missing-adapter calls
+  first. Nine reviewed calls classify, two missing named identities stay concrete, and
+  seven invalid/unreviewed/dynamic selections fail. Invalid enum/digit constants and a
+  missing conditional label are included. Existing changed-source/mutable-key safeguards
+  still pass. This is source-only confirmation, not gameplay or bug hunting.
+- **Accounting:** 77 guarded consumer classifications plus two metadata corrections now
+  account for **79 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 274 unresolved**, with the entire 352-site consumer inventory retained.
+  These changes affect development auditing only, not player-facing behavior.

@@ -10,7 +10,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
 /// Maridia's Oum snail, Crocomire's tongue, fight-body and skeleton composite frames,
 /// Bomb Torizo's dormant statue frame, Golden Torizo's initial, awakening and
-/// walking, turning and jump-back poses, Kraid's independently animated arm,
+/// walking, turning and jump-back poses, Kraid's independently animated arm and foot,
 /// Mother Brain's mixed body poses, and Phantoon/Draygon BG2-only poses.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
@@ -69,7 +69,10 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Schema 27 predates Crocomire's thirty-three corpse/skeleton OAM roots.</summary>
     internal const int PreCrocomireSkeletonVersion = 27;
     internal const int PreCrocomireSkeletonFrameCount = 520;
-    internal const int Version = 28;
+    /// <summary>Schema 28 predates Kraid's thirty-five extended foot roots.</summary>
+    internal const int PreKraidFootVersion = 28;
+    internal const int PreKraidFootFrameCount = 553;
+    internal const int Version = 29;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -112,7 +115,8 @@ internal static class EnemyExtendedFrameDefinitions
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
         CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount +
-        DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount;
+        DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
+        KraidFootVisualDefinitions.FrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -570,8 +574,11 @@ internal static class EnemyExtendedFrameDefinitions
         if (frames.Count != PreCrocomireSkeletonFrameCount)
             throw new InvalidDataException("BG2-only boss display-binding coverage changed.");
         frames.AddRange(CrocomireSkeletonVisualDefinitions.Frames.ToArray());
-        if (frames.Count != ExpectedFrameCount)
+        if (frames.Count != PreKraidFootFrameCount)
             throw new InvalidDataException("Crocomire skeleton display-binding coverage changed.");
+        frames.AddRange(KraidFootVisualDefinitions.Frames.ToArray());
+        if (frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException("Kraid foot display-binding coverage changed.");
         return frames.ToArray();
     }
 }

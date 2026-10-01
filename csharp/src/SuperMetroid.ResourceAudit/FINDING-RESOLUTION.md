@@ -198,3 +198,32 @@ Original identity accounting: 186 corrected dependencies, two compiled no-op def
 After this correction: **45 missing identities (120 references), 353 unresolved**.
 Original identity accounting: 219 corrected dependencies, two compiled no-op definitions,
 45 still under investigation. No analysis boundary has been waived.
+
+## Kraid foot and belly lint — corrected missing dependencies
+
+- **Findings:** 37 identities across 108 references: 35 extended foot roots
+  (`A7:8CE3..8F47` and initial `A7:A565`) and two ordinary belly-lint frames
+  (`A7:A5DF`, `A7:8C6C`).
+- **Cause:** the compiled foot and lint programs existed, but both families were omitted
+  from their respective composition manifests. Kraid's BG2 body and installed arm
+  compositions do not provide either family's independent artwork.
+- **Source evidence:** pinned bank-$A7 declarations explicitly distinguish foot extended
+  maps from lint ordinary spritemaps. The bank-$A1 population supplies the foot's extended
+  flag (`extraProperties $0004`); the translated population preserves it. Initializers,
+  growth and movement dispatch use `KraidFootInstructionProgramDefinitions` and
+  `KraidLintInstructionProgramDefinitions`, then the existing common draw paths.
+- **Correction:** derive dedicated foot/lint catalogs from those programs. Append 35 foot
+  roots to extended schema 29 and two lint frames to ordinary schema 66. Preserve older
+  overrides, component edits and display bindings; move the initial lint frame identity
+  into its domain catalog. No combat, AI, BG2, layer, collision or animation-timing change.
+- **Confirmation:** two checks failed before registration at foot `A7:8CE3` and lint
+  `A7:A5DF`. Both now confirm every selected composition, exact manifest additions,
+  retained authored offsets/OAM, legacy edits/bindings, new-stock inheritance and
+  incomplete-old-stock rejection. The Crocomire skeleton capacity/migration check still
+  passes after this schema change. Static audit removes exactly 37 identities and 108
+  references. No gameplay, ROM, save or parameter-search execution was involved.
+- **Player status:** implementations complete; appearance remains player validation.
+
+After this correction: **eight missing identities (12 references), 353 unresolved**.
+Original identity accounting: 256 corrected dependencies, two compiled no-op definitions,
+eight still under investigation. The unresolved boundaries remain visible.

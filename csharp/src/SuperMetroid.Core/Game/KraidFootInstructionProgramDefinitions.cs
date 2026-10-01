@@ -7,8 +7,8 @@ internal readonly record struct KraidFootInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing, movement callbacks, sound callback, and flow control for Kraid's
-/// physical foot actor. Interleaved extended-spritemap operands remain live cartridge
-/// presentation data.
+/// physical foot actor. Interleaved selections resolve compiled identities to installed
+/// extended OAM compositions.
 /// </summary>
 internal static class KraidFootInstructionProgramDefinitions
 {

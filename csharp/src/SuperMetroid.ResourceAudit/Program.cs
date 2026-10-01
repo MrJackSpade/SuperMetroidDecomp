@@ -48,6 +48,11 @@ internal static partial class Program
                 CrocomireSkeletonResourceChecks.Run();
                 return 0;
             }
+            if (args is ["--kraid-part-resource-check", string part])
+            {
+                KraidPartResourceChecks.Run(part);
+                return 0;
+            }
             string root = Directory.GetCurrentDirectory();
             string? jsonPath = null;
             for (int index = 0; index < args.Length; index++)
@@ -59,7 +64,7 @@ internal static partial class Program
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
-                        "--crocomire-skeleton-resource-check");
+                        "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint");
                 }
             }
             root = Path.GetFullPath(root);

@@ -102,6 +102,8 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --frien
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeDachora
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --ordinary-enemy-resource-check Hibashi
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --crocomire-skeleton-resource-check
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --kraid-part-resource-check Foot
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --kraid-part-resource-check Lint
 ```
 
 The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,

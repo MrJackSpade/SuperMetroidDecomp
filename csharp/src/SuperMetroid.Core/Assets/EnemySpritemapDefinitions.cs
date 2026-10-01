@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before Kraid's two ordinary belly-lint frames were installed.</summary>
+    internal const int PreKraidLintVersion = 65;
+    internal const int PreKraidLintFrameCount = 1392;
     /// <summary>Schema before audit-identified ordinary environmental/Tourian artwork additions.</summary>
     internal const int PreAuditOrdinaryVersion = 64;
     internal const int PreAuditOrdinaryFrameCount = 1339;
@@ -39,7 +42,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 65;
+    internal const int Version = 66;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -702,6 +705,7 @@ internal static class EnemySpritemapDefinitions
         .. PowampVisualDefinitions.Frames(),
         .. SparkVisualDefinitions.Frames(),
         .. ShitroidVisualDefinitions.Frames(),
+        .. KraidLintVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

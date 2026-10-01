@@ -7,7 +7,7 @@ internal readonly record struct KraidLintInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Kraid's initial and post-growth belly-lint poses. Their two
-/// interleaved extended-spritemap operands remain cartridge presentation data.
+/// interleaved ordinary-spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class KraidLintInstructionProgramDefinitions
 {

@@ -114,6 +114,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreKraidFootVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreKraidFootFrameCount,
             EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount,
@@ -300,7 +303,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
             or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
             or EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
-            or EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion)
+            or EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion
+            or EnemyExtendedFrameDefinitions.PreKraidFootVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -327,6 +331,8 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("torizo_combat_", StringComparison.Ordinal);
             if (left.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 return right.StartsWith("kraid_arm_oam_", StringComparison.Ordinal);
+            if (left.StartsWith("kraid_foot_oam_", StringComparison.Ordinal))
+                return right.StartsWith("kraid_foot_oam_", StringComparison.Ordinal);
             if (left.StartsWith("golden_torizo_", StringComparison.Ordinal))
                 return right.StartsWith("golden_torizo_", StringComparison.Ordinal);
             if (left.StartsWith("bomb_torizo_", StringComparison.Ordinal))

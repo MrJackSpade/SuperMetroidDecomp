@@ -15,7 +15,6 @@ public sealed partial class RoomEnemySystem
         KraidArmInstructionProgramDefinitions.RisingOrSinking;
     private const ushort KraidInitialLintInstruction =
         KraidLintInstructionLists.InitialLint;
-    private const ushort KraidInitialLintSpritemap = 0xa5df;
     private const ushort KraidInitialFootInstruction =
         KraidFootInstructionProgramDefinitions.Initial;
 
@@ -122,7 +121,7 @@ public sealed partial class RoomEnemySystem
         lint.PaletteIndex = _slots[0].PaletteIndex;
         lint.InstructionTimer = 0x7fff;
         lint.CurrentInstruction = KraidInitialLintInstruction;
-        lint.SpritemapPointer = KraidInitialLintSpritemap;
+        lint.SpritemapPointer = KraidLintVisualDefinitions.InitialFrame;
         lint.VariableA = (ushort)KraidAiFunction.LintInactive;
         lint.VariableC = expectedSlot == 2 ? (ushort)0 : (ushort)0xfff0;
     }

@@ -12,28 +12,14 @@ internal static class SuitPickupBeamCurveDefinitions
     /// <summary>Number of authored offsets before the native vertical mirror.</summary>
     public const int OffsetCount = 128;
 
-    /// <summary>$88:E3C9, SuitPickup_LightBeam_CurveWidths: 128 upper-half window widths.</summary>
-    private static ReadOnlySpan<byte> Offsets =>
-    [
-        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x07,
-        0x08, 0x08, 0x09, 0x09, 0x0a, 0x0a, 0x0b, 0x0b,
-        0x0b, 0x0c, 0x0c, 0x0c, 0x0d, 0x0d, 0x0d, 0x0e,
-        0x0e, 0x0e, 0x0e, 0x0f, 0x0f, 0x0f, 0x0f, 0x10,
-        0x10, 0x10, 0x10, 0x10, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x12, 0x12, 0x12, 0x12, 0x12, 0x12,
-        0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x14, 0x14,
-        0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x15, 0x15,
-        0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15,
-        0x16, 0x16, 0x16, 0x16, 0x16, 0x16, 0x16, 0x16,
-        0x16, 0x16, 0x16, 0x16, 0x17, 0x17, 0x17, 0x17,
-        0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
-        0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x18,
-        0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
-        0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
-        0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
-    ];
-
-    /// <summary>Returns one authored upper-half offset.</summary>
+    /// <summary>$88:E3C9 SuitPickup_LightBeam_CurveWidths: index 0..127.
+    /// The first seven rows open linearly. Remaining rows sample a 24-by-127 ellipse:
+    /// round acos((128-index)/127) to an 8,192-step full circle, then round the
+    /// horizontal width to six fractional bits before rounding to a whole pixel.</summary>
+    /// <remarks>This exact numerical convention independently matches all 128 NTSC
+    /// bytes and pinned bank_88.asm, including row 31 where a smooth ellipse differs.
+    /// It does not establish which historical tool generated the contour. Decimal
+    /// series and bounded angular search preserve deterministic integer results.</remarks>
     public static byte OffsetAt(int index)
     {
         if ((uint)index >= OffsetCount)
@@ -43,6 +29,32 @@ internal static class SuitPickupBeamCurveDefinitions
                 $"{OffsetCount}-byte native contour.");
         }
 
-        return Offsets[index];
+        if (index < 7) return (byte)(index + 1);
+        const decimal pi = 3.1415926535897932384626433833m;
+        const decimal step = pi / 4096;
+        int y = 128 - index, lower = 0, upper = 2048;
+        // Cosine decreases: half-step boundaries select the nearest angular sample.
+        while (lower < upper)
+        {
+            int middle = (lower + upper) / 2;
+            decimal boundary = Sine(pi / 2 - (middle + .5m) * step);
+            if (y <= 127 * boundary) lower = middle + 1;
+            else upper = middle;
+        }
+        int fixedWidth = (int)(24 * 64 * Sine(lower * step) + .5m);
+        return (byte)((fixedWidth + 32) / 64);
+    }
+    // Arguments stay in [0,pi/2]. Thirteen alternating Taylor terms bound the
+    // omitted term below 2e-23; decimal rounding is far below pixel boundaries.
+    private static decimal Sine(decimal angle)
+    {
+        decimal squared = angle * angle;
+        decimal term = angle, sum = angle;
+        for (int k = 1; k < 13; k++)
+        {
+            term = -term * squared / ((2 * k) * (2 * k + 1));
+            sum += term;
+        }
+        return sum;
     }
 }

@@ -128,7 +128,11 @@
                                   "absolute-tangent-algorithm":  {
                                                                      "subject":  "Replace absolute tangent lookup with deterministic calculation for #1165",
                                                                      "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace absolute tangent lookup with deterministic calculation for #1165\""
-                                                                 }
+                                                                 },
+                                  "suit-beam-curve-algorithm":  {
+                                                                    "subject":  "Generate suit-pickup beam contour with exact quantization for #1165",
+                                                                    "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate suit-pickup beam contour with exact quantization for #1165\""
+                                                                }
                               },
     "tables":  [
                    {
@@ -891,7 +895,7 @@
                               "tables":  [
                                              {
                                                  "id":  "suit-pickup-beam-contour",
-                                                 "state":  "unreviewed",
+                                                 "state":  "converted",
                                                  "owner":  "csharp/src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs",
                                                  "nativeIdentity":  "$88:E3C9 SuitPickup_LightBeam_CurveWidths",
                                                  "consumers":  [
@@ -899,7 +903,13 @@
                                                                    "LookupTableResearch.Program.SuitCurve historical comparisons"
                                                                ],
                                                  "domain":  "int source index0..127; other values InvalidDataException. Caller mirrors scanlines128..255 using255-line; no overread or endpoint extension.",
-                                                 "interpretation":  "Unsigned byte contour offset; caller subtracts from left with signed-byte clamp and adds to right with unsigned carry saturation."
+                                                 "interpretation":  "Unsigned byte contour offset; caller subtracts from left with signed-byte clamp and adds to right with unsigned carry saturation.",
+                                                 "implementationCommit":  "suit-beam-curve-algorithm",
+                                                 "disposition":  "Remove stored contour; compute seven-row opening followed by nearest-angle ellipse sampling on an 8192-step circle and Q6-to-pixel double rounding.",
+                                                 "rationale":  "A 24-by-127 ellipse with bounded angle quantization and six fractional width bits reproduces every original value, including row 31 without a fitted row correction. Historical tooling identity is not required for this exact convention.",
+                                                 "reviewedEvidence":  "Complete pinned bank_88.asm bytes and forward/reverse indexing; current SamusSuitPickupState widening loop; all 128 SHA-verified NTSC J/U v1.0 ROM bytes. Existing independent angle/Q6 research reviewed.",
+                                                 "proofTest":  "VerifySuitPickupBeamCurveDefinitions (existing original-byte proof)",
+                                                 "confirmation":  "All 128 original offsets and invalid boundary indices; caller source preserves 256-line mirroring and asymmetric endpoint clamping. No gameplay matrix."
                                              },
                                              {
                                                  "id":  "absolute-tangent-gradient",
@@ -1206,7 +1216,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves",
                                  "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

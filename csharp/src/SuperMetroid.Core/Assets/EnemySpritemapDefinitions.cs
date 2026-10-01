@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
+    internal const int PreSingleFrameVersion = 67;
+    internal const int PreSingleFrameFrameCount = 1402;
     /// <summary>Schema before Puromi/Nuclear Waffle's eight head frames were installed.</summary>
     internal const int PreNuclearWaffleVersion = 66;
     internal const int PreNuclearWaffleFrameCount = 1394;
@@ -45,7 +48,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 67;
+    internal const int Version = 68;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -710,6 +713,8 @@ internal static class EnemySpritemapDefinitions
         .. ShitroidVisualDefinitions.Frames(),
         .. KraidLintVisualDefinitions.Frames(),
         .. NuclearWaffleVisualDefinitions.Frames(),
+        SingleFrameEnemyVisualDefinitions.Kzan,
+        SingleFrameEnemyVisualDefinitions.Polyp,
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

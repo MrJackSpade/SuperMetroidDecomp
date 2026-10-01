@@ -4,7 +4,7 @@ internal readonly record struct PolypInstructionMechanicsWord(ushort Address, us
 
 /// <summary>
 /// Compiled engine-control words for Polyp's stationary program. Its spritemap operand
-/// remains live cartridge presentation data.
+/// is resolved by the compiled visual catalog.
 /// </summary>
 internal static class PolypInstructionProgramDefinitions
 {
@@ -17,7 +17,7 @@ internal static class PolypInstructionProgramDefinitions
         new(0xb51e, CommonEnemyInstructionCodes.Sleep),
     ];
 
-    /// <summary>The live <c>Spritemap_Polyp</c> operand at $A2:B51C.</summary>
+    /// <summary>The <c>Spritemap_Polyp</c> operand at $A2:B51C.</summary>
     internal const ushort PresentationWord = 0xb51c;
 
     internal static int MechanicsWordCount => Words.Length;

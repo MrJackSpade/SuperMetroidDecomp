@@ -6,7 +6,7 @@ internal readonly record struct KzanInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Kzan spike-platform animation program.
-/// Its interleaved spritemap operand remains live cartridge presentation data.
+/// Its interleaved spritemap operand is resolved by the compiled visual catalog.
 /// </summary>
 internal static class KzanInstructionProgramDefinitions
 {
@@ -19,7 +19,7 @@ internal static class KzanInstructionProgramDefinitions
         new(0x8b2d, CommonEnemyInstructionCodes.Sleep),
     ];
 
-    /// <summary>Address of the live <c>Spritemap_Kzan</c> operand at $A6:8B2B.</summary>
+    /// <summary>Address of the <c>Spritemap_Kzan</c> operand at $A6:8B2B.</summary>
     internal const ushort PresentationWord = 0x8b2b;
 
     internal static int MechanicsWordCount => Words.Length;

@@ -14,6 +14,7 @@ internal static partial class CompiledEnemyVisualSelectors
         new(0xA9CFC2, 0xFAD8),
         new(0xA9CFC6, 0xFA40),
         new(0xA9CFD0, 0xFAD8),
+        new(0xA9D6DE, 0xD6E2),
         new(0xA9ECAE, 0xEE3C),
         new(0xA9ECB2, 0xEE61),
         new(0xA9ECB6, 0xEE3C),

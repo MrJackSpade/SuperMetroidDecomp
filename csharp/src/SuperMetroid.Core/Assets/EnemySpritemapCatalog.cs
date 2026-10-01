@@ -88,6 +88,9 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreSingleFrameVersion when
+                stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreSingleFrameFrameCount,
             EnemySpritemapDefinitions.PreNuclearWaffleVersion when
                 stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreNuclearWaffleFrameCount,

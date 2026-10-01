@@ -7,7 +7,7 @@ internal readonly record struct PolypRockInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Polyp's single-frame lava-rock animation.
-/// Its spritemap operand remains live cartridge presentation data.
+/// Its spritemap operand is resolved by the compiled visual catalog.
 /// </summary>
 internal static class PolypRockInstructionProgramDefinitions
 {

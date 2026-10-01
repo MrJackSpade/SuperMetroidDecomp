@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--single-frame-enemy-visuals"])
+{
+    VerifyKzanInstructionProgramDefinitions();
+    VerifyPolypInstructionProgramDefinitions();
+    VerifyPolypRockInstructionProgramDefinitions();
+    VerifySingleFrameEnemyVisuals();
+    return 0;
+}
 if (args is ["--gunship-landing-compositions", var gunshipAssetRoot, var gunshipRom, var gunshipOutput])
 {
     VerifyExtractedGunshipCompositions(gunshipAssetRoot, gunshipRom, gunshipOutput);

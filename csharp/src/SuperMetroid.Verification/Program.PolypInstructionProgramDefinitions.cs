@@ -48,13 +48,14 @@ internal static partial class Program
             [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         slot.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
+        AssertEqual(ReadPolypInstructionWord(rom,
+                PolypInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
+            "Polyp selects its exact native frame without cartridge reads");
         slot.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
         AssertEqual(unchecked((ushort)(PolypInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "Polyp program reaches terminal sleep");
-        AssertTrue(guard.SawPresentationWord,
-            "Polyp spritemap operand remains a cartridge read");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids both compiled Polyp mechanics words");
         AssertThrows<InvalidDataException>(
@@ -74,7 +75,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Polyp instruction mechanics: two compiled words, the real initializer, " +
-            "terminal sleep, and one live spritemap read pass with mechanics bytes forbidden.");
+            "terminal sleep, and exact frame selection pass with instruction bytes forbidden.");
     }
 
     private static int ProbePolypInstructionMechanicsAllocation()
@@ -100,7 +101,6 @@ internal static partial class Program
     private sealed class PolypInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        internal bool SawPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -116,7 +116,7 @@ internal static partial class Program
 
             int presentation = 0xa20000 | PolypInstructionProgramDefinitions.PresentationWord;
             if (address == presentation || address == presentation + 1)
-                SawPresentationWord = true;
+                throw new InvalidOperationException("Production read the compiled Polyp visual operand.");
             return source.ReadByte(address);
         }
 

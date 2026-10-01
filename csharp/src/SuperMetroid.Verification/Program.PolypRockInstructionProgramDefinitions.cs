@@ -50,6 +50,9 @@ internal static partial class Program
             "real Polyp-rock producer selects the named single-frame program");
 
         RunForcedTick(rock);
+        AssertEqual(PolypRockInstructionProgramDefinitions.PresentationWord,
+            rock.PresentationOperandAddress,
+            "Polyp rock selects its installed presentation binding without cartridge reads");
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock reaches its terminal sleep after the authored frame");
@@ -65,8 +68,6 @@ internal static partial class Program
         AssertTrue(!rock.IsActive,
             "Polyp-rock shot reaction reaches the compiled shared delete program");
 
-        AssertTrue(guard.ObservedPresentationWord,
-            "production execution reads the live Polyp-rock spritemap operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Polyp-rock and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -86,7 +87,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Polyp-rock instruction mechanics: two compiled words, the real producer, " +
-            "terminal sleep, shared shot deletion, and the live spritemap read pass with " +
+            "terminal sleep, shared shot deletion, and installed frame selection pass with " +
             "mechanics bytes forbidden.");
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
@@ -121,7 +122,6 @@ internal static partial class Program
     private sealed class PolypRockInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
-        internal bool ObservedPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -139,7 +139,7 @@ internal static partial class Program
             int presentation = EnemyProjectileCodePointers.BankBase |
                 PolypRockInstructionProgramDefinitions.PresentationWord;
             if (address == presentation || address == presentation + 1)
-                ObservedPresentationWord = true;
+                throw new InvalidOperationException("Production read the compiled Polyp-rock visual operand.");
 
             return source.ReadByte(address);
         }

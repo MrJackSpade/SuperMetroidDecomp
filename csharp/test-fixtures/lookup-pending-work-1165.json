@@ -79,13 +79,6 @@
                       "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
                       "status":  "pending",
                       "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
-                      "id":  "power-bomb-prescaled-basis",
-                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
-                      "nativeIdentity":  "88:9246 through A205 prescaled profiles",
-                      "status":  "pending",
-                      "task":  "Replace the stored 192-byte basis with deterministic generation; preserve all 4032 profile bytes and bounded pointer/row contract."
                   }
               ]
 }

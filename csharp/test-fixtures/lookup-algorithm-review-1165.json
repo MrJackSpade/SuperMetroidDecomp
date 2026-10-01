@@ -116,7 +116,11 @@
                                   "power-bomb-base-algorithms":  {
                                                                      "subject":  "Replace Power Bomb base curves with exact algorithms for #1165",
                                                                      "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Power Bomb base curves with exact algorithms for #1165\""
-                                                                 }
+                                                                 },
+                                  "power-bomb-prescaled-algorithm":  {
+                                                                         "subject":  "Generate Power Bomb prescaled ellipse basis for #1165",
+                                                                         "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate Power Bomb prescaled ellipse basis for #1165\""
+                                                                     }
                               },
     "tables":  [
                    {
@@ -1141,7 +1145,6 @@
                                      "confirmationScope":  "Two proofs extracted from the existing shape verifier; each compares all 32 original bytes and rejects invalid indices. No gameplay sweep."
                                  },
     "unreviewedOwnerCandidates":  [
-                                      "PowerBombShapeDefinitions: pre-scaled basis pending",
                                       "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
                                       "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
                                   ],
@@ -1172,7 +1175,26 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves",
+                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only"
                              ],
-    "pendingWork":  "lookup-pending-work-1165.json"
+    "pendingWork":  "lookup-pending-work-1165.json",
+    "powerBombPreScaledBasisReview":  {
+                                          "id":  "power-bomb-prescaled-basis",
+                                          "state":  "converted",
+                                          "implementationCommit":  "power-bomb-prescaled-algorithm",
+                                          "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
+                                          "nativeIdentity":  "88:9246-A205: seventeen white and four yellow profiles, each 192 bytes, all views of the same quantized ellipse basis",
+                                          "consumers":  [
+                                                            "SnesGameplayFrameRenderer.ReadPowerBombHalfWidth",
+                                                            "LookupTableResearch.VerifyPowerBombProfiles"
+                                                        ],
+                                          "domain":  "Aligned white pointers 9246..9E46 and yellow pointers 9F06..A146, stride 192; rows 0..191. ArgumentOutOfRangeException for invalid row, InvalidDataException for unsupported or unaligned pointer. No odd word views or overread.",
+                                          "interpretation":  "Quarter ellipse rasterized at 1024 angular steps. Greatest k with 192*sin(k*pi/512)\u003c=sourceRow+1; basis=min(255,floor(256*cos(k*pi/512))), final row zero. Native quadratic radii and lower-side inverse row scaling are preserved before final integer multiplication/division.",
+                                          "reviewedEvidence":  "Pinned bank_88.asm complete white/yellow bytes and frame descriptions; SHA-verified original NTSC J/U v1.0 ROM; current pointer selection and renderer zero sentinel; prior independently bounded angular raster derivation.",
+                                          "disposition":  "Remove the 192-byte stored basis. Compute each needed row with bounded binary angular search and 12-term decimal sine recurrence; no generated cache.",
+                                          "rationale":  "Angular rasterization followed by integer scaling explains every original profile byte. This preserves the discrete construction rather than substituting a smooth ellipse or changing scale boundary rounding.",
+                                          "proofTest":  "LookupTableResearch.VerifyPowerBombProfiles (existing proof, definitionsOnly mode)",
+                                          "confirmation":  "All 4032 original ROM/disassembly bytes and invalid row/pointer bounds pass. Existing full proof retains independent generator analysis; no gameplay matrix run."
+                                      }
 }

@@ -22,7 +22,21 @@ internal static partial class Program
         }
         if (definitionsOnly)
         {
-            Console.WriteLine("PASS: all 4,032 original pre-scaled profile bytes match the production representation.");
+            foreach (int row in new[] { int.MinValue, -1, 192, int.MaxValue })
+            {
+                bool rejected = false;
+                try { PowerBombShapeDefinitions.ReadPreScaledHalfWidth(SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape, row); }
+                catch (ArgumentOutOfRangeException) { rejected = true; }
+                Equal(true, rejected, $"pre-scaled row bound {row}");
+            }
+            foreach (ushort pointer in new ushort[] { 0, SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape - 1, SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape + 1, SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape - 1, SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape + 1, SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd, ushort.MaxValue })
+            {
+                bool rejected = false;
+                try { PowerBombShapeDefinitions.ReadPreScaledHalfWidth(pointer, 0); }
+                catch (InvalidDataException) { rejected = true; }
+                Equal(true, rejected, $"pre-scaled pointer bound {pointer:X4}");
+            }
+            Console.WriteLine("PASS: all 4,032 original pre-scaled profile bytes and pointer/row bounds match the production algorithm.");
             return;
         }
         int[] basis = PowerBombBasis(1024, ResearchData.Pi);

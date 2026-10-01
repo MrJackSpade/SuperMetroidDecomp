@@ -53,8 +53,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace slope lookup samples with exact geometry for #1165'"
     },
     "owtch-shake-algorithms": {
+      "sha": "5af24fd3c4210d41c7fe5b2af5ad0244e98a5bf2",
       "subject": "Convert Owtch timing and room-shake geometry for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Owtch timing and room-shake geometry for #1165'"
+    },
+    "fireflea-gunship-algorithms": {
+      "subject": "Convert Fireflea radii and gunship motion policies for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea radii and gunship motion policies for #1165'"
     }
   },
   "tables": [
@@ -375,6 +380,57 @@
       }
     ]
   },
+  "firefleaGunshipReview": {
+    "implementationCommit": "fireflea-gunship-algorithms",
+    "reviewedEvidence": "Independent full original NTSC words/bytes under the recorded ROM hash, pinned bank_A3 FirefleaMovementRadii/SetFirefleaRadius and bank_A2 ShipBrakesMovementData/ProcessShipHover/Function_Ship_LandingOnZebes_ApplyBrakes. Read current production consumers and native indexing, signed extension, timer and wrapping order. Existing research formulas were hypotheses only.",
+    "tables": [
+      {
+        "id": "fireflea-movement-radius", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FirefleaMovementDefinitions.cs",
+        "nativeIdentity": "$A3:8D1D FirefleaMovementRadii",
+        "consumers": ["RoomEnemySystem.InitializeFireflea: radius selection; state then used for circular positions and vertical extrema", "LookupTableResearch historical comparison"],
+        "domain": "byte index 0..7, selected from parameter two high byte. Other selectors remain InvalidDataException; no supported adjacent-code cases.",
+        "interpretation": "Unsigned pixel-radius word; native masks the loaded word to eight bits, which does not change any valid result.",
+        "disposition": "8*(index+1) after validating domain.",
+        "rationale": "Uniform eight-pixel progression across the complete original domain; no rounding, interpolation or fitted corrections. Native byte mask and caller word-wrapped geometry preserved.",
+        "proofTest": "VerifyFirefleaMovementDefinitions (existing complete-domain original oracle plus production initializer, reused)"
+      },
+      {
+        "id": "gunship-landing-brake-delta", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/GunshipMotionDefinitions.cs",
+        "nativeIdentity": "$A2:A622 ShipBrakesMovementData",
+        "consumers": ["RoomEnemySystem.BouncePostCeresGunship", "LookupTableResearch historical comparison"],
+        "domain": "ushort frame index 0..16; reject all other indices before selection.",
+        "interpretation": "Signed whole-pixel word added with wrapping to Samus and all three ship components; index advanced after applying delta.",
+        "disposition": "Range switch: +1 for frames 0..5, 0 for 6..10, -1 for 11..16.",
+        "rationale": "Three explicit authored intervals match native storage runs. The historical clamp(truncate((8-i)/3),-1,1) also fits, but a range policy is clearer and avoids implying physical deceleration.",
+        "proofTest": "VerifyGunshipBrakeAlgorithm"
+      },
+      {
+        "id": "gunship-hover-timer", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/GunshipMotionDefinitions.cs",
+        "nativeIdentity": "$A2:A7CF ProcessShipHover.timer, byte field stride two",
+        "consumers": ["RoomEnemySystem.StepGunshipBob", "LookupTableResearch historical comparison"],
+        "domain": "ushort phase 0..3; API rejects other phases. Existing caller masks its phase to two bits.",
+        "interpretation": "Unsigned byte reload on timer expiration; independent from adjacent signed displacement field.",
+        "disposition": "Return constant 16 after phase validation.",
+        "rationale": "All four independent original byte loads equal 16; no phase-dependent timing. Keep validation even though result is constant.",
+        "proofTest": "VerifyGunshipHoverTimerAlgorithm"
+      },
+      {
+        "id": "gunship-hover-delta", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/GunshipMotionDefinitions.cs",
+        "nativeIdentity": "$A2:A7D0 ProcessShipHover.YVelocity, byte field stride two",
+        "consumers": ["RoomEnemySystem.StepGunshipBob", "LookupTableResearch historical comparison"],
+        "domain": "ushort phase 0..3; API rejects other phases. Caller advances modulo four after movement.",
+        "interpretation": "Sign-extended byte whole-pixel displacement applied to three ship components with word wrapping.",
+        "disposition": "Select +1 at endpoints 0/3 and -1 at middle phases 1/2.",
+        "rationale": "Explicit phase policy is simpler than a four-record array or historical Gray-code expression 1-2*((i XOR (i>>1))&1). Full original byte evidence establishes both signs; no sampled sine curve is needed.",
+        "proofTest": "VerifyGunshipHoverDeltaSelection"
+      }
+    ],
+    "integrationConfirmation": "Reuse existing eight Fireflea initializers, seventeen gunship braking frames and four hover expiration phases with source-table reads forbidden. No exploratory gameplay tests."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
@@ -399,6 +455,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms"
   ]
 }

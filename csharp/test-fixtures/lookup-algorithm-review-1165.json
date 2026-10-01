@@ -136,7 +136,11 @@
                                   "grapple-origin-cases":  {
                                                                "subject":  "Replace grapple hand-origin lookups with named cases for #1165",
                                                                "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace grapple hand-origin lookups with named cases for #1165\""
-                                                           }
+                                                           },
+                                  "zoa-speed-cases":  {
+                                                          "subject":  "Replace Zoa speed lookup with shooting-stage cases for #1165",
+                                                          "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Zoa speed lookup with shooting-stage cases for #1165\""
+                                                      }
                               },
     "tables":  [
                    {
@@ -294,14 +298,20 @@
                    },
                    {
                        "id":  "zoa-horizontal-speed",
-                       "state":  "unreviewed",
+                       "state":  "converted",
                        "owner":  "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
                        "nativeIdentity":  "$A3:B415 ZoaXSpeedTable, five whole/fraction pairs",
                        "consumers":  [
                                          "RoomEnemySystem.Zoa.RunZoaShooting"
                                      ],
                        "domain":  "ushort byteOffset 0..16 inclusive; all complete four-byte windows in twenty-byte definition, including unaligned and cross-record views",
-                       "interpretation":  "High word then fractional word, each little-endian, assembled into signed 16.16; caller applies direction by addition/subtraction. Trailing zero record remains readable."
+                       "interpretation":  "High word then fractional word, each little-endian, assembled into signed 16.16; caller applies direction by addition/subtraction. Trailing zero record remains readable.",
+                       "implementationCommit":  "zoa-speed-cases",
+                       "disposition":  "Remove stored split words; select shooting-stage speeds and compose native whole/fraction byte layout for bounded unaligned reads.",
+                       "rationale":  "Native callbacks select successive shooting stages at 1/2, 5/8 and 2 pixels/frame; initialization and trailing record are stationary. This is stage selection with exact byte composition.",
+                       "reviewedEvidence":  "Pinned bank_A3.asm NTSC words and B429/B434/B43F callbacks; initialization and RunZoaShooting; all 17 four-byte windows from SHA-verified NTSC J/U v1.0 ROM.",
+                       "proofTest":  "VerifyCompiledZoaSpeeds (existing proof, definitionsOnly mode)",
+                       "confirmation":  "Every valid byte offset 0..16 including odd/cross-record windows and invalid upper bounds; broad movement matrix skipped."
                    }
                ],
     "owtchShakeReview":  {
@@ -1240,7 +1250,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-speed-cases"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

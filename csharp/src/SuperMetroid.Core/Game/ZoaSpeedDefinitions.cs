@@ -4,7 +4,14 @@ namespace SuperMetroid.Core.Game;
 public static class ZoaSpeedDefinitions
 {
     /// <summary>$A3:B415, ZoaXSpeedTable: five whole/fraction records, including the trailing zero record.</summary>
-    private static ReadOnlySpan<ushort> Words => [0, 0, 0, 0x8000, 0, 0xa000, 2, 0, 0, 0];
+    internal const int ReferenceAddress = 0xa3b415;
+
+    /// <summary>$A3:B429 selects byte offset 4: first shooting stage, half a pixel per frame.</summary>
+    private const int FirstShootingRecord = 1;
+    /// <summary>$A3:B434 selects byte offset 8: second shooting stage, five eighths of a pixel per frame.</summary>
+    private const int SecondShootingRecord = 2;
+    /// <summary>$A3:B43F selects byte offset 12: third shooting stage, two pixels per frame.</summary>
+    private const int ThirdShootingRecord = 3;
 
     /// <summary>
     /// Reads the native pair of potentially unaligned words and combines them as 16.16.
@@ -19,5 +26,19 @@ public static class ZoaSpeedDefinitions
         return unchecked((Word(byteOffset) << 16) | Word(byteOffset + 2));
     }
 
-    private static byte Byte(int offset) => (byte)(Words[offset >> 1] >> ((offset & 1) * 8));
+    // NTSC stage selection; initialization and the trailing record are stationary.
+    // Compose the native whole-word/fraction-word byte layout before taking a
+    // byte, so odd offsets and windows crossing record boundaries remain exact.
+    private static byte Byte(int offset)
+    {
+        uint speed = (offset / 4) switch
+        {
+            FirstShootingRecord => 1u << 15,
+            SecondShootingRecord => 5u << 13,
+            ThirdShootingRecord => 2u << 16,
+            _ => 0,
+        };
+        uint nativeWords = (speed >> 16) | (speed << 16);
+        return (byte)(nativeWords >> (8 * (offset & 3)));
+    }
 }

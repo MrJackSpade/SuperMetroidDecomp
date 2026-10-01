@@ -4,14 +4,21 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom)
+    private static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (ushort offset = 0; offset <= 16; offset++)
         {
-            int address = 0xa3b415 + offset;
+            int address = ZoaSpeedDefinitions.ReferenceAddress + offset;
             int expected = unchecked((Word(address) << 16) | Word(address + 2));
             AssertEqual(expected, ZoaSpeedDefinitions.Displacement(offset), "Zoa byte-indexed native split velocity");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(17), "Zoa incomplete record rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(ushort.MaxValue), "Zoa invalid index rejected");
+        if (definitionsOnly)
+        {
+            Console.WriteLine("Zoa speed cases: all 17 original byte windows and invalid bounds pass.");
+            return;
         }
         var enemies = new RoomEnemySystem();
         var shoot = typeof(RoomEnemySystem).GetMethod(
@@ -45,8 +52,6 @@ internal static partial class Program
                 }
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(17), "Zoa incomplete record rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(ushort.MaxValue), "Zoa invalid index rejected");
         Console.WriteLine("Zoa compiled speeds: all 17 native byte windows and 655360 real signed/subpixel integrations match without a speed-table bus.");
     }
 }

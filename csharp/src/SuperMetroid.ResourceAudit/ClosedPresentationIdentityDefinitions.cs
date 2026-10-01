@@ -58,6 +58,8 @@ internal static class ClosedPresentationIdentityDefinitions
              (int)VramAssetId.EscapeTimerSecondTiles],
         ("RoomBackgroundTilemapCatalog", "Get", "sourceAddress") => RoomBackgroundTilemapSources.All.ToArray(),
         ("RoomVisualLayoutCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sourceAddress") => MotherBrainSpecialSpriteArtworkDefinitions.All
+            .Select(sheet => sheet.SourceAddress).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

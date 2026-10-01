@@ -772,3 +772,23 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 24 unresolved**, all 352 consumers retained. This is required
   source membership, not arbitrary caller selection, geometry, collision changes,
   host binding, destinations or pixels. #1156 remains active.
+
+## Mother Brain special sheets - one further accounted boundary
+
+- **Finding:** the special-sheet lookup lacked a closure proof. Its public
+  constructor required four keys but admitted null or incorrectly sized atlases.
+- **Reproduced cause/solution:** a constructed required null sheet was accepted;
+  the focused regression failed before production changed. Construction now copies
+  the dictionary and requires all four nonnull sheets with their exact native page
+  lengths. Lookup accepts only the source identity, not a caller-authored sheet
+  record; the existing transfer path retains page/destination validation.
+- **Confirmation:** null and short-sheet admission is rejected, while a complete
+  zero-artwork catalog survives caller-key removal. Three source calls first expose
+  absent adapters; two qualify and a known unowned key remains unresolved. Removing
+  page-size admission revokes the proof. Audit and Verification Release builds and
+  all auditor checks pass. No ROM, save, installed artwork, battle or gameplay ran.
+- **Accounting:** 328 guarded classifications plus two metadata corrections
+  account for **330 of the original 353 boundaries**. Current report: **zero
+  missing identities, 23 unresolved**, all 352 consumers retained. This proves
+  required sheet/page availability, not arbitrary IDs, caller transfer selection,
+  binding, destinations, timing or pixels. #1156 remains active.

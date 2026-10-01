@@ -577,3 +577,18 @@ revokes all three classifications. Both affected projects build and all auditor
 checks pass. No ROM, saves, installed layouts, rooms, rendering or gameplay was
 opened. Membership does not certify caller source selection, geometry, collision
 data, binding, destination placement or pixels.
+
+## Mother Brain special sheets - one additional original boundary
+
+The public constructor formerly checked only the four source keys and admitted
+null or short atlases. A constructed null-sheet case reproduced the gap before the
+change. Construction now copies the dictionary and requires the four immutable
+source identities, each with its exact complete page length. Lookup takes only a
+source ID; the existing transfer caller still verifies alignment, size and destination.
+
+Null/short admission and caller-key independence are confirmed with authored zero
+artwork. Three source calls expose absent adapters first; two qualify and a known
+unowned key stays unresolved. Removing the size check revokes the source-guarded
+proof. Audit/Verification builds and all auditor checks pass. No ROM, save, installed
+artwork, battle, renderer or gameplay runs. Required sheet/page availability does
+not establish arbitrary selectors, host binding, placement, clocks or pixels.

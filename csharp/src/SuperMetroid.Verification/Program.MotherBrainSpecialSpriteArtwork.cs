@@ -54,7 +54,7 @@ internal static partial class Program
         {
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 sheet.SourceAddress, sheet.ByteCount);
-            AssertTrue(installed.Get(sheet).Transfer.Span.SequenceEqual(native),
+            AssertTrue(installed.Get(sheet.SourceAddress).Transfer.Span.SequenceEqual(native),
                 $"installed {sheet.FileName} preserves native characters");
             SnesVram installedVram = TransferMotherBrainSpecialPages(stock,
                 new MotherBrainSpecialArtworkReadGuard(
@@ -102,9 +102,9 @@ internal static partial class Program
                     MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
             RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .MotherBrainSpecialSprites!.Get(sheet);
+                .MotherBrainSpecialSprites!.Get(sheet.SourceAddress);
             AssertTrue(reloaded.Transfer.Span.SequenceEqual(
-                    edited.MotherBrainSpecialSprites!.Get(sheet).Transfer.Span),
+                    edited.MotherBrainSpecialSprites!.Get(sheet.SourceAddress).Transfer.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);

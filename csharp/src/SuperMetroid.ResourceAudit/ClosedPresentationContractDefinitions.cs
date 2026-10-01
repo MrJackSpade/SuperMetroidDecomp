@@ -29,6 +29,7 @@ internal static class ClosedPresentationContractDefinitions
         .. RoomRevealClosedContractDefinitions.All,
         .. LibraryBackgroundClosedContractDefinitions.All,
         .. RoomLayoutClosedContractDefinitions.All,
+        .. MotherBrainSheetsClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

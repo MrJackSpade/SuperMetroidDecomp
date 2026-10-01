@@ -332,7 +332,7 @@ public sealed partial class RoomEnemySystem
                 throw new InvalidDataException(
                     $"Installed enemy artwork is missing {sheet.FileName}.");
             _vram!.LoadBytes(transfer.VramDestination * 2,
-                artwork.Get(sheet).Transfer.Span.Slice(
+                artwork.Get(sheet.SourceAddress).Transfer.Span.Slice(
                     page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                     transfer.Size));
             return;

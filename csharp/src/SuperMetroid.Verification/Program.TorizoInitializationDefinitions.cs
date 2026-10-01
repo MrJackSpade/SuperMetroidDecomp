@@ -22,7 +22,9 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             bool defeated = false;
             typeof(RoomEnemySystem).GetField("_isAreaTorizoDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => defeated));
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBombTorizo", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
+            var initializeWithInput = typeof(RoomEnemySystem).GetMethod("InitializeBombTorizo", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
+            void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.Slots[0];
             actor.EnemyDefinitionPointer = variant == 0 ? RoomEnemySystem.BombTorizoDefinition : RoomEnemySystem.GoldenTorizoDefinition;
             for (int properties = 0; properties <= ushort.MaxValue; properties++)

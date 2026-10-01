@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--golden-torizo-code"])
+{
+    VerifyGoldenTorizoCode();
+    return 0;
+}
 if (args is ["--kraid-growth-command-cursor"])
 {
     VerifyKraidGrowthCommandCursor();

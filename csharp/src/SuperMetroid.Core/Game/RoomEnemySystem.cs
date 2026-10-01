@@ -1466,7 +1466,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Torizo
                 when slot.EnemyDefinitionPointer is
                 BombTorizoDefinition or GoldenTorizoDefinition:
-                InitializeBombTorizo(slot);
+                InitializeBombTorizo(slot, samus, controllerInput);
                 return;
             case EnemyAiCodePointers.InitAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
                 InitializeKraidBody(slot);

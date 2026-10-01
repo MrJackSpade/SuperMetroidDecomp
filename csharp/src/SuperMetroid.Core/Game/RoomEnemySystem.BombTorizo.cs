@@ -221,7 +221,7 @@ public sealed partial class RoomEnemySystem
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.
     /// </summary>
-    private void InitializeBombTorizo(RoomEnemySlot torizo)
+    private void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ushort controllerInput)
     {
         bool isGolden = torizo.EnemyDefinitionPointer == GoldenTorizoDefinition;
         var state = new TorizoEnemyState(torizo, isGolden);
@@ -262,7 +262,23 @@ public sealed partial class RoomEnemySystem
         // so install those final visible rows directly at their native palette indexes.
         LoadTorizoSharedPaletteRows();
         if (isGolden)
+        {
             LoadGoldenTorizoBasePalette();
+            if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
+            {
+                if (samus is null)
+                    throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
+                // Native initialization overwrites both inventory words, even if
+                // this reduces capacity or equips normally incompatible beams.
+                samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
+                samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;
+                samus.Missiles = samus.MaxMissiles = GoldenTorizoCodeDefinitions.Missiles;
+                samus.SuperMissiles = samus.MaxSuperMissiles = GoldenTorizoCodeDefinitions.SuperMissiles;
+                samus.PowerBombs = samus.MaxPowerBombs = GoldenTorizoCodeDefinitions.PowerBombs;
+                samus.EquippedItems = samus.CollectedItems = GoldenTorizoCodeDefinitions.Items;
+                samus.EquippedBeams = samus.CollectedBeams = GoldenTorizoCodeDefinitions.Beams;
+            }
+        }
         else
             LoadBombTorizoPalette();
     }

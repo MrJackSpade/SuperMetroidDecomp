@@ -22,6 +22,10 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--installed-input-replay", var installedRecording, var installedRoot,
+        var firstInputFrame, var lastInputFrame, var installedTrace])
+        return InstalledInputReplay.Run(installedRecording, installedRoot,
+            int.Parse(firstInputFrame), int.Parse(lastInputFrame), installedTrace);
     if (args is ["--etecoon-floor-clip-native", var floorClipRom, var floorClipDirectory])
         return EtecoonFloorClipNativeProbe.Run(floorClipRom, floorClipDirectory);
     if (args is ["--damage-boost-slopespark-audit", var slopesparkRom, var slopesparkTrace])

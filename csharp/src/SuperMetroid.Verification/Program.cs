@@ -1384,6 +1384,11 @@ if (args is ["--noob-tube-plm-program"])
     VerifyNoobTubePlm();
     return 0;
 }
+if (args is ["--reported-shaft-momentum"])
+{
+    VerifyReportedShaftMomentum();
+    return 0;
+}
 if (args is ["--shot-block-program-operands"])
 {
     VerifyShotBlockProgramOperands();

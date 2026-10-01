@@ -30,6 +30,7 @@ internal sealed class ClosedPresentationAudit
             if (valid && compilation.GetTypeByMetadataName(contract.Type) is { } provider)
                 valid = provider.DeclaringSyntaxReferences.All(declaration =>
                     contract.Sources.Any(source => source.Path == declaration.SyntaxTree.FilePath));
+            if (valid) valid = InterfacePresentationDomainAudit.HasReviewedImplementations(compilation, contract);
             // This existing definition uses a readonly array reference, not an
             // immutable array. Its reviewed reads are wholly inside these files;
             // a new external use could mutate its keys and must revoke the proof.
@@ -176,6 +177,7 @@ internal sealed class ClosedPresentationAudit
             ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
             ?? SamusBodyTransferDomainAudit.InvalidConstants(operation)
+            ?? InterfacePresentationDomainAudit.InvalidConstants(operation)
             ?? ClosedTransferDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {

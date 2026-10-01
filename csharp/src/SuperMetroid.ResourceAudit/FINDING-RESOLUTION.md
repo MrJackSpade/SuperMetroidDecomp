@@ -9,6 +9,12 @@ Focused fixtures confirm identified changes; no gameplay probes discover new wor
 Only documented, precise classification rules may remove irrelevant recurring findings.
 New unsupported contracts must remain visible.
 
+Final status: development complete. All 266 original missing identities and all
+353 original unresolved boundaries are reconciled; the final static audit has
+zero findings and retains all 352 original consumer sites. Historical counts in
+the sections below describe progress at each scoped change, not current blockers.
+The detailed final accounting is at the end. Player testing remains the user's work.
+
 ## Work Robot lasers — corrected missing dependency
 
 - **Findings:** six direct OAM identities `8D:99FC`, `8D:9A03`, `8D:9A0A`,
@@ -861,36 +867,6 @@ remain explicitly failing findings, not silently waived or treated as proven res
   caller inputs, optional boss attachments, destinations, timing and pixels are
   not certified. #1156 remains active.
 
-## Samus physical body-transfer records - five further boundaries accounted
-
-- **Findings/cause:** five Frame/DefinitionAddress/DefinitionAt consumer sites had
-  no availability proof. Inspection also found that public construction admitted
-  a nonempty group missing physical records required by the importer's geometry.
-  A constructed incomplete first group reproduced that admission failure before
-  the production fix.
-- **Fix/classification:** share the native exclusive-end definition in a domain
-  catalog and require each cloned group to contain exactly the records between
-  its sorted start and the next start/end. Preserve native cross-group and
-  cross-half position arithmetic. Add a separately source-guarded valid-domain
-  transfer rule, including the producer that stores validated definition identities;
-  known invalid pose/set/address constants remain findings. Do not validate all
-  backing words as frame records: unused overrun bytes may remain non-selectable.
-- **Confirmation:** the formerly accepted missing record is rejected. Constructed
-  complete data confirms published-frame lookup and both cross-group and cross-half
-  identity resolution. An invalid adjacent backing word is admitted until selected,
-  then fails loudly. Eight source calls first expose absent adapters; four qualify,
-  four invalid constants remain findings, and changed admission or an unreviewed
-  provider partial revokes closure. Audit self-checks and Audit, Verification and
-  Windows Desktop Release builds pass. No ROM, saves, installed artwork, rendering
-  or gameplay was opened.
-- **Accounting:** **351 of the original 353 boundaries** are accounted, leaving
-  **2 unresolved**, zero missing, all 352 consumers retained. JSON records 350
-  guarded sites (349 original gaps plus the previously resolved native-blank site);
-  two original metadata corrections supply the remaining accounted boundaries.
-  The remaining work is two interface-dispatch boundaries. Arbitrary counters,
-  invalid edited selectors, incompatible saved pointers, host binding, timing and
-  pixels are not certified. #1156 remains active.
-
 ## Enemy projectile compositions - four further boundaries accounted
 
 - **Findings/cause:** four dynamic direct/program-frame lookups lacked a loader
@@ -946,3 +922,68 @@ remain explicitly failing findings, not silently waived or treated as proven res
   five Samus body-transfer operations and two interface-dispatch boundaries.
   Arbitrary slot inputs, selection, collision, placement, timing and pixels are
   not certified. #1156 remains active.
+
+## Samus physical body-transfer records - five further boundaries accounted
+
+- **Findings/cause:** five Frame/DefinitionAddress/DefinitionAt consumer sites had
+  no availability proof. Inspection also found that public construction admitted
+  a nonempty group missing physical records required by the importer's geometry.
+  A constructed incomplete first group reproduced that admission failure before
+  the production fix.
+- **Fix/classification:** share the native exclusive-end definition in a domain
+  catalog and require each cloned group to contain exactly the records between
+  its sorted start and the next start/end. Preserve native cross-group and
+  cross-half position arithmetic. Add a separately source-guarded valid-domain
+  transfer rule, including the producer that stores validated definition identities;
+  known invalid pose/set/address constants remain findings. Do not validate all
+  backing words as frame records: unused overrun bytes may remain non-selectable.
+- **Confirmation:** the formerly accepted missing record is rejected. Constructed
+  complete data confirms published-frame lookup and both cross-group and cross-half
+  identity resolution. An invalid adjacent backing word is admitted until selected,
+  then fails loudly. Eight source calls first expose absent adapters; four qualify,
+  four invalid constants remain findings, and changed admission or an unreviewed
+  provider partial revokes closure. Audit self-checks and Audit, Verification and
+  Windows Desktop Release builds pass. No ROM, saves, installed artwork, rendering
+  or gameplay was opened.
+- **Accounting:** **351 of the original 353 boundaries** are accounted, leaving
+  **2 unresolved**, zero missing, all 352 consumers retained. JSON records 350
+  guarded sites (349 original gaps plus the previously resolved native-blank site);
+  two original metadata corrections supply the remaining accounted boundaries.
+  The remaining work is two interface-dispatch boundaries. Arbitrary counters,
+  invalid edited selectors, incompatible saved pointers, host binding, timing and
+  pixels are not certified. #1156 remains active.
+
+## Interface presentation dispatch - final two boundaries accounted
+
+- **Findings/cause:** IntroDiscoverySprite's interface Draw and RoomPaletteFxSystem's
+  interface TryReadColor had no source-owned dispatch rule. Source review found
+  twelve cinematic implementations (eleven complete loaded catalogs plus the
+  Ceres flight/destruction router) and two total palette dictionary queries.
+- **Classification:** guard those exact interface operations by their full reviewed
+  source sets and the semantic Core implementation set. Every cinematic catalog
+  requires its compiled named frames before private construction; the router
+  delegates only to its two complete catalogs. Availability is for the selected
+  receiver's owned domain, not every pointer in a union for every receiver.
+  Known pointers owned by no implementation remain findings. Palette queries
+  return false for unowned keys; the independent bounded program inventory still
+  checks concrete color dependencies against real importer/loader identities.
+  New implementations, unreviewed metadata declarations, or changed reviewed
+  loaders, router, compiler or query semantics revoke the applicable proof.
+- **Confirmation:** authored empty visual compositions resolve through interface
+  dispatch and missing required frames are rejected. Three source calls first
+  expose the adapters' absence; two qualify and the unowned frame stays a finding.
+  New implementations revoke only their interface proof; changed routing or
+  palette query semantics revoke the relevant proof. Auditor self-checks and
+  Release compilation pass. Final static inventory exits zero. No ROM, saves,
+  installed artwork, cinematic, palette interpreter or gameplay ran.
+- **Final accounting:** all **266 original missing identities** are reconciled:
+  264 corrected production dependencies and two documented compiled no-ops.
+  All **353 original unresolved boundaries** are reconciled: 351 original consumer
+  gaps receive guarded classifications and two metadata gaps were corrected.
+  The JSON has 352 classifications because its native-blank site was already
+  resolved in the baseline. Original/current owner-and-source-file consumer
+  multiplicities match exactly: all 352 sites remain recorded, with no omissions.
+  Final report has **zero missing, zero unresolved**, 15,890 references, and
+  251 reviewed operation exports. This is completion of the requested static
+  inventory, not whole-game parity, arbitrary caller correctness, host installation
+  or player visual validation. #1156 is development-complete for player testing.

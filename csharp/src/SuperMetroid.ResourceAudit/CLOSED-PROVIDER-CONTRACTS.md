@@ -727,3 +727,35 @@ changed geometry admission or a new provider partial revokes the rule. Existing
 placement/composition rules retain their independent scope after shared-source
 re-review. Audit self-checks and Audit, Verification and Windows Desktop builds
 pass; no ROM, saves, installed art, renderer or gameplay was opened.
+
+## Interface presentation dispatch - two final original boundaries
+
+The semantic Core source inventory has twelve cinematic implementations: eleven
+catalogs with complete private loaded frame dictionaries, plus the Ceres scene
+router. Each loader requires its exact compiled names and compiles independent
+nonnull compositions. The router selects destruction only when it owns the key,
+otherwise flight. A source-guarded interface Draw rule certifies availability in
+the selected receiver's owned domain, not arbitrary actor/provider binding or
+that a union key is available in every receiver. A known pointer belonging to no
+implementation remains a finding.
+
+The only two Core palette-color implementations are total private-dictionary
+queries: an unowned pointer returns false without demanding an additional resource.
+The interface query therefore has a guarded membership classification. The
+separate bounded palette program inventory still checks required identities
+against the actual importers/loaders. Neither the query classification nor the
+sprite rule certifies arbitrary third-party implementations, host installation,
+caller selection, actor lists, timing, OAM capacity, placement or pixels.
+
+Both rules require the exact reviewed interface/provider/definition source set
+and semantic implementation inventory. A new implementation or extra declaration
+of reviewed metadata revokes the affected rule. Changed loader, router, compiler
+or query semantics also revokes closure; no blanket interface exemption is used.
+
+Authored compositions confirm actual interface dispatch and missing-frame
+rejection. Three source calls expose absent adapters first; two qualify and the
+known unowned pointer stays unresolved. New implementations revoke only their
+respective rule; changed routing or palette query semantics revoke their rule.
+All auditor checks and Release compilation pass. Final static inventory exits
+zero with all 352 consumer sites retained. No ROM, saves, installed artwork,
+cinematic, palette interpreter or gameplay was run.

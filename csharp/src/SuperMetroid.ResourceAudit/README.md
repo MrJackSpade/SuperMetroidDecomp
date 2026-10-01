@@ -4,6 +4,12 @@ Issue #1155: find undeclared installed-resource dependencies from source and imm
 definition catalogs, without searching for failures by playing or replaying the game.
 This tool is development-only and is not referenced or shipped by either playable host.
 
+#1156 reconciled the initial inventory: 266 absent identities and 353 unresolved
+boundaries are fully accounted, with no findings in the final declared static
+scope. All 352 original consumer sites remain in the report. See
+[FINDING-RESOLUTION.md](FINDING-RESOLUTION.md) for fixes, guarded classifications,
+confirmation and scope limits. This is not a whole-game validation claim.
+
 ## Run
 
 From the repository root, with the .NET 10 SDK:

@@ -24,6 +24,7 @@ internal static class ClosedPresentationContractDefinitions
         .. ProjectileClosedContractDefinitions.All,
         .. SamusArtworkClosedContractDefinitions.All,
         .. SamusBodyTransferClosedContractDefinitions.All,
+        .. InterfacePresentationContractDefinitions.All,
         .. BackgroundTransferClosedContractDefinitions.All,
         .. RoomArtworkClosedContractDefinitions.All,
         .. AreaMapClosedContractDefinitions.All,

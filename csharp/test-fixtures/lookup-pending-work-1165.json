@@ -46,13 +46,6 @@
                       "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
                   },
                   {
-                      "id":  "absolute-tangent-gradient",
-                      "owner":  "csharp/src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs",
-                      "nativeIdentity":  "$91:C9D4 AbsoluteTangentTable; SamusXrayRomData.Window.AbsoluteTangentTable is an address alias",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
                       "id":  "spc-pan-gain-curve",
                       "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
                       "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",

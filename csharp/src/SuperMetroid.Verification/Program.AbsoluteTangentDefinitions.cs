@@ -22,8 +22,8 @@ internal static partial class Program
         }
         if (definitionsOnly)
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(-1), "Tangent negative index rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond endpoint rejected");
+            foreach (int invalid in new[] { int.MinValue, -1, 129, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(invalid), "Tangent invalid index rejected");
             return;
         }
         var direction = typeof(SnesGameplayFrameRenderer).GetMethod("ReadXrayDirection", BindingFlags.NonPublic | BindingFlags.Static)!;

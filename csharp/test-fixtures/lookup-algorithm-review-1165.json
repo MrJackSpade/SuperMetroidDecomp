@@ -124,7 +124,11 @@
                                   "shaktool-joint-algorithms":  {
                                                                     "subject":  "Replace Shaktool joint lookup fields with exact algorithms for #1165",
                                                                     "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Shaktool joint lookup fields with exact algorithms for #1165\""
-                                                                }
+                                                                },
+                                  "absolute-tangent-algorithm":  {
+                                                                     "subject":  "Replace absolute tangent lookup with deterministic calculation for #1165",
+                                                                     "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace absolute tangent lookup with deterministic calculation for #1165\""
+                                                                 }
                               },
     "tables":  [
                    {
@@ -899,7 +903,7 @@
                                              },
                                              {
                                                  "id":  "absolute-tangent-gradient",
-                                                 "state":  "unreviewed",
+                                                 "state":  "converted",
                                                  "owner":  "csharp/src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs",
                                                  "nativeIdentity":  "$91:C9D4 AbsoluteTangentTable; SamusXrayRomData.Window.AbsoluteTangentTable is an address alias",
                                                  "consumers":  [
@@ -908,8 +912,14 @@
                                                                    "SnesGameplayFrameRenderer.ReadXrayDirection: cardinal special cases, angle\u0026127 otherwise",
                                                                    "LookupTableResearch historical comparison"
                                                                ],
-                                                 "domain":  "Sample int0..128 inclusive; ArgumentOutOfRangeException outside. Reflection n=min(i,128-i) addresses65 stored words; no modulo acceptance at API.",
-                                                 "interpretation":  "Unsigned8.8 absolute dx/dy slope; zero at endpoints, exact diagonal256, finite infinity substitute15360 at64."
+                                                 "domain":  "Sample int 0..128 inclusive; ArgumentOutOfRangeException outside. Reflect n=min(i,128-i), without accepting modulo-wrapped input at the API.",
+                                                 "interpretation":  "Unsigned8.8 absolute dx/dy slope; zero at endpoints, exact diagonal256, finite infinity substitute15360 at64.",
+                                                 "implementationCommit":  "absolute-tangent-algorithm",
+                                                 "disposition":  "Remove the stored quarter-wave; calculate floor(256*tan(n*3.14159/128)) using 13-term decimal sine/cosine series, with exact zero, diagonal and finite-infinity endpoints.",
+                                                 "rationale":  "Reduced-pi generation explains the two near-singular 10427 samples. Exact diagonal 256 and singular substitute 15360 are meaningful native boundary conventions, not fitted ordinary-sample corrections.",
+                                                 "reviewedEvidence":  "All 129 words in pinned bank_91.asm and supported NTSC J/U v1.0 ROM; direct eye, Mother Brain and X-ray callers inspected. Existing independent research establishes reduced-pi output convention.",
+                                                 "proofTest":  "VerifyCompiledAbsoluteTangent (existing proof, definitionsOnly mode)",
+                                                 "confirmation":  "All 129 original words, eye and Mother Brain direct aliases including byte wrap, and invalid int bounds. No expanded window-build matrix."
                                              }
                                          ],
                               "newConversions":  0,
@@ -1195,7 +1205,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves",
                                  "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

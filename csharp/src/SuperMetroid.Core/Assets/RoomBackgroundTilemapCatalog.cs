@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Complete host-selected set of compressed library-background visual tilemaps.</summary>
@@ -10,10 +12,11 @@ public sealed class RoomBackgroundTilemapCatalog
     {
         ArgumentNullException.ThrowIfNull(bySource);
         if (bySource.Count != RoomBackgroundTilemapFormat.RetailCompressedSourceCount ||
-            bySource.Any(pair => pair.Value is null))
+            RoomBackgroundTilemapSources.All.Any(source =>
+                !bySource.TryGetValue(source, out RoomBackgroundTilemapAtlas? atlas) || atlas is null))
             throw new InvalidDataException(
                 $"Room background catalog requires " +
-                $"{RoomBackgroundTilemapFormat.RetailCompressedSourceCount} complete sources.");
+                $"all {RoomBackgroundTilemapFormat.RetailCompressedSourceCount} required source identities with nonnull tilemaps.");
         this.bySource = new Dictionary<int, RoomBackgroundTilemapAtlas>(bySource);
     }
 

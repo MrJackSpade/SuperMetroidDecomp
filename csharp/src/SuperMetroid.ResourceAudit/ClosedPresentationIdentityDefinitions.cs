@@ -56,6 +56,7 @@ internal static class ClosedPresentationIdentityDefinitions
              (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
              (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,
              (int)VramAssetId.EscapeTimerSecondTiles],
+        ("RoomBackgroundTilemapCatalog", "Get", "sourceAddress") => RoomBackgroundTilemapSources.All.ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

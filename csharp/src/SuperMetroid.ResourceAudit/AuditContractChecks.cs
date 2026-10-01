@@ -77,6 +77,7 @@ internal static class AuditContractChecks
         RoomArtworkPresentationContractChecks.Run();
         AreaMapPresentationContractChecks.Run();
         RoomRevealPresentationContractChecks.Run();
+        LibraryBackgroundPresentationContractChecks.Run();
         Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
             "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary, " +
             "Mother Brain bank/color-row metadata, guarded closed providers and deterministic output confirmed.");

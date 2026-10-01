@@ -729,3 +729,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 27 unresolved**, all 352 consumers retained. Command and
   operand identity is compiler-enforced; optional overlays, traversal, metatile
   placement, timing and pixels are not certified. #1156 remains in progress.
+
+## Library-background admission - one further accounted boundary
+
+- **Finding:** library-background lookup lacked a closure proof because its public
+  constructor checked only 58 entries and nonnull values, not the required IDs.
+- **Reproduced cause/solution:** a constructed 58-entry dictionary with one required
+  key replaced by zero was accepted; the new regression assertion failed before
+  the fix. Construction now checks every immutable required source for a nonnull
+  atlas before copying the dictionary. The content-identity fixture now uses the
+  actual compiled source IDs instead of arbitrary consecutive keys.
+- **Confirmation:** the previously failing substitution assertion passes; removing
+  a caller dictionary key after construction leaves the catalog intact. Three
+  source calls expose absent adapters first; required/selected-source contracts
+  qualify, while a known unowned key remains unresolved. Removing exact admission
+  revokes the proof. Audit and Verification projects build; all auditor checks
+  pass. No ROM, save, installed background file, room or gameplay was opened.
+- **Accounting:** 325 guarded classifications plus two metadata corrections
+  account for **327 of the original 353 boundaries**. Current report: **zero
+  missing identities, 26 unresolved**, all 352 consumers retained. This proves
+  required key presence in successfully constructed catalogs, not arbitrary
+  source selection, page choice, upload destinations or pixels. #1156 stays active.

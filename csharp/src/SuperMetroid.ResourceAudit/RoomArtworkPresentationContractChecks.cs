@@ -67,7 +67,7 @@ internal static class RoomArtworkPresentationContractChecks
         Require(after.Classifications.Count == 9 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
             after.Consumers.Count == 17, "required sources and complete sky page/row/false queries qualify, not optional keys or bad transfers");
         Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
-            "a count-only background library must not borrow required graphics-set source closure");
+            "an unowned background source must not borrow required graphics-set source closure");
         const string catalog = "csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlasCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("atlas is null", "false", StringComparison.Ordinal), path: tree.FilePath) : tree);

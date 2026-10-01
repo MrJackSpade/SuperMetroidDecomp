@@ -544,3 +544,18 @@ expose missing adapters first; seven qualify and three remain unresolved. Change
 X-ray admission revokes both colocated providers. Audit and Verification builds
 pass, as do auditor self-checks. No ROM, save, installed art or gameplay runs.
 Traversal, host instance binding, destinations, clocks and pixels are not certified.
+
+## Library-background exact keys - one additional original boundary
+
+The count-only public constructor could accept 58 nonnull atlases with a substituted
+key. A constructed fixture reproduced this admission hole before production changed.
+The constructor now checks each of the 58 immutable compiled source identities for
+a nonnull atlas, then independently copies the dictionary. The selected content-identity
+fixture uses actual source identities instead of synthetic consecutive dictionary keys.
+
+The substitution regression now passes, as does caller-dictionary independence.
+Three source calls expose absent adapters first; two qualify and the known unowned
+key remains unresolved. Removing exact-key admission revokes the rule. Audit and
+Verification projects build and all auditor checks pass. No ROM, save, installed
+artwork, room or gameplay was opened. Only required-key presence is certified, not
+arbitrary source selection, page size selection, WRAM/VRAM destinations or pixels.

@@ -111,10 +111,11 @@ internal static partial class Program
             metatiles[definition.BlockDefinitionsAddress] = blocks;
         }
         var backgrounds = new Dictionary<int, RoomBackgroundTilemapAtlas>();
-        IEnumerable<int> pages = Enumerable.Range(0, RoomBackgroundTilemapFormat.RetailCompressedSourceCount);
+        IEnumerable<int> pages = RoomBackgroundTilemapSources.All;
         if (reverse) pages = pages.Reverse();
         foreach (int page in pages)
-            backgrounds[page] = Page(edited == GameInstallationLayout.RoomBackgroundTilemapDirectoryName && page == 0);
+            backgrounds[page] = Page(edited == GameInstallationLayout.RoomBackgroundTilemapDirectoryName &&
+                page == RoomBackgroundTilemapSources.All[0]);
         RoomBackgroundTilemapAtlas[] skies = Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
             .Select(page => Page(edited == nameof(RoomSkyTilemapCatalog) && page == 0)).ToArray();
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;

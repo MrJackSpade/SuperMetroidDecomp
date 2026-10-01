@@ -66,16 +66,23 @@ public static class PowerBombShapeDefinitions
             : (byte)(PreScaledBasis[sourceRow] * radius / 256);
     }
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center widths.</summary>
-    public static ReadOnlySpan<byte> Widths =>
-    [
-        0x00,0x0c,0x19,0x25,0x31,0x3e,0x4a,0x56,0x61,0x6d,0x78,0x83,0x8e,0x98,0xa2,0xab,
-        0xb5,0xbd,0xc5,0xcd,0xd4,0xdb,0xe1,0xe7,0xec,0xf1,0xf4,0xf8,0xfb,0xfd,0xfe,0xff,
-    ];
+    /// <remarks>For index 0..31, floor(256*sin(index*pi/64)). The shared deterministic
+    /// half-wave evaluator reproduces every original NTSC byte. Radius scaling follows
+    /// this quantization in the renderer. Invalid indices preserve span bounds behavior.</remarks>
+    public static byte Width(int index)
+    {
+        if ((uint)index >= 32) throw new IndexOutOfRangeException();
+        return EnemyTrigonometryTables.EightBitHalfWave(2 * index);
+    }
 
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: inclusive vertical band boundaries.</summary>
-    public static ReadOnlySpan<byte> TopOffsets =>
-    [
-        0xbf,0xbf,0xbe,0xbd,0xba,0xb8,0xb6,0xb2,0xaf,0xab,0xa6,0xa2,0x9c,0x96,0x90,0x8a,
-        0x84,0x7d,0x75,0x6e,0x66,0x5e,0x56,0x4d,0x45,0x3c,0x33,0x2a,0x20,0x17,0x0d,0x04,
-    ];
+    /// <remarks>For index 0..31, floor(3*floor(256*cos((2*index+1)*pi/128))/4).
+    /// Quantize the half-step cosine before the 3/4 vertical aspect ratio; direct
+    /// truncation of 192*cos differs. All original NTSC bytes independently match.
+    /// The renderer then scales by radius and fills inclusive band boundaries.</remarks>
+    public static byte TopOffset(int index)
+    {
+        if ((uint)index >= 32) throw new IndexOutOfRangeException();
+        return (byte)(EnemyTrigonometryTables.EightBitHalfWave(63 - 2 * index) * 3 / 4);
+    }
 }

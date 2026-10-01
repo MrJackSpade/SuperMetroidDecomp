@@ -81,20 +81,6 @@
                       "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
                   },
                   {
-                      "id":  "power-bomb-unscaled-width",
-                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
-                      "nativeIdentity":  "88:A266,32 unsigned width bytes",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
-                      "id":  "power-bomb-unscaled-top-offset",
-                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
-                      "nativeIdentity":  "88:A286,32 unsigned inclusive vertical boundaries",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
                       "id":  "power-bomb-prescaled-basis",
                       "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
                       "nativeIdentity":  "88:9246 through A205 prescaled profiles",

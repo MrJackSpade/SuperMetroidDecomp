@@ -6,15 +6,35 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    private static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int i = 0; i < 32; i++)
+            AssertEqual(rom.ReadByte(PowerBombShapeReferenceData.Width + i), PowerBombShapeDefinitions.Width(i),
+                "Power Bomb quantized sine width");
+        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.Width(invalid),
+                "Power Bomb width bounds");
+    }
+
+    private static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int i = 0; i < 32; i++)
+            AssertEqual(rom.ReadByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShapeDefinitions.TopOffset(i),
+                "Power Bomb doubly quantized vertical boundary");
+        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.TopOffset(invalid),
+                "Power Bomb top offset bounds");
+    }
+
     private static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
+        VerifyPowerBombWidthAlgorithm(rom);
+        VerifyPowerBombTopOffsetAlgorithm(rom);
         byte[] widths = new byte[32], tops = new byte[32];
         for (int i = 0; i < 32; i++)
         {
-            widths[i] = rom.ReadByte(0x88a266 + i);
-            tops[i] = rom.ReadByte(0x88a286 + i);
-            AssertEqual(widths[i], PowerBombShapeDefinitions.Widths[i], "Power Bomb compiled width byte");
-            AssertEqual(tops[i], PowerBombShapeDefinitions.TopOffsets[i], "Power Bomb compiled top byte");
+            widths[i] = rom.ReadByte(PowerBombShapeReferenceData.Width + i);
+            tops[i] = rom.ReadByte(PowerBombShapeReferenceData.TopOffset + i);
         }
         int[] Profile(int radius)
         {
@@ -80,4 +100,12 @@ internal static partial class Program
         public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected shape bus write.");
     }
+}
+
+internal static class PowerBombShapeReferenceData
+{
+    /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center bytes.</summary>
+    internal const int Width = 0x88a266;
+    /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: 32 inclusive boundaries.</summary>
+    internal const int TopOffset = 0x88a286;
 }

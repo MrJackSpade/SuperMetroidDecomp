@@ -89,8 +89,8 @@ internal static partial class Program
         Equal(10428, Tangent(63), "mathematical tangent counterexample");
         for (int i = 0; i < 32; i++)
         {
-            Equal(widths[i], (int)PowerBombShapeDefinitions.Widths[i], $"compiled width {i}");
-            Equal(tops[i], (int)PowerBombShapeDefinitions.TopOffsets[i], $"compiled top {i}");
+            Equal(widths[i], (int)PowerBombShapeDefinitions.Width(i), $"compiled width {i}");
+            Equal(tops[i], (int)PowerBombShapeDefinitions.TopOffset(i), $"compiled top {i}");
             Equal(widths[i], Width(i), $"algorithm width {i}");
             Equal(tops[i], Top(i), $"algorithm top {i}");
         }

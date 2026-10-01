@@ -112,7 +112,11 @@
                                   "spc-effect-selection":  {
                                                                "subject":  "Replace SPC effect operand table with named cases for #1165",
                                                                "resolve":  "git log -1 --format=%H --fixed-strings --grep=\u0027Replace SPC effect operand table with named cases for #1165\u0027"
-                                                           }
+                                                           },
+                                  "power-bomb-base-algorithms":  {
+                                                                     "subject":  "Replace Power Bomb base curves with exact algorithms for #1165",
+                                                                     "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Power Bomb base curves with exact algorithms for #1165\""
+                                                                 }
                               },
     "tables":  [
                    {
@@ -978,32 +982,32 @@
                                 "confirmationScope":  "Single original-ROM proof covers all13 words, exact root bracket and rounding margins, plus adjacent/extreme invalid inputs. Source review preserves subsequent interpolation and shifts. Verification and research consumers build."
                             },
     "audioCurves":  {
-                                      "tables":  [
-                                                     {
-                                                         "id":  "spc-pan-gain-curve",
-                                                         "state":  "unreviewed",
-                                                         "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
-                                                         "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
-                                                         "consumers":  [
-                                                                           "ManagedSpcPlayer.WriteVolume"
-                                                                       ],
-                                                         "domain":  "Stored index0..21; actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
-                                                         "interpretation":  "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position)."
-                                                     },
-                                                     {
-                                                         "id":  "dsp-gaussian-coefficients",
-                                                         "state":  "unreviewed",
-                                                         "owner":  "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
-                                                         "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
-                                                         "consumers":  [
-                                                                           "ManagedSnesDsp.GetInterpolatedSample",
-                                                                           "LookupTableResearch.VerifyGaussian"
-                                                                       ],
-                                                         "domain":  "Direct array index0..511; offset=(PitchCounter\u003e\u003e4)\u0026255 generates255-offset,511-offset,256+offset,offset. No out-of-bounds compatibility domain.",
-                                                         "interpretation":  "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1."
-                                                     }
-                                                 ]
-                                  },
+                        "tables":  [
+                                       {
+                                           "id":  "spc-pan-gain-curve",
+                                           "state":  "unreviewed",
+                                           "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+                                           "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+                                           "consumers":  [
+                                                             "ManagedSpcPlayer.WriteVolume"
+                                                         ],
+                                           "domain":  "Stored index0..21; actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
+                                           "interpretation":  "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position)."
+                                       },
+                                       {
+                                           "id":  "dsp-gaussian-coefficients",
+                                           "state":  "unreviewed",
+                                           "owner":  "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
+                                           "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
+                                           "consumers":  [
+                                                             "ManagedSnesDsp.GetInterpolatedSample",
+                                                             "LookupTableResearch.VerifyGaussian"
+                                                         ],
+                                           "domain":  "Direct array index0..511; offset=(PitchCounter\u003e\u003e4)\u0026255 generates255-offset,511-offset,256+offset,offset. No out-of-bounds compatibility domain.",
+                                           "interpretation":  "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1."
+                                       }
+                                   ]
+                    },
     "enemyHalfWaveReview":  {
                                 "owner":  "csharp/src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs",
                                 "implementationCommit":  "enemy-half-wave-algorithms",
@@ -1113,22 +1117,31 @@
                                      "tables":  [
                                                     {
                                                         "id":  "power-bomb-unscaled-width",
-                                                        "state":  "unreviewed",
+                                                        "state":  "converted",
                                                         "nativeIdentity":  "88:A266,32 unsigned width bytes",
                                                         "domain":  "Span index0..31; invalid index throws IndexOutOfRangeException. Renderer iterates all32 bands; no quarter-turn endpoint32 or overread.",
-                                                        "interpretation":  "floor(256*sin(i*pi/64)), exactly shared byte half-wave at2*i. Renderer multiplies radius by this quantized byte then shifts8."
+                                                        "interpretation":  "floor(256*sin(i*pi/64)), exactly shared byte half-wave at2*i. Renderer multiplies radius by this quantized byte then shifts8.",
+                                                        "disposition":  "Replace stored bytes with a bounded deterministic half-wave calculation; migrate every caller.",
+                                                        "rationale":  "The original ellipse samples follow the documented sine phase and integer quantization convention exactly. Preserve quantization before radius multiplication.",
+                                                        "proofTest":  "VerifyPowerBombWidthAlgorithm"
                                                     },
                                                     {
                                                         "id":  "power-bomb-unscaled-top-offset",
-                                                        "state":  "unreviewed",
+                                                        "state":  "converted",
                                                         "nativeIdentity":  "88:A286,32 unsigned inclusive vertical boundaries",
                                                         "domain":  "Span index0..31, invalid index throws IndexOutOfRangeException. Index0 sets first outer boundary; each band uses prior inner as next outer. No overread.",
-                                                        "interpretation":  "floor(3*floor(256*cos((2*i+1)*pi/128))/4), equivalent to quantized shared half-wave(63-2*i)*3/4. Radius multiplication/shift8 follows; both endpoints inclusive, later bands overwrite shared endpoints."
+                                                        "interpretation":  "floor(3*floor(256*cos((2*i+1)*pi/128))/4), equivalent to quantized shared half-wave(63-2*i)*3/4. Radius multiplication/shift8 follows; both endpoints inclusive, later bands overwrite shared endpoints.",
+                                                        "disposition":  "Replace stored bytes with a bounded deterministic half-wave calculation; migrate every caller.",
+                                                        "rationale":  "The original ellipse samples follow the documented sine phase and integer quantization convention exactly. Preserve quantization before radius multiplication.",
+                                                        "proofTest":  "VerifyPowerBombTopOffsetAlgorithm"
                                                     }
-                                                ]
+                                                ],
+                                     "implementationCommit":  "power-bomb-base-algorithms",
+                                     "reviewedEvidence":  "Pinned bank_88.asm complete definitions, native band-fill descriptions, every renderer/research consumer and all 64 SHA-verified NTSC J/U v1.0 ROM bytes.",
+                                     "confirmationScope":  "Two proofs extracted from the existing shape verifier; each compares all 32 original bytes and rejects invalid indices. No gameplay sweep."
                                  },
     "unreviewedOwnerCandidates":  [
-                                      "PowerBombShapeDefinitions: pre-scaled basis, base widths and top offsets pending",
+                                      "PowerBombShapeDefinitions: pre-scaled basis pending",
                                       "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
                                       "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
                                   ],
@@ -1158,7 +1171,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json"
 }

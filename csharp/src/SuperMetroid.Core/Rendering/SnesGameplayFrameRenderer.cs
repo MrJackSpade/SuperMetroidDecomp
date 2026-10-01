@@ -1280,7 +1280,7 @@ public static partial class SnesGameplayFrameRenderer
         // performs that clipping after this method, so only the common profile builder
         // is needed here. Widths increase while vertical boundaries decrease.
         int currentOuterScanline =
-            horizontalRadius * PowerBombShapeDefinitions.TopOffsets[0] >> 8;
+            horizontalRadius * PowerBombShapeDefinitions.TopOffset(0) >> 8;
         if (scanlineDistance > currentOuterScanline)
             return -1;
 
@@ -1290,8 +1290,8 @@ public static partial class SnesGameplayFrameRenderer
         {
             // The 65816 routine uses the high byte of an unsigned 8x8 product. An
             // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = horizontalRadius * PowerBombShapeDefinitions.TopOffsets[curveIndex] >> 8;
-            int halfWidth = horizontalRadius * PowerBombShapeDefinitions.Widths[curveIndex] >> 8;
+            int innerScanline = horizontalRadius * PowerBombShapeDefinitions.TopOffset(curveIndex) >> 8;
+            int halfWidth = horizontalRadius * PowerBombShapeDefinitions.Width(curveIndex) >> 8;
             finalHalfWidth = halfWidth;
 
             // Native code fills both endpoints inclusively, then begins the next band

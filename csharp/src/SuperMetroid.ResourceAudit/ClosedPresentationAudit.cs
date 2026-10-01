@@ -78,6 +78,21 @@ internal sealed class ClosedPresentationAudit
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
+            if (valid && contract.Type == typeof(EnemyProjectileSpritemapCatalog).FullName)
+            {
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "Frames")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
+                            field.ContainingType.ToDisplayString() == typeof(EnemyProjectileSpritemapDefinitions).FullName));
+                if (valid)
+                    valid = new[] { typeof(EnemyProjectileSpritemapDefinitions).FullName!,
+                        typeof(SuperMetroid.Core.Game.EnemyProjectilePresentationFrameDefinitions).FullName!,
+                        typeof(SuperMetroid.Core.Game.EnemyProjectileInstructionMechanicsDefinitions).FullName! }
+                        .All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
+                            dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
+                                source.Path == declaration.SyntaxTree.FilePath)));
+            }
             if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()

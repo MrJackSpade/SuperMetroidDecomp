@@ -652,3 +652,26 @@ Removing size admission, using the partial fixture factory in Core, or adding
 metadata declarations revokes the rule. Audit self-checks and Audit, Verification
 and Windows Desktop Release builds pass. No ROM, save, installed artwork, rendering
 or gameplay ran. Caller selection, destinations, clocks and pixels are not certified.
+
+## Enemy projectile direct/program frames - four additional original boundaries
+
+The private constructor is reached only through Load. Current loading requires
+each direct frame and each current compiled program-operand identity, then copies
+compiled nonnull visual parts into private dictionaries. Older override formats
+start with complete private stock dictionaries; every route to that stock type
+has the same inductive completeness invariant. Get's native blank ID is an empty
+composition, not missing external artwork. Known unowned IDs remain audit findings.
+
+The source-guarded rule covers Get/GetProgramFrame valid resource domains. It
+revokes on external Core references to the mutable direct-definition array or
+additional metadata declarations. Program definition changes flow into both the
+loader's required set and static identity set; the separate definition inventory
+continues checking compiled program presentation dependencies. This does not prove
+arbitrary slot identities, producer selection, projectile motion, timing or pixels.
+
+Constructed empty visual parts confirm current admission, null/substitution
+rejection, legacy inheritance and incomplete legacy stock rejection. Seven source
+calls first expose five missing and two unresolved boundaries; five qualify and
+two known unowned IDs remain findings. Changed admission or external definition
+array access revokes the rule. Audit Release build and auditor checks pass; no
+production behavior, ROM, save, installed artwork or gameplay changed.

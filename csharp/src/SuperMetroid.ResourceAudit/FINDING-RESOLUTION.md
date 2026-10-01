@@ -860,3 +860,30 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 14 unresolved**, all 352 consumers retained. Invalid dynamic
   caller inputs, optional boss attachments, destinations, timing and pixels are
   not certified. #1156 remains active.
+
+## Enemy projectile compositions - four further boundaries accounted
+
+- **Findings/cause:** four dynamic direct/program-frame lookups lacked a loader
+  coverage adapter. The existing private constructor is reached only after current
+  loading requires every direct and compiled program frame; historical overrides
+  begin with complete validated stock and replace only their earlier members.
+- **Classification:** add a source-guarded valid-domain rule for Get/GetProgramFrame.
+  The native blank composition requires no external artwork. Known unowned IDs
+  remain findings. A new external Core reference to the mutable direct-frame
+  definition array or new metadata declarations revokes this proof. Compiled
+  program-definition changes feed both required installation and the static ID set;
+  their dependencies are still checked by the separate definition inventory.
+- **Confirmation:** constructed empty compositions confirm required current
+  installation, null/substituted-frame rejection, legacy inheritance and rejection
+  of incomplete legacy stock. Seven source calls first expose five missing and two
+  unresolved boundaries; five qualify while two known invalid IDs remain findings.
+  Changed admission or an external mutable-array reference revokes all seven.
+  Audit Release build and auditor self-checks pass; production behavior is unchanged.
+  No ROM, save, installed artwork, projectile simulation or gameplay was opened.
+- **Accounting:** **343 of the original 353 boundaries** are accounted, leaving
+  **10 unresolved**, zero missing, all 352 consumers retained. The JSON has 342
+  guarded classifications: 341 from original unresolved sites plus the already
+  resolved native-blank site; two original metadata corrections supply the other
+  accounted boundaries. Do not count the blank site as a fifth newly resolved gap.
+  Arbitrary slot identities, selection, timing and pixels are not certified.
+  #1156 remains active.

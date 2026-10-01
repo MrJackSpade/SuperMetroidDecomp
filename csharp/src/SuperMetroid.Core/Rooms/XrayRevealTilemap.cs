@@ -71,10 +71,9 @@ public static class XrayRevealTilemap
         XrayRevealDefinition? Lookup(int index)
         {
             RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(index);
-            XrayRevealDefinition? native = XrayRevealTable.Find(block.CollisionType, block.Behavior);
-            return native is { } definition
-                ? visuals?.Apply(block.CollisionType, block.Behavior, definition) ?? definition
-                : null;
+            return visuals is not null
+                ? visuals.Apply(block.CollisionType, block.Behavior)
+                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
         }
         ushort ReadBg1(int x, int y)
         {

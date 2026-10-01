@@ -523,3 +523,24 @@ Changing the atomic install loop revokes both operations. This is successful-loa
 resource completeness, not filesystem availability, selected host instance, map
 centering, reveal correctness, upload destinations or rendered pixels. No ROM,
 saves, artwork files, menu or gameplay was opened; production behavior is unchanged.
+
+## X-ray and permanent-item stores - four additional original boundaries
+
+X-ray Apply now has two inputs, not a separately supplied command. It resolves
+the native command from the collision/BTS pair before selecting that pair's
+installed operands. The constructor admits exactly every drawable compiled pair;
+unowned pairs return null, and extension commands do not select artwork. This API
+closes the command/operand identity gap rather than assuming callers correlate it.
+
+The item overlay constructor independently copies all eight required metatiles.
+Its optional room-overlay dictionary remains outside this proof. Permanent-item
+construction requires all seventeen dynamic kinds, rejects duplicate/unknown/null
+entries, and independently copies complete tile and palette payloads. Four fixed
+tank/ammo kinds do not qualify as dynamic uploads.
+
+A constructed complete reveal store and four chosen requests confirm command,
+edited operand, extension and no-reveal behavior. Ten constructed source calls
+expose missing adapters first; seven qualify and three remain unresolved. Changed
+X-ray admission revokes both colocated providers. Audit and Verification builds
+pass, as do auditor self-checks. No ROM, save, installed art or gameplay runs.
+Traversal, host instance binding, destinations, clocks and pixels are not certified.

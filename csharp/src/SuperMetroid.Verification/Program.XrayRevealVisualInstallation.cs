@@ -20,7 +20,7 @@ internal static partial class Program
             XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
             if (native is not { } definition ||
                 !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
-            AssertEqual(definition, stock.Apply(type, unchecked((byte)bts), definition),
+            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, unchecked((byte)bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }
@@ -132,8 +132,7 @@ internal static partial class Program
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("X-ray repair lost the installation.");
         AssertEqual((ushort)(originalTop + 1), installed.LoadXrayRevealVisuals()
-                .Apply(RoomCollisionType.ShootableBlock, 2,
-                    XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2)!.Value).TopLeft,
+                .Apply(RoomCollisionType.ShootableBlock, 2)!.Value.TopLeft,
             "X-ray override survives stock installation validation");
         AssertEqual(editedItem, installed.LoadXrayRevealVisuals().Overlays!.ItemMetatile(0),
             "item overlay edit survives stock installation validation");

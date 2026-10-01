@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -132,6 +133,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)VramAssetId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
         ("AreaMapPresentationCatalog", "Get", "area") => new(0, AreaIds.RetailCount),
+        ("XrayOverlayVisualCatalog", "ItemMetatile", "graphicsSlot") => new(0, XrayOverlayRomData.DynamicGraphicsSlots * 2),
+        ("RoomPlmDynamicCollectibleArtCatalog", "Resolve", "kind") => new((int)InWorldCollectibleKind.Bombs,
+            (int)InWorldCollectibleKind.ReserveTank - (int)InWorldCollectibleKind.Bombs + 1),
         _ => null,
     };
 }

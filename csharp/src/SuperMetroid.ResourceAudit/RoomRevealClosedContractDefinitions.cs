@@ -1,0 +1,28 @@
+namespace SuperMetroid.ResourceAudit;
+
+/// <summary>Complete terrain-reveal and permanent-item stores, not optional room overlays.</summary>
+internal static class RoomRevealClosedContractDefinitions
+{
+    private static readonly ReviewedSource XrayCatalog = new(
+        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "58B78A15B566829A9DC52ACDD0DE305D41BDB31AA9D89860DFBAF96F2C5AB562");
+    internal static readonly ClosedPresentationContract[] All =
+    [
+        new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
+            [XrayCatalog,
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "BA1BF2A7B4071AE4425FC53944922252C6EC9CFBDC44AC5F2F31D26956CCD4A9"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "2A71F1DA3CF4A49A5C355BD92B3A92A116E9CB088AEB700C3D7DFF037FF4AC29"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "A9FE5E7572CA7816F9E24FE49FB051DA2B34E614914486B7A07B3C66E26B3E1E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "49C2C8C13ACB4E2BA5D3C6AC304EE5E6735AF025F14F735DF6ED7500A4C6544F")],
+            "Construction requires every drawable compiled collision/BTS pair. The two-input Apply derives the native command from that same pair before selecting its visual operands; callers cannot supply a mismatched command. Non-reveal pairs return null and extensions retain their compiled command without an artwork lookup. This proves drawable membership, not room overlays, traversal, metatile positions, beam geometry or pixels."),
+        new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-eight-item-metatiles", ["ItemMetatile"],
+            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "AA2E43C1A69E6A3E643B779D30026FC182F83B07E000BA7253EC0342E3A1D0DD")],
+            "Public construction requires exactly eight item metatiles and independently copies them. Only slots zero through seven qualify. The separately optional room-overlay dictionary is not proven complete by this rule; its RoomTiles operation remains unresolved."),
+        new("SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog", "plm-complete-seventeen-item-uploads", ["Resolve"],
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "20C0F14DBDC85E704D21CAB64040C054F87B9BE1F818A7762C7EA52BA7DDF80F"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "0691A7AF56C3A993FDB62346BD2BFF1EC58FFEEBCF5A9B5292CED34E6E717023"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs", "F77DFA3E4099F3D0BE62C504C0348FA72E16DA96E89D080C3DE4B096214811EC"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs", "5BD9B6917BB21DB972D7A56A6FB8DF4CB5C9F462F1D567EDA99EA4431D369971"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "9F8894CE22D32CC768CC70CFC36E7E90C55F890AE3C2BA4126676288BD8D85BF")],
+            "Construction rejects unknown/duplicate/null entries, requires all seventeen permanent kinds from Bombs through ReserveTank and independently copies each complete tile/palette payload. Compiled graphics admission also verifies every consecutive kind and unique pointer. Resolve's required domain excludes the four fixed tank/ammo kinds. Timing, item ownership, destinations and pixel correctness are not certified."),
+    ];
+}

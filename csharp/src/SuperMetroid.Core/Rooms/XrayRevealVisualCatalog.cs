@@ -154,10 +154,14 @@ public sealed class XrayRevealVisualCatalog
             content.Append("overlays", Convert.FromHexString(Overlays.ContentIdentity));
     });
 
-    /// <summary>Substitutes visual operands without altering the compiled native command.</summary>
-    public XrayRevealDefinition Apply(RoomCollisionType type, byte bts,
-        XrayRevealDefinition native)
+    /// <summary>
+    /// Resolves the compiled command and its installed visual operands from the same
+    /// collision/BTS identity. Callers cannot pair a drawable command with another
+    /// block's absent artwork; unowned pairs retain the native no-reveal result.
+    /// </summary>
+    public XrayRevealDefinition? Apply(RoomCollisionType type, byte bts)
     {
+        if (XrayRevealTable.Find(type, bts) is not { } native) return null;
         if (!IsDrawable(native.Command)) return native;
         XrayRevealVisualWords visual = words[((int)type << 8) | bts] ??
             throw new InvalidDataException($"Missing X-ray visual {type}/BTS ${bts:X2}.");

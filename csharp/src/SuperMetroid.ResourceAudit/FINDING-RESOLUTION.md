@@ -705,3 +705,27 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 31 unresolved**, all 352 consumer sites retained. File
   availability, host instance binding, map centering/visibility, upload placement
   and pixels are not certified. Production is unchanged; #1156 stays in progress.
+
+## X-ray identity and item stores - four further accounted boundaries
+
+- **Findings:** two X-ray reveal calls, the eight-slot item lookup and the
+  permanent-item upload selector lacked coverage adapters. X-ray also accepted a
+  separately supplied native command, so type/BTS and command could disagree.
+- **Solution/classification:** removed the third X-ray input. The production
+  catalog now derives the native command from the same collision/BTS identity
+  used to select installed operands; existing callers and verification source
+  were migrated. Guarded rules cover every drawable pair, all eight item slots
+  and all seventeen dynamic permanent-item kinds. Optional room overlays are
+  deliberately not certified by the item-slot proof.
+- **Confirmation:** a constructed complete reveal store confirms a tall edited
+  reveal retains its compiled command, extension commands stay unchanged, and
+  two unowned pairs return null. The three-input API no longer exists. Ten source
+  calls first expose missing adapters; seven qualify and three bad/unsupported
+  requests stay unresolved. Changing admission revokes the X-ray proofs. Audit
+  and existing Verification projects build; all auditor contract checks pass.
+  No ROM, save, installed artwork, room, beam, renderer or gameplay was opened.
+- **Accounting:** 324 guarded classifications plus two metadata corrections
+  account for **326 of the original 353 boundaries**. Current report: **zero
+  missing identities, 27 unresolved**, all 352 consumers retained. Command and
+  operand identity is compiler-enforced; optional overlays, traversal, metatile
+  placement, timing and pixels are not certified. #1156 remains in progress.

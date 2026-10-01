@@ -46,11 +46,10 @@ public static class XrayRevealExtensions
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
-            XrayRevealDefinition? native = XrayRevealTable.Find(block.CollisionType, block.Behavior);
-            return native is { } definition
-                ? visuals?.Apply(block.CollisionType, block.Behavior, definition).TopLeft ??
-                    definition.TopLeft
-                : null;
+            XrayRevealDefinition? reveal = visuals is not null
+                ? visuals.Apply(block.CollisionType, block.Behavior)
+                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
+            return reveal?.TopLeft;
         }
     }
 }

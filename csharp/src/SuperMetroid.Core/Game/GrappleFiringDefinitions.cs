@@ -13,15 +13,14 @@ internal static class GrappleFiringDefinitions
     private const short CardinalVelocity = 12 * 255;
     /// <summary>$9B:C0DD diagonal component: twelve times the byte-sine octant sample 181.</summary>
     private const short DiagonalVelocity = 12 * 181;
-    /// <summary>$9B:C122/$C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX: identical physical hand offsets.</summary>
-    private static ReadOnlySpan<short> OriginX => [2, 10, 2, 10, 3, -4, -10, -2, -10, -2];
-
-    /// <summary>$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY: physical hand offsets before pose correction.</summary>
-    private static ReadOnlySpan<short> DefaultOriginY => [-16, -12, 2, 0, 6, 6, 0, 2, -12, -16];
-
-    /// <summary>$9B:C186 GrappleBeamFireOffsets_Running_OriginY: only horizontal directions differ from no-run.</summary>
-    private static ReadOnlySpan<short> RunningOriginY => [-16, -12, -2, 0, 6, 6, 0, -2, -12, -16];
-
+    /// <summary>$9B:C122, GrappleBeamFireOffsets_NotRunning_OriginX: physical hand X offsets.</summary>
+    internal const int OriginXReferenceAddress = 0x9bc122;
+    /// <summary>$9B:C172, GrappleBeamFireOffsets_Running_OriginX: identical X-offset alias.</summary>
+    internal const int RunningOriginXReferenceAddress = 0x9bc172;
+    /// <summary>$9B:C136, GrappleBeamFireOffsets_NotRunning_OriginY: physical hand Y offsets.</summary>
+    internal const int OriginYReferenceAddress = 0x9bc136;
+    /// <summary>$9B:C186, GrappleBeamFireOffsets_Running_OriginY: running physical hand Y offsets.</summary>
+    internal const int RunningOriginYReferenceAddress = 0x9bc186;
     /// <summary>Returns exact launch components and angle for firing direction 0..9.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against every NTSC J/U v1.0 original word,
@@ -55,13 +54,51 @@ internal static class GrappleFiringDefinitions
         return (x, y, unchecked((ushort)(0x8000 + 0x2000 * octant)));
     }
 
+    /// <summary>$9B:C122/$C172 X and $C136/$C186 Y hand anchors selected by firing pose.
+    /// Up/down facings remain distinct; down-left X is -4 versus down-right +3.
+    /// Running raises only horizontal anchors by four pixels. All native words
+    /// independently match; subsequent graphics/pose corrections stay with callers.</summary>
     internal static (short X, short Y) Origin(byte direction, bool running)
     {
-        if (direction >= OriginX.Length)
+        if (direction >= 10)
         {
             throw new InvalidDataException(
                 $"Grapple firing direction {direction} is outside the ten compiled origin records.");
         }
-        return (OriginX[direction], (running ? RunningOriginY : DefaultOriginY)[direction]);
+        var aim = (GrappleOriginDirection)direction;
+        short x = aim switch
+        {
+            GrappleOriginDirection.UpFacingRight or GrappleOriginDirection.Right => 2,
+            GrappleOriginDirection.UpRight or GrappleOriginDirection.DownRight => 10,
+            GrappleOriginDirection.DownFacingRight => 3,
+            GrappleOriginDirection.DownFacingLeft => -4,
+            GrappleOriginDirection.DownLeft or GrappleOriginDirection.UpLeft => -10,
+            _ => -2,
+        };
+        short y = aim switch
+        {
+            GrappleOriginDirection.UpFacingRight or GrappleOriginDirection.UpFacingLeft => -16,
+            GrappleOriginDirection.UpRight or GrappleOriginDirection.UpLeft => -12,
+            GrappleOriginDirection.Right or GrappleOriginDirection.Left => running ? (short)-2 : (short)2,
+            GrappleOriginDirection.DownRight or GrappleOriginDirection.DownLeft => 0,
+            _ => 6,
+        };
+        return (x, y);
     }
+}
+
+/// <summary>$9B:C122-$C198 origin-field indices, clockwise from up facing right
+/// to up facing left, with distinct downward-facing hand poses at indices 4 and 5.</summary>
+internal enum GrappleOriginDirection : byte
+{
+    UpFacingRight = 0,
+    UpRight = 1,
+    Right = 2,
+    DownRight = 3,
+    DownFacingRight = 4,
+    DownFacingLeft = 5,
+    DownLeft = 6,
+    Left = 7,
+    UpLeft = 8,
+    UpFacingLeft = 9,
 }

@@ -146,20 +146,42 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(grapple.RopeStartY - Word(0x9bc136 + direction * 2))), samus.YPosition, "Locked connection body Y ignores graphics correction");
         }
         AssertEqual(54, locked, "All six locked directions in three source movement families at three boundaries");
-        foreach (bool running in new[] { false, true })
-        for (byte direction = 0; direction < 10; direction++)
-        {
-            AssertEqual((Word((running ? 0x9bc172 : 0x9bc122) + direction * 2), Word((running ? 0x9bc186 : 0x9bc136) + direction * 2)),
-                GrappleFiringDefinitions.Origin(direction, running), "Authored physical origin words");
-        }
-        foreach (bool running in new[] { false, true })
-        foreach (byte direction in new byte[] { 10, byte.MaxValue })
-            AssertThrows<InvalidDataException>(
-                () => GrappleFiringDefinitions.Origin(direction, running),
-                "Unknown Grapple origin direction fails instead of reading adjacent ROM");
+        VerifyGrappleOriginXSelection(rom);
+        VerifyGrappleOriginDefaultYSelection(rom);
+        VerifyGrappleOriginRunningYSelection(rom);
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
+    private static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
+    {
+        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
+            false, origin => origin.X, "default X alias");
+        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginXReferenceAddress,
+            true, origin => origin.X, "running X alias");
+    }
+
+    private static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
+        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
+            false, origin => origin.Y, "default Y");
+
+    private static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
+        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
+            true, origin => origin.Y, "running Y");
+
+    private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
+        bool running, Func<(short X, short Y), short> select, string label)
+    {
+        for (byte direction = 0; direction < 10; direction++)
+        {
+            int source = address + 2 * direction;
+            short expected = unchecked((short)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8));
+            AssertEqual(expected, select(GrappleFiringDefinitions.Origin(direction, running)),
+                $"Grapple origin {label} direction {direction}");
+        }
+        foreach (byte direction in new byte[] { 10, byte.MaxValue })
+            AssertThrows<InvalidDataException>(() => GrappleFiringDefinitions.Origin(direction, running),
+                $"Grapple origin {label} bounds");
+    }
     private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity");

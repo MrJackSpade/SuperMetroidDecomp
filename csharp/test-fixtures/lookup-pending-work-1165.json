@@ -18,27 +18,6 @@
                       "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
                   },
                   {
-                      "id":  "grapple-origin-x",
-                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
-                      "nativeIdentity":  "$9B:C122/$9B:C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX, identical aliases",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
-                      "id":  "grapple-origin-y-default",
-                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
-                      "nativeIdentity":  "$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
-                      "id":  "grapple-origin-y-running",
-                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
-                      "nativeIdentity":  "$9B:C186 GrappleBeamFireOffsets_Running_OriginY",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
                       "id":  "spc-pan-gain-curve",
                       "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
                       "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",

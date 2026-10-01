@@ -132,7 +132,11 @@
                                   "suit-beam-curve-algorithm":  {
                                                                     "subject":  "Generate suit-pickup beam contour with exact quantization for #1165",
                                                                     "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate suit-pickup beam contour with exact quantization for #1165\""
-                                                                }
+                                                                },
+                                  "grapple-origin-cases":  {
+                                                               "subject":  "Replace grapple hand-origin lookups with named cases for #1165",
+                                                               "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace grapple hand-origin lookups with named cases for #1165\""
+                                                           }
                               },
     "tables":  [
                    {
@@ -711,35 +715,53 @@
                                                },
                                                {
                                                    "id":  "grapple-origin-x",
-                                                   "state":  "unreviewed",
+                                                   "state":  "converted",
                                                    "nativeIdentity":  "$9B:C122/$9B:C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX, identical aliases",
                                                    "consumers":  [
                                                                      "SamusGrappleMovement.BeginFiring",
                                                                      "ConnectAcceptedFiring locked body positioning",
                                                                      "RefreshFiringDrawOrigins"
                                                                  ],
-                                                   "interpretation":  "Signed pixel hand anchor, independent of flare artwork offsets."
+                                                   "interpretation":  "Signed pixel hand anchor, independent of flare artwork offsets.",
+                                                   "implementationCommit":  "grapple-origin-cases",
+                                                   "disposition":  "Replace stored origin fields with named firing-direction cases; preserve the signed hand anchor and running horizontal-height adjustment.",
+                                                   "rationale":  "The native fields are pose/direction selectors for physical hand anchors, distinct from flare artwork. Named cardinal/diagonal/facing cases directly express that dispatch, including asymmetric downward X anchors.",
+                                                   "reviewedEvidence":  "Pinned bank_9B.asm direction labels and all four original physical fields; SHA-verified NTSC J/U v1.0 ROM; BeginFiring, locked body positioning and draw-origin refresh inspected.",
+                                                   "domain":  "Byte direction 0..9, InvalidDataException otherwise; running flag chooses Y mapping, X has two identical original aliases. Signed words, no odd reads or overreads.",
+                                                   "proofTest":  "VerifyGrappleOriginXSelection"
                                                },
                                                {
                                                    "id":  "grapple-origin-y-default",
-                                                   "state":  "unreviewed",
+                                                   "state":  "converted",
                                                    "nativeIdentity":  "$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY",
                                                    "consumers":  [
                                                                      "BeginFiring for nonrunning movement",
                                                                      "ConnectAcceptedFiring locked body positioning",
                                                                      "RefreshFiringDrawOrigins"
                                                                  ],
-                                                   "interpretation":  "Signed pixel hand anchor; launch/draw subtract pose correction, locked positioning consumes raw offset."
+                                                   "interpretation":  "Signed pixel hand anchor; launch/draw subtract pose correction, locked positioning consumes raw offset.",
+                                                   "implementationCommit":  "grapple-origin-cases",
+                                                   "disposition":  "Replace stored origin fields with named firing-direction cases; preserve the signed hand anchor and running horizontal-height adjustment.",
+                                                   "rationale":  "The native fields are pose/direction selectors for physical hand anchors, distinct from flare artwork. Named cardinal/diagonal/facing cases directly express that dispatch, including asymmetric downward X anchors.",
+                                                   "reviewedEvidence":  "Pinned bank_9B.asm direction labels and all four original physical fields; SHA-verified NTSC J/U v1.0 ROM; BeginFiring, locked body positioning and draw-origin refresh inspected.",
+                                                   "domain":  "Byte direction 0..9, InvalidDataException otherwise; running flag chooses Y mapping, X has two identical original aliases. Signed words, no odd reads or overreads.",
+                                                   "proofTest":  "VerifyGrappleOriginDefaultYSelection"
                                                },
                                                {
                                                    "id":  "grapple-origin-y-running",
-                                                   "state":  "unreviewed",
+                                                   "state":  "converted",
                                                    "nativeIdentity":  "$9B:C186 GrappleBeamFireOffsets_Running_OriginY",
                                                    "consumers":  [
                                                                      "BeginFiring when movement kind is Running",
                                                                      "RefreshFiringDrawOrigins when Running"
                                                                  ],
-                                                   "interpretation":  "Signed pixel hand anchor; only horizontal entries differ from no-run, using -2 instead of +2."
+                                                   "interpretation":  "Signed pixel hand anchor; only horizontal entries differ from no-run, using -2 instead of +2.",
+                                                   "implementationCommit":  "grapple-origin-cases",
+                                                   "disposition":  "Replace stored origin fields with named firing-direction cases; preserve the signed hand anchor and running horizontal-height adjustment.",
+                                                   "rationale":  "The native fields are pose/direction selectors for physical hand anchors, distinct from flare artwork. Named cardinal/diagonal/facing cases directly express that dispatch, including asymmetric downward X anchors.",
+                                                   "reviewedEvidence":  "Pinned bank_9B.asm direction labels and all four original physical fields; SHA-verified NTSC J/U v1.0 ROM; BeginFiring, locked body positioning and draw-origin refresh inspected.",
+                                                   "domain":  "Byte direction 0..9, InvalidDataException otherwise; running flag chooses Y mapping, X has two identical original aliases. Signed words, no odd reads or overreads.",
+                                                   "proofTest":  "VerifyGrappleOriginRunningYSelection"
                                                }
                                            ],
                                 "confirmationScope":  "Three original-data proofs extracted from existing verifier. Complete 10-direction domains and invalid boundary inputs; source confirms all production callers retain API and indexing. No broad pose/input sweep needed for replacing these pure lookups."
@@ -1217,7 +1239,8 @@
                                  "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

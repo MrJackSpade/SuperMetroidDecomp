@@ -4,16 +4,25 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int index = 0; index < 4; index++)
         {
             var selector = (ZoaAnimationSelector)index;
-            AssertEqual(ReadZoaAnimationWord(rom, 0xa3b40d + index * 2),
+            AssertEqual(ReadZoaAnimationWord(rom, ZoaAnimationDefinitions.ReferenceAddress + index * 2),
                 ZoaAnimationDefinitions.InstructionList(selector),
                 $"Zoa animation selector {selector}");
         }
 
+        foreach (ushort invalid in new ushort[] { 4, 5, 0x8000, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() =>
+                ZoaAnimationDefinitions.InstructionList((ZoaAnimationSelector)invalid),
+                "Zoa animation rejects unsupported flag combinations");
+        if (definitionsOnly)
+        {
+            Console.WriteLine("Zoa animation cases: four original pointers and unsupported flag bounds pass.");
+            return;
+        }
         VerifyAllZoaAnimationHandoffs();
         VerifyLiveZoaAnimationHandoffs(rom, facingRight: false);
         VerifyLiveZoaAnimationHandoffs(rom, facingRight: true);

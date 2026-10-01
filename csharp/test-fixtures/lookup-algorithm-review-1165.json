@@ -152,7 +152,11 @@
                                   "zoa-program-algorithms":  {
                                                                  "subject":  "Replace Zoa instruction lookup records with structured dispatch for #1165",
                                                                  "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Zoa instruction lookup records with structured dispatch for #1165\""
-                                                             }
+                                                             },
+                                  "zoa-animation-cases":  {
+                                                              "subject":  "Replace Zoa animation pointer lookup with named cases for #1165",
+                                                              "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Zoa animation pointer lookup with named cases for #1165\""
+                                                          }
                               },
     "tables":  [
                    {
@@ -1311,7 +1315,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-speed-cases",
                                  "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --dsp-gaussian-only",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-program"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-program",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-animation"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {
@@ -1366,5 +1371,23 @@
                                             }
                                         ],
                              "confirmationScope":  "Two focused proofs reuse the original program verifier; no playback, room or allocation sweep."
-                         }
+                         },
+    "zoaAnimationReview":  {
+                               "id":  "zoa-animation-selector",
+                               "state":  "converted",
+                               "owner":  "csharp/src/SuperMetroid.Core/Game/ZoaAnimationDefinitions.cs",
+                               "implementationCommit":  "zoa-animation-cases",
+                               "nativeIdentity":  "A3:B40D-B414 InstListPointers_Zoa",
+                               "domain":  "ZoaAnimationSelector underlying ushort; only flag combinations 0..3 valid, InvalidDataException otherwise.",
+                               "consumers":  [
+                                                 "RoomEnemySystem.InitializeZoa",
+                                                 "RoomEnemySystem.SetZoaInstructionList"
+                                             ],
+                               "interpretation":  "Bit zero selects rising versus shooting, bit one selects right versus left; four native instruction pointers.",
+                               "reviewedEvidence":  "Pinned bank_A3.asm complete pointer table and current flag setting/clearing and installation callers; all four pointers from SHA-verified NTSC J/U v1.0 ROM.",
+                               "disposition":  "Remove pointer array and switch on the four named facing/movement combinations.",
+                               "rationale":  "Native independent flag semantics directly select four named animation programs; no arithmetic dependence on their storage spacing.",
+                               "proofTest":  "VerifyZoaAnimationDefinitions (existing proof, definitionsOnly mode)",
+                               "confirmation":  "All four original pointers and invalid flag combinations; no live animation handoff matrix needed for this selector conversion."
+                           }
 }

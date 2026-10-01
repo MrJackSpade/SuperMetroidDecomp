@@ -104,6 +104,7 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --ordin
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --crocomire-skeleton-resource-check
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --kraid-part-resource-check Foot
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --kraid-part-resource-check Lint
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --nuclear-waffle-resource-check
 ```
 
 The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,

@@ -8,7 +8,7 @@ internal readonly record struct NuclearWaffleInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Nuclear Waffle's body animation loop.</summary>
 /// <remarks>
 /// Frame durations and terminal loop control are immutable simulation data. The twelve
-/// interleaved spritemap pointers remain live cartridge presentation data.
+/// interleaved selections resolve compiled identities to installed head compositions.
 /// </remarks>
 internal static class NuclearWaffleInstructionProgramDefinitions
 {

@@ -227,3 +227,27 @@ Original identity accounting: 219 corrected dependencies, two compiled no-op def
 After this correction: **eight missing identities (12 references), 353 unresolved**.
 Original identity accounting: 256 corrected dependencies, two compiled no-op definitions,
 eight still under investigation. The unresolved boundaries remain visible.
+
+## Puromi/Nuclear Waffle head — corrected missing dependencies
+
+- **Findings:** eight ordinary head compositions (`A6:9954..9985`), twelve references.
+- **Cause:** the translated actor's head animation existed under the `NuclearWaffle`
+  name, but its ordinary head compositions were omitted from the manifest. Its
+  independently animated bank-$86 projectile links are a different resource family.
+- **Source evidence:** pinned `InstList_Puromi` at `A6:9490` selects the eight maps;
+  `NuclearWaffleInstructionProgramDefinitions` compiles that twelve-frame loop.
+  Initialization/main dispatch maps native Puromi callbacks to the translated Nuclear
+  Waffle actor, and its mechanics reader uses that program. These are active dependencies.
+- **Correction:** add the program-derived head visual catalog and append its eight
+  frames in ordinary schema 67. Schema-66/older overrides preserve edits and inherit
+  the head frames from current stock. No arc physics, links, AI or timing change.
+- **Confirmation:** the focused check failed before registration at `A6:9954`; it now
+  confirms all eight selected compositions and authored parts, exact schema append,
+  legacy edits, stock inheritance and incomplete-stock rejection. Static audit removes
+  exactly eight identities and twelve references without executing gameplay.
+- **Player status:** implementation complete; appearance remains player validation.
+
+Original missing-identity reconciliation is now complete: **264 corrected production
+dependencies plus two source-proven compiled no-ops = all 266 original identities**.
+Current audit: **zero missing identities, 353 unresolved analysis boundaries**. The latter
+remain explicitly failing findings, not silently waived or treated as proven resource bugs.

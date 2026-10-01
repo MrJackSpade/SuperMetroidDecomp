@@ -34,6 +34,7 @@ internal static class ConsumerAudit
             platforms.Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true));
         var operands = new ProgramOperandAudit(exports, report);
+        var closedProviders = new ClosedPresentationAudit(compilation, exports);
         foreach (SyntaxTree tree in trees)
         {
             // Catalog implementation is the provider, not a gameplay consumer.
@@ -42,13 +43,14 @@ internal static class ConsumerAudit
             foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
                 operands.Inspect(declaration, semantic);
             foreach (InvocationExpressionSyntax call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
-                Inspect(call, semantic, exports, report);
+                Inspect(call, semantic, exports, report, closedProviders);
         }
         operands.Complete();
+        closedProviders.Complete(exports, report);
     }
 
     internal static void Inspect(InvocationExpressionSyntax call, SemanticModel semantic,
-        ResourceIndex exports, AuditReport report)
+        ResourceIndex exports, AuditReport report, ClosedPresentationAudit? closedProviders = null)
     {
         IMethodSymbol? method = semantic.GetSymbolInfo(call).Symbol as IMethodSymbol;
         string source = call.SyntaxTree.FilePath + ":" + (call.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
@@ -68,6 +70,7 @@ internal static class ConsumerAudit
         if (method.IsStatic || !IsResourceType(method.ContainingType)) return;
         string owner = method.ContainingType.Name + "." + method.Name;
         string arguments = string.Join(", ", call.ArgumentList.Arguments.Select(arg => arg.Expression.ToString()));
+        if (closedProviders?.TryInspect(call, semantic, method, exports, report, source, arguments) == true) return;
         string? domain = Domain(method.ContainingType.Name, method.Name);
         string? key = domain is null ? null : ConstantKey(domain, call, semantic);
         if (domain is null || key is null)

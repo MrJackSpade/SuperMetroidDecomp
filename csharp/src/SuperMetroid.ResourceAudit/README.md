@@ -57,6 +57,10 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   through Roslyn. Named arguments, constant casts and symbols resolve semantically.
   Supported constant bank/pointer lookups are checked; dynamic IDs and unknown catalog
   domains are retained as explicit unresolved findings with their source/arguments.
+- Particular complete, loader-validated domains have source-reviewed, method-specific
+  closure rules. They are guarded by provider/definition fingerprints, not baselines.
+  Changed contracts, new operations, invalid constants and unbounded string names remain
+  failures. See [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) for scope/proof.
 
 Samus projectile exports are inventoried, but dynamic projectile-to-artwork mappings are
 not certified merely because an exported sprite exists. There is no claim of whole-game
@@ -83,8 +87,10 @@ translated runtime. An absent export is still a declaration mismatch, but reacha
 alternative renderers must be inspected from source before classifying it as a player bug.
 No gameplay search is needed or authorized to establish that distinction.
 
-The JSON has a schema `version`, scope, reference/distinct-missing/unresolved counts,
+The JSON has schema `version` 2, scope, reference/distinct-missing/unresolved counts,
 per-domain `coverage`, all `findings`, all `consumers`, and source-owned `compiledDefinitions`.
+It also retains per-consumer `classifications` with the precise closure rule, reason and
+guarded provider-source fingerprints; classified calls do not disappear from inventory.
 Coverage exports count both installed identities and applicable compiled definitions.
 Findings include domain, owner,
 identity, relative source location and explanation. Multiple references to one missing

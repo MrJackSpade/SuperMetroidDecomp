@@ -61,9 +61,10 @@ internal static class AuditContractChecks
         ConfirmPaletteProviders();
         ConfirmEmptyFrameBoundary();
         ConfirmMotherBrainMetadata();
+        ClosedPresentationContractChecks.Run();
         Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
             "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary, " +
-            "Mother Brain bank/color-row metadata and deterministic output confirmed.");
+            "Mother Brain bank/color-row metadata, guarded closed providers and deterministic output confirmed.");
     }
 
     private static void ConfirmProjectileRouting()

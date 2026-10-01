@@ -277,3 +277,29 @@ remain explicitly failing findings, not silently waived or treated as proven res
   production bindings identified by resolving the bank gap are corrected. Current audit:
   **zero missing identities, 351 unresolved**. The remaining dynamic consumer boundaries
   still fail explicitly. Cutscene appearance remains player validation.
+
+## Closed HUD/file-select/room-color providers — 52 source-proven coverage gaps
+
+- **Findings:** 24 HUD operations, 23 bounded/constant-name file-select operations,
+  and five Mother Brain room-color operations had no consumer-domain adapter.
+- **Cause:** the audit treated every dynamic argument as an unknown resource identity,
+  including indices into complete loader-validated arrays and pure layout operations.
+  Source inspection found no missing resource in these particular valid domains.
+- **Classification:** explicit method-specific closed-provider rules now account for
+  these boundaries. Full loader/selector/definition source fingerprints guard every
+  proof; new operations/types and changed contracts stay unresolved. Constant file-select
+  patch/anchor names are still checked individually. A new use of the HUD's mutable
+  key array outside the reviewed source files invalidates its closure proof.
+- **Evidence:** [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) describes each
+  accepted operation, validation path, bounds and exclusions. JSON schema 2 retains
+  every consumer and adds `classifications` with proof reasons and source fingerprints.
+  These are not baselines or claims that arbitrary caller inputs are correct.
+- **Confirmation:** a nine-call constructed source fixture reproduces the missing-adapter
+  boundaries before classification. Four reviewed calls then qualify; a missing anchor
+  stays concrete, and invalid constants, dynamic names and unreviewed operations still
+  fail. Changed selector source and external mutable-key usage revoke the proof at the
+  production audit consumer pass. No assets, ROM, saves or gameplay are executed.
+- **Accounting:** two metadata boundaries plus these 52 consumer classifications account
+  for **54 of the original 353 unresolved boundaries**. Current audit: **zero missing
+  identities, 299 unresolved**, all still visible as failing findings. The two dynamic
+  file-select page/border names are deliberately among the remaining findings.

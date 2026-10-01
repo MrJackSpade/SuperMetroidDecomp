@@ -82,6 +82,7 @@ internal static partial class Program
                 $"{report.Consumers.Count} resource consumer sites; {report.MissingResourceCount} missing identities " +
                 $"({report.MissingCount} references); " +
                 $"{report.UnresolvedCount} unresolved. No ROM, saves or gameplay were opened.");
+            Console.WriteLine($"  {report.Classifications.Count} consumer sites have guarded closed-provider proofs (recorded in JSON).");
             foreach (AuditCoverage coverage in report.Coverage)
                 Console.WriteLine($"  {coverage.Domain}: {coverage.References} references / {coverage.Exports} exports");
             AuditFinding[] displayed = [.. report.Findings.Where(item => item.Code == AuditReport.Missing)

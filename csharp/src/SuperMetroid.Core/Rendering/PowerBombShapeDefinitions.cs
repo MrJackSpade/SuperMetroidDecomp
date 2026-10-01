@@ -68,13 +68,16 @@ public static class PowerBombShapeDefinitions
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center widths.</summary>
     /// <remarks>
     /// Issue #625 algorithm finding: Width(i) = floor(256*sin(i*pi/64)) for
-    /// i in 0..31, exactly EightBitHalfWave[2*i]. All 32 values are independently
+    /// i in 0..31, exactly EightBitHalfWave(2*i). All 32 values are independently
     /// verified against the NTSC J/U v1.0 ROM and pinned bank_88.asm by
     /// csharp/tools/LookupTableResearch, including a deterministic decimal-series
     /// candidate with an error interval that cannot cross an integer boundary.
     /// Reject i outside 0..31; the table has no quarter-turn endpoint at i=32.
     /// Keep the renderer's later radius multiplication and right shift separate.
-    /// The runtime table remains in place pending consumer/performance validation.
+    /// Independently reviewed and retained for #1165: the renderer reads these
+    /// 32 bytes repeatedly in each scanline band loop. Keep the compact exact samples
+    /// rather than repeat deterministic sine-series evaluation in that hot path.
+    /// A generated cache still stores the same table and adds startup machinery.
     /// Individual width-table investigation: #625 / #911.
     /// </remarks>
     public static ReadOnlySpan<byte> Widths =>
@@ -86,14 +89,17 @@ public static class PowerBombShapeDefinitions
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: inclusive vertical band boundaries.</summary>
     /// <remarks>
     /// Issue #625 algorithm finding: Top(i) = floor(3*floor(256*cos((2*i+1)*pi/128))/4),
-    /// i in 0..31. Equivalently, integer arithmetic on EightBitHalfWave[63-2*i]
+    /// i in 0..31. Equivalently, integer arithmetic on EightBitHalfWave(63-2*i)
     /// gives sample*3/4. The half-step phase samples the band boundary; the inner
     /// truncation happens BEFORE the 3/4 vertical scaling. Directly truncating
     /// 192*cos((2*i+1)*pi/128) is wrong at nine of the 32 indices.
     /// LookupTableResearch verifies all entries against this span, the NTSC J/U
     /// v1.0 ROM and pinned bank_88.asm, using the bounded deterministic sine
     /// candidate. Reject indices outside 0..31 and retain the renderer's subsequent
-    /// radius scaling and inclusive-band handling. No runtime replacement yet.
+    /// radius scaling and inclusive-band handling. Independently reviewed and retained
+    /// for #1165: these 32 bytes are repeatedly sampled for each rendered scanline.
+    /// Recomputing the sine and two quantization stages per band is more expensive
+    /// and less direct than the compact exact boundaries; caching recreates the table.
     /// Individual top-offset investigation: #625 / #912.
     /// </remarks>
     public static ReadOnlySpan<byte> TopOffsets =>

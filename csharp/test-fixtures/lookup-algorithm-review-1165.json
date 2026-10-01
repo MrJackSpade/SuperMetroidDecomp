@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "power-bomb-base-retain": {
+      "subject": "Review and retain Power Bomb base shape curves for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Review and retain Power Bomb base shape curves for #1165'"
+    },
     "shaktool-orbit-algorithm": {
       "subject": "Replace Shaktool orbit samples with exact reduced-pi sine for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace Shaktool orbit samples with exact reduced-pi sine for #1165'"
@@ -855,8 +859,36 @@
     "proofTest": "VerifyShaktoolOrbitAlgorithm",
     "confirmationScope": "Reuse former aggregate displacement assertions in one named proof checking all320 original words, conservative rounding interval endpoints,256 paired displacements and invalid bounds. Build verification and research. No movement replay or parameter sweep."
   },
+  "powerBombBaseCurveReview": {
+    "implementationCommit": "power-bomb-base-retain",
+    "owner": "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
+    "reviewedEvidence": "Read both complete arrays, pinned bank_88.asm definitions and native width/band descriptions, current ReadPowerBombHalfWidth and its per-scanline call. Static comparison of all64 original bytes to SHA-verified NTSC ROM. Historical sine construction reviewed alongside independently proven shared half-wave algorithm.",
+    "consumers": ["SnesGameplayFrameRenderer.ReadPowerBombHalfWidth", "LookupTableResearch.Program"],
+    "tables": [
+      {
+        "id": "power-bomb-unscaled-width", "state": "retained",
+        "nativeIdentity": "88:A266,32 unsigned width bytes",
+        "domain": "Span index0..31; invalid index throws IndexOutOfRangeException. Renderer iterates all32 bands; no quarter-turn endpoint32 or overread.",
+        "interpretation": "floor(256*sin(i*pi/64)), exactly shared byte half-wave at2*i. Renderer multiplies radius by this quantized byte then shifts8.",
+        "disposition": "Retain32-byte width table.",
+        "rationale": "Exact sampled-sine convention is established; retention is a clarity/hot-path decision, not irregularity. The renderer repeats the32-band loop per scanline, so decimal series would be repeated thousands of times per frame. Small explicit samples are direct and cheap; startup generation caches the same table with extra machinery.",
+        "existingConfirmation": "VerifyCompiledPowerBombShape original-width and rendering checks preserved; this review compares all32 original bytes statically, without running the broader frame matrix."
+      },
+      {
+        "id": "power-bomb-unscaled-top-offset", "state": "retained",
+        "nativeIdentity": "88:A286,32 unsigned inclusive vertical boundaries",
+        "domain": "Span index0..31, invalid index throws IndexOutOfRangeException. Index0 sets first outer boundary; each band uses prior inner as next outer. No overread.",
+        "interpretation": "floor(3*floor(256*cos((2*i+1)*pi/128))/4), equivalent to quantized shared half-wave(63-2*i)*3/4. Radius multiplication/shift8 follows; both endpoints inclusive, later bands overwrite shared endpoints.",
+        "disposition": "Retain32-byte vertical boundary table.",
+        "rationale": "Half-step phase and inner quantization explain every value; directly truncating192*cos is different. Same per-scanline cost rationale as widths: retain compact boundaries rather than repeated transcendental evaluation or a generated cache of identical storage.",
+        "existingConfirmation": "VerifyCompiledPowerBombShape original-top and rendering checks preserved; all32 original bytes statically matched for this review."
+      }
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Owner documentation and inventory only. No runtime changes, new tests, frame sweeps or benchmark campaign. Prescaled profiles remain a separate unreviewed mapping."
+  },
   "unreviewedOwnerCandidates": [
-    "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
+    "PowerBombShapeDefinitions: pre-scaled profiles (base widths and top offsets reviewed)",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
   ],

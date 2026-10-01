@@ -66,6 +66,26 @@ internal static class ClosedPresentationIndexDefinitions
         ("SamusDeathPaletteArtworkCatalog", "SuitedColor" or "SuitlessColor", "color") => new(0, SamusDeathPaletteArtworkCatalog.ColorCount),
         ("SamusDeathPaletteArtworkCatalog", "WhiteoutColor", "index") => new(0, SamusPaletteRomData.Death.WhiteoutShadeCount),
         ("SamusDeathPaletteArtworkCatalog", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.RecordCount),
+        ("SamusFullBodyCycleColorCatalog", "Resolve", "colorIndex") => new(0, SamusFullBodyCycleColorFormat.ColorsPerPalette),
+        ("SamusSuitColorCatalog", "Resolve", "colorIndex") => new(0, SamusSuitColorFormat.ColorsPerSuit),
+        ("SamusChargeColorCatalog", "ApplyCharge" or "ResolveCharge", "suit") => new(0, SamusChargeColorFormat.SuitCount),
+        ("SamusChargeColorCatalog", "ApplyCharge" or "ResolveCharge", "phase") => new(0, SamusChargeColorFormat.PhasesPerSuit),
+        ("SamusChargeColorCatalog", "ApplyHyper" or "ResolveHyper", "frame") => new(0, SamusChargeColorFormat.HyperFrameCount),
+        ("SamusChargeColorCatalog", "ResolveCharge" or "ResolveHyper", "color") => new(0, SamusChargeColorFormat.ColorsPerPalette),
+        ("SamusHurtColorCatalog", "Resolve", "variant") => new(0, Enum.GetValues<SamusHurtColorVariant>().Length),
+        ("SamusHurtColorCatalog", "Resolve", "index") => new(0, SamusHurtColorFormat.ColorsPerPalette),
+        ("SamusHyperBeamColorCatalog", "Resolve", "frame") => new(0, SamusHyperBeamColorFormat.FrameCount),
+        ("SamusHyperBeamColorCatalog", "Resolve", "color") => new(0, SamusHyperBeamColorFormat.ColorsPerFrame),
+        ("SamusVisorColorCatalog", "Resolve", "index") => new(0, SamusVisorColorFormat.ColorCount),
+        // Unsupported TryResolveByteOffset values validly return false; this
+        // membership query does not demand a seventh or unaligned color.
+        ("CrystalFlashColorCatalog", "ApplyBody" or "ResolveBody", "frame") => new(0, CrystalFlashColorFormat.BodyFrameCount),
+        ("CrystalFlashColorCatalog", "ResolveBody", "color") => new(0, CrystalFlashColorFormat.BodyColorCount),
+        ("CrystalFlashColorCatalog", "ApplyBubble" or "ResolveBubble", "frame") => new(0, CrystalFlashColorFormat.BubbleFrameCount),
+        ("CrystalFlashColorCatalog", "ResolveBubble", "color") => new(0, CrystalFlashColorFormat.BubbleColorCount),
+        ("PowerBombFixedColorCatalog", "Resolve", "sequence") => new(0, Enum.GetValues<PowerBombFixedColorSequence>().Length),
+        ("PowerBombFixedColorCatalog", "Resolve", "index") => new(0, SamusPaletteRomData.PowerBomb.ExplosionColorCount),
+        ("HyperBeamFxColorCatalog", "Apply", "frame") => new(0, HyperBeamFxColorFormat.FrameCount),
         _ => null,
     };
 }

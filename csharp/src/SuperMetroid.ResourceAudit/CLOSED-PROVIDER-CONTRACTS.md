@@ -280,3 +280,25 @@ frame versus its four-word clear. Seven real constructors accept full constructe
 entries and reject omissions/duplicates. Production `GetWord` confirms all four
 blue closed-cap mappings and the eye clear's flip using constructed data.
 No door transition, attack, pickup, room or gameplay runs; mechanics are unchanged.
+
+## Player colors - sixteen additional original consumer boundaries
+
+Nine private-constructor loaders validate complete independent arrays before
+publishing a provider: Samus full-body cycles, normal suits, charge/pseudo-Screw,
+hurt/intro, Hyper Beam body colors, visor, Crystal Flash, Power Bomb fixed colors,
+and Hyper Beam projectile FX. Each rule guards the full provider source and
+the underlying palette definition source where used. No palette clocks run.
+
+The exact domains retain sparse native full-body palette pointers, normal suit
+offsets zero/two/four, charge suit/phase bounds, hurt variants, and each independent
+frame/color array. A known Power Bomb pre-explosion selector narrows the color
+index to sixteen triplets instead of borrowing the explosion's thirty-two.
+The visor's `TryResolveByteOffset` is intentionally different: an unsupported or
+odd offset validly returns false; only `Resolve` demands a supported color index.
+CGRAM destinations are placement, not fictional resource identities.
+
+Twenty-seven constructed source calls reproduce absent adapters first. Fourteen
+then classify, including the visor's false membership query; thirteen invalid
+pointers, indices or variants stay failing findings. Prior contract checks and
+compilation pass. No palette sequences, animation, damage, HDMA, rooms, ROM,
+saves or gameplay were executed. Dynamic caller correctness is not asserted.

@@ -68,7 +68,8 @@ internal sealed class ClosedPresentationAudit
             Gap("Closed-provider operation could not be bound.");
             return true;
         }
-        string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation);
+        string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
+            ?? SpecializedColorDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {
             Gap(invalid);

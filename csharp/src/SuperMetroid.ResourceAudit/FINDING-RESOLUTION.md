@@ -478,3 +478,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   for **171 of the original 353 boundaries**. The current audit has **zero missing
   identities, 182 unresolved**, all 352 consumers retained. Production behavior
   and artwork are unchanged; dynamic caller correctness is not asserted.
+
+## Player color domains - sixteen further source-proven boundaries
+
+- **Findings:** nine player-color providers' sixteen call sites lacked resource
+  coverage adapters: full-body cycles, normal suit, charge, hurt, Hyper Beam,
+  visor, Crystal Flash, Power Bomb fixed colors and Hyper Beam projectile FX.
+- **Cause/classification:** existing private-constructor loaders already validate
+  every supported palette array and compile independent words. Guarded per-method
+  rules now account for those exact sets, with sparse pointer/suit ownership and
+  precise frame/color/variant bounds. A known short pre-explosion stream cannot
+  borrow explosion capacity. Unsupported visor offset queries validly return false;
+  they do not demand artwork outside the six installed colors.
+- **Confirmation:** twenty-seven constructed source calls reproduce missing adapters
+  first; fourteen then classify and thirteen bad pointers/indices/variants remain
+  failing findings, including a known pre-explosion index in the longer stream's
+  range. All prior checks and compilation pass. No ROM, saves, rooms, palette
+  sequence, animation, HDMA, damage or gameplay were executed.
+- **Accounting:** 185 guarded classifications plus two metadata corrections account
+  for **187 of the original 353 boundaries**. Current report: **zero missing
+  identities, 166 unresolved**, all 352 consumers retained. Production colors,
+  clocks and player behavior are unchanged. Dynamic caller correctness and
+  whole-game parity are not asserted.

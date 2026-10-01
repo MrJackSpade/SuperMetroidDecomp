@@ -8,7 +8,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
-/// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
+/// Maridia's Oum snail, Crocomire's tongue, fight-body and skeleton composite frames,
 /// Bomb Torizo's dormant statue frame, Golden Torizo's initial, awakening and
 /// walking, turning and jump-back poses, Kraid's independently animated arm,
 /// Mother Brain's mixed body poses, and Phantoon/Draygon BG2-only poses.
@@ -66,7 +66,10 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Schema 26 predates shared display bindings for BG2-only boss roots.</summary>
     internal const int PreBg2BossBindingsVersion = 26;
     internal const int PreBg2BossBindingsFrameCount = 464;
-    internal const int Version = 27;
+    /// <summary>Schema 27 predates Crocomire's thirty-three corpse/skeleton OAM roots.</summary>
+    internal const int PreCrocomireSkeletonVersion = 27;
+    internal const int PreCrocomireSkeletonFrameCount = 520;
+    internal const int Version = 28;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -109,7 +112,7 @@ internal static class EnemyExtendedFrameDefinitions
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
         CompleteTorizoAdditionalFrameCount + MotherBrainBodyVisualDefinitions.FrameCount +
-        DraygonBg2FrameCount + PhantoonBg2FrameCount;
+        DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -191,6 +194,11 @@ internal static class EnemyExtendedFrameDefinitions
     internal static bool IsBg2Only(EnemyExtendedFrameDefinition frame) =>
         frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer) ||
         frame.Bank == DraygonBg2FrameDefinitions.Bank && DraygonBg2FrameDefinitions.IsFrame(frame.Pointer);
+
+    /// <summary>Skeleton fragmentation needs thirteen components; all other OAM families retain their existing bound.</summary>
+    internal static int MaximumOamComponents(EnemyExtendedFrameDefinition frame) =>
+        CrocomireSkeletonVisualDefinitions.IsFrame(frame.Bank, frame.Pointer)
+            ? CrocomireSkeletonVisualDefinitions.MaximumComponents : MaximumComponents;
 
     private static EnemyExtendedFrameDefinition[] Build()
     {
@@ -559,8 +567,11 @@ internal static class EnemyExtendedFrameDefinitions
                 $"phantoon_bg2_{frame.Pointer:X4}")));
         frames.AddRange(DraygonBg2FrameDefinitions.Frames.ToArray().Select(frame =>
             new EnemyExtendedFrameDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name)));
-        if (frames.Count != ExpectedFrameCount)
+        if (frames.Count != PreCrocomireSkeletonFrameCount)
             throw new InvalidDataException("BG2-only boss display-binding coverage changed.");
+        frames.AddRange(CrocomireSkeletonVisualDefinitions.Frames.ToArray());
+        if (frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException("Crocomire skeleton display-binding coverage changed.");
         return frames.ToArray();
     }
 }

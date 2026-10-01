@@ -168,3 +168,33 @@ Original identity accounting: 133 corrected dependencies, two compiled no-op def
 After this correction: **78 missing identities (155 references), 353 unresolved**.
 Original identity accounting: 186 corrected dependencies, two compiled no-op definitions,
 78 still under investigation. The original unresolved boundaries remain visible.
+
+## Crocomire corpse/skeleton — corrected missing dependencies and capacity
+
+- **Findings:** 33 extended OAM roots (`A4:E1FE..E716`) across 35 references.
+- **Cause:** the existing extended export manifest included Crocomire's tongue and
+  fight-body frames, but omitted every corpse/skeleton root. `CrocomireSkeletonArtwork`
+  supplies tile uploads only, not those composite offsets or OAM parts. The ordinary
+  eight-component limit also rejected the thirteen-component fragmentation poses.
+- **Source evidence:** pinned `bank_A4.asm` declares `ExtendedSpritemap_CrocomireCorpse_0`
+  through `_20`; `_E`, `_F` and `_10` each contain thirteen components. Compiled
+  `CrocomireInstructionProgramDefinitions` selects all 33 roots. `RoomEnemySystem.CrocomireDeath`
+  activates its falling, fragmentation, stable and river programs; the common extended
+  OAM writer consumes their compositions. These are not BG2 streams or unused art.
+- **Correction:** derive a dedicated skeleton visual catalog from the compiled selectors,
+  append its 33 roots, and advance the extended composition schema from 27 to 28.
+  Older overrides inherit the new stock frames without losing component edits or visual
+  bindings. Import and load allow thirteen components only for declared skeleton roots;
+  all other OAM families retain their existing eight-component limit.
+- **Confirmation:** the focused check failed before registration at `A4:E1FE`; it now
+  verifies all selected roots and offsets, exact schema append, legacy edits and bindings,
+  inheritance and incomplete-stock rejection. Constructed bytes for the thirteen-component
+  root pass through the real importer and loader with exact order/offset/OAM assertions.
+  Fourteen components and nine components on an unrelated family are rejected. The fake
+  source deliberately lacks hitbox bytes, confirming they are not imported as editable art.
+  Static audit removes exactly 33 identities and 35 references; no gameplay was executed.
+- **Player status:** implementation complete; actual battle appearance remains player validation.
+
+After this correction: **45 missing identities (120 references), 353 unresolved**.
+Original identity accounting: 219 corrected dependencies, two compiled no-op definitions,
+45 still under investigation. No analysis boundary has been waived.

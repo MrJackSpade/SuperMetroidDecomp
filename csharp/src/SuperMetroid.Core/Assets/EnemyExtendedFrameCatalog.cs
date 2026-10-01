@@ -114,6 +114,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount,
             EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount,
@@ -219,7 +222,7 @@ public sealed class EnemyExtendedFrameCatalog
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
-                visual is null || visual.Length > EnemyExtendedFrameDefinitions.MaximumComponents ||
+                visual is null || visual.Length > EnemyExtendedFrameDefinitions.MaximumOamComponents(definition) ||
                 (visual.Length == 0 && !EnemyExtendedFrameDefinitions.IsBg2Only(definition)))
                 throw new InvalidDataException(
                     $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
@@ -296,7 +299,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
             or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
             or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
-            or EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion)
+            or EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
+            or EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -347,6 +351,8 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("oum_oam_", StringComparison.Ordinal);
             if (left.StartsWith("crocomire_oam_", StringComparison.Ordinal))
                 return right.StartsWith("crocomire_oam_", StringComparison.Ordinal);
+            if (left.StartsWith("crocomire_skeleton_oam_", StringComparison.Ordinal))
+                return right.StartsWith("crocomire_skeleton_oam_", StringComparison.Ordinal);
             if (left.StartsWith("crocomire_body_oam_", StringComparison.Ordinal))
                 return right.StartsWith("crocomire_body_oam_", StringComparison.Ordinal);
             int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);

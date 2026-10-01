@@ -7,7 +7,7 @@ internal readonly record struct CrocomireInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Crocomire's body, melting and skeleton instruction programs.
-/// Interleaved extended-spritemap operands remain live cartridge presentation data.
+/// Interleaved selections resolve compiled physical identities to installed presentation data.
 /// </summary>
 internal static class CrocomireInstructionProgramDefinitions
 {
@@ -735,117 +735,11 @@ internal static class CrocomireInstructionProgramDefinitions
     ];
 
     /// <summary>
-    /// Entry 0 identifies the initial body's live spritemap operand at
-    /// $A4:BAE0. Its pinned NTSC J/U v1.0 stock pointer is $C2EC, between
-    /// duration $0001 at BADE and Fight AI $86A6 at BAE2. Retain this one
-    /// authored presentation identity as a live cartridge read; it is not
-    /// a second mechanics word or an indexed numeric progression.
-    /// The following twelve entries are the unused charge-forward list's
-    /// live spritemap operands at $A4:BAEC, BAF4, BAFA, BB00, BB06,
-    /// BB0C, BB12, BB1A, BB20, BB26, BB2C, and BB32. Their pinned ROM
-    /// values obey $BFC4 + $32*i exactly for indices 0 through 11,
-    /// ending at $C1EA. This bounded stock progression describes the
-    /// presentation data; the interpreter still reads each operand live.
-    /// The next 23 entries are projectile-attack spritemap operands at
-    /// $A4:BB3A-$BBA8. For zero-based indices 0..14, the pinned ROM
-    /// value is $C47A + $32*(i modulo 5), repeating one five-pointer
-    /// cycle three times. Indices 15..17 use $C574 + $3A*(i-15);
-    /// loop indices 18..22 use $C95C + $3A*(i-18), ending at $CA44.
-    /// These bounded stock identities do not replace live cartridge reads.
-    /// The later step-forward-after-delay entry at $A4:BBCC is one live
-    /// spritemap operand with pinned stock value $C6A4, between the
-    /// $00B4 duration at BBCA and StepForward opcode $8752 at BBCE.
-    /// Retain that one authored presentation identity.
-    /// The next twelve StepForward operands run from $A4:BBD2 to BC28.
-    /// For zero-based indices 0..2, stock pointer = $C574 + $3A*i;
-    /// for 3..11, stock pointer = $C752 + $3A*(i-3), ending at $C922.
-    /// The jump at index 3 is a different spritemap family. All twelve
-    /// operand addresses remain live cartridge presentation reads.
-    /// The single StepBack operand at $A4:BC32 has pinned stock value
-    /// $C5AE, between its two-frame duration and the SteppingBack list.
-    /// Retain this authored identity as a live presentation read.
-    /// The next five SteppingBack operands at $A4:BC36, BC3C, BC42,
-    /// BC48, and BC4E have pinned stock values $C1EA - $32*i for
-    /// zero-based indices 0..4, ending at $C122. This bounded descent
-    /// describes the stock spritemaps; the operands remain live reads.
-    /// The 32 wait-for-damage operands at $A4:BC58-$BCD4 have stride
-    /// four in instruction address. Their pinned stock pointer is
-    /// $C2EC + $3A*T(i) for indices 0..31: T(i)=6-i for 0..6;
-    /// for 7..31, r=(i-7) modulo 12 and T(i)=min(r,12-r).
-    /// This includes an extra $C2EC hold at index 7 before the
-    /// triangular cycle. The interpreter still reads all operands live.
-    /// The fifteen MovingClaws operands at $A4:BCDC-$BD22 repeat
-    /// $C47A + $32*(i modulo 5) for zero-based indices 0..14.
-    /// They equal ProjectileAttack's first fifteen stock operands
-    /// under instruction-address translation +$01A2. This three-cycle
-    /// identity leaves all presentation words as live cartridge reads.
-    /// The seventeen Roar operands at $A4:BD2C-$BD8A have pinned stock
-    /// pointer $C574 + $3A*min(i,2) for indices 0..16: two advances,
-    /// then $C5E8 through the rest of the list. This bounded saturation
-    /// describes stock content; each operand remains a live ROM read.
-    /// The six RoarCloseMouth operands at $A4:BD90, BD96, BD9C,
-    /// BDA0, BDA4, and BDAA use pinned stock pointer
-    /// $C5E8 - $3A*min(floor((i+1)/2),2) for indices 0..5.
-    /// This yields one $C5E8, two $C5AE, and three $C574 values;
-    /// each address remains a live presentation operand.
-    /// The power-bomb fully-open and partially-open operands at
-    /// $A4:BDB0 and BDB4 have pinned stock pointers $C5AE and
-    /// $C574: $C5AE - $3A*i for indices 0..1. A fully-open entry
-    /// traverses both; a partially-open entry begins at the second.
-    /// Both remain live cartridge presentation reads.
-    /// The 27 closed-mouth power-bomb operands have two bounded stock
-    /// rules. Prefix indices 0..14 use $C47A + $32*(i modulo 5),
-    /// the same three cycles as ProjectileAttack's first fifteen
-    /// operands under +$0280 instruction-address translation.
-    /// Loop indices 15..26 use $BFC4 + $32*(i-15), ending at $C1EA;
-    /// this matches the unused charge-forward pointer progression.
-    /// All 27 addresses remain live cartridge presentation reads.
-    /// The 30 near-spike-wall charge operands split at index 18.
-    /// For entry indices 0..17, pinned stock pointer is $C574+$3A*T(i):
-    /// T(0)=T(17)=0, T(1)=T(15)=T(16)=1, and T(2..14)=2.
-    /// Loop indices 18..29 use $BFC4+$32*(i-18), ending at $C1EA;
-    /// this is the same twelve-pointer run as the closed-mouth loop.
-    /// These bounded stock identities leave all 30 operands live.
-    /// The five BackOffFromSpikeWall operands at $A4:BF3E, BF44,
-    /// BF4A, BF50, and BF56 use $C1EA-$32*i for indices 0..4,
-    /// ending at $C122. This matches SteppingBack's stock pointer
-    /// descent, while the native movement callbacks differ. All
-    /// five back-off operands remain live cartridge reads.
-    /// The eight melting operands at $A4:BF66, BF6E, BF74, BF7A,
-    /// BF80, BF88, BF8E, and BF94 follow pinned stock pointer
-    /// $CA7E+$000A*i for i=4*pass+row, pass 0..1 and row 0..3.
-    /// The final pointer is $CAC4. The death-phase selector chooses
-    /// one row within a pass; its operand remains a live ROM read.
-    /// The four BridgeCollapsed operands at $A4:BFB2, BFB6, BFBC,
-    /// and BFC0 use pinned stock pointer $C574+$3A*abs(i-1)
-    /// for indices 0..3: $C5AE, $C574, $C5AE, $C5E8.
-    /// BFC2 is Sleep and BFC4 begins spritemap data; all four
-    /// instruction operands remain live cartridge reads.
-    /// The three skeleton-falling operands at $A4:E14C, E150,
-    /// and E154 use pinned stock pointer $E1FE+$002A*i for
-    /// indices 0..2, ending at $E252. Sleep at E156 ends the
-    /// list; all three pose operands remain live ROM reads.
-    /// The twenty SkeletonFallsApart operands at $A4:E15A-$E1C4
-    /// select eighteen consecutive extended spritemap records.
-    /// Starting M(0)=$E27C, each M(j+1)=M(j)+2+8*count(M(j))
-    /// for j=0..16, using the live record's two-byte component
-    /// count and eight-byte components. P(i)=M(i-[i&gt;=2]-[i&gt;=4])
-    /// for operand indices 0..19: positions 2 and 4 repeat the
-    /// preceding pose. Pinned header counts are ten 5s, then 9,
-    /// three 13s, 12, 10, 6, and 3; M(17)=$E68E. This bounded
-    /// record walk explains stock pointers without freezing their
-    /// live cartridge presentation reads.
-    /// The stable and dead skeleton operands at $A4:E1C8 and E1CE
-    /// have pinned stock pointers $E6A8 and $E6B2, or
-    /// $E6A8+$000A*i for i=0..1. They continue the record walk:
-    /// count 3 at $E68E yields $E6A8, then count 1 yields $E6B2.
-    /// Both distinct one-component poses remain live ROM reads.
-    /// The ten river-skeleton operands at $A4:E1D4-$E1F8 have
-    /// pinned stock pointer $E6BC+$000A*i for indices 0..9,
-    /// ending at $E716. Each target extended map has one component,
-    /// so its two-byte header plus eight-byte component explains
-    /// the stride. The first follows dead-skeleton map $E6B2;
-    /// all ten river operands remain live cartridge reads.
+    /// Finite visual operand addresses for Crocomire's fight-body and corpse/skeleton
+    /// programs. CompiledEnemyVisualSelectors owns their immutable physical selections;
+    /// installed extended compositions own visual offsets and OAM parts only.
+    /// The fight-body and skeleton catalogs partition those selected roots without
+    /// reading cartridge data during gameplay or changing collision/timing metadata.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

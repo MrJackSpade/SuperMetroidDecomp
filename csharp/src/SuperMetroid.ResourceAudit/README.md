@@ -101,6 +101,7 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --frien
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeEtecoon
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeDachora
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --ordinary-enemy-resource-check Hibashi
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --crocomire-skeleton-resource-check
 ```
 
 The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,
@@ -109,6 +110,10 @@ or `Shitroid`, each targeting its already identified catalog omission.
 These constructed-data checks confirm selected compositions and legacy edit inheritance;
 they do not execute gameplay or search for additional defects. Reconciliation evidence is
 recorded in [FINDING-RESOLUTION.md](FINDING-RESOLUTION.md).
+
+The Crocomire skeleton check also confirms the identified thirteen-component collapse pose
+through the production importer and loader. Its synthetic source has no hitbox bytes,
+and verifies that the increased component bound applies only to the skeleton family.
 
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --self-check

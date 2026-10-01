@@ -12,12 +12,19 @@ internal static partial class Program
         int globalMismatches = 0;
         for (int i = 0; i < 512; i++)
         {
-            Equal(native[i], (int)SnesDspTables.GaussianValues[i], $"compiled DSP Gaussian {i}");
+            Equal(native[i], (int)SnesDspTables.GaussianCoefficient(i), $"compiled DSP Gaussian {i}");
             Equal(native[i], Gaussian(i), $"analytic DSP Gaussian {i}");
             if ((int)decimal.Floor(262144 * GaussianRaw(i) / globalSum + 0.5m) != native[i]) globalMismatches++;
         }
         Equal(23, globalMismatches, "global normalization is not phase normalization");
         CheckBounds(Gaussian, 511);
+        foreach (int index in new[] { int.MinValue, -1, 512, int.MaxValue })
+        {
+            bool rejected = false;
+            try { SnesDspTables.GaussianCoefficient(index); }
+            catch (IndexOutOfRangeException) { rejected = true; }
+            Equal(true, rejected, $"DSP coefficient bound {index}");
+        }
         Console.WriteLine("PASS: 512/512 DSP Gaussian coefficients from phase-normalized windowed sinc, with deterministic rounding intervals.");
     }
 

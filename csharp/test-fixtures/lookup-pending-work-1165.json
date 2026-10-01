@@ -16,13 +16,6 @@
                       "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
                       "status":  "pending",
                       "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
-                      "id":  "dsp-gaussian-coefficients",
-                      "owner":  "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
-                      "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
                   }
               ]
 }

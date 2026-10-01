@@ -140,7 +140,11 @@
                                   "zoa-speed-cases":  {
                                                           "subject":  "Replace Zoa speed lookup with shooting-stage cases for #1165",
                                                           "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Zoa speed lookup with shooting-stage cases for #1165\""
-                                                      }
+                                                      },
+                                  "dsp-gaussian-algorithm":  {
+                                                                 "subject":  "Calculate DSP interpolation coefficients without lookup storage for #1165",
+                                                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Calculate DSP interpolation coefficients without lookup storage for #1165\""
+                                                             }
                               },
     "tables":  [
                    {
@@ -1070,7 +1074,7 @@
                                        },
                                        {
                                            "id":  "dsp-gaussian-coefficients",
-                                           "state":  "unreviewed",
+                                           "state":  "converted",
                                            "owner":  "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
                                            "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
                                            "consumers":  [
@@ -1078,7 +1082,13 @@
                                                              "LookupTableResearch.VerifyGaussian"
                                                          ],
                                            "domain":  "Direct array index0..511; offset=(PitchCounter\u003e\u003e4)\u0026255 generates255-offset,511-offset,256+offset,offset. No out-of-bounds compatibility domain.",
-                                           "interpretation":  "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1."
+                                           "interpretation":  "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1.",
+                                           "implementationCommit":  "dsp-gaussian-algorithm",
+                                           "disposition":  "Remove 512 stored coefficients and the array-length initializer. Evaluate a Blackman-windowed sinc, normalize each four-tap phase, and round at scale 2048 using deterministic decimal arithmetic.",
+                                           "rationale":  "The established analytic construction exactly explains all native hardware coefficients. Phase normalization is essential; global normalization differs at 23 entries. No generated sample cache or ordinary-entry corrections.",
+                                           "reviewedEvidence":  "Pinned upstream-sm 578f90b3cc49557bb70060ad033bb90b8cf8ac50 src/snes/dsp.c gaussValues and interpolation; every current ManagedSnesDsp tap/index transform. Original integer coefficients supply the independent oracle; existing analytic proof certifies rounding intervals.",
+                                           "proofTest":  "LookupTableResearch.VerifyGaussian (existing proof)",
+                                           "confirmation":  "All 512 original coefficients, independent analytic rounding intervals and invalid production index bounds. Research/Core build passes; no audio sweep."
                                        }
                                    ]
                     },
@@ -1251,7 +1261,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-absolute-tangent",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases",
-                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-speed-cases"
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-speed-cases",
+                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --dsp-gaussian-only"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

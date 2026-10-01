@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--kraid-growth-command-cursor"])
+{
+    VerifyKraidGrowthCommandCursor();
+    return 0;
+}
 if (args is ["--power-bomb-death-drawing"])
 {
     VerifyPowerBombDeathDrawing();

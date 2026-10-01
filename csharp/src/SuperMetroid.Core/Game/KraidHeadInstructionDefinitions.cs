@@ -91,24 +91,30 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
-    /// Resolves the tilemap word at offset two of a timed frame. Authored upper-ROM
-    /// records use the compiled catalog. A restored low-half pointer still aliases live
+    /// Reads the word at cursor + 2 used by HandleKraidPhase1 at $A7:C026.
+    /// This is a tilemap only for timed frames; sound/terminal cursors read the next
+    /// record's first word without executing it. Authored upper-ROM records use the
+    /// compiled catalog. A restored low-half pointer still aliases live
     /// SNES memory exactly as the cartridge does; the three possible bytes where that
     /// low-half record crosses $7FFF are retained from the bank-$A7 LoROM boundary.
     /// </summary>
-    public static ushort ResolveFrameTilemap(ISnesAddressSpace bus, ushort pointer)
+    public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (KraidHeadInstructionDefinition definition in Definitions)
         {
             if (definition.Pointer != pointer)
                 continue;
-            if (definition.Kind != KraidHeadInstructionKind.Frame)
-            {
-                throw new InvalidDataException(
-                    $"Kraid head instruction $A7:{pointer:X4} is not a timed frame.");
-            }
-            return definition.Tilemap;
+            if (definition.Kind == KraidHeadInstructionKind.Frame)
+                return definition.Tilemap;
+
+            // The final terminator borders the mouth geometry; all other sound
+            // and terminal records border a timed frame. Preserve the raw read,
+            // including the duration which triggers the native quick-kill delay.
+            ushort following = unchecked((ushort)(pointer + 2));
+            return KraidMouthHitboxes.IsDefined(following)
+                ? unchecked((ushort)KraidMouthHitboxes.Resolve(following).Left)
+                : Resolve(following).Duration;
         }
 
         if (pointer >= 0x8000)
@@ -125,12 +131,12 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
-    /// Ports $A7:AC0B's tilemap-dependent resume selection used when Kraid crosses the
+    /// Ports $A7:C029-$C04F's raw-word-dependent resume selection when Kraid crosses the
     /// one-eighth-health growth boundary. The returned cursor names the next command,
     /// while the timer retains the current displayed head frame.
     /// </summary>
-    public static KraidHeadResumeDefinition GrowthResume(ushort currentTilemap) =>
-        currentTilemap switch
+    public static KraidHeadResumeDefinition GrowthResume(ushort selectionWord) =>
+        selectionWord switch
         {
             0x97c8 => new(0x970c, RoarEntryTimer),
             0x9ac8 => new(0x9704, RoarEntryTimer),

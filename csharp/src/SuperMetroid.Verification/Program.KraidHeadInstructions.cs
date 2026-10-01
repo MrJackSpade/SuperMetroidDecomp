@@ -68,10 +68,10 @@ internal static partial class Program
             () => KraidHeadInstructionDefinitions.Resolve(0x9788),
             "Kraid head catalog rejects following mouth geometry");
         AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x8000),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x8000),
             "Kraid head tilemap resolver rejects unrelated upper-ROM code");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x3ffe),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x3ffe),
             "Kraid head low-half alias rejects unmapped expansion space");
 
         Console.WriteLine(

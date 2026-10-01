@@ -166,9 +166,9 @@ public sealed partial class ManagedSpcPlayer
     private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
-        if ((uint)tableIndex >= SpcMusicTables.EffectByteLengths.Length)
+        if ((uint)tableIndex >= SpcMusicTables.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
-        byte argument = SpcMusicTables.EffectByteLengths[tableIndex] != 0
+        byte argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
             ? ram[channel.PatternOrderPointer++]
             : (byte)0;
 
@@ -351,7 +351,7 @@ public sealed partial class ManagedSpcPlayer
                 if (command == (byte)SpcMusicEffect.CallPattern)
                     pointer = ReadWord(pointer);
                 else if (command >= SpcDriverData.Music.FirstEffect)
-                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLengths[command - SpcDriverData.Music.FirstEffect]);
+                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLength(command - SpcDriverData.Music.FirstEffect));
                 else
                     return true;
             }

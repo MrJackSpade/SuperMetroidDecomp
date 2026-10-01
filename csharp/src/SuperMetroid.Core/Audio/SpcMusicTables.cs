@@ -3,25 +3,46 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Immutable lookup tables embedded in Super Metroid's uploaded music driver.</summary>
 internal static class SpcMusicTables
 {
-    /// <summary>Argument-byte count for opcodes $E0-$FE.</summary>
-    /// <remarks>
-    /// Issues #625 and #923 retain this 31-entry command-format catalog. The
-    /// pinned NTSC J/U v1.0 ROM at $CF:87A8 (file $2787A8) matches every byte
-    /// of kEffectByteLength in upstream-sm/src/spc_player.c and this array.
-    /// Each entry is the authored operand count for one opcode, not a sampled
-    /// numeric function: adjacent opcodes have unrelated semantics and arities.
-    /// The native decoder reads the first operand when the count is nonzero,
-    /// then individual handlers consume remaining operands; key-off lookahead
-    /// skips the entire count. A replacement must preserve all 31 mappings,
-    /// reject opcodes outside $E0-$FE, and retain those distinct read paths.
-    /// No shorter generator is supported by the command format evidence.
-    /// </remarks>
-    internal static readonly byte[] EffectByteLengths =
-    [
-        1, 1, 2, 3, 0, 1, 2, 1, 2, 1, 1, 3, 0, 1, 2, 3,
-        1, 3, 3, 0, 1, 3, 0, 3, 3, 3, 1, 2, 0, 0, 0,
-    ];
+    /// <summary>$CF:87A8 uploaded driver kEffectByteLength, opcode E0 through FE.</summary>
+    internal const int EffectLengthReferenceAddress = 0xcf87a8;
+    /// <summary>Number of contiguous native effect opcodes from SetInstrument through SetFastForward.</summary>
+    internal const int EffectCount = (int)SpcMusicEffect.SetFastForward - (int)SpcMusicEffect.SetInstrument + 1;
 
+    /// <summary>Returns the operand count for the zero-based native effect index 0..30.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against all NTSC J/U v1.0 bytes, pinned
+    /// spc_player.c and decoder/codec/lookahead consumers. Named opcode cases express
+    /// command format directly; numerical fitting has no meaning here. The decoder
+    /// pre-reads one operand when count is nonzero, handlers consume the remainder,
+    /// and lookahead skips the whole count. SkipByte thus has count2, while the final
+    /// three commands have count0. Preserve IndexOutOfRangeException outside0..30;
+    /// callers with explicit InvalidDataException guards retain those guards.
+    /// </remarks>
+    internal static byte EffectByteLength(int index)
+    {
+        if ((uint)index >= EffectCount) throw new IndexOutOfRangeException();
+        return (SpcMusicEffect)(index + (int)SpcMusicEffect.SetInstrument) switch
+        {
+            SpcMusicEffect.DisableVibrato or SpcMusicEffect.DisableTremolo or
+            SpcMusicEffect.DisablePitchEnvelope or SpcMusicEffect.DisableEcho or
+            SpcMusicEffect.CutKey or SpcMusicEffect.FastForwardForFrames or
+            SpcMusicEffect.SetFastForward => 0,
+            SpcMusicEffect.SetInstrument or SpcMusicEffect.SetPan or
+            SpcMusicEffect.SetMasterVolume or SpcMusicEffect.SetTempo or
+            SpcMusicEffect.SetGlobalTransposition or SpcMusicEffect.SetChannelTransposition or
+            SpcMusicEffect.SetChannelVolume or SpcMusicEffect.FadeVibrato or
+            SpcMusicEffect.SetFineTune or SpcMusicEffect.SetPercussionBase => 1,
+            SpcMusicEffect.FadePan or SpcMusicEffect.FadeMasterVolume or
+            SpcMusicEffect.FadeTempo or SpcMusicEffect.FadeChannelVolume or
+            SpcMusicEffect.SkipByte => 2,
+            SpcMusicEffect.EnableVibrato or SpcMusicEffect.EnableTremolo or
+            SpcMusicEffect.CallPattern or SpcMusicEffect.PitchEnvelopeTo or
+            SpcMusicEffect.PitchEnvelopeFrom or SpcMusicEffect.EnableEcho or
+            SpcMusicEffect.ConfigureEcho or SpcMusicEffect.FadeEchoVolume or
+            SpcMusicEffect.PitchSlide => 3,
+            _ => throw new IndexOutOfRangeException(),
+        };
+    }
     /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
     /// <remarks>
     /// Issues #625 and #924 retain the 22 authored samples. The pinned NTSC
@@ -92,7 +113,7 @@ internal static class SpcMusicTables
     }
     static SpcMusicTables()
     {
-        if (EffectByteLengths.Length != 31 || BaseNoteFrequencies.Length != 13)
+        if (BaseNoteFrequencies.Length != 13)
         {
             throw new InvalidDataException("One or more fixed SPC music tables have an invalid length.");
         }

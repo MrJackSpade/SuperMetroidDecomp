@@ -88,8 +88,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Record independent window-curve retain decisions for #1165'"
     },
     "spc-note-percentages": {
+      "sha": "b94449802bba3bfbf96e648353d55cac39a55ed5",
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
+    },
+    "spc-effect-selection": {
+      "subject": "Replace SPC effect operand table with named cases for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace SPC effect operand table with named cases for #1165'"
     }
   },
   "tables": [
@@ -682,6 +687,20 @@
     ],
     "confirmationScope": "Two named original-ROM proofs cover every timing-command byte0..127, all24 physical values and invalid bounds. Source/compiler checks migrate all old array references; historical research target builds without running its broad suite."
   },
+  "spcEffectReview": {
+    "id": "spc-effect-operand-counts", "state": "converted",
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+    "implementationCommit": "spc-effect-selection",
+    "nativeIdentity": "$CF:87A8 uploaded driver kEffectByteLength, 31 bytes for E0..FE",
+    "reviewedEvidence": "Read full pinned upstream-sm/src/spc_player.c kEffectByteLength and HandleEffect/WantWriteKof (commit578f90b3cc49557bb70060ad033bb90b8cf8ac50), current SpcMusicEffect enum, decoder pre-read, key-off lookahead, and both definition-codec encode/decode paths. Independently compare every mapping with original NTSC ROM bytes.",
+    "consumers": ["ManagedSpcPlayer.HandleEffect: read first argument iff count nonzero", "ManagedSpcPlayer.WantsKeyOff: skip complete operand count, CallPattern handled separately", "SpcMusicDefinitionCodec encoder: validate argument count", "SpcMusicDefinitionCodec decoder: consume exact argument count"],
+    "domain": "Zero-based int effect index0..30, derived by opcode-E0. Invalid lookup indices preserve IndexOutOfRangeException; decoder and codec preserve their existing explicit InvalidDataException guards. No accepted FF mapping or overread.",
+    "interpretation": "Opcode operand arity, unsigned byte count0..3; not a sampled numerical curve.",
+    "disposition": "Named SpcMusicEffect switch groups all31 opcodes by arity; array storage removed, all consumers migrated, research project links the enum.",
+    "rationale": "User-authorized case-selection conversion replaces positional arity bytes with directly readable command semantics. Native SkipByte is two operands (one pre-read plus one skipped), while CutKey/FastForwardForFrames/SetFastForward have zero, relying on zero implicit argument. Preserve these exact authored conventions rather than infer arity from command names.",
+    "proofTest": "VerifySpcEffectOperandSelection",
+    "confirmationScope": "One complete original-ROM mapping proof and invalid bounds; source/compiler review confirms identical caller indexing, guards and argument consumption. No song sweep or unrelated audio testing."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "ShaktoolOrbitTables",
@@ -709,6 +728,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection"
   ]
 }

@@ -30,12 +30,23 @@ internal static partial class Program
             if (git.ExitCode != 0)
                 throw new InvalidOperationException($"git ls-files failed: {git.ExitCode}.");
 
+            using var review = JsonDocument.Parse(File.ReadAllText(
+                "csharp/test-fixtures/lookup-algorithm-review-1165.json"));
+            var links = new Dictionary<string, List<ReviewLink>>(StringComparer.Ordinal);
+            var unlinked = new List<ReviewLink>();
+            CollectReviewLinks(review.RootElement, null);
+            var trackedPaths = tracked.Split('\0', StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal);
+
             using var output = new StreamWriter(args[0], append: false);
             Write(new
             {
                 kind = "scope", issue = 1165,
                 method = "C# syntax only; no gameplay or test execution",
                 limitations = "Candidate members are not logical-table dispositions. Split fields, reconcile aliases, inspect consumers and independently verify evidence. No-hit files still need manual review for externally loaded or computed mappings. Non-C# sources require manual review. Expected-output fixtures are not automatically excluded.",
+                reviewInventory = "csharp/test-fixtures/lookup-algorithm-review-1165.json",
+                reviewLinkMeaning = "Owner-level navigation only. Listed logical-table states come from the review inventory and do not establish whole-file coverage or validate changes since review.",
+                reviewsWithoutOwner = unlinked.OrderBy(item => item.Id, StringComparer.Ordinal),
+                untrackedReviewOwners = links.Keys.Where(path => !trackedPaths.Contains(path)).Order(StringComparer.Ordinal),
             });
             int files = 0, candidates = 0;
             foreach (string path in tracked.Split('\0', StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal))
@@ -48,7 +59,7 @@ internal static partial class Program
                 files++;
                 if (extension != ".cs")
                 {
-                    Write(new { kind = "manual-path", path, state = "unreviewed", note = "Classify source, data, bundled support or non-target artifact before exclusion." });
+                    Write(new { kind = "manual-path", path, state = "unreviewed", reviewedLogicalTables = ReviewsFor(path), note = "Classify source, data, bundled support or non-target artifact before exclusion." });
                     continue;
                 }
                 string source = File.ReadAllText(path);
@@ -84,12 +95,39 @@ internal static partial class Program
                     candidates++;
                 }
                 bool hasInactiveCode = root.DescendantTrivia(descendIntoTrivia: true).Any(t => t.IsKind(SyntaxKind.DisabledTextTrivia));
-                Write(new { kind = "csharp-source", path, sha256 = hash, state = "unreviewed", hasInactiveCode, members });
+                Write(new { kind = "csharp-source", path, sha256 = hash, state = "unreviewed", reviewedLogicalTables = ReviewsFor(path), hasInactiveCode, members });
             }
             Console.WriteLine($"Static index: {files} tracked paths; {candidates} C# candidate members. No dispositions inferred.");
             return 0;
 
             void Write(object value) => output.WriteLine(JsonSerializer.Serialize(value));
+
+            ReviewLink[] ReviewsFor(string path) => links.TryGetValue(path, out var items)
+                ? items.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() : [];
+
+            void CollectReviewLinks(JsonElement node, string? inheritedOwner)
+            {
+                if (node.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (JsonElement item in node.EnumerateArray()) CollectReviewLinks(item, inheritedOwner);
+                    return;
+                }
+                if (node.ValueKind != JsonValueKind.Object) return;
+                string? owner = node.TryGetProperty("owner", out var ownerNode) && ownerNode.ValueKind == JsonValueKind.String
+                    ? ownerNode.GetString() : inheritedOwner;
+                if (node.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.String &&
+                    node.TryGetProperty("state", out var state) && state.ValueKind == JsonValueKind.String)
+                {
+                    var link = new ReviewLink(id.GetString()!, state.GetString()!);
+                    if (owner is null) unlinked.Add(link);
+                    else
+                    {
+                        if (!links.TryGetValue(owner, out var items)) links.Add(owner, items = []);
+                        items.Add(link);
+                    }
+                }
+                foreach (JsonProperty child in node.EnumerateObject()) CollectReviewLinks(child.Value, owner);
+            }
         }
         catch (Exception exception)
         {
@@ -97,6 +135,8 @@ internal static partial class Program
             return 1;
         }
     }
+
+    private sealed record ReviewLink(string Id, string State);
 
     private static partial class NativeConsoleProcess
     {

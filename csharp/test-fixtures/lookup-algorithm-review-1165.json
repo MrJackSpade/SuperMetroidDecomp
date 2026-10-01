@@ -1,10 +1,16 @@
 {
   "issue": 1165,
   "inventoryState": "partial; source reconciliation and independent review ongoing",
+  "sourceIndex": {
+    "path": "csharp/test-fixtures/lookup-source-index-1165.jsonl",
+    "command": "dotnet run --project csharp/tools/LookupSourceIndex -- csharp/test-fixtures/lookup-source-index-1165.jsonl",
+    "meaning": "Static navigation snapshot of tracked paths and candidate C# members, not independently reviewed logical tables. All paths require classification; no-hit files and inactive preprocessor regions still need manual inspection. Refresh after source changes."
+  },
   "rules": [
     "Only entries explicitly marked converted or retained have a disposition under this ticket.",
     "Historical XML formulas and closed research issues are inputs, not reviewed dispositions.",
     "Owner candidates must be split into separately indexed logical fields; aliases share one entry.",
+    "User-authorized switch/case conversion is valid when a table clearly represents fixed case selection or dispatch; preserve domain, compatibility exceptions and one independent proof per logical table.",
     "Discover through source and call graphs only. Do not run research suites or gameplay to choose work.",
     "No repository-wide completion claim: unlisted tables are unreviewed, not excluded."
   ],
@@ -27,8 +33,13 @@
       "resolve": "git log -1 --format=%H --diff-filter=A -- csharp/test-fixtures/lookup-algorithm-review-1165.json"
     },
     "phase-integer-algorithms": {
+      "sha": "fb96dfedbf194742f3f5f006197e335e376dbf6b",
       "subject": "Implement bounded phase and combo algorithms for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Implement bounded phase and combo algorithms for #1165'"
+    },
+    "source-index-and-robot-selector": {
+      "subject": "Index lookup review scope and convert Work Robot selector for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Index lookup review scope and convert Work Robot selector for #1165'"
     }
   },
   "tables": [
@@ -145,6 +156,35 @@
       "proofTest": "VerifyDraygonIntroLatencyDefinitions (existing proof reused)",
       "implementationCommit": "phase-integer-algorithms"
     }
+    ,
+    {
+      "id": "work-robot-initial-instruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/WorkRobotInitializationDefinitions.cs",
+      "nativeIdentity": "$A8:CC30 InitAI_RobotNoPower.pointers; $A8:CC36 MainAI_Robot opcode overread",
+      "consumers": ["RoomEnemySystem.WorkRobot.InitializeWorkRobotNoPower"],
+      "domain": "int selector 0..3; native little-endian word at base+2*selector; caller sanitizes negative or >=4 to zero",
+      "interpretation": "Neutral/left/right list selection for 0..2; selector 3 observes the first opcode word of adjacent code, not a fourth authored list.",
+      "reviewedEvidence": "Read full native initialization and named targets in pinned bank_A8.asm; all eight bytes independently read from SHA-256-identified NTSC ROM. Existing proof extracted and compared every production result and real initializer with original cartridge words.",
+      "disposition": "Remove pointer array; explicit named switch cases including the bounded opcode-overread case.",
+      "rationale": "Clear case-selection semantics under user's switch permission. Arithmetic six-byte stride would obscure symbolic choices and couple selection to list storage layout; selector 3 must not extrapolate it.",
+      "proofTest": "VerifyWorkRobotInitialSelection (extracted from existing combined selector verifier)",
+      "implementationCommit": "source-index-and-robot-selector"
+    },
+    {
+      "id": "zoa-horizontal-speed",
+      "state": "retained",
+      "owner": "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
+      "nativeIdentity": "$A3:B415 ZoaXSpeedTable, five whole/fraction pairs",
+      "consumers": ["RoomEnemySystem.Zoa.RunZoaShooting"],
+      "domain": "ushort byteOffset 0..16 inclusive; all complete four-byte windows in twenty-byte definition, including unaligned and cross-record views",
+      "interpretation": "High word then fractional word, each little-endian, assembled into signed 16.16; caller applies direction by addition/subtraction. Trailing zero record remains readable.",
+      "reviewedEvidence": "Read all native NTSC/PAL words and $A3:B4E0/B4FD consumers, plus compiled caller and byte-window implementation. Independently read all twenty NTSC ROM bytes; they match the compiled ten words.",
+      "disposition": "Retain compact word table and exact byte-window accessor.",
+      "rationale": "Authored speeds 0,1/2,5/8,2,0 lack constant first/second differences or geometric ratios. A piecewise numerical formula merely restates choices. Unlike a discrete phase dispatcher, public reads include every unaligned byte window; a phase switch would lose that contract and a per-window switch would obscure the original five records.",
+      "proofTest": "No new test for retain decision; existing Zoa checks retained.",
+      "implementationCommit": "source-index-and-robot-selector"
+    }
   ],
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
@@ -156,8 +196,6 @@
     "ShaktoolSegmentDefinitions: property, owner offset, angle, instruction, layer, callback, velocity fields",
     "ShaktoolAngularVelocityDefinitions: alias of segment velocity and initialization subtraction table",
     "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
-    "WorkRobotInitializationDefinitions: instruction selection and adjacent-code compatibility entry",
-    "ZoaSpeedDefinitions: whole/fraction and unaligned byte views",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
   ],
@@ -170,6 +208,7 @@
   ],
   "confirmationCommands": [
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection"
   ]
 }

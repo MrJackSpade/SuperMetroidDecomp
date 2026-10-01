@@ -1511,5 +1511,52 @@
                        "proofTest":  "VerifyCrocomireProjectilePresentationPositions (extracted from existing program proof)"
                    }
                ]
+},
+    "crocomireMeltTransferReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingTransferDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate Crocomire melt transfer records from native layout for #1165\"",
+                                 "subject":  "Generate Crocomire melt transfer records from native layout for #1165"
+                             },
+    "consumers":  [
+                      "RoomEnemySystem.CrocomireMelting",
+                      "CrocomireMeltingArtwork",
+                      "EnemyTileArtworkFiles.ExtractCrocomireMelt",
+                      "existing melt and artwork verification fixtures"
+                  ],
+    "reviewedEvidence":  "Pinned bank_A4.asm complete A4:9BC5-9C78 records, native copy and upload formats, current runtime cursor handling and artwork extraction/padding consumers; SHA-verified NTSC J/U v1.0 ROM.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-melt-transfers",
+    "tables":  [
+                   {
+                       "id":  "crocomire-melt-pass-headers",
+                       "disposition":  "Select six/seven chunks by named header; fixed metadata and record sizes derive transfer start, end and next header. Remove First/Second and AllPasses stored records; enumerate calculated values.",
+                       "state":  "converted",
+                       "nativeIdentity":  "A4:9BC5 and A4:9C19 headers",
+                       "confirmation":  "Both original headers, independent offsets and counts, selectors, enumeration and bounds. Copy/upload proofs confirm native terminators and derived boundaries.",
+                       "rationale":  "Native eight-byte headers, four-byte copy pairs, eight-byte uploads and two-byte sentinels determine serialized cursors.",
+                       "domain":  "Header offsets 0 and 0x54; transfer starts 0x22 and 0x7a, InvalidDataException otherwise. Pass enumeration indices 0..1.",
+                       "proofTest":  "VerifyCrocomireMeltHeaders (extracted from existing catalog proof)"
+                   },
+                   {
+                       "id":  "crocomire-melt-copy-records",
+                       "disposition":  "Calculate source A07D/AC7D plus 0x200*index and scratch destination 0x4000+0x200*index. Enumerate value records without storing arrays.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Six copy pairs at A4:9BCD and seven at A4:9C21",
+                       "confirmation":  "All thirteen original source/destination pairs, copy terminators, upload starts, enumeration and invalid indices.",
+                       "rationale":  "Regular native chunk geometry, including the seventh second-pass source B87D. Keep inclusive 0x201-word copy contract and overlapping adjacent data.",
+                       "domain":  "Index 0..5 first pass, 0..6 second; IndexOutOfRangeException otherwise.",
+                       "proofTest":  "VerifyCrocomireMeltCopies (extracted from existing catalog proof)"
+                   },
+                   {
+                       "id":  "crocomire-melt-upload-records",
+                       "disposition":  "Generate 0x160-byte uploads from bank7E scratch 0x4000+0x200*index to VRAM word 0x100*index; preserve TryUpload cursor validation and terminal false result.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Six eight-byte records at A4:9BE7 and seven at A4:9C3F",
+                       "confirmation":  "All thirteen original four-field records, sentinel words and next header offsets, indexed/foreach access, cursor selection and invalid boundaries.",
+                       "rationale":  "Fixed transfer size and source/destination strides describe both native lists.",
+                       "domain":  "Index 0..5/0..6; native aligned upload cursors, false at 0x52 and 0xb2 sentinels, InvalidDataException for unsupported cursor.",
+                       "proofTest":  "VerifyCrocomireMeltUploads (extracted from existing catalog proof)"
+                   }
+               ]
 }
 }

@@ -34,7 +34,7 @@ internal static partial class Program
                     "only the native transfer terminator advances the phase");
                 if (record < pass.Uploads.Length)
                 {
-                    CrocomireMeltingUpload upload = pass.Uploads.Span[record];
+                    CrocomireMeltingUpload upload = pass.Uploads[record];
                     int offset = upload.SourceWord - 0x4000;
                     AssertTrue(baseline.Vram.Bytes.Slice(upload.DestinationWord * 2, upload.ByteCount)
                         .SequenceEqual(baseline.Effect.MeltingGraphics.Slice(offset, upload.ByteCount)), "exact scheduled VRAM upload");

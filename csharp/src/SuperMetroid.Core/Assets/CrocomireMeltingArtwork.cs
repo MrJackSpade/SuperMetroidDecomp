@@ -136,7 +136,7 @@ public sealed class CrocomireMeltingArtwork
     internal static int UsedByteCount(CrocomireMeltingPass pass)
     {
         int end = 0;
-        foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+        foreach (CrocomireMeltingCopy copy in pass.Copies)
             end = Math.Max(end, copy.DestinationWord - 0x4000 + (pass.WordsToCopy + 1) * 2);
         return end;
     }

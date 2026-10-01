@@ -750,3 +750,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 26 unresolved**, all 352 consumers retained. This proves
   required key presence in successfully constructed catalogs, not arbitrary
   source selection, page choice, upload destinations or pixels. #1156 stays active.
+
+## Complete room layouts - two further accounted boundaries
+
+- **Findings:** two room-layout lookups had no closure proof. Unlike the production
+  importer, the public catalog constructor admitted arbitrary partial dictionaries.
+- **Reproduced cause/solution:** a complete constructed dictionary with one required
+  source removed was accepted; the regression assertion failed before production
+  changed. Public construction now requires every immutable compiled room-state
+  source, rejects null or identity-mismatched layouts, and copies the dictionary.
+  The existing two-layout content-identity fixture uses a separate internal partial
+  factory. A semantic ownership guard revokes completeness if Core uses that factory.
+- **Confirmation:** the previously failing missing-source assertion passes, along
+  with null/mismatched-entry rejection and caller-dictionary independence. Three
+  source calls first expose absent adapters; two qualify and a known unowned key
+  stays unresolved. A constructed Core partial-factory caller revokes all three.
+  Audit and Verification builds and all auditor checks pass. No ROM, save, layout
+  file, room, renderer or gameplay was opened.
+- **Accounting:** 327 guarded classifications plus two metadata corrections
+  account for **329 of the original 353 boundaries**. Current report: **zero
+  missing identities, 24 unresolved**, all 352 consumers retained. This is required
+  source membership, not arbitrary caller selection, geometry, collision changes,
+  host binding, destinations or pixels. #1156 remains active.

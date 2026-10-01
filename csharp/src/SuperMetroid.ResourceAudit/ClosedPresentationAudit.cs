@@ -48,6 +48,14 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "FromCompiledRowsForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
                             factory.ContainingType.ToDisplayString() == typeof(CreditsPresentation).FullName));
+            // Partial room geometry is useful in focused fixtures, but a Core
+            // caller of that factory invalidates complete production membership.
+            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "FromLayoutsForVerification")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
+                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName));
             if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()

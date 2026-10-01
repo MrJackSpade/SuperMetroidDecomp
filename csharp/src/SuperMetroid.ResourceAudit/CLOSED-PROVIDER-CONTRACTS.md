@@ -559,3 +559,21 @@ key remains unresolved. Removing exact-key admission revokes the rule. Audit and
 Verification projects build and all auditor checks pass. No ROM, save, installed
 artwork, room or gameplay was opened. Only required-key presence is certified, not
 arbitrary source selection, page size selection, WRAM/VRAM destinations or pixels.
+
+## Room-layout installation - two additional original boundaries
+
+Production construction now requires a matching nonnull layout for every source
+in the immutable compiled room-state domain, then independently copies the keys.
+The former constructor admitted any subset; a constructed missing-source fixture
+reproduced that gap before the production change. The importer already required
+complete installation. Small content-identity fixtures now use an explicitly
+internal partial factory, whose use outside the reviewed provider in Core revokes
+the rule through semantic symbol ownership rather than a text-only name check.
+
+Missing/null/mismatched source entries and dictionary independence are confirmed.
+Three constructed source calls expose absent adapters first; two qualify and the
+known unowned key stays unresolved. A constructed production partial-factory call
+revokes all three classifications. Both affected projects build and all auditor
+checks pass. No ROM, saves, installed layouts, rooms, rendering or gameplay was
+opened. Membership does not certify caller source selection, geometry, collision
+data, binding, destination placement or pixels.

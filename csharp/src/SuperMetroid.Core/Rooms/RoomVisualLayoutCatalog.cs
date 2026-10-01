@@ -55,10 +55,30 @@ public sealed class RoomVisualLayoutCatalog
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
     public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts)
+        : this(layouts, requireCompleteInstallation: true)
+    {
+    }
+
+    private RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
+        bool requireCompleteInstallation)
     {
         ArgumentNullException.ThrowIfNull(layouts);
         this.layouts = new Dictionary<int, RoomVisualLayout>(layouts);
+        foreach ((int source, RoomVisualLayout layout) in this.layouts)
+            if (layout is null || layout.SourceAddress != source)
+                throw new InvalidDataException(
+                    $"Room visual layout key ${source:X6} must contain its matching nonnull layout.");
+        if (requireCompleteInstallation)
+            foreach (int source in RoomVisualLayoutSourceDefinitions.All)
+                if (!this.layouts.ContainsKey(source))
+                    throw new InvalidDataException(
+                        $"Installed room visual layouts lack required source ${source:X6}.");
     }
+
+    /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
+    internal static RoomVisualLayoutCatalog FromLayoutsForVerification(
+        IReadOnlyDictionary<int, RoomVisualLayout> layouts) =>
+        new(layouts, requireCompleteInstallation: false);
 
     /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomVisualLayoutCatalog), content =>

@@ -130,7 +130,7 @@ internal static partial class Program
             new RoomStaticPaletteCatalog(colors),
             new RoomMetatileCatalog(Blocks(edited == "cre-blocks"), metatiles),
             new RoomBackgroundTilemapCatalog(backgrounds), new RoomSkyTilemapCatalog(skies),
-            new RoomVisualLayoutCatalog(layouts));
+            RoomVisualLayoutCatalog.FromLayoutsForVerification(layouts));
 
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }

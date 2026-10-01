@@ -6,7 +6,10 @@
     "command": "dotnet run --project csharp/tools/LookupSourceIndex -- csharp/test-fixtures/lookup-source-index-1165.jsonl",
     "meaning": "Static navigation snapshot of tracked paths and candidate C# members, not independently reviewed logical tables. All paths require classification; no-hit files and inactive preprocessor regions still need manual inspection. Refresh after source changes."
   },
+  "performanceCorrectionAudit": "lookup-performance-audit-1165.json",
   "rules": [
+    "Nonsense means arbitrary authored data with no supported mathematical or functional basis; a switch or fitted expression that merely recites arbitrary values is not a meaningful port. Genuine named dispatch/case selection remains permitted.",
+    "User correction: ONLY demonstrated impossibility or a port that would produce nonsense permits retention. Performance, complexity, small table size, authored values and missing historical-tool provenance do not. ALL prior retain decisions are reopened/unreviewed; their old disposition/rationale is superseded historical context, not an active decision.",
     "Only entries explicitly marked converted or retained have a disposition under this ticket.",
     "Historical XML formulas and closed research issues are inputs, not reviewed dispositions.",
     "Owner candidates must be split into separately indexed logical fields; aliases share one entry.",
@@ -256,7 +259,7 @@
     },
     {
       "id": "zoa-horizontal-speed",
-      "state": "retained",
+      "state": "unreviewed",
       "owner": "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
       "nativeIdentity": "$A3:B415 ZoaXSpeedTable, five whole/fraction pairs",
       "consumers": ["RoomEnemySystem.Zoa.RunZoaShooting"],
@@ -420,14 +423,14 @@
         "proofTest": "VerifyShaktoolCallbackSelection"
       },
       {
-        "id": "shaktool-initial-angle", "state": "retained",
+        "id": "shaktool-initial-angle", "state": "unreviewed",
         "nativeIdentity": "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle",
         "disposition": "Retain seven directly readable initial posture words; all original words independently checked in the Shaktool proof.",
         "rationale": "Exact candidate is -2048*t modulo 65536, t=i*(i+1)/2 for i<=4 else 16-(7-i)*(8-i)/2. This reflected triangular construction fits the entire bounded set but introduces a bend pivot/reflection policy for seven authored angles. It is not evidence of the historical generator and is less transparent than this short posture table. No unbounded fitting needed.",
         "reviewCommit": "slope-geometry-algorithms"
       },
       {
-        "id": "shaktool-angular-velocity", "state": "retained",
+        "id": "shaktool-angular-velocity", "state": "unreviewed",
         "nativeIdentity": "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta",
         "disposition": "Retain seven authored curl rates; ShaktoolAngularVelocityDefinitions is an alias, not another table.",
         "rationale": "Rates equal 32*t for the reflected triangular candidate above; initial angles equal -64*rate with word wrap. Combining these independent initial-pose and reset-rate policies through that curve saves few words while obscuring explicit tuning. Complete values and initialization/reset consumers independently inspected; existing focused original-word proof passed in bb8ba856.",
@@ -532,7 +535,7 @@
         "proofTest": "VerifyCrocomireMaskAlgorithm"
       },
       {
-        "id": "crocomire-melt-column-order", "state": "retained",
+        "id": "crocomire-melt-column-order", "state": "unreviewed",
         "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
         "nativeIdentity": "$A4:9697 CrocomireMeltingXOffsetTable",
         "consumers": ["RoomEnemySystem.EraseNextCrocomireMeltingColumn"],
@@ -578,7 +581,7 @@
         "proofTest": "VerifyGrappleLaunchAngleAlgorithm"
       },
       {
-        "id": "grapple-origin-x", "state": "retained",
+        "id": "grapple-origin-x", "state": "unreviewed",
         "nativeIdentity": "$9B:C122/$9B:C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX, identical aliases",
         "consumers": ["SamusGrappleMovement.BeginFiring", "ConnectAcceptedFiring locked body positioning", "RefreshFiringDrawOrigins"],
         "interpretation": "Signed pixel hand anchor, independent of flare artwork offsets.",
@@ -586,7 +589,7 @@
         "rationale": "All original words inspected. Cardinal/diagonal offsets do not follow a radial curve, and downward facing offsets +3/-4 break pure mirroring. Formula plus pose exceptions or repeated case arms would obscure a compact authored layout. No generator evidence justifies numerical fitting."
       },
       {
-        "id": "grapple-origin-y-default", "state": "retained",
+        "id": "grapple-origin-y-default", "state": "unreviewed",
         "nativeIdentity": "$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY",
         "consumers": ["BeginFiring for nonrunning movement", "ConnectAcceptedFiring locked body positioning", "RefreshFiringDrawOrigins"],
         "interpretation": "Signed pixel hand anchor; launch/draw subtract pose correction, locked positioning consumes raw offset.",
@@ -594,7 +597,7 @@
         "rationale": "Facing symmetry exists, but -16,-12,2,0,6 is not uniform radial/linear spacing. A reflected half-table adds indirection for little benefit; keep pose-specific values clear. Full original word set and all correction boundaries independently inspected."
       },
       {
-        "id": "grapple-origin-y-running", "state": "retained",
+        "id": "grapple-origin-y-running", "state": "unreviewed",
         "nativeIdentity": "$9B:C186 GrappleBeamFireOffsets_Running_OriginY",
         "consumers": ["BeginFiring when movement kind is Running", "RefreshFiringDrawOrigins when Running"],
         "interpretation": "Signed pixel hand anchor; only horizontal entries differ from no-run, using -2 instead of +2.",
@@ -663,7 +666,7 @@
     "reviewedEvidence": "Complete pinned bank_88.asm SuitPickup_LightBeam_CurveWidths and forward/reverse reader, bank_91.asm AbsoluteTangentTable, all current direct consumers, and original NTSC ROM values. Historical mathematical research inspected as hypotheses, not original-generator proof. No new fitting searches performed.",
     "tables": [
       {
-        "id": "suit-pickup-beam-contour", "state": "retained",
+        "id": "suit-pickup-beam-contour", "state": "unreviewed",
         "owner": "csharp/src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs",
         "nativeIdentity": "$88:E3C9 SuitPickup_LightBeam_CurveWidths",
         "consumers": ["SamusSuitPickupState widening window", "LookupTableResearch.Program.SuitCurve historical comparisons"],
@@ -674,7 +677,7 @@
         "existingConfirmation": "VerifySuitPickupBeamCurveDefinitions: all128 original bytes plus invalid bounds"
       },
       {
-        "id": "absolute-tangent-gradient", "state": "retained",
+        "id": "absolute-tangent-gradient", "state": "unreviewed",
         "owner": "csharp/src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs",
         "nativeIdentity": "$91:C9D4 AbsoluteTangentTable; SamusXrayRomData.Window.AbsoluteTangentTable is an address alias",
         "consumers": ["EyeBeamWindowBuilder.Tangent: upper angles reflected before Sample", "MotherBrainRainbowBeamHdmaState.Tangent: byte-wrapped angle", "SnesGameplayFrameRenderer.ReadXrayDirection: cardinal special cases, angle&127 otherwise", "LookupTableResearch historical comparison"],
@@ -762,7 +765,7 @@
     "reviewedEvidence": "Full current definitions and every runtime consumer, pinned upstream-sm/src/spc_player.c and src/snes/dsp.c at578f90b3cc49557bb70060ad033bb90b8cf8ac50, ROM SHA verified. Static elementwise comparison confirms22 pan bytes against both native initializer and original ROM, and512 Gaussian words against native initializer. Historical formula code read as hypotheses rather than assumed proof.",
     "tables": [
       {
-        "id": "spc-pan-gain-curve", "state": "retained",
+        "id": "spc-pan-gain-curve", "state": "unreviewed",
         "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
         "nativeIdentity": "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
         "consumers": ["ManagedSpcPlayer.WriteVolume"],
@@ -773,7 +776,7 @@
         "confirmation": "Static comparison of all22 stored values to native initializer and original NTSC ROM; consumer source confirms adjacent-data behavior remains unchanged. No new test required for retain."
       },
       {
-        "id": "dsp-gaussian-coefficients", "state": "retained",
+        "id": "dsp-gaussian-coefficients", "state": "unreviewed",
         "owner": "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
         "nativeIdentity": "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
         "consumers": ["ManagedSnesDsp.GetInterpolatedSample", "LookupTableResearch.VerifyGaussian"],
@@ -791,7 +794,7 @@
     "owner": "csharp/src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs",
     "implementationCommit": "enemy-half-wave-algorithms",
     "reviewedEvidence": "Complete original NTSC ROM bytes/words and pinned bank_A0.asm at362be646929cf8e483f692b73a6561cfc2dc1d0d; native eight-bit multiplication and current CommonMath/Sbug consumers; SignedSine and SignedSixteenBitSine views; historical decimal candidate inspected as a hypothesis and independently compared to original values.",
-    "sharedAlgorithm": "Reflect index to min(index,128-index). Exact zero and quarter-turn endpoints; otherwise twelve decimal Taylor terms through x^23/23! at x=phase*pi/128. Pi rounded to28 places; omitted term below5.2e-21 and conservative total absolute error1e-19. No libm, allocations, lookup corrections or generated runtime cache. A short shared recurrence replaces256 stored samples; unlike per-audio-sample Gaussian filtering this is bounded gameplay motion sampling.",
+    "sharedAlgorithm": "Reflect index to min(index,128-index). Exact zero and quarter-turn endpoints; otherwise twelve decimal Taylor terms through x^23/23! at x=phase*pi/128. Pi rounded to28 places; omitted term below5.2e-21 and conservative total absolute error1e-19. No libm, allocations, lookup corrections or generated runtime cache. A short shared recurrence replaces256 stored samples. Evaluation frequency is not a retention criterion.",
     "tables": [
       {
         "id": "enemy-eight-bit-half-wave", "state": "converted",
@@ -866,7 +869,7 @@
     "consumers": ["SnesGameplayFrameRenderer.ReadPowerBombHalfWidth", "LookupTableResearch.Program"],
     "tables": [
       {
-        "id": "power-bomb-unscaled-width", "state": "retained",
+        "id": "power-bomb-unscaled-width", "state": "unreviewed",
         "nativeIdentity": "88:A266,32 unsigned width bytes",
         "domain": "Span index0..31; invalid index throws IndexOutOfRangeException. Renderer iterates all32 bands; no quarter-turn endpoint32 or overread.",
         "interpretation": "floor(256*sin(i*pi/64)), exactly shared byte half-wave at2*i. Renderer multiplies radius by this quantized byte then shifts8.",
@@ -875,7 +878,7 @@
         "existingConfirmation": "VerifyCompiledPowerBombShape original-width and rendering checks preserved; this review compares all32 original bytes statically, without running the broader frame matrix."
       },
       {
-        "id": "power-bomb-unscaled-top-offset", "state": "retained",
+        "id": "power-bomb-unscaled-top-offset", "state": "unreviewed",
         "nativeIdentity": "88:A286,32 unsigned inclusive vertical boundaries",
         "domain": "Span index0..31, invalid index throws IndexOutOfRangeException. Index0 sets first outer boundary; each band uses prior inner as next outer. No overread.",
         "interpretation": "floor(3*floor(256*cos((2*i+1)*pi/128))/4), equivalent to quantized shared half-wave(63-2*i)*3/4. Radius multiplication/shift8 follows; both endpoints inclusive, later bands overwrite shared endpoints.",

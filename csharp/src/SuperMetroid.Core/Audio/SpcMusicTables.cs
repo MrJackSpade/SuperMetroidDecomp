@@ -44,20 +44,10 @@ internal static class SpcMusicTables
         };
     }
     /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
-    /// <remarks>
-    /// Independently reviewed and retained for #1165: all22 samples match NTSC
-    /// J/U v1.0 ROM at $CF:8A25 and pinned spc_player.c kVolumeTable. These sampled
-    /// gains do not follow linear or ordinary equal-power sinusoidal panning: even
-    /// the first nonzero step is1 rather than roughly10 for a127-scale quarter sine.
-    /// Quantization or a bespoke easing curve could explain the construction, but no
-    /// original generator establishes such a convention. Fitting coefficients or
-    /// per-entry corrections would obscure this small exact curve.
-    /// WriteVolume interpolates using the low position byte and mirrors the unsigned
-    /// position around $1400 for the other side. Indices0..20 read this table and
-    /// their next sample; index21..255 reads the current SPC RAM at $1E1D+index and
-    /// the following byte, preserving bounded adjacent-program access. Keep that
-    /// compatibility branch, signed interpolation, byte truncation and phase inversion.
-    /// </remarks>
+    /// <remarks>#1165 retention decision reopened. Only demonstrated impossibility
+    /// or a port that would produce nonsense permits keeping a lookup table.
+    /// Prior size, complexity, provenance and performance rationales are withdrawn.
+    /// Conversion/review remains outstanding; see lookup-performance-audit-1165.json.</remarks>
     internal static readonly byte[] PanVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
 

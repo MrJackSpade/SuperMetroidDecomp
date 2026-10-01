@@ -5,21 +5,10 @@ public static class AbsoluteTangentDefinitions
 {
     /// <summary>$91:C9D4, AbsoluteTangentTable: first quarter of native absolute
     /// 8.8 gradients, approximately |tan(t*pi/128)|*256, with an infinity substitute.</summary>
-    /// <remarks>
-    /// #1165 independently reviewed: retain the 65-word quarter table and exact
-    /// index reflection after comparing all 129 original NTSC J/U v1.0 words and
-    /// pinned bank_91.asm. Domain 0..128 includes both zero endpoints, exact diagonal
-    /// 256 and finite infinity substitute 15360. No extrapolation or modulo clamping.
-    /// Historical reduced-pi model floor(256*tan(n*3.14159/128)), n=min(i,128-i),
-    /// needs explicit diagonal/infinity cases. True pi differs at 63/65 (10428 versus
-    /// native 10427); reduced pi alone makes the diagonal 255. These are plausible
-    /// historical precision conventions, not evidence of the original generator.
-    /// A deterministic quotient/error-bound evaluator is substantially more complex
-    /// and costly than 65 direct words in per-frame ray/window construction. Reflection
-    /// already removes the duplicate half. Keep this exact compact representation.
-    /// Eye windows, Mother Brain and X-ray direction rendering share this one mapping;
-    /// SamusXrayRomData.Window.AbsoluteTangentTable is an address alias, not more data.
-    /// </remarks>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<ushort> Quarter =>
     [
         0,6,12,18,25,31,37,44,50,57,64,70,77,84,91,98,

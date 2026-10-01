@@ -13,19 +13,10 @@ internal static class SuitPickupBeamCurveDefinitions
     public const int OffsetCount = 128;
 
     /// <summary>$88:E3C9, SuitPickup_LightBeam_CurveWidths: 128 upper-half window widths.</summary>
-    /// <remarks>
-    /// #1165 independently reviewed: retain this authored 128-byte contour after
-    /// comparing all original NTSC J/U v1.0 bytes and pinned bank_88.asm, including
-    /// the caller's forward/reverse scanline walk. Reject indices outside 0..127.
-    /// The ordinary rounded 24-by-127 ellipse needs a seven-row opening ramp and
-    /// a row-31 correction (15 versus native 16). Historical research also found a
-    /// compatible angle-grid plus Q6 double-rounding model, but neither establishes
-    /// the original generator. A deterministic angle/root evaluator and multiple
-    /// quantization conventions are less clear than this small direct contour.
-    /// Do not introduce an arbitrary row patch or a runtime transcendental evaluator
-    /// solely to eliminate storage. The consumer retains 256-line mirroring and its
-    /// asymmetric left signed-clamp/right carry-saturation behavior.
-    /// </remarks>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<byte> Offsets =>
     [
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x07,

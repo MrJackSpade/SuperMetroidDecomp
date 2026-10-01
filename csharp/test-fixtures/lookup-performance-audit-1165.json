@@ -1,0 +1,417 @@
+{
+    "issue":  1165,
+    "rule":  "ONLY demonstrated impossibility or a port that would produce nonsense permits retention. No performance, complexity, small-table or historical-tool-provenance exception.",
+    "scope":  "Every logical id recorded in lookup-algorithm-review-1165.json at1493ad51 plus the pending prescaled basis. This audit evaluates the stated decision rationale; it does not assert repository-wide inventory completion or completion of reopened implementations.",
+    "entries":  [
+                    {
+                        "id":  "draygon-health-thresholds",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "botwoon-health-thresholds",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "work-robot-palette-duration",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "botwoon-phase-speed",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "botwoon-body-spacing",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "sba-power-bomb-cost",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "sba-origin-angle",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "evir-intro-latency",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "work-robot-initial-instruction",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "zoa-horizontal-speed",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "owtch-travel-distance",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "owtch-underground-timer",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "room-shake-bg1",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "room-shake-bg2",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "room-shake-projectile",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shared-slope-height",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "samus-square-slope-quadrants",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "enemy-square-slope-quadrants",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-properties",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-owner-offset",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-initial-instruction",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-layer",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-callback",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-initial-angle",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "shaktool-angular-velocity",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "shaktool-initial-subtrahend",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "fireflea-movement-radius",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "gunship-landing-brake-delta",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "gunship-hover-timer",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "gunship-hover-delta",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "fireflea-flashing-shade",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "fireflea-darkness-shade",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "crocomire-melt-mask",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "crocomire-melt-column-order",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "grapple-launch-x",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "grapple-launch-y",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "grapple-launch-angle",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "grapple-origin-x",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "grapple-origin-y-default",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "grapple-origin-y-running",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "shared-enemy-linear-speed",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shared-enemy-quadratic-speed",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-ordinary-pointer",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-ordinary-stream",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-pointers",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-stream-0",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-stream-1",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-stream-2",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-stream-3",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-stream-4",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "running-boost-resets",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "suit-pickup-beam-contour",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "absolute-tangent-gradient",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "spc-note-volume-percentages",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "spc-note-gate-percentages",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "spc-effect-operand-counts",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "dsp-envelope-noise-periods",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "spc-base-note-frequencies",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "spc-pan-gain-curve",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "dsp-gaussian-coefficients",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "enemy-eight-bit-half-wave",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "enemy-unsigned-half-wave",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "signed-eight-point-eight-sine-views",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "signed-sixteen-bit-sine",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "shaktool-orbit-sine",
+                        "previousState":  "converted",
+                        "result":  "existing-conversion-unaffected",
+                        "reason":  "Recorded disposition implements or preserves an exact algorithm; no table was retained or deferred for performance in this disposition."
+                    },
+                    {
+                        "id":  "power-bomb-unscaled-width",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "power-bomb-unscaled-top-offset",
+                        "previousState":  "retained",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    },
+                    {
+                        "id":  "power-bomb-prescaled-basis",
+                        "previousState":  "pending local review",
+                        "result":  "reopened-under-only-impossible-or-nonsense-rule",
+                        "reason":  "Previous retain/defer decision does not establish either permitted exception. Reassess and port; prior rationale is superseded, not an accepted reason to keep storage."
+                    }
+                ],
+    "reopenedImplementationStatus":  "Outstanding; all affected stored tables remain to be converted/reviewed. No reopening counts as a conversion.",
+    "nonsenseDefinition":  "Arbitrary authored sequences with no supported mathematical or functional basis may remain. Repeating seemingly random animation/action/RNG values in a switch or fitted polynomial only disguises storage. Genuine named dispatch and semantic case mappings remain valid. Each reopened retain decision still needs this evidence assessed; no table is automatically retained."
+}

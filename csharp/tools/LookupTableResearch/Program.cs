@@ -14,8 +14,14 @@ internal static partial class Program
             NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
         try
         {
-            byte[] rom = File.ReadAllBytes(args.Length == 0 ? "Super Metroid.smc" : args.Single());
+            bool profilesOnly = args is ["--power-bomb-profiles-only"];
+            byte[] rom = File.ReadAllBytes(args.Length == 0 || profilesOnly ? "Super Metroid.smc" : args.Single());
             Equal(ResearchData.RomSha256, Convert.ToHexString(SHA256.HashData(rom)), "NTSC J/U v1.0 oracle identity");
+            if (profilesOnly)
+            {
+                VerifyPowerBombProfiles(rom, definitionsOnly: true);
+                return 0;
+            }
             Verify(rom);
             VerifyGeometry(rom);
             VerifyAudio(rom);

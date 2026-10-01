@@ -3,13 +3,28 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
-    private static void VerifyPowerBombProfiles(byte[] rom)
+    private static void VerifyPowerBombProfiles(byte[] rom, bool definitionsOnly = false)
     {
         int[] white = Oracle(rom, PowerBombProfileResearchData.WhiteAddress, 17 * 192, 1);
         int[] yellow = Oracle(rom, PowerBombProfileResearchData.YellowAddress, 4 * 192, 1);
         Equal(PowerBombProfileResearchData.WhiteAddress & 65535, (int)SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape, "white source pointer");
         Equal(PowerBombProfileResearchData.YellowAddress & 65535, (int)SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape, "yellow source pointer");
         Equal(192, (int)SamusSpecialSequenceRomData.PowerBomb.ShapeStride, "pre-scaled shape stride");
+        for (int frame = 0; frame < 21; frame++)
+        for (int row = 0; row < 192; row++)
+        {
+            int expected = frame < 17 ? white[192 * frame + row] : yellow[192 * (frame - 17) + row];
+            ushort runtimePointer = (ushort)(frame < 17
+                ? PowerBombProfileResearchData.WhiteAddress + 192 * frame
+                : PowerBombProfileResearchData.YellowAddress + 192 * (frame - 17));
+            Equal(expected, PowerBombShapeDefinitions.ReadPreScaledHalfWidth(runtimePointer, row),
+                $"runtime Power Bomb profile {frame}/{row}");
+        }
+        if (definitionsOnly)
+        {
+            Console.WriteLine("PASS: all 4,032 original pre-scaled profile bytes match the production representation.");
+            return;
+        }
         int[] basis = PowerBombBasis(1024, ResearchData.Pi);
         int[] reducedPi = PowerBombBasis(1024, ResearchData.GeneratorPi);
         for (int row = 0; row < 192; row++) Equal(basis[row], reducedPi[row], $"Power Bomb reduced-pi equivalence {row}");
@@ -30,11 +45,6 @@ internal static partial class Program
             int expected = frame < 17 ? white[192 * frame + row] : yellow[192 * (frame - 17) + row];
             int radius = PowerBombProfileRadius(frame);
             Equal(expected, PowerBombProfile(frame, row, basis), $"pre-scaled Power Bomb {frame}/{row}");
-            ushort runtimePointer = (ushort)(frame < 17
-                ? PowerBombProfileResearchData.WhiteAddress + 192 * frame
-                : PowerBombProfileResearchData.YellowAddress + 192 * (frame - 17));
-            Equal(expected, PowerBombShapeDefinitions.ReadPreScaledHalfWidth(runtimePointer, row),
-                $"runtime Power Bomb profile {frame}/{row}");
             int wrongIndex = 256 * row / radius;
             int wrongValue = wrongIndex >= 192 ? 0 : basis[wrongIndex] * radius / 256;
             if (expected != wrongValue) wrongBoundary++;

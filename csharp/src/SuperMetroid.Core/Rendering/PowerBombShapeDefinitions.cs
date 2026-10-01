@@ -11,6 +11,10 @@ public static class PowerBombShapeDefinitions
     /// is reproduced by <see cref="ReadPreScaledHalfWidth"/> and was checked
     /// against the supported cartridge during definition extraction.
     /// </summary>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<byte> PreScaledBasis =>
     [
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -28,6 +32,13 @@ public static class PowerBombShapeDefinitions
     ];
 
     /// <summary>Reads one exact $88:9246-$A205 pre-scaled shape byte.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against all17 white and4 yellow original
+    /// frames. Preserve aligned192-byte pointers, row0..191, and zero termination.
+    /// Inverse scaling uses max(0,(256*row-1)/radius): the minus one preserves exact
+    /// band boundaries. Quantize the basis before multiplying by radius and dividing256.
+    /// The stored basis is reopened for conversion; preserve these exact scaling steps.
+    /// </remarks>
     public static byte ReadPreScaledHalfWidth(ushort shapePointer, int row)
     {
         if ((uint)row >= SamusSpecialSequenceRomData.PowerBomb.ShapeStride)
@@ -66,20 +77,10 @@ public static class PowerBombShapeDefinitions
             : (byte)(PreScaledBasis[sourceRow] * radius / 256);
     }
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center widths.</summary>
-    /// <remarks>
-    /// Issue #625 algorithm finding: Width(i) = floor(256*sin(i*pi/64)) for
-    /// i in 0..31, exactly EightBitHalfWave(2*i). All 32 values are independently
-    /// verified against the NTSC J/U v1.0 ROM and pinned bank_88.asm by
-    /// csharp/tools/LookupTableResearch, including a deterministic decimal-series
-    /// candidate with an error interval that cannot cross an integer boundary.
-    /// Reject i outside 0..31; the table has no quarter-turn endpoint at i=32.
-    /// Keep the renderer's later radius multiplication and right shift separate.
-    /// Independently reviewed and retained for #1165: the renderer reads these
-    /// 32 bytes repeatedly in each scanline band loop. Keep the compact exact samples
-    /// rather than repeat deterministic sine-series evaluation in that hot path.
-    /// A generated cache still stores the same table and adds startup machinery.
-    /// Individual width-table investigation: #625 / #911.
-    /// </remarks>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     public static ReadOnlySpan<byte> Widths =>
     [
         0x00,0x0c,0x19,0x25,0x31,0x3e,0x4a,0x56,0x61,0x6d,0x78,0x83,0x8e,0x98,0xa2,0xab,
@@ -87,21 +88,10 @@ public static class PowerBombShapeDefinitions
     ];
 
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: inclusive vertical band boundaries.</summary>
-    /// <remarks>
-    /// Issue #625 algorithm finding: Top(i) = floor(3*floor(256*cos((2*i+1)*pi/128))/4),
-    /// i in 0..31. Equivalently, integer arithmetic on EightBitHalfWave(63-2*i)
-    /// gives sample*3/4. The half-step phase samples the band boundary; the inner
-    /// truncation happens BEFORE the 3/4 vertical scaling. Directly truncating
-    /// 192*cos((2*i+1)*pi/128) is wrong at nine of the 32 indices.
-    /// LookupTableResearch verifies all entries against this span, the NTSC J/U
-    /// v1.0 ROM and pinned bank_88.asm, using the bounded deterministic sine
-    /// candidate. Reject indices outside 0..31 and retain the renderer's subsequent
-    /// radius scaling and inclusive-band handling. Independently reviewed and retained
-    /// for #1165: these 32 bytes are repeatedly sampled for each rendered scanline.
-    /// Recomputing the sine and two quantization stages per band is more expensive
-    /// and less direct than the compact exact boundaries; caching recreates the table.
-    /// Individual top-offset investigation: #625 / #912.
-    /// </remarks>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     public static ReadOnlySpan<byte> TopOffsets =>
     [
         0xbf,0xbf,0xbe,0xbd,0xba,0xb8,0xb6,0xb2,0xaf,0xab,0xa6,0xa2,0x9c,0x96,0x90,0x8a,

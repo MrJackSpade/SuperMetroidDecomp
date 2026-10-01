@@ -37,23 +37,10 @@ internal static class SnesDspTables
     /// The S-DSP's fixed 512-entry Gaussian interpolation curve. Four mirrored lookups from
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.
     /// </summary>
-    /// <remarks>
-    /// Independently reviewed and retained for #1165: all512 coefficients match
-    /// gaussValues in pinned upstream-sm/src/snes/dsp.c. Offsets0..255 select four
-    /// taps at255-offset,511-offset,256+offset,offset; no overread is accepted.
-    /// The historical research describes a compatible phase-normalized windowed
-    /// sinc: k=511.5-j; r=sin(pi*k/800)/k times the Blackman window with denominator
-    /// 1023, then round2048*r/sum(four phase taps). This is a reconstruction hypothesis,
-    /// not evidence of the hardware manufacturer's original coefficient generator.
-    /// Retain the1KiB coefficient table: evaluating several kernels and deterministic
-    /// trigonometric series for each of four lookups per voice sample is substantially
-    /// more costly and opaque than the explicit hardware coefficients. Generating and
-    /// caching them merely recreates the same runtime table with startup complexity.
-    /// This is numerical interpolation data, not case-selection semantics.
-    /// Preserve the consumer's shift10 per product, signed16 wrap after the third tap,
-    /// then fourth addition, saturation and final shift1. Do not renormalize rounded taps.
-    /// Historical VerifyGaussian remains the existing full coefficient/formula check.
-    /// </remarks>
+    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
+    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
+    /// cannot justify retaining this storage. Conversion/review remains outstanding.
+    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     internal static readonly ushort[] GaussianValues =
     [
         0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000,

@@ -883,6 +883,11 @@ public sealed partial class RoomEnemySystem
             foreach (ushort nativeIndex in _drawQueues[layer])
             {
                 RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+                // Power-bomb damage runs after queue construction and can clear a
+                // queued actor or replace it with the inert respawn reservation.
+                // Neither lifecycle state owns a display composition.
+                if (slot.EnemyDefinitionPointer is 0 or EnemyLifecycleDefinitions.RespawnPlaceholder)
+                    continue;
 
                 // Enemy spawn-point offsets are zero for ordinary room-population entries.
                 // WriteEnemyOams nevertheless performs the additions before subtracting

@@ -8,7 +8,7 @@ public static class EnemyTrigonometryTables
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
     /// the sign-extended 8.8 table. The positive half equals the stored unsigned
     /// half-wave shifted right once; sign is restored only after that truncation.</summary>
-    /// <remarks>Issue #625 research: for byte angle a, let n = a &amp; 127 and
+    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for byte angle a, let n = a &amp; 127 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
     /// negated only when a &gt;= 128. All 256 words match the NTSC J/U v1.0 ROM
     /// and pinned bank_A0.asm in csharp/tools/LookupTableResearch. This preserves
@@ -35,7 +35,7 @@ public static class EnemyTrigonometryTables
 
     /// <summary>$A0:B443-$B642, SineCosineTables_8bitSine_SignExtended and
     /// its three quadrant continuations. Unlike the byte table, peaks are +/-256.</summary>
-    /// <remarks>Issue #625 research: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
+    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the native words. Treat the
     /// quarter-turn magnitude as exactly 256; the byte table saturates it to 255.
     /// LookupTableResearch checks the entire 320-word negative-cosine prefix/full
@@ -56,7 +56,8 @@ public static class EnemyTrigonometryTables
     /// <remarks>
     /// Physical view of the same signed 8.8 cycle as <see cref="SignedSine"/>:
     /// word index 0..319 maps to byte angle <c>(index - 64) &amp; 255</c>.
-    /// All 320 words match pinned ROM and assembly. Investigation: #625 / #910.
+    /// Independently reviewed for #1165 against all 320 original words, prefix bounds
+    /// and byte-phase aliases. Keep this existing view; do not duplicate its storage.
     /// </remarks>
     public static short SignedNegativeCosineWord(int index)
     {
@@ -79,7 +80,7 @@ public static class EnemyTrigonometryTables
     }
 
     /// <summary>$A0:B7EE UnsignedSineTable:
-    /// floor(65535*sin(index*pi/128))) for index 0..127.</summary>
+    /// floor(65535*sin(index*pi/128)) for index 0..127.</summary>
     /// <remarks>
     /// Independently checked for #1165 against all 128 original NTSC words and
     /// pinned bank_A0.asm. Scale 65535, not saturated 65536; preserve quantization

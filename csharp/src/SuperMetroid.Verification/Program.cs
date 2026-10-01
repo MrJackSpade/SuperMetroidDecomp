@@ -26,6 +26,18 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-signed-sine-review"])
+{
+    var signedOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(signedOracle.Rom)),
+        "Signed sine oracle is NTSC J/U v1.0");
+    VerifyCompiledSignedTrigonometry(signedOracle, definitionsOnly: true);
+    VerifySignedSixteenBitSineDefinitions(signedOracle);
+    VerifyPhantoonWaveMath(signedOracle, definitionsOnly: true);
+    Console.WriteLine("Signed sine review: 320 signed words, 256 sixteen-bit words and every Phantoon byte phase pass.");
+    return 0;
+}
 if (args is ["--lookup-half-wave-algorithms"])
 {
     var sineOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -4,6 +4,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
+    {
+        var bullSample = typeof(RoomEnemySystem)
+            .GetMethod("ReadBullSignedSine", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<byte, short>>();
+        for (int angle = 0; angle < 256; angle++)
+        {
+            int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
+            short original = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine((byte)angle), "signed 16-bit sample");
+            AssertEqual(original, bullSample((byte)angle), "Bull production sample");
+        }
+    }
+
     private static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
@@ -13,14 +27,14 @@ internal static partial class Program
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
-        var bullSample = Method<Func<byte, short>>("ReadBullSignedSine");
+        VerifySignedSixteenBitSineDefinitions(rom);
         var bullMove = Method<Action<RoomEnemySlot, BullEnemyState>>("MoveBull");
         var mawX = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawX");
         var mawY = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawY");
         for (int angle = 0; angle < 256; angle++)
         {
-            AssertEqual(native[angle], EnemyTrigonometryTables.SignedSixteenBitSine((byte)angle), "signed 16-bit sample");
-            AssertEqual(native[angle], bullSample((byte)angle), "Bull production sample");
+
+
             AssertEqual((orbit[angle + 64] << 8, orbit[angle] << 8),
                 ShaktoolOrbitTables.Displacement((byte)angle), "Shaktool authored displacement");
         }

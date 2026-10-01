@@ -391,7 +391,7 @@ internal static partial class Program
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
-    private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom)
+    private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
         {
@@ -421,6 +421,7 @@ internal static partial class Program
             AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
         }
         Console.WriteLine("Compiled signed sine: all 320 native words and three cinematic readers match, including +/-256 peaks and prefix bounds.");
+        if (definitionsOnly) return;
         var tide = new RoomLayer3FxState();
         var phaseField = typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var offsetField = typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!;

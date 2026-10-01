@@ -16,7 +16,8 @@ public static class PhantoonWaveRomData
     /// <summary>$88:E5C6 reads $A0:B443 with a nine-bit BYTE offset. Preserve
     /// unaligned words and the following instruction byte for odd restored phases;
     /// normal initialization and phase advancement produce even offsets.
-    /// Signed-word table proof: #625 / #910.</summary>
+    /// Independently reviewed for #1165: every ushort phase matches original ROM,
+    /// including the final instruction-byte overread. Keep this bounded byte view.</summary>
     public static short ReadSineAtBytePhase(ushort phase)
     {
         int offset = phase & PhaseMask;

@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "signed-sine-review": {
+      "subject": "Independently review existing signed sine views for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Independently review existing signed sine views for #1165'"
+    },
     "enemy-half-wave-algorithms": {
       "subject": "Replace enemy half-wave tables with deterministic sine algorithms for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace enemy half-wave tables with deterministic sine algorithms for #1165'"
@@ -804,6 +808,35 @@
     ],
     "confirmationScope": "Extract original two table checks into one named proof each and reuse them from the old aggregate. Focused flag checks every original sample, both ends of conservative rounding intervals, and adjacent/extreme invalid bounds. Source/compiler checks confirm all consumers migrated; signed wrappers and Phantoon odd-byte compatibility remain unchanged. No broad family test matrix or gameplay replay."
   },
+  "signedSineViewsReview": {
+    "implementationCommit": "signed-sine-review",
+    "owner": "csharp/src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs",
+    "reviewedEvidence": "Pinned bank_A0.asm signed tables and current original NTSC ROM, every direct signed sampler call site, Bull/Yapping Maw narrowing, negative-cosine indexed wrappers, Phantoon byte composition. Existing algorithms predate1165; half-wave backing was converted in ad616db6dc588b206ef92fc5048202a8522f8969.",
+    "tables": [
+      {
+        "id": "signed-eight-point-eight-sine-views", "state": "converted",
+        "nativeIdentity": "A0:B3C3 negative-cosine prefix through B642 full signed8.8 wave; sine starts B443",
+        "consumers": ["Three cinematic ReadSine wrappers", "Enemy/projectile signed motion helpers and MultiplySignedSine", "MotherBrainNeckKinematics", "RoomLayer3FxState tide", "Samus grapple, combo and shinespark", "PhantoonWaveRomData"],
+        "domain": "SignedSine byte0..255; SignedNegativeCosineWord int0..319 rejects others with ArgumentOutOfRangeException before byte(index-64) mapping. Phantoon phase ushort masked511 selects little-endian word at every even/odd byte offset; final odd offset takes high byte8B from A0:B643 PHB opcode.",
+        "interpretation": "Signed magnitude floor(256*sin(halfAngle*pi/128)), restoring sign after quantization, with exact +/-256 peaks. Prefix/full cycle and unaligned byte view are aliases of one mapping, not independent numerical curves.",
+        "disposition": "Keep existing signed, prefix and bounded byte-composition algorithms; no new conversion counted.",
+        "rationale": "Simple phase shift and sign restoration preserve native signed words and avoid duplicate table storage. Final odd-byte8B is actual adjacent instruction data, not a sine value to extrapolate or clamp.",
+        "existingConfirmation": "VerifyCompiledSignedTrigonometry definitionsOnly checks all320 original words, byte-angle aliases, three cinematic wrappers and invalid prefix bounds. VerifyPhantoonWaveMath definitionsOnly reuses every ushort phase comparison against original bytes including final overread; broader multiplication/cycle matrices are skipped."
+      },
+      {
+        "id": "signed-sixteen-bit-sine", "state": "converted",
+        "nativeIdentity": "A0:B1C3 through B3C2,256 signed16 sine words",
+        "consumers": ["RoomEnemySystem.Bull ReadBullSignedSine", "RoomEnemySystem.YappingMaw CalculateYappingMawX/Y"],
+        "domain": "Byte angle0..255. Bull adds64 with byte wrap for cosine; Yapping Maw negates angle then narrows to byte, X first subtracts64. No odd read or overread.",
+        "interpretation": "UnsignedHalfWave(angle&127)>>1 then sign restoration; peaks +/-32767. This corresponds to32767.5 sine scale, not32767. Multiplication/truncation in consumers stays separate.",
+        "disposition": "Keep existing shifted-half-wave algorithm; no stored physical table remains and no new conversion counted.",
+        "rationale": "Quantize positive magnitude before shifting and negating. Direct signed floor would bias negative samples;32767 scaling changes ordinary values. Current short derivation is exact and clear.",
+        "existingConfirmation": "VerifySignedSixteenBitSineDefinitions extracted from VerifyCompiledFamilyTrigonometry: all256 original words and Bull production reader. Old aggregate reuses it; unrelated Shaktool and Maw parameter matrices are not run."
+      }
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Focused reuse/extraction of existing original-data proofs. No gameplay or expanded motion matrix. Runtime formulas unchanged; owner XML updated to independently reviewed disposition."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: signed negative cosine and signed sixteen-bit sine existing views; byte/unsigned half-waves now independently converted",
     "ShaktoolOrbitTables",
@@ -835,6 +868,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review"
   ]
 }

@@ -8,7 +8,7 @@ internal readonly record struct ZoaInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Zoa's shooting and rising programs.</summary>
 /// <remarks>
 /// Speed callbacks, durations, and loop control are immutable simulation data. The twelve
-/// interleaved spritemap pointers remain live cartridge presentation data.
+/// interleaved spritemap positions remain separate from mechanics word ownership.
 /// </remarks>
 internal static class ZoaInstructionProgramDefinitions
 {
@@ -24,73 +24,74 @@ internal static class ZoaInstructionProgramDefinitions
     /// <summary><c>$A3:B3FD</c>, right-facing vertical rise.</summary>
     internal const ushort FacingRightRising = 0xb3fd;
 
-    private static readonly ZoaInstructionMechanicsWord[] Words =
-    [
-        new(0xb3c1, 0xb429), new(0xb3c3, 0x0040),
-        new(0xb3c7, 0xb434), new(0xb3c9, 0x0008),
-        new(0xb3cd, 0xb43f), new(0xb3cf, 0x0030),
-        new(0xb3d3, 0x80ed), new(0xb3d5, 0xb3c1),
+    /// <summary>$A3:B429 Instruction_Zoa_SetXSpeedTableIndexTo4, first shooting-stage callback.</summary>
+    private const ushort FirstShot = 0xb429;
+    /// <summary>$A3:B434 Instruction_Zoa_SetXSpeedTableIndexTo8, second shooting-stage callback.</summary>
+    private const ushort SecondShot = 0xb434;
+    /// <summary>$A3:B43F Instruction_Zoa_SetXSpeedTableIndexToC, final shooting-stage callback.</summary>
+    private const ushort ThirdShot = 0xb43f;
+    /// <summary>$A3:80ED Instruction_Common_GotoY, loops each program to its start.</summary>
+    private const ushort Loop = 0x80ed;
 
-        new(0xb3d7, 0x0004), new(0xb3db, 0x0004), new(0xb3df, 0x0004),
-        new(0xb3e3, 0x80ed), new(0xb3e5, 0xb3d7),
+    internal static int MechanicsWordCount => 26;
+    internal static int PresentationWordCount => 12;
 
-        new(0xb3e7, 0xb429), new(0xb3e9, 0x0040),
-        new(0xb3ed, 0xb434), new(0xb3ef, 0x0008),
-        new(0xb3f3, 0xb43f), new(0xb3f5, 0x0030),
-        new(0xb3f9, 0x80ed), new(0xb3fb, 0xb3e7),
+    /// <summary>Enumerates the thirteen mechanics words per facing in native address order.
+    /// Shooting has three callback/timer pairs and a loop pair; rising has three
+    /// timers and a loop pair. Presentation words stay interleaved and separate.</summary>
+    internal static ZoaInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int start = index < 13 ? FacingLeftShooting : FacingRightShooting;
+        int field = index % 13;
+        int offset = field < 8 ? 6 * (field / 2) + 2 * (field % 2)
+            : field < 11 ? 22 + 4 * (field - 8) : 34 + 2 * (field - 11);
+        ushort address = (ushort)(start + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        new(0xb3fd, 0x0004), new(0xb401, 0x0004), new(0xb405, 0x0004),
-        new(0xb409, 0x80ed), new(0xb40b, 0xb3fd),
-    ];
+    /// <summary>Native sprite-pointer positions: three shooting frames at six-byte
+    /// stride followed by three rising frames at four-byte stride, for each facing.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        int start = index < 6 ? FacingLeftShooting : FacingRightShooting;
+        int frame = index % 6;
+        return (ushort)(start + (frame < 3 ? 4 + 6 * frame : 24 + 4 * (frame - 3)));
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb3c5, 0xb3cb, 0xb3d1,
-        0xb3d9, 0xb3dd, 0xb3e1,
-        0xb3eb, 0xb3f1, 0xb3f7,
-        0xb3ff, 0xb403, 0xb407,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ZoaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Returns fixed Zoa control or rejects pointers outside all four programs.</summary>
+    /// <summary>Reads the native shooting/rising instruction fields for either facing.
+    /// Named speed callbacks, frame durations and loop targets replace the stored
+    /// address/value records. All 26 words match the supported NTSC programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int start = address < FacingRightShooting ? FacingLeftShooting : FacingRightShooting;
+        return (address - start) switch
         {
-            int middle = low + ((high - low) >> 1);
-            ZoaInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Zoa instruction mechanics pointer $A3:{address:X4} is not compiled.");
+            0 => FirstShot,
+            2 => 64,
+            6 => SecondShot,
+            8 => 8,
+            12 => ThirdShot,
+            14 => 48,
+            18 or 34 => Loop,
+            20 => (ushort)start,
+            22 or 26 or 30 => 4,
+            36 => (ushort)(start + 22),
+            _ => throw new InvalidDataException(
+                $"Zoa instruction mechanics pointer $A3:{address:X4} is not compiled."),
+        };
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa30000) return false;
+        int relative = (address & 0xffff) - FacingLeftShooting;
+        if ((uint)relative >= 76) return false;
+        int offset = relative % 38;
+        // Exclude the two presentation bytes in each timed frame. Both bytes of
+        // callbacks, durations and loop instructions/targets belong to mechanics.
+        return offset < 18 ? offset % 6 < 4
+            : offset < 22 || offset >= 34 || (offset - 22) % 4 < 2;
     }
 }

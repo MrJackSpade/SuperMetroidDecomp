@@ -16,16 +16,8 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        for (int index = 0;
-             index < ZoaInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            ZoaInstructionMechanicsWord definition =
-                ZoaInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadZoaInstructionWord(rom, 0xa30000 | definition.Address),
-                $"Zoa instruction mechanics word $A3:{definition.Address:X4}");
-        }
+        VerifyZoaMechanicsDispatch(rom);
+        VerifyZoaPresentationPositions(rom);
 
         var guard = new ZoaInstructionProgramReadGuard(rom);
         ZoaAnimationSelector[] selectors =
@@ -130,6 +122,53 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyZoaMechanicsDispatch(SuperMetroidAddressSpace rom)
+    {
+        // Independent native word positions from bank_A3.asm, not the enumerator.
+        ushort[] addresses = [0xb3c1, 0xb3c3, 0xb3c7, 0xb3c9, 0xb3cd, 0xb3cf, 0xb3d3,
+            0xb3d5, 0xb3d7, 0xb3db, 0xb3df, 0xb3e3, 0xb3e5, 0xb3e7, 0xb3e9, 0xb3ed,
+            0xb3ef, 0xb3f3, 0xb3f5, 0xb3f9, 0xb3fb, 0xb3fd, 0xb401, 0xb405, 0xb409, 0xb40b];
+        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitions.MechanicsWordCount, "Zoa mechanics count");
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort original = ReadZoaInstructionWord(rom, 0xa30000 | address);
+            AssertEqual(original, ZoaInstructionProgramDefinitions.ReadMechanicsWord(address), "Zoa original control word");
+            AssertEqual(new ZoaInstructionMechanicsWord(address, original),
+                ZoaInstructionProgramDefinitions.MechanicsWord(index), "Zoa ordered control enumeration");
+        }
+        for (int address = 0xb3c0; address <= 0xb40e; address++)
+        {
+            bool isWord = addresses.Contains((ushort)address);
+            bool isByte = isWord || addresses.Contains((ushort)(address - 1));
+            AssertEqual(isByte, ZoaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+                "Zoa mechanics byte ownership");
+            AssertEqual(false, ZoaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa40000 | address),
+                "Zoa mechanics bank ownership");
+            if (!isWord) AssertThrows<InvalidDataException>(() =>
+                ZoaInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Zoa excludes noncontrol word");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 26, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitions.MechanicsWord(invalid),
+                "Zoa mechanics enumeration bounds");
+    }
+
+    private static void VerifyZoaPresentationPositions(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xb3c5, 0xb3cb, 0xb3d1, 0xb3d9, 0xb3dd, 0xb3e1,
+            0xb3eb, 0xb3f1, 0xb3f7, 0xb3ff, 0xb403, 0xb407];
+        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitions.PresentationWordCount, "Zoa presentation count");
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = ZoaInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(addresses[index], address, "Zoa native presentation position");
+            AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | addresses[index]),
+                ReadZoaInstructionWord(rom, 0xa30000 | address), "Zoa original presentation word at position");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitions.PresentationWordAddress(invalid),
+                "Zoa presentation enumeration bounds");
+    }
     private static int ProbeZoaInstructionMechanicsAllocation()
     {
         int checksum = 0;

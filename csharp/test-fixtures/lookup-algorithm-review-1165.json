@@ -148,7 +148,11 @@
                                   "crocomire-authored-order-review":  {
                                                                           "subject":  "Record authored Crocomire melt order disposition for #1165",
                                                                           "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Record authored Crocomire melt order disposition for #1165\""
-                                                                      }
+                                                                      },
+                                  "zoa-program-algorithms":  {
+                                                                 "subject":  "Replace Zoa instruction lookup records with structured dispatch for #1165",
+                                                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Zoa instruction lookup records with structured dispatch for #1165\""
+                                                             }
                               },
     "tables":  [
                    {
@@ -1306,7 +1310,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-suit-beam-curve",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-origin-cases",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-speed-cases",
-                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --dsp-gaussian-only"
+                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --dsp-gaussian-only",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-zoa-program"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {
@@ -1326,5 +1331,40 @@
                                           "rationale":  "Angular rasterization followed by integer scaling explains every original profile byte. This preserves the discrete construction rather than substituting a smooth ellipse or changing scale boundary rounding.",
                                           "proofTest":  "LookupTableResearch.VerifyPowerBombProfiles (existing proof, definitionsOnly mode)",
                                           "confirmation":  "All 4032 original ROM/disassembly bytes and invalid row/pointer bounds pass. Existing full proof retains independent generator analysis; no gameplay matrix run."
-                                      }
+                                      },
+    "zoaProgramReview":  {
+                             "owner":  "csharp/src/SuperMetroid.Core/Game/ZoaInstructionProgramDefinitions.cs",
+                             "implementationCommit":  "zoa-program-algorithms",
+                             "reviewedEvidence":  "Pinned bank_A3.asm B3C1-B40B complete four instruction lists; SHA-verified NTSC J/U v1.0 ROM; RoomEnemySystem.ReadEnemyInstructionWord dispatch and all enumeration/byte-ownership consumers inspected.",
+                             "consumers":  [
+                                               "RoomEnemySystem instruction reader",
+                                               "ZoaAnimationDefinitions program identities",
+                                               "Verification program enumeration and source-read guards"
+                                           ],
+                             "tables":  [
+                                            {
+                                                "id":  "zoa-instruction-mechanics",
+                                                "state":  "converted",
+                                                "nativeIdentity":  "A3:B3C1-B40B mechanics words in left/right shooting and rising lists",
+                                                "domain":  "26 exact ushort addresses. Reject all other words with InvalidDataException. MechanicsWord enumeration indices 0..25, IndexOutOfRangeException otherwise. IsCompiledMechanicsByte recognizes both bytes and native bank mask.",
+                                                "interpretation":  "Three speed callbacks and timers, three rising frame timers, and two loop opcode/target pairs per facing. Facing aliases share a 38-byte layout.",
+                                                "disposition":  "Remove address/value storage and binary lookup; dispatch named control fields by relative program offset. Derive ordered mechanics addresses from repeated frame layout.",
+                                                "rationale":  "This mapping expresses native instruction control and repeated frame structure, with named speed callbacks and self-loop targets. It is semantic dispatch rather than an arbitrary numerical sequence.",
+                                                "proofTest":  "VerifyZoaMechanicsDispatch",
+                                                "confirmation":  "All 26 original words and independent address enumeration; byte ownership and rejected interleaved/misaligned/adjacent addresses; enumeration bounds."
+                                            },
+                                            {
+                                                "id":  "zoa-presentation-word-positions",
+                                                "state":  "converted",
+                                                "nativeIdentity":  "Twelve spritemap operand positions interleaved in A3:B3C1-B40B",
+                                                "domain":  "Enumeration index 0..11; IndexOutOfRangeException otherwise.",
+                                                "interpretation":  "Per facing, three shooting operands at six-byte stride followed by three rising operands at four-byte stride.",
+                                                "disposition":  "Remove stored address list and calculate frame operand positions.",
+                                                "rationale":  "Native instruction sizes and duplicated facing layout determine every operand location.",
+                                                "proofTest":  "VerifyZoaPresentationPositions",
+                                                "confirmation":  "All twelve independently listed native positions, original pointed words and invalid enumeration bounds."
+                                            }
+                                        ],
+                             "confirmationScope":  "Two focused proofs reuse the original program verifier; no playback, room or allocation sweep."
+                         }
 }

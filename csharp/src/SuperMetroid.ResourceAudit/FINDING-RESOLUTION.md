@@ -602,3 +602,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **277 of the original 353 boundaries**. Current report: **zero
   missing identities, 76 unresolved**, all 352 consumers retained. No animation,
   host installation, pixel, timing, damage or player validation claim is made.
+
+## Samus artwork tables - thirteen further source-proven boundaries
+
+- **Findings:** offset, indexed composition, direct atmosphere and cannon
+  placement/tile lookups lacked coverage adapters.
+- **Cause/classification:** four existing constructors/loaders validate the
+  complete supported tables. Guarded rules now account for their exact indices
+  and valid false membership queries. Cannon factory/identity-array access
+  outside the reviewed provider revokes its proof. Unreviewed partial provider
+  declarations also revoke coverage rather than gaining private-state access.
+  Editable body DMA frame/definition ownership remains unresolved separately.
+- **Confirmation:** twenty-three constructed source calls reproduce absent
+  adapters first; thirteen qualify, nine invalid indices and the deliberately
+  unproved body Frame call remain unresolved. Three source-only fixtures confirm
+  alternate factory, mutable tile IDs and new partial-declaration revocation.
+  Release build and all audit contract checks pass; no gameplay or art runs.
+- **Accounting:** 288 guarded classifications plus two metadata corrections
+  account for **290 of the original 353 boundaries**. Current report: **zero
+  missing identities, 63 unresolved**, all 352 consumers retained. Post-publication
+  sprite-part contents, arbitrary callers, instance installation and pixels are
+  not certified. Production behavior is unchanged; the remaining findings fail.

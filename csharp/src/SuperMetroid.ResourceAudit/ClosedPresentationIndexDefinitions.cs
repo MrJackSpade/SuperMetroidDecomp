@@ -120,6 +120,14 @@ internal static class ClosedPresentationIndexDefinitions
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSpriteCatalog", "Draw", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),
+        ("SamusBodyArtworkCatalog", "GraphicsYOffset", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
+        ("SamusSpritemapArtworkCatalog", "TopBase" or "BottomBase", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
+        ("SamusSpritemapArtworkCatalog", "TryGet", "index") => new(0, SamusSpritemapArtworkCatalog.PointerCount),
+        ("SamusArmCannonArtworkCatalog", "PoseDrawingData", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
+        ("SamusArmCannonArtworkCatalog", "ReadDrawingByte", "address") => new(SamusArmCannonArtworkFormat.DrawingDataStart,
+            SamusArmCannonArtworkFormat.DrawingDataByteCount),
+        ("SamusArmCannonArtworkCatalog", "SpriteAttributes" or "TileSource", "direction") => new(0, SamusRenderingRomData.ArmCannon.DirectionCount),
+        ("SamusArmCannonArtworkCatalog", "TileSource", "frame") => new(0, SamusArmCannonArtworkFormat.FramesPerDirection),
         _ => null,
     };
 }

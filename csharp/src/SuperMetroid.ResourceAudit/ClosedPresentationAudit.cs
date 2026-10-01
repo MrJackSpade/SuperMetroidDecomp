@@ -25,6 +25,11 @@ internal sealed class ClosedPresentationAudit
         {
             bool valid = contract.Sources.All(source => sources.TryGetValue(source.Path, out string? text) &&
                 MatchesReviewedSource(text, source));
+            // A new partial implementation could access the reviewed private state.
+            // Every source declaration of the provider must remain in the proof.
+            if (valid && compilation.GetTypeByMetadataName(contract.Type) is { } provider)
+                valid = provider.DeclaringSyntaxReferences.All(declaration =>
+                    contract.Sources.Any(source => source.Path == declaration.SyntaxTree.FilePath));
             // This existing definition uses a readonly array reference, not an
             // immutable array. Its reviewed reads are wholly inside these files;
             // a new external use could mutate its keys and must revoke the proof.
@@ -67,6 +72,16 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "TimedRecordPointers")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
                             property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Game.SamusProjectileRadiusDefinitions).FullName));
+            if (valid && contract.Type == typeof(SamusArmCannonArtworkCatalog).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText is "FromPlacement" or "TileSourcePointers")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
+                            IMethodSymbol { Name: "FromPlacement" } factory &&
+                                factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkCatalog).FullName ||
+                            compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
+                            IFieldSymbol { Name: "TileSourcePointers" } field &&
+                                field.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkFormat).FullName));
             contracts.Add(contract.Type, (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)

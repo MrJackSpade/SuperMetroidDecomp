@@ -424,3 +424,26 @@ Nineteen constructed source calls first expose missing adapters; eleven classify
 and eight invalid requests remain unresolved. Two separate source-only fixtures
 confirm partial-factory and mutable-pointer revocation. Build and prior checks
 pass. No ROM, saves, art, firing, motion, damage, sound or gameplay is executed.
+
+## Samus artwork tables - thirteen additional original boundaries
+
+Four reviewed providers require the complete pose/landing/posture/drained offset
+arrays, 253 upper/lower composition bases and 2096 indexed pointers, both four-word
+direct atmospheric lists, and all cannon pose descriptors/drawing bytes/direction
+attributes/tile selectors. Every nonzero indexed spritemap pointer must resolve
+before public construction. Native zero pointers and unsupported Try queries
+validly return false. Membership is not a claim about exposed part arrays after
+publication, mutable-memory fallbacks, timing or pixel placement.
+
+Cannon coverage is limited to the production Load path. External Core references
+to its internal unvalidated FromPlacement factory or mutable TileSourcePointers
+revoke that proof. Every provider's source declaration must also be among its
+reviewed files: adding a partial implementation that can access private state
+invalidates coverage even when the original files have not changed.
+
+Twenty-three constructed source calls expose absent adapters first. Thirteen
+classify; nine invalid indices and one body Frame call stay unresolved. Three
+separate source fixtures confirm alternate factory, mutable IDs and partial
+declaration revocation. Build and earlier checks pass. Body Frame/DefinitionAt
+closure is not inferred from offset-array lengths. No ROM, saves, artwork,
+rendering, movement or gameplay runs; production is unchanged.

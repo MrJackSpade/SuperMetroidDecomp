@@ -301,13 +301,16 @@ internal static class EnemyExtendedFrameDefinitions
                 MaridiaLargeSnailCollisionDefinitions.Bank,
                 pointer, $"oum_oam_{pointer:X4}"));
         if (frames.Count != PreCrocomireFrameCount ||
-            CrocomireTongueCollisionDefinitions.FramePointers.Length !=
+            CrocomireTongueCollisionDefinitions.FrameCount !=
                 CrocomireOamFrameCount)
             throw new InvalidDataException("Crocomire OAM frame prefix changed.");
-        foreach (ushort pointer in CrocomireTongueCollisionDefinitions.FramePointers)
+        for (int index = 0; index < CrocomireTongueCollisionDefinitions.FrameCount; index++)
+        {
+            ushort pointer = CrocomireTongueCollisionDefinitions.FramePointer(index);
             frames.Add(new EnemyExtendedFrameDefinition(
                 CrocomireTongueCollisionDefinitions.Bank,
                 pointer, $"crocomire_oam_{pointer:X4}"));
+        }
         if (frames.Count != PreCrocomireBodyFrameCount)
             throw new InvalidDataException("Crocomire body frame prefix changed.");
         foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)

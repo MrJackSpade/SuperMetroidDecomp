@@ -1593,5 +1593,41 @@
                        "proofTest":  "VerifyCrocomireBg2PoseCorrections (extracted from existing BG2 proof)"
                    }
                ]
+},
+    "crocomireTongueCollisionReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireTongueCollisionDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Crocomire tongue collision lookups with named frame cases for #1165\"",
+                                 "subject":  "Replace Crocomire tongue collision lookups with named frame cases for #1165"
+                             },
+    "consumers":  [
+                      "EnemyExtendedFrameDefinitions artwork identities",
+                      "RoomEnemySystem.TryFindExtendedHitboxCallback",
+                      "existing tongue visual/collision proofs"
+                  ],
+    "reviewedEvidence":  "Pinned bank_A4.asm complete C65E-C685 and CACE-CAFF one-component frames, selected by BE56/BF98 tongue instruction loops, plus CBB3/CC3B empty hitbox headers; current artwork and collision consumers; SHA-verified NTSC J/U v1.0 ROM.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-tongue-collision",
+    "tables":  [
+                   {
+                       "id":  "crocomire-tongue-collision-frame-positions",
+                       "disposition":  "Replace stored frame array with two ten-byte-stride sequences; migrate artwork catalog and verification enumeration.",
+                       "state":  "converted",
+                       "nativeIdentity":  "ExtendedSpritemap_Crocomire_10..13 at C65E and 2D..31 at CACE",
+                       "confirmation":  "Nine pointers read from independently listed original instruction operands, count and invalid indices.",
+                       "rationale":  "Each native frame contains a two-byte count and one eight-byte component. The two instruction loops select all four/five consecutive frames.",
+                       "domain":  "Enumeration indices 0..8, IndexOutOfRangeException otherwise; HasFrame accepts exactly nine identities.",
+                       "proofTest":  "VerifyCrocomireTongueFramePositions"
+                   },
+                   {
+                       "id":  "crocomire-tongue-collision-components",
+                       "disposition":  "Remove dictionary; fight frames share (-32,-24,FightHitboxes), while named melting poses select their native physical components. Existing two empty-hitbox cases remain, now with named identities.",
+                       "state":  "converted",
+                       "nativeIdentity":  "X/Y offsets and hitbox pointers in the nine selected A4 extended frames",
+                       "confirmation":  "Every original component field and one-component header, both empty native lists, all 65,536 HasFrame identities, representative misaligned/adjacent ComponentAt rejections.",
+                       "rationale":  "Frame identity selects physical geometry. Named pose dispatch preserves this functional selection without inventing a chronological numerical curve.",
+                       "domain":  "Only nine frame identities; InvalidDataException for unknown frames and hitbox lists.",
+                       "proofTest":  "VerifyCrocomireTongueComponentCases (extracted native component assertions from existing collision proof)"
+                   }
+               ]
 }
 }

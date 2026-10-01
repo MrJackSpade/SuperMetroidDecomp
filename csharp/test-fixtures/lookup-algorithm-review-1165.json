@@ -1558,5 +1558,40 @@
                        "proofTest":  "VerifyCrocomireMeltUploads (extracted from existing catalog proof)"
                    }
                ]
+},
+    "crocomireBg2PoseReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireBg2ScrollDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Crocomire BG2 correction lookup with named pose cases for #1165\"",
+                                 "subject":  "Replace Crocomire BG2 correction lookup with named pose cases for #1165"
+                             },
+    "consumers":  [
+                      "RoomEnemySystem.UpdateCrocomireBg2Scroll",
+                      "Crocomire BG2 verification enumeration"
+                  ],
+    "reviewedEvidence":  "Pinned bank_A4.asm 8B5B-8BA2 pointer-search consumer and complete 17-pointer list, referenced charge/step-back and moving-claw extended frames, current BG2 consumer; SHA-verified NTSC J/U v1.0 ROM. Pointer+0x1c selects fourth component Y (two-byte header plus three eight-byte components plus X word).",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-bg2-poses",
+    "tables":  [
+                   {
+                       "id":  "crocomire-bg2-frame-positions",
+                       "disposition":  "Calculate twelve pointers BFC4+0x32*i, followed by five C47A+0x32*j. Remove the stored pointer/correction record array.",
+                       "state":  "converted",
+                       "nativeIdentity":  "A4:8B79 17 extended-frame pointers",
+                       "confirmation":  "Every original pointer, native order, uniqueness and invalid indices.",
+                       "rationale":  "The native pointer list selects two consecutive pose families; all frames contain six eight-byte components plus a two-byte count.",
+                       "domain":  "Enumeration indices 0..16, IndexOutOfRangeException otherwise.",
+                       "proofTest":  "VerifyCrocomireBg2FramePositions (extracted from existing BG2 proof)"
+                   },
+                   {
+                       "id":  "crocomire-bg2-pose-corrections",
+                       "disposition":  "Replace reverse record search with named charge/step-back and moving-claw pose cases selecting -2, -1, -4 or zero; retain exact 0x43-bodyY+correction arithmetic.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Fourth-component signed Y offsets of the 17 frames selected by A4:8B79",
+                       "confirmation":  "All seventeen original component offsets, representative signed/wrapping body coordinates and all 65,536 pointer identities against an independent native-search mapping.",
+                       "rationale":  "This is identity-based body/BG2 pose alignment: named selected frames choose their native geometry adjustment. It is semantic case selection, not an invented chronological curve.",
+                       "domain":  "Every ushort bodyY and spritemapPointer. Unknown pointers add zero; final scroll wraps ushort.",
+                       "proofTest":  "VerifyCrocomireBg2PoseCorrections (extracted from existing BG2 proof)"
+                   }
+               ]
 }
 }

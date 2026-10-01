@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-crocomire-bg2-poses"])
+{
+    var bg2Oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bg2Oracle.Rom)),
+        "Crocomire BG2 oracle is NTSC J/U v1.0");
+    VerifyCrocomireBg2ScrollDefinitions(bg2Oracle);
+    Console.WriteLine("Crocomire BG2: all 17 pointers and corrections, full selector domain and wrapped scroll values pass.");
+    return 0;
+}
 if (args is ["--lookup-crocomire-melt-transfers"])
 {
     var meltOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

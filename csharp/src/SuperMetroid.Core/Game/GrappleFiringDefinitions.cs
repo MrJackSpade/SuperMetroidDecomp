@@ -16,7 +16,7 @@ internal static class GrappleFiringDefinitions
     /// <summary>$9B:C122/$C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX: identical physical hand offsets.</summary>
     /// <remarks>#1165 retain: all words and both native copies independently checked.
     /// Pose-authored anchors are not circular samples: cardinal X is 2, diagonals 10,
-    /// while down-right/down-left use +3/-4. Mirroring requires an unexplained one-pixel
+    /// while downward-facing right/left use +3/-4. Mirroring requires a one-pixel
     /// exception; a guessed geometric generator obscures this short authored layout.</remarks>
     private static ReadOnlySpan<short> OriginX => [2, 10, 2, 10, 3, -4, -10, -2, -10, -2];
 
@@ -40,7 +40,7 @@ internal static class GrappleFiringDefinitions
     /// facing right (0), through down, facing right (4), duplicated down (5), to up (9).
     /// Fixed cardinal/diagonal cases avoid runtime trigonometry. Quantization precedes
     /// scaling: 255 and 181 times twelve, not a rounded radius-3072 circle.
-    /// Angle is (0x8000+0x2000*q) modulo 65536, q=d for d<=4 else d-1.
+    /// Angle is (0x8000+0x2000*q) modulo 65536, q=d for d&lt;=4 else d-1.
     /// Preserve the former span's IndexOutOfRangeException for unsupported directions.
     /// </remarks>
     internal static (short XVelocity, short YVelocity, ushort Angle) Launch(byte direction)

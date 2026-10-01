@@ -36,7 +36,7 @@ internal static partial class Program
         AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 188).NextByteOffset,
             "Dead Torizo private hook retains its above-screen cull");
 
-        var missing = new EnemyTileArtworkCatalog(
+        var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadTorizoArtwork(

@@ -179,7 +179,7 @@ static void VerifyRoomEnemyLoading()
     }
     var installedEnemies = new RoomEnemySystem
     {
-        TileArtwork = new EnemyTileArtworkCatalog(stockSheets, stockColors),
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
     };
     var installedVram = new SnesVram();
     var installedCgram = new SnesCgram();
@@ -196,7 +196,7 @@ static void VerifyRoomEnemyLoading()
     AssertEqual(slot.Definition.XRadius, installedEnemies.Slots[0].Definition.XRadius,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        new EnemyTileArtworkCatalog(new Dictionary<ushort, RoomCharacterAtlas>(),
+        EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>())
             .LoadTo(primaryDefinitionPointer, 0x40, new SnesVram(), 0xe000),
         "missing installed enemy sheet fails at its actual upload");

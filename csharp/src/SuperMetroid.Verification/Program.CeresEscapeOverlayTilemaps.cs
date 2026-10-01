@@ -116,7 +116,7 @@ internal static partial class Program
             "corrupt Ceres overlay JSON fails loudly");
         var missing = new RoomEnemySystem
         {
-            TileArtwork = new EnemyTileArtworkCatalog(
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>()),
         };

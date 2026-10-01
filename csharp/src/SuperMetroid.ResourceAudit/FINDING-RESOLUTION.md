@@ -832,3 +832,31 @@ remain explicitly failing findings, not silently waived or treated as proven res
 - **Accounting:** 330 guarded classifications plus two metadata corrections
   account for **332 of the original 353 boundaries**. Current report: **zero
   missing identities, 21 unresolved**, all 352 consumers retained. #1156 stays active.
+
+## Complete enemy tile/color/DMA installation - seven further boundaries
+
+- **Findings:** seven ordinary-enemy sheet, palette or DMA lookups had no closed
+  installation proof. The public constructor allowed arbitrary matching partial
+  dictionaries, absent DMA aliases and absent Ceres transfer providers.
+- **Reproduced cause/solution:** construction accepted empty dictionaries; the
+  focused rejection assertion failed before production changed. The private
+  constructor now sits behind a complete installed factory and an explicitly
+  internal partial-fixture factory. Installed construction requires the 122
+  compiled graphics-set identities, nonnull palettes, exact native sheet lengths,
+  native DMA aliases and both Ceres transfer providers. Caller dictionaries are
+  copied. The importer and existing constructed fixtures use their respective
+  factories; no gameplay mechanics or boss attachment contracts are changed.
+- **Confirmation:** authored zero-art sheets confirm missing/substituted/null/
+  wrong-size rejection, incorrect alias rejection, dictionary independence,
+  exact VRAM/CGRAM uploads with unchanged neighbors, and Ceres slice/overlay
+  resolution. Fifteen source calls first expose absent adapters; nine valid-domain
+  operations qualify, while six invalid known selectors/lengths stay unresolved.
+  Changed admission, a Core partial-factory caller, or additional metadata
+  declarations revoke all classifications. Audit self-checks and Audit,
+  Verification and Windows Desktop Release builds pass. No ROM, save, installed
+  artwork, gameplay, renderer or exhaustive playthrough was used.
+- **Accounting:** 337 guarded classifications plus two metadata corrections
+  account for **339 of the original 353 boundaries**. Current report: **zero
+  missing identities, 14 unresolved**, all 352 consumers retained. Invalid dynamic
+  caller inputs, optional boss attachments, destinations, timing and pixels are
+  not certified. #1156 remains active.

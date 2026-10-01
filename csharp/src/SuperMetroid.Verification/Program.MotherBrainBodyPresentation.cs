@@ -68,7 +68,7 @@ internal static partial class Program
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(new EnemyTileArtworkCatalog(
+        var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
             extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(stockOam))));
         missing.SetFrame(mixed[0].Pointer, fresh: true);

@@ -1593,7 +1593,7 @@ internal static partial class Program
             ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
-        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
             projectileSpritemaps: EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
                 EnemyProjectileSpritemapCatalog.Write(artworkDocument))));

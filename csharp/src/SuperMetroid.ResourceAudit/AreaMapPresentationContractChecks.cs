@@ -55,14 +55,15 @@ internal static class AreaMapPresentationContractChecks
         Require(after.Classifications.Count == 6 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
             after.Consumers.Count == 10, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs");
         Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
-            "a publicly constructed partial enemy catalog must not borrow the atomic map install proof");
+            "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
         const string catalog = "csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("foreach (AreaId area in Enum.GetValues<AreaId>())",
                 "foreach (AreaId area in new[] { AreaId.Crateria })", StringComparison.Ordinal), path: tree.FilePath) : tree);
         AuditReport revoked = Inspect(Compile(changed), true);
         Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 10 &&
-            revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 9,
+            revoked.Findings.Count(item => item.Owner.StartsWith("AreaMapPresentationCatalog.", StringComparison.Ordinal) &&
+                item.Message.Contains("stale", StringComparison.Ordinal)) == 9,
             "changed atomic area admission must revoke both map operations, including valid-looking constants");
     }
 

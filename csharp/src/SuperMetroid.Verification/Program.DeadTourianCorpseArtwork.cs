@@ -45,7 +45,7 @@ internal static partial class Program
             }
         }
 
-        var missing = new EnemyTileArtworkCatalog(
+        var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(

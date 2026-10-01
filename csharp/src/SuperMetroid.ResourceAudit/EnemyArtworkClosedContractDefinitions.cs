@@ -1,0 +1,24 @@
+namespace SuperMetroid.ResourceAudit;
+
+/// <summary>Complete ordinary sheet/palette admission and owned enemy DMA sources.</summary>
+internal static class EnemyArtworkClosedContractDefinitions
+{
+    internal static readonly ClosedPresentationContract[] All =
+    [
+        new("SuperMetroid.Core.Assets.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs", "93F6725664ED5AAF6207D1FAAEE4EFC07B6BFCB2ECD2BE2B0E6BA9A903585D34"),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs", "E9277EC6463EE2A31698D8A563F0BFC4265D65118B9CABBB9AB5CAB16CDA8457"),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemyTileSourceDefinitions.cs", "4169C1F970535F5D03B6BBCCEAB32C50C41FB9CDB660F12672E7CB1AE4CA4DBE"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.cs", "CEF2D6749BB7759E33E6E6C97954FD0BDD89E42686EF681160A7D114CD01D536"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs", "F89CA79521EC322761F483B562D940CDA3419A15F2494C65809DD25007770E0F"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs", "E055B7F6F3000F15895AD916733BBEEF347D0C9E42D9EC7B17514EA7FD132C7C"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs", "E369DF9E8D20E4480A1DE0629C9CC3AD399F66CDD703939732E2FF5DA82D7F1C"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyData.cs", "81ED72344C27206C7705C0CAE87C30D699B6F4784B4F1A85861664DBDFB2A1C9"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512"),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs", "D7F17ECE934A304497228C6F5B2BDD6DA7C5668F8D7FC76CD525387BEC4C5C4C"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs", "EB24297895DB7A1502E0027D7F667A9F36FBD88758442864597825E526DB7C85"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileRomData.cs", "DF8836E127366B910D5649CE661AFA7F33554113B28D4A126745013489B664CA"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "221707D460C05818CC9C71A2C57936F1F69FBAA7ABF9B03E0B4BF4C334D9227A")],
+            "The installed factory requires all 122 compiled graphics-set identities with nonnull palettes and exact native tile lengths; pinned IDs reject substitutions. Native DMA aliases are derived or validated, and both complete Ceres transfer providers are required. Dictionaries are copied. LoadTo/LoadPaletteTo cover valid definition IDs; TryResolve covers native sheet sources, bounded Ceres slices and exact warning tilemaps, returning false for unowned sources. Invalid known identities/lengths remain findings. External Core use of the internal partial fixture factory or new metadata declarations revokes this rule. Optional boss attachments, caller selection, destinations, timing and rendered pixels are not certified."),
+    ];
+}

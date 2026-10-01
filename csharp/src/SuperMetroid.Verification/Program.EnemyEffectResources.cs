@@ -46,7 +46,7 @@ internal static partial class Program
             var expected = new RoomEnemySystem(); var actual = new RoomEnemySystem();
             expected.Slots[0].EnemyDefinitionPointer = actual.Slots[0].EnemyDefinitionPointer = definition;
             expected.Slots[0].Parameter1 = actual.Slots[0].Parameter1 = (ushort)(variant * 2);
-            if (emptyCatalog) actual.TileArtwork = new EnemyTileArtworkCatalog(
+            if (emptyCatalog) actual.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>());
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(actual, memory);
             Action<RoomEnemySlot> initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!

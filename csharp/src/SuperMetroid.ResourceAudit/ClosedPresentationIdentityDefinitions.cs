@@ -62,6 +62,8 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(sheet => sheet.SourceAddress).ToArray(),
         ("XrayOverlayVisualCatalog", "RoomTiles", "pointer") => XrayRoomOverlaySourceDefinitions.All
             .Select(pointer => (int)pointer).ToArray(),
+        ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionPointer") => EnemyTileSourceDefinitions.All
+            .Select(definition => (int)definition.DefinitionPointer).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

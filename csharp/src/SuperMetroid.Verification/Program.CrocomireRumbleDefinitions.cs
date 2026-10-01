@@ -52,7 +52,7 @@ internal static partial class Program
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = new EnemyTileArtworkCatalog(
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>(), crocomireColors: colors),
         };

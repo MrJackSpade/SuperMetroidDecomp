@@ -1094,7 +1094,7 @@ public static class EnemyTileArtworkFiles
         }
         var auxiliaryColors = EnemyAuxiliaryColorCatalog.Load(new MemoryStream(
             ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
-        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
+        return EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,

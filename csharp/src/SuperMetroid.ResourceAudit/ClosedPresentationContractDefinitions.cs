@@ -31,6 +31,7 @@ internal static class ClosedPresentationContractDefinitions
         .. RoomLayoutClosedContractDefinitions.All,
         .. MotherBrainSheetsClosedContractDefinitions.All,
         .. NativeDisplaySelectorClosedContractDefinitions.All,
+        .. EnemyArtworkClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

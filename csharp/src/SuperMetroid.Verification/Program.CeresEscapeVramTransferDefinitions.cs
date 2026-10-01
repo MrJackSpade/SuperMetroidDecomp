@@ -50,7 +50,7 @@ internal static partial class Program
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
         var system = new RoomEnemySystem
         {
-            TileArtwork = new EnemyTileArtworkCatalog(
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>(),
                 ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages),

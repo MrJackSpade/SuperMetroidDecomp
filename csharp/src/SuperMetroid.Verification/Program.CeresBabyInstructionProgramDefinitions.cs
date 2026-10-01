@@ -152,7 +152,7 @@ internal static partial class Program
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>(),
             spritemaps: installed);
@@ -195,7 +195,7 @@ internal static partial class Program
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>(),
             spritemaps: EnemySpritemapCatalog.Load(

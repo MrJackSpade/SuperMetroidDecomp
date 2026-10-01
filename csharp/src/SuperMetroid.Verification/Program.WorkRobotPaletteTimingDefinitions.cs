@@ -70,7 +70,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = new EnemyTileArtworkCatalog(
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>(),
                 workRobotPaletteCycle: edited),

@@ -62,6 +62,22 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "FromOverlaysForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
                             factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog).FullName));
+            if (valid && contract.Type == typeof(EnemyTileArtworkCatalog).FullName)
+            {
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "FromArtworkForVerification")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
+                            factory.ContainingType.ToDisplayString() == typeof(EnemyTileArtworkCatalog).FullName));
+                // Additional partial metadata declarations could mutate the private
+                // native arrays used to derive installation keys and DMA lengths.
+                if (valid)
+                    valid = new[] { typeof(SuperMetroid.Core.Game.RoomEnemyGraphicsSetDefinitions).FullName!,
+                        typeof(SuperMetroid.Core.Game.RoomEnemyDefinitionCatalog).FullName!, typeof(EnemyTileSourceDefinitions).FullName! }
+                        .All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
+                            dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
+                                source.Path == declaration.SyntaxTree.FilePath)));
+            }
             if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
@@ -132,6 +148,7 @@ internal sealed class ClosedPresentationAudit
         }
         string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
+            ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
             ?? ClosedTransferDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {

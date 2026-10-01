@@ -147,7 +147,7 @@ internal static partial class Program
 
         var missing = new RoomEnemySystem
         {
-            TileArtwork = new EnemyTileArtworkCatalog(
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>()),
             EscapeTimerArtwork = timer,

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// Installed, palette-indexed ordinary enemy characters. Definition pointers select art;
 /// enemy health, hitboxes, AI, and native VRAM destinations remain engine-owned.
 /// </summary>
-public sealed class EnemyTileArtworkCatalog
+public sealed partial class EnemyTileArtworkCatalog
 {
     /// <summary>
     /// Complete selected enemy presentation, including legacy-override merges, display
@@ -68,105 +68,6 @@ public sealed class EnemyTileArtworkCatalog
     private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
-    public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
-        CrocomireMeltingArtwork? crocomireMelting = null,
-        EnemySpritemapCatalog? spritemaps = null,
-        EnemyExtendedFrameCatalog? extendedFrames = null,
-        KraidBackgroundArtwork? kraidBackground = null,
-        KraidColorCatalog? kraidColors = null,
-        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
-        CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<ushort, int>? dmaSources = null,
-        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
-        MagdollitePaletteCycle? magdollitePaletteCycle = null,
-        WorkRobotPaletteCycle? workRobotPaletteCycle = null,
-        CrocomireColorCatalog? crocomireColors = null,
-        DraygonColorCatalog? draygonColors = null,
-        PhantoonColorCatalog? phantoonColors = null,
-        ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
-        SporeSpawnColorCatalog? sporeSpawnColors = null,
-        DachoraColorCatalog? dachoraColors = null,
-        ShitroidColorCatalog? shitroidColors = null,
-        BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null,
-        BotwoonColorCatalog? botwoonColors = null,
-        MotherBrainDeathColorCatalog? motherBrainDeathColors = null,
-        ZebetiteColorCatalog? zebetiteColors = null,
-        NorfairRidleyColorCatalog? norfairRidleyColors = null,
-        TourianStatueColorCatalog? tourianStatueColors = null,
-        PhantoonBg2FrameCatalog? phantoonBg2Frames = null,
-        DraygonBg2FrameCatalog? draygonBg2Frames = null,
-        RoomCharacterAtlas? motherBrainCorpse = null,
-        RoomCharacterAtlas? motherBrainEscapeText = null,
-        MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
-        CrocomireSkeletonArtwork? crocomireSkeleton = null,
-        CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
-        TorizoInstructionVramArtwork? torizoInstructionVram = null,
-        CeresEscapeTileArtwork? ceresEscapeTiles = null,
-        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
-        EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
-        MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
-    {
-        ArgumentNullException.ThrowIfNull(sheets);
-        ArgumentNullException.ThrowIfNull(palettes);
-        if (sheets.Count != palettes.Count || sheets.Keys.Any(pointer => !palettes.ContainsKey(pointer)))
-            throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
-        this.sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
-        this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
-        byDmaSource = new Dictionary<(int, int), RoomCharacterAtlas>();
-        if (dmaSources is not null)
-        {
-            foreach ((ushort pointer, int sourceAddress) in dmaSources)
-            {
-                if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
-                    throw new InvalidDataException(
-                        $"Enemy ${pointer:X4} DMA source has no installed sheet.");
-                var key = (sourceAddress, atlas.Transfer.Length);
-                if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
-                {
-                    if (!existing.Transfer.Span.SequenceEqual(atlas.Transfer.Span))
-                        throw new InvalidDataException(
-                            $"Enemy DMA source ${sourceAddress:X6} has conflicting installed sheets.");
-                }
-                else byDmaSource.Add(key, atlas);
-            }
-        }
-        CrocomireMelting = crocomireMelting;
-        Spritemaps = spritemaps;
-        ExtendedFrames = extendedFrames;
-        KraidBackground = kraidBackground;
-        KraidColors = kraidColors;
-        GunshipLiftoff = gunshipLiftoff;
-        CeresDoorVisual = ceresDoorVisual;
-        ProjectileSpritemaps = projectileSpritemaps;
-        MagdollitePaletteCycle = magdollitePaletteCycle;
-        WorkRobotPaletteCycle = workRobotPaletteCycle;
-        CrocomireColors = crocomireColors;
-        DraygonColors = draygonColors;
-        PhantoonColors = phantoonColors;
-        ChozoAndTubeColors = chozoAndTubeColors;
-        SporeSpawnColors = sporeSpawnColors;
-        DachoraColors = dachoraColors;
-        ShitroidColors = shitroidColors;
-        BabyMetroidCutsceneColors = babyMetroidCutsceneColors;
-        BotwoonColors = botwoonColors;
-        MotherBrainDeathColors = motherBrainDeathColors;
-        ZebetiteColors = zebetiteColors;
-        NorfairRidleyColors = norfairRidleyColors;
-        TourianStatueColors = tourianStatueColors;
-        PhantoonBg2Frames = phantoonBg2Frames;
-        DraygonBg2Frames = draygonBg2Frames;
-        CrocomireBg2Frames = crocomireBg2Frames;
-        MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames;
-        MotherBrainCorpse = motherBrainCorpse;
-        MotherBrainEscapeText = motherBrainEscapeText;
-        MotherBrainSpecialSprites = motherBrainSpecialSprites;
-        CrocomireSkeleton = crocomireSkeleton;
-        TorizoInstructionVram = torizoInstructionVram;
-        CeresEscapeTiles = ceresEscapeTiles;
-        CeresEscapeOverlayTilemaps = ceresEscapeOverlayTilemaps;
-        AuxiliaryColors = auxiliaryColors;
-    }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
     public CrocomireMeltingArtwork? CrocomireMelting { get; }
@@ -320,6 +221,8 @@ public static class EnemyTileArtworkFormat
         $"gunship-liftoff-{index + 1}-tiles.png";
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
+    /// <summary>Bank-$A0 enemy-header word zero: bit 15 selects staging; bits 0..14 are tile byte length.</summary>
+    public const int TileByteCountMask = 0x7fff;
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit definition IDs joined with commas, independently
     /// enumerated from every bank-$B4 enemy graphics set referenced by retail room states.

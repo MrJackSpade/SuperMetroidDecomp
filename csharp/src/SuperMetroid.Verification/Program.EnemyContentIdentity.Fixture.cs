@@ -160,7 +160,7 @@ internal static partial class Program
                     KeyValuePair.Create(definition.Id, ColorRows("auxiliary-" + definition.Id, definition.FrameCount, definition.ColorCount)))),
             }));
 
-            return new EnemyTileArtworkCatalog(sheets, palettes,
+            return EnemyTileArtworkCatalog.FromArtworkForVerification(sheets, palettes,
                 crocomireMelting: CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
                     Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)),
                 spritemaps: spritemaps ?? Oam(), extendedFrames: extendedFrames ?? Extended(),

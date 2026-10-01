@@ -19,7 +19,7 @@ internal static partial class Program
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
-                Enemies.TileArtwork = new EnemyTileArtworkCatalog(
+                Enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                     new Dictionary<ushort, RoomCharacterAtlas>(),
                     new Dictionary<ushort, EnemyPaletteSheet>(), crocomireMelting: art);
             Actor = new CrocomireEnemyState(Enemies.Slots[0]) { Tongue = Enemies.Slots[1] };

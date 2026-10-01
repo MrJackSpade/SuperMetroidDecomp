@@ -31,7 +31,7 @@ internal static partial class Program
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, edited);
         }
 
-        internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => new(
+        internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
             extendedFrames: extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null,
             crocomireBg2Frames: omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)),

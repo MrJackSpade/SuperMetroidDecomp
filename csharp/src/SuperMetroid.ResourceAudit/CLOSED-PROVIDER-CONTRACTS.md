@@ -626,3 +626,29 @@ with a throw revokes the rule. Audit Release build and all auditor checks pass.
 Production behavior is unchanged; no ROM, save, installed art or gameplay was opened.
 This proves only absence of a resource request at this method, not correct visual
 selection, frame coverage, BG2/OAM alignment, placement or pixels.
+
+## Enemy tile/color/DMA installation - seven additional original boundaries
+
+Public installed construction requires all 122 identities derived from compiled
+retail graphics sets and independently pinned by their sorted-ID fingerprint.
+Each needs a nonnull palette and a sheet with its exact masked native byte length.
+DMA aliases are derived from compiled headers, or validated if supplied; the two
+complete Ceres tile and overlay providers are mandatory. Dictionaries are copied.
+The former public constructor admitted empty/partial dictionaries; a focused
+fixture reproduced that gap before the production change. Partial fixtures now
+use an internal factory whose Core use revokes the completeness rule.
+
+LoadTo/LoadPaletteTo cover valid required definition identities. TryResolve covers
+complete ordinary native sheets, bounded positive Ceres tile slices and exact
+warning overlay pages; unowned sources remain false queries. Known bad definition
+IDs and owned source/length mismatches stay findings. The rule also guards source
+declarations of compiled graphics-set/header metadata, including new partials.
+Other optional boss attachments are outside this rule's proof.
+
+Constructed zero-art sheets confirm admission, dictionary independence and exact
+VRAM/CGRAM transfers with unchanged neighbors. Fifteen source calls expose absent
+adapters first; nine qualify and six invalid selectors/lengths remain findings.
+Removing size admission, using the partial fixture factory in Core, or adding
+metadata declarations revokes the rule. Audit self-checks and Audit, Verification
+and Windows Desktop Release builds pass. No ROM, save, installed artwork, rendering
+or gameplay ran. Caller selection, destinations, clocks and pixels are not certified.

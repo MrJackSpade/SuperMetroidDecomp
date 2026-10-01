@@ -9,3 +9,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]
 // The separate importer shares the driver's cartridge definitions and PCM codecs.
 [assembly: InternalsVisibleTo("SuperMetroid.AssetExtraction")]
+// Development-only static dependency audit; never linked by playable hosts.
+[assembly: InternalsVisibleTo("SuperMetroid.ResourceAudit")]

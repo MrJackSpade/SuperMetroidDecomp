@@ -27,6 +27,9 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
     public ReadOnlySpan<ushort> Colors => colors;
 
+    /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
+    internal IReadOnlyCollection<ushort> ColorPointers => animatedColors.Keys;
+
     /// <summary>The two copyright glyph colors restored by the title's fast-skip route.</summary>
     public ushort SkipCopyrightWhite { get; }
     public ushort SkipCopyrightRed { get; }

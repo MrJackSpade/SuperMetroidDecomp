@@ -18,6 +18,12 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     public bool TryReadColor(ushort pointer, out ushort color) =>
         colors.TryGetValue(pointer, out color);
 
+    /// <summary>
+    /// Installed identities, including shared-color aliases, for the development
+    /// dependency auditor. This exposes keys only, not cartridge bytes or colors.
+    /// </summary>
+    internal IReadOnlyCollection<ushort> ColorPointers => colors.Keys;
+
     public static RoomPaletteFxPresentation Load(Stream json,
         RoomPaletteFxPresentation? previousVersionFallback = null)
     {

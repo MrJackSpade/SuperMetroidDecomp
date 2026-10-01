@@ -11,8 +11,8 @@ boundary is not a claim of complete gameplay parity. It targets
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
 
-`SuperMetroid.slnx` includes all 11 non-Android projects, grouped as apps, libraries, tools,
-and verification. `SuperMetroid.Full.slnx` includes all 12 projects and requires the Android
+`SuperMetroid.slnx` includes all 14 non-Android projects, grouped as apps, libraries, tools,
+and verification. `SuperMetroid.Full.slnx` includes all 15 projects and requires the Android
 workload. See the [current project inventory](../docs/project-inventory.md) for ownership and
 the [shared test support](test-support/README.md) for fixture imports.
 
@@ -25,6 +25,18 @@ dotnet run --project src/SuperMetroid.IntegrationVerification -c Release -- --as
 Add a private ROM path and optional reference-audio directory after `--asset-import` for full
 installation tests. Other integration commands retain their flags; the default integration
 suite requires the private ROM and extracted audio in the repository working directory.
+
+Static resource dependency auditing is separate from gameplay verification:
+
+```powershell
+dotnet run --project src/SuperMetroid.ResourceAudit -c Release -- --root .. --json ../out/resource-audit.json
+```
+
+It compares compiled resource references with production provider definitions, inventories
+resource lookups from source, and fails on missing definitions **or unresolved coverage**.
+No ROM, installed art, saves, frames or controller inputs are opened. The audit is not
+currently clean; findings are development work, not proof that every listed identity is a
+reachable player bug. See [scope, build integration and report format](src/SuperMetroid.ResourceAudit/README.md).
 
 This file is the authoritative high-level status summary. Detailed Samus movement coverage,
 original routine addresses, and focused verification evidence live in

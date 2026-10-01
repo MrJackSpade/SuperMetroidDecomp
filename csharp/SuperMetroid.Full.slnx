@@ -12,6 +12,7 @@
     <Project Path="src/SuperMetroid.Android/SuperMetroid.Android.csproj" />
   </Folder>
   <Folder Name="/Tools/">
+    <Project Path="src/SuperMetroid.ResourceAudit/SuperMetroid.ResourceAudit.csproj" />
     <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />
   </Folder>
   <Folder Name="/Verification/">

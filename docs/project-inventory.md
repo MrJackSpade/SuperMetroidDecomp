@@ -1,8 +1,10 @@
 # Project inventory and consolidation
 
-Updated September 10, 2026. There are **12 top-level C# projects**, down from 15:
-seven production projects and five developer/verification projects. The consolidation
-is implemented, not just recommended. Existing commits and history are preserved.
+Updated September 30, 2026. There are **15 top-level C# projects**:
+seven production projects and eight developer/analyzer/verification projects.
+The September 10 consolidation removed three projects; subsequent additions include
+EnsureAnalyzer, EnsureVerification and the development-only ResourceAudit.
+Existing commits and history are preserved.
 
 ## Completed changes
 
@@ -21,7 +23,7 @@ is implemented, not just recommended. Existing commits and history are preserved
   references Desktop for its audio adapters instead of compiling its own copies.
 - Shared verification fixtures have an explicit owner under `csharp/test-support`, with
   selective MSBuild imports. No project compiles source owned by another top-level project.
-- The default solution covers all 11 non-Android projects; the full solution covers all 12.
+- The default solution covers all 14 non-Android projects; the full solution covers all 15.
 
 ## Remaining projects
 
@@ -37,6 +39,9 @@ All names have the `SuperMetroid.` prefix.
 | **Game** | Thin Windows executable: process/DPI setup, ROM selection, settings and launch/replay. Remains the actual player entry point. |
 | **Android** | APK, Activity, document picker, controller integration, View, AudioTrack and platform lifecycle. Calls shared session services in Diagnostics and installer in AssetExtraction. |
 | **DebugRunner** | Cartridge audits, reproductions, traces, coverage checks and fixture exports, plus the `assets` CLI. Preserves developer commands without adding them to the player or default regression run. |
+| **ResourceAudit** | Source/compiled-definition dependency audit against production resource providers, with deterministic missing/unresolved JSON findings and opt-in build gating. No ROM, saves or gameplay execution. [Usage and scope](../csharp/src/SuperMetroid.ResourceAudit/README.md). |
+| **EnsureAnalyzer** | Build-time domain-assertion analyzer. Development tooling, not a playable-host dependency. |
+| **EnsureVerification** | Focused contracts for the domain-assertion analyzer. |
 | **Verification** | Broad core regressions, synthetic and private-ROM checks. Its default run still requires private ROM/map fixtures; it is not the ROM-free release check. |
 | **IntegrationVerification** | Portable session/state/import verification, legacy compatibility and diagnostic commands. `--asset-import` alone is ROM-free; append ROM and optional reference audio for full installation checks. Default session tests require private ROM/audio. |
 | **RenderVerification** | Hardware/WARP pixel comparisons, render-worker and swapchain tests, performance and audio/simulation consistency under GPU stalls. Runs independently of the WinForms lifecycle suite. |

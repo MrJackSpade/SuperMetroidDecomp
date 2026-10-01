@@ -11,7 +11,8 @@ using SuperMetroid.Core.Frontend;
 internal static class InstalledInputReplay
 {
     internal static int Run(string recordingPath, string installationRoot,
-        int firstFrame, int lastFrame, string tracePath)
+        int firstFrame, int lastFrame, string tracePath,
+        Action<SuperMetroidGame, int>? confirmFrame = null)
     {
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
         if (firstFrame < 0 || lastFrame < firstFrame || lastFrame >= recording.ControllerInputs.Length)
@@ -23,7 +24,8 @@ internal static class InstalledInputReplay
         Bind(game, installation);
         var audio = new CartridgeAudioRenderer(installation.LoadAudio());
         using var output = new StreamWriter(tracePath);
-        output.WriteLine("frame,room,state,input,latched,new,pose,x,y,xFixed,yFixed,base,baseSub,extra,extraSub,accel,momentum,yDirection,ySpeed,knockback,locked,health,cameraY");
+        output.WriteLine("frame,room,state,input,latched,new,pose,x,y,xFixed,yFixed,base,baseSub,extra,extraSub,accel,momentum,yDirection,ySpeed,knockback,locked,health,cameraY,cooldown,fired,projectiles,plms,shotBlock");
+        (int X, int Y)? shotBlock = null;
         for (int frame = 0; frame <= lastFrame; frame++)
         {
             try
@@ -31,6 +33,7 @@ internal static class InstalledInputReplay
                 game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
                 var result = game.Step(recording.ControllerInputs[frame]);
                 audio.RenderFrame(result.AudioCommands);
+                confirmFrame?.Invoke(game, frame);
             }
             catch (Exception error)
             {
@@ -38,6 +41,12 @@ internal static class InstalledInputReplay
             }
             if (frame < firstFrame || game.RuntimeForVerification is not { } runtime) continue;
             if (runtime.Samus is not { } samus) continue;
+            if (runtime.Projectiles.LastFiredProjectileSnapshot is { } shot)
+                shotBlock = (shot.XPosition >> 4, shot.YPosition >> 4);
+            string sampledBlock = shotBlock is { } block && runtime.LevelData is { } level &&
+                (uint)block.X < level.WidthInBlocks && (uint)block.Y < level.HeightInBlocks
+                ? $"{block.X}/{block.Y}:{level.GetCollisionBlock(block.X, block.Y).LevelWord:X4}"
+                : "";
             output.WriteLine(string.Join(',', frame.ToString(CultureInfo.InvariantCulture),
                 $"{runtime.ActiveRoom?.Pointer:X4}", game.GameState,
                 $"{recording.ControllerInputs[frame]:X4}", $"{runtime.Controller1.Current:X4}",
@@ -47,7 +56,11 @@ internal static class InstalledInputReplay
                 samus.HorizontalSpeed.ExtraRunSpeed, samus.HorizontalSpeed.ExtraRunSubspeed,
                 samus.HorizontalSpeed.AccelerationMode, samus.HorizontalSpeed.HasRunningMomentum,
                 samus.Kinematics.YDirection, samus.Kinematics.YSpeed,
-                samus.KnockbackActive, samus.InputLocked, samus.Health, runtime.Camera?.YPosition));
+                samus.KnockbackActive, samus.InputLocked, samus.Health, runtime.Camera?.YPosition,
+                runtime.BombProjectiles.CooldownTimer, runtime.Projectiles.LastFrameResult.FiredSlot,
+                string.Join('|', runtime.Projectiles.Slots.Where(slot => slot.IsActive).Select(slot =>
+                    $"{slot.SlotIndex}:{slot.Type:X4}@{slot.XPosition}/{slot.YPosition}:{slot.PreInstruction}")),
+                runtime.Plms.ActiveCount, sampledBlock));
         }
         Console.WriteLine($"Reported input interval {firstFrame}..{lastFrame} written to {Path.GetFullPath(tracePath)}; total inputs={recording.ControllerInputs.Length}.");
         return 0;

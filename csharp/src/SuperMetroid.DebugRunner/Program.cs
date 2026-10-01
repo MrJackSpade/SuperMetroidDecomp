@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--confirm-reported-shaft-door", var doorRecording, var doorInstallation, var doorTrace])
+        return ReportedShaftDoorConfirmation.Run(doorRecording, doorInstallation, doorTrace);
     if (args is ["--installed-input-replay", var installedRecording, var installedRoot,
         var firstInputFrame, var lastInputFrame, var installedTrace])
         return InstalledInputReplay.Run(installedRecording, installedRoot,

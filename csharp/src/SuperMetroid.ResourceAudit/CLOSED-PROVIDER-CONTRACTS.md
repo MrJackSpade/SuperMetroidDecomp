@@ -190,3 +190,29 @@ Five calls then qualify, while three cross-family/non-save selection calls remai
 unresolved for their exact ownership violation. No message box or gameplay runs.
 As with the other closed-domain proofs, unknown dynamic caller correctness is not
 certified by a provider's complete supported resource set.
+
+## PLM multi-run artwork - five original consumer boundaries
+
+The five reviewed `GetWord` providers are shot blocks, stations, Bomb Torizo's
+hand, Mother Brain's glass, and the n00b tube. Each public constructor accepts
+only its compiled frame IDs, rejects duplicates, requires the complete frame
+count and exact payload shapes, and clones the supplied artwork. Partial
+providers cannot be published through those constructors.
+
+Shot/station providers retain per-run arrays. Hand/glass/tube providers flatten
+their payloads but check against the compiled run lengths before translating a
+run/word tuple into a flat offset. Full provider and draw-definition fingerprints
+guard each proof, including the shared run record definition.
+
+`PlmVisualDomainDefinitions` supplies those exact shapes to the constant selector
+check. A known pointer narrows the shape before run/word checking; a one-word
+shot-block frame cannot borrow the width of another frame to accept word one.
+Unknown pointer/run components use only the union of compatible declared shapes;
+this is a resource-domain proof, not certification of arbitrary caller values.
+New providers do not inherit a rule based on their class name or similar source.
+
+The thirteen-call source fixture first reproduces missing adapters. Six calls
+then qualify and seven bad pointer/run/word requests remain failures. Separate
+constructed entries confirm all five production constructors accept full data
+and reject both an omitted frame and duplicate identities. These checks execute
+only immutable definition/catalog construction, not a PLM instruction or room.

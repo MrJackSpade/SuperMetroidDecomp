@@ -392,3 +392,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **145 of the original 353 boundaries**. Current audit: **zero missing
   identities, 208 unresolved**, all 352 consumer sites retained. The production
   message system and player input/timing are unchanged.
+
+## PLM multi-run visual domains - five further source-proven boundaries
+
+- **Findings:** shot-block, station, Bomb Torizo hand, Mother Brain glass and n00b
+  tube `GetWord` calls lacked resource-domain adapters.
+- **Cause/classification:** all five constructors already reject unknown/duplicate
+  frame identities, require complete coverage and exact payload shapes, and clone
+  the selected art. Reviewed source-guarded contracts now account for that complete
+  supported resource domain, without assuming every runtime caller value is valid.
+- **Shape checks:** the adapter uses actual compiled draw declarations. A constant
+  pointer narrows run/word bounds to that frame rather than an unrelated maximum.
+  Flattened providers retain their native per-run limits. New families are excluded
+  until separately reviewed; no broad PLM wildcard suppression was added.
+- **Confirmation:** thirteen constructed source calls first reproduce the unknown
+  adapter. Six then qualify; seven bad pointer/run/word requests stay failing gaps.
+  All five real constructors accept complete constructed entries and reject omitted
+  frames and duplicates. Build and existing audit checks pass. No ROM, saves, room,
+  instruction stream, animation or gameplay execution was used.
+- **Accounting:** 148 guarded consumer classifications plus two metadata corrections
+  account for **150 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 203 unresolved**, all 352 consumer sites retained. Production PLM
+  mechanics, timing, collision and artwork are unchanged.

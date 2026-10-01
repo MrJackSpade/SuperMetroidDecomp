@@ -31,13 +31,7 @@ internal static partial class Program
         var bullMove = Method<Action<RoomEnemySlot, BullEnemyState>>("MoveBull");
         var mawX = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawX");
         var mawY = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawY");
-        for (int angle = 0; angle < 256; angle++)
-        {
-
-
-            AssertEqual((orbit[angle + 64] << 8, orbit[angle] << 8),
-                ShaktoolOrbitTables.Displacement((byte)angle), "Shaktool authored displacement");
-        }
+        VerifyShaktoolOrbitAlgorithm(rom);
 
         ushort MawReference(int angle, int length)
         {

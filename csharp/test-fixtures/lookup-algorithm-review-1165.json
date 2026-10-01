@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "shaktool-orbit-algorithm": {
+      "subject": "Replace Shaktool orbit samples with exact reduced-pi sine for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace Shaktool orbit samples with exact reduced-pi sine for #1165'"
+    },
     "signed-sine-review": {
       "subject": "Independently review existing signed sine views for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Independently review existing signed sine views for #1165'"
@@ -837,9 +841,21 @@
     "newConversions": 0,
     "confirmationScope": "Focused reuse/extraction of existing original-data proofs. No gameplay or expanded motion matrix. Runtime formulas unchanged; owner XML updated to independently reviewed disposition."
   },
+  "shaktoolOrbitReview": {
+    "id": "shaktool-orbit-sine", "state": "converted",
+    "implementationCommit": "shaktool-orbit-algorithm",
+    "owner": "csharp/src/SuperMetroid.Core/Game/ShaktoolOrbitTables.cs",
+    "nativeIdentity": "AA:E03D through E2BC negative-cosine prefix/full sine/duplicate quadrant,320 signed8.8 words",
+    "reviewedEvidence": "Pinned bank_AA.asm original words and DC2A placement routine; every current Displacement consumer; complete original NTSC ROM comparison. Historical proposed reduced-pi formula independently checked with production evaluator and bounded rounding intervals.",
+    "consumers": ["RoomEnemySystem.MoveShaktool segment placement: byte(OrbitAngle>>8)", "LookupTableResearch.Program comparison"],
+    "domain": "Displacement byte angle0..255 selects words angle and angle+64. Internal sample index0..319 rejects others with IndexOutOfRangeException before modulo. No odd reads or overread.",
+    "interpretation": "Signed truncation toward zero of3072*sin(((index+192)%256)*3.14159/128). X uses+64; both signed8.8 results are promoted by shift8 before preceding-segment coordinate addition.",
+    "disposition": "Remove320-word storage; evaluate24 decimal Taylor terms over the full cycle, then truncate. No exceptions or peak corrections.",
+    "rationale": "Period-appropriate reduced pi explains six words that differ from a true-pi/saturated model and naturally produces +/-3071 peaks. Full-cycle phase is essential: folding or direct negative cosine changes phase error. One short recurrence expresses the exact convention without asserting historical tool provenance, platform libm, per-entry corrections or allocations.",
+    "proofTest": "VerifyShaktoolOrbitAlgorithm",
+    "confirmationScope": "Reuse former aggregate displacement assertions in one named proof checking all320 original words, conservative rounding interval endpoints,256 paired displacements and invalid bounds. Build verification and research. No movement replay or parameter sweep."
+  },
   "unreviewedOwnerCandidates": [
-    "EnemyTrigonometryTables: signed negative cosine and signed sixteen-bit sine existing views; byte/unsigned half-waves now independently converted",
-    "ShaktoolOrbitTables",
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
@@ -869,6 +885,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit"
   ]
 }

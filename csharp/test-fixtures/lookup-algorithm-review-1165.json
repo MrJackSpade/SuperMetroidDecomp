@@ -73,8 +73,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert grapple launch direction mappings for #1165'"
     },
     "shared-speed-review": {
+      "sha": "6bed98527a670699240bb5102d367348343e0f76",
       "subject": "Independently review existing shared speed algorithms for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Independently review existing shared speed algorithms for #1165'"
+    },
+    "running-cadence-review": {
+      "subject": "Reconcile running cadence algorithms and alias proofs for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Reconcile running cadence algorithms and alias proofs for #1165'"
     }
   },
   "tables": [
@@ -588,12 +593,33 @@
     "newConversions": 0,
     "confirmationScope": "Review of prior implementations, not new gameplay changes. Reuse the two named original-data proofs; no broad height/input matrices or exploratory playthroughs."
   },
+  "runningCadenceReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Game/SamusRunningCadenceDefinitions.cs",
+    "reviewCommit": "running-cadence-review",
+    "implementationCommit": "35968c36545a0a8d0311093d9a3eb519a4af9de5",
+    "compatibilityCommits": ["c490bf0b93d0c27eab994e930b9075880de8e41f", "aacf764d2e8d6cfba0f15c973422ce45c69f0593"],
+    "reviewedEvidence": "Independently inspected full bank_91.asm NTSC ordinary/boost streams and pointers/reset words, bank_90.asm $85A6-$85CF accumulator use after sound call, bank_80.asm QueueSound_Lib3_Max6 occupancy/XBA/return, and pose0 bytes. Compare all 90 catalog bytes directly with recorded NTSC ROM. Current rendering and horizontal-speed consumers preserve wrapped pointer arithmetic and stage selection.",
+    "consumers": ["SamusState.Rendering.ReadDefaultRunningAnimationByte", "SamusHorizontalSpeedState.TryAdvanceSpeedBoosterAnimationStage", "SamusHorizontalSpeedState.ReadSpeedBoosterAnimationByte", "SamusHorizontalSpeedState initial run and pause-equipment reset"],
+    "domain": "ReadCompiledByte: exact contiguous catalog $91:B5D1..B62A inclusive. ReadAnimationByte: ushort listPointer+ushort byteIndex wraps before mapping; compiled catalog bytes or mutable low-bank WRAM allowed, unrelated upper-bank bytes rejected. Stage selectors0..5 only; 6..255 rejected.",
+    "tables": [
+      {"id":"running-ordinary-pointer","state":"converted","nativeIdentity":"$91:B5D1 AnimationDelayTable_Running_NoSpeedBooster_pointer","interpretation":"Little-endian bank91 pointer.","disposition":"Already constant $B5D3, two byte views.","rationale":"Single fixed target; no runtime pointer table needed.","proofTest":"VerifyOrdinaryRunningPointer"},
+      {"id":"running-ordinary-stream","state":"converted","nativeIdentity":"$91:B5D3 AnimationDelayTable_Running_NoSpeedBooster","interpretation":"Ten frame delays followed by animation command $FF.","disposition":"Already two ticks for frames0..9, sentinel at10.","rationale":"Uniform NTSC cadence with explicit terminator; PAL alternating delays are outside supported revision.","proofTest":"VerifyOrdinaryRunningStream"},
+      {"id":"running-boost-pointers","state":"converted","nativeIdentity":"$91:B5DE AnimationDelayTable_Running_SpeedBooster_pointers plus adjacent $B5E8 word","interpretation":"Little-endian pointers selected from high accumulator byte after Max6 queue return.","disposition":"Already $B5E8+11*stage for0..4; explicit $0303 at5.","rationale":"Uniform stream stride; stage5 is a proven adjacent-data alias of first stage0 bytes, not another authored pointer. Queue admits occupancy0..5, rejected sound keeps high byte3. Mutable alias must not be replaced by ROM data or clamped.","proofTest":"VerifyBoostRunningPointers"},
+      {"id":"running-boost-stream-0","state":"converted","nativeIdentity":"$91:B5E8 AnimationDelayTable_Running_SpeedBooster_0","interpretation":"Ten delays and sentinel; normally unused but reachable through queue clobber.","disposition":"Already three ticks for0..9; $FF at10.","rationale":"Uniform bounded delay; preserve first two bytes also exposed by pointer stage5.","proofTest":"VerifyBoostRunningStream0"},
+      {"id":"running-boost-stream-1","state":"converted","nativeIdentity":"$91:B5F3 AnimationDelayTable_Running_SpeedBooster_1","interpretation":"Ten NTSC frame delays and sentinel.","disposition":"Already 2+(frame&1) for0..9; $FF at10.","rationale":"Exact alternating integer cadence, not a fitted timing curve. Separate policy from other stages.","proofTest":"VerifyBoostRunningStream1"},
+      {"id":"running-boost-stream-2","state":"converted","nativeIdentity":"$91:B5FE AnimationDelayTable_Running_SpeedBooster_2","interpretation":"Ten delays and sentinel, independently addressed boost stage.","disposition":"Already two ticks for0..9; $FF at10.","rationale":"Uniform stream matches ordinary values but has distinct stage semantics and pointer identity.","proofTest":"VerifyBoostRunningStream2"},
+      {"id":"running-boost-stream-3","state":"converted","nativeIdentity":"$91:B609 AnimationDelayTable_Running_SpeedBooster_3","interpretation":"Ten NTSC frame delays and sentinel.","disposition":"Already 1+(frame&1) for0..9; $FF at10.","rationale":"Exact alternating integer cadence with explicit endpoint; no floating-point generator required.","proofTest":"VerifyBoostRunningStream3"},
+      {"id":"running-boost-stream-4","state":"converted","nativeIdentity":"$91:B614 AnimationDelayTable_Running_SpeedBooster_4","interpretation":"Ten full-boost frame delays and sentinel.","disposition":"Already one tick for0..9; $FF at10.","rationale":"Constant full-boost policy with explicit command, clearer than stored repetition.","proofTest":"VerifyBoostRunningStream4"},
+      {"id":"running-boost-resets","state":"converted","nativeIdentity":"$91:B61F SpeedBoostTimerResetValues plus $B629 pose0 alias","interpretation":"Unsigned reset word ORed with stored counter high byte.","disposition":"Already one for0..3, two for4, explicit zero for5.","rationale":"Sparse bounded stage policy; selector5 reads pose0 direction/movement bytes, both zero. Retain it independently of pointer alias; no extrapolation to later pose fields.","proofTest":"VerifyBoostRunningResets"}
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Split existing combined original-byte proof into nine named proofs without duplicate oracle checks. Reuse scoped caller checks for ordinary/stage reads, cross-catalog offsets, wrapped mutable alias and invalid upper-bank bytes. definitionsOnly skips broad counter/input matrices; no gameplay behavior changed."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
     "ShaktoolOrbitTables",
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
-    "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
   ],
@@ -614,6 +640,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review"
   ]
 }

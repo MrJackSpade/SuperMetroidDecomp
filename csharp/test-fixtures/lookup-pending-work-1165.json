@@ -1,0 +1,105 @@
+{
+    "issue":  1165,
+    "status":  "pending implementation and review",
+    "rule":  "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
+    "items":  [
+                  {
+                      "id":  "zoa-horizontal-speed",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
+                      "nativeIdentity":  "$A3:B415 ZoaXSpeedTable, five whole/fraction pairs",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "shaktool-initial-angle",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/ShaktoolSegmentDefinitions.cs",
+                      "nativeIdentity":  "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "shaktool-angular-velocity",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/ShaktoolSegmentDefinitions.cs",
+                      "nativeIdentity":  "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "crocomire-melt-column-order",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
+                      "nativeIdentity":  "$A4:9697 CrocomireMeltingXOffsetTable",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "grapple-origin-x",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+                      "nativeIdentity":  "$9B:C122/$9B:C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX, identical aliases",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "grapple-origin-y-default",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+                      "nativeIdentity":  "$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "grapple-origin-y-running",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+                      "nativeIdentity":  "$9B:C186 GrappleBeamFireOffsets_Running_OriginY",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "suit-pickup-beam-contour",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs",
+                      "nativeIdentity":  "$88:E3C9 SuitPickup_LightBeam_CurveWidths",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "absolute-tangent-gradient",
+                      "owner":  "csharp/src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs",
+                      "nativeIdentity":  "$91:C9D4 AbsoluteTangentTable; SamusXrayRomData.Window.AbsoluteTangentTable is an address alias",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "spc-pan-gain-curve",
+                      "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+                      "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "dsp-gaussian-coefficients",
+                      "owner":  "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
+                      "nativeIdentity":  "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "power-bomb-unscaled-width",
+                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
+                      "nativeIdentity":  "88:A266,32 unsigned width bytes",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "power-bomb-unscaled-top-offset",
+                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
+                      "nativeIdentity":  "88:A286,32 unsigned inclusive vertical boundaries",
+                      "status":  "pending",
+                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+                  },
+                  {
+                      "id":  "power-bomb-prescaled-basis",
+                      "owner":  "csharp/src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs",
+                      "nativeIdentity":  "88:9246 through A205 prescaled profiles",
+                      "status":  "pending",
+                      "task":  "Replace the stored 192-byte basis with deterministic generation; preserve all 4032 profile bytes and bounded pointer/row contract."
+                  }
+              ]
+}

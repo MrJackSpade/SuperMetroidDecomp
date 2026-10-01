@@ -44,10 +44,6 @@ internal static class SpcMusicTables
         };
     }
     /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
-    /// <remarks>#1165 retention decision reopened. Only demonstrated impossibility
-    /// or a port that would produce nonsense permits keeping a lookup table.
-    /// Prior size, complexity, provenance and performance rationales are withdrawn.
-    /// Conversion/review remains outstanding; see lookup-performance-audit-1165.json.</remarks>
     internal static readonly byte[] PanVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
 

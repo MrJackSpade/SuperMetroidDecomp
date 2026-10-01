@@ -14,21 +14,12 @@ internal static class GrappleFiringDefinitions
     /// <summary>$9B:C0DD diagonal component: twelve times the byte-sine octant sample 181.</summary>
     private const short DiagonalVelocity = 12 * 181;
     /// <summary>$9B:C122/$C172 GrappleBeamFireOffsets_NotRunning/Running_OriginX: identical physical hand offsets.</summary>
-    /// <remarks>#1165 review reopened: reassess named direction cases without
-    /// using small-table size or lookup speed as a reason to retain storage.
-    /// See lookup-performance-audit-1165.json; conversion/review is outstanding.</remarks>
     private static ReadOnlySpan<short> OriginX => [2, 10, 2, 10, 3, -4, -10, -2, -10, -2];
 
     /// <summary>$9B:C136 GrappleBeamFireOffsets_NotRunning_OriginY: physical hand offsets before pose correction.</summary>
-    /// <remarks>#1165 review reopened: reassess named direction cases without
-    /// using small-table size or lookup speed as a reason to retain storage.
-    /// See lookup-performance-audit-1165.json; conversion/review is outstanding.</remarks>
     private static ReadOnlySpan<short> DefaultOriginY => [-16, -12, 2, 0, 6, 6, 0, 2, -12, -16];
 
     /// <summary>$9B:C186 GrappleBeamFireOffsets_Running_OriginY: only horizontal directions differ from no-run.</summary>
-    /// <remarks>#1165 review reopened: reassess named direction cases without
-    /// using small-table size or lookup speed as a reason to retain storage.
-    /// See lookup-performance-audit-1165.json; conversion/review is outstanding.</remarks>
     private static ReadOnlySpan<short> RunningOriginY => [-16, -12, -2, 0, 6, 6, 0, -2, -12, -16];
 
     /// <summary>Returns exact launch components and angle for firing direction 0..9.</summary>

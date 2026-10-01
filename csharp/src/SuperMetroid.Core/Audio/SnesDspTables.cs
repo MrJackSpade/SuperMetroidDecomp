@@ -37,10 +37,6 @@ internal static class SnesDspTables
     /// The S-DSP's fixed 512-entry Gaussian interpolation curve. Four mirrored lookups from
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.
     /// </summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     internal static readonly ushort[] GaussianValues =
     [
         0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000,

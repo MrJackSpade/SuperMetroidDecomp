@@ -7,10 +7,6 @@ internal static class CrocomireMeltingDefinitions
     /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>.
     /// The cartridge uses this permutation to choose the next physical X column.
     /// </summary>
-    /// <remarks>#1165 retention decision reopened. Only demonstrated impossibility
-    /// or a port that would produce nonsense permits keeping a lookup table.
-    /// Prior size, complexity, provenance and performance rationales are withdrawn.
-    /// Conversion/review remains outstanding; see lookup-performance-audit-1165.json.</remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
         0x2b, 0x28, 0x21, 0x1f, 0x2c, 0x10, 0x16, 0x17,

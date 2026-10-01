@@ -96,7 +96,7 @@ if (args is ["--lookup-spc-note-percentages"])
     Console.WriteLine("SPC note percentages: all24 original bytes, every timing-command selector and invalid bounds pass.");
     return 0;
 }
-if (args is ["--lookup-retained-window-curves"])
+if (args is ["--lookup-window-curves"])
 {
     var curveOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",

@@ -11,10 +11,6 @@ public static class PowerBombShapeDefinitions
     /// is reproduced by <see cref="ReadPreScaledHalfWidth"/> and was checked
     /// against the supported cartridge during definition extraction.
     /// </summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<byte> PreScaledBasis =>
     [
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -32,13 +28,6 @@ public static class PowerBombShapeDefinitions
     ];
 
     /// <summary>Reads one exact $88:9246-$A205 pre-scaled shape byte.</summary>
-    /// <remarks>
-    /// Independently reviewed for #1165 against all17 white and4 yellow original
-    /// frames. Preserve aligned192-byte pointers, row0..191, and zero termination.
-    /// Inverse scaling uses max(0,(256*row-1)/radius): the minus one preserves exact
-    /// band boundaries. Quantize the basis before multiplying by radius and dividing256.
-    /// The stored basis is reopened for conversion; preserve these exact scaling steps.
-    /// </remarks>
     public static byte ReadPreScaledHalfWidth(ushort shapePointer, int row)
     {
         if ((uint)row >= SamusSpecialSequenceRomData.PowerBomb.ShapeStride)
@@ -77,10 +66,6 @@ public static class PowerBombShapeDefinitions
             : (byte)(PreScaledBasis[sourceRow] * radius / 256);
     }
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center widths.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     public static ReadOnlySpan<byte> Widths =>
     [
         0x00,0x0c,0x19,0x25,0x31,0x3e,0x4a,0x56,0x61,0x6d,0x78,0x83,0x8e,0x98,0xa2,0xab,
@@ -88,10 +73,6 @@ public static class PowerBombShapeDefinitions
     ];
 
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: inclusive vertical band boundaries.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     public static ReadOnlySpan<byte> TopOffsets =>
     [
         0xbf,0xbf,0xbe,0xbd,0xba,0xb8,0xb6,0xb2,0xaf,0xab,0xa6,0xa2,0x9c,0x96,0x90,0x8a,

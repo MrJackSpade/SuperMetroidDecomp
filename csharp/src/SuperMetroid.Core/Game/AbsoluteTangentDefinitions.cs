@@ -5,10 +5,6 @@ public static class AbsoluteTangentDefinitions
 {
     /// <summary>$91:C9D4, AbsoluteTangentTable: first quarter of native absolute
     /// 8.8 gradients, approximately |tan(t*pi/128)|*256, with an infinity substitute.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<ushort> Quarter =>
     [
         0,6,12,18,25,31,37,44,50,57,64,70,77,84,91,98,

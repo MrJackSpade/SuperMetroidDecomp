@@ -25,16 +25,8 @@ internal static class ShaktoolSegmentDefinitions
     internal const int NativeCallbackAddress = 0xaadedb;
 
     /// <summary>$AA:DEB1 ShaktoolPieceData_initialNeighborAngle, seven authored initial joint angles.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<ushort> InitialAngles => [0, 0xf800, 0xe800, 0xd000, 0xb000, 0x9800, 0x8800];
     /// <summary>$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta, seven authored curl rates.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<ushort> AngularVelocities => [0, 0x20, 0x60, 0xc0, 0x140, 0x1a0, 0x1e0];
 
     /// <summary>

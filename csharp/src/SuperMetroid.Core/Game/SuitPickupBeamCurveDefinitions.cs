@@ -13,10 +13,6 @@ internal static class SuitPickupBeamCurveDefinitions
     public const int OffsetCount = 128;
 
     /// <summary>$88:E3C9, SuitPickup_LightBeam_CurveWidths: 128 upper-half window widths.</summary>
-    /// <remarks>#1165 review reopened by the performance-policy correction. The prior
-    /// retain decision is withdrawn; lookup speed, repeated evaluation and caching
-    /// cannot justify retaining this storage. Conversion/review remains outstanding.
-    /// See lookup-performance-audit-1165.json for evidence and required follow-up.</remarks>
     private static ReadOnlySpan<byte> Offsets =>
     [
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x07,

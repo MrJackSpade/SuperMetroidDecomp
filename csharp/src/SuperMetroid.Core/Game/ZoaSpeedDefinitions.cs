@@ -4,10 +4,6 @@ namespace SuperMetroid.Core.Game;
 public static class ZoaSpeedDefinitions
 {
     /// <summary>$A3:B415, ZoaXSpeedTable: five whole/fraction records, including the trailing zero record.</summary>
-    /// <remarks>#1165 retention decision reopened. Only demonstrated impossibility
-    /// or a port that would produce nonsense permits keeping a lookup table.
-    /// Prior size, complexity, provenance and performance rationales are withdrawn.
-    /// Conversion/review remains outstanding; see lookup-performance-audit-1165.json.</remarks>
     private static ReadOnlySpan<ushort> Words => [0, 0, 0, 0x8000, 0, 0xa000, 2, 0, 0, 0];
 
     /// <summary>

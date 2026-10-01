@@ -216,3 +216,21 @@ then qualify and seven bad pointer/run/word requests remain failures. Separate
 constructed entries confirm all five production constructors accept full data
 and reject both an omitted frame and duplicate identities. These checks execute
 only immutable definition/catalog construction, not a PLM instruction or room.
+
+## PLM actor layouts - five additional original consumer boundaries
+
+The downward gate, elevator platform, Draygon cannon, Chozo statue and linked-block
+restoration providers have the same complete constructor contract, independently
+reviewed and source-guarded. Their exact required domains are fourteen gate/trigger
+draws, three elevator frames, twelve left/right cannon frames, three Chozo layouts
+and six linked-restoration layouts. Cannon diagonal orientations are not covered.
+Linked-restoration proof guards both bomb and contact-crumble definition sources,
+not just their combining wrapper.
+
+The source fixture now has twenty-three calls: eleven valid-domain operations
+classify, while twelve invalid pointer/run/word requests still fail. Added cases
+check exact selected-run widths, including an elevator's one-word versus four-word
+runs, the cannon's asymmetric left layout, and cleared versus slope-access Chozo
+frames. All ten production constructors accept complete constructed definitions
+and reject omitted frames and duplicates. Actor AI, animation, camera, collision,
+trigger filters and room changes are not executed or altered.

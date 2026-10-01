@@ -414,3 +414,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **150 of the original 353 boundaries**. Current audit: **zero missing
   identities, 203 unresolved**, all 352 consumer sites retained. Production PLM
   mechanics, timing, collision and artwork are unchanged.
+
+## PLM actor layouts - five further source-proven boundaries
+
+- **Findings:** downward-gate, elevator-platform, Draygon-cannon, Chozo-statue and
+  linked-restoration visual word lookups lacked resource-domain adapters.
+- **Cause/classification:** each separately reviewed constructor already requires
+  its complete compiled frame set and exact payload shapes, rejects unknown/duplicate
+  identities and clones the selected art. Source-guarded contracts account for these
+  five supported domains only. Unsupported diagonal cannon orientations are excluded.
+  Both bomb and contact-crumble definitions guard the linked-restoration proof.
+- **Shape checks:** the existing exact tuple adapter now consumes each family's
+  compiled declarations. Known narrow elevator/cannon/cleared-hand runs cannot borrow
+  a different run's width; native geometry and collision words remain untouched.
+- **Confirmation:** twenty-three constructed source calls reproduce unknown adapters
+  first; eleven classify and twelve invalid pointer/run/word requests remain failures.
+  All ten covered production constructors accept complete constructed entries and
+  reject omitted frames and duplicates. Compilation and prior scoped checks pass.
+  No ROM, saves, rooms, PLM instruction streams or gameplay were executed.
+- **Accounting:** 153 guarded consumer classifications plus two metadata corrections
+  account for **155 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 198 unresolved**, all 352 consumer sites retained. This commit changes
+  the development audit only, not player-facing PLM behavior.

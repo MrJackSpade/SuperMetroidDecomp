@@ -11,7 +11,8 @@ internal static class PlmPresentationContractChecks
     internal static void Run()
     {
         ConfirmConstructorCoverage();
-        var trees = PlmClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
+        var trees = PlmClosedContractDefinitions.All.Concat(PlmActorClosedContractDefinitions.All)
+            .SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
@@ -24,7 +25,10 @@ internal static class PlmPresentationContractChecks
             class PlmConsumer {
                 void Inspect(RoomPlmShotBlockVisualCatalog shot, RoomPlmStationVisualCatalog station,
                     RoomPlmBombTorizoHandVisualCatalog hand, RoomPlmMotherBrainGlassVisualCatalog glass,
-                    RoomPlmNoobTubeVisualCatalog tube, ushort dynamicPointer, int dynamicWord) {
+                    RoomPlmNoobTubeVisualCatalog tube, RoomPlmDownwardGateVisualCatalog gate,
+                    RoomPlmElevatorPlatformVisualCatalog elevator, RoomPlmDraygonCannonVisualCatalog cannon,
+                    RoomPlmChozoStatueVisualCatalog chozo, RoomPlmLinkedRestoreVisualCatalog restore,
+                    ushort dynamicPointer, int dynamicWord) {
                     shot.GetWord(FixturePlmFrames.ShotSingle, 0, 0);
                     shot.GetWord(FixturePlmFrames.ShotSingle, 0, 1);
                     shot.GetWord(FixturePlmFrames.ShotSingle, 1, 0);
@@ -38,6 +42,16 @@ internal static class PlmPresentationContractChecks
                     tube.GetWord(dynamicPointer, 0, 0);
                     tube.GetWord(dynamicPointer, 0, int.MaxValue);
                     shot.GetWord(dynamicPointer, 0, dynamicWord);
+                    gate.GetWord(dynamicPointer, 0, 0);
+                    gate.GetWord(dynamicPointer, 0, int.MaxValue);
+                    elevator.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 2, 3);
+                    elevator.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 0, 1);
+                    cannon.GetWord(DraygonCannonPlmDrawDefinitions.LeftShieldA, 2, 1);
+                    cannon.GetWord(DraygonCannonPlmDrawDefinitions.LeftShieldA, 0, 1);
+                    chozo.GetWord(ChozoStatuePlmDrawDefinitions.ClearSlopeAccess, 0, 13);
+                    chozo.GetWord(ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand, 0, 1);
+                    restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 1);
+                    restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 2);
                 }
             }
             """;
@@ -57,9 +71,9 @@ internal static class PlmPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 13, "the thirteen calls must reproduce the identified missing adapters first");
-        Require(report.Classifications.Count == 6 && report.UnresolvedCount == 7 && report.MissingCount == 0 &&
-            report.Consumers.Count == 13, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail");
+        Require(before.UnresolvedCount == 23, "the twenty-three calls must reproduce the identified missing adapters first");
+        Require(report.Classifications.Count == 11 && report.UnresolvedCount == 12 && report.MissingCount == 0 &&
+            report.Consumers.Count == 23, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail");
         Require(report.Findings.Any(item => item.Message.Contains("drawPointer", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("runIndex", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
@@ -90,6 +104,24 @@ internal static class PlmPresentationContractChecks
             new RoomPlmNoobTubeVisualEntry(NoobTubePlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmNoobTubeVisualCatalog(entries));
+        ConfirmCoverage(DownwardGatePlmDrawDefinitions.All, frame =>
+            new RoomPlmDownwardGateVisualEntry(DownwardGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
+            entries => _ = new RoomPlmDownwardGateVisualCatalog(entries));
+        ConfirmCoverage(ElevatorPlatformPlmDefinitions.DrawLists, frame =>
+            new RoomPlmElevatorPlatformVisualEntry(ElevatorPlatformPlmDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
+            entries => _ = new RoomPlmElevatorPlatformVisualCatalog(entries));
+        ConfirmCoverage(DraygonCannonPlmDrawDefinitions.All, frame =>
+            new RoomPlmDraygonCannonVisualEntry(DraygonCannonPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmDraygonCannonVisualCatalog(entries));
+        ConfirmCoverage(ChozoStatuePlmDrawDefinitions.All, frame =>
+            new RoomPlmChozoStatueVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmChozoStatueVisualCatalog(entries));
+        ConfirmCoverage(RoomPlmLinkedRestoreDrawDefinitions.All, frame =>
+            new RoomPlmLinkedRestoreVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmLinkedRestoreVisualCatalog(entries));
     }
 
     private static void ConfirmCoverage<T>(IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,

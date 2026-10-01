@@ -436,3 +436,26 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **155 of the original 353 boundaries**. Current audit: **zero missing
   identities, 198 unresolved**, all 352 consumer sites retained. This commit changes
   the development audit only, not player-facing PLM behavior.
+
+## PLM progression/boss-room layouts - nine further source-proven boundaries
+
+- **Findings:** Tourian access-floor, Speed Booster reveal, elevatube, Spore Spawn
+  ceiling, Samus Eater, Botwoon wall, Kraid room, Crocomire arena and Mother Brain
+  fake-death visual word lookups lacked resource-domain adapters.
+- **Cause/classification:** each constructor already requires its complete known
+  frame set and exact payload shape, rejects duplicate/omitted frames, and stores
+  independent selected art. Nine method-specific source-guarded rules now account
+  for those supported domains. Shared pointer sources are guarded; no mechanics,
+  boss phase, collision, timing or player-visible art changed.
+- **Confirmation:** forty-one constructed source calls reproduce absent adapters
+  first, then twenty classify and twenty-one invalid pointer/run/word requests
+  remain failures. Cases distinguish narrow/wide Samus Eater and Mother Brain
+  runs, Kraid crumble/clear frames, and single-word reveal/elevatube limits.
+  All nineteen covered production constructors accept complete constructed data
+  and reject omitted/duplicate frames. Build and prior scoped checks pass.
+  No ROM, saves, rooms, instruction streams or gameplay were executed.
+- **Accounting:** 162 guarded classifications plus two metadata corrections account
+  for **164 of the original 353 boundaries**. The current report has **zero missing
+  identities, 189 unresolved**, with all 352 consumer sites retained. Unresolved
+  findings still fail the audit; these are resource-domain proofs, not certification
+  of arbitrary runtime caller values or whole-game parity.

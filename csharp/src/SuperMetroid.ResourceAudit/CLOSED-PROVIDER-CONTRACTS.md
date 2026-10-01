@@ -234,3 +234,26 @@ runs, the cannon's asymmetric left layout, and cleared versus slope-access Chozo
 frames. All ten production constructors accept complete constructed definitions
 and reject omitted frames and duplicates. Actor AI, animation, camera, collision,
 trigger filters and room changes are not executed or altered.
+
+## PLM progression/boss-room layouts - nine additional original boundaries
+
+Separately reviewed constructors require complete Tourian access-floor (five),
+Speed Booster reveal (one), Maridia elevatube (one), Spore Spawn ceiling (four),
+Samus Eater (eight), Botwoon wall (one), Kraid room (ten), Crocomire arena (five),
+and Mother Brain fake-death (twenty-two) frame sets. Duplicate or omitted frames
+cannot publish a provider. Array payloads are cloned; the two one-word providers
+store the selected value. All nine rules cover only `GetWord` and guard the full
+provider/definition sources. Underlying shared pointer sources are guarded too.
+
+The tuple adapter uses each compiled frame's separate run widths. A Samus Eater
+two-word run cannot borrow the four-word run's width; Mother Brain's one-word
+side-tube run cannot borrow the neighboring five-word run. Kraid's twenty-two-word
+clear does not widen its one-word crumble frame. Owned unused Mother Brain rows
+are included because construction requires them, without claiming reachability.
+
+The source fixture now contains forty-one calls: twenty supported-domain calls
+classify and twenty-one invalid tuple requests remain failing findings. All
+nineteen covered production constructors accept complete constructed entries
+and reject omitted/duplicate frames. No PLM instructions, rooms, collision,
+boss phases, ROM, saves or gameplay are executed. Dynamic caller correctness,
+event timing and the visible artwork itself remain outside this proof.

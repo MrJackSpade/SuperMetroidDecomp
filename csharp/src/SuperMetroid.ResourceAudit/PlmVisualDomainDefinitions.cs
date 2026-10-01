@@ -17,6 +17,15 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog" => DraygonCannonPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmChozoStatueVisualCatalog" => ChozoStatuePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmLinkedRestoreVisualCatalog" => RoomPlmLinkedRestoreDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog" => TourianAccessPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog" => SpeedBoosterBlockPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog" => MaridiaElevatubePlmDefinitions.AllDraws.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog" => SporeSpawnCeilingPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmSamusEaterVisualCatalog" => SamusEaterPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog" => BotwoonWallPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog" => KraidRoomPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog" => CrocomireArenaPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
         _ => null,
     };
 }

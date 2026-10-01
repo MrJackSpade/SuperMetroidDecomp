@@ -12,6 +12,7 @@ internal static class PlmPresentationContractChecks
     {
         ConfirmConstructorCoverage();
         var trees = PlmClosedContractDefinitions.All.Concat(PlmActorClosedContractDefinitions.All)
+            .Concat(PlmProgressionClosedContractDefinitions.All)
             .SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
@@ -28,6 +29,11 @@ internal static class PlmPresentationContractChecks
                     RoomPlmNoobTubeVisualCatalog tube, RoomPlmDownwardGateVisualCatalog gate,
                     RoomPlmElevatorPlatformVisualCatalog elevator, RoomPlmDraygonCannonVisualCatalog cannon,
                     RoomPlmChozoStatueVisualCatalog chozo, RoomPlmLinkedRestoreVisualCatalog restore,
+                    RoomPlmTourianAccessVisualCatalog tourian, RoomPlmSpeedBoosterVisualCatalog speed,
+                    RoomPlmMaridiaElevatubeVisualCatalog elevatube, RoomPlmSporeSpawnCeilingVisualCatalog spore,
+                    RoomPlmSamusEaterVisualCatalog eater, RoomPlmBotwoonWallVisualCatalog botwoon,
+                    RoomPlmKraidVisualCatalog kraid, RoomPlmCrocomireVisualCatalog crocomire,
+                    RoomPlmMotherBrainFakeDeathVisualCatalog motherBrain,
                     ushort dynamicPointer, int dynamicWord) {
                     shot.GetWord(FixturePlmFrames.ShotSingle, 0, 0);
                     shot.GetWord(FixturePlmFrames.ShotSingle, 0, 1);
@@ -52,6 +58,24 @@ internal static class PlmPresentationContractChecks
                     chozo.GetWord(ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand, 0, 1);
                     restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 1);
                     restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 2);
+                    tourian.GetWord(TourianAccessPlmDrawDefinitions.ClearPointer, 5, 3);
+                    tourian.GetWord(TourianAccessPlmDrawDefinitions.EmptyRowPointer, 1, 0);
+                    speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 0);
+                    speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 1);
+                    elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0);
+                    elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 1, 0);
+                    spore.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer, 1, 1);
+                    spore.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer, 1, 2);
+                    eater.GetWord(SamusEaterPlmDrawDefinitions.FloorIdle, 2, 3);
+                    eater.GetWord(SamusEaterPlmDrawDefinitions.FloorIdle, 0, 2);
+                    botwoon.GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 8);
+                    botwoon.GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 9);
+                    kraid.GetWord(KraidRoomPlmDrawDefinitions.ClearSpikes, 0, 21);
+                    kraid.GetWord(KraidRoomPlmDrawDefinitions.CrumbleFirst, 0, 1);
+                    crocomire.GetWord(CrocomireArenaPlmDrawDefinitions.ClearBridge, 0, 9);
+                    crocomire.GetWord(CrocomireArenaPlmDrawDefinitions.CrumbleBridgeBlock, 0, 1);
+                    motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 0, 4);
+                    motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 1, 1);
                 }
             }
             """;
@@ -71,9 +95,9 @@ internal static class PlmPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 23, "the twenty-three calls must reproduce the identified missing adapters first");
-        Require(report.Classifications.Count == 11 && report.UnresolvedCount == 12 && report.MissingCount == 0 &&
-            report.Consumers.Count == 23, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail");
+        Require(before.UnresolvedCount == 41, "the forty-one calls must reproduce the identified missing adapters first");
+        Require(report.Classifications.Count == 20 && report.UnresolvedCount == 21 && report.MissingCount == 0 &&
+            report.Consumers.Count == 41, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail");
         Require(report.Findings.Any(item => item.Message.Contains("drawPointer", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("runIndex", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
@@ -122,6 +146,42 @@ internal static class PlmPresentationContractChecks
             new RoomPlmLinkedRestoreVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmLinkedRestoreVisualCatalog(entries));
+        ConfirmCoverage(TourianAccessPlmDrawDefinitions.All, frame =>
+            new RoomPlmTourianAccessVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmTourianAccessVisualCatalog(entries));
+        ConfirmCoverage(SpeedBoosterBlockPlmDrawDefinitions.All, frame =>
+            new RoomPlmSpeedBoosterVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmSpeedBoosterVisualCatalog(entries));
+        ConfirmCoverage(MaridiaElevatubePlmDefinitions.AllDraws, frame =>
+            new RoomPlmMaridiaElevatubeVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmMaridiaElevatubeVisualCatalog(entries));
+        ConfirmCoverage(SporeSpawnCeilingPlmDrawDefinitions.All, frame =>
+            new RoomPlmSporeSpawnCeilingVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmSporeSpawnCeilingVisualCatalog(entries));
+        ConfirmCoverage(SamusEaterPlmDrawDefinitions.All, frame =>
+            new RoomPlmSamusEaterVisualEntry(SamusEaterPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmSamusEaterVisualCatalog(entries));
+        ConfirmCoverage(BotwoonWallPlmDrawDefinitions.All, frame =>
+            new RoomPlmBotwoonWallVisualEntry(BotwoonWallPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmBotwoonWallVisualCatalog(entries));
+        ConfirmCoverage(KraidRoomPlmDrawDefinitions.All, frame =>
+            new RoomPlmKraidVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmKraidVisualCatalog(entries));
+        ConfirmCoverage(CrocomireArenaPlmDrawDefinitions.All, frame =>
+            new RoomPlmCrocomireVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmCrocomireVisualCatalog(entries));
+        ConfirmCoverage(MotherBrainFakeDeathPlmDrawDefinitions.All, frame =>
+            new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(frame.Pointer),
+                VisualRuns(frame).SelectMany(run => run).ToArray()),
+            entries => _ = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries));
     }
 
     private static void ConfirmCoverage<T>(IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,

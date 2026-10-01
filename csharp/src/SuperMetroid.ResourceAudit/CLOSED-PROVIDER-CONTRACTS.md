@@ -168,3 +168,25 @@ rainbow, death, suit and explosion indices. It also distinguishes the valid alig
 terminator from an invalid intermediate cursor, and leaves the unreviewed Chozo resolver
 unresolved. A dynamic CGRAM destination does not become an invented resource dependency.
 No palette sequence, death animation or battle is executed.
+
+## Gameplay messages - 15 original consumer boundaries
+
+The three private-constructor loaders require their exact separate message sets:
+fifteen one-row titles, seven large item panels, and five station/save notices.
+Templates, borders and text glyphs are complete and validated before publication.
+Notice/panel rules also guard the shared title glyph compiler and its definitions.
+
+- `Contains` is a membership query, not a demand for artwork. Asking about an ID
+  outside a provider's owned set correctly returns false.
+- `Build` resolves only the corresponding provider's required message set; constant
+  cross-family requests remain failures. Sparse ID sets are taken from the same
+  source-guarded definitions used by the loader, not a broad numeric interval.
+- Notice `ApplySelection` owns only SaveConfirmation and GunshipSaveConfirmation.
+  Both YES and NO rows are required for each. Station-completion notices do not
+  acquire fictional selection rows merely because they share the notice provider.
+
+An eight-call constructed-source fixture first reproduces all missing adapters.
+Five calls then qualify, while three cross-family/non-save selection calls remain
+unresolved for their exact ownership violation. No message box or gameplay runs.
+As with the other closed-domain proofs, unknown dynamic caller correctness is not
+certified by a provider's complete supported resource set.

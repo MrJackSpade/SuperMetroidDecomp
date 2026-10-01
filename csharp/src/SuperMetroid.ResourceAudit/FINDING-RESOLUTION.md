@@ -373,3 +373,22 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **130 of the original 353 boundaries**. Current audit: **zero missing
   identities, 223 unresolved**, all 352 consumer sites retained. This changes auditing
   only; production palette behavior is untouched.
+
+## Gameplay-message families - 15 further source-proven boundaries
+
+- **Findings:** seven notice, four item-panel and four one-row-title consumer sites.
+- **Cause/classification:** each loader already requires its complete owned message
+  set, but the consumer pass had no adapter. New source-guarded method contracts
+  distinguish complete templates/text from unknown family routing. Membership queries
+  can validly return false; they are not missing-resource requests.
+- **Ownership:** a dedicated sparse identity catalog rejects constant cross-family
+  Build requests. YES/NO selection belongs only to the two save notices, not all five
+  notices. Definitions and the shared glyph compiler are included in the proof guards.
+- **Confirmation:** eight constructed calls reproduce missing adapters before the
+  change. Five reviewed operations then classify; three incorrect family/save-only
+  requests remain failing findings with precise ownership reasons. Prior source-only
+  checks and compilation pass. No messages, rooms, ROM or gameplay were executed.
+- **Accounting:** 143 guarded consumer classifications plus two metadata corrections
+  account for **145 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 208 unresolved**, all 352 consumer sites retained. The production
+  message system and player input/timing are unchanged.

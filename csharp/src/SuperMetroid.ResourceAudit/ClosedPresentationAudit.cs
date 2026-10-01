@@ -99,8 +99,14 @@ internal sealed class ClosedPresentationAudit
         {
             var owner = (Type: operation.TargetMethod.ContainingType.Name,
                 Method: operation.TargetMethod.Name, Parameter: argument.Parameter!.Name);
+            if (argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
+            int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
-            if (range is null || argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
+            if (identities is null && range is null) continue;
+            int number = Convert.ToInt32(value.Value);
+            if (identities is not null && !identities.Contains(number))
+                return $"Constant {owner.Parameter}={number} is not owned by the reviewed {owner.Type}.{owner.Method} resource domain.";
+            if (range is null) continue;
             // White-frame Draygon hurt does not select a health band at all.
             if (owner is ("DraygonColorCatalog", "ApplyHurt", "healthTableByteIndex") &&
                 operation.Arguments.Single(arg => arg.Parameter?.Name == "whiteFrame").Value.ConstantValue
@@ -112,7 +118,6 @@ internal sealed class ClosedPresentationAudit
                     SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Level or
                     SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Background)
                 range = new(0, SuperMetroid.Core.Game.SporeSpawnColorRomData.DeathSceneFrameCount);
-            int number = Convert.ToInt32(value.Value);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }

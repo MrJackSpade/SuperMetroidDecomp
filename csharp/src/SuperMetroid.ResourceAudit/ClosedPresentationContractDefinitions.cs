@@ -16,6 +16,7 @@ internal static class ClosedPresentationContractDefinitions
         .. MenuClosedPresentationContractDefinitions.All,
         .. BossColorClosedContractDefinitions.All,
         .. SequenceColorClosedContractDefinitions.All,
+        .. MessageClosedContractDefinitions.All,
         new("SuperMetroid.Core.Assets.GameplayHudPresentation", "hud-v2-complete-valid-domain",
             ["ApplyTemplate", "TryApplyIcon", "ApplyEnergy", "ApplyAmmo", "ApplyAutoReserve",
                 "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex"],

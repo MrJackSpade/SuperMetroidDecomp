@@ -1475,5 +1475,41 @@
                        "proofTest":  "VerifyCrocomireTonguePresentationPositions (extracted from existing program proof)"
                    }
                ]
+},
+    "crocomireProjectileProgramReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireProjectileInstructionProgramDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Crocomire projectile program tables with structured control for #1165\"",
+                                 "subject":  "Replace Crocomire projectile program tables with structured control for #1165"
+                             },
+    "consumers":  [
+                      "RoomEnemySystem projectile mechanics dispatch in RoomEnemySystem.CeresRidleyFireballs.cs",
+                      "EnemyProjectileDefinitionCatalog",
+                      "EnemyProjectilePresentationFrameDefinitions"
+                  ],
+    "reviewedEvidence":  "Pinned bank_86.asm complete 8FCF-8FFA and 9007-9022 programs, with unused 8FFB-9006 gap and skipped 9021 word; production mechanics reader and presentation catalog consumers. Independent native addresses and SHA-verified NTSC J/U v1.0 ROM.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-projectile-programs",
+    "tables":  [
+                   {
+                       "id":  "crocomire-projectile-instruction-mechanics",
+                       "disposition":  "Generate timed-frame positions and control trailers. Select named program layout; dispatch duration, Goto/self-target or drop/Goto/shared-delete. Remove stored address/value array and binary search.",
+                       "state":  "converted",
+                       "nativeIdentity":  "86:8FCF mouth loop, 8FEB bridge loop, 8FF3 spike loop, 9007 shot program",
+                       "confirmation":  "22 independently enumerated addresses and original words, complete bank byte-ownership domain, misaligned reads, unused list gap, skipped delete word, and enumeration bounds.",
+                       "rationale":  "Timed loops and the shot drop/delete sequence have meaningful instruction semantics; no arbitrary values are recited.",
+                       "domain":  "22 exact ushort control addresses. Reject all other words with InvalidDataException; enumeration indices 0..21 with IndexOutOfRangeException outside. Byte ownership preserves both bytes and existing bank mask.",
+                       "proofTest":  "VerifyCrocomireProjectileMechanicsDispatch (extracted from existing program proof)"
+                   },
+                   {
+                       "id":  "crocomire-projectile-presentation-positions",
+                       "disposition":  "Generate start + 2 + 4*frame for six mouth frames, one bridge frame, one spike frame and five shot frames.",
+                       "state":  "converted",
+                       "nativeIdentity":  "13 spritemap operand addresses interleaved in the four bank-86 Crocomire projectile programs",
+                       "confirmation":  "13 independent native addresses and original operands; all excluded from mechanics word reads; invalid enumeration boundaries.",
+                       "rationale":  "The timed-frame word/operand layout determines each position; artwork values remain under their existing presentation ownership.",
+                       "domain":  "Enumeration indices 0..12 with IndexOutOfRangeException outside.",
+                       "proofTest":  "VerifyCrocomireProjectilePresentationPositions (extracted from existing program proof)"
+                   }
+               ]
 }
 }

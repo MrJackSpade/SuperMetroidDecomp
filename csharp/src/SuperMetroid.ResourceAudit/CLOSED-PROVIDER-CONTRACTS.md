@@ -302,3 +302,25 @@ then classify, including the visor's false membership query; thirteen invalid
 pointers, indices or variants stay failing findings. Prior contract checks and
 compilation pass. No palette sequences, animation, damage, HDMA, rooms, ROM,
 saves or gameplay were executed. Dynamic caller correctness is not asserted.
+
+## Remaining enemy colors - sixteen additional original consumer boundaries
+
+Ten separately reviewed private-constructor loaders require their full supported
+arrays: Botwoon health; cutscene Baby initial/fades; Norfair Ridley initial/reveal;
+four auxiliary enemy palettes; Kraid's five sources; Zebetite pulse; Shitroid
+normal/targets; Ceres Ridley Mode-7 shades; Dachora phases; and Mother Brain health
+pairs. Provider and dimension-definition source fingerprints guard every proof.
+
+Selected dimensions remain distinct. Auxiliary palette constants narrow frame
+and color ranges; Kraid's sixteen-word backdrop cannot borrow its 144-word health
+capacity. Dachora Default owns only frame zero. The Baby's displayed fade index
+is one through six, with fourteen colors rather than its fifteen initial colors.
+Normal versus target Shitroid colors likewise retain separate widths. CGRAM
+destinations are placement; direct indexed Norfair rows have CLR bounds checks.
+
+Twenty-eight constructed calls reproduce absent adapters first. Fourteen then
+classify and fourteen invalid constants remain failing findings. Known short
+FaceBlock, DeadSidehopper, RoomBackdrop and Default selections receive their
+precise failure reasons. All prior checks and compilation pass. No AI, battle,
+fade, palette cadence, ROM, saves, rooms or gameplay runs; dynamic caller values
+and player-visible correctness are not certified.

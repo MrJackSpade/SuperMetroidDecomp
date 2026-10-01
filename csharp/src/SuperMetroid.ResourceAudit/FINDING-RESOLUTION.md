@@ -500,3 +500,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   identities, 166 unresolved**, all 352 consumers retained. Production colors,
   clocks and player behavior are unchanged. Dynamic caller correctness and
   whole-game parity are not asserted.
+
+## Remaining enemy color domains - sixteen further source-proven boundaries
+
+- **Findings:** sixteen calls across Botwoon, cutscene Baby, Norfair Ridley,
+  auxiliary enemy palettes, Kraid, Zebetite, Shitroid, Ceres Ridley Mode-7,
+  Dachora and Mother Brain health colors lacked resource-domain adapters.
+- **Cause/classification:** their private-constructor loaders already require
+  complete independent arrays. Reviewed, source-guarded rules now account for
+  those ten providers. Selected short palettes cannot borrow a larger family's
+  frame/color range; Baby fade indices stay one-based. AI, damage, animation,
+  palette cadence and visual data are unchanged.
+- **Confirmation:** twenty-eight constructed source calls reproduce absent
+  adapters first; fourteen classify and fourteen invalid constants still fail.
+  Precise short-selection findings cover FaceBlock, DeadSidehopper, Kraid's
+  RoomBackdrop and Dachora Default; Baby initial/fade widths and one-based
+  fade indexing are checked separately. Compilation and prior checks pass.
+  No ROM, saves, rooms, AI, battle, palette sequence or gameplay were executed.
+- **Accounting:** 201 guarded classifications plus two metadata corrections
+  account for **203 of the original 353 boundaries**. Current report: **zero
+  missing identities, 150 unresolved**, all 352 consumers retained. Dynamic
+  caller correctness and player validation remain outside these resource proofs.

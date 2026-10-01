@@ -35,6 +35,11 @@ internal static partial class Program
 
         AssertEqual(64, wordCount, "all eight contact-crumble control streams are compiled");
         AssertEqual(8, byteCount, "all eight contact-crumble sound operands are compiled");
+        ConfirmCompiledPlmDrawOperands(RoomPlmContactCrumbleProgramDefinitions.MechanicsWordAddresses(),
+            RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord,
+            RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord,
+            address => ReadImportedPlmWord(rom, address),
+            47, "contact-crumble");
         AssertTrue(!RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(
                 RoomPlmInstructionLists.ContactCrumble1x1Respawning + 5, out _),
             "an interleaved draw pointer is not classified as control");

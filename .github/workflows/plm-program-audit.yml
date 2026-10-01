@@ -1,0 +1,31 @@
+name: Static PLM program audit
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
+  pull_request:
+    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  plm-programs:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.401'
+      - name: Confirm the analyzer's bounded failure contracts
+        run: dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --plm-program-self-check
+      - name: Audit complete PLM records without ROM or gameplay
+        run: dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release --no-build -- --plm-program-audit --root . --json out/plm-program-audit.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: plm-program-audit
+          path: out/plm-program-audit.json
+          if-no-files-found: warn

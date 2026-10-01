@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Fixed bank-$84 control words for the eight Samus-contact crumble PLM lists.
-/// Interleaved animation and linked-restoration draw pointers are separate
-/// physical/presentation payloads and are not claimed by this catalog.
+/// Includes interleaved animation and linked-restoration pointer operands.
+/// Their physical/presentation payloads remain separate draw definitions.
 /// </summary>
 internal static class RoomPlmContactCrumbleProgramDefinitions
 {
@@ -27,6 +27,32 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         new(RoomPlmInstructionLists.ContactCrumble1x2Permanent, false, 2),
         new(RoomPlmInstructionLists.ContactCrumble2x2Permanent, false, 3),
     ];
+
+    internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
+    {
+        foreach (Program program in Programs)
+        {
+            int drawOffset = address - program.Start - 5;
+            if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
+            {
+                value = RoomPlmBreakAnimationDefinitions.DrawForShape(program.Dimension, drawOffset / 4);
+                return true;
+            }
+            if (program.Respawns && program.Dimension != 0 && address == program.Terminal + 2)
+            {
+                value = program.Dimension switch
+                {
+                    1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
+                    2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
+                    3 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
+                    _ => throw new InvalidDataException("Linked crumble program has no restore shape."),
+                };
+                return true;
+            }
+        }
+        value = 0;
+        return false;
+    }
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

@@ -4,6 +4,11 @@ Issue #1155: find undeclared installed-resource dependencies from source and imm
 definition catalogs, without searching for failures by playing or replaying the game.
 This tool is development-only and is not referenced or shipped by either playable host.
 
+#1161 adds a separate [static PLM program audit](PLM-PROGRAM-AUDIT.md): complete
+timer/draw records, byte/word operands, branches, links and production provider
+closure. Use `--plm-program-audit` or `-p:RunPlmProgramAudit=true`; it does not
+execute gameplay and is also a Windows release-packaging gate.
+
 #1156 reconciled the initial inventory: 266 absent identities and 353 unresolved
 boundaries are fully accounted, with no findings in the final declared static
 scope. All 352 original consumer sites remain in the report. See

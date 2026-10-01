@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Fixed bank-$84 control words for the sixteen collision/projectile bomb-block
-/// entry points and their eight shared animation tails. Draw-list pointers and
-/// their collision-changing payloads belong to the separate draw-list domain.
+/// entry points and their eight shared animation tails, including draw-pointer
+/// operands. Collision-changing draw payloads belong to the separate draw domain.
 /// </summary>
 internal static class RoomPlmBombBlockProgramDefinitions
 {
@@ -13,8 +13,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
     internal const byte ProjectileBreakSoundId = 0x0a;
 
     private readonly record struct Program(
-        ushort CollisionHead, ushort ReactionHead, bool Respawns, bool SingleBlock)
+        ushort CollisionHead, ushort ReactionHead, bool Respawns, int Dimension)
     {
+        internal bool SingleBlock => Dimension == 0;
         internal ushort Tail => checked((ushort)(ReactionHead + 3));
         internal int FrameCount => Respawns ? 7 : 4;
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
@@ -23,22 +24,49 @@ internal static class RoomPlmBombBlockProgramDefinitions
     private static readonly Program[] Programs =
     [
         new(RoomPlmInstructionLists.CollisionBombBlock1x1Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock1x1Respawning, true, true),
+            RoomPlmInstructionLists.ReactionBombBlock1x1Respawning, true, 0),
         new(RoomPlmInstructionLists.CollisionBombBlock2x1Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock2x1Respawning, true, false),
+            RoomPlmInstructionLists.ReactionBombBlock2x1Respawning, true, 1),
         new(RoomPlmInstructionLists.CollisionBombBlock1x2Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock1x2Respawning, true, false),
+            RoomPlmInstructionLists.ReactionBombBlock1x2Respawning, true, 2),
         new(RoomPlmInstructionLists.CollisionBombBlock2x2Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock2x2Respawning, true, false),
+            RoomPlmInstructionLists.ReactionBombBlock2x2Respawning, true, 3),
         new(RoomPlmInstructionLists.CollisionBombBlock1x1Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock1x1Permanent, false, true),
+            RoomPlmInstructionLists.ReactionBombBlock1x1Permanent, false, 0),
         new(RoomPlmInstructionLists.CollisionBombBlock2x1Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock2x1Permanent, false, false),
+            RoomPlmInstructionLists.ReactionBombBlock2x1Permanent, false, 1),
         new(RoomPlmInstructionLists.CollisionBombBlock1x2Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock1x2Permanent, false, false),
+            RoomPlmInstructionLists.ReactionBombBlock1x2Permanent, false, 2),
         new(RoomPlmInstructionLists.CollisionBombBlock2x2Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock2x2Permanent, false, false),
+            RoomPlmInstructionLists.ReactionBombBlock2x2Permanent, false, 3),
     ];
+
+    internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
+    {
+        foreach (Program program in Programs)
+        {
+            int dimension = program.Dimension;
+            int drawOffset = address - program.Tail - 2;
+            if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
+            {
+                value = RoomPlmBreakAnimationDefinitions.DrawForShape(dimension, drawOffset / 4);
+                return true;
+            }
+            if (program.Respawns && !program.SingleBlock && address == program.Terminal + 2)
+            {
+                value = dimension switch
+                {
+                    1 => RoomPlmBombBlockRestoreDrawDefinitions.Horizontal,
+                    2 => RoomPlmBombBlockRestoreDrawDefinitions.Vertical,
+                    3 => RoomPlmBombBlockRestoreDrawDefinitions.Square,
+                    _ => throw new InvalidDataException("Linked bomb-block program has no restore shape."),
+                };
+                return true;
+            }
+        }
+        value = 0;
+        return false;
+    }
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

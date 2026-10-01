@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Fixed bank-$84 control words for the eight ordinary shot-block PLM programs.
+/// Fixed bank-$84 control words for ordinary, Super Missile, Power Bomb and
+/// enemy-breakable shot-block PLM programs.
 /// Draw-list operands name compiled terrain mutations, not editable artwork bytes.
 /// Their payloads remain in the separate draw-list domain.
 /// </summary>
@@ -11,7 +12,8 @@ internal static class RoomPlmShotBlockProgramDefinitions
     internal const byte BreakSoundId = 0x0a;
 
     private readonly record struct Program(ushort Start, bool Respawns, bool RestoresLevelWord,
-        ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0)
+        ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
+        ushort SoundOpcode = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct)
     {
         internal int FrameCount => Respawns ? RestoresLevelWord ? 7 : 8 : 4;
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
@@ -35,6 +37,19 @@ internal static class RoomPlmShotBlockProgramDefinitions
             RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8),
         new(RoomPlmInstructionLists.PermanentShotBlock2x2, false, false,
             RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16),
+        new(RoomPlmInstructionLists.RespawningSuperMissileBlock, true, true,
+            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
+            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6),
+        new(RoomPlmInstructionLists.RespawningPowerBombBlock, true, true,
+            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
+        new(RoomPlmInstructionLists.PermanentSuperMissileBlock, false, false,
+            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
+            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6),
+        new(RoomPlmInstructionLists.PermanentPowerBombBlock, false, false,
+            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
+        new(EnemyBreakableTerrainDefinitions.InstructionList, false, false,
+            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
+            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3),
     ];
 
     /// <summary>
@@ -68,7 +83,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
         {
             if (address == program.Start)
             {
-                value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct;
+                value = program.SoundOpcode;
                 return true;
             }
 
@@ -84,6 +99,10 @@ internal static class RoomPlmShotBlockProgramDefinitions
                     value = frame == 3
                         ? program.Respawns ? (ushort)0x0180 : (ushort)1
                         : frame == 7 ? (ushort)1 : (ushort)4;
+                    // The permanent Power Bomb parent uses the native faster
+                    // 3/2/1/1 sequence, unlike ordinary/Super Missile parents.
+                    if (program.Start == RoomPlmInstructionLists.PermanentPowerBombBlock)
+                        value = (ushort)(frame < 2 ? 3 - frame : 1);
                     return true;
                 }
             }

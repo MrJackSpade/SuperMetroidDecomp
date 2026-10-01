@@ -37,6 +37,11 @@ internal static partial class Program
 
         AssertEqual(19, wordCount, "both Grapple-block programs contain all control words");
         AssertEqual(2, byteCount, "both Grapple-block programs contain sound bytes");
+        ConfirmCompiledPlmDrawOperands(RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses(),
+            RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord,
+            RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord,
+            address => ReadImportedPlmWord(rom, address),
+            13, "grapple-block");
         AssertTrue(!RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(
                 RoomPlmInstructionLists.RespawningBreakableGrappleBlock + 2, out _),
             "first draw pointer remains outside the compiled control domain");

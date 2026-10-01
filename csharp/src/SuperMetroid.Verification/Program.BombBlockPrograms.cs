@@ -35,6 +35,11 @@ internal static partial class Program
 
         AssertEqual(88, wordCount, "sixteen bomb-block entries and eight tails have complete control words");
         AssertEqual(16, byteCount, "both sounds for each bomb-block variant are compiled");
+        ConfirmCompiledPlmDrawOperands(RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses(),
+            RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord,
+            RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord,
+            address => ReadImportedPlmWord(rom, address),
+            47, "bomb-block");
         AssertTrue(!RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(
                 RoomPlmInstructionLists.ReactionBombBlock1x1Respawning + 5, out _),
             "interleaved draw pointer is not misclassified as control");

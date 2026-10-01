@@ -78,8 +78,8 @@ internal static partial class Program
             byteCount++;
         }
 
-        AssertEqual(64, wordCount, "all eight ordinary shot-block programs have control words");
-        AssertEqual(8, byteCount, "all eight ordinary shot-block programs have sound operands");
+        AssertEqual(102, wordCount, "thirteen ordinary/gated/enemy-breakable shot programs have control words");
+        AssertEqual(13, byteCount, "thirteen shot programs have sound operands");
         AssertTrue(!RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(0xa345, out _),
             "interleaved draw-list pointers are not misclassified as control words");
 

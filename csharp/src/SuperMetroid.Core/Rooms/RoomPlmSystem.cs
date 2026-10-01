@@ -1860,6 +1860,18 @@ public sealed partial class RoomPlmSystem
         // records: row zero, then `{dx=0,dy=1}` and row one.
         int originX = blockIndex % level.WidthInBlocks;
         int originY = blockIndex / level.WidthInBlocks;
+        if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
+        {
+            DrawCompiledBlockInstruction(level, streamer, bombedReveal, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
+        if (EscapeAnimalPlmDrawDefinitions.TryGet(drawPointer, out var animalWall))
+        {
+            DrawCompiledBlockInstruction(level, streamer, animalWall, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
         {
             DrawCompiledBlockInstruction(
@@ -2310,138 +2322,34 @@ public sealed partial class RoomPlmSystem
     }
 
     private static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
-        SnesWorkRam.ReadWord(memory, (int)new SnesAddress(0x84, offset));
+        SnesWorkRam.ReadWord(memory, (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
 
     private static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
-        memory.ReadWorkRamByte((int)new SnesAddress(0x84, offset));
+        memory.ReadWorkRamByte((int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
     // identities must have compiled mechanics or an explicitly authored fixture.
     // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
     private ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
-        SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
+        RoomPlmProgramDefinitions.TryReadWord(address, out ushort value) ||
+        TryReadVerificationInstructionWord(address, out value)
             ? value
-            : TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : MetroidsClearedPlmRomData.TryReadInstructionWord(address, out value)
-            ? value
-            : WreckedShipAtticPlmRomData.TryReadInstructionWord(address, out value)
-            ? value
-            : ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out value)
-            ? value
-            : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-            ? value
-            : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord(address, out value)
-                ? value
-            : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : NoobTubePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
-                ? value
-            : TryReadVerificationInstructionWord(address, out value)
-                ? value
-            : ReadPlmWorkRamWord(bus as ISnesMutableMemory ??
-                throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address);
+            : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
+                ? ReadPlmWorkRamWord(bus as ISnesMutableMemory ??
+                    throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address)
+                : throw new InvalidDataException(
+                    $"PLM program word $84:{address:X4} has no compiled definition.");
 
     private byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
-        SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
+        RoomPlmProgramDefinitions.TryReadByte(address, out byte value) ||
+        TryReadVerificationInstructionByte(address, out value)
             ? value
-            : TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : KraidRoomPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
-            ? value
-            : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : DownwardGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : NoobTubePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
-                ? value
-            : TryReadVerificationInstructionByte(address, out value)
-                ? value
-            : ReadPlmWorkRamByte(bus as ISnesMutableMemory ??
-                throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address);
+            : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
+                ? ReadPlmWorkRamByte(bus as ISnesMutableMemory ??
+                    throw new InvalidOperationException("A wrapped PLM instruction needs live WRAM."), address)
+                : throw new InvalidDataException(
+                    $"PLM program byte $84:{address:X4} has no compiled definition.");
 
     private sealed class PlmSlot
     {

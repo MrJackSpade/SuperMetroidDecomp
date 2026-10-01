@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Cartridge control words for the two breakable-Grapple-block PLM instruction
-/// streams. The interleaved draw-list pointers are a separate presentation and
-/// terrain domain; they remain bank-$84 operands until their lists are compiled.
+/// streams, including interleaved draw-pointer operands. Presentation and
+/// terrain payloads remain in the separate draw-list domain.
 /// </summary>
 internal static class RoomPlmGrappleBlockProgramDefinitions
 {
@@ -21,6 +21,30 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
         new(RoomPlmInstructionLists.PermanentBreakableGrappleBlock, false),
     ];
+
+    internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
+    {
+        foreach (Program program in Programs)
+        {
+            if (address == program.Start + 2)
+            {
+                value = RoomPlmGrappleBlockDrawDefinitions.Grapple;
+                return true;
+            }
+            int drawOffset = address - program.Start - 9;
+            if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
+            {
+                ReadOnlySpan<ushort> draws = [RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
+                    RoomPlmGrappleBlockDrawDefinitions.BreakFrame1, RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
+                    RoomPlmGrappleBlockDrawDefinitions.Blank];
+                int frame = drawOffset / 4;
+                value = draws[frame < 4 ? frame : 6 - frame];
+                return true;
+            }
+        }
+        value = 0;
+        return false;
+    }
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

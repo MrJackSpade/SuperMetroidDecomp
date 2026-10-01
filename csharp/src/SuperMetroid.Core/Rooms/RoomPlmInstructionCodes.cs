@@ -8,6 +8,8 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class RoomPlmInstructionCodes
 {
+    /// <summary><c>$84:BE3F Instruction_PLM_SetGreyDoorPreInstruction</c>: typed resident-door owner installs its room-argument condition callback; no operands.</summary>
+    public const ushort SetGreyDoorPreInstruction = 0xbe3f;
     /// <summary><c>$84:86B4 Instruction_PLM_Sleep</c>: leave the list on this word.</summary>
     public const ushort Sleep = 0x86b4;
 

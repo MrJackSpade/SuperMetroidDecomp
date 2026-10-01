@@ -17,4 +17,7 @@
   <Target Name="AuditResourceReferences" AfterTargets="Build" Condition="'$(RunResourceAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
   </Target>
+  <Target Name="AuditPlmPrograms" AfterTargets="Build" Condition="'$(RunPlmProgramAudit)' == 'true'">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot; --plm-program-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
+  </Target>
 </Project>

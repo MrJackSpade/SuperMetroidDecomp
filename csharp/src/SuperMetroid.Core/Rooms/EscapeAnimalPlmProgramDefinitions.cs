@@ -1,0 +1,30 @@
+namespace SuperMetroid.Core.Rooms;
+
+/// <summary>Complete $84:B9A2-B9B8 rescue-wall break/event/delete records.</summary>
+internal static class EscapeAnimalPlmProgramDefinitions
+{
+    internal static bool TryReadWord(ushort address, out ushort value)
+    {
+        int offset = address - EscapeAnimalPlmRomData.ReactionList;
+        value = offset switch
+        {
+            0 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+            3 or 7 or 11 => 4,
+            15 => 1,
+            5 => EscapeAnimalPlmDrawDefinitions.Frame0,
+            9 => EscapeAnimalPlmDrawDefinitions.Frame1,
+            13 => EscapeAnimalPlmDrawDefinitions.Frame2,
+            17 => EscapeAnimalPlmDrawDefinitions.Blank,
+            19 => EscapeAnimalPlmRomData.SetEscapedEventInstruction,
+            21 => RoomPlmInstructionCodes.Delete,
+            _ => 0,
+        };
+        return value != 0;
+    }
+
+    internal static bool TryReadByte(ushort address, out byte value)
+    {
+        value = RoomPlmShotBlockProgramDefinitions.BreakSoundId;
+        return address == EscapeAnimalPlmRomData.ReactionList + 2;
+    }
+}

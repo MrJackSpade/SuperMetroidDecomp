@@ -814,3 +814,21 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 22 unresolved**, all 352 consumers retained. This proves
   required overlay membership, not arbitrary pointers, authored coordinates,
   source selection, traversal, host binding, placement or pixels. #1156 stays active.
+
+## Extended display-ID projection - one non-resource boundary accounted
+
+- **Finding:** the classifier treated GetDisplayPointer as an extended-frame
+  artwork lookup. Source inspection establishes that it only projects an installed
+  binding value to ushort, or returns the input pointer when no binding exists.
+- **Solution/classification:** a guarded rule accounts for that exact method as a
+  total non-resource projection. TryGetDisplay remains a separate finding;
+  downstream BG2/OAM availability or selector correctness is not implied.
+- **Confirmation:** four constructed source calls expose two false missing-artwork
+  requirements and two unresolved boundaries without the adapter. With it, the
+  three projections qualify while the actual artwork query stays unresolved, and
+  all four sites remain. Replacing the passthrough with a throw revokes the proof.
+  Audit Release build and all auditor checks pass. Production behavior is unchanged;
+  no ROM, saves, installed art, frame drawing or gameplay ran.
+- **Accounting:** 330 guarded classifications plus two metadata corrections
+  account for **332 of the original 353 boundaries**. Current report: **zero
+  missing identities, 21 unresolved**, all 352 consumers retained. #1156 stays active.

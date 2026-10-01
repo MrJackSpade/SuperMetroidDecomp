@@ -610,3 +610,19 @@ item/kind checks still pass. Audit/Verification builds and all auditor checks pa
 No ROM, saves, installed reveals, room, renderer or gameplay ran. Only required
 membership is certified, not arbitrary keys, coordinates, traversal, binding,
 placement or pixels.
+
+## Extended display-ID projection - one non-resource original boundary
+
+GetDisplayPointer probes only the installed binding dictionary and returns the
+selected ushort identity or the original native pointer. It does not index artwork
+and cannot fail because the requested selector is unbound. This exact method now
+has a source-guarded non-resource classification; TryGetDisplay stays unresolved.
+Downstream BG2/OAM resource availability is not covered by the projection rule.
+
+Four constructed source calls first expose two false missing-artwork requirements
+and two unresolved boundaries. The three total projections now qualify while the
+actual artwork query remains unresolved. Replacing the native-pointer passthrough
+with a throw revokes the rule. Audit Release build and all auditor checks pass.
+Production behavior is unchanged; no ROM, save, installed art or gameplay was opened.
+This proves only absence of a resource request at this method, not correct visual
+selection, frame coverage, BG2/OAM alignment, placement or pixels.

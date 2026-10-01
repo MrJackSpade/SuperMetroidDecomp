@@ -1337,15 +1337,15 @@ public sealed partial class SuperMetroidGame
 
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
-    private void CreateSelectedGameRuntime()
+    private void CreateGameplayRuntime(bool forAttractDemo = false)
     {
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         runtime = new SuperMetroidRuntime(
             bus,
-            playerInvincibilityEnabled: gameOptions.Invincibility,
-            infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
-            mapRevealMode: gameOptions.MapReveal,
-            preventEscapeTimeout: gameOptions.PreventEscapeTimeout,
+            playerInvincibilityEnabled: !forAttractDemo && gameOptions.Invincibility,
+            infiniteAmmoEnabled: !forAttractDemo && gameOptions.InfiniteAmmo,
+            mapRevealMode: forAttractDemo ? MapRevealMode.None : gameOptions.MapReveal,
+            preventEscapeTimeout: !forAttractDemo && gameOptions.PreventEscapeTimeout,
             initialPaletteArt: gameplayBasePalettes);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
@@ -1395,6 +1395,9 @@ public sealed partial class SuperMetroidGame
         runtime.GrappleArtwork = grappleArtwork;
         runtime.BeamArtwork = beamArtwork;
         runtime.Enemies.TileArtwork = enemyTileArtwork;
+        // Attract scripts retain the default controls and options of their private runtime.
+        if (forAttractDemo)
+            return;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;
@@ -1408,7 +1411,7 @@ public sealed partial class SuperMetroidGame
     /// </summary>
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
-        CreateSelectedGameRuntime();
+        CreateGameplayRuntime();
         runtime!.RestoreSavedPlayerState(slot);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
@@ -1455,7 +1458,7 @@ public sealed partial class SuperMetroidGame
 
     private bool SetupSelectedGame()
     {
-        CreateSelectedGameRuntime();
+        CreateGameplayRuntime();
 
         if (spacetimeIntroRestartSlot is { } restartSlot)
         {

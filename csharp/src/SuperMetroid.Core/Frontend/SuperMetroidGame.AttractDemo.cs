@@ -28,19 +28,7 @@ public sealed partial class SuperMetroidGame
                         ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
-                    ushort incomingRandom = FrontendRandomOwner.RandomNumber;
-                    runtime = new SuperMetroidRuntime(bus);
-                    runtime.System.SetRandomNumber(incomingRandom);
-                    runtime.MapPresentation = mapPresentation;
-                    runtime.SamusBodyArt = samusBodyArt;
-                    runtime.ProjectileCompositions = projectileCompositions;
-                    runtime.ProjectileFrameBindings = projectileFrameBindings;
-                    runtime.TrailArtwork = trailArtwork;
-                    runtime.ChargeFlarePlacement = chargeFlarePlacement;
-                    runtime.ChargeFlareCompositions = chargeFlareCompositions;
-                    runtime.GrappleArtwork = grappleArtwork;
-                    runtime.BeamArtwork = beamArtwork;
-                    runtime.Enemies.TileArtwork = enemyTileArtwork;
+                    CreateGameplayRuntime(forAttractDemo: true);
                     runtime.InitializeAttractDemo(scene);
                     demoFramesRemaining = scene.Duration;
                     demoScene++;

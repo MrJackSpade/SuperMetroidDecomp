@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--attract-runtime-bindings"])
+{
+    VerifyAttractRuntimeBindings();
+    return 0;
+}
 if (args is ["--golden-torizo-code"])
 {
     VerifyGoldenTorizoCode();

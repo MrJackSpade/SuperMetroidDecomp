@@ -35,6 +35,14 @@ internal static class ClosedPresentationIdentityDefinitions
         ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
         ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
         ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
+        ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.ToArray().Select(frame => (int)frame).ToArray(),
+        ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames.ToArray()
+            .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,
+                ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave,
+                ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
+        ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRadiusDefinitions.TimedRecordPointers
+            .Select(pointer => (int)pointer).ToArray(),
+        ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.ToArray().Select(pointer => (int)pointer).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

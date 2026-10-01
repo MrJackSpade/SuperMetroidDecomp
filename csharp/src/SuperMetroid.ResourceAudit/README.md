@@ -66,6 +66,9 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   Map names also support the two source-guarded bounded area-name factories;
   lookalike functions and arbitrary strings are not inferred. The credits row
   proof is revoked by a Core reference to its variable-row verification factory.
+  Ordinary projectile composition coverage is revoked by external Core use of
+  the shared partial factory; timed binding coverage is revoked by external
+  access to its array-backed owner list. Private flare coverage remains separate.
 
 Samus projectile exports are inventoried, but dynamic projectile-to-artwork mappings are
 not certified merely because an exported sprite exists. There is no claim of whole-game

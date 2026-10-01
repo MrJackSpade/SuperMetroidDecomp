@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -115,6 +116,10 @@ internal static class ClosedPresentationIndexDefinitions
         ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualRomData.AnimationRowCount),
         ("CeresDoorVisualCatalog", "LoadMode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
+        ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount),
+        ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
+        ("ChargeFlareSpriteCatalog", "Draw", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
+        ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),
         _ => null,
     };
 }

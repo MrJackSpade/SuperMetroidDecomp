@@ -55,6 +55,18 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "AnchorNames")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(EscapeTimerPresentationDefinitions).FullName));
+            if (valid && contract.Type == typeof(ProjectileSpriteCatalog).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "LoadFrames")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
+                            factory.ContainingType.ToDisplayString() == typeof(ProjectileSpriteCatalog).FullName));
+            if (valid && contract.Type == typeof(ProjectileFrameBindingCatalog).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "TimedRecordPointers")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
+                            property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Game.SamusProjectileRadiusDefinitions).FullName));
             contracts.Add(contract.Type, (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)

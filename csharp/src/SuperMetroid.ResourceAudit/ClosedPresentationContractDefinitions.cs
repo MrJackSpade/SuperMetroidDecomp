@@ -21,6 +21,7 @@ internal static class ClosedPresentationContractDefinitions
         .. TextAndMapClosedContractDefinitions.All,
         .. PauseClosedContractDefinitions.All,
         .. CinematicClosedContractDefinitions.All,
+        .. ProjectileClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

@@ -401,3 +401,26 @@ classify and eight invalid pointer/index requests remain unresolved. A source
 fixture accessing mutable timer AnchorNames revokes Draw's proof. Build and
 prior checks pass. No cinematic, title, door, timer, palette sequence, ROM,
 assets, saves or gameplay runs; mechanics and visual content are unchanged.
+
+## Projectile/rope presentation - fifteen additional original boundaries
+
+Eight guarded providers require all twelve beam sheets, both sixteen-direction
+flare placement rows, 28 flare compositions/54 selectors, 42 trail appearances,
+805 timed projectile bindings, 417 ordinary projectile compositions, four rope
+segment appearances and 256 swing display angles. Sparse identity membership
+and separate parameter bounds remain explicit. Timed trail resolution either
+retains native attributes at an unconsumed list start or selects the installed
+appearance four bytes before the next instruction; adjacent unaligned inputs
+are not accepted merely because their numeric range is similar.
+
+The shared projectile catalog has an alternate partial-set factory. Production
+ordinary coverage is revoked by any Core reference outside its provider/private
+flare wrapper. The flare wrapper itself does not expose that partial instance.
+An external Core reference to the array-backed timed pointer property revokes
+binding coverage. These source ownership guards are not runtime points-to proof,
+host installation proof, or assertions about animation selection and physics.
+
+Nineteen constructed source calls first expose missing adapters; eleven classify
+and eight invalid requests remain unresolved. Two separate source-only fixtures
+confirm partial-factory and mutable-pointer revocation. Build and prior checks
+pass. No ROM, saves, art, firing, motion, damage, sound or gameplay is executed.

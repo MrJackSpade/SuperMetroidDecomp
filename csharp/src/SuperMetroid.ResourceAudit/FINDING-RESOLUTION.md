@@ -582,3 +582,23 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **262 of the original 353 boundaries**. Current report: **zero
   missing identities, 91 unresolved**, all 352 consumers retained. Missing and
   unresolved findings still fail the audit. No player-visible correctness claim.
+
+## Projectile/rope domains - fifteen further source-proven boundaries
+
+- **Findings:** fifteen beam, flare, trail, timed binding, projectile composition
+  and grapple visual calls lacked coverage adapters.
+- **Cause/classification:** eight reviewed providers already require complete
+  supported resource sets. Guarded rules now preserve their exact sparse IDs,
+  contiguous beam selections, all sixteen muzzle directions and byte-angle
+  coverage. Retained trail starts are distinguished from consumed timed frames.
+  The partial sprite factory is confined to the private flare wrapper; any other
+  Core reference revokes ordinary composition coverage. External access to the
+  array-backed timed pointer list likewise revokes binding coverage.
+- **Confirmation:** nineteen constructed source calls expose the absent adapters
+  first; eleven classify and eight invalid requests still fail. Separate source
+  fixtures confirm both ownership guards. Release build and all audit contract
+  checks pass. No ROM, saves, artwork, firing, movement or gameplay runs.
+- **Accounting:** 275 guarded classifications plus two metadata corrections
+  account for **277 of the original 353 boundaries**. Current report: **zero
+  missing identities, 76 unresolved**, all 352 consumers retained. No animation,
+  host installation, pixel, timing, damage or player validation claim is made.

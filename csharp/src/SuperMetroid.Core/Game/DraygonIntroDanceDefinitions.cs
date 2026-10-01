@@ -10,15 +10,8 @@ internal static class DraygonIntroDanceDefinitions
     /// The four reachable words of <c>MovementLatencyForEachEvirSpriteObject</c> at
     /// <c>$A5:A19F-$A5:A1A6</c>, ordered by sprite slots 28 through 31.
     /// </summary>
-    /// <remarks>Issues #625 and #936 exact formula: 128*(slot-35) for validated slots
-    /// 28..31, equivalently 128*(i-7) for bounded table index i=0..3.
-    /// LookupTableResearch checks all four signed words against the NTSC ROM,
-    /// pinned bank_A5.asm and MovementLatencyForSlot. Preserve signed latency
-    /// before the caller's word wrapping. The four following unused native words
-    /// do not broaden this consumer's domain. Packed dance trajectories are a
-    /// separate table and are not explained by this latency progression.</remarks>
-    private static ReadOnlySpan<short> MovementLatencies =>
-        [-0x0380, -0x0300, -0x0280, -0x0200];
+    /// <remarks>The native loop at $A5:A13E indexes with 2*(slot-28).</remarks>
+    public const int NativeMovementLatencyAddress = 0xa5a19f;
 
     /// <summary>Native byte-index advance after each dance update at <c>$A5:A188</c>.</summary>
     public const ushort StreamIndexAdvance = 4;
@@ -71,12 +64,19 @@ internal static class DraygonIntroDanceDefinitions
     private static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
 
     /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A5.asm:
+    /// the four reachable signed words are the arithmetic progression 128*(slot-35).
+    /// The caller adds this byte-stream latency with 16-bit wrap, then tests the sign.
+    /// Keep the first four native words (including the 128-frame initial delay); the
+    /// unused following four words do not extend the domain. Packed motion is separate.
+    /// </remarks>
     public static short MovementLatencyForSlot(int slotIndex)
     {
         int index = slotIndex - 28;
-        if ((uint)index >= MovementLatencies.Length)
+        if ((uint)index >= 4)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
-        return MovementLatencies[index];
+        return (short)(128 * (slotIndex - 35));
     }
 
     /// <summary>

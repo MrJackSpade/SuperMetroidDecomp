@@ -18,7 +18,7 @@ internal static partial class Program
 
     private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int source = 0xa5a19f;
+        const int source = DraygonIntroDanceDefinitions.NativeMovementLatencyAddress;
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
         {
             int address = source + (slotIndex - 28) * 2;
@@ -34,6 +34,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => DraygonIntroDanceDefinitions.MovementLatencyForSlot(32),
             "Draygon intro Evir slot after native range");
+        Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)

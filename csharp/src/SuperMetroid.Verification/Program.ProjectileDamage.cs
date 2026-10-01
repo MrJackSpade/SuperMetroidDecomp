@@ -104,21 +104,43 @@ internal static partial class Program
         SuperMetroidAddressSpace rom,
         Func<int, ushort> readWord)
     {
+        VerifyComboPowerBombCostAlgorithm(readWord);
+        VerifyComboOriginAngleAlgorithm(readWord);
+        VerifyComboMotionAndActivation(rom);
+    }
+
+    private static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
+    {
         for (int beam = 0; beam < 12; beam++)
             AssertEqual(readWord(SamusComboRomData.Costs + beam * 2),
                 SamusComboMechanicsDefinitions.GetPowerBombCost(beam),
                 $"compiled combo Power Bomb cost {beam}");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusComboMechanicsDefinitions.GetPowerBombCost(12),
+            "combo cost rejects a beam index beyond the native table");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusComboMechanicsDefinitions.GetPowerBombCost(-1),
+            "combo cost rejects a negative beam index");
+        Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
+    }
+
+    private static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
+    {
         for (int slot = 0; slot < 4; slot++)
             AssertEqual(readWord(SamusComboRomData.OriginAngles + slot * 2),
                 SamusComboMechanicsDefinitions.GetOriginAngle(slot),
                 $"compiled combo origin angle {slot}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetPowerBombCost(12),
-            "combo cost rejects a beam index beyond the native table");
-        AssertThrows<ArgumentOutOfRangeException>(
             () => SamusComboMechanicsDefinitions.GetOriginAngle(4),
             "combo angle rejects a fifth projectile slot");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusComboMechanicsDefinitions.GetOriginAngle(-1),
+            "combo angle rejects a negative projectile slot");
+        Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
+    }
 
+    private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
+    {
         (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
         {
             ushort Component(int phase)

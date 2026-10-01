@@ -22,8 +22,13 @@
   },
   "implementationCommits": {
     "palette-integer-algorithms": {
+      "sha": "c2f4080d8b347ccd85cc0e8e6b48541e837c9ae8",
       "subject": "Implement exact palette policy algorithms for #1165",
       "resolve": "git log -1 --format=%H --diff-filter=A -- csharp/test-fixtures/lookup-algorithm-review-1165.json"
+    },
+    "phase-integer-algorithms": {
+      "subject": "Implement bounded phase and combo algorithms for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Implement bounded phase and combo algorithms for #1165'"
     }
   },
   "tables": [
@@ -69,6 +74,77 @@
       "proofTest": "VerifyWorkRobotPaletteTimingDefinitions (existing test reused; duration rejection assertions extended)",
       "implementationCommit": "palette-integer-algorithms"
     }
+    ,
+    {
+      "id": "botwoon-phase-speed",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/BotwoonSpeedDefinitions.cs",
+      "nativeIdentity": "$B3:94BB BotwoonSpeedTable.speed (stride four); $B3:9E77 BotwoonSpitSpeeds (stride two)",
+      "consumers": ["RoomEnemySystem.Botwoon initialization, UpdateBotwoonHealthPhase and spit setup", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "byte phase 0..2; two copies of the same unsigned little-endian speed policy",
+      "interpretation": "Native offsets are 4*p for movement and 2*p for spit. Caller retains zero-health phase zero and hidden-phase hold behavior.",
+      "reviewedEvidence": "Read complete NTSC/PAL table branches and native consumers at $B3:95EE,9996,9F04,9F51; compare actual API to all six NTSC cartridge speed words and 3001 production health transitions.",
+      "disposition": "Replace three-record switch with phase+2, shared by movement and spit after bounds validation.",
+      "rationale": "Exact step-one arithmetic progression, no rounding or fitting. PAL movement has a different contract and is not admitted by this NTSC API.",
+      "proofTest": "VerifyBotwoonSpeedAlgorithm (existing test split by logical field)",
+      "implementationCommit": "phase-integer-algorithms"
+    },
+    {
+      "id": "botwoon-body-spacing",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/BotwoonSpeedDefinitions.cs",
+      "nativeIdentity": "$B3:94BD BotwoonSpeedTable.bodyTravelTime (stride four)",
+      "consumers": ["RoomEnemySystem.Botwoon initialization and UpdateBotwoonHealthPhase", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "byte phase 0..2; separately indexed unsigned spacing word",
+      "interpretation": "Body-history spacing selected by the same phase as speed; retain phase rejection and NTSC interpretation.",
+      "reviewedEvidence": "Read all three native NTSC spacings and independent disassembly annotation 0x30/speed. Compare actual API to all three original cartridge words.",
+      "disposition": "Compute 48/(phase+2) after shared bounds validation.",
+      "rationale": "48 is divisible by all supported speeds (2,3,4); integer division expresses exact inverse travel time without rounding or exceptions.",
+      "proofTest": "VerifyBotwoonSpacingAlgorithm (split from existing speed test)",
+      "implementationCommit": "phase-integer-algorithms"
+    },
+    {
+      "id": "sba-power-bomb-cost",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs",
+      "nativeIdentity": "$90:CC21 CostOfSBAsInPowerBombs",
+      "consumers": ["SamusProjectileSystem.Combos.TryActivateCombo", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "int beamIndex 0..11; twelve unsigned little-endian words",
+      "interpretation": "Caller masks equipment to low nibble and rejects 12..15; API takes undoubled index. Zero beam has zero cost. Only the four single-beam selections cost one.",
+      "reviewedEvidence": "Read all twelve native words and FireSBA mask/ASL/subtraction at $90:CCCD..CCDE; compare actual API against complete cartridge table.",
+      "disposition": "Remove cost array; validated nonzero power-of-two predicate returns one, otherwise zero.",
+      "rationale": "Equipment bits establish a semantic single-beam predicate, not an incidental sequence fit. Unsupported combinations remain rejected.",
+      "proofTest": "VerifyComboPowerBombCostAlgorithm (extracted from existing combined verifier)",
+      "implementationCommit": "phase-integer-algorithms"
+    },
+    {
+      "id": "sba-origin-angle",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs",
+      "nativeIdentity": "$90:CD08 IcePlasmaSBAProjectileOriginAngles, first four words",
+      "consumers": ["SamusProjectileSystem.Combos.TryActivateCombo", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "int projectileSlot 0..3; unsigned angles with 256 units per turn",
+      "interpretation": "Native Ice/Plasma loops select byte offsets 6,4,2,0. Caller supplies slots 3,2,1,0. Four adjacent unused diagonal angles do not extend domain.",
+      "reviewedEvidence": "Read native angle region and consumers at $90:CDC8/CEBA; compare actual API to all four reachable original cartridge words.",
+      "disposition": "Remove angle array; return 64*projectileSlot after bounds validation.",
+      "rationale": "Exact quarter-turn spacing in native angular units; no wrap, truncation or interpolation within bounded domain.",
+      "proofTest": "VerifyComboOriginAngleAlgorithm (extracted from existing combined verifier)",
+      "implementationCommit": "phase-integer-algorithms"
+    },
+    {
+      "id": "evir-intro-latency",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/DraygonIntroDanceDefinitions.cs",
+      "nativeIdentity": "$A5:A19F MovementLatencyForEachEvirSpriteObject, first four signed words",
+      "consumers": ["RoomEnemySystem.Draygon intro dance loop", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "int sprite slot 28..31, native byte offsets 0,2,4,6",
+      "interpretation": "Signed little-endian stream-byte latency added with ushort wrap before signed test. First four entries retain native initial 128 inert frames.",
+      "reviewedEvidence": "Read all eight words and $A5:A13E loop (X=0x3E down to 0x38, Y=X-0x38); compare actual API to all four reachable original signed cartridge words.",
+      "disposition": "Remove latency array; return 128*(slot-35) after validating slots.",
+      "rationale": "Exact linear progression in stream-byte units. Following unused words do not extend domain. Packed trajectory is a separate unreviewed logical table.",
+      "proofTest": "VerifyDraygonIntroLatencyDefinitions (existing proof reused)",
+      "implementationCommit": "phase-integer-algorithms"
+    }
   ],
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
@@ -82,9 +158,8 @@
     "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
     "WorkRobotInitializationDefinitions: instruction selection and adjacent-code compatibility entry",
     "ZoaSpeedDefinitions: whole/fraction and unaligned byte views",
-    "BotwoonSpeedDefinitions: movement, segment spacing, spit speed",
-    "DraygonIntroDanceDefinitions",
-    "SamusComboMechanicsDefinitions"
+    "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
+    "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
   ],
   "remainingInventoryReconciliation": [
     "Expand the seed owner list against every historical research module and XML-annotated owner, independently of closed child status.",
@@ -93,5 +168,8 @@
     "Separate expected-output-only fixtures from maintained implementation/reference targets; record exclusion evidence.",
     "Record full native/source identity, consumers and bounded byte/word/overread domains as each logical entry is reconciled."
   ],
-  "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms"
+  "confirmationCommands": [
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms"
+  ]
 }

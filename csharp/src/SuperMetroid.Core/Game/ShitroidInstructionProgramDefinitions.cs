@@ -6,8 +6,8 @@ internal readonly record struct ShitroidInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Tourian Shitroid's finish-draining,
-/// normal, latched, and remorse programs. Their thirty spritemap operands remain
-/// live cartridge presentation data.
+/// normal, latched, and remorse programs. Their thirty spritemap selections resolve
+/// compiled identities to installed artwork.
 /// </summary>
 internal static class ShitroidInstructionProgramDefinitions
 {

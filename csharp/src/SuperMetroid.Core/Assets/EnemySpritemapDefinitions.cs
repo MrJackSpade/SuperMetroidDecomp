@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before audit-identified ordinary environmental/Tourian artwork additions.</summary>
+    internal const int PreAuditOrdinaryVersion = 64;
+    internal const int PreAuditOrdinaryFrameCount = 1339;
     /// <summary>Schema before the friendly-animal compositions; existing edits remain valid.</summary>
     internal const int PreFriendlyAnimalVersion = 63;
     internal const int PreFriendlyAnimalFrameCount = 1257;
@@ -36,7 +39,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 64;
+    internal const int Version = 65;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -693,6 +696,12 @@ internal static class EnemySpritemapDefinitions
         .. MamaTurtleVisualDefinitions.Frames(),
         .. ZeroVisualDefinitions.Frames(),
         .. FriendlyAnimalVisualDefinitions.Frames(),
+        .. HibashiVisualDefinitions.Frames(),
+        .. ZebetiteVisualDefinitions.Frames(),
+        .. WreckedShipGhostVisualDefinitions.Frames(),
+        .. PowampVisualDefinitions.Frames(),
+        .. SparkVisualDefinitions.Frames(),
+        .. ShitroidVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

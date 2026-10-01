@@ -139,3 +139,32 @@ definitions, and 213 still under investigation.
 After this correction: **131 missing identities (254 references), 353 unresolved**.
 Original identity accounting: 133 corrected dependencies, two compiled no-op definitions,
 131 still under investigation. No remaining analysis boundary has been waived.
+
+## Environmental enemies and Tourian baby Metroid — corrected missing dependencies
+
+- **Findings:** 53 ordinary OAM identities across 99 references: Hibashi/fire pillar
+  (23, `A6:9082..9469`), Zebetite barrier health tiers (10, `A6:FE08..FEB0`), Wrecked
+  Ship ghost/Coven (three, `A8:9E46..9E72`), Powamp body/balloon (six, `A8:C675..C698`),
+  Spark activation/active/emitter (eight, `A8:E71F..E79B`), and the Tourian baby Metroid
+  drain/remorse frames (three, `A9:F9A8..FAD8`). Ranges denote selected frame starts.
+- **Cause:** the six actors' compiled instruction catalogs and initializer/main dispatch
+  were present, but their ordinary compositions were omitted from the export manifest.
+  Each therefore reached the existing generic draw path without the selected artwork.
+- **Source evidence:** the pinned bank-$A6/$A8/$A9 sprite/program declarations match
+  the corresponding six `*InstructionProgramDefinitions`. `RoomEnemySystem` dispatches
+  the initializers and mechanics reader to those declarations; Zebetite dynamically
+  selects its declared health-tier program. These are ordinary sprites, not BG2 streams.
+- **Correction:** add dedicated domain-named visual definition catalogs, derive exactly
+  the selected frames using the shared finite declaration builder, append 53 exports,
+  and advance the ordinary schema to 65. Schema-64 and older supported overrides retain
+  edits and inherit all new stock compositions. No combat, timing, AI or movement change.
+- **Confirmation:** six independent production-catalog checks failed before registration
+  at `A6:9082`, `A6:FE08`, `A8:9E46`, `A8:C675`, `A8:E74F`, and `A9:FAD8`. All now
+  confirm each family's exact selected compositions and authored parts, legacy edits,
+  stock inheritance and old-stock rejection. Static audit removes precisely 53 identities
+  and 99 references. No gameplay, ROM, save or parameter-search execution is involved.
+- **Player status:** implementations complete; actual appearance remains player validation.
+
+After this correction: **78 missing identities (155 references), 353 unresolved**.
+Original identity accounting: 186 corrected dependencies, two compiled no-op definitions,
+78 still under investigation. The original unresolved boundaries remain visible.

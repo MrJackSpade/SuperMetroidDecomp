@@ -6,7 +6,7 @@ internal readonly record struct WreckedShipGhostInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Wrecked Ship ghost (native Coven) animation
-/// loop. Its three spritemap operands remain live cartridge presentation data.
+/// loop. Its three spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class WreckedShipGhostInstructionProgramDefinitions
 {

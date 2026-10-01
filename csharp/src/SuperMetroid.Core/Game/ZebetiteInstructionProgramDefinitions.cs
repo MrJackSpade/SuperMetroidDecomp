@@ -15,7 +15,7 @@ internal readonly record struct ZebetiteInstructionProgram(
 
 /// <summary>
 /// Compiled timing and terminal control for every Zebetite health-tier program. The
-/// interleaved spritemap operands remain live cartridge presentation data.
+/// spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class ZebetiteInstructionProgramDefinitions
 {

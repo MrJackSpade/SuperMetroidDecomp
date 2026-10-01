@@ -38,6 +38,11 @@ internal static partial class Program
                 FriendlyAnimalResourceChecks.Run(family);
                 return 0;
             }
+            if (args is ["--ordinary-enemy-resource-check", string enemyFamily])
+            {
+                OrdinaryEnemyResourceChecks.Run(enemyFamily);
+                return 0;
+            }
             string root = Directory.GetCurrentDirectory();
             string? jsonPath = null;
             for (int index = 0; index < args.Length; index++)
@@ -48,7 +53,7 @@ internal static partial class Program
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
-                        "--friendly-animal-resource-check FAMILY");
+                        "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY");
                 }
             }
             root = Path.GetFullPath(root);

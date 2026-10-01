@@ -8,7 +8,7 @@ internal readonly record struct HibashiInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Hibashi's paired graphics and hitbox programs.</summary>
 /// <remarks>
 /// Durations and instruction callbacks are immutable simulation data. The 24 interleaved
-/// spritemap pointers remain live cartridge presentation data.
+/// spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
 internal static class HibashiInstructionProgramDefinitions
 {

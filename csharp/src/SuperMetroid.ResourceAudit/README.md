@@ -100,7 +100,11 @@ dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --frien
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check Dachora
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeEtecoon
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeDachora
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --ordinary-enemy-resource-check Hibashi
 ```
+
+The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, `Spark`,
+or `Shitroid`, each targeting its already identified catalog omission.
 
 These constructed-data checks confirm selected compositions and legacy edit inheritance;
 they do not execute gameplay or search for additional defects. Reconciliation evidence is

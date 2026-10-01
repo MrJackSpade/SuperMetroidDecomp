@@ -6,7 +6,7 @@ internal readonly record struct PowampInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Powamp's body and balloon instruction programs.
-/// The interleaved spritemap operands remain live cartridge presentation data.
+/// Spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class PowampInstructionProgramDefinitions
 {

@@ -6,7 +6,7 @@ internal readonly record struct SparkInstructionMechanicsWord(ushort Address, us
 /// <summary>Compiled mechanics words from Wrecked Ship Spark's four animation programs.</summary>
 /// <remarks>
 /// Callback identities, durations, terminal control, and branch targets are immutable
-/// simulation data. Interleaved spritemap pointers remain live cartridge presentation data.
+/// simulation data. Spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
 internal static class SparkInstructionProgramDefinitions
 {

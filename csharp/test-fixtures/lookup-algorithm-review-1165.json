@@ -48,8 +48,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Shaktool segment selection tables for #1165'"
     },
     "slope-geometry-algorithms": {
+      "sha": "f800f901400cb6d29efaf0235f56ab29d6f3c654",
       "subject": "Replace slope lookup samples with exact geometry for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace slope lookup samples with exact geometry for #1165'"
+    },
+    "owtch-shake-algorithms": {
+      "subject": "Convert Owtch timing and room-shake geometry for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Owtch timing and room-shake geometry for #1165'"
     }
   },
   "tables": [
@@ -196,6 +201,68 @@
       "implementationCommit": "source-index-and-robot-selector"
     }
   ],
+  "owtchShakeReview": {
+    "implementationCommit": "owtch-shake-algorithms",
+    "evidence": "Independent NTSC J/U v1.0 cartridge words (SHA-256 checked by focused command), pinned bank_A2/A0/86.asm definitions and native/current consumer indexing. No gameplay discovery.",
+    "tables": [
+      {
+        "id": "owtch-travel-distance", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/OwtchMovementDefinitions.cs",
+        "nativeIdentity": "$A2:A3DD OwtchConstants_XDistanceRanges",
+        "consumers": ["RoomEnemySystem.Owtch.InitializeOwtch", "LookupTableResearch (reference only)"],
+        "domain": "byte selector 0..7; unsigned little-endian words",
+        "interpretation": "Parameter two high byte selects an undoubled index; native doubles for word lookup and adds/subtracts distance with ushort wrap.",
+        "disposition": "Remove eight-word array; return 16*(index+1) after bounds validation.",
+        "rationale": "Exact constant difference of sixteen covers all eight authored patrol half-widths; no rounding or exceptions.",
+        "proofTest": "VerifyOwtchTravelDistanceAlgorithm, extracted from existing verifier; all original words and invalid bounds"
+      },
+      {
+        "id": "owtch-underground-timer", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/OwtchMovementDefinitions.cs",
+        "nativeIdentity": "$A2:A3ED OwtchConstants_undergroundTimers",
+        "consumers": ["RoomEnemySystem.Owtch.InitializeOwtch", "RoomEnemySystem.Owtch sinking timer reload", "LookupTableResearch (reference only)"],
+        "domain": "byte selector 0..5; unsigned little-endian duration words",
+        "interpretation": "Parameter one high byte selects duration; NTSC !FPS=1. Independent shorter bound than travel distance.",
+        "disposition": "Remove six-word array; return 32*(index+1) after bounds validation.",
+        "rationale": "Pinned assembly explicitly expresses this multiplication series; integer NTSC duration with no rounding. PAL is not admitted by this contract.",
+        "proofTest": "VerifyOwtchUndergroundTimerAlgorithm, extracted from existing verifier; all original words and invalid bounds"
+      },
+      {
+        "id": "room-shake-bg1", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/RoomShakeDefinitions.cs",
+        "nativeIdentity": "$A0:872D BGShakeDisplacements.BG1X/BG1Y at stride eight",
+        "consumers": ["RoomEnemySystem.RoomShaking.HandleRoomShaking", "LookupTableResearch (reference only)"],
+        "domain": "ushort type 0..35; paired signed X/Y words, native positive magnitudes 0..3",
+        "interpretation": "group=type/9, strength=(type/3)%3+1, direction=type%3 (horizontal,vertical,diagonal). Caller retains timer-bit sign alternation and lifetime.",
+        "disposition": "Generate direction vector and enable BG1 except group 3.",
+        "rationale": "Native table annotations and complete words identify Cartesian product of recipient, strength and direction; no fitted curve or input wrapping.",
+        "proofTest": "VerifyRoomShakeBg1Algorithm, all 36 original vectors and bounds"
+      },
+      {
+        "id": "room-shake-bg2", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/RoomShakeDefinitions.cs",
+        "nativeIdentity": "$A0:8731 BGShakeDisplacements.BG2X/BG2Y at stride eight",
+        "consumers": ["RoomEnemySystem.RoomShaking.HandleRoomShaking", "LookupTableResearch (reference only)"],
+        "domain": "ushort type 0..35; paired signed X/Y words, positive magnitudes 0..3",
+        "interpretation": "Same geometric direction/strength policy, separately selected BG2 recipient; sign remains caller-owned.",
+        "disposition": "Generate direction vector and enable BG2 except group 0.",
+        "rationale": "Recipient differs from BG1 despite adjacent storage, so separately reviewed; complete native words support exact shared geometry.",
+        "proofTest": "VerifyRoomShakeBg2Algorithm, all 36 original vectors and bounds"
+      },
+      {
+        "id": "room-shake-projectile", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/RoomShakeDefinitions.cs",
+        "nativeIdentity": "$86:846B Get_Values_for_Screen_Shaking.horizontalX/Y at stride four",
+        "consumers": ["RoomEnemySystem.RoomShaking.GetEnemyProjectileShake", "LookupTableResearch (reference only)"],
+        "domain": "ushort type 0..35; paired signed X/Y words, positive magnitudes 0..3",
+        "interpretation": "Projectile draw receives same geometric vector only in groups 2/3; timer sign and frozen/disabled checks remain caller-owned. Type 36+ rejected by API, ignored by caller.",
+        "disposition": "Generate direction vector and enable projectile displacement for group>=2.",
+        "rationale": "Original table explicitly separates two zero-recipient groups from two moving groups. Preserve exact type bound before modulo, without aliases or overreads.",
+        "proofTest": "VerifyRoomShakeProjectileAlgorithm, all 36 original vectors and bounds"
+      }
+    ],
+    "integrationConfirmation": "Existing aggregate verifiers retain 144 wrapped Owtch initializers and 144 background/projectile phase selections, freezing and non-rendered bypass checks with source-table reads forbidden. These confirm this identified conversion."
+  },
   "slopeReview": {
     "implementationCommit": "slope-geometry-algorithms",
     "tables": [
@@ -331,6 +398,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms"
   ]
 }

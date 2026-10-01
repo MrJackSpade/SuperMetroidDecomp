@@ -1,58 +1,41 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Compiled patrol and underground-wait definitions for Owtch.</summary>
+/// <summary>Compiled NTSC patrol and underground-wait rules for Owtch.</summary>
 internal static class OwtchMovementDefinitions
 {
-    /// <summary>$A2:A3DD, OwtchData.XDistanceRanges: eight patrol half-widths.</summary>
-    /// <remarks>Issues #625 and #947 exact arithmetic progression: distance=16*(i+1), i=0..7.
-    /// LookupTableResearch checks every word against NTSC J/U v1.0 ROM, pinned assembly,
-    /// and this compiled table. Keep the eight-entry bound; runtime replacement is deferred.</remarks>
-    private static ReadOnlySpan<ushort> TravelDistances =>
-    [
-        0x0010,
-        0x0020,
-        0x0030,
-        0x0040,
-        0x0050,
-        0x0060,
-        0x0070,
-        0x0080,
-    ];
+    /// <summary>$A2:A3DD OwtchConstants_XDistanceRanges, eight unsigned patrol half-widths.</summary>
+    internal const int DistanceReferenceAddress = 0xa2a3dd;
+    /// <summary>$A2:A3ED OwtchConstants_undergroundTimers, six unsigned burial durations.</summary>
+    internal const int TimerReferenceAddress = 0xa2a3ed;
 
-    /// <summary>$A2:A3ED, OwtchData.undergroundTimers: six burial durations.</summary>
-    /// <remarks>Issues #625 and #948 exact NTSC arithmetic progression: duration=32*(i+1), i=0..5.
-    /// Pinned assembly expresses this directly using !FPS=1; do not apply it unchanged to PAL.
-    /// All six ROM/assembly/compiled words are exhaustively checked by LookupTableResearch.
-    /// This domain is shorter than the travel-distance domain; preserve its independent bound.</remarks>
-    private static ReadOnlySpan<ushort> UndergroundTimers =>
-    [
-        0x0020,
-        0x0040,
-        0x0060,
-        0x0080,
-        0x00a0,
-        0x00c0,
-    ];
-
+    /// <summary>Returns 16*(index+1) for patrol selector 0..7.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against all eight NTSC J/U v1.0 words and
+    /// pinned bank_A2.asm. The high byte of parameter two selects an undoubled index;
+    /// native doubles it for word access, then adds/subtracts the distance with word
+    /// wrap. Only definition selection changes here; callers retain that wrapping.
+    /// </remarks>
     internal static ushort TravelDistance(byte index)
     {
-        if (index >= TravelDistances.Length)
-        {
+        if (index >= 8)
             throw new InvalidDataException(
                 $"Owtch travel-distance index {index} is outside the eight authored values.");
-        }
-
-        return TravelDistances[index];
+        return (ushort)(16 * (index + 1));
     }
 
+    /// <summary>Returns 32*(index+1) for NTSC burial selector 0..5.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against all six NTSC J/U v1.0 words and
+    /// pinned bank_A2.asm, whose !FPS=1 definitions explicitly multiply this sequence.
+    /// Parameter one's high byte selects the index, also used when reloading after
+    /// sinking. Keep its shorter six-entry bound independent of the patrol domain;
+    /// this is not the PAL timer contract and no input clamping is permitted.
+    /// </remarks>
     internal static ushort UndergroundTimer(byte index)
     {
-        if (index >= UndergroundTimers.Length)
-        {
+        if (index >= 6)
             throw new InvalidDataException(
                 $"Owtch underground-timer index {index} is outside the six authored values.");
-        }
-
-        return UndergroundTimers[index];
+        return (ushort)(32 * (index + 1));
     }
 }

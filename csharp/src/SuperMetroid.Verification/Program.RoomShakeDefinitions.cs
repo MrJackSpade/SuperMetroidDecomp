@@ -6,12 +6,10 @@ internal static partial class Program
 {
     private static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int backgroundAddress = 0xa0872d;
-        const int projectileAddress = 0x86846b;
+        VerifyRoomShakeBg1Algorithm(rom);
+        VerifyRoomShakeBg2Algorithm(rom);
+        VerifyRoomShakeProjectileAlgorithm(rom);
         const ushort renderedTypeCount = 36;
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
         var guarded = new RoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem();
@@ -24,22 +22,6 @@ internal static partial class Program
         for (ushort type = 0; type < renderedTypeCount; type++)
         {
             RoomShakeDefinition definition = RoomShakeDefinitions.ForType(type);
-            int backgroundRow = backgroundAddress + type * 8;
-            int projectileRow = projectileAddress + type * 4;
-
-            AssertEqual(unchecked((short)ReadWord(rom, backgroundRow)), definition.Bg1X,
-                $"room shake type {type} BG1 X");
-            AssertEqual(unchecked((short)ReadWord(rom, backgroundRow + 2)), definition.Bg1Y,
-                $"room shake type {type} BG1 Y");
-            AssertEqual(unchecked((short)ReadWord(rom, backgroundRow + 4)), definition.Bg2X,
-                $"room shake type {type} BG2 X");
-            AssertEqual(unchecked((short)ReadWord(rom, backgroundRow + 6)), definition.Bg2Y,
-                $"room shake type {type} BG2 Y");
-            AssertEqual(unchecked((short)ReadWord(rom, projectileRow)), definition.ProjectileX,
-                $"room shake type {type} projectile X");
-            AssertEqual(unchecked((short)ReadWord(rom, projectileRow + 2)), definition.ProjectileY,
-                $"room shake type {type} projectile Y");
-
             enemies.EarthquakeType = type;
             enemies.EarthquakeTimer = 1;
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
@@ -108,6 +90,29 @@ internal static partial class Program
 
         Console.WriteLine(
             "Room shake definitions: all 216 native words and 144 real background/projectile phase selections pass with both source tables forbidden.");
+    }
+
+    private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
+        VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
+            definition => (definition.Bg1X, definition.Bg1Y), "BG1");
+
+    private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
+        VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
+            definition => (definition.Bg2X, definition.Bg2Y), "BG2");
+
+    private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
+        VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
+            definition => (definition.ProjectileX, definition.ProjectileY), "projectile");
+
+    private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
+        Func<RoomShakeDefinition, (short X, short Y)> select, string label)
+    {
+        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        for (ushort type = 0; type < 36; type++)
+            AssertEqual((Word(source + type * stride), Word(source + type * stride + 2)),
+                select(RoomShakeDefinitions.ForType(type)), $"Original shake {label} vector {type}");
+        AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(36)), $"Shake {label} upper bound");
+        AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
     }
 
     private sealed class RoomShakeReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

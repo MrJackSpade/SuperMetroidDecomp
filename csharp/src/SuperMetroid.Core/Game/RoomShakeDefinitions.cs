@@ -2,84 +2,41 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>One cartridge earthquake type's background and enemy-projectile displacement.</summary>
 internal readonly record struct RoomShakeDefinition(
-    short Bg1X,
-    short Bg1Y,
-    short Bg2X,
-    short Bg2Y,
-    short ProjectileX,
-    short ProjectileY);
+    short Bg1X, short Bg1Y, short Bg2X, short Bg2Y, short ProjectileX, short ProjectileY);
 
-/// <summary>
-/// The 36 earthquake definitions paired across <c>$A0:872D-$A0:884C</c> and
-/// <c>$86:846B-$86:84FA</c>.
-/// </summary>
+/// <summary>Exact bounded geometry and recipient policy for the 36 rendered earthquake types.</summary>
 internal static class RoomShakeDefinitions
 {
-    /// <summary>Background and projectile displacement pairs for all 36 rendered earthquake types.</summary>
+    /// <summary>$A0:872D BGShakeDisplacements.BG1X/BG1Y, at eight-byte record stride.</summary>
+    internal const int Bg1ReferenceAddress = 0xa0872d;
+    /// <summary>$A0:8731 BGShakeDisplacements.BG2X/BG2Y, at eight-byte record stride.</summary>
+    internal const int Bg2ReferenceAddress = 0xa08731;
+    /// <summary>$86:846B Get_Values_for_Screen_Shaking.horizontalX/Y, at four-byte stride.</summary>
+    internal const int ProjectileReferenceAddress = 0x86846b;
+
+    /// <summary>Returns the physical displacement record for earthquake type 0..35.</summary>
     /// <remarks>
-    /// Issues #625 and #941 exact factorization: for type t=0..35,
-    /// group=t/9, magnitude=(t/3)%3+1,
-    /// direction=t%3; X is zero only for direction 1, Y only for direction 0,
-    /// and each nonzero component equals magnitude. Enable this pair for BG1 when
-    /// group!=3, BG2 when group!=0, and projectiles when group&gt;=2; otherwise use (0,0).
-    /// All divisions are integer. This is a Cartesian product of four recipient groups,
-    /// three strengths, and three directions, not 36 independently tuned shakes.
-    /// LookupTableResearch checks all 216 words against both pinned assembly tables,
-    /// NTSC J/U v1.0 ROM, and these compiled records. No rounding or entry patches are needed.
-    /// Keep t bounded and preserve caller-controlled sign alternation; runtime migration is deferred.
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A0/86.asm.
+    /// Type encodes group=type/9, magnitude=(type/3)%3+1 and direction=type%3:
+    /// horizontal, vertical, diagonal. BG1 is enabled except group 3; BG2 except group 0;
+    /// projectiles only in groups 2/3. All 216 original words follow this Cartesian
+    /// product exactly. The three recipient vectors have separate complete-domain proofs.
+    /// Validate before division/modulo; types 36+ remain caller-owned non-rendered effects.
+    /// Timer-controlled sign alternation, freezing and lifetime updates remain in callers.
     /// </remarks>
-    private static readonly RoomShakeDefinition[] Definitions =
-    [
-        new(1, 0, 0, 0, 0, 0),
-        new(0, 1, 0, 0, 0, 0),
-        new(1, 1, 0, 0, 0, 0),
-        new(2, 0, 0, 0, 0, 0),
-        new(0, 2, 0, 0, 0, 0),
-        new(2, 2, 0, 0, 0, 0),
-        new(3, 0, 0, 0, 0, 0),
-        new(0, 3, 0, 0, 0, 0),
-        new(3, 3, 0, 0, 0, 0),
-
-        new(1, 0, 1, 0, 0, 0),
-        new(0, 1, 0, 1, 0, 0),
-        new(1, 1, 1, 1, 0, 0),
-        new(2, 0, 2, 0, 0, 0),
-        new(0, 2, 0, 2, 0, 0),
-        new(2, 2, 2, 2, 0, 0),
-        new(3, 0, 3, 0, 0, 0),
-        new(0, 3, 0, 3, 0, 0),
-        new(3, 3, 3, 3, 0, 0),
-
-        new(1, 0, 1, 0, 1, 0),
-        new(0, 1, 0, 1, 0, 1),
-        new(1, 1, 1, 1, 1, 1),
-        new(2, 0, 2, 0, 2, 0),
-        new(0, 2, 0, 2, 0, 2),
-        new(2, 2, 2, 2, 2, 2),
-        new(3, 0, 3, 0, 3, 0),
-        new(0, 3, 0, 3, 0, 3),
-        new(3, 3, 3, 3, 3, 3),
-
-        new(0, 0, 1, 0, 1, 0),
-        new(0, 0, 0, 1, 0, 1),
-        new(0, 0, 1, 1, 1, 1),
-        new(0, 0, 2, 0, 2, 0),
-        new(0, 0, 0, 2, 0, 2),
-        new(0, 0, 2, 2, 2, 2),
-        new(0, 0, 3, 0, 3, 0),
-        new(0, 0, 0, 3, 0, 3),
-        new(0, 0, 3, 3, 3, 3),
-    ];
-
-    /// <summary>Returns the physical displacement record for an authored earthquake type.</summary>
     internal static RoomShakeDefinition ForType(ushort earthquakeType)
     {
-        if (earthquakeType >= Definitions.Length)
-        {
+        if (earthquakeType >= 36)
             throw new InvalidDataException(
                 $"Earthquake type ${earthquakeType:X4} exceeds the 36 rendered definitions.");
-        }
-
-        return Definitions[earthquakeType];
+        int group = earthquakeType / 9;
+        short magnitude = (short)(earthquakeType / 3 % 3 + 1);
+        int direction = earthquakeType % 3;
+        short x = direction == 1 ? (short)0 : magnitude;
+        short y = direction == 0 ? (short)0 : magnitude;
+        return new(
+            group == 3 ? (short)0 : x, group == 3 ? (short)0 : y,
+            group == 0 ? (short)0 : x, group == 0 ? (short)0 : y,
+            group < 2 ? (short)0 : x, group < 2 ? (short)0 : y);
     }
 }

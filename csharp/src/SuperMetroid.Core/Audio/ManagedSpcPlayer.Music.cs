@@ -627,9 +627,8 @@ public sealed partial class ManagedSpcPlayer
                         noteCommand = ram[channel.PatternOrderPointer++];
                         if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
                         {
-                            channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentages[
-                                (noteCommand >> 4) & 7];
-                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolumes[noteCommand & 0x0f]; // allow(BitMask): volume nibble
+                            channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentage((noteCommand >> 4) & 7);
+                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // allow(BitMask): volume nibble
                             noteCommand = ram[channel.PatternOrderPointer++];
                         }
                     }

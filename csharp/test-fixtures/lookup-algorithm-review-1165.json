@@ -83,8 +83,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Reconcile running cadence algorithms and alias proofs for #1165'"
     },
     "window-curve-review": {
+      "sha": "6ce1d085483cdfad2c4cd68dd4203c1c91144051",
       "subject": "Record independent window-curve retain decisions for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Record independent window-curve retain decisions for #1165'"
+    },
+    "spc-note-percentages": {
+      "subject": "Convert SPC note volume and gate percentages for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     }
   },
   "tables": [
@@ -650,6 +655,33 @@
     "newConversions": 0,
     "confirmationScope": "Reuse existing original-data checks only. No broad rendering matrix, gameplay sweep or curve-fitting search. Runtime storage and behavior unchanged."
   },
+  "spcNotePercentageReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+    "implementationCommit": "spc-note-percentages",
+    "reviewedEvidence": "Independently read all kNoteVol/kNoteGateOffPct values and decoder in upstream-sm/src/spc_player.c at commit578f90b3cc49557bb70060ad033bb90b8cf8ac50. Compare every production result to original uploaded-driver bytes in the recorded NTSC ROM. Read ManagedSpcPlayer.Music note-command masks and subsequent volume/gate multiplication. Research Q16 recipe is a compatible hypothesis, not original-authoring proof.",
+    "consumers": ["ManagedSpcPlayer.Music note decoder", "LookupTableResearch.Program.Audio historical comparison, migrated to bounded functions"],
+    "tables": [
+      {
+        "id": "spc-note-volume-percentages", "state": "converted",
+        "nativeIdentity": "$CF:80F4 kNoteVol, sixteen uploaded-driver bytes",
+        "domain": "int selector0..15 from noteCommand&15; other indices preserve IndexOutOfRangeException. Note command high bit must be clear before caller selection.",
+        "interpretation": "Unsigned byte volume fraction, applied by later multiplication and right-shift8. No interpolation or overread.",
+        "disposition": "p=10*(i+1) for i<4, p=5*(i+5) for4..14, p=99 at15; return (255*p-1)/100.",
+        "rationale": "Two authored percentage intervals and explicit99% endpoint explain all values. Lower-side quantization agrees with truncating2.55 to Q16 before multiplication; ordinary floor(255*p/100) differs at exact boundaries. This small deterministic integer rule is clearer than16 stored samples and adds no per-entry corrections.",
+        "proofTest": "VerifySpcNoteVolumeAlgorithm"
+      },
+      {
+        "id": "spc-note-gate-percentages", "state": "converted",
+        "nativeIdentity": "$CF:80EC kNoteGateOffPct, eight uploaded-driver bytes",
+        "domain": "int selector0..7 from (noteCommand>>4)&7; other indices preserve IndexOutOfRangeException.",
+        "interpretation": "Unsigned gate fraction; gateTicks=noteTicks*fraction>>8 after selecting this byte. Preserve separate quantization before multiplication.",
+        "disposition": "p=20*(i+1) for i<2, p=10*(i+3) for2..6, p=99 at7; return (255*p-1)/100.",
+        "rationale": "Regular percentage policy shares exact lower-side quantization with volume. Terminal252 is preserved instead of replacing it with full-scale255. No floating-point behavior or output fitting needed.",
+        "proofTest": "VerifySpcNoteGateAlgorithm"
+      }
+    ],
+    "confirmationScope": "Two named original-ROM proofs cover every timing-command byte0..127, all24 physical values and invalid bounds. Source/compiler checks migrate all old array references; historical research target builds without running its broad suite."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "ShaktoolOrbitTables",
@@ -676,6 +708,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages"
   ]
 }

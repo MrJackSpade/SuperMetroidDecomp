@@ -56,37 +56,40 @@ internal static class SpcMusicTables
     internal static readonly ushort[] BaseNoteFrequencies =
         [2143, 2270, 2405, 2548, 2700, 2860, 3030, 3211, 3402, 3604, 3818, 4045, 4286];
 
-    /// <summary>Sixteen authored note-volume percentage selections, encoded as byte fractions.</summary>
-    /// <remarks>
-    /// Issues #625 and #919 exact recipe: for index i=0..15 choose p=10*(i+1) for i&lt;4,
-    /// p=5*(i+5) for 4..14, and p=99 for i=15. Then return (255*p-1)/100
-    /// using integer division. This lower-side quantization is also reproduced by
-    /// truncating 255/100 to Q16 BEFORE multiplying: ((255*65536/100)*p)&gt;&gt;16.
-    /// The two recipes agree for every integer percentage 1..100. Ordinary
-    /// floor(255*p/100) is one too high at 20/40/60/80 percent. Thus finite
-    /// intermediate precision explains the discrepancies without individual sample
-    /// exceptions; Q16 is a verified model, not an identification of the authoring
-    /// hardware. LookupTableResearch checks all 16 values against kNoteVol in
-    /// pinned spc_player.c, NTSC ROM $CF:80F4, and this array, plus the entire
-    /// percentage domain. Keep the authored 99-percent endpoint and input bounds.
-    /// Runtime migration and performance checks are deferred.
-    /// </remarks>
-    internal static readonly byte[] NoteVolumes =
-        [25, 50, 76, 101, 114, 127, 140, 152, 165, 178, 191, 203, 216, 229, 242, 252];
+    /// <summary>$CF:80F4 uploaded driver kNoteVol, sixteen unsigned volume fractions.</summary>
+    internal const int NoteVolumeReferenceAddress = 0xcf80f4;
+    /// <summary>$CF:80EC uploaded driver kNoteGateOffPct, eight unsigned gate fractions.</summary>
+    internal const int NoteGateReferenceAddress = 0xcf80ec;
 
-    /// <summary>Eight authored gate-length percentage selections, encoded as byte fractions.</summary>
+    /// <summary>Returns the exact volume byte for note-command low nibble 0..15.</summary>
     /// <remarks>
-    /// Issues #625 and #920 exact recipe: validate i=0..7; p=20*(i+1) for i&lt;2,
-    /// p=10*(i+3) for 2..6, and p=99 for i=7. Return (255*p-1)/100.
-    /// The same Q16-before-multiply model described on NoteVolumes reproduces
-    /// all eight values, including the one-unit lower exact-multiple boundaries.
-    /// LookupTableResearch checks kNoteGateOffPct in pinned spc_player.c, NTSC
-    /// ROM $CF:80EC and this array. Do not replace the terminal 252 with 255 or
-    /// move the note-length multiplication before percentage quantization.
+    /// Independently reviewed for #1165 against every NTSC J/U v1.0 byte, pinned
+    /// spc_player.c kNoteVol, and the decoder/scaling consumers. Percentages are
+    /// 10,20,30,40 then 45..95 by fives, ending at99. Quantize with (255*p-1)/100:
+    /// exact multiples round from below, consistent with truncating 2.55 to Q16
+    /// before multiplication. That explains the values without asserting the historical
+    /// generator. Preserve byte quantization before subsequent channel-volume scaling.
     /// </remarks>
-    internal static readonly byte[] NoteGateOffPercentages =
-        [50, 101, 127, 152, 178, 203, 229, 252];
+    internal static byte NoteVolume(int index)
+    {
+        if ((uint)index >= 16) throw new IndexOutOfRangeException();
+        int percentage = index < 4 ? 10 * (index + 1) : index == 15 ? 99 : 5 * (index + 5);
+        return (byte)((255 * percentage - 1) / 100);
+    }
 
+    /// <summary>Returns the exact gate byte for note-command bits4..6, index0..7.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against every NTSC byte and pinned kNoteGateOffPct.
+    /// Percentages are20,40 then50..90 by tens, ending at99; use the same lower-side
+    /// (255*p-1)/100 quantization as NoteVolume. Decoder masking is caller-owned.
+    /// Keep the terminal252 and multiply by note ticks only after this quantization.
+    /// </remarks>
+    internal static byte NoteGateOffPercentage(int index)
+    {
+        if ((uint)index >= 8) throw new IndexOutOfRangeException();
+        int percentage = index < 2 ? 20 * (index + 1) : index == 7 ? 99 : 10 * (index + 3);
+        return (byte)((255 * percentage - 1) / 100);
+    }
     static SpcMusicTables()
     {
         if (EffectByteLengths.Length != 31 || BaseNoteFrequencies.Length != 13)

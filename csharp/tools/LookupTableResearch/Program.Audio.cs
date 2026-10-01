@@ -20,12 +20,12 @@ internal static partial class Program
         }
         for (int i = 0; i < volumes.Length; i++)
         {
-            Equal(volumes[i], (int)SpcMusicTables.NoteVolumes[i], $"compiled note volume {i}");
+            Equal(volumes[i], (int)SpcMusicTables.NoteVolume(i), $"compiled note volume {i}");
             Equal(volumes[i], NoteVolume(i), $"quantized note volume {i}");
         }
         for (int i = 0; i < gates.Length; i++)
         {
-            Equal(gates[i], (int)SpcMusicTables.NoteGateOffPercentages[i], $"compiled gate {i}");
+            Equal(gates[i], (int)SpcMusicTables.NoteGateOffPercentage(i), $"compiled gate {i}");
             Equal(gates[i], NoteGate(i), $"quantized gate {i}");
         }
         for (int i = 0; i < rates.Length; i++)

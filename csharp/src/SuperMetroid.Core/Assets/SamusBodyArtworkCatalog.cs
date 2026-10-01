@@ -99,8 +99,9 @@ public sealed partial class SamusBodyArtworkCatalog
         DeathPalettes = deathPalettes;
         DeathTiles = deathTiles;
         ArmCannon = armCannon;
-        this.top = CloneAndValidate(topPointers, top);
-        this.bottom = CloneAndValidate(bottomPointers, bottom);
+        this.top = CloneAndValidate(this.topPointers, top);
+        this.bottom = CloneAndValidate(this.bottomPointers, bottom);
+        SamusBodyDefinitionLayout.ValidateCompleteGroups(this.topPointers, this.bottomPointers, this.top, this.bottom);
         IndexDefinitions(true, this.top);
         IndexDefinitions(false, this.bottom);
         foreach (ushort pointer in this.posePointers)
@@ -165,7 +166,7 @@ public sealed partial class SamusBodyArtworkCatalog
             throw new InvalidDataException($"Samus frame ${address:X4} is outside extracted visual selectors.");
         SamusBodyFrameSelection frame = frames[(address - FirstFrameOffset) / 4];
         GetDefinition(true, frame.TopSet, frame.TopPosition);
-        if (frame.BottomSet != 0xFF)
+        if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
             GetDefinition(false, frame.BottomSet, frame.BottomPosition);
         return frame;
     }
@@ -179,14 +180,16 @@ public sealed partial class SamusBodyArtworkCatalog
         // The native selector adds position*7 to the chosen set pointer without a
         // per-set bounds check. Several authored frames intentionally land in the
         // next definition group; resolve the physical address, not a C# jagged index.
-        int address = 0x920000 | unchecked((ushort)(pointers[set] + position * 7));
+        int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(pointers[set] +
+            position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
         return DefinitionAt(upperHalf, address);
     }
 
     public int DefinitionAddress(bool upperHalf, byte set, byte position)
     {
         _ = GetDefinition(upperHalf, set, position);
-        return 0x920000 | unchecked((ushort)((upperHalf ? topPointers : bottomPointers)[set] + position * 7));
+        return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)((upperHalf ? topPointers : bottomPointers)[set] +
+            position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
     }
 
     /// <summary>Resolve a saved native definition pointer after a debugger-state rebind.</summary>
@@ -203,7 +206,8 @@ public sealed partial class SamusBodyArtworkCatalog
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
         {
-            int address = 0x920000 | unchecked((ushort)(pointers[set] + position * 7));
+            int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(pointers[set] +
+                position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
             if (!definitionsByAddress.TryAdd(address, groups[set][position]))
                 throw new InvalidDataException($"Samus body definition ${address:X6} is duplicated.");
         }
@@ -218,7 +222,7 @@ public sealed partial class SamusBodyArtworkCatalog
             SamusBodyTileDefinition[] source = groups[set] ??
                 throw new InvalidDataException($"Samus body definition set {set} is missing.");
             result[set] = (SamusBodyTileDefinition[])source.Clone();
-            if (source.Length == 0 || pointers[set] < 0x8000)
+            if (source.Length == 0 || pointers[set] < SamusBodyDefinitionLayout.MinimumSetOffset)
                 throw new InvalidDataException($"Samus body definition set {set} is malformed.");
             foreach (SamusBodyTileDefinition definition in source)
             {

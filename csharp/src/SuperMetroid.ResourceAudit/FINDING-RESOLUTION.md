@@ -861,6 +861,36 @@ remain explicitly failing findings, not silently waived or treated as proven res
   caller inputs, optional boss attachments, destinations, timing and pixels are
   not certified. #1156 remains active.
 
+## Samus physical body-transfer records - five further boundaries accounted
+
+- **Findings/cause:** five Frame/DefinitionAddress/DefinitionAt consumer sites had
+  no availability proof. Inspection also found that public construction admitted
+  a nonempty group missing physical records required by the importer's geometry.
+  A constructed incomplete first group reproduced that admission failure before
+  the production fix.
+- **Fix/classification:** share the native exclusive-end definition in a domain
+  catalog and require each cloned group to contain exactly the records between
+  its sorted start and the next start/end. Preserve native cross-group and
+  cross-half position arithmetic. Add a separately source-guarded valid-domain
+  transfer rule, including the producer that stores validated definition identities;
+  known invalid pose/set/address constants remain findings. Do not validate all
+  backing words as frame records: unused overrun bytes may remain non-selectable.
+- **Confirmation:** the formerly accepted missing record is rejected. Constructed
+  complete data confirms published-frame lookup and both cross-group and cross-half
+  identity resolution. An invalid adjacent backing word is admitted until selected,
+  then fails loudly. Eight source calls first expose absent adapters; four qualify,
+  four invalid constants remain findings, and changed admission or an unreviewed
+  provider partial revokes closure. Audit self-checks and Audit, Verification and
+  Windows Desktop Release builds pass. No ROM, saves, installed artwork, rendering
+  or gameplay was opened.
+- **Accounting:** **351 of the original 353 boundaries** are accounted, leaving
+  **2 unresolved**, zero missing, all 352 consumers retained. JSON records 350
+  guarded sites (349 original gaps plus the previously resolved native-blank site);
+  two original metadata corrections supply the remaining accounted boundaries.
+  The remaining work is two interface-dispatch boundaries. Arbitrary counters,
+  invalid edited selectors, incompatible saved pointers, host binding, timing and
+  pixels are not certified. #1156 remains active.
+
 ## Enemy projectile compositions - four further boundaries accounted
 
 - **Findings/cause:** four dynamic direct/program-frame lookups lacked a loader

@@ -40,10 +40,13 @@ internal static partial class Program
 
     private static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
     {
+        int firstPointer = SamusBodyDefinitionLayout.EndOffset -
+            (SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount) *
+                SamusRenderingRomData.TileTransfers.DefinitionByteCount;
         ushort[] topPointers = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount)
-            .Select(index => (ushort)(0xa000 + index * 7)).ToArray();
-        ushort[] bottomPointers = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount)
-            .Select(index => (ushort)(0xb000 + index * 7)).ToArray();
+            .Select(index => (ushort)(firstPointer + index * SamusRenderingRomData.TileTransfers.DefinitionByteCount)).ToArray();
+        ushort[] bottomPointers = Enumerable.Range(SamusBodyArtworkCatalog.TopSetCount, SamusBodyArtworkCatalog.BottomSetCount)
+            .Select(index => (ushort)(firstPointer + index * SamusRenderingRomData.TileTransfers.DefinitionByteCount)).ToArray();
         ushort[] poses = Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset,
             SamusBodyArtworkCatalog.PoseCount).ToArray();
         if (edit == "pose-pointer") poses[0] += 4;

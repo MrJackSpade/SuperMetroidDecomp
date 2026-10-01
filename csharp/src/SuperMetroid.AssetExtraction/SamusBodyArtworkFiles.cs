@@ -19,7 +19,6 @@ public static class SamusBodyArtworkFiles
     private const int FormatVersion = 4;
     private const int TileWidth = 64;
     private const int DefinitionHeight = 16;
-    private const int DefinitionEndExclusive = 0xD7D3;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -150,7 +149,7 @@ public static class SamusBodyArtworkFiles
         {
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
-            int end = order + 1 == sortedPointers.Length ? DefinitionEndExclusive : sortedPointers[order + 1];
+            int end = order + 1 == sortedPointers.Length ? SamusBodyDefinitionLayout.EndOffset : sortedPointers[order + 1];
             if (start < 0x8000 || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;

@@ -700,3 +700,30 @@ admission revokes both artwork rules; added ordinary metadata revokes only its
 rule, leaving the independent extended rule intact. Existing projection checks
 still pass. Audit Release build and auditor checks pass; no production gameplay,
 ROM, save, installed art or enemy simulation was used.
+
+## Samus body physical transfer records - five additional original boundaries
+
+Construction previously accepted incomplete nonempty definition groups. A focused
+authored fixture reproduced that admission gap before the change. Admission now
+requires the exact physical record count implied by sorted top/bottom starts and
+the importer's fixed exclusive end. Pointer/frame/group inputs are cloned, and an
+independent address dictionary retains the admitted records. Native positions may
+cross into the next group or half; no invented per-set position bound is added.
+
+Frame validates selected top/optional bottom definitions before publishing the
+selector. DefinitionAddress validates and returns that same physical identity;
+the reviewed producer stores those identities for DefinitionAt. A separate
+source-guarded rule accounts for availability within that admitted domain.
+Known bad pose, half/set and outside-storage address constants remain findings.
+The backing interval deliberately admits unselected non-frame words, while
+selection of an invalid word still throws. Arbitrary animation counters, invalid
+edited selectors, incompatible saved pointers, host binding, timing and pixels
+are not certified.
+
+Constructed records confirm incomplete-group rejection, published-frame identity,
+cross-group/cross-half resolution and select-time rejection. Eight source calls
+first expose absent adapters; four qualify, four invalid constants remain, and
+changed geometry admission or a new provider partial revokes the rule. Existing
+placement/composition rules retain their independent scope after shared-source
+re-review. Audit self-checks and Audit, Verification and Windows Desktop builds
+pass; no ROM, saves, installed art, renderer or gameplay was opened.

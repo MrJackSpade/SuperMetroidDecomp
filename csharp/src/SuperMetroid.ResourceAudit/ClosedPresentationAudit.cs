@@ -175,6 +175,7 @@ internal sealed class ClosedPresentationAudit
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
             ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
+            ?? SamusBodyTransferDomainAudit.InvalidConstants(operation)
             ?? ClosedTransferDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {

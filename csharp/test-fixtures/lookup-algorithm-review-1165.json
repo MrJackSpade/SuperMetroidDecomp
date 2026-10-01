@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "dsp-rate-algorithm": {
+      "subject": "Replace DSP rate lookup with exact periods for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace DSP rate lookup with exact periods for #1165'"
+    },
     "spc-effect-selection": {
       "subject": "Replace SPC effect operand table with named cases for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace SPC effect operand table with named cases for #1165'"
@@ -701,6 +705,20 @@
     "proofTest": "VerifySpcEffectOperandSelection",
     "confirmationScope": "One complete original-ROM mapping proof and invalid bounds; source/compiler review confirms identical caller indexing, guards and argument consumption. No song sweep or unrelated audio testing."
   },
+  "dspRateReview": {
+    "id": "dsp-envelope-noise-periods", "state": "converted",
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
+    "implementationCommit": "dsp-rate-algorithm",
+    "nativeIdentity": "rateValues[32] in upstream-sm/src/snes/dsp.c at578f90b3cc49557bb70060ad033bb90b8cf8ac50; hardware constants, no cartridge address",
+    "reviewedEvidence": "Read the complete original initializer and all five native register-write consumers; independently compare every selector. Historical formula treated as a hypothesis until checked against original data and current consumers.",
+    "consumers": ["ManagedSnesDsp register writes: attack, decay, sustain, gain and noise", "LookupTableResearch.Program.Audio historical comparison"],
+    "domain": "int selector0..31 inclusive; invalid selectors preserve IndexOutOfRangeException. Attack uses odd1..31, decay even16..30, sustain/gain/noise all five-bit values. No overread or interpolation.",
+    "interpretation": "Unsigned sample-cycle period. Zero disables updates;31 selects every sample. Phase/admission logic remains in consumers.",
+    "disposition": "Remove32-word array; compute repeating8:6:5 ratios shifted left8 then right by(selector-1)/3, with explicit zero and31 endpoints.",
+    "rationale": "Small exact integer divider progression is clearer than stored periods. Right shift preserves final5/2 truncation; no floating point, fitted coefficients or per-entry corrections. Mathematical identity does not assert undocumented hardware circuit provenance.",
+    "proofTest": "VerifyDspRateAlgorithm",
+    "confirmationScope": "One proof reads original pinned C initializer and compares all32 production outputs plus adjacent/extreme invalid bounds. Build verification and historical research consumers; no gameplay or audio sweep."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "ShaktoolOrbitTables",
@@ -729,6 +747,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm"
   ]
 }

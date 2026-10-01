@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-dsp-rate-algorithm"])
+{
+    VerifyDspRateAlgorithm();
+    Console.WriteLine("DSP rates: all 32 original hardware periods and invalid bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-spc-effect-selection"])
 {
     var effectOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

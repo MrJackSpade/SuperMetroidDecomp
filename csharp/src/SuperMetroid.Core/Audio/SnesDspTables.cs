@@ -9,8 +9,6 @@ internal static class SnesDspTables
 {
     static SnesDspTables()
     {
-        if (RateValues.Length != 32)
-            throw new InvalidDataException($"S-DSP rate table has {RateValues.Length} entries, expected 32.");
         if (GaussianValues.Length != 512)
             throw new InvalidDataException($"S-DSP Gaussian table has {GaussianValues.Length} entries, expected 512.");
     }
@@ -20,25 +18,21 @@ internal static class SnesDspTables
     /// hardware rate selector. Selector zero disables the corresponding timer.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #921 exact counter-period formula: validate selector i=0..31;
-    /// return 0 for disabled i=0 and 1 for the every-sample i=31 endpoint.
-    /// Otherwise g=(i-1)/3 and r=(i-1)%3, and period=((8-2*r+r/2)*256)&gt;&gt;g.
-    /// Integer r/2 produces the repeating 8:6:5 counter ratios, halved each
-    /// group; the last fractional period truncates to 2. No transcendental or
-    /// floating-point generator is involved. LookupTableResearch checks all
-    /// 32 values against this array and rateValues in pinned upstream-sm/src/snes/dsp.c,
-    /// and rejects adjacent/extreme invalid selectors. This is hardware data,
-    /// so the reference is the pinned DSP implementation, not cartridge bytes.
-    /// Timer phase/admission and Gaussian interpolation remain separate concerns.
+    /// Pinned upstream-sm/src/snes/dsp.c rateValues: repeating 8:6:5 periods halve
+    /// every three selectors. Integer shifts preserve the final truncated period.
+    /// These are hardware periods, not cartridge data. Timer phase and admission
+    /// remain the responsibility of the envelope and noise consumers.
     /// </remarks>
-    internal static readonly ushort[] RateValues =
-    [
-        0, 2048, 1536, 1280, 1024, 768, 640, 512,
-        384, 320, 256, 192, 160, 128, 96, 80,
-        64, 48, 40, 32, 24, 20, 16, 12,
-        10, 8, 6, 5, 4, 3, 2, 1,
-    ];
-
+    internal static ushort RatePeriod(int selector)
+    {
+        if ((uint)selector >= 32)
+            throw new IndexOutOfRangeException();
+        if (selector == 0) return 0;
+        if (selector == 31) return 1;
+        int group = (selector - 1) / 3;
+        int ratio = ((selector - 1) % 3) switch { 0 => 8, 1 => 6, _ => 5 };
+        return (ushort)((ratio << 8) >> group);
+    }
     /// <summary>
     /// The S-DSP's fixed 512-entry Gaussian interpolation curve. Four mirrored lookups from
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.

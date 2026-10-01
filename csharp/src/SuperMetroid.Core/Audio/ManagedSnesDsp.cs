@@ -123,16 +123,16 @@ public sealed class ManagedSnesDsp
                 voice.SourceNumber = value;
                 break;
             case SnesDspRegisterMap.Voice.Adsr1:
-                voice.AdsrRates[0] = SnesDspTables.RateValues[
-                    (value & SnesDspRegisterMap.Fields.AdsrAttackMask) * 2 + 1];
-                voice.AdsrRates[1] = SnesDspTables.RateValues[
+                voice.AdsrRates[0] = SnesDspTables.RatePeriod(
+                    (value & SnesDspRegisterMap.Fields.AdsrAttackMask) * 2 + 1);
+                voice.AdsrRates[1] = SnesDspTables.RatePeriod(
                     ((value & SnesDspRegisterMap.Fields.AdsrDecayMask) >>
-                        SnesDspRegisterMap.Fields.AdsrDecayShift) * 2 + 16];
+                        SnesDspRegisterMap.Fields.AdsrDecayShift) * 2 + 16);
                 voice.UseGain = (value & SnesDspRegisterMap.Fields.AdsrEnabled) == 0;
                 break;
             case SnesDspRegisterMap.Voice.Adsr2:
-                voice.AdsrRates[2] = SnesDspTables.RateValues[
-                    value & SnesDspRegisterMap.Fields.AdsrSustainRateMask];
+                voice.AdsrRates[2] = SnesDspTables.RatePeriod(
+                    value & SnesDspRegisterMap.Fields.AdsrSustainRateMask);
                 voice.SustainLevel = unchecked((ushort)((((value &
                     SnesDspRegisterMap.Fields.AdsrSustainLevelMask) >>
                     SnesDspRegisterMap.Fields.AdsrSustainLevelShift) + 1) * 0x100));
@@ -143,8 +143,8 @@ public sealed class ManagedSnesDsp
                 {
                     voice.GainMode = unchecked((byte)((value & SnesDspRegisterMap.Fields.GainModeMask) >>
                         SnesDspRegisterMap.Fields.GainModeShift));
-                    voice.AdsrRates[3] = SnesDspTables.RateValues[
-                        value & SnesDspRegisterMap.Fields.AdsrSustainRateMask];
+                    voice.AdsrRates[3] = SnesDspTables.RatePeriod(
+                        value & SnesDspRegisterMap.Fields.AdsrSustainRateMask);
                 }
                 else
                 {
@@ -187,7 +187,7 @@ public sealed class ManagedSnesDsp
                 reset = (value & SnesDspRegisterMap.Fields.Reset) != 0;
                 mute = (value & SnesDspRegisterMap.Fields.Mute) != 0;
                 echoWrites = (value & SnesDspRegisterMap.Fields.EchoWriteDisable) == 0;
-                noiseRate = SnesDspTables.RateValues[value & SnesDspRegisterMap.Fields.NoiseRateMask];
+                noiseRate = SnesDspTables.RatePeriod(value & SnesDspRegisterMap.Fields.NoiseRateMask);
                 break;
             case SnesDspRegisterMap.Global.EndFlags:
                 value = 0;

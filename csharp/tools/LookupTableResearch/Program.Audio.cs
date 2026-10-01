@@ -30,7 +30,7 @@ internal static partial class Program
         }
         for (int i = 0; i < rates.Length; i++)
         {
-            Equal(rates[i], (int)SnesDspTables.RateValues[i], $"compiled DSP rate {i}");
+            Equal(rates[i], (int)SnesDspTables.RatePeriod(i), $"compiled DSP rate {i}");
             Equal(rates[i], DspRate(i), $"counter DSP rate {i}");
         }
         // Test the quantization explanation over the entire percentage domain,

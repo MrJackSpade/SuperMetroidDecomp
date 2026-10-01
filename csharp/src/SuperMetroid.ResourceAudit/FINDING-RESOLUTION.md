@@ -664,3 +664,25 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 49 unresolved**, all 352 consumers retained. Reflection,
   debugger-state payload validity, destination placement and pixels are outside
   these source-flow contracts. Production behavior is unchanged.
+
+## Room artwork sources - ten further source-proven boundaries
+
+- **Findings:** seven character/metatile/static-palette lookups and three sky
+  transfer queries lacked coverage adapters.
+- **Cause/classification:** three constructors explicitly require a nonnull
+  resource for every source selected by all 29 graphics sets, then copy their
+  dictionaries. The sky constructor copies all seven complete pages. Guarded
+  rules now model those required source sets and precise sky source/length
+  constraints, including valid even-addressed mid-page row overreads. The
+  count-only background-library catalog is deliberately left unresolved.
+- **Confirmation:** seventeen constructed source calls expose absent adapters
+  first; nine qualify and eight invalid/unsupported requests stay unresolved.
+  Cases cover odd sky addresses, page misalignment, short owned transfers,
+  end-of-store overflow and valid unowned-source false queries. Changed character
+  admission revokes its proof. Release build and all auditor checks pass.
+  No ROM, saves, assets, rooms, camera, rendering or gameplay runs.
+- **Accounting:** 312 guarded classifications plus two metadata corrections
+  account for **314 of the original 353 boundaries**. Current report: **zero
+  missing identities, 39 unresolved**, all 352 consumers retained. Optional
+  dictionary keys, atlas geometry, caller selection, destinations and pixels are
+  not certified. Production is unchanged; #1156 remains in progress.

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -46,6 +47,9 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Resolve", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).ToArray(),
+        ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
+        ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
+        ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,
@@ -58,4 +62,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .SelectMany(suit => Enumerable.Range(0, SamusFullBodyCycleColorFormat.ShadesPerSuit)
                 .Select(shade => (int)SamusFullBodyCycleColorFormat.Pointer(family, suit, shade))))
         .Distinct().ToArray();
+
+    private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)
+        .Select(index => select(RoomTilesetDefinitions.Get((byte)index))).Distinct().ToArray();
 }

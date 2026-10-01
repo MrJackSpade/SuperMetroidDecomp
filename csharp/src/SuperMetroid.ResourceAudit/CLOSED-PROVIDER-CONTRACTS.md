@@ -488,3 +488,23 @@ Eighteen constructed source calls confirm six finite cases, eleven unresolved
 boundaries and one missing-key case. Assertions retain the full assignment/input
 unions and match the options helper's throwing fallback. Build and all prior checks
 pass. No ROM, saves, art, menu navigation, rendering or gameplay runs.
+
+## Room artwork sources - ten additional original boundaries
+
+Three public catalogs check every character, metatile and static-palette source
+selected by all 29 graphics sets for a nonnull resource, then copy their dictionaries.
+Only those required sparse source domains qualify; arbitrary optional keys do not.
+The seven-page sky store independently copies every byte before publication. Its
+query owns aligned full pages and even-addressed complete 64-byte rows within the
+store, including native mid-page overreads. Unowned sources may return false.
+
+Known source/length constraints remain correlated: odd owned addresses, unaligned
+full pages, short transfers and end-of-store overflow fail. The count-only library
+background catalog cannot borrow graphics-set closure and remains unresolved.
+These proofs do not establish optional key completeness, atlas geometry, graphics-set
+selection, camera pointer arithmetic, upload destinations or visual correctness.
+
+Seventeen constructed source calls first expose absent adapters. Nine qualify and
+eight invalid/unsupported requests stay unresolved; changing required character
+admission revokes its proof. Build and prior checks pass. No ROM, saves, art, room,
+camera, upload, rendering or gameplay runs; production behavior is unchanged.

@@ -18,6 +18,13 @@ internal static partial class Program
                 AuditContractChecks.Run();
                 return 0;
             }
+            if (args is ["--enemy-visual-program-audit", string visualRoot, string visualReport])
+                return EnemyVisualProgramAudit.Run(Path.GetFullPath(visualRoot), visualReport);
+            if (args is ["--enemy-visual-audit-self-check"])
+            {
+                EnemyVisualProgramAuditChecks.Run();
+                return 0;
+            }
             if (args is ["--plm-program-self-check"])
             {
                 PlmProgramContractChecks.Run();
@@ -92,7 +99,8 @@ internal static partial class Program
                     case "--plm-program-audit": plmPrograms = true; break;
                     case "--vram-dma-audit": vramDma = true; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
-                        "--self-check | --work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
+                        "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
+                        "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +
                         "--nuclear-waffle-resource-check | --plm-program-self-check | " +

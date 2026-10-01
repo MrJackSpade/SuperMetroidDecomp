@@ -11,6 +11,15 @@ internal static class DefinitionAudit
 {
     public static ResourceIndex Collect(string root, AuditReport report)
     {
+        ResourceIndex exports = CollectEnemyVisuals(root, report);
+        PaletteDefinitionAudit.Run(root, exports, report);
+        MotherBrainRoomFlashAudit.Install(exports);
+        report.Coverage.Add(new(ResourceDomains.SamusProjectile, 0, exports.Count(ResourceDomains.SamusProjectile)));
+        return exports;
+    }
+
+    internal static ResourceIndex CollectEnemyVisuals(string root, AuditReport report)
+    {
         var exports = new ResourceIndex();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
@@ -59,12 +68,9 @@ internal static class DefinitionAudit
         report.Coverage.Add(new(ResourceDomains.EnemyDisplay, enemyReferences, exports.Count(ResourceDomains.EnemyDisplay)));
         report.Coverage.Add(new("enemy-projectile-frames", projectileReferences,
             exports.Count(ResourceDomains.EnemyProjectileProgram) + exports.Count(ResourceDomains.EnemyProjectileSprite)));
-        PaletteDefinitionAudit.Run(root, exports, report);
-        MotherBrainRoomFlashAudit.Install(exports);
         // Samus projectile bindings are imported visual data rather than compiled
         // selectors. Enumerating exported sprites alone cannot prove their input
         // mappings complete; the consumer inventory must retain that boundary.
-        report.Coverage.Add(new(ResourceDomains.SamusProjectile, 0, exports.Count(ResourceDomains.SamusProjectile)));
         return exports;
     }
 

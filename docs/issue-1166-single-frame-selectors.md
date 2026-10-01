@@ -64,3 +64,5 @@ the player must select their supported ROM again.
 
 The inventory-only command confirms regeneration against declared operands.
 Player confirmation remains pending; no exploratory gameplay was performed.
+
+The follow-up [complete program audit](enemy-visual-program-audit.md) expands this scope to 169 owners and 5,800 visual references, with no missing or unresolved dependencies and a permanent CI/release gate.

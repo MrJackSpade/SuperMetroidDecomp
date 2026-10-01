@@ -26,6 +26,20 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog" => KraidRoomPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog" => CrocomireArenaPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
+        // All includes the supported closed/mirrored pointers, not just the
+        // authored keys required by construction. Aliases retain exact widths.
+        "SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmGreyDoorVisualCatalog" => GreyDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog" => EyeDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGatePlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All.ToArray()
+            .Select(frame => SingleWord(frame.Pointer, frame.LevelWord)).ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog" => RoomPlmGrappleBlockDrawDefinitions.All
+            .Select(frame => SingleWord(frame.Pointer, frame.LevelWord)).ToArray(),
         _ => null,
     };
+
+    private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(ushort pointer, ushort levelWord) =>
+        new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { levelWord }, 0, 0) });
 }

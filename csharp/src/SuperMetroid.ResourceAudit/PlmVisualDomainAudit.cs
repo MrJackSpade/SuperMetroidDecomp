@@ -14,12 +14,15 @@ internal static class PlmVisualDomainAudit
         if (frames is null) return null;
         int? Constant(string name) => operation.Arguments.SingleOrDefault(arg => arg.Parameter?.Name == name)
             ?.Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
-        if (Constant("drawPointer") is int pointer)
+        if ((Constant("drawPointer") ?? Constant("pointer")) is int pointer)
         {
             frames = frames.Where(frame => frame.Pointer == pointer).ToArray();
             if (frames.Length == 0) return $"Constant drawPointer=${pointer:X4} is not owned by this reviewed PLM artwork domain.";
         }
-        int? run = Constant("runIndex");
+        // A flat/single-word method has no run selector: its contract is run
+        // zero. A present but dynamic run parameter must remain unknown.
+        int? run = operation.TargetMethod.Parameters.Any(parameter => parameter.Name == "runIndex")
+            ? Constant("runIndex") : 0;
         if (run is int runIndex)
         {
             frames = frames.Where(frame => (uint)runIndex < frame.Runs.Length).ToArray();

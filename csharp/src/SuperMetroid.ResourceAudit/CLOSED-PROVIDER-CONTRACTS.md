@@ -257,3 +257,26 @@ nineteen covered production constructors accept complete constructed entries
 and reject omitted/duplicate frames. No PLM instructions, rooms, collision,
 boss phases, ROM, saves or gameplay are executed. Dynamic caller correctness,
 event timing and the visible artwork itself remain outside this proof.
+
+## Flat doors and single-word PLMs - seven additional original boundaries
+
+Blue, colored, grey and eye doors plus Mother Brain's escape gate require exact
+complete authored frame sets. Collectible and Grapple-block constructors require
+all twenty-four and five single-word identities respectively. Every constructor
+rejects omissions/duplicates and stores independent selected art.
+
+Blue-door construction requires sixteen authored frames; four closed caps map
+to required opening frames. Eye-door construction requires twenty-three authored
+frames; the mirrored clear uses the required four-word clear with horizontal
+flip. Guarded native definitions enumerate all supported alias pointers and exact
+widths. Unknown pointers are not accepted just because a family has aliases.
+Flat methods use run zero, while a present dynamic run parameter in the prior
+multi-run methods remains unknown. The collectible `pointer` argument receives
+the same membership check as the other families' `drawPointer` arguments.
+
+Sixteen constructed source calls first reproduce absent adapters. Eight classify
+and eight invalid pointer/word requests remain failures, including a narrow eye
+frame versus its four-word clear. Seven real constructors accept full constructed
+entries and reject omissions/duplicates. Production `GetWord` confirms all four
+blue closed-cap mappings and the eye clear's flip using constructed data.
+No door transition, attack, pickup, room or gameplay runs; mechanics are unchanged.

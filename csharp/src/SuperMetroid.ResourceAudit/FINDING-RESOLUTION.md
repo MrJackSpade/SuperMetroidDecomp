@@ -459,3 +459,22 @@ remain explicitly failing findings, not silently waived or treated as proven res
   identities, 189 unresolved**, with all 352 consumer sites retained. Unresolved
   findings still fail the audit; these are resource-domain proofs, not certification
   of arbitrary runtime caller values or whole-game parity.
+
+## Flat doors and single-word PLMs - seven further source-proven boundaries
+
+- **Findings:** blue/colored/grey/eye door, escape-gate, collectible and Grapple-block
+  artwork calls lacked domain adapters, including compiled reused-artwork pointers.
+- **Cause/classification:** existing constructors require complete known frame sets
+  and independent payloads. Method-specific source guards now cover those seven
+  domains. Blue closed caps use required opening art; mirrored eye clears use
+  required authored clear art with horizontal flip. No fallback artwork was invented.
+- **Confirmation:** sixteen constructed source calls reproduce absent adapters first;
+  eight then classify and eight invalid pointers/widths remain failing findings.
+  All seven constructors accept complete constructed data and reject omissions and
+  duplicates. Production lookups confirm four blue aliases and the mirrored eye
+  alias using constructed data. Prior checks and compilation pass. No ROM, saves,
+  rooms, door transitions, pickup effects or gameplay were executed.
+- **Accounting:** 169 guarded classifications plus two metadata corrections account
+  for **171 of the original 353 boundaries**. The current audit has **zero missing
+  identities, 182 unresolved**, all 352 consumers retained. Production behavior
+  and artwork are unchanged; dynamic caller correctness is not asserted.

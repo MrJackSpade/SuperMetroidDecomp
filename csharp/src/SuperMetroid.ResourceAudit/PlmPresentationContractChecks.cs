@@ -104,7 +104,7 @@ internal static class PlmPresentationContractChecks
             "pointer, run and word failures must come from precise declared domains");
     }
 
-    private static ushort[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
+    internal static ushort[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
         frame.Runs.ToArray().Select(run => run.LevelWords.ToArray()
             .Select(word => new RoomLevelWord(word).VisualWord).ToArray()).ToArray();
 
@@ -184,7 +184,7 @@ internal static class PlmPresentationContractChecks
             entries => _ = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries));
     }
 
-    private static void ConfirmCoverage<T>(IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
+    internal static void ConfirmCoverage<T>(IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<RoomPlmShotBlockDrawDefinitions.DrawList, T> entry, Action<IEnumerable<T>> construct)
     {
         T[] complete = definitions.Select(entry).ToArray();

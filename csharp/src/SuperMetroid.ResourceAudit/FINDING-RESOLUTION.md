@@ -326,3 +326,27 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **79 of the original 353 boundaries**. Current audit: **zero missing
   identities, 274 unresolved**, with the entire 352-site consumer inventory retained.
   These changes affect development auditing only, not player-facing behavior.
+
+## Beam/boss palette domains — 29 further source-proven boundaries
+
+- **Findings:** five beam-palette, eight Ceres/shared Ridley, four Crocomire, three
+  Spore Spawn, three Draygon, three Phantoon and three Tourian statue consumer sites.
+- **Cause/classification:** these calls selected rows/colors in complete loader-validated
+  arrays, but the audit lacked their finite domain contracts. Source-reviewed operation
+  rules now record that coverage with provider/definition fingerprints. Unguarded or
+  unreviewed raw methods remain excluded; this is not an exemption for every color catalog.
+- **Bounds:** a dedicated index-domain catalog now holds the reviewed ranges/strides,
+  replacing inline bounds in the audit consumer. Odd health-band/eye byte selectors and
+  invalid constants still fail. Known Spore Spawn level/background death frames use the
+  narrower seven-row domain. Draygon's white-hurt branch does not select health colors,
+  so an ignored health argument is not falsely rejected.
+- **Confirmation:** the fixture's thirty-three calls reproduce unresolved boundaries
+  before classification; seventeen reviewed calls qualify, two missing names remain
+  concrete, and fourteen invalid/unreviewed/dynamic selections stay failing gaps.
+  Per-provider valid/invalid palette checks and the white-hurt exception pass, together
+  with prior source-change/mutable-key safeguards. No art, ROM, save, boss AI, palette
+  animation or gameplay frame was run.
+- **Accounting:** 106 guarded consumer classifications plus two metadata corrections
+  account for **108 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 245 unresolved**, with all 352 consumer sites retained. Production boss
+  behavior is unchanged by this audit-only correction.

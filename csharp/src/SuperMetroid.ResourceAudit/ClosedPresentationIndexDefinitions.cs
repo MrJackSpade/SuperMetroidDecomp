@@ -1,0 +1,57 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+
+namespace SuperMetroid.ResourceAudit;
+
+internal readonly record struct ProviderIndexDomain(int First, int Count, int Stride = 1)
+{
+    internal bool Contains(int value) => value >= First && (value - First) % Stride == 0 && (value - First) / Stride < Count;
+    internal string Description => $"{First}..{First + (Count - 1) * Stride}, stride {Stride}";
+}
+
+/// <summary>Finite index domains from the source-reviewed loader/selector contracts.</summary>
+internal static class ClosedPresentationIndexDefinitions
+{
+    internal static ProviderIndexDomain? Get(string type, string method, string parameter) => (type, method, parameter) switch
+    {
+        ("GameplayHudPresentation", "TryApplyIcon", "itemIndex") => new(0, 5),
+        ("GameplayHudPresentation", "ApplyAmmo", "itemIndex") => new(0, 3),
+        ("GameplayHudPresentation", "MinimapCellIndex", "outputX") => new(0, 5),
+        ("GameplayHudPresentation", "MinimapCellIndex", "outputY") => new(0, 3),
+        ("FileSelectPresentation", "WriteDigit", "digit") => new(0, 10),
+        ("FileSelectPresentation", "Slot" or "WriteSlotLetter" or "DrawHelmet", "slot") => new(0, 3),
+        ("FileSelectPresentation", "DrawCursor", "frame") => new(0, 4),
+        ("FileSelectPresentation", "DrawHelmet", "frame") => new(0, 8),
+        ("FileSelectPresentation", "CursorPosition", "selected") => new(0, 6),
+        ("MotherBrainRoomColorPresentation", "ApplyRecoveryLights", "frame") => new(0, MotherBrainRoomColorRomData.RecoveryLightsFrames),
+        ("MotherBrainRoomColorPresentation", "ApplyFlash", "timedEntryPointer") => new(MotherBrainRoomPaletteProgramDefinitions.FlashStart,
+            MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount, MotherBrainRoomColorRomData.TimedEntryByteCount),
+        ("GameOptionsPresentation", "ApplyControllerLabel", "action" or "button") => new(0, 7),
+        ("GameOptionsPresentation", "DrawCursor", "frame") => new(0, 4),
+        ("GameOverPresentation", "DrawBaby", "frame") => new(0, 3),
+        ("GameOverPresentation", "DrawCursor", "frame") => new(0, 4),
+        ("GameOverPresentation", "ApplyBabyPalette", "palette") => new(0, 4),
+        ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
+        ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
+        ("BeamPaletteCatalog", "LoadTo", "selection") => new(0, BeamTileAtlasDefinitions.SelectionCount),
+        ("CeresRidleyColorCatalog", "ApplyEyeFade", "row") => new(0, CeresRidleyPaletteRomData.EyeFadeRowCount),
+        ("CeresRidleyColorCatalog", "ApplyBodyFade", "row") => new(0, CeresRidleyPaletteRomData.BodyFadeRowCount),
+        ("CeresRidleyColorCatalog", "ApplyHealth", "row") => new(0, CeresRidleyPaletteRomData.HealthRowCount),
+        ("CeresRidleyColorCatalog", "ApplyAlarm", "row") => new(0, CeresRidleyPaletteRomData.AlarmRowCount),
+        ("CeresRidleyColorCatalog", "ApplyBaby", "row") => new(0, CeresRidleyPaletteRomData.BabyRowCount),
+        ("DraygonColorCatalog", "ApplyHealthBand", "tableByteIndex") => new(0, DraygonColorRomData.HealthBandCount, sizeof(ushort)),
+        ("DraygonColorCatalog", "ApplyHurt", "healthTableByteIndex") => new(0, DraygonColorRomData.HealthBandCount, sizeof(ushort)),
+        ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorRomData.HealthBandCount),
+        ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorRomData.HealthBandColorCount),
+        ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorRomData.FadeOutCount),
+        ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, PhantoonColorRomData.PowerOnCount),
+        ("TourianStatueColorCatalog", "ApplyEye", "doubledBossParameter") => new(0, TourianStatuePaletteRomData.EyeRowCount, sizeof(ushort)),
+        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorRomData.ColorsPerFrame),
+        ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorRomData.HealthFrameCount),
+        ("SporeSpawnColorCatalog", "ResolveDeath", "layer") => new(0, 3),
+        // The union is eight rows; the selected non-sprite layer still enforces
+        // its narrower seven-row domain inside the reviewed provider.
+        ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorRomData.DeathSpriteFrameCount),
+        _ => null,
+    };
+}

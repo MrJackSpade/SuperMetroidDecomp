@@ -99,44 +99,22 @@ internal sealed class ClosedPresentationAudit
         {
             var owner = (Type: operation.TargetMethod.ContainingType.Name,
                 Method: operation.TargetMethod.Name, Parameter: argument.Parameter!.Name);
-            (int Min, int Max)? range = owner switch
-            {
-                ("GameplayHudPresentation", "TryApplyIcon", "itemIndex") => (0, 4),
-                ("GameplayHudPresentation", "ApplyAmmo", "itemIndex") => (0, 2),
-                ("GameplayHudPresentation", "MinimapCellIndex", "outputX") => (0, 4),
-                ("GameplayHudPresentation", "MinimapCellIndex", "outputY") => (0, 2),
-                ("FileSelectPresentation", "WriteDigit", "digit") => (0, 9),
-                ("FileSelectPresentation", "Slot" or "WriteSlotLetter" or "DrawHelmet", "slot") => (0, 2),
-                ("FileSelectPresentation", "DrawCursor", "frame") => (0, 3),
-                ("FileSelectPresentation", "DrawHelmet", "frame") => (0, 7),
-                ("FileSelectPresentation", "CursorPosition", "selected") => (0, 5),
-                ("MotherBrainRoomColorPresentation", "ApplyRecoveryLights", "frame") => (0, 6),
-                ("GameOptionsPresentation", "ApplyControllerLabel", "action" or "button") => (0, 6),
-                ("GameOptionsPresentation", "DrawCursor", "frame") => (0, 3),
-                ("GameOverPresentation", "DrawBaby", "frame") => (0, 2),
-                ("GameOverPresentation", "DrawCursor", "frame") => (0, 3),
-                ("GameOverPresentation", "ApplyBabyPalette", "palette") => (0, 3),
-                ("PauseReserveUiPresentation", "ApplyDigit", "position") => (0, 2),
-                ("PauseReserveUiPresentation", "ApplyDigit", "value") => (0, 9),
-                _ => null,
-            };
+            ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             if (range is null || argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
+            // White-frame Draygon hurt does not select a health band at all.
+            if (owner is ("DraygonColorCatalog", "ApplyHurt", "healthTableByteIndex") &&
+                operation.Arguments.Single(arg => arg.Parameter?.Name == "whiteFrame").Value.ConstantValue
+                    is { HasValue: true, Value: true }) continue;
+            if (owner is ("SporeSpawnColorCatalog", "ResolveDeath", "frame") &&
+                operation.Arguments.Single(arg => arg.Parameter?.Name == "layer").Value.ConstantValue
+                    is { HasValue: true, Value: not null } layer &&
+                (SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
+                    SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Level or
+                    SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Background)
+                range = new(0, SuperMetroid.Core.Game.SporeSpawnColorRomData.DeathSceneFrameCount);
             int number = Convert.ToInt32(value.Value);
-            if (number < range.Value.Min || number > range.Value.Max)
-                return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Min}..{range.Value.Max}.";
-        }
-        if (operation.TargetMethod.ContainingType.Name == "MotherBrainRoomColorPresentation" &&
-            operation.TargetMethod.Name == "ApplyFlash")
-        {
-            var argument = operation.Arguments.Single(arg => arg.Parameter?.Name == "timedEntryPointer");
-            if (argument.Value.ConstantValue is { HasValue: true, Value: not null } value)
-            {
-                int offset = Convert.ToInt32(value.Value) - SuperMetroid.Core.Game.MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-                int stride = SuperMetroid.Core.Game.MotherBrainRoomColorRomData.TimedEntryByteCount;
-                if (offset < 0 || offset % stride != 0 ||
-                    offset / stride >= SuperMetroid.Core.Game.MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
-                    return "Constant flash entry is not one of the reviewed aligned installed rows.";
-            }
+            if (!range.Value.Contains(number))
+                return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }
         return null;
     }

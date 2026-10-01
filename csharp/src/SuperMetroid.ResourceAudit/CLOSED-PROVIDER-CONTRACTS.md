@@ -75,9 +75,9 @@ Private construction prevents partially validated providers.
 ## Scoped confirmation
 
 `--self-check` uses the actual reviewed source declarations and constructed consumer
-calls, not a room or gameplay frame. Before applying the adapter, eighteen fixture
-calls are unresolved. With it, nine valid reviewed calls are classified, missing
-anchor/conditional-label keys remain concrete, and seven invalid/unreviewed/dynamic
+calls, not a room or gameplay frame. Before applying the adapter, thirty-three fixture
+calls are unresolved. With it, seventeen valid reviewed calls are classified, missing
+anchor/conditional-label keys remain concrete, and fourteen invalid/unreviewed/dynamic
 selections remain unresolved. Mutating digit-selection code or adding an external
 `IconNames` mutation revokes the proof at the real consumer adapter. These checks
 confirm only the identified adapter contracts; they do not discover new player bugs.
@@ -129,3 +129,26 @@ otherwise both branches must resolve to constants. Missing keys in either branch
 concrete omissions. Unknown parameters, mutable variables and function results remain
 unresolved. This deliberately does not infer names from similar strings or assume an
 arbitrary method argument matches its provider's catalog.
+
+## Beam/boss palette providers — 29 original consumer boundaries
+
+All rules below require private construction through a loader that compiles every
+specified row and color. A runtime bounds error remains possible for an invalid dynamic
+argument; these rules prove complete supported resource domains, not caller correctness.
+`ClosedPresentationIndexDefinitions` owns the named domains and alignment constraints.
+
+| Provider | Original sites | Required domain and reviewed operations |
+| --- | ---: | --- |
+| Beam palette | 5 | All twelve sixteen-color selections; `LoadTo` guards selection 0..11. |
+| Ceres/shared Ridley | 8 | Complete start/retreat arrays; sixteen eye/body/alarm rows, three health rows, four baby rows. Seven `Apply` methods select fixed or range-guarded loaded arrays. Legacy fields inherit only validated stock. |
+| Crocomire | 4 | Complete fight-body, wall, projectile, skeleton-arm and spike arrays. The four `Apply` methods transfer fixed loaded arrays. Raw resolver methods are not included. |
+| Spore Spawn | 3 | Complete spore row, four health rows, eight death-sprite rows and seven level/background rows, sixteen colors each. `ResolveSpore/Health/Death` guard color/frame/layer domains. Known level/background constants use the narrower seven-row frame constraint. |
+| Draygon | 3 | Complete intro/background/sprite/white-flash arrays and eight four-color health bands. Health indices must be even byte offsets 0..14. `ApplyHurt` does not select a health band on a white-flash frame, so a known ignored index is not falsely reported. |
+| Phantoon | 3 | Eight sixteen-color health bands, sixteen fade-out targets and 112 power-on targets. Three reviewed resolvers guard band/color indices into these required arrays. |
+| Tourian statues | 3 | Complete base/statue/grey arrays and four four-color eye rows. `ApplyEntrance/Eye/Grey` use fixed arrays or even doubled eye indices 0..6. Unguarded raw `Resolve` methods are excluded. |
+
+The palette fixture checks one covered operation and one invalid/unreviewed operation
+for each identified provider domain. It also checks Draygon's unused health selector on
+a white frame. Invalid beam/health/color indices, odd Draygon/statue selectors, a
+too-high level-death frame and an unreviewed Crocomire resolver all stay failing gaps.
+No palette animation, boss frame, AI or combat callback is executed.

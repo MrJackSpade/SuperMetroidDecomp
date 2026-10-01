@@ -14,6 +14,7 @@ internal static class ClosedPresentationContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         .. MenuClosedPresentationContractDefinitions.All,
+        .. BossColorClosedContractDefinitions.All,
         new("SuperMetroid.Core.Assets.GameplayHudPresentation", "hud-v2-complete-valid-domain",
             ["ApplyTemplate", "TryApplyIcon", "ApplyEnergy", "ApplyAmmo", "ApplyAutoReserve",
                 "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex"],

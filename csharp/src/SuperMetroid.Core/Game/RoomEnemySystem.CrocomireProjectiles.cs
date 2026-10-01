@@ -5,59 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile $8F8F fired by Crocomire's open-mouth volley.</summary>
 public sealed partial class RoomEnemySystem
 {
-    // These three tables are indexed by the physical bank-$86 projectile slot. Crocomire
-    // deliberately clears the pool and then allocates eight actors from slot 17 downward,
-    // so entries 10..17 produce the wall's authored fan rather than eight identical shards.
-    /// <summary>
-    /// $86:91C3-$91E6, eighteen unsigned X-acceleration increments indexed
-    /// by physical projectile slot 0..17. All words match the pinned NTSC
-    /// J/U v1.0 ROM: slots 0..1 are zero, slots 2..9 contain
-    /// $0FF0,$0EE0,$0CC0,$0AA0,$0880,$0660,$0440,$0220, and slots 10..17
-    /// repeat that profile. The death transition clears the pool and spawns
-    /// spike pieces in slots 17..10, so these last eight values are reached.
-    /// Retain the tuned profile: its first step needs an exception in an
-    /// arithmetic generator, and such a generator obscures slot indexing.
-    /// $91E7 starts the distinct acceleration-cap table.
-    /// </summary>
-    private static readonly ushort[] CrocomireSpikeAccelerationDelta =
-    [
-        0x0000, 0x0000, 0x0ff0, 0x0ee0, 0x0cc0, 0x0aa0,
-        0x0880, 0x0660, 0x0440, 0x0220, 0x0ff0, 0x0ee0,
-        0x0cc0, 0x0aa0, 0x0880, 0x0660, 0x0440, 0x0220,
-    ];
-
-    /// <summary>
-    /// $86:91E7-$920A, eighteen unsigned X-acceleration caps indexed by
-    /// physical projectile slot 0..17. Every pinned NTSC J/U v1.0 ROM word
-    /// exactly equals the corresponding $86:91C3 acceleration increment
-    /// shifted left four bits; even the largest $0FF0 becomes only $FF00.
-    /// This proves the bounded cap algorithm for all 18 slots, including
-    /// the ordinary spike-wall spawns in slots 17..10. The live path still
-    /// applies an unsigned cap after adding the increment. $920B begins
-    /// the separate maximum-velocity table.
-    /// </summary>
-    private static readonly ushort[] CrocomireSpikeMaximumAcceleration =
-    [
-        0x0000, 0x0000, 0xff00, 0xee00, 0xcc00, 0xaa00,
-        0x8800, 0x6600, 0x4400, 0x2200, 0xff00, 0xee00,
-        0xcc00, 0xaa00, 0x8800, 0x6600, 0x4400, 0x2200,
-    ];
-
-    /// <summary>
-    /// $86:920B-$922E stores eighteen little-endian words indexed by physical
-    /// projectile slot 0..17, but native $86:913F/$9144 reads only each low
-    /// byte in 8-bit A mode; all stock high bytes are zero. The compiled
-    /// bytes match the pinned NTSC J/U v1.0 ROM. Slots 0..1 are zero,
-    /// 2..9 are 4,4,3,3,2,2,1,1, and the reached spike-wall slots 10..17
-    /// are 6,5,4,3,2,2,1,1. Retain the nonuniform active velocity caps as
-    /// authored tuning; a rule for the unused earlier profile does not
-    /// explain the active one. $922F begins a different routine.
-    /// </summary>
-    private static readonly byte[] CrocomireSpikeMaximumVelocity =
-    [
-        0, 0, 4, 4, 3, 3, 2, 2, 1, 1, 6, 5, 4, 3, 2, 2, 1, 1,
-    ];
-
     /// <summary>Ports <c>EprojInit_CrocomireProjectile</c> at $86:9023.</summary>
     private void SpawnCrocomireProjectile(RoomEnemySlot body, ushort spawnParameter)
     {
@@ -205,12 +152,12 @@ public sealed partial class RoomEnemySystem
     private void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
         int slot = projectile.SlotIndex;
-        ushort maximumAcceleration = CrocomireSpikeMaximumAcceleration[slot];
+        ushort maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
         ushort acceleration = projectile.Variable0;
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
-                acceleration + CrocomireSpikeAccelerationDelta[slot]));
+                acceleration + CrocomireSpikeMotionDefinitions.AccelerationDelta(slot)));
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
@@ -223,7 +170,7 @@ public sealed partial class RoomEnemySystem
         byte velocityFraction = unchecked((byte)velocityFractionSum);
         byte velocityWhole = unchecked((byte)(
             (projectile.XVelocity >> 8) + (velocityFractionSum >> 8)));
-        byte maximumVelocity = CrocomireSpikeMaximumVelocity[slot];
+        byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
         projectile.XVelocity = unchecked((ushort)((velocityWhole << 8) | velocityFraction));

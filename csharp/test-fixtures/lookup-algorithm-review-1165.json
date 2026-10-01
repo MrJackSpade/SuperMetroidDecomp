@@ -1397,5 +1397,45 @@
                                "rationale":  "Native independent flag semantics directly select four named animation programs; no arithmetic dependence on their storage spacing.",
                                "proofTest":  "VerifyZoaAnimationDefinitions (existing proof, definitionsOnly mode)",
                                "confirmation":  "All four original pointers and invalid flag combinations; no live animation handoff matrix needed for this selector conversion."
-                           }
+                           },
+    "crocomireSpikeMotionReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireSpikeMotionDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Crocomire spike motion lookup profiles with bounded ramps for #1165\"",
+                                 "subject":  "Replace Crocomire spike motion lookup profiles with bounded ramps for #1165"
+                             },
+    "consumers":  [
+                      "RoomEnemySystem.RunCrocomireSpikeWallPiece"
+                  ],
+    "domain":  "Physical slot int 0..17. Preserve IndexOutOfRangeException outside. Ordinary spawn clears the pool and occupies 17..10; keep the complete original 18-slot contract.",
+    "reviewedEvidence":  "Pinned bank_86.asm 86:9115-922E, complete three original profiles and 16-bit acceleration / 8-bit velocity consumers; current producer and motion consumer. SHA-verified NTSC J/U v1.0 ROM is the independent output oracle.",
+    "rationale":  "The acceleration profiles repeat an eight-step arithmetic ramp with a bounded peak. Velocity uses a paired descending ramp and a steeper descending ramp for the second group. These expressions encode the numerical profiles without per-slot exceptions, stored samples, or fitted coefficients.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-spike-motion",
+    "tables":  [
+                   {
+                       "id":  "crocomire-spike-acceleration-delta",
+                       "confirmation":  "All 18 original words and both invalid domain boundaries.",
+                       "disposition":  "Slots below two return zero; otherwise min(0x0ff0, (8 - (slot-2)%8)*0x0220).",
+                       "state":  "converted",
+                       "nativeIdentity":  "86:91C3 accelerationDelta, 18 ushort samples",
+                       "proofTest":  "VerifyCrocomireSpikeAccelerationDelta"
+                   },
+                   {
+                       "id":  "crocomire-spike-maximum-acceleration",
+                       "confirmation":  "All 18 original words independently of increment expectations, and both invalid boundaries.",
+                       "disposition":  "AccelerationDelta(slot) times sixteen, no overflow in the accepted domain.",
+                       "state":  "converted",
+                       "nativeIdentity":  "86:91E7 maxAcceleration, 18 ushort samples",
+                       "proofTest":  "VerifyCrocomireSpikeMaximumAcceleration"
+                   },
+                   {
+                       "id":  "crocomire-spike-maximum-velocity",
+                       "confirmation":  "All 18 original low bytes at native word stride and both invalid boundaries. Native accumulator is eight-bit at both velocity accesses.",
+                       "disposition":  "Slots below two return zero; local group index g=(slot-2)%8. First group 4-g/2; second group max(4-g/2,6-g).",
+                       "state":  "converted",
+                       "nativeIdentity":  "86:920B maxVelocity, low bytes of 18 words",
+                       "proofTest":  "VerifyCrocomireSpikeMaximumVelocity"
+                   }
+               ]
+}
 }

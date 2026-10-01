@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "spc-pitch-basis": {
+      "subject": "Compute exact SPC pitch basis with decimal arithmetic for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Compute exact SPC pitch basis with decimal arithmetic for #1165'"
+    },
     "dsp-rate-algorithm": {
       "subject": "Replace DSP rate lookup with exact periods for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace DSP rate lookup with exact periods for #1165'"
@@ -719,6 +723,20 @@
     "proofTest": "VerifyDspRateAlgorithm",
     "confirmationScope": "One proof reads original pinned C initializer and compares all32 production outputs plus adjacent/extreme invalid bounds. Build verification and historical research consumers; no gameplay or audio sweep."
   },
+  "spcPitchBasisReview": {
+    "id": "spc-base-note-frequencies", "state": "converted",
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+    "implementationCommit": "spc-pitch-basis",
+    "nativeIdentity": "CF:8A6E kBaseNoteFreqs, thirteen little-endian words",
+    "reviewedEvidence": "Read full original kBaseNoteFreqs and WritePitchInner in pinned upstream-sm/src/spc_player.c, all current callers, and all original NTSC ROM words. Independently bracket the equal-temperament root with BigInteger powers and compare production results to ROM.",
+    "consumers": ["ManagedSpcPlayer.WritePitchInner", "LookupTableResearch.Program.Audio"],
+    "domain": "int semitone0..12, invalid indices preserve IndexOutOfRangeException. Native note=(pitch>>8)&127; note%12 selects0..11 and adjacent interpolation accesses1..12. No overread.",
+    "interpretation": "Unsigned16 pitch basis; caller casts adjacent difference to byte before fractional interpolation, then doubles with word wrap, octave-shifts and applies instrument scaling.",
+    "disposition": "Remove13-word array and calculate floor(440*8.192*2^((n-9)/12)) by at most nine decimal multiplications/divisions from A440 using the bounded twelfth root of two.",
+    "rationale": "Standard equal temperament explains all values without corrections. Starting from rounded C incorrectly changes notes7/8. Decimal operations avoid platform libm and per-call allocations; adjacent bases are calculated once each. Exact rational upper/lower root bounds floor to every original word with more than1e-6 margin, far exceeding decimal rounding. This identifies an exact convention, not provenance of the historical authoring tool.",
+    "proofTest": "VerifySpcPitchBasisAlgorithm",
+    "confirmationScope": "Single original-ROM proof covers all13 words, exact root bracket and rounding margins, plus adjacent/extreme invalid inputs. Source review preserves subsequent interpolation and shifts. Verification and research consumers build."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "ShaktoolOrbitTables",
@@ -748,6 +766,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis"
   ]
 }

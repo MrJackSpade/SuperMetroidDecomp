@@ -56,9 +56,9 @@ public sealed partial class ManagedSpcPlayer
         byte note = unchecked((byte)((pitch >> 8) & 0x7f)); // allow(BitMask): seven-bit note number
         byte octave = unchecked((byte)(note / 12));
         byte semitone = unchecked((byte)(note % 12));
-        int delta = unchecked((byte)(SpcMusicTables.BaseNoteFrequencies[semitone + 1] -
-            SpcMusicTables.BaseNoteFrequencies[semitone]));
-        ushort frequency = unchecked((ushort)(SpcMusicTables.BaseNoteFrequencies[semitone] +
+        ushort basis = SpcMusicTables.BaseNoteFrequency(semitone);
+        int delta = unchecked((byte)(SpcMusicTables.BaseNoteFrequency(semitone + 1) - basis));
+        ushort frequency = unchecked((ushort)(basis +
             (delta * unchecked((byte)pitch) >> 8)));
         frequency = unchecked((ushort)(frequency * 2));
         while (octave != 6)

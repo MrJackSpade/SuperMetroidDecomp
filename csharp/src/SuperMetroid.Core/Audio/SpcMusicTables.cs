@@ -59,24 +59,29 @@ internal static class SpcMusicTables
     internal static readonly byte[] PanVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
 
-    /// <summary>One-octave pitch basis plus the next C used for fractional interpolation.</summary>
-    /// <remarks>
-    /// Issues #625 and #918 exact formula: for semitone n=0..12,
-    /// floor(440*8.192*2^((n-9)/12)).
-    /// This is A440 equal temperament with the driver's pitch scaling, evaluated
-    /// BEFORE rounding the C basis. Using 2143*2^(n/12) instead fails at n=7/8.
-    /// csharp/tools/LookupTableResearch proves all 13 integers without floating
-    /// point: find the greatest k with k^12*1000^12*2^9 &lt;= (440*8192)^12*2^n.
-    /// It also proves k+1 fails that inequality. The oracle is kBaseNoteFreqs in
-    /// pinned upstream-sm/src/spc_player.c, independently matched to NTSC J/U v1.0
-    /// ROM $CF:8A6E (file $278A6E), and this array. A later bounded replacement
-    /// must reject n outside 0..12 and retain the driver's subsequent byte-sized
-    /// interpolation, octave shifts and instrument scaling. The integer-root proof
-    /// is research code, not a proposed hot-path implementation or benchmark.
-    /// </remarks>
-    internal static readonly ushort[] BaseNoteFrequencies =
-        [2143, 2270, 2405, 2548, 2700, 2860, 3030, 3211, 3402, 3604, 3818, 4045, 4286];
+    /// <summary>$CF:8A6E uploaded driver kBaseNoteFreqs, thirteen little-endian pitch words.</summary>
+    internal const int BaseNoteReferenceAddress = 0xcf8a6e;
 
+    /// <summary>Returns the one-octave pitch basis for semitone 0..12, including the next C.</summary>
+    /// <remarks>
+    /// Independently verified for #1165 against all original NTSC words and the native
+    /// WritePitchInner consumer. Floor(440*8.192*2^((n-9)/12)) explains every word.
+    /// Evaluate from A440 before quantizing; scaling an already-rounded C loses precision.
+    /// The decimal semitone ratio is the lower 28-place bound of the twelfth root of two,
+    /// independently bracketed by integer powers in VerifySpcPitchBasisAlgorithm.
+    /// Decimal multiplication/division is deterministic; at most nine steps are required.
+    /// All thirteen results remain between the same integer boundaries using either root
+    /// bound. Caller-owned byte-delta interpolation, octave shifts and scaling stay separate.
+    /// </remarks>
+    internal static ushort BaseNoteFrequency(int semitone)
+    {
+        if ((uint)semitone > 12) throw new IndexOutOfRangeException();
+        const decimal semitoneRatio = 1.0594630943592952645618252949m;
+        decimal frequency = 440m * 8192m / 1000m;
+        for (int note = 9; note < semitone; note++) frequency *= semitoneRatio;
+        for (int note = semitone; note < 9; note++) frequency /= semitoneRatio;
+        return (ushort)frequency;
+    }
     /// <summary>$CF:80F4 uploaded driver kNoteVol, sixteen unsigned volume fractions.</summary>
     internal const int NoteVolumeReferenceAddress = 0xcf80f4;
     /// <summary>$CF:80EC uploaded driver kNoteGateOffPct, eight unsigned gate fractions.</summary>
@@ -110,12 +115,5 @@ internal static class SpcMusicTables
         if ((uint)index >= 8) throw new IndexOutOfRangeException();
         int percentage = index < 2 ? 20 * (index + 1) : index == 7 ? 99 : 10 * (index + 3);
         return (byte)((255 * percentage - 1) / 100);
-    }
-    static SpcMusicTables()
-    {
-        if (BaseNoteFrequencies.Length != 13)
-        {
-            throw new InvalidDataException("One or more fixed SPC music tables have an invalid length.");
-        }
     }
 }

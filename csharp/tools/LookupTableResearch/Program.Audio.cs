@@ -15,7 +15,7 @@ internal static partial class Program
         FindRomArray(rom, gates, 1, "SPC gates");
         for (int i = 0; i < pitches.Length; i++)
         {
-            Equal(pitches[i], (int)SpcMusicTables.BaseNoteFrequencies[i], $"compiled pitch {i}");
+            Equal(pitches[i], (int)SpcMusicTables.BaseNoteFrequency(i), $"compiled pitch {i}");
             Equal(pitches[i], Pitch(i), $"A440 pitch {i}");
         }
         for (int i = 0; i < volumes.Length; i++)

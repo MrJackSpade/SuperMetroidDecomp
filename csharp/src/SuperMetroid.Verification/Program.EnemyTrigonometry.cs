@@ -17,8 +17,8 @@ internal static partial class Program
             int address = EnemyMathReferenceData.UnsignedSine + i * 2;
             words[i] = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         }
-        AssertTrue(bytes.AsSpan().SequenceEqual(EnemyTrigonometryTables.EightBitHalfWave), "all compiled byte samples match ROM");
-        AssertTrue(words.AsSpan().SequenceEqual(EnemyTrigonometryTables.UnsignedHalfWave), "all compiled unsigned samples match ROM");
+        VerifyEightBitHalfWaveAlgorithm(rom);
+        VerifyUnsignedHalfWaveAlgorithm(rom);
         VerifyCompiledSignedTrigonometry(rom);
         VerifyBombTorizoDroolSine(rom);
         VerifyMotherBrainNeckSine(rom);

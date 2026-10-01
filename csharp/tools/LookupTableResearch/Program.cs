@@ -49,8 +49,8 @@ internal static partial class Program
 
         for (int i = 0; i < 128; i++)
         {
-            Equal(bytes[i], (int)EnemyTrigonometryTables.EightBitHalfWave[i], $"compiled byte {i}");
-            Equal(words[i], (int)EnemyTrigonometryTables.UnsignedHalfWave[i], $"compiled unsigned {i}");
+            Equal(bytes[i], (int)EnemyTrigonometryTables.EightBitHalfWave(i), $"compiled byte {i}");
+            Equal(words[i], (int)EnemyTrigonometryTables.UnsignedHalfWave(i), $"compiled unsigned {i}");
             Equal(bytes[i], ByteSine(i), $"algorithm byte {i}");
             Equal(words[i], UnsignedSine(i), $"algorithm unsigned {i}");
         }

@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-half-wave-algorithms"])
+{
+    var sineOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(sineOracle.Rom)),
+        "Sine oracle is NTSC J/U v1.0");
+    VerifyEightBitHalfWaveAlgorithm(sineOracle);
+    VerifyUnsignedHalfWaveAlgorithm(sineOracle);
+    Console.WriteLine("Half-wave algorithms: all 256 original samples, rounding intervals and invalid bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-spc-pitch-basis"])
 {
     var pitchOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

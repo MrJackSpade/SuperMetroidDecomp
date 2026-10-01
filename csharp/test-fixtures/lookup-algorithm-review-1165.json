@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "enemy-half-wave-algorithms": {
+      "subject": "Replace enemy half-wave tables with deterministic sine algorithms for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace enemy half-wave tables with deterministic sine algorithms for #1165'"
+    },
     "retained-audio-curves": {
       "subject": "Record independent pan and Gaussian retain decisions for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Record independent pan and Gaussian retain decisions for #1165'"
@@ -771,8 +775,37 @@
     "newConversions": 0,
     "confirmationScope": "Documentation and inventory only; complete static original-definition comparison, no audio replay, sweep, benchmark or new fitting campaign."
   },
+  "enemyHalfWaveReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs",
+    "implementationCommit": "enemy-half-wave-algorithms",
+    "reviewedEvidence": "Complete original NTSC ROM bytes/words and pinned bank_A0.asm at362be646929cf8e483f692b73a6561cfc2dc1d0d; native eight-bit multiplication and current CommonMath/Sbug consumers; SignedSine and SignedSixteenBitSine views; historical decimal candidate inspected as a hypothesis and independently compared to original values.",
+    "sharedAlgorithm": "Reflect index to min(index,128-index). Exact zero and quarter-turn endpoints; otherwise twelve decimal Taylor terms through x^23/23! at x=phase*pi/128. Pi rounded to28 places; omitted term below5.2e-21 and conservative total absolute error1e-19. No libm, allocations, lookup corrections or generated runtime cache. A short shared recurrence replaces256 stored samples; unlike per-audio-sample Gaussian filtering this is bounded gameplay motion sampling.",
+    "tables": [
+      {
+        "id": "enemy-eight-bit-half-wave", "state": "converted",
+        "nativeIdentity": "A0:B143 SineCosineTables_8bitSine and cosine continuation,128 bytes",
+        "consumers": ["RoomEnemySystem.CommonMath integer/fixed sine products", "RoomEnemySystem.Sbug signed velocity", "EnemyTrigonometryTables.SignedSine", "LookupTableResearch.Program"],
+        "domain": "int index0..127; invalid indices retain IndexOutOfRangeException from former span. Caller masks byte phase&127 before sampling, sign remains separate.",
+        "interpretation": "Unsigned byte min(255,floor(256*sin(index*pi/128))). Scale255 is not equivalent. Callers preserve low-byte radius, multiplication before shift, and independent whole/fraction negation bug.",
+        "disposition": "Remove128-byte span; bounded EightBitHalfWave function uses shared deterministic series and capped quarter-turn.",
+        "rationale": "Standard sampled sine explains all entries with one physical peak convention. Exact endpoints and reflection avoid rounding/sign ambiguity; repeated recurrence expresses the curve without arbitrary coefficients.",
+        "proofTest": "VerifyEightBitHalfWaveAlgorithm"
+      },
+      {
+        "id": "enemy-unsigned-half-wave", "state": "converted",
+        "nativeIdentity": "A0:B7EE UnsignedSineTable,128 little-endian words",
+        "consumers": ["RoomEnemySystem.CommonMath unsigned sine product", "RoomEnemySystem.Sbug unsigned velocity", "EnemyTrigonometryTables.SignedSixteenBitSine", "LookupTableResearch.Program"],
+        "domain": "int index0..127; invalid indices preserve IndexOutOfRangeException. Native angle+phase wraps/masks in callers; no odd reads or overread through this API.",
+        "interpretation": "Unsigned floor(65535*sin(index*pi/128))), with exact65535 peak. Callers retain full unsigned16x16 product; signed16 view shifts each quantized sample before applying sign.",
+        "disposition": "Remove128-word span; bounded UnsignedHalfWave function uses shared deterministic sine series.",
+        "rationale": "Exact65535 scaling is independently evidenced; saturated65536 is a different curve. Deterministic decimal evaluation preserves quantization before any multiplication or sign restoration.",
+        "proofTest": "VerifyUnsignedHalfWaveAlgorithm"
+      }
+    ],
+    "confirmationScope": "Extract original two table checks into one named proof each and reuse them from the old aggregate. Focused flag checks every original sample, both ends of conservative rounding intervals, and adjacent/extreme invalid bounds. Source/compiler checks confirm all consumers migrated; signed wrappers and Phantoon odd-byte compatibility remain unchanged. No broad family test matrix or gameplay replay."
+  },
   "unreviewedOwnerCandidates": [
-    "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
+    "EnemyTrigonometryTables: signed negative cosine and signed sixteen-bit sine existing views; byte/unsigned half-waves now independently converted",
     "ShaktoolOrbitTables",
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
@@ -801,6 +834,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-note-percentages",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-effect-selection",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-dsp-rate-algorithm",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-spc-pitch-basis",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-half-wave-algorithms"
   ]
 }

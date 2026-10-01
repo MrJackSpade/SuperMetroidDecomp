@@ -61,5 +61,7 @@ upstream-disassembly/
 standalone-native/
 csharp/test-temp/
 *.log
+# Executable-relative session diagnostics may contain private paths and error context.
+**/logs/
 stderr.txt
 stdout.txt

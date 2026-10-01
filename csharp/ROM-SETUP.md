@@ -40,6 +40,15 @@ take precedence over the defaults template. Replacing the application ZIP/templa
 Legacy/developer callers without an installation root use the INI beside their ROM.
 The template contains no developer cheats or enabled automatic GitHub reporting.
 
+Windows automatically captures each session's console output in a timestamped ZIP under
+`logs/` beside `SuperMetroid.Game.exe` (not AppData or the current working directory).
+After closing the game, send that session's ZIP when reporting a failure. It contains
+`session.log` with the version, startup messages and complete exception diagnostics; it
+does not include ROMs, artwork, saves or input recordings. Fatal errors publish the ZIP
+before the console's Enter prompt. A forcibly killed process leaves its flushed `.log`
+instead. The executable folder must be writable. Logs may include personal paths; review
+before posting publicly. Logging is always enabled and does not require GitHub reporting.
+
 ## Android
 
 Install the APK and tap **Choose ROM**. Use Android's document picker to select your

@@ -218,6 +218,31 @@ Existing saves resolve the native area/load-station record. Their native load-ap
 presentation runs its ROM palette effect and complete 360-frame locked front-facing sequence
 before restoring ordinary movement.
 
+### Automatic Windows session logs
+
+Every Windows game launch automatically captures stdout and stderr under `logs` beside
+`SuperMetroid.Game.exe`, regardless of the launch working directory or INI/GitHub settings.
+Console output remains visible. Each session has a unique timestamped
+`SuperMetroid-<UTC timestamp>-<PID>-<unique ID>.zip` containing only `session.log`: build version,
+startup/configuration messages, full fatal and recoverable exceptions, their existing runtime
+context, and reporting/shutdown output. Send the ZIP from the affected session when reporting
+a failure; no shell redirection or GitHub login is required.
+
+Normal exit finalizes the ZIP. A fatal boundary also publishes it **before** waiting for Enter,
+including background-thread failures. A flushed sibling `.log` remains while the process runs;
+if the process is forcibly killed, send that text instead. Failed archive writes preserve the
+text and print their full exception without a modal dialog. The executable's directory must
+allow creation of `logs`. Archives are local and not uploaded automatically; they do not
+bundle ROMs, assets, saves, debugger states or input recordings. Paths and console diagnostics
+can contain personal information, so review logs before public posting. Logs are not
+automatically deleted between sessions.
+
+Focused implementation confirmation (no gameplay):
+
+```powershell
+dotnet run --project src/SuperMetroid.DesktopVerification -- --session-log-audit "C:\path\to\SuperMetroid.Game.dll"
+```
+
 ### Automatic input recordings and replay
 
 Every normal game reset creates an always-on recording under

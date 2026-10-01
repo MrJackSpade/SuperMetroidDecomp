@@ -47,7 +47,8 @@ class ReleaseTests(unittest.TestCase):
 
     def test_private_payloads_are_rejected_in_both_archives(self):
         for name in ["assets/game/SuperMetroid.smc", "assets/audio/samples/a.wav", "debug.keystore",
-                     "nested/audio-manifest.json", "x/../a", "SuperMetroid.save.json", "state.smstate"]:
+                     "nested/audio-manifest.json", "x/../a", "SuperMetroid.save.json", "state.smstate",
+                     "logs/SuperMetroid-session.zip", "logs/SuperMetroid-session.log"]:
             with tempfile.TemporaryDirectory() as root:
                 path = Path(root) / "app.apk"
                 with zipfile.ZipFile(path, "w") as archive:

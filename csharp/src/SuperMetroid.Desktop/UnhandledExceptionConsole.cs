@@ -11,6 +11,7 @@ public static class UnhandledExceptionConsole
 {
     private static int fatalErrorIsBeingReported;
     private static Action<Exception>? recoverableUiErrorReporter;
+    private static Action? fatalDiagnosticCheckpoint;
 
     /// <summary>
     /// Routes WinForms event-handler and background-thread failures through the same visible,
@@ -36,6 +37,10 @@ public static class UnhandledExceptionConsole
     /// </summary>
     public static void SetRecoverableUiErrorReporter(Action<Exception>? reporter) =>
         Volatile.Write(ref recoverableUiErrorReporter, reporter);
+
+    /// <summary>Publishes the active session's diagnostic ZIP before waiting or CLR termination.</summary>
+    internal static void SetFatalDiagnosticCheckpoint(Action? checkpoint) =>
+        Volatile.Write(ref fatalDiagnosticCheckpoint, checkpoint);
 
     /// <summary>
     /// Prints a fatal exception, flushes stderr, and waits for Enter before returning failure.
@@ -75,6 +80,8 @@ public static class UnhandledExceptionConsole
         error.WriteLine();
         error.WriteLine("Press Enter to exit.");
         error.Flush();
+
+        Volatile.Read(ref fatalDiagnosticCheckpoint)?.Invoke();
 
         waitForAcknowledgment();
     }

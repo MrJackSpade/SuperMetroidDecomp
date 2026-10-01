@@ -5,6 +5,11 @@ internal static class DesktopSmokeAuditCommands
 {
     public static bool TryRun(string[] args)
     {
+        if (args is ["--session-log-audit", var loggedGameAssembly])
+        {
+            DesktopSessionLogSmokeTest.Run(loggedGameAssembly);
+            return true;
+        }
         if (args is ["--gamepad-missing-axes-audit"])
         {
             LiveGamepadProbe.VerifyMissingAxes();

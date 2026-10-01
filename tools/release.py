@@ -36,7 +36,7 @@ def check_names(names):
     for name in names:
         normalized = name.replace("\\", "/").lower()
         parts = normalized.split("/")
-        if (any(p in {"..", "standalone-assets", "debug-states", "input-recordings"} for p in parts)
+        if (any(p in {"..", "standalone-assets", "debug-states", "input-recordings", "logs"} for p in parts)
                 or normalized.startswith("/")
                 or normalized.endswith((".smc", ".sfc", ".spcu", ".wav", ".smstate", ".smrec", ".srm", ".keystore", ".jks"))
                 or parts[-1] in {"audio-manifest.json", "installation.json", "supermetroid.save.json", "supermetroid.ini"}):

@@ -16,16 +16,18 @@ internal static class Program
             NativeGameProcess.SemNoGpFaultErrorBox |
             NativeGameProcess.SemNoOpenFileErrorBox);
 
-        // Install one shared process boundary before WinForms creates a window. UI callbacks,
-        // background threads, startup failures, and message-loop failures therefore all retain their
-        // complete console diagnostic and wait for Enter instead of disappearing immediately.
-        UnhandledExceptionConsole.InstallWinFormsHandlers();
-
-        ApplicationConfiguration.Initialize();
-
+        DesktopSessionLog? sessionLog = null;
         GitHubErrorReporter? githubErrorReporter = null;
         try
         {
+            // Capture startup, frame reports, worker output and fatal boundaries independently
+            // of the INI/GitHub settings. AppContext.BaseDirectory is the executable location,
+            // even when a shortcut or terminal launches the game from somewhere else.
+            sessionLog = DesktopSessionLog.Start(AppContext.BaseDirectory);
+            UnhandledExceptionConsole.SetFatalDiagnosticCheckpoint(sessionLog.Checkpoint);
+            UnhandledExceptionConsole.InstallWinFormsHandlers();
+            ApplicationConfiguration.Initialize();
+
             if (args is ["--dpi-awareness-audit"])
             {
                 if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
@@ -108,12 +110,23 @@ internal static class Program
         }
         catch (Exception exception)
         {
-            return UnhandledExceptionConsole.ReportAndWait(exception);
+            Environment.ExitCode = UnhandledExceptionConsole.ReportAndWait(exception);
         }
         finally
         {
             UnhandledExceptionConsole.SetRecoverableUiErrorReporter(null);
-            githubErrorReporter?.Dispose();
+            // Finish asynchronous reporting before archiving so its success/failure text is
+            // included. A shutdown failure must pass through the same no-dialog boundary.
+            try { githubErrorReporter?.Dispose(); }
+            catch (Exception exception)
+            {
+                Environment.ExitCode = UnhandledExceptionConsole.ReportAndWait(exception);
+            }
+            finally
+            {
+                sessionLog?.Dispose();
+                UnhandledExceptionConsole.SetFatalDiagnosticCheckpoint(null);
+            }
         }
 
         return Environment.ExitCode;

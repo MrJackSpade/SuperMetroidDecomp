@@ -29,7 +29,8 @@ internal readonly record struct WorkRobotLaserInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the shared Work Robot laser animation program.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved sprite operands select installed artwork bindings; only asset
+/// import reads their native bank-$8D compositions from the cartridge.
 /// </summary>
 internal static class WorkRobotLaserInstructionProgramDefinitions
 {

@@ -92,3 +92,8 @@ These small fixtures confirm missing constant IDs, named/cast arguments, dynamic
 domains, deterministic reports, bound-vs-direct projectile routing, shared palette aliases
 and the separate title provider. They confirm the audit's identified contracts; they do
 not explore gameplay or search for additional player bugs.
+
+`--work-robot-resource-check` confirms the specific #1156 laser omission with constructed
+art through the real catalog loader: all seven bindings, preserved schema-11 override
+edits, inherited new stock frames and rejection of incomplete old stock. It does not
+run an enemy, game frame or room.

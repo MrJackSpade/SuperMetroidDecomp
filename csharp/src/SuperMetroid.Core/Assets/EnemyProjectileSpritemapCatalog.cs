@@ -113,6 +113,8 @@ public sealed class EnemyProjectileSpritemapCatalog
                     EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
                 EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion =>
                     EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreWorkRobotVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
                 EnemyProjectileSpritemapDefinitions.Version =>
                     EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
                 _ => throw new InvalidDataException(
@@ -208,7 +210,9 @@ public static class EnemyProjectileSpritemapDefinitions
     /// </summary>
     public const ushort BlankSpritemap = 0x8000;
 
-    public const int Version = 11;
+    public const int Version = 12;
+    /// <summary>Schema 11: all earlier projectile families, before Work Robot laser bindings.</summary>
+    public const int PreWorkRobotVersion = 11;
     public const int PreMotherBrainAndStatueVersion = 10;
     public const int PreEnvironmentAndAttackVersion = 9;
     public const int CeresOnlyVersion = 1;

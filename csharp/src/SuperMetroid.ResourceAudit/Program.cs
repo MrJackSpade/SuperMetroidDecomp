@@ -18,6 +18,11 @@ internal static partial class Program
                 AuditContractChecks.Run();
                 return 0;
             }
+            if (args is ["--work-robot-resource-check"])
+            {
+                WorkRobotResourceChecks.Run();
+                return 0;
+            }
             string root = Directory.GetCurrentDirectory();
             string? jsonPath = null;
             for (int index = 0; index < args.Length; index++)
@@ -26,7 +31,8 @@ internal static partial class Program
                 {
                     case "--root" when index + 1 < args.Length: root = args[++index]; break;
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
-                    default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | --self-check");
+                    default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
+                        "--self-check | --work-robot-resource-check");
                 }
             }
             root = Path.GetFullPath(root);

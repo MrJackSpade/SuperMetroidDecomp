@@ -18,6 +18,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreGenericEnemyDeath,
         PreEnvironmentAndAttack,
         PreMotherBrainAndStatue,
+        PreWorkRobot,
         Current,
     }
 
@@ -33,6 +34,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         Build(CatalogGeneration.PreEnvironmentAndAttack);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreMotherBrainAndStatueFrames =
         Build(CatalogGeneration.PreMotherBrainAndStatue);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreWorkRobotFrames =
+        Build(CatalogGeneration.PreWorkRobot);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(CatalogGeneration.Current);
 
@@ -49,6 +52,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreEnvironmentAndAttackFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatue =>
         PreMotherBrainAndStatueFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreWorkRobot =>
+        PreWorkRobotFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
@@ -196,7 +201,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
                 PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (generation >= CatalogGeneration.Current)
+        if (generation >= CatalogGeneration.PreWorkRobot)
         {
             Add(frames, "bomb_torizo_statue_fragment",
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
@@ -213,6 +218,12 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "mother_brain_turret",
                 MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
                 MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (generation >= CatalogGeneration.Current)
+        {
+            Add(frames, "work_robot_laser",
+                WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
+                WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

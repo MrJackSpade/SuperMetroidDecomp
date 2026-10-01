@@ -33,6 +33,7 @@ internal static class ClosedPresentationContractDefinitions
         .. NativeDisplaySelectorClosedContractDefinitions.All,
         .. EnemyArtworkClosedContractDefinitions.All,
         .. EnemyProjectileArtworkClosedContractDefinitions.All,
+        .. EnemyDisplayArtworkClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

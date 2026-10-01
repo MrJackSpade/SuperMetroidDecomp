@@ -14,7 +14,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class ClosedPresentationAudit
 {
-    private readonly Dictionary<string, (ClosedPresentationContract Contract, bool Valid)> contracts = [];
+    private readonly Dictionary<(string Type, string Method), (ClosedPresentationContract Contract, bool Valid)> contracts = [];
     private int references;
 
     internal ClosedPresentationAudit(Compilation compilation, ResourceIndex exports)
@@ -93,6 +93,16 @@ internal sealed class ClosedPresentationAudit
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
+            if (valid && contract.Methods.Contains("TryGetDisplay", StringComparer.Ordinal) &&
+                contract.Type is "SuperMetroid.Core.Assets.EnemySpritemapCatalog" or "SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog")
+            {
+                string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
+                    ? [typeof(EnemySpritemapDefinitions).FullName!]
+                    : [typeof(EnemyExtendedFrameDefinitions).FullName!, typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName!];
+                valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
+                    dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
+                        source.Path == declaration.SyntaxTree.FilePath)));
+            }
             if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
@@ -127,7 +137,8 @@ internal sealed class ClosedPresentationAudit
                             compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
                             IFieldSymbol { Name: "TileSourcePointers" } field &&
                                 field.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkFormat).FullName));
-            contracts.Add(contract.Type, (contract, valid));
+            foreach (string method in contract.Methods)
+                contracts.Add((contract.Type, method), (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)
                     exports.Add("closed-presentation-contract", contract.Type + "." + method);
@@ -142,8 +153,7 @@ internal sealed class ClosedPresentationAudit
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location, string arguments)
     {
-        if (!contracts.TryGetValue(method.ContainingType.ToDisplayString(), out var reviewed) ||
-            !reviewed.Contract.Methods.Contains(method.Name, StringComparer.Ordinal)) return false;
+        if (!contracts.TryGetValue((method.ContainingType.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;
         string owner = method.ContainingType.Name + "." + method.Name;
         void Gap(string reason)
@@ -164,6 +174,7 @@ internal sealed class ClosedPresentationAudit
         string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
             ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
+            ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
             ?? ClosedTransferDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {

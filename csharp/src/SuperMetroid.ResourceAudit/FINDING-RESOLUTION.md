@@ -887,3 +887,32 @@ remain explicitly failing findings, not silently waived or treated as proven res
   accounted boundaries. Do not count the blank site as a fifth newly resolved gap.
   Arbitrary slot identities, selection, timing and pixels are not certified.
   #1156 remains active.
+
+## Ordinary/extended enemy display artwork - three further boundaries accounted
+
+- **Findings/cause:** two ordinary and one extended dynamic display lookup lacked
+  a coverage adapter. Source review confirms their existing loaders require every
+  current frame and binding, reject targets not in the installed identity set,
+  and preserve completeness when merging historical overrides from private stock.
+- **Classification:** add separate source-guarded artwork rules for TryGetDisplay,
+  with sparse bank/pointer checks and the explicitly compiled empty extended-frame
+  fallback. Keep GetDisplayPointer's non-resource projection rule independent.
+  Rule routing is now keyed by provider and operation rather than provider alone.
+  Required identity definitions use read-only spans over private arrays; new
+  metadata declarations revoke their corresponding rule. Derived additions feed
+  installation and audit domains; their dependencies remain separately inventoried.
+- **Confirmation:** constructed compositions confirm actual binding resolution,
+  unowned-target rejection and the empty fallback. Seven source calls first expose
+  five missing and two unresolved boundaries; five qualify, two known unowned
+  pairs remain findings, and every site stays recorded. Changed shared admission
+  revokes both artwork rules; extra ordinary metadata revokes only that rule.
+  Existing projection checks still pass independently. Audit Release build and all
+  auditor checks pass; production gameplay is unchanged. No ROM, save, installed
+  art, enemy simulation or gameplay was opened.
+- **Accounting:** **346 of the original 353 boundaries** are accounted, leaving
+  **7 unresolved**, zero missing, all 352 consumers retained. JSON records 345
+  guarded sites (344 original gaps plus the previously resolved native-blank site)
+  and the ledger records two original metadata corrections. Remaining work is
+  five Samus body-transfer operations and two interface-dispatch boundaries.
+  Arbitrary slot inputs, selection, collision, placement, timing and pixels are
+  not certified. #1156 remains active.

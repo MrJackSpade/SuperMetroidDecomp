@@ -675,3 +675,28 @@ calls first expose five missing and two unresolved boundaries; five qualify and
 two known unowned IDs remain findings. Changed admission or external definition
 array access revokes the rule. Audit Release build and auditor checks pass; no
 production behavior, ROM, save, installed artwork or gameplay changed.
+
+## Ordinary/extended enemy display artwork - three additional original boundaries
+
+Both private constructors are reached through complete loaders: every current
+frame and display binding is required, and each target must be an installed
+identity in the same bank (ordinary) or family (extended). Historical overrides
+inherit complete private stock and replace only validated earlier members.
+TryGetDisplay therefore has its own valid-domain resource rule. Extended fallback
+includes the compiled empty extended frame. Known unowned bank/pointer pairs
+remain findings. The total GetDisplayPointer ID projection retains its independent
+source proof; routing by provider plus operation keeps these contracts separate.
+
+Definitions expose read-only spans over private arrays. Added metadata declarations
+revoke the affected rule, and derived identities flow into both installation and
+audit selection sets. Their presentation dependencies remain checked by the
+separate definition inventory. This is availability, not arbitrary slot inputs,
+BG2 placement, collision, timing or pixels.
+
+Constructed compositions confirm binding resolution, unowned-target rejection and
+empty fallback. Seven source calls expose five missing and two unresolved boundaries
+first; five qualify and two known unowned pairs remain findings. Changed shared
+admission revokes both artwork rules; added ordinary metadata revokes only its
+rule, leaving the independent extended rule intact. Existing projection checks
+still pass. Audit Release build and auditor checks pass; no production gameplay,
+ROM, save, installed art or enemy simulation was used.

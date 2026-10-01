@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
-    private static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom)
+    private static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         int Native(int index) => rom.ReadByte(0x91c9d4 + index * 2) | rom.ReadByte(0x91c9d5 + index * 2) << 8;
         var guard = new TangentReadGuard(rom);
@@ -19,6 +19,12 @@ internal static partial class Program
             AssertEqual(Native(index), eye(guard, index), "Eye actual tangent reader without ROM");
             AssertEqual(Native(index), mother(guard, index), "Mother Brain actual tangent reader without ROM");
             AssertEqual(Native(index), mother(guard, index - 256), "Mother Brain caller byte wrap");
+        }
+        if (definitionsOnly)
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(-1), "Tangent negative index rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond endpoint rejected");
+            return;
         }
         var direction = typeof(SnesGameplayFrameRenderer).GetMethod("ReadXrayDirection", BindingFlags.NonPublic | BindingFlags.Static)!;
         for (int angle = -256; angle < 512; angle++)

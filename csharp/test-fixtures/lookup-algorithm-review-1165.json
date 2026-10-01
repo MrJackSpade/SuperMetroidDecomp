@@ -78,8 +78,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Independently review existing shared speed algorithms for #1165'"
     },
     "running-cadence-review": {
+      "sha": "a0a54fe7723dcf3c84c95b9284df4102772579c7",
       "subject": "Reconcile running cadence algorithms and alias proofs for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Reconcile running cadence algorithms and alias proofs for #1165'"
+    },
+    "window-curve-review": {
+      "subject": "Record independent window-curve retain decisions for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Record independent window-curve retain decisions for #1165'"
     }
   },
   "tables": [
@@ -615,9 +620,38 @@
     "newConversions": 0,
     "confirmationScope": "Split existing combined original-byte proof into nine named proofs without duplicate oracle checks. Reuse scoped caller checks for ordinary/stage reads, cross-catalog offsets, wrapped mutable alias and invalid upper-bank bytes. definitionsOnly skips broad counter/input matrices; no gameplay behavior changed."
   },
+  "windowCurveReview": {
+    "reviewCommit": "window-curve-review",
+    "reviewedEvidence": "Complete pinned bank_88.asm SuitPickup_LightBeam_CurveWidths and forward/reverse reader, bank_91.asm AbsoluteTangentTable, all current direct consumers, and original NTSC ROM values. Historical mathematical research inspected as hypotheses, not original-generator proof. No new fitting searches performed.",
+    "tables": [
+      {
+        "id": "suit-pickup-beam-contour", "state": "retained",
+        "owner": "csharp/src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs",
+        "nativeIdentity": "$88:E3C9 SuitPickup_LightBeam_CurveWidths",
+        "consumers": ["SamusSuitPickupState widening window", "LookupTableResearch.Program.SuitCurve historical comparisons"],
+        "domain": "int source index0..127; other values InvalidDataException. Caller mirrors scanlines128..255 using255-line; no overread or endpoint extension.",
+        "interpretation": "Unsigned byte contour offset; caller subtracts from left with signed-byte clamp and adds to right with unsigned carry saturation.",
+        "disposition": "Retain exact128-byte authored contour.",
+        "rationale": "Ordinary rounded ellipse needs opening seven-row ramp and row31 correction. A compatible historical angle-grid/Q6 double-rounding model avoids that one correction but still needs multiple quantization stages and the ramp; evidence does not identify the original generator. Such a deterministic evaluator is more opaque than the small contour, while a row31 patch would not have independently established edge-case semantics. Neither mathematical compatibility nor removal of an array alone justifies conversion.",
+        "existingConfirmation": "VerifySuitPickupBeamCurveDefinitions: all128 original bytes plus invalid bounds"
+      },
+      {
+        "id": "absolute-tangent-gradient", "state": "retained",
+        "owner": "csharp/src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs",
+        "nativeIdentity": "$91:C9D4 AbsoluteTangentTable; SamusXrayRomData.Window.AbsoluteTangentTable is an address alias",
+        "consumers": ["EyeBeamWindowBuilder.Tangent: upper angles reflected before Sample", "MotherBrainRainbowBeamHdmaState.Tangent: byte-wrapped angle", "SnesGameplayFrameRenderer.ReadXrayDirection: cardinal special cases, angle&127 otherwise", "LookupTableResearch historical comparison"],
+        "domain": "Sample int0..128 inclusive; ArgumentOutOfRangeException outside. Reflection n=min(i,128-i) addresses65 stored words; no modulo acceptance at API.",
+        "interpretation": "Unsigned8.8 absolute dx/dy slope; zero at endpoints, exact diagonal256, finite infinity substitute15360 at64.",
+        "disposition": "Retain65-word reflected representation, already removing duplicated half of129-word native mapping.",
+        "rationale": "A reduced-pi floor(256*tan(n*3.14159/128)) construction needs diagonal/infinity cases. True pi yields10428 rather than10427 near the horizontal endpoint; reduced pi alone underflows diagonal to255. Deterministic transcendental quotient/error-bound evaluation adds substantial complexity and per-frame cost compared with direct words. These are plausible period-precision hypotheses, not original tool provenance. Preserve clear exact compact data instead.",
+        "existingConfirmation": "VerifyCompiledAbsoluteTangent definitionsOnly: all129 original words, eye/Mother Brain readers including byte wrap, and bounds"
+      }
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Reuse existing original-data checks only. No broad rendering matrix, gameplay sweep or curve-fitting search. Runtime storage and behavior unchanged."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
-    "AbsoluteTangentDefinitions",
     "ShaktoolOrbitTables",
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
@@ -641,6 +675,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-running-cadence-review",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-retained-window-curves"
   ]
 }

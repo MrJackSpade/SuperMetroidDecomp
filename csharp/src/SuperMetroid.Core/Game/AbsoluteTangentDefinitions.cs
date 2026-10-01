@@ -6,24 +6,19 @@ public static class AbsoluteTangentDefinitions
     /// <summary>$91:C9D4, AbsoluteTangentTable: first quarter of native absolute
     /// 8.8 gradients, approximately |tan(t*pi/128)|*256, with an infinity substitute.</summary>
     /// <remarks>
-    /// Issue #625 exact algorithm: validate i in 0..128, then n=min(i,128-i).
-    /// Return 256 at n=32 (exact diagonal), 15360 at n=64 (finite infinity), and
-    /// otherwise floor(256*tan(n*3.14159/128)). This reproduces ALL 129 words,
-    /// including zero at both endpoints. The short decimal pi is intentional:
-    /// true pi gives 10428 at indices 63 and 65, but the cartridge stores 10427.
-    /// The diagonal case is also necessary: the reduced-pi quotient gives 255.
-    /// csharp/tools/LookupTableResearch verifies every result against the NTSC
-    /// J/U v1.0 ROM, pinned bank_91.asm, and Sample. Its deterministic evaluator
-    /// uses 24 decimal sine terms for sin(x)/cos(x), with cos(x) evaluated as
-    /// sin(truePi/2-x), and proves the quotient's entire error interval has one
-    /// integer floor. Do not use 3.14159/2-x as the cosine complement: that would
-    /// cancel the phase error being reproduced. This is an exact reproduction
-    /// recipe, not a claim about the original generator. Runtime migration and
-    /// performance measurement remain for a later pass; the table is unchanged.
-    /// The same physical table is named by
-    /// <see cref="SamusXrayRomData.Window.AbsoluteTangentTable"/> and used by
-    /// eye windows, Mother Brain's beam, and X-ray direction rendering.
-    /// Individual investigation: #625 / #906.
+    /// #1165 independently reviewed: retain the 65-word quarter table and exact
+    /// index reflection after comparing all 129 original NTSC J/U v1.0 words and
+    /// pinned bank_91.asm. Domain 0..128 includes both zero endpoints, exact diagonal
+    /// 256 and finite infinity substitute 15360. No extrapolation or modulo clamping.
+    /// Historical reduced-pi model floor(256*tan(n*3.14159/128)), n=min(i,128-i),
+    /// needs explicit diagonal/infinity cases. True pi differs at 63/65 (10428 versus
+    /// native 10427); reduced pi alone makes the diagonal 255. These are plausible
+    /// historical precision conventions, not evidence of the original generator.
+    /// A deterministic quotient/error-bound evaluator is substantially more complex
+    /// and costly than 65 direct words in per-frame ray/window construction. Reflection
+    /// already removes the duplicate half. Keep this exact compact representation.
+    /// Eye windows, Mother Brain and X-ray direction rendering share this one mapping;
+    /// SamusXrayRomData.Window.AbsoluteTangentTable is an address alias, not more data.
     /// </remarks>
     private static ReadOnlySpan<ushort> Quarter =>
     [

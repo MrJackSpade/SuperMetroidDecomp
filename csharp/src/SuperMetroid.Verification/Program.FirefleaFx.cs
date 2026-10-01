@@ -5,35 +5,22 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static void VerifyFirefleaFx()
+    private static void VerifyFirefleaFx(bool includeXrayCapture = true)
     {
         var memory = new TestAddressSpace();
         var bus = new FirefleaFxDefinitionReadGuard(memory);
         var fx = new RoomLayer3FxState();
         var vram = new SnesVram();
-        const ushort record = 0x9400;
-        memory.WriteByte(0x830000 | (record + RoomFxRomData.Record.TypeOffset), (byte)RoomFxType.Fireflea);
+        ushort record = RoomFxRecordDefinitions.All.First(record => record.Type == (byte)RoomFxType.Fireflea && record.DoorPointer == 0).Pointer;
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
         // generated from the production catalog or implementation.
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
         ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (ushort i = 0; i < flash.Length; i++)
-        {
-            AssertEqual(ReadFirefleaWord(rom, 0x88B058 + i * 2), FirefleaFxDefinitions.FlashingShade(i),
-                $"compiled Fireflea flashing shade {i}");
-        }
-        for (ushort byteOffset = 0; byteOffset <= 12; byteOffset += 2)
-        {
-            AssertEqual(ReadFirefleaWord(rom, 0x88B070 + byteOffset), FirefleaFxDefinitions.DarknessShade(byteOffset),
-                $"compiled Fireflea darkness offset {byteOffset}");
-        }
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12),
-            "Fireflea flashing index outside native cycle");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1),
-            "Fireflea odd darkness byte offset");
-        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14),
-            "Fireflea darkness beyond retail death domain");
+        fx.PaletteBlendColors = SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(rom)));
+        VerifyFirefleaFlashingAlgorithm(rom);
+        VerifyFirefleaDarknessAlgorithm(rom);
         fx.Load(bus, vram, new SnesCgram(), record, 0, 0);
         AssertEqual(6, bus.ReadByte(0x1778), "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
@@ -76,10 +63,28 @@ internal static partial class Program
         bus.WriteByte(0x74, 0x25);
         fx.Step(bus, vram, 0, 0, false);
         AssertEqual(0x25, bus.ReadByte(0x74), "non-Fireflea room does not execute the old producer");
-        VerifyFirefleaXrayCapture();
+        if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
+    private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (ushort i = 0; i < 12; i++)
+            AssertEqual(ReadFirefleaWord(rom, FirefleaFxDefinitions.FlashReferenceAddress + 2 * i),
+                FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
+        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12), "Flash upper bound");
+        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
+    }
+
+    private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (ushort offset = 0; offset <= 12; offset += 2)
+            AssertEqual(ReadFirefleaWord(rom, FirefleaFxDefinitions.DarknessReferenceAddress + offset),
+                FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including opcode alias {offset}");
+        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
+        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
+        AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
+    }
     private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

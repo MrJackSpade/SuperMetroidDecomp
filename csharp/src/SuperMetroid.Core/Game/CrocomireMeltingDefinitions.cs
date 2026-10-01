@@ -13,7 +13,10 @@ internal static class CrocomireMeltingDefinitions
     /// modular stride or simple block traversal does not reproduce it, and
     /// a guessed shuffle would obscure the visual sequence. The separate
     /// bitplane mask uses the chronological cursor's low three bits, not the
-    /// selected X column's. Investigation: #625 / #672.
+    /// selected X column's. Independent #1165 review confirms all original bytes and the current/native consumer.
+    /// Differences begin -3,-7,-2,+13, excluding a constant modular stride; the
+    /// sequence is neither monotonic nor a bit-reversal traversal. A seeded shuffle
+    /// would require an unsupported generator/seed and obscure the authored order.
     /// </remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
@@ -37,10 +40,11 @@ internal static class CrocomireMeltingDefinitions
     /// results and the complete production erase silhouette. The cartridge
     /// selects the mask by chronological cursor, not by the separately selected
     /// X column. This proof covers only the masks, not that column permutation.
-    /// Investigation: #625 / #673.
+    /// Independently reviewed for #1165 against all original NTSC bytes and pinned
+    /// bank_A4.asm. Implement the exact bit-clear rule; keep cursor bounds and the
+    /// native chronological-index bug. No column permutation is inferred.
     /// </remarks>
-    private static ReadOnlySpan<byte> ColumnMasks =>
-        [0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe];
+    internal const int MaskReferenceAddress = 0xa49bbd;
 
     /// <summary>The number of authored physical columns in the melt permutation.</summary>
     public const int ColumnCount = 49;
@@ -61,6 +65,6 @@ internal static class CrocomireMeltingDefinitions
     {
         if ((uint)cursor >= ColumnCount)
             throw new ArgumentOutOfRangeException(nameof(cursor));
-        return ColumnMasks[cursor & 7];
+        return (byte)(0xff ^ (0x80 >> (cursor & 7)));
     }
 }

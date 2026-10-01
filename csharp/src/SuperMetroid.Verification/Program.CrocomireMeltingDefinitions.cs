@@ -8,15 +8,13 @@ internal static partial class Program
     private static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         const int columnTable = 0xa49697;
-        const int maskTable = 0xa49bbd;
+        VerifyCrocomireMaskAlgorithm(rom);
         for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
         {
             AssertEqual(rom.ReadByte(columnTable + cursor),
                 CrocomireMeltingDefinitions.SelectColumn(cursor),
                 $"Crocomire melt column {cursor}");
-            AssertEqual(rom.ReadByte(maskTable + (cursor & 7)),
-                CrocomireMeltingDefinitions.SelectMask(cursor),
-                $"Crocomire melt mask {cursor}");
+
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => CrocomireMeltingDefinitions.SelectColumn(-1),
@@ -33,6 +31,15 @@ internal static partial class Program
             "and source-table read guards pass.");
     }
 
+    private static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int cursor = 0; cursor < 49; cursor++)
+            AssertEqual(rom.ReadByte(CrocomireMeltingDefinitions.MaskReferenceAddress + (cursor & 7)),
+                CrocomireMeltingDefinitions.SelectMask(cursor), $"Original chronological melt mask {cursor}");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(-1), "Mask negative cursor");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
+    }
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
         static ushort NativeWord(ISnesAddressSpace bus, int address) =>

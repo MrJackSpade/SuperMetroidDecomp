@@ -58,8 +58,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Owtch timing and room-shake geometry for #1165'"
     },
     "fireflea-gunship-algorithms": {
+      "sha": "28efe265f8603eec2e27b8fa0fff1e6a0da2c347",
       "subject": "Convert Fireflea radii and gunship motion policies for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea radii and gunship motion policies for #1165'"
+    },
+    "fireflea-melt-algorithms": {
+      "subject": "Convert Fireflea shade rules and Crocomire masks for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea shade rules and Crocomire masks for #1165'"
     }
   },
   "tables": [
@@ -431,6 +436,56 @@
     ],
     "integrationConfirmation": "Reuse existing eight Fireflea initializers, seventeen gunship braking frames and four hover expiration phases with source-table reads forbidden. No exploratory gameplay tests."
   },
+  "firefleaMeltReview": {
+    "implementationCommit": "fireflea-melt-algorithms",
+    "reviewedEvidence": "Pinned bank_88.asm full Fireflea_Flashing_Shades/Fireflea_Darkness_Shades and FX preinstruction, bank_A3 death-counter increment/limit, bank_A4 CrocomireMeltingXOffsetTable/TilePixelColumnBitmasks and erase routine. Independently compare production results to the recorded NTSC ROM; source-inspect all consumers and adjacent opcode alias.",
+    "tables": [
+      {
+        "id": "fireflea-flashing-shade", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FirefleaFxDefinitions.cs",
+        "nativeIdentity": "$88:B058 Fireflea_Flashing_Shades",
+        "consumers": ["FirefleaRoomFx.Step", "LookupTableResearch historical comparison"],
+        "domain": "ushort index 0..11, reject 12 and above; native doubles for word addressing.",
+        "interpretation": "Packed unsigned shade word added to darkness with ushort wrapping, then high byte extracted.",
+        "disposition": "256*(6-abs(index-6)) after validating domain.",
+        "rationale": "Complete exact triangular integer wave, not a rounded sine fit; timer, steady phase and freezing stay in callers.",
+        "proofTest": "VerifyFirefleaFlashingAlgorithm"
+      },
+      {
+        "id": "fireflea-darkness-shade", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FirefleaFxDefinitions.cs",
+        "nativeIdentity": "$88:B070 Fireflea_Darkness_Shades with $88:B07C opcode alias",
+        "consumers": ["FirefleaRoomFx.Step; death offset from RoomEnemySystem.AdvanceFirefleaDarknessLevel", "LookupTableResearch historical comparison"],
+        "domain": "Even ushort byte offsets 0..12 only; odd offsets and 14+ rejected.",
+        "interpretation": "Six authored packed shade words plus one reachable adjacent-code word; retain ushort sum before high-byte extraction.",
+        "disposition": "256*min(3*byteOffset,25) for 0..10; named explicit $C208 at offset 12.",
+        "rationale": "Exact capped ramp for authored words. Native death counter advances by two while next<14, permitting offset12 to observe PHP/REP opcode bytes. This is a proven narrow compatibility exception, never extrapolate or clamp it.",
+        "proofTest": "VerifyFirefleaDarknessAlgorithm"
+      },
+      {
+        "id": "crocomire-melt-mask", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
+        "nativeIdentity": "$A4:9BBD TilePixelColumnBitmasks",
+        "consumers": ["RoomEnemySystem.EraseNextCrocomireMeltingColumn", "LookupTableResearch historical comparison"],
+        "domain": "int chronological cursor 0..48; all others ArgumentOutOfRangeException. Native mask selector is cursor&7.",
+        "interpretation": "Eight-bit AND mask clearing one MSB-first pixel in each of four tile bitplanes.",
+        "disposition": "0xff XOR (0x80 >> (cursor&7)) after cursor validation.",
+        "rationale": "Exact bitplane construction explains all eight physical bytes and 49 supported uses. Preserve native chronological-index bug, not selected-column low bits.",
+        "proofTest": "VerifyCrocomireMaskAlgorithm"
+      },
+      {
+        "id": "crocomire-melt-column-order", "state": "retained",
+        "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
+        "nativeIdentity": "$A4:9697 CrocomireMeltingXOffsetTable",
+        "consumers": ["RoomEnemySystem.EraseNextCrocomireMeltingColumn"],
+        "domain": "int chronological cursor 0..48, rejected outside. Existing caller stops before adjacent opcodes rather than expanding the compiled domain.",
+        "interpretation": "Permutation of 49 X columns, selecting physical tile groups independently of the chronological mask.",
+        "disposition": "Retain exact explicit dissolve order.",
+        "rationale": "Complete original sequence and consumers inspected. Initial differences -3,-7,-2,+13 rule out a constant modular stride; neither monotonic/triangular traversal nor bit reversal explains ordering. A hypothetical period-appropriate seeded shuffle lacks generator/seed evidence. Encoding a guessed permutation algorithm or 49 case arms would obscure authored visual order. Existing production silhouette check compares original column and mask reads."
+      }
+    ],
+    "integrationConfirmation": "Existing Fireflea shade/timer/freeze/death-offset and COLDATA checks, and Crocomire 49-column four-bitplane production erase silhouette; source reads forbidden. Fireflea fixture updated to select a compiled default-door FX record instead of obsolete synthetic $83:9400."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
@@ -456,6 +511,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms"
   ]
 }

@@ -38,8 +38,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Implement bounded phase and combo algorithms for #1165'"
     },
     "source-index-and-robot-selector": {
+      "sha": "266589d26ab80dfc828323d1c63743ede17042fb",
       "subject": "Index lookup review scope and convert Work Robot selector for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Index lookup review scope and convert Work Robot selector for #1165'"
+    },
+    "shaktool-segment-algorithms": {
+      "subject": "Convert Shaktool segment selection tables for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Shaktool segment selection tables for #1165'"
     }
   },
   "tables": [
@@ -186,6 +191,70 @@
       "implementationCommit": "source-index-and-robot-selector"
     }
   ],
+  "shaktoolReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Game/ShaktoolSegmentDefinitions.cs",
+    "domain": "int segment index 0..6; native parameter two is even byte offset 0..12, validated before division by two. Other indices remain InvalidDataException.",
+    "reviewedEvidence": "Pinned bank_AA.asm ShaktoolPieceData and full $AA:DE43 initialization. Every converted field's seven little-endian words compared independently to the SHA-256-identified NTSC ROM. All seven production initializers and callback reset checked with source reads forbidden.",
+    "consumers": ["RoomEnemySystem.Shaktool.InitializeShaktool", "RoomEnemySystem.Shaktool.SynchronizeShaktoolOrbitTargets (record angular field)", "RoomEnemySystem.Shaktool.TryProcessShaktoolInstruction callback reset", "ShaktoolAngularVelocityDefinitions.ForSegment (record angular alias)"],
+    "implementationCommit": "shaktool-segment-algorithms",
+    "tables": [
+      {
+        "id": "shaktool-properties", "state": "converted",
+        "nativeIdentity": "$AA:DE95 ShaktoolPieceData_properties",
+        "interpretation": "Mask ORed into existing enemy properties.",
+        "disposition": "End saws 0/6 select 0x2800; internal pieces select 0x2C00.",
+        "rationale": "Named anatomical roles establish a two-case property policy; no numerical curve or storage-index arithmetic is needed.",
+        "proofTest": "VerifyShaktoolPropertySelection"
+      },
+      {
+        "id": "shaktool-owner-offset", "state": "converted",
+        "nativeIdentity": "$AA:DEA3 ShaktoolPieceData_RAMOffset",
+        "interpretation": "Subtract from physical enemy native index with ushort wrap to obtain primary-piece owner.",
+        "disposition": "Compute 64*index, matching native enemy-record stride.",
+        "rationale": "Exact uniform storage stride explains every original offset; not an incidental fit or extrapolated domain.",
+        "proofTest": "VerifyShaktoolOwnerOffsetAlgorithm"
+      },
+      {
+        "id": "shaktool-initial-instruction", "state": "converted",
+        "nativeIdentity": "$AA:DEBF ShaktoolPieceData_initialInstListPointer",
+        "interpretation": "Initial instruction pointer, separate from adjacent orbit-angle words even though original storage is contiguous.",
+        "disposition": "Switch selects primary saw list for 0/6, down-facing head for 3, normal arm otherwise.",
+        "rationale": "Fixed part-role selection with named pointers is clearer than seven stored repetitions or address arithmetic.",
+        "proofTest": "VerifyShaktoolInitialInstructionSelection"
+      },
+      {
+        "id": "shaktool-layer", "state": "converted",
+        "nativeIdentity": "$AA:DECD ShaktoolPieceData_layerControl",
+        "interpretation": "Unsigned drawing-layer selector, not a composable bit mask.",
+        "disposition": "Saws/head (0,3,6) use layer 2; arms use layer 4.",
+        "rationale": "Anatomical selection directly expresses layering; no modulo wrapping of invalid indices.",
+        "proofTest": "VerifyShaktoolLayerSelection"
+      },
+      {
+        "id": "shaktool-callback", "state": "converted",
+        "nativeIdentity": "$AA:DEDB ShaktoolPieceData_functionPointer",
+        "interpretation": "Callback identities used during initialization and group reset.",
+        "disposition": "Switch selects idle anchor at 0, orienting head at 3, driving final saw at 6 and orbiting arm for the remaining segments.",
+        "rationale": "Genuine dispatch policy supported by native target identities; no formula needed under user's case-selection permission.",
+        "proofTest": "VerifyShaktoolCallbackSelection"
+      },
+      {
+        "id": "shaktool-initial-angle", "state": "unreviewed",
+        "nativeIdentity": "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle",
+        "disposition": "Separated into seven-word span; numerical disposition still pending. Original bytes confirmed while replacing the combined record array."
+      },
+      {
+        "id": "shaktool-angular-velocity", "state": "unreviewed",
+        "nativeIdentity": "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta",
+        "disposition": "Separated into seven-word span; numerical disposition still pending. Includes ShaktoolAngularVelocityDefinitions alias, not a second table."
+      },
+      {
+        "id": "shaktool-initial-subtrahend", "state": "unreviewed",
+        "nativeIdentity": "$AA:DEF7 ShaktoolPieceData_zero",
+        "disposition": "Already omitted by compiled initialization; independent disposition pending, not a new conversion."
+      }
+    ]
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
@@ -193,8 +262,7 @@
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
     "EnemyLinearSpeedDefinitions",
     "EnemyQuadraticSpeedDefinitions",
-    "ShaktoolSegmentDefinitions: property, owner offset, angle, instruction, layer, callback, velocity fields",
-    "ShaktoolAngularVelocityDefinitions: alias of segment velocity and initialization subtraction table",
+    "ShaktoolSegmentDefinitions: numerical fields and zero subtrahend pending in shaktoolReview; five other fields converted",
     "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
@@ -209,6 +277,7 @@
   "confirmationCommands": [
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms"
   ]
 }

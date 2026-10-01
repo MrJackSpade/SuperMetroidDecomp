@@ -43,8 +43,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Index lookup review scope and convert Work Robot selector for #1165'"
     },
     "shaktool-segment-algorithms": {
+      "sha": "bb8ba85659a5ff62881845bb49d0b1770928c9fd",
       "subject": "Convert Shaktool segment selection tables for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Shaktool segment selection tables for #1165'"
+    },
+    "slope-geometry-algorithms": {
+      "subject": "Replace slope lookup samples with exact geometry for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Replace slope lookup samples with exact geometry for #1165'"
     }
   },
   "tables": [
@@ -191,6 +196,47 @@
       "implementationCommit": "source-index-and-robot-selector"
     }
   ],
+  "slopeReview": {
+    "implementationCommit": "slope-geometry-algorithms",
+    "tables": [
+      {
+        "id": "shared-slope-height", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/SlopeHeightDefinitions.cs",
+        "nativeIdentity": "$94:8B2B SlopeDefinitions_SlopeTopXOffsetByYPixel, 512 bytes",
+        "consumers": ["SamusSlopePhysics.ReadAlignmentHeight", "RoomEnemySystem.CommonMovement", "SamusProjectileSystem.Motion", "SamusBombProjectileSystem", "LookupTableResearch.VerifyGeometry (reference only)"],
+        "domain": "shape 0..31, column 0..15; each axis independently bounded",
+        "interpretation": "Top Y height indexed by X despite swapped native label. Values 0..20 fit original five-bit mask. Caller owns BTS mirroring, floor/ceiling orientation and coordinate wrap.",
+        "reviewedEvidence": "Read all 32 profiles and shape annotations in pinned bank_94.asm and every production index construction. Compare actual Read with all 512 original NTSC ROM bytes (same five-bit interpretation) in the existing proof.",
+        "disposition": "Remove samples; bounded shape switch evaluates flat, half-block, V, stair, rational and steep profiles with integer arithmetic.",
+        "rationale": "Native geometry explains repeated samples and cross-tile phase. Nonnegative division floors; third-height slopes preserve phase across seams. Steep heights above 16 encode as 20 rather than numeric saturation; shape 17 explicitly retains authored overhang. No fitted corrections or platform math.",
+        "proofTest": "VerifyCompiledSlopeHeights (existing proof reused, bounds extended); includes 12288 mirrored Samus samples and 55296 direct cross-consumer collision/alignment cases"
+      },
+      {
+        "id": "samus-square-slope-quadrants", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/SquareSlopeDefinitions.cs",
+        "nativeIdentity": "$94:8E54 SquareSlopeDefinitions_Bank94, 20 bytes",
+        "consumers": ["SamusBlockCollision horizontal/vertical square collision", "SamusBlockCollision.GrappleRelease", "SamusProjectileSystem.Motion.MissileSlopePointReaction", "LookupTableResearch.VerifyGeometry (reference only)"],
+        "domain": "flattened index 0..19 (4*shape+quadrant); invalid indices keep IndexOutOfRangeException from prior span indexing",
+        "interpretation": "Quadrants 0..3 are top-left/right/bottom-left/right; exact bytes 0 or 128. Caller retains XOR mirroring and leading-edge selection.",
+        "reviewedEvidence": "Read all native shape/quadrant definitions and caller transformations in pinned bank_94.asm/current source. Compare all twenty production results with original cartridge bytes.",
+        "disposition": "Replace stored span with ReadSamusQuadrant: bottom, right, bottom-and-right, bottom-or-right, or full solidity by shape.",
+        "rationale": "Boolean geometry directly expresses the five independently named native shapes without four repeated samples per shape. Validate before extracting bits; no input wrapping.",
+        "proofTest": "VerifySamusSquareSlopeAlgorithm (split from existing combined proof); includes 10240 real mirrored missile points in both axes and invalid bounds"
+      },
+      {
+        "id": "enemy-square-slope-quadrants", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/SquareSlopeDefinitions.cs",
+        "nativeIdentity": "$A0:C435 SquareSlopeDefinitions_BankA0 and identical $86:8729 Bank86 copy",
+        "consumers": ["RoomEnemySystem.CommonMovement.SquareHorizontalSlopeIsSolid", "RoomEnemySystem.CommonMovement.SquareVerticalSlopeIsSolid", "LookupTableResearch.VerifyGeometry (reference only)"],
+        "domain": "flattened index 0..19; same invalid-index exception as previous span",
+        "interpretation": "Same Boolean geometry as Samus but low two bits retain quadrant identity. Complete original byte preserved, not only bit-seven solidity.",
+        "reviewedEvidence": "Read complete pinned bank_A0/bank_86 tables; all forty original cartridge bytes compare with actual algorithm. Source migration preserves every tableIndex/XOR transform.",
+        "disposition": "Remove stored span; validated Samus solidity OR quadrant identity.",
+        "rationale": "Two physical copies are one logical policy. Shared geometry plus identity bits explains every result without invented exceptions.",
+        "proofTest": "VerifyEnemySquareSlopeAlgorithm (split from existing combined proof), all bytes in both copies plus invalid bounds"
+      }
+    ]
+  },
   "shaktoolReview": {
     "owner": "csharp/src/SuperMetroid.Core/Game/ShaktoolSegmentDefinitions.cs",
     "domain": "int segment index 0..6; native parameter two is even byte offset 0..12, validated before division by two. Other indices remain InvalidDataException.",
@@ -239,19 +285,26 @@
         "proofTest": "VerifyShaktoolCallbackSelection"
       },
       {
-        "id": "shaktool-initial-angle", "state": "unreviewed",
+        "id": "shaktool-initial-angle", "state": "retained",
         "nativeIdentity": "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle",
-        "disposition": "Separated into seven-word span; numerical disposition still pending. Original bytes confirmed while replacing the combined record array."
+        "disposition": "Retain seven directly readable initial posture words; all original words independently checked in the Shaktool proof.",
+        "rationale": "Exact candidate is -2048*t modulo 65536, t=i*(i+1)/2 for i<=4 else 16-(7-i)*(8-i)/2. This reflected triangular construction fits the entire bounded set but introduces a bend pivot/reflection policy for seven authored angles. It is not evidence of the historical generator and is less transparent than this short posture table. No unbounded fitting needed.",
+        "reviewCommit": "slope-geometry-algorithms"
       },
       {
-        "id": "shaktool-angular-velocity", "state": "unreviewed",
+        "id": "shaktool-angular-velocity", "state": "retained",
         "nativeIdentity": "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta",
-        "disposition": "Separated into seven-word span; numerical disposition still pending. Includes ShaktoolAngularVelocityDefinitions alias, not a second table."
+        "disposition": "Retain seven authored curl rates; ShaktoolAngularVelocityDefinitions is an alias, not another table.",
+        "rationale": "Rates equal 32*t for the reflected triangular candidate above; initial angles equal -64*rate with word wrap. Combining these independent initial-pose and reset-rate policies through that curve saves few words while obscuring explicit tuning. Complete values and initialization/reset consumers independently inspected; existing focused original-word proof passed in bb8ba856.",
+        "reviewCommit": "slope-geometry-algorithms"
       },
       {
-        "id": "shaktool-initial-subtrahend", "state": "unreviewed",
+        "id": "shaktool-initial-subtrahend", "state": "converted",
         "nativeIdentity": "$AA:DEF7 ShaktoolPieceData_zero",
-        "disposition": "Already omitted by compiled initialization; independent disposition pending, not a new conversion."
+        "disposition": "Already converted: compiled initialization omits subtraction of zero; no new runtime change.",
+        "rationale": "All seven original unsigned subtrahends are zero; native SBC at $AA:DE76 therefore leaves the selected angular word unchanged. Confirmed source and all original words in existing Shaktool proof. No rounding or overflow difference is possible.",
+        "implementationCommit": "4616b833e849654c4791a7ba527f794becf6df95",
+        "reviewCommit": "slope-geometry-algorithms"
       }
     ]
   },
@@ -262,7 +315,6 @@
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
     "EnemyLinearSpeedDefinitions",
     "EnemyQuadraticSpeedDefinitions",
-    "ShaktoolSegmentDefinitions: numerical fields and zero subtrahend pending in shaktoolReview; five other fields converted",
     "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
@@ -278,6 +330,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phase-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --work-robot-initial-selection",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --shaktool-segment-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-slope-algorithms"
   ]
 }

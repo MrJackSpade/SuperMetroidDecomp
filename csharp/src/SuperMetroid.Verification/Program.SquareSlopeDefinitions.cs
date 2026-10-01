@@ -7,15 +7,21 @@ internal static partial class Program
 {
     private static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
     {
+        VerifySamusSquareSlopeAlgorithm(rom);
+        VerifyEnemySquareSlopeAlgorithm(rom);
+    }
+
+    private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
+    {
         var native = new byte[20];
         for (int i = 0; i < native.Length; i++)
         {
             native[i] = rom.ReadByte(SamusProjectileRomData.Collision.SquareSlopeDefinitions + i);
-            AssertEqual(native[i], SquareSlopeDefinitions.SamusQuadrants[i], "Native Samus square quadrant byte");
-            AssertEqual(rom.ReadByte(0xa0c435 + i), SquareSlopeDefinitions.EnemyQuadrants[i], "Native enemy square quadrant byte");
-            AssertEqual(rom.ReadByte(0x868729 + i), SquareSlopeDefinitions.EnemyQuadrants[i], "Native enemy-projectile square quadrant byte");
-            AssertEqual(native[i], (byte)(SquareSlopeDefinitions.EnemyQuadrants[i] & 128), "Native bank-specific encodings have identical solidity");
+            AssertEqual(native[i], SquareSlopeDefinitions.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
         }
+        foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SquareSlopeDefinitions.ReadSamusQuadrant(invalid),
+                $"Samus square quadrant rejects {invalid}");
 
         var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<ISnesAddressSpace, RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
@@ -42,6 +48,22 @@ internal static partial class Program
             }
         }
         AssertEqual(10240, cases, "Every square shape/BTS orientation/pixel");
-        Console.WriteLine("Square slopes: all 60 native bank-specific bytes and 10240 real missile point cases in both axes pass without ROM reads.");
+        Console.WriteLine("Samus square-slope algorithm: 20 native bytes, bounds and 10240 real missile point cases in both axes pass without ROM reads.");
+    }
+
+    private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int index = 0; index < 20; index++)
+        {
+            byte actual = SquareSlopeDefinitions.ReadEnemyQuadrant(index);
+            AssertEqual(rom.ReadByte(SquareSlopeDefinitions.EnemyReferenceAddress + index), actual,
+                $"enemy square quadrant byte {index}, including identity bits");
+            AssertEqual(rom.ReadByte(SquareSlopeDefinitions.ProjectileReferenceAddress + index), actual,
+                $"enemy-projectile square quadrant copy {index}");
+        }
+        foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SquareSlopeDefinitions.ReadEnemyQuadrant(invalid),
+                $"enemy square quadrant rejects {invalid}");
+        Console.WriteLine("Enemy square-slope algorithm: both twenty-byte native copies and bounds pass.");
     }
 }

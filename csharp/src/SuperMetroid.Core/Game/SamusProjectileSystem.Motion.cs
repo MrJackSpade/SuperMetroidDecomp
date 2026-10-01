@@ -602,7 +602,7 @@ public sealed partial class SamusProjectileSystem
                 quadrant ^= 1;
         }
 
-        return SquareSlopeDefinitions.SamusQuadrants[quadrant] != 0;
+        return SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
     }
 
 }

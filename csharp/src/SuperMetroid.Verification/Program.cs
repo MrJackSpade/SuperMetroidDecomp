@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-slope-algorithms"])
+{
+    var slopeOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(slopeOracle.Rom)),
+        "slope algorithm oracle is NTSC J/U v1.0");
+    VerifyCompiledSlopeHeights(slopeOracle);
+    VerifyCompiledSquareSlopes(slopeOracle);
+    return 0;
+}
 if (args is ["--shaktool-segment-algorithms"])
 {
     var segmentOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

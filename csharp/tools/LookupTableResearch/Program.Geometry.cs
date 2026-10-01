@@ -20,7 +20,7 @@ internal static partial class Program
             {
                 int candidate = SquareQuadrant(i / 4, i % 4) | (identity ? i % 4 : 0);
                 Equal(native[i], candidate, $"quadrant ${address:X6}/{i}");
-                Equal(native[i], (int)(identity ? SquareSlopeDefinitions.EnemyQuadrants[i] : SquareSlopeDefinitions.SamusQuadrants[i]), $"compiled quadrant {i}");
+                Equal(native[i], (int)(identity ? SquareSlopeDefinitions.ReadEnemyQuadrant(i) : SquareSlopeDefinitions.ReadSamusQuadrant(i)), $"compiled quadrant {i}");
             }
         }
         // Every axis is checked separately; geometric clamping is not input clamping.

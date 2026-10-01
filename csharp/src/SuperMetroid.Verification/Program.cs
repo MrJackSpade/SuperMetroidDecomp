@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--gunship-landing-compositions", var gunshipAssetRoot, var gunshipRom, var gunshipOutput])
+{
+    VerifyExtractedGunshipCompositions(gunshipAssetRoot, gunshipRom, gunshipOutput);
+    return 0;
+}
+if (args is ["--gunship-landing-compositions", var gunshipInstallation])
+{
+    VerifyGunshipLandingCompositions(gunshipInstallation);
+    return 0;
+}
 if (args is ["--ceres-save-repair", var repairedInstallation, var originalSave, var repairedSave])
 {
     VerifyCeresSaveRepair(repairedInstallation, originalSave, repairedSave);

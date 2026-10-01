@@ -360,8 +360,12 @@ internal static partial class Program
             "Yard adds 104 crawling, turn, hiding, and airborne compositions");
         AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount +
                 BotwoonVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreGunshipFrameCount,
             "Botwoon adds sixteen distinct visible head compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +
+                GunshipVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Gunship adds two hull and eleven entrance-pad compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))

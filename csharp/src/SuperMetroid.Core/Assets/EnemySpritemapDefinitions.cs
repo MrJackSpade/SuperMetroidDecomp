@@ -11,6 +11,8 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    internal const int PreGunshipVersion = 60;
+    internal const int PreGunshipFrameCount = 1199;
     internal const int PreBotwoonVersion = 59;
     internal const int PreBotwoonFrameCount = 1183;
     internal const int PreYardVersion = 58;
@@ -25,7 +27,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 60;
+    internal const int Version = 61;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -678,6 +680,7 @@ internal static class EnemySpritemapDefinitions
         .. WorkRobotVisualDefinitions.Frames(),
         .. YardVisualDefinitions.Frames(),
         .. BotwoonVisualDefinitions.Frames(),
+        .. GunshipVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

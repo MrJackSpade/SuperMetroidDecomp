@@ -16,7 +16,8 @@ internal static class GunshipEnemyDefinitions
 
 /// <summary>
 /// Compiled engine-control words for the gunship hull and entrance-pad programs.
-/// Interleaved spritemap pointers remain live cartridge presentation data.
+/// Interleaved visual selectors are compiled identities; their editable OAM
+/// compositions are installed assets, not live cartridge reads.
 /// </summary>
 internal static class GunshipInstructionProgramDefinitions
 {

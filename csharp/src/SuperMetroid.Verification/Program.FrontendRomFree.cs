@@ -86,11 +86,12 @@ internal static partial class Program
     /// Retain the same validated immutable installation catalogs when a diagnostic
     /// room snapshot is restored. Debugger states omit external artwork by design.
     /// </summary>
-    private static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation)
+    private static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation,
+        EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         var maps = installation.LoadMaps();
         var palettes = installation.LoadGameplayBasePalettes();
-        var enemies = installation.LoadEnemyTiles();
+        var enemies = enemyArtwork ?? installation.LoadEnemyTiles();
         var objects = installation.LoadStandardObjects();
         var intro = installation.LoadIntroCinematicArt();
         var samus = installation.LoadSamusBodyArt();

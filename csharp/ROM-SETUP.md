@@ -643,6 +643,11 @@ these installed OAM parts; animation timing and encounter physics are separate.
 Dead Torizo's private corpse hook likewise uses the named
 `dead_torizo_corpse_a9_d761` composition, while its rotting tile sheet remains
 the separate indexed PNG.
+The Landing Site gunship uses `gunship_top_hull`, `gunship_bottom_hull`, and
+eleven `gunship_entrance_` compositions. Startup upgrades older stock bundles
+through the normal importer; existing composition overrides keep their edits
+and inherit these new frames. Gameplay resolves installed artwork without ROM
+access.
 Ridley's private wing and articulated-tail hooks use 31 named
 `ridley_supplement_a6_` compositions; the fixed wing and tip pointer tables
 remain compiled pose selections, separate from editable OAM parts.

@@ -25,8 +25,7 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// $812F Sleep opcode in the pinned NTSC J/U v1.0 ROM. Bridge collapse
     /// selects it for the invisible tongue; Sleep holds this cursor, so
     /// $BF64 and the following body-melting list are never read as tongue
-    /// instructions. Retain this one-word authored terminal policy: an
-    /// address formula would only restate the named opcode.
+    /// instructions. The terminal case returns the named Sleep opcode.
     /// </summary>
     internal const ushort Sleep = 0xbf62;
     /// <summary>
@@ -38,74 +37,55 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// </summary>
     internal const ushort Melting = 0xbf98;
 
-    private static readonly CrocomireTongueInstructionMechanicsWord[] Words =
-    [
-        new(0xbe56, 0x0005), new(0xbe5a, 0x0005),
-        new(0xbe5e, 0x0005), new(0xbe62, 0x0005),
-        new(0xbe66, CommonEnemyInstructionCodes.Goto), new(0xbe68, Fight),
-        new(0xbf62, CommonEnemyInstructionCodes.Sleep),
-        new(0xbf98, 0x0005), new(0xbf9c, 0x0005), new(0xbfa0, 0x0005),
-        new(0xbfa4, 0x0005), new(0xbfa8, 0x0005),
-        new(0xbfac, CommonEnemyInstructionCodes.Goto), new(0xbfae, Melting),
-    ];
+    internal static int MechanicsWordCount => 14;
+    internal static int PresentationWordCount => 9;
 
-    /// <summary>
-    /// The first four entries identify the fight-loop presentation operands
-    /// at $A4:BE58 + 4*i for i=0..3. In the pinned NTSC J/U v1.0 ROM each
-    /// unsigned pointer is exactly $C65E + 10*i; $A4:BE66 is the following
-    /// goto opcode. Installed art uses their compiled values; constructed
-    /// fixtures without installed art can still read their mutable bus values.
-    /// The last five entries identify the melting-loop operands at
-    /// $A4:BF9A + 4*i for i=0..4. Their stock pointers are exactly
-    /// $CACE + 10*i, followed by the goto opcode at $A4:BFAC. This second
-    /// independently indexed loop follows the same selector policy.
-    /// </summary>
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbe58, 0xbe5c, 0xbe60, 0xbe64,
-        0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa,
-    ];
+    /// <summary>Enumerates four fight durations and their loop, terminal sleep,
+    /// then five melting durations and their loop, in native address order.</summary>
+    internal static CrocomireTongueInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index == 6) return new(Sleep, CommonEnemyInstructionCodes.Sleep);
+        int start = index < 6 ? Fight : Melting;
+        int frameCount = index < 6 ? 4 : 5;
+        int field = index < 6 ? index : index - 7;
+        int offset = field < frameCount ? 4 * field : 4 * frameCount + 2 * (field - frameCount);
+        ushort address = (ushort)(start + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CrocomireTongueInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Spritemap operand positions in the four-frame fight and five-frame
+    /// melting loops: start + 2 + 4*frame. These positions do not own artwork.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 4 ? Fight + 2 + 4 * index : Melting + 2 + 4 * (index - 4));
+    }
 
-    /// <summary>Returns fixed tongue control or rejects pointers outside its live programs.</summary>
+    /// <summary>Dispatches five-frame durations, self-loop control, and terminal
+    /// sleep. Only exact mechanics addresses are accepted; interleaved sprite
+    /// selectors, odd addresses, and adjacent lists remain outside this contract.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            CrocomireTongueInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (address == Sleep) return CommonEnemyInstructionCodes.Sleep;
+        int start = address < Melting ? Fight : Melting;
+        int frameCount = address < Melting ? 4 : 5;
+        int offset = address - start;
+        if (offset >= 0 && offset < frameCount * 4 && offset % 4 == 0) return 5;
+        if (offset == frameCount * 4) return CommonEnemyInstructionCodes.Goto;
+        if (offset == frameCount * 4 + 2) return (ushort)start;
         throw new InvalidDataException(
             $"Crocomire tongue instruction mechanics pointer $A4:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa40000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa40000) return false;
+        int bankAddress = address & 0xffff;
+        if (bankAddress == Sleep || bankAddress == Sleep + 1) return true;
+        int offset = bankAddress < Melting ? bankAddress - Fight : bankAddress - Melting;
+        int frameCount = bankAddress < Melting ? 4 : 5;
+        return offset >= 0 && offset < frameCount * 4 + 4 &&
+            (offset >= frameCount * 4 || offset % 4 < 2);
     }
 }

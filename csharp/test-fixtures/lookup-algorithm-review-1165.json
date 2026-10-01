@@ -1437,5 +1437,43 @@
                        "proofTest":  "VerifyCrocomireSpikeMaximumVelocity"
                    }
                ]
+},
+    "crocomireTongueProgramReview": {
+    "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireTongueInstructionProgramDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Crocomire tongue instruction tables with loop control for #1165\"",
+                                 "subject":  "Replace Crocomire tongue instruction tables with loop control for #1165"
+                             },
+    "consumers":  [
+                      "RoomEnemySystem.ReadEnemyInstructionMechanicsWord",
+                      "InitializeCrocomire tongue fight program",
+                      "Crocomire bridge-collapse tongue sleep selection",
+                      "Crocomire melting tongue program",
+                      "CrocomireTongueCollisionDefinitions verification presentation enumeration"
+                  ],
+    "reviewedEvidence":  "Complete pinned bank_A4.asm BE56-BE69, BF62-BF63 and BF98-BFAF; current tongue program selectors and mechanics reader. Independent address fixtures and SHA-verified NTSC J/U v1.0 ROM words.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-tongue-program",
+    "tables":  [
+                   {
+                       "id":  "crocomire-tongue-instruction-mechanics",
+                       "disposition":  "Generate enumeration from four/five timed frames and terminal loop pairs; dispatch duration five, named Goto and self-target, or named Sleep. Remove address/value records and binary search.",
+                       "state":  "converted",
+                       "nativeIdentity":  "A4:BE56 fight, A4:BF62 sleep, A4:BF98 melting",
+                       "confirmation":  "All fourteen original control words and independent addresses; full 16-bit byte-ownership domain, invalid word gaps and enumeration bounds.",
+                       "rationale":  "Two regular timed animation loops and a terminal opcode are semantic control flow, not arbitrary numerical data.",
+                       "domain":  "Fourteen exact ushort mechanics addresses; reject all other words with InvalidDataException. Enumeration index 0..13, IndexOutOfRangeException otherwise. Byte classifier preserves bank mask and both bytes of every mechanics word.",
+                       "proofTest":  "VerifyCrocomireTongueMechanicsDispatch (extracted from existing program proof)"
+                   },
+                   {
+                       "id":  "crocomire-tongue-presentation-positions",
+                       "disposition":  "Calculate program start + 2 + four times frame index, split after four fight frames. Remove stored position array.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Nine spritemap operand positions interleaved in A4:BE56 and A4:BF98 programs",
+                       "confirmation":  "All nine independent native positions, original operand reads, mechanics exclusion and invalid enumeration bounds.",
+                       "rationale":  "The native duration/operand instruction format determines a four-byte stride in both loops.",
+                       "domain":  "Enumeration index 0..8, IndexOutOfRangeException otherwise.",
+                       "proofTest":  "VerifyCrocomireTonguePresentationPositions (extracted from existing program proof)"
+                   }
+               ]
 }
 }

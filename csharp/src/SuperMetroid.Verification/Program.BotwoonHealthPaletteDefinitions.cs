@@ -1,4 +1,6 @@
 using System.Reflection;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -34,7 +36,14 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new BotwoonHealthThresholdReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                new Dictionary<ushort, RoomCharacterAtlas>(),
+                new Dictionary<ushort, EnemyPaletteSheet>(),
+                botwoonColors: BotwoonColorCatalog.Load(colors)),
+        };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         var update = typeof(RoomEnemySystem).GetMethod(

@@ -40,6 +40,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(70),
             "Work Robot palette rejects offsets beyond the native terminator");
+        foreach (ushort invalid in new ushort[] { 1, 9, 51, 59, 60, 70, ushort.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(
+                () => WorkRobotPaletteTimingDefinitions.DurationForByteOffset(invalid),
+                $"Work Robot duration rejects non-record offset {invalid}");
+        }
 
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
         WorkRobotPaletteCycle stock = WorkRobotPaletteCycle.Load(

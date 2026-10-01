@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-palette-algorithms"])
+{
+    var paletteOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(paletteOracle.Rom)),
+        "lookup palette oracle is NTSC J/U v1.0");
+    VerifyDraygonHealthPaletteDefinitions(paletteOracle);
+    VerifyBotwoonHealthPaletteDefinitions(paletteOracle);
+    VerifyWorkRobotPaletteTimingDefinitions(paletteOracle);
+    return 0;
+}
 if (args is ["--gunship-landing-compositions", var gunshipAssetRoot, var gunshipRom, var gunshipOutput])
 {
     VerifyExtractedGunshipCompositions(gunshipAssetRoot, gunshipRom, gunshipOutput);

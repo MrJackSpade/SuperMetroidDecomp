@@ -1,0 +1,97 @@
+{
+  "issue": 1165,
+  "inventoryState": "partial; source reconciliation and independent review ongoing",
+  "rules": [
+    "Only entries explicitly marked converted or retained have a disposition under this ticket.",
+    "Historical XML formulas and closed research issues are inputs, not reviewed dispositions.",
+    "Owner candidates must be split into separately indexed logical fields; aliases share one entry.",
+    "Discover through source and call graphs only. Do not run research suites or gameplay to choose work.",
+    "No repository-wide completion claim: unlisted tables are unreviewed, not excluded."
+  ],
+  "evidence": {
+    "revision": "NTSC J/U v1.0, unheadered 3145728 bytes",
+    "romSha256": "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+    "disassemblyCommit": "362be646929cf8e483f692b73a6561cfc2dc1d0d",
+    "disassemblyRoot": "upstream-disassembly/src",
+    "historicalInputs": [
+      "csharp/tools/LookupTableResearch/Program*.cs",
+      "csharp/test-fixtures/LOOKUP-MIGRATION-REMAINING-547.md",
+      "current definition-owner XML annotations",
+      "issues #625 and #547 and their research children"
+    ]
+  },
+  "implementationCommits": {
+    "palette-integer-algorithms": {
+      "subject": "Implement exact palette policy algorithms for #1165",
+      "resolve": "git log -1 --format=%H --diff-filter=A -- csharp/test-fixtures/lookup-algorithm-review-1165.json"
+    }
+  },
+  "tables": [
+    {
+      "id": "draygon-health-thresholds",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/DraygonHealthPaletteDefinitions.cs",
+      "nativeIdentity": "$A5:96EF DraygonHealthBasedPaletteThresholds; $A5:9701 handler",
+      "consumers": ["RoomEnemySystem.DraygonCombat.UpdateDraygonHealthPalette", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "ushort health 0..6000; native eight unsigned little-endian thresholds selected by even byte offsets 0..14",
+      "interpretation": "First nonnegative signed 16-bit health-minus-threshold difference. Differences cannot overflow in supported health range. Adjacent $FFFF at $A5:96FF is unreachable.",
+      "reviewedEvidence": "Read all eight bank_A5.asm thresholds and CMP/BPL loop; complete production selector compared with original cartridge threshold scan for all 6001 health inputs.",
+      "disposition": "Remove threshold array and search; return 2*max(0,7-health/750) after preserving maximum-health validation.",
+      "rationale": "Uniform integer differences of 750 explain every threshold. Integer quotient directly expresses health bands; no floating point, fitting, interpolation or exceptional corrections needed. Exact multiples belong to higher band.",
+      "proofTest": "VerifyDraygonHealthPaletteDefinitions (existing test reused; installed color fixture supplied)",
+      "implementationCommit": "palette-integer-algorithms"
+    },
+    {
+      "id": "botwoon-health-thresholds",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/BotwoonHealthPaletteDefinitions.cs",
+      "nativeIdentity": "$B3:981B BotwoonHealthThresholdsForPaletteChange; $B3:982B handler",
+      "consumers": ["RoomEnemySystem.Botwoon.UpdateBotwoonHealthPalette", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "even ushort phase byte offsets 0..14 and all ushort health values 0..65535",
+      "interpretation": "Threshold words are unsigned little-endian. Subtraction wraps to 16 bits then tests sign. Offset 16 is caller-owned completion; odd or later offsets are rejected.",
+      "reviewedEvidence": "Read all eight bank_B3.asm thresholds and CMP/BPL/completion flow; complete production result compared with original cartridge thresholds for all 524288 phase/health pairs.",
+      "disposition": "Remove threshold array; compute 375*(8-phaseByteOffset/2) after offset validation and retain signed wrapped subtraction.",
+      "rationale": "Uniform integer differences of 375 exactly explain the threshold domain. A direct unsigned health comparison would change supported wrap behavior; formula changes only the selected threshold.",
+      "proofTest": "VerifyBotwoonHealthPaletteDefinitions (existing test reused; installed color fixture supplied)",
+      "implementationCommit": "palette-integer-algorithms"
+    },
+    {
+      "id": "work-robot-palette-duration",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Game/WorkRobotPaletteTimingDefinitions.cs",
+      "nativeIdentity": "$A8:CCC9+10*i timer field of palette records; $A8:CC67 graphics hook",
+      "consumers": ["RoomEnemySystem.WorkRobot.StepWorkRobotPaletteAnimation", "WorkRobotPaletteTimingDefinitions.NormalizeByteOffset", "LookupTableResearch.VerifyPolicies (reference only)"],
+      "domain": "ushort byte offsets 0,10,20,30,40,50; normalization additionally accepts terminator offset 60",
+      "interpretation": "Six unsigned little-endian duration words interleaved with four color words. Native cursor advances ten bytes. Negative color word at $A8:CCFD resets cursor before reading the next timer.",
+      "reviewedEvidence": "Read all six bank_A8.asm records and native timer/advance/reset flow; compare every production duration to cartridge, verify terminator, rejected offsets and 193-call production cadence.",
+      "disposition": "Remove duration array; return record%3==0 ? 64 : 16 after existing alignment/range validation.",
+      "rationale": "Two exact repetitions of a three-record timing policy. Bounded modulo clearly names cadence and does not admit invalid inputs. Colors are separately owned presentation data, not covered by this disposition.",
+      "proofTest": "VerifyWorkRobotPaletteTimingDefinitions (existing test reused; duration rejection assertions extended)",
+      "implementationCommit": "palette-integer-algorithms"
+    }
+  ],
+  "unreviewedOwnerCandidates": [
+    "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
+    "AbsoluteTangentDefinitions",
+    "ShaktoolOrbitTables",
+    "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
+    "EnemyLinearSpeedDefinitions",
+    "EnemyQuadraticSpeedDefinitions",
+    "ShaktoolSegmentDefinitions: property, owner offset, angle, instruction, layer, callback, velocity fields",
+    "ShaktoolAngularVelocityDefinitions: alias of segment velocity and initialization subtraction table",
+    "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
+    "WorkRobotInitializationDefinitions: instruction selection and adjacent-code compatibility entry",
+    "ZoaSpeedDefinitions: whole/fraction and unaligned byte views",
+    "BotwoonSpeedDefinitions: movement, segment spacing, spit speed",
+    "DraygonIntroDanceDefinitions",
+    "SamusComboMechanicsDefinitions"
+  ],
+  "remainingInventoryReconciliation": [
+    "Expand the seed owner list against every historical research module and XML-annotated owner, independently of closed child status.",
+    "Statically inventory unannotated arrays, spans, switch mappings, generated definitions and indexed fields in runtime mechanics, rendering and audio.",
+    "Statically inventory frontend/platform, diagnostics, asset tooling and maintained reference/support code, including non-C# definitions.",
+    "Separate expected-output-only fixtures from maintained implementation/reference targets; record exclusion evidence.",
+    "Record full native/source identity, consumers and bounded byte/word/overread domains as each logical entry is reconciled."
+  ],
+  "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-palette-algorithms"
+}

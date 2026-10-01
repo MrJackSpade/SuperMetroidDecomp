@@ -22,23 +22,18 @@ internal static class BotwoonHealthPaletteDefinitions
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
     public const ushort CompletePhaseByteOffset = 16;
 
-    /// <summary>$B3:981B, BotwoonHealthThresholdsForPaletteChange, eight palette-phase thresholds.</summary>
-    /// <remarks>
-    /// Issues #625 and #933 exact arithmetic: threshold(i)=375*(8-i), i=0..7; the public
-    /// phase input is the even byte offset 2*i. Preserve the current sixteen-bit
-    /// subtraction followed by SIGNED comparison, not an unsigned health comparison.
-    /// LookupTableResearch checks all eight native words and all 8*65,536 phase/health
-    /// pairs against ShouldAdvance, independently using ROM thresholds verified with
-    /// pinned bank_B3.asm. Odd offsets and the terminal offset 16 remain invalid;
-    /// the caller, not an extrapolated ninth threshold, owns completion.
-    /// </remarks>
-    private static ReadOnlySpan<ushort> Thresholds =>
-        [3000, 2625, 2250, 1875, 1500, 1125, 750, 375];
-
     /// <summary>
     /// Returns whether the current health is below the threshold selected by an even native
     /// byte offset $00..$0E. The signed subtraction matches the cartridge's CMP/BPL result.
     /// </summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_B3.asm:
+    /// $B3:981B has threshold(i)=375*(8-i), i=0..7. Divide the validated even byte
+    /// offset by two before multiplying; subtract in sixteen bits and interpret the
+    /// result as signed, matching CMP/BPL at $B3:983B. All ushort health values remain
+    /// supported, including wrapped differences. Offset 16 is caller-owned completion,
+    /// not an extrapolated threshold; odd offsets remain invalid.
+    /// </remarks>
     public static bool ShouldAdvance(ushort phaseByteOffset, ushort health)
     {
         if ((phaseByteOffset & 1) != 0 || phaseByteOffset >= CompletePhaseByteOffset)
@@ -48,7 +43,7 @@ internal static class BotwoonHealthPaletteDefinitions
                 "eight even retail threshold entries.");
         }
 
-        ushort threshold = Thresholds[phaseByteOffset / sizeof(ushort)];
+        int threshold = 375 * (8 - phaseByteOffset / sizeof(ushort));
         return unchecked((short)(health - threshold)) < 0;
     }
 }

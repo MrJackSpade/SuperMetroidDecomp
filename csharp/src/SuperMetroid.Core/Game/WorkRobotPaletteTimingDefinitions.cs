@@ -19,16 +19,14 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// <summary>Four color words plus one timer word per record.</summary>
     public const ushort RecordByteCount = 10;
 
-    /// <summary>$A8:CCC9+10*i, six timer words interleaved with palette colors.</summary>
-    /// <remarks>Issues #625 and #937 exact cadence: validate record i=0..5, then return
-    /// 64 when i%3==0 and 16 otherwise. LookupTableResearch checks all six timers
-    /// against the NTSC ROM, pinned bank_A8.asm and DurationForByteOffset(10*i).
-    /// Byte alignment must be validated before dividing by ten; modulo describes
-    /// the two authored cycles, not permission to wrap an invalid input. The
-    /// terminator and NormalizeByteOffset remain separate from duration selection.</remarks>
-    private static ReadOnlySpan<ushort> Durations => [64, 16, 16, 64, 16, 16];
-
     /// <summary>Returns the duration for one aligned authored palette-record offset.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm:
+    /// the six unsigned timer words at $A8:CCC9+10*i repeat a three-record cadence,
+    /// 64 ticks at i%3==0 and 16 otherwise. Validate offsets before division/modulo;
+    /// only 0,10,20,30,40,50 are durations. $A8:CCFD is the separate color terminator,
+    /// resolved by NormalizeByteOffset at offset 60, never a seventh duration.
+    /// </remarks>
     public static ushort DurationForByteOffset(ushort byteOffset)
     {
         if (byteOffset % RecordByteCount != 0 ||
@@ -39,7 +37,8 @@ internal static class WorkRobotPaletteTimingDefinitions
                 $"{RecordCount} authored {RecordByteCount}-byte records.");
         }
 
-        return Durations[byteOffset / RecordByteCount];
+        int record = byteOffset / RecordByteCount;
+        return (ushort)(record % 3 == 0 ? 64 : 16);
     }
 
     /// <summary>

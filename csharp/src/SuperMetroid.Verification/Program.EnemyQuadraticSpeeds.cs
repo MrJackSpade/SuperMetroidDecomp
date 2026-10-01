@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom)
+    private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int offset) => (ushort)(rom.ReadByte(0xa0838f + offset) | rom.ReadByte(0xa08390 + offset) << 8);
         ushort ProjectileWord(int offset) => (ushort)(rom.ReadByte(0xa0cbc7 + offset) | rom.ReadByte(0xa0cbc8 + offset) << 8);
@@ -18,6 +18,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(-1), "quadratic negative offset");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
+        if (definitionsOnly) return;
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
         var shared = Method<Func<ushort, bool, int>>("ReadQuadraticEnemySpeed");

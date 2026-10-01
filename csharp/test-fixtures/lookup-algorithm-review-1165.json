@@ -68,8 +68,13 @@
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert Fireflea shade rules and Crocomire masks for #1165'"
     },
     "grapple-launch-algorithms": {
+      "sha": "18d507b12a4cd1efc418bd87c6f3bf38205d9b62",
       "subject": "Convert grapple launch direction mappings for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert grapple launch direction mappings for #1165'"
+    },
+    "shared-speed-review": {
+      "subject": "Independently review existing shared speed algorithms for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Independently review existing shared speed algorithms for #1165'"
     }
   },
   "tables": [
@@ -551,13 +556,43 @@
     ],
     "confirmationScope": "Three original-data proofs extracted from existing verifier. Complete 10-direction domains and invalid boundary inputs; source confirms all production callers retain API and indexing. No broad pose/input sweep needed for replacing these pure lookups."
   },
+  "sharedSpeedReview": {
+    "reviewCommit": "shared-speed-review",
+    "reviewedEvidence": "Current owners and direct/shared consumer indexing statically inspected. Pinned bank_A0.asm linear NTSC generation (SPF=1) and quadratic literal records/generation hypothesis, plus both native projectile clones. Original NTSC ROM is independent of the production algorithms; existing proofs cover every byte window, not just aligned records. No gameplay sweep used.",
+    "tables": [
+      {
+        "id": "shared-enemy-linear-speed", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/EnemyLinearSpeedDefinitions.cs",
+        "implementationCommit": "421b514aeb96e04024bf5050742be10966d559e1",
+        "nativeIdentity": "$A0:8187 CommonEnemySpeeds_LinearlyIncreasing and common enemy-bank copies; unused $A0:C9BF projectile clone is the same sequence",
+        "consumers": ["RoomEnemySystem.CommonMath.ReadLinearEnemySpeed", "Direct: Cacatac, Owtch, Stoke, Ripper", "Shared: Atomic, Evir, Fireflea, HorizontalShutter, VerticalShutters, Kzan, Magdollite, MaridiaLargeSnail, NuclearWaffle, Platforms, PipeBugs, Skultera"],
+        "domain": "65 eight-byte records, i=0..64. Public Read accepts all four-byte starts 0..516; negative or partial windows rejected. Caller record multiplications and ushort wraps remain upstream; no blanket aligned-index coercion.",
+        "interpretation": "Signed 16.16 velocities stored positive whole/fraction then negative whole/fraction; words little endian. Whole/fraction and sign halves are byte views of one logical sequence. Four-byte windows may cross fields/records.",
+        "disposition": "Already implemented: v=i*4096, negative half=-v, serialize native word order. Keep existing code.",
+        "rationale": "Exact uniform 1/16-pixel progression supported by NTSC assembly generation and every original byte window. Integer multiplication and shifts are clearer than storing 520 bytes; no historical floating-point convention is needed. PAL has different values/count and is excluded.",
+        "proofTest": "VerifyCompiledLinearEnemySpeeds (existing proof, definitionsOnly option executes original-word/bank-mirror/domain assertions without unrelated integration loops)"
+      },
+      {
+        "id": "shared-enemy-quadratic-speed", "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/EnemyQuadraticSpeedDefinitions.cs",
+        "implementationCommit": "d16b1e6e1fd4247e32ef21845b49ec2f3df3ab08",
+        "nativeIdentity": "$A0:838F CommonEnemySpeeds_QuadraticallyIncreasing; identical projectile copy $A0:CBC7 and common-bank aliases",
+        "consumers": ["RoomEnemySystem.CommonMath.ReadQuadraticEnemySpeed: index*8 plus sign-half4", "Shared: Beetom, Boulder, Choot, Botwoon, BotwoonProjectiles, Hoppers, MaridiaLargeSnail, Platforms, PipeBugs", "Odd word: Beetom/Hoppers/Puyo initial height estimates at record+1; KiHunter record+1/+5 after high-byte index", "Direct fraction/whole: PolypRocks split carry and scratch writes; Puyo displacement; YappingMaw byte-indexed extension"],
+        "domain": "95 eight-byte records, i=0..94. ReadWord offsets0..758; ReadDisplacement offsets0..756. Every odd/cross-field window supported; negative/partial windows reject with InvalidDataException. No adjacent instruction overreads added.",
+        "interpretation": "Signed 16.16 displacement stored positive fraction/whole then negative fraction/whole, little endian. Word and displacement views share this logical sequence, including odd-byte hop/angle reads.",
+        "disposition": "Already implemented: t=i*(i+1)/2; v=((t>>8)<<16)|(((t&255)*265)&65535), then two's-complement negative half and native byte serialization. Keep existing algorithm.",
+        "rationale": "Ordinary t*265 differs beginning at i22: t253 produces 67045, but original fractional carry is discarded. At i23 the high-byte/low-byte split yields whole1,fraction5300. Exact split/truncate rule matches all bytes of both original copies. Pinned reference describes a plausible early integer generator, not established historical provenance; owner wording now distinguishes proven output convention from hypothesis. Smoothing the quadratic or floating-point fitting would alter native movement.",
+        "proofTest": "VerifyCompiledQuadraticEnemySpeeds (existing proof, definitionsOnly option executes 759 word windows in both copies, 757 displacement windows and bounds)"
+      }
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Review of prior implementations, not new gameplay changes. Reuse the two named original-data proofs; no broad height/input matrices or exploratory playthroughs."
+  },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",
     "AbsoluteTangentDefinitions",
     "ShaktoolOrbitTables",
     "PowerBombShapeDefinitions: widths, top offsets, pre-scaled profiles",
-    "EnemyLinearSpeedDefinitions",
-    "EnemyQuadraticSpeedDefinitions",
     "SamusRunningCadenceDefinitions: already implemented algorithms and sound-queue compatibility aliases",
     "DraygonIntroDanceDefinitions: packed movement trajectory (latency reviewed separately)",
     "SamusComboMechanicsDefinitions: sine offset aliases (cost and origin reviewed separately)"
@@ -578,6 +613,7 @@
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-owtch-shake-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-gunship-algorithms",
     "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-fireflea-melt-algorithms",
-    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms"
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-grapple-launch-algorithms",
+    "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shared-speed-review"
   ]
 }

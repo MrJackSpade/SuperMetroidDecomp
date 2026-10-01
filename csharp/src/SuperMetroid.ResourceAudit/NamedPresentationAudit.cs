@@ -18,6 +18,10 @@ internal static class NamedPresentationSelectionDefinitions
             FileSelectPresentationDefinitions.DynamicAnchorNames.ToArray()),
         new(nameof(FileSelectPresentation), "ApplyPatch", "name", "file-select-patch",
             FileSelectPresentationDefinitions.PatchNames.ToArray()),
+        new(nameof(FileSelectPresentation), "CopyPage", "name", "file-select-page",
+            FileSelectPresentationDefinitions.PageNames.ToArray()),
+        new(nameof(FileSelectPresentation), "DrawBorder", "page", "file-select-border",
+            FileSelectPresentationDefinitions.BorderNames.ToArray()),
         new(nameof(GameOptionsPresentation), "CreatePage", "name", "options-page",
             GameOptionsPresentationDefinitions.PageNames.ToArray()),
         new(nameof(GameOptionsPresentation), "ApplySpecialToggle", "name", "options-toggle",
@@ -34,8 +38,8 @@ internal static class NamedPresentationSelectionDefinitions
 }
 
 /// <summary>
-/// Resolves only compiler constants and conditional constant unions. It does not
-/// guess values of mutable fields, function results, parameters or unknown strings.
+/// Resolves constants and conservative closed source flows. Unknown writes, public
+/// parameters, escaping helpers, cyclic flows and unavailable bodies stay unresolved.
 /// </summary>
 internal static class NamedPresentationAudit
 {
@@ -45,14 +49,14 @@ internal static class NamedPresentationAudit
         foreach (string name in selection.Names) exports.Add(selection.Domain, name);
     }
 
-    internal static NamedSelectionResult? Inspect(IInvocationOperation operation, string owner,
+    internal static NamedSelectionResult? Inspect(IInvocationOperation operation, SemanticModel semantic, string owner,
         string location, ResourceIndex exports, AuditReport report)
     {
         NamedPresentationSelection? selection = NamedPresentationSelectionDefinitions.All.FirstOrDefault(item =>
             item.Type == operation.TargetMethod.ContainingType.Name && item.Method == operation.TargetMethod.Name);
         if (selection is null) return null;
         IArgumentOperation argument = operation.Arguments.Single(arg => arg.Parameter?.Name == selection.Parameter);
-        string[]? values = FiniteConstants(argument.Value);
+        string[]? values = new FinitePresentationNameFlow(semantic.Compilation, FiniteConstants).Resolve(argument.Value);
         if (values is null || values.Length == 0) return NamedSelectionResult.Unresolved;
         foreach (string name in values.Order(StringComparer.Ordinal))
             report.Require(selection.Domain, owner, name, location, exports);

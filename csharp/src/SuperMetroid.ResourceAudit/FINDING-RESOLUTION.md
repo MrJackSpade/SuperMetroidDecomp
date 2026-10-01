@@ -643,3 +643,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **299 of the original 353 boundaries**. Current report: **zero
   missing identities, 54 unresolved**, all 352 consumers retained. Placement,
   layering, clocks, caller input and host instance installation are not certified.
+
+## Menu name flow - five further statically resolved boundaries
+
+- **Findings:** options page/helper names and file-select page/border names
+  were treated as arbitrary strings after passing through source-owned state.
+- **Cause/resolution:** the audit resolved only inline constants/conditionals.
+  Conservative semantic flow now unions all finite initializers, assignments and
+  private/local helper inputs, and expression-bodied finite switch results.
+  Throwing fallbacks have no returned name. Every possible name is compared with
+  loader-required keys; no guessed prefix or complete-table blanket exemption.
+  Unknown writes, ref aliases, deconstruction, escaping delegates, public state,
+  unavailable bodies and recursive flows still fail analysis.
+- **Confirmation:** eighteen constructed named calls cover six valid flows,
+  eleven explicitly unresolved cases and one concrete missing key. Assertions
+  verify complete input/write unions, including a switch's converted throw arm.
+  Release build and all prior auditor checks pass. No menu or gameplay runs.
+- **Accounting:** 302 guarded classifications plus two metadata corrections
+  account for **304 of the original 353 boundaries**. Current report: **zero
+  missing identities, 49 unresolved**, all 352 consumers retained. Reflection,
+  debugger-state payload validity, destination placement and pixels are outside
+  these source-flow contracts. Production behavior is unchanged.

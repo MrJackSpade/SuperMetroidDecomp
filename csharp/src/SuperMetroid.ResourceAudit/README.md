@@ -61,8 +61,12 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   closure rules. They are guarded by provider/definition fingerprints, not baselines.
   Changed contracts, new operations, invalid constants and unbounded string names remain
   failures. See [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) for scope/proof.
-  Named menu selections additionally compare compiler-resolved constant/conditional
-  name sets against their loader-required keys; unknown name flow stays unresolved.
+  Named menu selections compare finite source-resolved names against loader-required
+  keys. Locals/private fields require every initializer/write to be finite; private
+  helper parameters require closed call inputs, and expression-bodied finite switch
+  results may be followed. Unknown writes, ref aliases, delegate escapes, public
+  state, unavailable bodies and cycles stay unresolved. Reflection and debugger
+  payload validity are not certified by this source-flow analysis.
   Map names also support the two source-guarded bounded area-name factories;
   lookalike functions and arbitrary strings are not inferred. The credits row
   proof is revoked by a Core reference to its variable-row verification factory.

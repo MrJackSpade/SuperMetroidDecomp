@@ -43,14 +43,14 @@ internal static class ClosedPresentationContractDefinitions
             "MinimapCellIndex computes layout, not a resource identity."),
         new("SuperMetroid.Core.Assets.FileSelectPresentation", "file-select-v1-bounded-fields",
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
-                "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch"],
+                "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
             [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
                 "154316DA271943BF908297D5CC5D09483A070C1056027495C73A37498664DA45")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
             "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +
             "Reviewed array selectors reject invalid indices; generated cursor/helmet names are bounded. " +
-            "Named patch/anchor calls additionally require a compiler-resolved installed key. " +
-            "Dynamic page and border selection are deliberately not covered."),
+            "Named patch/anchor/page/border calls additionally require a compiler-resolved finite " +
+            "installed-key set through constants or closed source flow; arbitrary strings remain unresolved."),
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",

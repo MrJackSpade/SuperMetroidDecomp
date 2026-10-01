@@ -124,7 +124,7 @@ internal sealed class ClosedPresentationAudit
             Gap(invalid);
             return true;
         }
-        NamedSelectionResult? named = NamedPresentationAudit.Inspect(operation, owner, location, exports, report);
+        NamedSelectionResult? named = NamedPresentationAudit.Inspect(operation, semantic, owner, location, exports, report);
         if (named == NamedSelectionResult.Unresolved)
         {
             Gap("Named selection has no compiler-resolved finite constant set; complete array coverage does not prove arbitrary strings.");

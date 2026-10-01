@@ -468,3 +468,23 @@ Nineteen constructed source calls reproduce absent adapters first. Thirteen qual
 and six invalid selections/lengths remain unresolved. Changing shared BG2 admission
 revokes all four wrappers. Build and prior checks pass. No ROM, saves, artwork, room
 FX, animation, rendering, scene or gameplay runs; production is unchanged.
+
+## Closed menu name flow - five additional original boundaries
+
+The named-key pass now follows compiler-bound local initializers, all their writes,
+private-field initializers/writes, and closed private/local-helper call inputs.
+Expression-bodied helpers with finite conditional/switch results are resolved from
+source, including converted throw arms that cannot return a resource name. Every
+possible returned name must be a loader-required key; finite absent names remain
+concrete missing identities. No naming prefix or call-site allowlist is used.
+
+Unknown writes, ref/out aliases, deconstruction, escaping helper method groups,
+public fields/parameters, unavailable bodies and recursive flows remain unresolved.
+This is static source flow, not arbitrary runtime/reflection/debugger-state validity
+or interprocedural gameplay acceptance. Private strings are immutable values; the
+entire compilation is checked for their assignments rather than just the nearby one.
+
+Eighteen constructed source calls confirm six finite cases, eleven unresolved
+boundaries and one missing-key case. Assertions retain the full assignment/input
+unions and match the options helper's throwing fallback. Build and all prior checks
+pass. No ROM, saves, art, menu navigation, rendering or gameplay runs.

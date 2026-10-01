@@ -5,6 +5,15 @@ internal static partial class CompiledEnemyVisualSelectors
 {
     private static CompiledEnemyVisualSelector[] BankA9 =>
     [
+        new(0xA9CFA4, 0xF9A8),
+        new(0xA9CFA8, 0xFA40),
+        new(0xA9CFAC, 0xFAD8),
+        new(0xA9CFB0, 0xFA40),
+        new(0xA9CFBA, 0xF9A8),
+        new(0xA9CFBE, 0xFA40),
+        new(0xA9CFC2, 0xFAD8),
+        new(0xA9CFC6, 0xFA40),
+        new(0xA9CFD0, 0xFAD8),
         new(0xA9ECAE, 0xEE3C),
         new(0xA9ECB2, 0xEE61),
         new(0xA9ECB6, 0xEE3C),

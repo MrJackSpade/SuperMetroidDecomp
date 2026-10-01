@@ -15,6 +15,11 @@ public sealed class MotherBrainRoomColorPresentation
     private readonly ushort[] initialTubeProjectile;
     private readonly ushort[][] recoveryLights;
 
+    /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>
+    internal IEnumerable<ushort> FlashEntryPointers => Enumerable.Range(0, flash.Length)
+        .Select(index => checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart +
+            index * MotherBrainRoomColorRomData.TimedEntryByteCount)));
+
     private MotherBrainRoomColorPresentation(ushort[][] flash, ushort[] finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
         ushort[] initialGlassShard, ushort[] initialTubeProjectile,
@@ -33,9 +38,10 @@ public sealed class MotherBrainRoomColorPresentation
     public void ApplyFlash(SnesCgram cgram, ushort timedEntryPointer)
     {
         int offset = timedEntryPointer - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-        if (offset < 0 || (offset & 3) != 0 || (uint)(offset / 4) >= flash.Length)
+        int stride = MotherBrainRoomColorRomData.TimedEntryByteCount;
+        if (offset < 0 || offset % stride != 0 || (uint)(offset / stride) >= flash.Length)
             throw new InvalidDataException($"Mother Brain room-flash entry $A9:{timedEntryPointer:X4} is not authored.");
-        ApplyRoom(cgram, flash[offset / 4]);
+        ApplyRoom(cgram, flash[offset / stride]);
     }
 
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>

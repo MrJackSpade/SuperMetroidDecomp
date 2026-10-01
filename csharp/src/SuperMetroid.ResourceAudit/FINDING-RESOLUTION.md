@@ -251,3 +251,29 @@ Original missing-identity reconciliation is now complete: **264 corrected produc
 dependencies plus two source-proven compiled no-ops = all 266 original identities**.
 Current audit: **zero missing identities, 353 unresolved analysis boundaries**. The latter
 remain explicitly failing findings, not silently waived or treated as proven resource bugs.
+
+## Mother Brain cutscene bank and fake-death color rows — resolved metadata gaps
+
+- **Original boundaries:** `MotherBrainBabyInstructionProgramDefinitions` had no declared
+  bank; the fake-death room palette program was incorrectly offered to the generic sprite
+  operand adapter. These were two of the original 353 unresolved boundaries.
+- **Source evidence:** pinned bank-$A9 `InstList_BabyMetroid_Initial`,
+  `InstList_BabyMetroid_DrainingMotherBrain` and `InstList_BabyMetroid_TakingFatalBlow`
+  select `F9A8/FA40/FAD8`. Their nine operand addresses were also missing from the
+  production selector registry because the generator required a byte-level mechanics
+  probe instead of accepting the program's explicit bank. The three OAM compositions
+  are shared with the already installed Tourian baby; no additional art is needed.
+- **Correction:** declare the bank, restore all nine sparse selector bindings, and teach
+  the generator to retain explicit-bank catalogs. Add a separate typed palette adapter
+  that follows the real importer and validated loader's fourteen timed-entry identities.
+  It uses constructed zero colors, never a ROM. Palette operand addresses are not OAM.
+- **Confirmation:** the new bank metadata made the missing nine bindings concrete, and
+  the focused contract check failed before their correction. It now confirms the exact
+  native frame sequence, installed target frames and rejection of adjacent mechanics
+  words. Palette checks confirm fourteen concrete omissions when exports are absent,
+  fourteen imported/loaded rows, changed-identity rejection and truncated-document
+  rejection. Windows compilation passes. No room, AI or gameplay execution was used.
+- **Accounting:** all original 266 missing identities remain accounted for. Nine additional
+  production bindings identified by resolving the bank gap are corrected. Current audit:
+  **zero missing identities, 351 unresolved**. The remaining dynamic consumer boundaries
+  still fail explicitly. Cutscene appearance remains player validation.

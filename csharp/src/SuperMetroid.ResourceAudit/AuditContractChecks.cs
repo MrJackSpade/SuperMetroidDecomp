@@ -60,8 +60,10 @@ internal static class AuditContractChecks
         ConfirmProjectileRouting();
         ConfirmPaletteProviders();
         ConfirmEmptyFrameBoundary();
+        ConfirmMotherBrainMetadata();
         Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
-            "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary and deterministic output confirmed.");
+            "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary, " +
+            "Mother Brain bank/color-row metadata and deterministic output confirmed.");
     }
 
     private static void ConfirmProjectileRouting()
@@ -128,5 +130,59 @@ internal static class AuditContractChecks
         Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("return;", "DrawArt();", StringComparison.Ordinal))) &&
             !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("bank, pointer", "bank, otherPointer", StringComparison.Ordinal))),
             "changed behavior or identity arguments must invalidate the reviewed classification");
+    }
+
+    private static void ConfirmMotherBrainMetadata()
+    {
+        // Confirms only the two identified metadata gaps. No AI, room, frame,
+        // palette effect or gameplay callback is executed.
+        Require(MotherBrainBabyInstructionProgramDefinitions.Bank ==
+            MotherBrainRoomColorRomData.SourceBank >> 16, "cutscene-baby bank ownership must be explicit");
+        // Pinned InstList_BabyMetroid initial, drain and fatal-blow sequences.
+        ushort[] expected = [0xf9a8, 0xfa40, 0xfad8, 0xfa40,
+            0xf9a8, 0xfa40, 0xfad8, 0xfa40, 0xfad8];
+        Require(expected.Length == MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount,
+            "the reviewed cutscene-baby sequences must not silently grow");
+        for (int index = 0; index < expected.Length; index++)
+        {
+            Require(SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
+                MotherBrainBabyInstructionProgramDefinitions.Bank,
+                MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), out ushort selected)
+                && selected == expected[index], "every cutscene-baby operand must select its pinned native frame");
+            Require(SuperMetroid.Core.Assets.EnemySpritemapDefinitions.Frames.ToArray().Any(frame =>
+                frame.Bank == MotherBrainBabyInstructionProgramDefinitions.Bank && frame.Pointer == selected),
+                "each selected cutscene-baby frame must be installed, not just bound");
+        }
+        Require(!SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
+            MotherBrainBabyInstructionProgramDefinitions.Bank, MotherBrainBabyInstructionProgramDefinitions.Initial, out _),
+            "an adjacent mechanics word must not become a visual selector");
+
+        var exports = new ResourceIndex();
+        var missing = new AuditReport();
+        MotherBrainRoomFlashAudit.Inspect("fixture.cs", exports, missing);
+        Require(missing.MissingCount == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount &&
+            missing.UnresolvedCount == 0, "absent flash rows must be concrete omissions, not an ignored program kind");
+        MotherBrainRoomFlashAudit.Install(exports);
+        var present = new AuditReport();
+        MotherBrainRoomFlashAudit.Inspect("fixture.cs", exports, present);
+        Require(present.Findings.Count == 0 && present.ReferenceCount == missing.ReferenceCount,
+            "the actual importer/loader must install every declared timed color row");
+        ushort neighboringOperand = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions
+            .PresentationWordAddress(MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount - 1) + 1));
+        var changed = new AuditReport();
+        MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
+        Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission");
+
+        var document = JsonSerializer.Deserialize<SuperMetroid.Core.Assets.MotherBrainRoomColorDocument>(
+            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions)!;
+        bool rejected = false;
+        try
+        {
+            _ = SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] },
+                    SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions)));
+        }
+        catch (InvalidDataException) { rejected = true; }
+        Require(rejected, "a missing installed flash row must fail at the production load boundary");
     }
 }

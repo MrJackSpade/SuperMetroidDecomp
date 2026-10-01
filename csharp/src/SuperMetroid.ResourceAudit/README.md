@@ -49,6 +49,10 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   by the production extractors and loaders. Extractors receive a recording source with
   zero RGB5 values, not a ROM; only declared color reads are allowed. Installed aliases
   and the separate title provider count. Mechanics, timers and audio are never executed.
+- Mother Brain's fake-death palette program has its own typed adapter: its fourteen
+  color operands must map to the timed-entry rows installed by the real importer/loader.
+  Its cutscene-baby sprite program declares bank ownership explicitly; resolving that
+  declaration also checks all nine compiled bindings and their shared Tourian artwork.
 - Core resource-catalog instance operations, including internal draw methods, are inventoried
   through Roslyn. Named arguments, constant casts and symbols resolve semantically.
   Supported constant bank/pointer lookups are checked; dynamic IDs and unknown catalog

@@ -6,6 +6,11 @@ public static class MotherBrainRoomColorRomData
     /// <summary>The bank containing the $D046 palette program and its RGB5 payloads.</summary>
     public const int SourceBank = 0xa90000;
 
+    /// <summary>Each $A9:D046 timed flash entry contains a duration word and a palette-pointer word.</summary>
+    public const int TimedEntryByteCount = 2 * sizeof(ushort);
+    /// <summary>The imported palette-pointer operand follows the timed entry's duration word.</summary>
+    public const int PaletteOperandByteOffset = sizeof(ushort);
+
     /// <summary>Each timed entry selects two twelve-color source slices.</summary>
     public const int SliceColors = 12;
 

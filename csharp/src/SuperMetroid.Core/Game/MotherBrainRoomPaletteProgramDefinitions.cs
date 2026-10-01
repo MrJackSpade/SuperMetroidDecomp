@@ -6,7 +6,7 @@ internal readonly record struct MotherBrainRoomPaletteMechanicsWord(
 
 /// <summary>
 /// Compiled control words for Mother Brain's fake-death room-palette flash program.
-/// Palette pointers and their BGR555 payloads remain live cartridge presentation data.
+/// Color rows are installed presentation data, indexed by the compiled timed-entry identity.
 /// </summary>
 internal static class MotherBrainRoomPaletteProgramDefinitions
 {

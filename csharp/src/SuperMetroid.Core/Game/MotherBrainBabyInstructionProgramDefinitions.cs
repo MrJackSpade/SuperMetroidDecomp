@@ -7,10 +7,13 @@ internal readonly record struct MotherBrainBabyInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Baby Metroid used by Mother Brain's final
-/// cutscene. Interleaved spritemap operands remain live cartridge presentation data.
+/// cutscene. Interleaved selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class MotherBrainBabyInstructionProgramDefinitions
 {
+    /// <summary>Native Mother Brain cutscene-baby instruction and OAM bank $A9.</summary>
+    internal const byte Bank = 0xa9;
+
     /// <summary><c>InstList_BabyMetroid_Initial</c> at $A9:CFA2.</summary>
     internal const ushort Initial = 0xcfa2;
 

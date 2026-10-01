@@ -50,7 +50,8 @@ internal static partial class Program
                 continue;
             }
             catalogs++;
-            if (mechanicsMethod is null || checkMethod is null)
+            FieldInfo? bankField = type.GetField("Bank", staticFlags);
+            if (mechanicsMethod is null || (checkMethod is null && bankField is not { IsLiteral: true }))
             {
                 unresolved.Add($"{type.Name}: no standard mechanics-word/bank probe");
                 continue;
@@ -65,10 +66,17 @@ internal static partial class Program
             }
             ushort firstAddress = Convert.ToUInt16(
                 addressProperty.GetValue(firstWord));
-            byte[] banks = Enumerable.Range(0x80, 0x60)
-                .Where(bank => (bool)checkMethod.Invoke(null,
-                    [(bank << 16) | firstAddress])!)
-                .Select(bank => (byte)bank).ToArray();
+            // A declared bank also covers catalogs with sparse mechanics words
+            // but no byte-level ownership probe, such as the cutscene Baby.
+            int? declaredBank = bankField is { IsLiteral: true }
+                ? Convert.ToInt32(bankField.GetRawConstantValue()) : null;
+            if (declaredBank is > byte.MaxValue) declaredBank >>= 16;
+            byte[] banks = declaredBank.HasValue
+                ? [checked((byte)declaredBank.Value)]
+                : Enumerable.Range(0x80, 0x60)
+                    .Where(bank => (bool)checkMethod!.Invoke(null,
+                        [(bank << 16) | firstAddress])!)
+                    .Select(bank => (byte)bank).ToArray();
             if (banks.Length != 1)
             {
                 unresolved.Add($"{type.Name}: {banks.Length} matching banks");
@@ -155,8 +163,8 @@ internal static partial class Program
             }
         }
         AssertEqual(153, discovered, "instruction catalogs with visual operands");
-        AssertEqual(5205, operands, "counted native sprite-selector occurrences");
-        AssertEqual(5060, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(5214, operands, "counted native sprite-selector occurrences");
+        AssertEqual(5069, keyed.Count, "distinct native sprite-selector addresses");
         if (generateCatalog)
             GenerateCompiledEnemyVisualSelectorCatalog(keyed);
         else
@@ -192,7 +200,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5060, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(5069, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)

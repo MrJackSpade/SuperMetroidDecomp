@@ -12,6 +12,7 @@ internal static class ResourceDomains
     public const string SamusProjectile = "samus-projectile-oam";
     public const string Consumer = "resource-consumer";
     public const string CompiledSelector = "compiled-visual-selector";
+    public const string MotherBrainRoomFlash = "mother-brain-room-flash-row";
 }
 
 /// <summary>Bank ownership of resource identities, derived from production catalogs.</summary>

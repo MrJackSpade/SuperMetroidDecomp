@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--confirm-reported-morph-block", var morphRecording, var morphInstallation, var morphTrace])
+        return ReportedMorphBlockConfirmation.Run(morphRecording, morphInstallation, morphTrace);
     if (args is ["--confirm-reported-shaft-door", var doorRecording, var doorInstallation, var doorTrace])
         return ReportedShaftDoorConfirmation.Run(doorRecording, doorInstallation, doorTrace);
     if (args is ["--installed-input-replay", var installedRecording, var installedRoot,

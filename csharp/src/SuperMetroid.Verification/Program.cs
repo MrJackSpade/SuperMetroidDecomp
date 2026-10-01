@@ -36,9 +36,21 @@ if (args is ["--gunship-landing-compositions", var gunshipInstallation])
     VerifyGunshipLandingCompositions(gunshipInstallation);
     return 0;
 }
+if (args is ["--ceres-save-repair", var repairedAssetRoot, var originalCopy, var repairedCopy, var installedEnemies])
+{
+    VerifyCeresSaveRepair(repairedAssetRoot, originalCopy, repairedCopy,
+        EnemyTileArtworkFiles.Load(installedEnemies, overrideDirectory: null));
+    return 0;
+}
 if (args is ["--ceres-save-repair", var repairedInstallation, var originalSave, var repairedSave])
 {
     VerifyCeresSaveRepair(repairedInstallation, originalSave, repairedSave);
+    return 0;
+}
+if (args is ["--ceres-save-startup", var ceresSaveAssets, var savedEnemyAssets])
+{
+    VerifyCeresSaveStartup(ceresSaveAssets,
+        EnemyTileArtworkFiles.Load(savedEnemyAssets, overrideDirectory: null));
     return 0;
 }
 if (args is ["--ceres-save-startup", var ceresSaveInstallation])

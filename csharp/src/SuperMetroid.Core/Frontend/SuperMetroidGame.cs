@@ -1410,6 +1410,11 @@ public sealed partial class SuperMetroidGame
     {
         CreateSelectedGameRuntime();
         runtime!.RestoreSavedPlayerState(slot);
+        // Unlike an ongoing escape, a file-select resume has a fresh gameplay
+        // owner. Construct its ordinary HUD now so the cinematic's later room
+        // handoff retains initialized HUD state and standard graphics transfers.
+        InitializeSelectedGameHud(slot);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         ApplySelectedGameOptions();
         ceresDestruction = new CeresDestructionCinematicState(
             bus, audio, mapPresentation?.PowerBombFixedColors,
@@ -1426,6 +1431,27 @@ public sealed partial class SuperMetroidGame
         runtime.MoonwalkEnabled = options.MoonwalkEnabled;
         runtime.IconCancelEnabled = options.IconCancelEnabled;
     }
+
+    /// <summary>
+    /// Shared saved-game HUD construction for playable and cinematic checkpoints.
+    /// The saved inventory supplies counters/icons; native initialization clears
+    /// the persisted HUD selection before the first live gameplay update.
+    /// </summary>
+    private void InitializeSelectedGameHud(SuperMetroidSaveSlot slot) =>
+        runtime!.InitializeHud(new HudSnapshot(
+            slot.Health,
+            slot.MaxHealth,
+            slot.Missiles,
+            slot.MaxMissiles,
+            slot.SuperMissiles,
+            slot.MaxSuperMissiles,
+            slot.PowerBombs,
+            slot.MaxPowerBombs,
+            slot.EquippedItems,
+            // $91:E00D clears selection before $80:9A79 builds the visible HUD.
+            SelectedItem: 0,
+            slot.ReserveEnergy,
+            slot.ReserveMode));
 
     private bool SetupSelectedGame()
     {
@@ -1470,21 +1496,7 @@ public sealed partial class SuperMetroidGame
             SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
                 ?? throw new InvalidDataException(
                     $"Selected save slot {selectedSaveSlot} became invalid during startup.");
-            runtime.InitializeHud(new HudSnapshot(
-                slot.Health,
-                slot.MaxHealth,
-                slot.Missiles,
-                slot.MaxMissiles,
-                slot.SuperMissiles,
-                slot.MaxSuperMissiles,
-                slot.PowerBombs,
-                slot.MaxPowerBombs,
-                slot.EquippedItems,
-                // `$91:E00D` clears the SRAM mirror's persisted HUD selection before
-                // `$80:9A79` constructs the visible HUD for a loaded game.
-                SelectedItem: 0,
-                slot.ReserveEnergy,
-                slot.ReserveMode));
+            InitializeSelectedGameHud(slot);
             runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
                 slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);

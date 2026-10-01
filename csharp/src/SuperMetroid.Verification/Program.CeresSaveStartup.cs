@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,8 @@ internal static partial class Program
     /// Confirms the explicitly approved one-off repair, without mutating either
     /// input file or adding compatibility guesses to production save loading.
     /// </summary>
-    private static void VerifyCeresSaveRepair(string installationRoot, string originalPath, string repairedPath)
+    private static void VerifyCeresSaveRepair(string installationRoot, string originalPath, string repairedPath,
+        EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         JsonNode original = JsonNode.Parse(File.ReadAllText(originalPath))!;
         JsonNode expected = original.DeepClone();
@@ -24,7 +26,7 @@ internal static partial class Program
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(repairedPath)), bus);
         var maps = installation.LoadMaps();
         var game = new SuperMetroidGame(bus);
-        PrepareRomFreeBindings(installation)(game, true);
+        PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
         game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
         game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
         var options = new GameOptionsMenuState(bus, mapPresentation: maps);
@@ -54,7 +56,15 @@ internal static partial class Program
             "#1153 repaired checkpoint hands off to Zebes, not Ceres");
         AssertEqual(game.RuntimeForVerification.Samus!.MaxHealth, game.RuntimeForVerification.Samus.Health,
             "#1153 Zebes landing loader retains its native energy refill");
-        Console.WriteLine("#1153 approved repaired copy: only mode differs; normal-file dispatch resumes destruction and its completion loads Zebes (input files read only).");
+        // The first correction stopped at room construction, before the gameplay
+        // owner updated the HUD. Confirm that exact handoff, not the full movie.
+        for (int wait = 0; wait < 15; wait++) game.Step(0);
+        AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
+            "#1153 repaired-file handoff reaches the first Landing Site fade");
+        game.Step(0);
+        AssertTrue(game.RuntimeForVerification.Hud.IsInitialized,
+            "#1153 resumed cinematic retains an initialized gameplay HUD");
+        Console.WriteLine("#1153 approved repaired copy: only mode differs; normal-file dispatch resumes destruction, loads Zebes and draws its first gameplay fade with an initialized HUD (input files read only).");
     }
 
     /// <summary>
@@ -62,11 +72,10 @@ internal static partial class Program
     /// the actual options dispatcher at its completed fade with checksummed SRAM.
     /// The cinematic checkpoint must never construct an escaping Ceres room.
     /// </summary>
-    private static void VerifyCeresSaveStartup(string installationRoot)
+    private static void VerifyCeresSaveStartup(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
-        var introArt = installation.LoadIntroCinematicArt();
         var bossBytes = new byte[Bank80SystemState.AreaCount];
         bossBytes[(int)AreaId.Ceres] = (byte)BossBits.AreaBoss;
         var departure = new SuperMetroidSaveSnapshot
@@ -83,9 +92,10 @@ internal static partial class Program
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         new SuperMetroidSaveRam(bus).SaveSlot(0, departure);
         var game = new SuperMetroidGame(bus);
-        game.BindMapPresentation(maps);
-        game.BindIntroCinematicArt(introArt);
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
+        Action<SuperMetroidGame, bool> bind = PrepareRomFreeBindings(installation, enemyArtwork);
+        bind(game, true);
+        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
+        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
         var options = new GameOptionsMenuState(bus, mapPresentation: maps);
         typeof(GameOptionsMenuState).GetProperty(nameof(options.Phase))!
             .SetValue(options, GameOptionsPhase.FadeOutToIntro);
@@ -107,9 +117,23 @@ internal static partial class Program
         AssertTrue(savedBefore.AsSpan().SequenceEqual(bus.SaveRam),
             "#1153 normal load does not rewrite the checkpoint");
 
+        // A resumed cinematic constructs a fresh gameplay owner, unlike an ongoing
+        // escape. Its first Landing Site draw must have the same initialized HUD.
+        var resumedScene = (CeresDestructionCinematicState)typeof(SuperMetroidGame)
+            .GetField("ceresDestruction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        typeof(CeresDestructionCinematicState).GetProperty(nameof(resumedScene.Phase))!
+            .SetValue(resumedScene, CeresDestructionPhase.Finished);
+        game.Step(0);
+        game.Step(0);
+        for (int wait = 0; wait < 15; wait++) game.Step(0);
+        AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
+            "#1153 normal mode-$22 load reaches the first Landing Site fade");
+        game.Step(0);
+        AssertTrue(runtime.Hud.IsInitialized,
+            "#1153 normal mode-$22 load initializes the HUD before gameplay resumes");
+
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        Action<SuperMetroidGame, bool> bind = PrepareRomFreeBindings(installation);
         var freshBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var fresh = new SuperMetroidGame(freshBus);
         bind(fresh, true);
@@ -192,7 +216,7 @@ internal static partial class Program
         AssertEqual(SaveLoadingGameStates.MainGame,
             new SuperMetroidSaveRam(bus).ReadSlot(0)!.LoadingGameState,
             "#1153 malformed legacy slot is not silently rewritten");
-        Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
+        Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }
 
     private static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>

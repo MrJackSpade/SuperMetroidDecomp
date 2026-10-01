@@ -49,6 +49,12 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "Keys")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(PauseEquipmentLabelDefinitions).FullName));
+            if (valid && contract.Type == typeof(EscapeTimerPresentation).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "AnchorNames")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
+                            field.ContainingType.ToDisplayString() == typeof(EscapeTimerPresentationDefinitions).FullName));
             contracts.Add(contract.Type, (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)

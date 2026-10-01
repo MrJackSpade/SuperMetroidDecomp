@@ -561,3 +561,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 109 unresolved**, all 352 consumers retained. These proofs
   do not certify live inventory ownership, host instance installation, pixels,
   sound or arbitrary caller input; the remaining findings still fail the audit.
+
+## Title/opening/Ceres domains - eighteen further source-proven boundaries
+
+- **Findings:** eighteen title/opening/Ceres presentation calls lacked adapters.
+- **Cause/classification:** ten reviewed private-constructor loaders require
+  their full resource domains. Rules now account for initial title colors,
+  masked gradients, compiled sprite identities, eye/caret/Mother Brain art,
+  door images/colors, timer art and owned warning overlays. Title frame count
+  alone is not used as proof: the loader checks every compiled required pointer.
+  Mutable timer anchor access revokes its proof. Overlay membership queries may
+  return false; their rule does not certify DMA caller source/length selection.
+- **Confirmation:** twenty-four constructed source calls reproduce absent
+  adapters first; sixteen classify and eight bad pointers/indices still fail.
+  Blank title timed entries are rejected; unsupported overlay queries are valid
+  false results. External timer AnchorNames access revokes the relevant proof.
+  Build and all prior checks pass. No gameplay, scene, door, countdown, palette,
+  assets, ROM or saves were executed/opened; production behavior is unchanged.
+- **Accounting:** 260 guarded classifications plus two metadata corrections
+  account for **262 of the original 353 boundaries**. Current report: **zero
+  missing identities, 91 unresolved**, all 352 consumers retained. Missing and
+  unresolved findings still fail the audit. No player-visible correctness claim.

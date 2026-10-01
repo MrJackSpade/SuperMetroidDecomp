@@ -377,3 +377,27 @@ Twenty-six constructed source calls first reproduce absent adapters. Sixteen
 then classify and ten invalid selections still fail. An external nested-array
 mutation revokes all seven label calls in the fixture. Build and earlier contract
 checks pass. No pause/menu sequence, sound, assets, ROM, saves or gameplay runs.
+
+## Title/opening/Ceres presentation - eighteen additional original boundaries
+
+Ten reviewed loaders require complete initial title colors, sixteen masked zoom
+gradients, 31 title sprite identities derived from compiled selectors, four eye
+rectangles, visible caret (including its legacy alias), three Mother Brain and
+twelve explosion compositions, Ceres door art/colors/Mode-7 maps, decimal timer
+art/anchors, and five Ceres warning overlay pages. Provider and identity sources
+are fingerprint-guarded; sparse pointers and array indices retain exact bounds.
+Title blank timed entries are deliberately not installed compositions.
+
+The timer proves only Label/decimal digit/anchor coverage after BCD validation;
+external Core access to mutable AnchorNames revokes its proof. Ceres overlays
+are a complete owned-set membership query: unsupported sources or lengths may
+validly return false. That rule does not prove the DMA caller chose a supported
+source, nor certify warning placement/timing. Title gradients mask arbitrary
+ushort zoom inputs into their sixteen loaded variants rather than imposing a
+fictional zoom-input resource bound.
+
+Twenty-four constructed source calls first reproduce absent adapters. Sixteen
+classify and eight invalid pointer/index requests remain unresolved. A source
+fixture accessing mutable timer AnchorNames revokes Draw's proof. Build and
+prior checks pass. No cinematic, title, door, timer, palette sequence, ROM,
+assets, saves or gameplay runs; mechanics and visual content are unchanged.

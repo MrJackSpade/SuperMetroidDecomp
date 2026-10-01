@@ -112,6 +112,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),
         ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
+        ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
+        ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualRomData.AnimationRowCount),
+        ("CeresDoorVisualCatalog", "LoadMode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
         _ => null,
     };
 }

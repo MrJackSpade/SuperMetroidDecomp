@@ -1,0 +1,50 @@
+namespace SuperMetroid.ResourceAudit;
+
+/// <summary>Source-reviewed title, opening and Ceres visual providers; no scene, timing or pixel-parity claim.</summary>
+internal static class CinematicClosedContractDefinitions
+{
+    internal static readonly ClosedPresentationContract[] All =
+    [
+        new("SuperMetroid.Core.Assets.TitlePalettePresentation", "title-complete-initial-palette", ["Apply"],
+            [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A"),
+             new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "99A9E4DC779F4880FDF6B007733480F07EA950872FEA66EA7D68A5100A6A0F25")],
+            "Private construction requires the complete initial CGRAM image, both exact ambient color sequences and the fast-skip colors. Apply selects fixed independent loaded colors. Ambient identities are separately audited; palette clocks and title phases are not executed."),
+        new("SuperMetroid.Core.Assets.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
+            [new("csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs", "5CB6033938EA9C0244BFD5CFCB788AD663FCA2EF2B990293561A884128A27356")],
+            "Private construction requires all sixteen ordered zoom variants with complete validated scanlines. Resolve masks zoom bits four through seven, so every ushort selects a loaded variant. Camera, zoom direction, HDMA behavior and colors themselves are not certified."),
+        new("SuperMetroid.Core.Assets.TitleGraphicsPresentation", "title-complete-compiled-sprite-identities", ["DrawSprite"],
+            [new("csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs", "63DA8A009914CFAB103B3736C75C1814E9D9979699ADAAF1CF8D51D0F2854450"),
+             new("csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs", "B15995F810C682F2D384220B8C926DF91E96FDD7A6DF5273BE0EF521750FF353"),
+             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs", "966AB9FEFA30153F1EB1A90199F4D9CCE4776F34BCD595EF1535000A5DD02981"),
+             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "E89BAFBD284004D1204EB17A10C8770D64A6E7E1228EF1137F65F88462164B44")],
+            "The sole private-constructor loader validates all sheets/map dimensions and requires each of the 31 compiled sprite selectors, not merely 31 arbitrary entries. DrawSprite selects the complete sparse pointer set. Blank timed entries are not artwork. Tile DMA, clipping and scene order are not certified."),
+        new("SuperMetroid.Core.Assets.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs", "216CD3CA1BF9968DB46243CEAC79FC6D74F9AED0C9D80ECEFA4DF98371047262")],
+            "Private construction requires all four stable ordered six-cell eye rectangles and compiles independent words. FrameWords guards the index and returns a read-only span. Blink phase selection and portrait placement are not certified."),
+        new("SuperMetroid.Core.Assets.IntroCaretSpritePresentation", "intro-complete-visible-caret", ["Draw"],
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpritePresentation.cs", "18E5FC752D61553533F8BFD6F0E8BA36EAB158AEEE8E3D4D4C084FFAFBA020A4"),
+             new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs", "1FF1DCBC7268CE53DD4470B2C34ACA15A633AB6A84DD1F1516EC52CEB9000BDD")],
+            "Both current and legacy loader paths bind the sole required visible caret identity before private construction. Legacy artwork aliases its first validated frame, not the discarded blink identities. Draw guards pointer membership; caret position/blink behavior is unchanged and not certified."),
+        new("SuperMetroid.Core.Assets.IntroMotherBrainSpritePresentation", "intro-complete-mother-brain-sprites", ["Draw"],
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpritePresentation.cs", "53F79AFBD5BE6584B43BE94C8F4E283E7A21B921C00CC8C7736B8FAB6F02805D"),
+             new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpriteDefinitions.cs", "51D6B6BD8B56327CD4D18A61468030B20D638E2A466CAEF496B2D510DE012B86")],
+            "Private construction requires all three named Mother Brain compositions with exact compiled pointers. Draw guards membership. Intro AI, damage, collision, animation timing and placement are not certified."),
+        new("SuperMetroid.Core.Assets.IntroMotherBrainExplosionSpritePresentation", "intro-complete-mother-brain-explosions", ["Draw"],
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpritePresentation.cs", "8D198E7B916E2B32733187B271CCB2687BEDFB670830884A54381E21BB8C9D40"),
+             new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpriteDefinitions.cs", "4EC130E310497E5C2489167A9E362FCEF5619E2175EAD9A6BAF0C9A14EA44C3D")],
+            "Private construction requires all twelve named small/large explosion compositions with their exact pointers. Draw guards membership. Fourth-hit spawning, cadence, collision and placement are not certified."),
+        new("SuperMetroid.Core.Assets.CeresDoorVisualCatalog", "ceres-door-complete-tile-and-color-images",
+            ["LoadTiles", "LoadNormalColors", "LoadEscapeColors", "LoadAnimationColors", "LoadMode7DoorFrame"],
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs", "FE6742D2EFF787E971E810F5D9FD0EFCA38AF0E87CFF95CF5B46941D521E7033"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresDoorVisualRomData.cs", "E228548CA07516CBA4465A124F1B6F97422994CEBA7DD976244A13DDD0DC35DF"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512")],
+            "Private construction requires the exact door tile stream, both fifteen-color setup images, eight six-color animation rows and two four-byte Mode-7 maps. Arrays are compiled independently; indexed selections have CLR bounds. CGRAM/VRAM destinations are placement, not resource identities. Door behavior and quake synchronization are not certified."),
+        new("SuperMetroid.Core.Assets.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
+            [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs", "22AB9DE89C78B2D3B38CC90D36C2BAC2EBFFA0C7E607158809424694BE8F38EC"),
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs", "90CAECDC3A6E4EA4ADA5CB53F39D2193584A4DA3EBBE57527A6D538E5EA0D5BB")],
+            "Private construction requires Label, all ten decimal digit compositions and four anchors. Draw validates packed BCD before deriving only those loaded digit names. External Core access to mutable AnchorNames revokes this proof. Countdown logic, placement and actual glyph appearance are not certified."),
+        new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "221707D460C05818CC9C71A2C57936F1F69FBAA7ABF9B03E0B4BF4C334D9227A")],
+            "Private construction requires all five named warning pages with their exact separate lengths and compiles independent bytes. TryResolve checks source and length; unsupported requests validly return false and do not demand new art. This proves owned-set membership only, not DMA caller source selection or warning timing."),
+    ];
+}

@@ -20,6 +20,7 @@ internal static class ClosedPresentationContractDefinitions
         .. RemainingEnemyColorClosedContractDefinitions.All,
         .. TextAndMapClosedContractDefinitions.All,
         .. PauseClosedContractDefinitions.All,
+        .. CinematicClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

@@ -7,6 +7,8 @@ internal sealed record AuditFinding(string Code, string Domain, string Owner, st
 internal sealed record AuditCoverage(string Domain, int References, int Exports);
 internal sealed record AuditConsumer(string Domain, string Owner, string Source, string Arguments,
     string Resolution);
+internal sealed record AuditCompiledDefinition(string Domain, string Resource, string Owner,
+    string Source, string Reason);
 
 /// <summary>Separate concrete missing exports from unresolved analysis boundaries.</summary>
 internal sealed class AuditReport
@@ -23,6 +25,7 @@ internal sealed class AuditReport
     public List<AuditCoverage> Coverage { get; } = [];
     public List<AuditFinding> Findings { get; } = [];
     public List<AuditConsumer> Consumers { get; } = [];
+    public List<AuditCompiledDefinition> CompiledDefinitions { get; } = [];
     public static JsonSerializerOptions JsonOptions { get; } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -47,6 +50,8 @@ internal sealed class AuditReport
             $"{right.Code}|{right.Domain}|{right.Resource}|{right.Source}|{right.Owner}"));
         Consumers.Sort((left, right) => StringComparer.Ordinal.Compare(left.Source, right.Source));
         Coverage.Sort((left, right) => StringComparer.Ordinal.Compare(left.Domain, right.Domain));
+        CompiledDefinitions.Sort((left, right) => StringComparer.Ordinal.Compare(
+            $"{left.Domain}|{left.Resource}", $"{right.Domain}|{right.Resource}"));
     }
 }
 

@@ -62,3 +62,23 @@ Those remaining findings are not yet classified or suppressed.
 
 After this correction: **231 missing identities (484 references), 353 unresolved**.
 The goal remains active; those findings have not been waived or suppressed.
+
+## Common empty enemy frames — proven non-defect
+
+- **Findings:** `A8:804D` and `B3:804D`, across seven generated selector references.
+- **Evidence:** the pinned banks declare their `$804D` ordinary spritemap with zero
+  parts. `CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap` models this
+  record for an explicit supported bank set. `DrawEnemySpritemap` already returns
+  without emitting OAM when that predicate matches. No installed composition is needed.
+- **Rule:** count the production-owned empty definitions in the display domain only.
+  Use the actual supported bank set and predicate, not a hand-written finding allowlist.
+  Statically guard the renderer's predicate arguments and no-op branch: a change requires
+  adapter review. Direct `EnemySpritemapCatalog` lookups are not considered satisfied
+  by a renderer fallback. JSON records the compiled definition owner, source and reason.
+- **Confirmation:** the two identities are recognized, an unsupported bank and adjacent
+  pointer remain rejected, and synthetic changed draw behavior/arguments invalidate the
+  source guard. Static audit removes precisely two identities/seven references.
+- **Player status:** no gameplay change or player validation needed for this classification.
+
+After this classification: **229 missing identities (477 references), 353 unresolved**.
+The goal remains active; no broad suppression or passing baseline has been introduced.

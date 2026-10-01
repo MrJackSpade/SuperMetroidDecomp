@@ -59,8 +59,9 @@ internal static class AuditContractChecks
         Require(first == JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions), "report ordering must be deterministic");
         ConfirmProjectileRouting();
         ConfirmPaletteProviders();
+        ConfirmEmptyFrameBoundary();
         Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
-            "direct/bound projectile routing, palette aliases/title provider and deterministic output confirmed.");
+            "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary and deterministic output confirmed.");
     }
 
     private static void ConfirmProjectileRouting()
@@ -102,5 +103,30 @@ internal static class AuditContractChecks
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Resource audit contract failed: " + message);
+    }
+
+    private static void ConfirmEmptyFrameBoundary()
+    {
+        // Confirmation of the identified A8/B3 blank-frame false positives.
+        ushort empty = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        Require(CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xa8, empty) &&
+            CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xb3, empty),
+            "the two reported identities must be compiled no-op frames");
+        Require(!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xb5, empty) &&
+            !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
+            "unsupported banks and neighboring pointers must not be classified as empty artwork");
+        var exports = new ResourceIndex();
+        exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));
+        Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
+            "a compiled renderer no-op must not imply an installed catalog entry");
+        const string renderer = "class Fixture { void DrawEnemySpritemap(byte bank, ushort pointer) { " +
+            "if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer)) return; } }";
+        MethodDeclarationSyntax ParseMethod(string text) => CSharpSyntaxTree.ParseText(text)
+            .GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
+        Require(CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer)),
+            "the precise reviewed no-op branch must be recognized");
+        Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("return;", "DrawArt();", StringComparison.Ordinal))) &&
+            !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("bank, pointer", "bank, otherPointer", StringComparison.Ordinal))),
+            "changed behavior or identity arguments must invalidate the reviewed classification");
     }
 }

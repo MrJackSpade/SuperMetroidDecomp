@@ -35,6 +35,10 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
 
 - Every `CompiledEnemyVisualSelectors` record is checked against ordinary or extended
   enemy display exports. Requirements come from the selector table, not the export list.
+- The ordinary renderer's compiled zero-part frames satisfy display requirements without
+  editable artwork. The exact supported bank/pointer predicate and no-OAM return branch
+  are guarded; a changed renderer contract fails the adapter. These definitions do not
+  satisfy direct installed-catalog lookups and are listed separately in the JSON.
 - Bank-$86 projectile operands follow the production routing: installed operand-bound
   frames first, otherwise direct bank-$8D sprite compositions. Skree/Metaree's named
   direct bindings and the explicit zero-part blank sprite are accounted for.
@@ -76,7 +80,9 @@ alternative renderers must be inspected from source before classifying it as a p
 No gameplay search is needed or authorized to establish that distinction.
 
 The JSON has a schema `version`, scope, reference/distinct-missing/unresolved counts,
-per-domain `coverage`, all `findings`, and all `consumers`. Findings include domain, owner,
+per-domain `coverage`, all `findings`, all `consumers`, and source-owned `compiledDefinitions`.
+Coverage exports count both installed identities and applicable compiled definitions.
+Findings include domain, owner,
 identity, relative source location and explanation. Multiple references to one missing
 identity are preserved; `missingResourceCount` counts distinct domain/identity pairs.
 Output order is deterministic and contains no timestamp, ROM bytes, screenshots or saves.

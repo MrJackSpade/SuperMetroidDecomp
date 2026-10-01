@@ -24,6 +24,7 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.EnemyExtended, key);
             exports.Add(ResourceDomains.EnemyDisplay, key);
         }
+        CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, frame.OperandAddress));
         foreach ((ushort pointer, _) in EnemyProjectileSpritemapDefinitions.Frames)

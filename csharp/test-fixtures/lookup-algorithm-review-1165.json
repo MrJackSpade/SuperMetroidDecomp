@@ -92,6 +92,10 @@
       "subject": "Convert SPC note volume and gate percentages for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Convert SPC note volume and gate percentages for #1165'"
     },
+    "retained-audio-curves": {
+      "subject": "Record independent pan and Gaussian retain decisions for #1165",
+      "resolve": "git log -1 --format=%H --fixed-strings --grep='Record independent pan and Gaussian retain decisions for #1165'"
+    },
     "spc-pitch-basis": {
       "subject": "Compute exact SPC pitch basis with decimal arithmetic for #1165",
       "resolve": "git log -1 --format=%H --fixed-strings --grep='Compute exact SPC pitch basis with decimal arithmetic for #1165'"
@@ -736,6 +740,36 @@
     "rationale": "Standard equal temperament explains all values without corrections. Starting from rounded C incorrectly changes notes7/8. Decimal operations avoid platform libm and per-call allocations; adjacent bases are calculated once each. Exact rational upper/lower root bounds floor to every original word with more than1e-6 margin, far exceeding decimal rounding. This identifies an exact convention, not provenance of the historical authoring tool.",
     "proofTest": "VerifySpcPitchBasisAlgorithm",
     "confirmationScope": "Single original-ROM proof covers all13 words, exact root bracket and rounding margins, plus adjacent/extreme invalid inputs. Source review preserves subsequent interpolation and shifts. Verification and research consumers build."
+  },
+  "retainedAudioCurvesReview": {
+    "implementationCommit": "retained-audio-curves",
+    "reviewedEvidence": "Full current definitions and every runtime consumer, pinned upstream-sm/src/spc_player.c and src/snes/dsp.c at578f90b3cc49557bb70060ad033bb90b8cf8ac50, ROM SHA verified. Static elementwise comparison confirms22 pan bytes against both native initializer and original ROM, and512 Gaussian words against native initializer. Historical formula code read as hypotheses rather than assumed proof.",
+    "tables": [
+      {
+        "id": "spc-pan-gain-curve", "state": "retained",
+        "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+        "nativeIdentity": "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+        "consumers": ["ManagedSpcPlayer.WriteVolume"],
+        "domain": "Stored index0..21; actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
+        "interpretation": "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position).",
+        "disposition": "Retain22-byte curve and existing explicit bounded SPC-RAM compatibility branch.",
+        "rationale": "Linear and ordinary equal-power quarter-sine panning do not explain the curve (first nonzero sample1 versus roughly10 for127*sin(pi/40)). Period quantization and custom easing are possible hypotheses, but no independently evidenced generator selects one. A fitted high-degree expression or corrections would restate the data less clearly. Numerical curve is not dispatch.",
+        "confirmation": "Static comparison of all22 stored values to native initializer and original NTSC ROM; consumer source confirms adjacent-data behavior remains unchanged. No new test required for retain."
+      },
+      {
+        "id": "dsp-gaussian-coefficients", "state": "retained",
+        "owner": "csharp/src/SuperMetroid.Core/Audio/SnesDspTables.cs",
+        "nativeIdentity": "gaussValues[512] in pinned src/snes/dsp.c; hardware coefficients, no cartridge address",
+        "consumers": ["ManagedSnesDsp.GetInterpolatedSample", "LookupTableResearch.VerifyGaussian"],
+        "domain": "Direct array index0..511; offset=(PitchCounter>>4)&255 generates255-offset,511-offset,256+offset,offset. No out-of-bounds compatibility domain.",
+        "interpretation": "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1.",
+        "disposition": "Retain1KiB exact hardware coefficients.",
+        "rationale": "Reviewed phase-normalized Blackman-windowed sinc reconstruction and deterministic decimal series. It is a plausible generator, not original hardware tooling evidence. Four hot-path coefficient lookups per voice sample should not become repeated kernel normalization and trigonometric evaluation. Startup generation still requires a cached table and adds a substantial numerical dependency without simplifying ownership. Explicit coefficients are clearer and cheaper.",
+        "existingConfirmation": "VerifyGaussian in historical research compares all512 original coefficients and proposed construction; preserved. This review statically compares all512 original native entries and all consumer index/arithmetic steps without running the broad research suite."
+      }
+    ],
+    "newConversions": 0,
+    "confirmationScope": "Documentation and inventory only; complete static original-definition comparison, no audio replay, sweep, benchmark or new fitting campaign."
   },
   "unreviewedOwnerCandidates": [
     "EnemyTrigonometryTables: byte half-wave, unsigned half-wave, signed negative cosine, signed sixteen-bit sine",

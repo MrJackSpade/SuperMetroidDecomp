@@ -38,22 +38,21 @@ internal static class SnesDspTables
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #922 exact generation: validate j=0..511; k=511.5-j and
-    /// r(j)=sin(pi*k/800)/k * (0.42+0.50*cos(2*pi*k/1023)+0.08*cos(4*pi*k/1023)).
-    /// Let p=j%256 and d=r(p)+r(255-p)+r(256+p)+r(511-p). The stored coefficient
-    /// is floor(2048*r(j)/d+0.5). This windowed-sinc model normalizes each four-tap
-    /// phase BEFORE independently rounding its coefficients. Global normalization
-    /// fails at 23 entries; do not force the rounded four-tap sum to equal 2048.
-    /// The analytic recipe follows Mednafen/nocash's original investigation:
-    /// https://forums.nesdev.org/viewtopic.php?start=15&amp;t=10586 .
-    /// LookupTableResearch independently proves 512/512 values against this array
-    /// and gaussValues in pinned upstream-sm/src/snes/dsp.c. Its 24-term decimal
-    /// trigonometry propagates conservative error intervals through normalization;
-    /// both bounds round to the same integer at every index. No entry corrections,
-    /// fitted coefficient list, platform libm or ROM dependency are required.
-    /// Actual DSP sample multiplication, wrapping and saturation remain separate.
-    /// Runtime migration and the cost of evaluating four kernels per lookup require
-    /// a later pass; this research changes no mixer behavior.
+    /// Independently reviewed and retained for #1165: all512 coefficients match
+    /// gaussValues in pinned upstream-sm/src/snes/dsp.c. Offsets0..255 select four
+    /// taps at255-offset,511-offset,256+offset,offset; no overread is accepted.
+    /// The historical research describes a compatible phase-normalized windowed
+    /// sinc: k=511.5-j; r=sin(pi*k/800)/k times the Blackman window with denominator
+    /// 1023, then round2048*r/sum(four phase taps). This is a reconstruction hypothesis,
+    /// not evidence of the hardware manufacturer's original coefficient generator.
+    /// Retain the1KiB coefficient table: evaluating several kernels and deterministic
+    /// trigonometric series for each of four lookups per voice sample is substantially
+    /// more costly and opaque than the explicit hardware coefficients. Generating and
+    /// caching them merely recreates the same runtime table with startup complexity.
+    /// This is numerical interpolation data, not case-selection semantics.
+    /// Preserve the consumer's shift10 per product, signed16 wrap after the third tap,
+    /// then fourth addition, saturation and final shift1. Do not renormalize rounded taps.
+    /// Historical VerifyGaussian remains the existing full coefficient/formula check.
     /// </remarks>
     internal static readonly ushort[] GaussianValues =
     [

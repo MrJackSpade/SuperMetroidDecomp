@@ -75,9 +75,9 @@ Private construction prevents partially validated providers.
 ## Scoped confirmation
 
 `--self-check` uses the actual reviewed source declarations and constructed consumer
-calls, not a room or gameplay frame. Before applying the adapter, thirty-three fixture
-calls are unresolved. With it, seventeen valid reviewed calls are classified, missing
-anchor/conditional-label keys remain concrete, and fourteen invalid/unreviewed/dynamic
+calls, not a room or gameplay frame. Before applying the adapter, forty-nine fixture
+calls are unresolved. With it, twenty-six valid reviewed calls are classified, missing
+anchor/conditional-label keys remain concrete, and twenty-one invalid/unreviewed/dynamic
 selections remain unresolved. Mutating digit-selection code or adding an external
 `IconNames` mutation revokes the proof at the real consumer adapter. These checks
 confirm only the identified adapter contracts; they do not discover new player bugs.
@@ -152,3 +152,19 @@ for each identified provider domain. It also checks Draygon's unused health sele
 a white frame. Invalid beam/health/color indices, odd Draygon/statue selectors, a
 too-high level-death frame and an unreviewed Crocomire resolver all stay failing gaps.
 No palette animation, boss frame, AI or combat callback is executed.
+
+## Complete color sequences - 22 original consumer boundaries
+
+| Provider | Original sites | Required domain and reviewed operations |
+| --- | ---: | --- |
+| Mother Brain rainbow | 8 | Private construction requires ten full rainbow frames, eight drain/revival/fake-death frames, normal colors, and 38 beam colors. The seven reviewed operations use these arrays with guarded indices. Cursor values 0..152 in steps of four include the final compiled terminator; 152 is not an omitted color. Legacy fake-death rows require validated stock. |
+| Mother Brain death | 4 | All sixteen fourteen-color body/leg rows, eight fifteen-color corpse rows and fourteen door colors are required before private construction. Four reviewed resolvers guard the complete row/color domains. |
+| Chozo/tube | 3 | Private construction requires all three fixed 32-color images. The three `Apply` methods transfer loaded arrays. Raw resolver methods are deliberately excluded. |
+| Gameplay base | 3 | Private construction requires 256 initial CGRAM colors and sixteen common sprite colors. The projectile palette is the complete initial-image slice 208..223. The three `Load` methods select fixed fields/slices; destination indices are placement, not resource identities. CGRAM/layout definitions are guarded too. |
+| Samus death | 4 | Its public constructor validates and deep-clones all three ten-row suited families, ten suitless rows, 22 whiteout shades and nine explosion selectors. All rows contain sixteen colors. Four direct array selectors have complete valid domains; CLR bounds checks reject invalid arguments, but the proof does not certify dynamic caller indices. |
+
+The constructed-source confirmation checks valid endpoints and rejected out-of-range
+rainbow, death, suit and explosion indices. It also distinguishes the valid aligned beam
+terminator from an invalid intermediate cursor, and leaves the unreviewed Chozo resolver
+unresolved. A dynamic CGRAM destination does not become an invented resource dependency.
+No palette sequence, death animation or battle is executed.

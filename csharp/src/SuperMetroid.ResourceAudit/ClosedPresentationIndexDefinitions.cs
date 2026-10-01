@@ -52,6 +52,20 @@ internal static class ClosedPresentationIndexDefinitions
         // The union is eight rows; the selected non-sprite layer still enforces
         // its narrower seven-row domain inside the reviewed provider.
         ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorRomData.DeathSpriteFrameCount),
+        ("MotherBrainRainbowPalettePresentation", "BeamColorWord", "byteCursor") => new(0,
+            MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 1, MotherBrainBeamRomData.ColorStride),
+        ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
+        ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteFormat.GreyFrameCount),
+        ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteRomData.FrameCount),
+        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathRomData.BodyFadeFrameCount),
+        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathRomData.BodyColorCount),
+        ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathRomData.CorpseFadeFrameCount),
+        ("MotherBrainDeathColorCatalog", "CorpseColor", "color") => new(0, MotherBrainDeathRomData.CorpseColorCount),
+        ("SamusDeathPaletteArtworkCatalog", "SuitedColor", "suit") => new(0, SamusDeathPaletteArtworkCatalog.SuitCount),
+        ("SamusDeathPaletteArtworkCatalog", "SuitedColor" or "SuitlessColor", "palette") => new(0, SamusPaletteRomData.Death.PaletteCount),
+        ("SamusDeathPaletteArtworkCatalog", "SuitedColor" or "SuitlessColor", "color") => new(0, SamusDeathPaletteArtworkCatalog.ColorCount),
+        ("SamusDeathPaletteArtworkCatalog", "WhiteoutColor", "index") => new(0, SamusPaletteRomData.Death.WhiteoutShadeCount),
+        ("SamusDeathPaletteArtworkCatalog", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.RecordCount),
         _ => null,
     };
 }

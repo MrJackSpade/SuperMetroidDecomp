@@ -350,3 +350,26 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **108 of the original 353 boundaries**. Current audit: **zero missing
   identities, 245 unresolved**, with all 352 consumer sites retained. Production boss
   behavior is unchanged by this audit-only correction.
+
+## Complete imported color sequences - 22 further source-proven boundaries
+
+- **Findings:** eight Mother Brain rainbow/fade, four Mother Brain death, three
+  Chozo/tube, three gameplay base and four Samus death-palette consumer sites.
+- **Cause/classification:** these calls use complete validated arrays, not dynamically
+  missing artwork. Method-specific source-guarded contracts now account for them.
+  Samus's public death-art constructor validates and deep-clones its input, so it has
+  the same complete-domain property without assuming a private loader. Unreviewed
+  raw methods remain unresolved; arbitrary dynamic indices are not certified.
+- **Bounds:** the beam's final aligned cursor is a compiled terminator, not an absent
+  color; only 0..152 in steps of four qualify. Dedicated index domains retain precise
+  frame, color, suit and explosion limits. CGRAM destinations are placement arguments,
+  not additional resource names.
+- **Confirmation:** forty-nine constructed source calls are unresolved before the
+  adapter. Twenty-six then classify, two missing names stay concrete, and twenty-one
+  invalid/unreviewed/dynamic calls remain unresolved. Endpoint and invalid-cursor checks,
+  death/suit/explosion bounds, and existing source-change/mutable-key safeguards pass.
+  Compilation succeeds. No ROM, saves, palette animation or gameplay were executed.
+- **Accounting:** 128 guarded consumer classifications plus two metadata corrections
+  account for **130 of the original 353 boundaries**. Current audit: **zero missing
+  identities, 223 unresolved**, all 352 consumer sites retained. This changes auditing
+  only; production palette behavior is untouched.

@@ -27,6 +27,9 @@ internal static class ClosedPresentationContractChecks
                     BeamPaletteCatalog beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatueColorCatalog statues,
+                    MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
+                    ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
+                    SamusDeathPaletteArtworkCatalog samusDeath,
                     SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
                     OamBuffer oam, int dynamicIndex, string dynamicName) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
@@ -64,6 +67,22 @@ internal static class ClosedPresentationContractChecks
                     phantoon.ResolvePowerOn(112);
                     statues.ApplyEye(cgram, 6);
                     statues.ApplyEye(cgram, 1);
+                    rainbow.BeamColorWord(152);
+                    rainbow.BeamColorWord(154);
+                    rainbow.ApplyRainbow(cgram, 9);
+                    rainbow.ApplyRainbow(cgram, 10);
+                    rainbow.ApplyFakeDeathToGrey(cgram, 7);
+                    rainbow.ApplyFakeDeathFromGrey(cgram, 8);
+                    death.BodyColor(15, 13);
+                    death.CorpseColor(8, 0);
+                    chozo.ApplyLowerNorfair(cgram);
+                    chozo.ResolveLowerNorfair(0);
+                    basePalette.LoadEnemyProjectileSprites(cgram, dynamicIndex);
+                    samusDeath.SuitedColor(2, 9, 15);
+                    samusDeath.SuitedColor(3, 9, 15);
+                    samusDeath.ExplosionPaletteIndex(8);
+                    samusDeath.ExplosionPaletteIndex(9);
+                    rainbow.ApplyFromGrey(null!, cgram, 7);
                 }
             }
             """;
@@ -79,16 +98,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 33, "the fixture must reproduce the identified missing-adapter boundaries first");
+        Require(before.UnresolvedCount == 49, "the fixture must reproduce the identified missing-adapter boundaries first");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 17 && report.MissingCount == 2 && report.UnresolvedCount == 14,
+        Require(report.Classifications.Count == 26 && report.MissingCount == 2 && report.UnresolvedCount == 21,
             "only reviewed valid-domain operations and installed constant names qualify; invalid/new/dynamic selections must fail");
         Require(report.Findings.Where(item => item.Code == AuditReport.Missing).Select(item => item.Resource)
             .Order(StringComparer.Ordinal).SequenceEqual(["Missing.Anchor", "Missing.Label"]),
             "a compiler-resolved uninstalled name must remain a concrete missing identity");
-        Require(report.Consumers.Count == 33, "classifications must retain every inventoried call");
+        Require(report.Consumers.Count == 49, "classifications must retain every inventoried call");
 
         ReviewedSource guard = ClosedPresentationContractDefinitions.All.Single(contract =>
             contract.Type == typeof(GameplayHudPresentation).FullName).Sources[0];

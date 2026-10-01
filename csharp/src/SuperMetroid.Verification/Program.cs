@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-combo-sine-alias"])
+{
+    var comboOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(comboOracle.Rom)),
+        "Combo sine oracle is NTSC J/U v1.0");
+    VerifyComboSineOffsetAlias(comboOracle);
+    Console.WriteLine("Combo sine alias: all 65,536 byte-angle/radius pairs match native split multiplication.");
+    return 0;
+}
 if (args is ["--lookup-zoa-animation"])
 {
     var animationOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

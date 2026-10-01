@@ -42,6 +42,14 @@ internal static class SamusComboMechanicsDefinitions
     /// bytes of an angle and amplitude. Native negates the truncated positive
     /// magnitude, so this deliberately truncates toward zero in all quadrants.
     /// </summary>
+    /// <remarks>Independently reviewed for #1165 against $90:CC39/$CC8A and all
+    /// original positive sine words at $A0:B443. Multiplying a whole sample and
+    /// shifting eight bits equals the native low-byte product high byte plus
+    /// the high-byte product; restore sign afterward, including the exact 256 peak.
+    /// Ice, Plasma and Spazer callers supply byte-cycle angles; Y subtracts 64
+    /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.
+    /// This is a consumer view of the reviewed signed sine mapping, with no stored
+    /// lookup of its own; preserve this existing algorithm.</remarks>
     internal static (ushort X, ushort Y) GetSineOffset(ushort angle, ushort amplitude)
     {
         ushort Component(byte phase)

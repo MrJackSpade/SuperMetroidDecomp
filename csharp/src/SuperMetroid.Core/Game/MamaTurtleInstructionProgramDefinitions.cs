@@ -7,7 +7,7 @@ internal readonly record struct MamaTurtleInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing, callbacks, and control flow for Mama Turtle and Baby Turtle programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class MamaTurtleInstructionProgramDefinitions
 {

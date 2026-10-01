@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before the tatori family; previous compositions and bindings remain editable.</summary>
+    internal const int PreMamaTurtleVersion = 61;
+    internal const int PreMamaTurtleFrameCount = 1212;
     internal const int PreGunshipVersion = 60;
     internal const int PreGunshipFrameCount = 1199;
     internal const int PreBotwoonVersion = 59;
@@ -27,7 +30,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 61;
+    internal const int Version = 62;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -681,6 +684,7 @@ internal static class EnemySpritemapDefinitions
         .. YardVisualDefinitions.Frames(),
         .. BotwoonVisualDefinitions.Frames(),
         .. GunshipVisualDefinitions.Frames(),
+        .. MamaTurtleVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -692,7 +696,7 @@ internal static class EnemySpritemapDefinitions
 
     /// <summary>
     /// Selects only families whose fixed instruction visual operands are compiled.
-    /// Unknown families retain the existing cartridge route until separately migrated.
+    /// Other families use the compiled selector catalog at the interpreter boundary.
     /// Known families reject an unlisted operand rather than reading adjacent data.
     /// </summary>
     internal static bool TryFrameAt(ushort enemyDefinition, ushort operandAddress,
@@ -700,6 +704,8 @@ internal static class EnemySpritemapDefinitions
     {
         frame = enemyDefinition switch
         {
+            MamaTurtleEnemyDefinitionCatalog.MamaPointer or MamaTurtleEnemyDefinitionCatalog.BabyPointer =>
+                MamaTurtleVisualDefinitions.FrameAt(operandAddress),
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer =>
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
@@ -817,6 +823,7 @@ internal static class EnemySpritemapDefinitions
             _ => 0,
         };
         return enemyDefinition is
+            MamaTurtleEnemyDefinitionCatalog.MamaPointer or MamaTurtleEnemyDefinitionCatalog.BabyPointer or
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.SciserDefinition or

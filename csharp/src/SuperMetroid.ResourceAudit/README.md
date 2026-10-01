@@ -84,6 +84,17 @@ Console output is abbreviated; JSON is the authoritative complete report.
 
 ## Confirm the auditor itself
 
+Focused catalog confirmations for already identified omissions in #1156:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --work-robot-resource-check
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --mama-turtle-resource-check
+```
+
+These constructed-data checks confirm selected compositions and legacy edit inheritance;
+they do not execute gameplay or search for additional defects. Reconciliation evidence is
+recorded in [FINDING-RESOLUTION.md](FINDING-RESOLUTION.md).
+
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --self-check
 ```

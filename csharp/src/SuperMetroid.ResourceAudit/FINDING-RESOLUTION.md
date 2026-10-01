@@ -35,3 +35,30 @@ New unsupported contracts must remain visible.
 
 After this correction: **260 missing identities (559 references), 353 unresolved**.
 Those remaining findings are not yet classified or suppressed.
+
+## Mama/Baby Turtle — corrected missing dependency
+
+- **Findings:** twenty-nine bank-$A2 compositions selected by the tatori programs,
+  `94D9..9535`, `9555`, `959D`, `95E5`, `96C9`, `96E9`, `9733..978F`,
+  `97AF`, `97F7`, `983F` (only actual declared selections, not every address in these
+  ranges), across seventy-five references.
+- **Cause:** `MamaTurtleInstructionProgramDefinitions` and both enemy AIs existed,
+  but their compositions were absent from `EnemySpritemapDefinitions`. The ordinary
+  instruction interpreter sets `SpritemapPointer` from these compiled selections;
+  `DrawLayers` then calls `DrawEnemySpritemap`, which rejects missing installed art.
+- **Source evidence:** pinned `bank_A2.asm`, tatori lists `$8B80..8D50` and spritemaps
+  `$94D9..983F`; the headers have ordinary OAM rendering, not a separate BG2 renderer.
+  Unreferenced native compositions are not added merely because they are adjacent.
+- **Correction:** derive the 29 required identities from the compiled program operands,
+  append named editable OAM exports, and advance ordinary compositions to schema 62.
+  Schema-61 overrides retain their edits and inherit the appended stock compositions;
+  incomplete old stock requests installation repair. No runtime ROM access is added.
+- **Confirmation:** the constructed-data catalog fixture first failed at `A2:94D9`.
+  After correction it verifies all 29 display bindings and their actual authored parts,
+  the exact append count, retained legacy edits, stock inheritance, and rejection of
+  incomplete stock. The static report removes exactly 29 identities/75 references.
+  No gameplay or animation search is involved.
+- **Player status:** implementation complete; actual appearance remains player validation.
+
+After this correction: **231 missing identities (484 references), 353 unresolved**.
+The goal remains active; those findings have not been waived or suppressed.

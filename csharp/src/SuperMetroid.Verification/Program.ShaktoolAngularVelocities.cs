@@ -6,15 +6,14 @@ internal static partial class Program
 {
     private static void VerifyCompiledShaktoolAngularVelocities(SuperMetroidAddressSpace rom)
     {
+        VerifyShaktoolAngularVelocityAlgorithm(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var states = (ShaktoolSegmentState?[])typeof(RoomEnemySystem)
             .GetField("_shaktoolSegments", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(enemies)!;
         for (int index = 0; index < 7; index++)
         {
-            ushort speed = Word(0xaadee9 + index * 2);
             AssertEqual((ushort)0, Word(0xaadef7 + index * 2), "Shaktool native initialization subtrahend");
-            AssertEqual(speed, ShaktoolAngularVelocityDefinitions.ForSegment(index), "Shaktool native angular speed");
             var slot = enemies.Slots[index];
             slot.EnemyDefinitionPointer = RoomEnemySystem.ShaktoolDefinition;
             states[index] = new ShaktoolSegmentState(slot) { OwnerNativeIndex = 0 };

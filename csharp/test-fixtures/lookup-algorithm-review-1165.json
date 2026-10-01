@@ -120,7 +120,11 @@
                                   "power-bomb-prescaled-algorithm":  {
                                                                          "subject":  "Generate Power Bomb prescaled ellipse basis for #1165",
                                                                          "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate Power Bomb prescaled ellipse basis for #1165\""
-                                                                     }
+                                                                     },
+                                  "shaktool-joint-algorithms":  {
+                                                                    "subject":  "Replace Shaktool joint lookup fields with exact algorithms for #1165",
+                                                                    "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Replace Shaktool joint lookup fields with exact algorithms for #1165\""
+                                                                }
                               },
     "tables":  [
                    {
@@ -489,13 +493,27 @@
                                           },
                                           {
                                               "id":  "shaktool-initial-angle",
-                                              "state":  "unreviewed",
-                                              "nativeIdentity":  "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle"
+                                              "state":  "converted",
+                                              "nativeIdentity":  "$AA:DEB1 ShaktoolPieceData_initialNeighborAngle",
+                                              "implementationCommit":  "shaktool-joint-algorithms",
+                                              "interpretation":  "Integrated symmetric joint increments 1,2,3,4,3,2: T=i*(i+1)/2 for i\u003c=4, otherwise 16-(7-i)*(8-i)/2. Initial angle is -2048*T with ushort wrap; angular velocity is 32*T.",
+                                              "disposition":  "Replace the stored field with a bounded calculation through the validated seven-segment record API.",
+                                              "rationale":  "A mirrored linear progression of neighboring joint increments integrates to triangular numbers. Both original fields share that shape with an exact -64 angle/rate ratio; no fitted corrections or sample storage.",
+                                              "reviewedEvidence":  "All seven original little-endian words per field in pinned bank_AA.asm and SHA-verified NTSC J/U v1.0 ROM; initialization byte-offset validation, synchronization and public velocity alias inspected.",
+                                              "proofTest":  "VerifyShaktoolInitialAngleAlgorithm",
+                                              "confirmation":  "Focused original-ROM proof extracted from existing aggregate, seven values plus invalid indices; velocity proof also checks public alias. No movement or target sweep."
                                           },
                                           {
                                               "id":  "shaktool-angular-velocity",
-                                              "state":  "unreviewed",
-                                              "nativeIdentity":  "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta"
+                                              "state":  "converted",
+                                              "nativeIdentity":  "$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta",
+                                              "implementationCommit":  "shaktool-joint-algorithms",
+                                              "interpretation":  "Integrated symmetric joint increments 1,2,3,4,3,2: T=i*(i+1)/2 for i\u003c=4, otherwise 16-(7-i)*(8-i)/2. Initial angle is -2048*T with ushort wrap; angular velocity is 32*T.",
+                                              "disposition":  "Replace the stored field with a bounded calculation through the validated seven-segment record API.",
+                                              "rationale":  "A mirrored linear progression of neighboring joint increments integrates to triangular numbers. Both original fields share that shape with an exact -64 angle/rate ratio; no fitted corrections or sample storage.",
+                                              "reviewedEvidence":  "All seven original little-endian words per field in pinned bank_AA.asm and SHA-verified NTSC J/U v1.0 ROM; initialization byte-offset validation, synchronization and public velocity alias inspected.",
+                                              "proofTest":  "VerifyShaktoolAngularVelocityAlgorithm",
+                                              "confirmation":  "Focused original-ROM proof extracted from existing aggregate, seven values plus invalid indices; velocity proof also checks public alias. No movement or target sweep."
                                           },
                                           {
                                               "id":  "shaktool-initial-subtrahend",
@@ -1176,7 +1194,8 @@
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-signed-sine-review",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-orbit",
                                  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-power-bomb-base-curves",
-                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only"
+                                 "dotnet run --project csharp/tools/LookupTableResearch --no-build -- --power-bomb-profiles-only",
+                                 "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-shaktool-joint-algorithms"
                              ],
     "pendingWork":  "lookup-pending-work-1165.json",
     "powerBombPreScaledBasisReview":  {

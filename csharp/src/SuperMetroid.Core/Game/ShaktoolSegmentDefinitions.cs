@@ -24,10 +24,26 @@ internal static class ShaktoolSegmentDefinitions
     /// <summary>$AA:DEDB ShaktoolPieceData_functionPointer, seven callbacks also used by reset.</summary>
     internal const int NativeCallbackAddress = 0xaadedb;
 
-    /// <summary>$AA:DEB1 ShaktoolPieceData_initialNeighborAngle, seven authored initial joint angles.</summary>
-    private static ReadOnlySpan<ushort> InitialAngles => [0, 0xf800, 0xe800, 0xd000, 0xb000, 0x9800, 0x8800];
-    /// <summary>$AA:DEE9 ShaktoolPieceData_initialCurlingNeighborAngleDelta, seven authored curl rates.</summary>
-    private static ReadOnlySpan<ushort> AngularVelocities => [0, 0x20, 0x60, 0xc0, 0x140, 0x1a0, 0x1e0];
+    /// <summary>$AA:DEB1 ShaktoolPieceData_initialNeighborAngle, seven initial joint angles.</summary>
+    internal const int NativeInitialAngleAddress = 0xaadeb1;
+
+    // Integrated symmetric joint increments 1,2,3,4,3,2. The first arm uses
+    // triangular numbers; the other arm subtracts the remaining triangle from 16.
+    // ForIndex validates the physical segment domain 0..6 before this calculation.
+    private static int IntegratedJointStep(int index) => index <= 4
+        ? index * (index + 1) / 2
+        : 16 - (7 - index) * (8 - index) / 2;
+
+    /// <summary>$AA:DEB1 initialNeighborAngle: -2048 times the integrated joint
+    /// step, wrapped to a 16-bit turn. All seven words match the original NTSC data.</summary>
+    private static ushort InitialAngleForSegment(int index) =>
+        unchecked((ushort)(-2048 * IntegratedJointStep(index)));
+
+    /// <summary>$AA:DEE9 initialCurlingNeighborAngleDelta: 32 times the integrated
+    /// joint step. This is the same curvature at 1/64 of the initial angle magnitude;
+    /// initialization and orbit-target synchronization use these exact seven rates.</summary>
+    private static ushort AngularVelocityForSegment(int index) =>
+        (ushort)(32 * IntegratedJointStep(index));
 
     /// <summary>
     /// $AA:DE95 properties: end saws 0/6 have $2800, the five internal pieces $2C00.
@@ -85,7 +101,7 @@ internal static class ShaktoolSegmentDefinitions
         }
 
         return new(PropertiesForSegment(index), OwnerOffsetForSegment(index),
-            InitialAngles[index], InstructionForSegment(index), LayerForSegment(index),
-            CallbackForSegment(index), AngularVelocities[index]);
+            InitialAngleForSegment(index), InstructionForSegment(index), LayerForSegment(index),
+            CallbackForSegment(index), AngularVelocityForSegment(index));
     }
 }

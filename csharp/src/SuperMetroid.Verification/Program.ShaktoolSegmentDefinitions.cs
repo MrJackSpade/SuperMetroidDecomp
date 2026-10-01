@@ -11,6 +11,8 @@ internal static partial class Program
         VerifyShaktoolInitialInstructionSelection(rom);
         VerifyShaktoolLayerSelection(rom);
         VerifyShaktoolCallbackSelection(rom);
+        VerifyShaktoolInitialAngleAlgorithm(rom);
+        VerifyShaktoolAngularVelocityAlgorithm(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -19,10 +21,6 @@ internal static partial class Program
         {
             ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(index);
             definitions[index] = definition;
-            AssertEqual(Word(0xaadeb1 + index * 2), definition.InitialOrbitAngle,
-                $"Shaktool unchanged initial angle {index}");
-            AssertEqual(Word(0xaadee9 + index * 2), definition.AngularVelocity,
-                $"Shaktool unchanged angular velocity {index}");
             AssertEqual((ushort)0, Word(0xaadef7 + index * 2),
                 $"Shaktool segment {index} initialization subtrahend");
         }
@@ -96,6 +94,22 @@ internal static partial class Program
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => definition.PropertyMask, "property selection");
+
+    private static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
+            definition => definition.InitialOrbitAngle, "initial angle algorithm");
+
+    private static void VerifyShaktoolAngularVelocityAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        VerifyShaktoolDefinitionField(rom, ShaktoolAngularVelocityDefinitions.ReferenceAddress,
+            definition => definition.AngularVelocity, "angular velocity algorithm");
+        for (int index = 0; index < 7; index++)
+            AssertEqual(ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity,
+                ShaktoolAngularVelocityDefinitions.ForSegment(index), "Shaktool velocity alias");
+        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => ShaktoolAngularVelocityDefinitions.ForSegment(invalid),
+                "Shaktool velocity alias bounds");
+    }
 
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
         VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,

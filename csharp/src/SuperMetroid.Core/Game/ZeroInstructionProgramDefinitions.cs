@@ -7,7 +7,7 @@ internal readonly record struct ZeroInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Zero's four production-selected surface loops. The
-/// twenty-four interleaved spritemap operands remain live cartridge presentation data.
+/// twenty-four spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class ZeroInstructionProgramDefinitions
 {

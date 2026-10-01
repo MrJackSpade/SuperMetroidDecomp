@@ -82,3 +82,30 @@ The goal remains active; those findings have not been waived or suppressed.
 
 After this classification: **229 missing identities (477 references), 353 unresolved**.
 The goal remains active; no broad suppression or passing baseline has been introduced.
+
+## Zero crawler — corrected missing dependency
+
+- **Findings:** sixteen `Spritemap_Zero` compositions: `$A3:995B..9A16` and
+  `$A3:9B37..9B6A` (declared frame starts only), across twenty-four references.
+- **Cause:** Zero's shared crawler wrapper and all four orientation programs were
+  compiled, but none of their selected compositions were exported. This uses the same
+  ordinary instruction/display path as the missing tatori artwork.
+- **Source evidence:** pinned `bank_A3.asm`, Zero loops `$984B`, `$988B`, `$98AB`,
+  `$990B`, and sprite records at `$995B..9B6A`. `CrawlerAnimationDefinitions` selects
+  these four loops for the Zero species; each loop uses four distinct compositions
+  across six timed steps. No adjacent unselected sprite is added.
+- **Correction:** append the sixteen program-derived, editable ordinary OAM compositions,
+  advance the schema to 63, and preserve schema-62 overrides through stock inheritance.
+  Older supported overrides, including schema 61, remain supported. No AI or timing
+  behavior changes, and no runtime cartridge reads are introduced.
+- **Confirmation:** the production-loader fixture first failed at `A3:9B37`, then
+  confirmed all 16 compositions and authored parts, the precise family append, retained
+  old edits, inherited new frames and rejection of incomplete old stock. The ordinary
+  catalog fixture is now reusable by explicitly identified families; the Turtle fixture
+  also passes after this extraction. Static audit removes exactly 16 identities/24 references.
+- **Player status:** implementation complete; actual appearance remains player validation.
+
+After this correction: **213 missing identities (453 references), 353 unresolved**.
+The goal remains active. Original identities accounted so far: 51 corrected missing
+dependencies (six Work Robot, twenty-nine tatori, sixteen Zero), two proven no-op
+definitions, and 213 still under investigation.

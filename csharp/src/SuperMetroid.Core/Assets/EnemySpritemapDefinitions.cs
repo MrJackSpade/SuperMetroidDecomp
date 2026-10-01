@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before the Zero crawler; existing edits and bindings remain valid.</summary>
+    internal const int PreZeroVersion = 62;
+    internal const int PreZeroFrameCount = 1241;
     /// <summary>Schema before the tatori family; previous compositions and bindings remain editable.</summary>
     internal const int PreMamaTurtleVersion = 61;
     internal const int PreMamaTurtleFrameCount = 1212;
@@ -30,7 +33,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 62;
+    internal const int Version = 63;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -685,6 +688,7 @@ internal static class EnemySpritemapDefinitions
         .. BotwoonVisualDefinitions.Frames(),
         .. GunshipVisualDefinitions.Frames(),
         .. MamaTurtleVisualDefinitions.Frames(),
+        .. ZeroVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -710,6 +714,7 @@ internal static class EnemySpritemapDefinitions
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.SciserDefinition => SciserVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.ZeroDefinition => ZeroVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
             RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.KagoDefinition => KagoVisualDefinitions.FrameAt(operandAddress),
@@ -827,6 +832,7 @@ internal static class EnemySpritemapDefinitions
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.SciserDefinition or
+            RoomEnemySystem.ZeroDefinition or
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
             RoomEnemySystem.MemuDefinition or
             RoomEnemySystem.KagoDefinition or

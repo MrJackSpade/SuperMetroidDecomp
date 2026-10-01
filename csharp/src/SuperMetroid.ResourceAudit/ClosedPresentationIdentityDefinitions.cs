@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -23,6 +24,12 @@ internal static class ClosedPresentationIdentityDefinitions
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
         ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraPalettePhase>().Select(id => (int)id).ToArray(),
         ("ShitroidColorCatalog", "TargetColor", "target") => Enum.GetValues<ShitroidColorTarget>().Select(id => (int)id).ToArray(),
+        ("EscapeTypewriterPresentation", "Get", "id") => Enum.GetValues<EscapeTypewriterProgramId>()
+            .Where(id => id != EscapeTypewriterProgramId.None).Select(id => (int)id).ToArray(),
+        ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
+            Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
+        ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
+        ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.NativeId).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

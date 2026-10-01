@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -106,6 +107,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorRomData.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorRomData.ColorsPerFrame),
         ("MotherBrainHealthPalettePresentation", "Apply", "damageState") => new(0, MotherBrainHealthPaletteFormat.StateCount),
+        ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.ExpectedCompiledRows),
+        ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
         _ => null,
     };
 }

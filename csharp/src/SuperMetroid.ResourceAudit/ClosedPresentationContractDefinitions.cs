@@ -18,6 +18,7 @@ internal static class ClosedPresentationContractDefinitions
         .. SequenceColorClosedContractDefinitions.All,
         .. SamusColorClosedContractDefinitions.All,
         .. RemainingEnemyColorClosedContractDefinitions.All,
+        .. TextAndMapClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

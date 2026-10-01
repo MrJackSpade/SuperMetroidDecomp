@@ -521,3 +521,22 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **203 of the original 353 boundaries**. Current report: **zero
   missing identities, 150 unresolved**, all 352 consumers retained. Dynamic
   caller correctness and player validation remain outside these resource proofs.
+
+## Text and map domains - twenty-four further source-proven boundaries
+
+- **Findings:** text/credits and map sprite/arrow/page calls lacked adapters.
+- **Cause/classification:** seven existing loaders already require their complete
+  supported resource sets. Method-specific, fingerprint-guarded rules now account
+  for them. Map strings remain constrained to finite constants or two reviewed
+  bounded factories. A Core use of the variable-row credits verification factory
+  revokes its production row proof. Mutable escape line arrays are explicitly
+  excluded from the program-membership claim. Production behavior is unchanged.
+- **Confirmation:** twenty-eight constructed source calls reproduce absent
+  adapters first; fifteen classify, twelve invalid/unknown requests stay
+  unresolved and one absent named page stays missing. Source mutations/alternate
+  credits construction invalidate the relevant proofs. Build and all prior
+  auditor contract checks pass. No ROM, assets, saves or gameplay were opened.
+- **Accounting:** 225 guarded classifications plus two metadata corrections
+  account for **227 of the original 353 boundaries**. Current report: **zero
+  missing identities, 126 unresolved**, all 352 consumers retained. The audit
+  still exits one for those remaining findings; no baseline was added.

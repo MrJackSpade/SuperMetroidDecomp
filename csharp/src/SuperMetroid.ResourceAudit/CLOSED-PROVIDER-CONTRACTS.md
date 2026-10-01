@@ -324,3 +324,34 @@ FaceBlock, DeadSidehopper, RoomBackdrop and Default selections receive their
 precise failure reasons. All prior checks and compilation pass. No AI, battle,
 fade, palette cadence, ROM, saves, rooms or gameplay runs; dynamic caller values
 and player-visible correctness are not certified.
+
+## Text and map presentation - twenty-four additional original boundaries
+
+Seven reviewed providers already require complete resource sets before private
+construction: the two escape programs, six narration pages, both ending text
+sequences and fixed panels, 520 credits rows, 26 map sprite compositions, four
+map arrow directions, and thirteen map-screen pages. Source fingerprints guard
+the providers and their identity/layout definitions. Sparse sprite IDs, non-None
+escape IDs, sequence/page enums and separate row/direction bounds are checked.
+
+Credits has an alternate internal verification constructor with variable row
+count. Any Core reference to that factory outside its provider revokes the
+fixed production row proof. The production loader itself enforces 520 rows;
+this rule does not infer retail dimensions solely from the provider's type.
+Escape programs expose mutable line arrays: their rule proves complete program
+membership, not line/glyph integrity after publication.
+
+Map page names must be compiler constants/finite conditional sets or the exact
+reviewed `WorldBackground`/`RoomFrame` factories. Those factories reject areas
+outside the six Zebes maps, so unknown input has a finite six-name output set.
+Known bad areas, arbitrary strings and lookalike functions remain unresolved;
+a missing constant page remains a concrete missing identity. This does not
+certify arbitrary caller input or VRAM placement.
+
+Twenty-eight constructed source calls first reproduce absent adapters. Fifteen
+then classify, twelve invalid or unknown selections remain unresolved, and one
+absent named page remains missing. Additional source-only checks confirm that
+alternate credits construction and a changed map factory revoke their proofs.
+Compilation and prior checks pass. No assets, ROM, saves, menus, cinematics,
+map navigation or gameplay were opened/executed; visual fidelity and timing are
+not asserted.

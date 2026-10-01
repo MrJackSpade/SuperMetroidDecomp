@@ -34,6 +34,15 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "IconNames")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(GameplayHudDefinitions).FullName));
+            // A verification credits instance may have any positive row count.
+            // Its use in Core invalidates the production loader's fixed row proof;
+            // do not assume retail dimensions merely from the provider's type.
+            if (valid && contract.Type == typeof(CreditsPresentation).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "FromCompiledRowsForVerification")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
+                            factory.ContainingType.ToDisplayString() == typeof(CreditsPresentation).FullName));
             contracts.Add(contract.Type, (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)

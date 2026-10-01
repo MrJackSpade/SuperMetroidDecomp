@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -27,6 +28,8 @@ internal static class NamedPresentationSelectionDefinitions
             GameOptionsPresentationDefinitions.MenuPageNames.ToArray()),
         new(nameof(PauseReserveUiPresentation), "ApplyLabel", "name", "reserve-label",
             ["Mode", "ReserveTank", "Manual", "Auto"]),
+        new(nameof(MapScreenPresentation), "LoadTo", "page", "map-screen-page",
+            MapScreenDefinitions.Pages().Select(page => page.Id).ToArray()),
     ];
 }
 
@@ -61,6 +64,24 @@ internal static class NamedPresentationAudit
     {
         if (operation.ConstantValue is { HasValue: true, Value: string value }) return [value];
         if (operation is IConversionOperation conversion) return FiniteConstants(conversion.Operand);
+        if (operation is IInvocationOperation factory &&
+            factory.TargetMethod.ContainingType.ToDisplayString() == typeof(MapScreenDefinitions).FullName &&
+            factory.TargetMethod.Name is "WorldBackground" or "RoomFrame")
+        {
+            IOperation area = factory.Arguments.Single(argument => argument.Parameter?.Name == "area").Value;
+            IEnumerable<int> indices = Enumerable.Range(0, MapScreenDefinitions.ZebesAreas);
+            if (area.ConstantValue is { HasValue: true, Value: not null } known)
+            {
+                int index = Convert.ToInt32(known.Value);
+                if ((uint)index >= MapScreenDefinitions.ZebesAreas) return null;
+                indices = [index];
+            }
+            // Only these exact, source-guarded factories have bounded outputs.
+            // Unknown input may throw, but cannot produce an uninstalled page.
+            return indices.Select(index => factory.TargetMethod.Name == "WorldBackground"
+                ? MapScreenDefinitions.WorldBackground((AreaId)index)
+                : MapScreenDefinitions.RoomFrame((AreaId)index)).ToArray();
+        }
         if (operation is not IConditionalOperation { WhenFalse: not null } conditional) return null;
         if (conditional.Condition.ConstantValue is { HasValue: true, Value: bool selected })
             return FiniteConstants(selected ? conditional.WhenTrue : conditional.WhenFalse);

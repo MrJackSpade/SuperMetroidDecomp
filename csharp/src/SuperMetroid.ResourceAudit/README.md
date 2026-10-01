@@ -63,6 +63,9 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   failures. See [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) for scope/proof.
   Named menu selections additionally compare compiler-resolved constant/conditional
   name sets against their loader-required keys; unknown name flow stays unresolved.
+  Map names also support the two source-guarded bounded area-name factories;
+  lookalike functions and arbitrary strings are not inferred. The credits row
+  proof is revoked by a Core reference to its variable-row verification factory.
 
 Samus projectile exports are inventoried, but dynamic projectile-to-artwork mappings are
 not certified merely because an exported sprite exists. There is no claim of whole-game

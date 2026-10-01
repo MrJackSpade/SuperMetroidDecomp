@@ -540,3 +540,24 @@ remain explicitly failing findings, not silently waived or treated as proven res
   account for **227 of the original 353 boundaries**. Current report: **zero
   missing identities, 126 unresolved**, all 352 consumers retained. The audit
   still exits one for those remaining findings; no baseline was added.
+
+## Pause domains - seventeen further source-proven boundaries
+
+- **Findings:** seventeen pause base/backdrop/wireframe/label/selector/reserve
+  calls lacked definition coverage adapters.
+- **Cause/classification:** six existing private-constructor loaders already
+  require complete art and bind each selector phase before publication. Guarded
+  rules now reflect those invariants. Correlated category/item/word-count domains
+  preserve Plasma's bounded overrun without accepting other beam overruns. A
+  Core reference to mutable label Keys revokes label closure. Nonnegative selector
+  phases normalize modulo the actual installed count, not a guessed stock count.
+- **Confirmation:** twenty-six constructed source calls first reproduce missing
+  adapters; sixteen classify and ten invalid enum/tuple/overrun/phase/sparse-ID/
+  anchor requests still fail. An external Keys mutation revokes every label proof.
+  Release compilation and all prior auditor contract checks pass. No gameplay,
+  menu, sound, assets, ROM or saves were opened/executed. Production is unchanged.
+- **Accounting:** 242 guarded classifications plus two metadata corrections
+  account for **244 of the original 353 boundaries**. Current report: **zero
+  missing identities, 109 unresolved**, all 352 consumers retained. These proofs
+  do not certify live inventory ownership, host instance installation, pixels,
+  sound or arbitrary caller input; the remaining findings still fail the audit.

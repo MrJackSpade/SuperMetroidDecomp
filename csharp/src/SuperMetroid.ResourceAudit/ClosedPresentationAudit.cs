@@ -43,6 +43,12 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "FromCompiledRowsForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
                             factory.ContainingType.ToDisplayString() == typeof(CreditsPresentation).FullName));
+            if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
+                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
+                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(name => name.Identifier.ValueText == "Keys")
+                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
+                            field.ContainingType.ToDisplayString() == typeof(PauseEquipmentLabelDefinitions).FullName));
             contracts.Add(contract.Type, (contract, valid));
             if (valid)
                 foreach (string method in contract.Methods)
@@ -78,7 +84,7 @@ internal sealed class ClosedPresentationAudit
             return true;
         }
         string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
-            ?? SpecializedColorDomainAudit.InvalidConstants(operation);
+            ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {
             Gap(invalid);

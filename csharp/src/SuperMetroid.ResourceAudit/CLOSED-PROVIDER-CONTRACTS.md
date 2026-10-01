@@ -355,3 +355,25 @@ alternate credits construction and a changed map factory revoke their proofs.
 Compilation and prior checks pass. No assets, ROM, saves, menus, cinematics,
 map navigation or gameplay were opened/executed; visual fidelity and timing are
 not asserted.
+
+## Pause presentation - seventeen additional original boundaries
+
+Six private-constructor loaders require complete independent equipment base,
+seven area backdrops/buttons, four wireframes, fourteen ordinary labels/Hyper,
+six reserve origins/ten compositions, and sixteen selector anchors. Every
+authored selector phase binds all three compositions before publication;
+nonnegative phase indices normalize modulo its nonempty installed phase count.
+These are resource-coverage rules, not inventory, input, sound or pixel checks.
+
+Category/item selectors are correlated tuples, not independent maximum indices.
+Boots cannot select the sixth equipment item; Reserve cannot borrow beam anchors.
+Only Plasma may extend a five-word beam patch to nine using Varia artwork.
+External Core access to the public mutable label `Keys` array revokes every
+label proof, including when access appears outside the audited consumer files.
+Negative phases, bad area/wireframe enums, absent reserve IDs and invalid origin
+indices remain findings. Destination/live ownership behavior is not certified.
+
+Twenty-six constructed source calls first reproduce absent adapters. Sixteen
+then classify and ten invalid selections still fail. An external nested-array
+mutation revokes all seven label calls in the fixture. Build and earlier contract
+checks pass. No pause/menu sequence, sound, assets, ROM, saves or gameplay runs.

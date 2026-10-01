@@ -30,6 +30,7 @@ internal static class ClosedPresentationIdentityDefinitions
             Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
         ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.NativeId).ToArray(),
+        ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

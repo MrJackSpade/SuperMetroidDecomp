@@ -109,6 +109,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("MotherBrainHealthPalettePresentation", "Apply", "damageState") => new(0, MotherBrainHealthPaletteFormat.StateCount),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.ExpectedCompiledRows),
         ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
+        ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),
+        ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),
+        ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
         _ => null,
     };
 }

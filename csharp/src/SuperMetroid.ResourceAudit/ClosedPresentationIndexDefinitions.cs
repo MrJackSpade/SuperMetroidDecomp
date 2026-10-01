@@ -128,6 +128,9 @@ internal static class ClosedPresentationIndexDefinitions
             SamusArmCannonArtworkFormat.DrawingDataByteCount),
         ("SamusArmCannonArtworkCatalog", "SpriteAttributes" or "TileSource", "direction") => new(0, SamusRenderingRomData.ArmCannon.DirectionCount),
         ("SamusArmCannonArtworkCatalog", "TileSource", "frame") => new(0, SamusArmCannonArtworkFormat.FramesPerDirection),
+        ("EndingObjectArtworkCatalog", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
+        ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)VramAssetId.GunshipLiftoffFirstTiles,
+            GunshipLiftoffTransferDefinitions.Frames.Length),
         _ => null,
     };
 }

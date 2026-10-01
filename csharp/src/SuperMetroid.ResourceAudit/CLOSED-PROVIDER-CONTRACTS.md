@@ -447,3 +447,24 @@ separate source fixtures confirm alternate factory, mutable IDs and partial
 declaration revocation. Build and earlier checks pass. Body Frame/DefinitionAt
 closure is not inferred from offset-array lengths. No ROM, saves, artwork,
 rendering, movement or gameplay runs; production is unchanged.
+
+## Background/effect/uploads - nine additional original boundaries
+
+The four private boss BG2 wrappers require every declared Phantoon, Draygon,
+Crocomire and Mother Brain body frame through the exact-set shared loader. Ordered
+writes are independently compiled and bounds-checked. Unowned pointers, including
+Mother Brain's OAM-only dummy, validly return false. This membership proof does not
+certify the native operand selection, OAM/terrain layering, body position or timing.
+The shared admission source and each family's definition sources are guarded.
+
+Room FX requires all six 32x33 pages and eight sparse three-color blends. Apply(0)
+is a compiled clear rather than an asset; Resolve(0) is invalid. Ending fragments
+require four nonnull correctly sized atlases. Gunship takeoff requires five complete
+1024-byte atlases; typed IDs have their own exact domain. Legacy source/length checks
+are correlated: an owned source with a short transfer fails, while an unowned source
+may validly return false. Destination/caller correctness is not inferred.
+
+Nineteen constructed source calls reproduce absent adapters first. Thirteen qualify
+and six invalid selections/lengths remain unresolved. Changing shared BG2 admission
+revokes all four wrappers. Build and prior checks pass. No ROM, saves, artwork, room
+FX, animation, rendering, scene or gameplay runs; production is unchanged.

@@ -623,3 +623,23 @@ remain explicitly failing findings, not silently waived or treated as proven res
   missing identities, 63 unresolved**, all 352 consumers retained. Post-publication
   sprite-part contents, arbitrary callers, instance installation and pixels are
   not certified. Production behavior is unchanged; the remaining findings fail.
+
+## Background/effect/upload domains - nine further source-proven boundaries
+
+- **Findings:** four boss BG2 queries, room-FX page/blend lookups, ending
+  fragment selection and two gunship takeoff resolution calls lacked adapters.
+- **Cause/classification:** eight existing providers require complete declared
+  frame/page/blend/fragment/upload sets. Source-guarded rules now model those
+  contracts. Unsupported BG2 pointers return false; blend Apply(0) clears a
+  compiled color instead of selecting an asset, while Resolve(0) stays invalid.
+  Known takeoff sources require exactly 1024 bytes; unowned sources may return
+  false without accepting a wrong length for an owned source.
+- **Confirmation:** nineteen constructed source calls expose absent adapters
+  first; thirteen qualify and six bad selections/owned lengths remain failing.
+  Altering shared BG2 frame admission revokes all four wrapper proofs. Release
+  build and all auditor contract checks pass. No ROM, saves, assets, effects,
+  rendering, animation, scene or gameplay was executed.
+- **Accounting:** 297 guarded classifications plus two metadata corrections
+  account for **299 of the original 353 boundaries**. Current report: **zero
+  missing identities, 54 unresolved**, all 352 consumers retained. Placement,
+  layering, clocks, caller input and host instance installation are not certified.

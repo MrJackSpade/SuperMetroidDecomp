@@ -117,7 +117,8 @@ internal sealed class ClosedPresentationAudit
             return true;
         }
         string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
-            ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation);
+            ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
+            ?? ClosedTransferDomainAudit.InvalidConstants(operation);
         if (invalid is not null)
         {
             Gap(invalid);

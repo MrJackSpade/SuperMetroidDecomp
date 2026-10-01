@@ -43,6 +43,9 @@ internal static class ClosedPresentationIdentityDefinitions
         ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRadiusDefinitions.TimedRecordPointers
             .Select(pointer => (int)pointer).ToArray(),
         ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.ToArray().Select(pointer => (int)pointer).ToArray(),
+        ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
+        ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
+        ("RoomFxPaletteBlendCatalog", "Resolve", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

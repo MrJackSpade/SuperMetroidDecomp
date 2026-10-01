@@ -23,6 +23,7 @@ internal static class ClosedPresentationContractDefinitions
         .. CinematicClosedContractDefinitions.All,
         .. ProjectileClosedContractDefinitions.All,
         .. SamusArtworkClosedContractDefinitions.All,
+        .. BackgroundTransferClosedContractDefinitions.All,
         .. MessageClosedContractDefinitions.All,
         .. PlmClosedContractDefinitions.All,
         .. PlmActorClosedContractDefinitions.All,

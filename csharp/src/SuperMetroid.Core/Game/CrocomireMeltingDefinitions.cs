@@ -7,6 +7,15 @@ internal static class CrocomireMeltingDefinitions
     /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>.
     /// The cartridge uses this permutation to choose the next physical X column.
     /// </summary>
+    /// <remarks>Retained for #1165 as arbitrary authored chronological content.
+    /// The complete original sequence permutes columns 0..48; its order specifies
+    /// the melt's scattered appearance rather than a geometric traversal or named
+    /// behavior dispatch. The consumer advances the cursor through this order,
+    /// uses the selected column for tile/depth ownership, and separately selects
+    /// the pixel mask from cursor modulo eight. No native recurrence or functional
+    /// selector defines the permutation. A switch or fitted formula reciting it
+    /// would disguise the same authored sequence and be a nonsensical port.
+    /// All 49 bytes match the NTSC J/U v1.0 ROM and pinned bank_A4.asm.</remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
         0x2b, 0x28, 0x21, 0x1f, 0x2c, 0x10, 0x16, 0x17,

@@ -144,7 +144,11 @@
                                   "dsp-gaussian-algorithm":  {
                                                                  "subject":  "Calculate DSP interpolation coefficients without lookup storage for #1165",
                                                                  "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Calculate DSP interpolation coefficients without lookup storage for #1165\""
-                                                             }
+                                                             },
+                                  "crocomire-authored-order-review":  {
+                                                                          "subject":  "Record authored Crocomire melt order disposition for #1165",
+                                                                          "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Record authored Crocomire melt order disposition for #1165\""
+                                                                      }
                               },
     "tables":  [
                    {
@@ -670,14 +674,20 @@
                                               },
                                               {
                                                   "id":  "crocomire-melt-column-order",
-                                                  "state":  "unreviewed",
+                                                  "state":  "retained",
                                                   "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
                                                   "nativeIdentity":  "$A4:9697 CrocomireMeltingXOffsetTable",
                                                   "consumers":  [
                                                                     "RoomEnemySystem.EraseNextCrocomireMeltingColumn"
                                                                 ],
                                                   "domain":  "int chronological cursor 0..48, rejected outside. Existing caller stops before adjacent opcodes rather than expanding the compiled domain.",
-                                                  "interpretation":  "Permutation of 49 X columns, selecting physical tile groups independently of the chronological mask."
+                                                  "interpretation":  "Permutation of 49 X columns, selecting physical tile groups independently of the chronological mask.",
+                                                  "reviewCommit":  "crocomire-authored-order-review",
+                                                  "disposition":  "Retain the arbitrary authored chronological permutation under the nonsense exception.",
+                                                  "rationale":  "The sequence is the scattered erase chronology itself, not a function mapping physical geometry or semantic action selectors. All values 0..48 occur exactly once in irregular order. The consumer reads that order verbatim for column/depth ownership while mask selection separately depends on chronological cursor. Encoding these choices in a switch, polynomial or seed-specific shuffle without original generator evidence would recite or disguise the authored content rather than port a meaningful rule.",
+                                                  "reviewedEvidence":  "Complete pinned bank_A4.asm A4:9697-96C7 and A4:96C8 erase routine, current EraseNextCrocomireMeltingColumn including bounded end guard and cursor mask, static comparison of all 49 source bytes with SHA-verified NTSC J/U v1.0 ROM.",
+                                                  "generationAssessment":  "Inspected as an ordered permutation, not a sampled numerical curve. Arithmetic/geometric progression, monotone raster traversal and mirrored/quadrant construction do not describe this chronology. A historical shuffle could create an order of this kind, but a chosen shuffle/seed is not a supported semantic rule for this authored sequence.",
+                                                  "confirmation":  "Documentation-only disposition. Existing column and erase-silhouette checks remain; no new test or gameplay sweep. Static bytes/permutation inspection only."
                                               }
                                           ],
                                "integrationConfirmation":  "Existing Fireflea shade/timer/freeze/death-offset and COLDATA checks, and Crocomire 49-column four-bitplane production erase silhouette; source reads forbidden. Fireflea fixture updated to select a compiled default-door FX record instead of obsolete synthetic $83:9400."

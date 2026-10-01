@@ -4,13 +4,6 @@
     "rule":  "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
     "items":  [
                   {
-                      "id":  "crocomire-melt-column-order",
-                      "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
-                      "nativeIdentity":  "$A4:9697 CrocomireMeltingXOffsetTable",
-                      "status":  "pending",
-                      "task":  "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
-                  },
-                  {
                       "id":  "spc-pan-gain-curve",
                       "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
                       "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",

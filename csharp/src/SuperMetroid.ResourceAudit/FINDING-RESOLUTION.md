@@ -109,3 +109,33 @@ After this correction: **213 missing identities (453 references), 353 unresolved
 The goal remains active. Original identities accounted so far: 51 corrected missing
 dependencies (six Work Robot, twenty-nine tatori, sixteen Zero), two proven no-op
 definitions, and 213 still under investigation.
+
+## Friendly animals — corrected missing dependencies
+
+- **Findings:** 82 ordinary compositions, across 199 selector references:
+  31 Etecoon frames (`A7:EEED..F20A`), 29 Dachora body/echo frames (`A7:F9C4..FF53`),
+  ten rescue Etecoon frames (`B3:E736..E91F`), twelve rescue Dachora frames
+  (`B3:EB1B..ED3E`). Ranges denote selected frame starts, not all adjacent records.
+- **Cause:** all four actors already initialize and run compiled animation programs,
+  but their ordinary compositions were absent from the production export manifest.
+  Their timed selectors therefore reach the generic OAM draw path without installed art.
+- **Source evidence:** the pinned bank-$A7/$B3 declarations and the four corresponding
+  `*InstructionProgramDefinitions` identify their selected ordinary OAM frames.
+  `RoomEnemySystem.Etecoon`, `.Dachora`, and `.EscapeAnimals` enable instruction
+  processing; the mechanics reader dispatches to those exact program declarations.
+  No alternate renderer supplies these compositions.
+- **Correction:** derive named exports from the four explicitly owned finite programs,
+  append the 82 compositions, and advance the schema to 64. The shared declaration
+  builder deduplicates repeated selections and recognizes only the production-owned
+  empty sprite convention. Schema-63 and earlier supported overrides retain their
+  edits and inherit newly required stock frames. AI, routes, jumps and timing are unchanged.
+- **Confirmation:** separate focused catalog checks failed before registration at
+  `A7:EFFF`, `A7:F9C4`, `B3:E736`, and `B3:EB1B`, respectively. All now confirm their
+  exact selected composition sets and authored parts, legacy edits, new-frame inheritance,
+  and rejection of incomplete old stock. The static audit removes exactly 82 identities
+  and 199 reference findings. No ROM, rooms, gameplay frames or saves were opened.
+- **Player status:** implementation complete; actual appearance remains player validation.
+
+After this correction: **131 missing identities (254 references), 353 unresolved**.
+Original identity accounting: 133 corrected dependencies, two compiled no-op definitions,
+131 still under investigation. No remaining analysis boundary has been waived.

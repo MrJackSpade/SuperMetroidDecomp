@@ -8,7 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class EnemyCompositionResourceChecks
 {
     public static void Run(string family, byte bank, ReadOnlySpan<ushort> operands,
-        int familyFrameCount, int previousVersion, int previousFrameCount)
+        int familyFrameCount, int previousVersion, int previousFrameCount, int? familyStart = null)
     {
         // Construct only presentation data. The dependency is selected by the
         // compiled program, not by a room probe or an animation search.
@@ -17,6 +17,7 @@ internal static class EnemyCompositionResourceChecks
         {
             Require(CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort pointer),
                 $"compiled {family} visual operand {operand:X4} must resolve");
+            if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer)) continue;
             pointers.Add(pointer);
         }
         EnemySpritemapDefinition[] expected = EnemySpritemapDefinitions.Frames.ToArray();
@@ -37,9 +38,10 @@ internal static class EnemyCompositionResourceChecks
         }
         Require(pointers.Count == familyFrameCount,
             "the selected frame set must match the documented native family");
-        Require(expected.Skip(previousFrameCount).Take(familyFrameCount).All(frame =>
+        int firstFamilyFrame = familyStart ?? previousFrameCount;
+        Require(expected.Skip(firstFamilyFrame).Take(familyFrameCount).All(frame =>
             frame.Bank == bank && pointers.Contains(frame.Pointer)) &&
-            expected.Skip(previousFrameCount).Take(familyFrameCount).Select(frame => frame.Pointer).Distinct().Count() == pointers.Count,
+            expected.Skip(firstFamilyFrame).Take(familyFrameCount).Select(frame => frame.Pointer).Distinct().Count() == pointers.Count,
             "the family's schema append must contain exactly the identified missing identities");
         EnemySpritemapDefinition edited = expected[0];
         EnemySpritemapDefinition[] previous = expected[..previousFrameCount];

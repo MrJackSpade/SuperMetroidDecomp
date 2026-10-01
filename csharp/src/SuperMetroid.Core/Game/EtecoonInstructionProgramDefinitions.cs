@@ -4,7 +4,7 @@ internal readonly record struct EtecoonInstructionMechanicsWord(ushort Address, 
 
 /// <summary>
 /// Compiled engine-control words for the friendly Etecoon's overlapping animation programs.
-/// Their forty-five spritemap operands remain live cartridge presentation data.
+/// Their forty-five spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class EtecoonInstructionProgramDefinitions
 {

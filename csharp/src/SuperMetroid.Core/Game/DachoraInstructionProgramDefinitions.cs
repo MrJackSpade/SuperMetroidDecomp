@@ -13,7 +13,7 @@ internal readonly record struct DachoraInstructionProgram(
 
 /// <summary>
 /// Compiled engine-control words for Dachora's body and four echo actors. The eighty-one
-/// interleaved spritemap operands remain live cartridge presentation data.
+/// spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
 internal static class DachoraInstructionProgramDefinitions
 {

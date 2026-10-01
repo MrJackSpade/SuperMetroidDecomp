@@ -96,6 +96,10 @@ Focused catalog confirmations for already identified omissions in #1156:
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --work-robot-resource-check
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --mama-turtle-resource-check
 dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --zero-resource-check
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check Etecoon
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check Dachora
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeEtecoon
+dotnet run --project csharp/src/SuperMetroid.ResourceAudit -c Release -- --friendly-animal-resource-check EscapeDachora
 ```
 
 These constructed-data checks confirm selected compositions and legacy edit inheritance;

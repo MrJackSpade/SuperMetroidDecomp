@@ -7,7 +7,7 @@ internal readonly record struct EscapeDachoraInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control words for the escape-sequence Dachora's low/high-tide pacing and
-/// accelerating departure programs. Spritemap operands remain cartridge data.
+/// accelerating departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
 internal static class EscapeDachoraInstructionProgramDefinitions
 {

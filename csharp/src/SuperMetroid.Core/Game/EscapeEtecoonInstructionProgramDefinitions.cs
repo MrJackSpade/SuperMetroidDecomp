@@ -7,7 +7,7 @@ internal readonly record struct EscapeEtecoonInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control words for the escape-sequence Etecoon's low/high-tide walking,
-/// waiting, gratitude, and departure programs. Spritemap operands remain cartridge data.
+/// waiting, gratitude, and departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
 internal static class EscapeEtecoonInstructionProgramDefinitions
 {

@@ -158,28 +158,10 @@ internal static partial class Program
 
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = BlueDoorPlmProgramDefinitions.FirstAddress;
-             address <= BlueDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                checked((ushort)address), out byte compiled),
-                $"blue-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"blue-door program byte $84:{address:X4} matches ROM");
-            if (address == BlueDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)address), out ushort compiledWord),
-                $"blue-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"blue-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc54c, out _),
-            "blue-door program refuses a word crossing into setup machine code");
-        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc54d, out _),
-            "blue-door program does not claim adjacent setup machine code");
+        VerifyBlueProgramControls(rom);
+        VerifyBlueProgramDraws(rom);
+        VerifyBlueProgramSounds(rom);
+        VerifyBlueProgramBts(rom);
     }
 
     private static void VerifyBlueDoorVisualInstallation(

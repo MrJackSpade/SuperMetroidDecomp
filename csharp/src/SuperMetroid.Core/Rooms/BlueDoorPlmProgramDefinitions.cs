@@ -28,42 +28,76 @@ internal static class BlueDoorPlmProgramDefinitions
     /// <summary>Facing-down closed-cap conversion list at $84:C544.</summary>
     internal const ushort ClosedDown = 0xc544;
 
-    private static readonly byte[] Program = Convert.FromHexString(
-        "198C070600BFA90600CBA90600D7A95E" +
-        "0077A6BC86020077A60200D7A9198C08" +
-        "0200CBA90200BFA9F18A400100B3A9BC" +
-        "86198C070600FBA9060007AA060013AA" +
-        "5E0083A6BC86020083A6020013AA198C" +
-        "08020007AA0200FBA9F18A410100EFA9" +
-        "BC86198C07060037AA060043AA06004F" +
-        "AA5E008FA6BC8602008FA602004FAA19" +
-        "8C08020043AA020037AAF18A4201002B" +
-        "AABC86198C07060073AA06007FAA0600" +
-        "8BAA5E009BA6BC8602009BA602008BAA" +
-        "198C0802007FAA020073AAF18A430100" +
-        "67AABC86");
+    /// <summary>Each orientation's opening/closing/closed group occupies 49 bytes.</summary>
+    private const int OrientationBytes = 49;
+    /// <summary>$84:A677: first shared clear draw; orientations advance twelve bytes.</summary>
+    private const ushort ClearLeft = 0xa677;
+    /// <summary>$84:A9B3: first closed blue cap; orientation groups span five twelve-byte draws.</summary>
+    private const ushort ClosedDrawLeft = 0xa9b3;
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length - 1)
-        {
-            value = (ushort)(Program[offset] | Program[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (address < FirstAddress || address >= LastAddress) return false;
+        TryReadMechanicsByte(address, out byte low);
+        TryReadMechanicsByte((ushort)(address + 1), out byte high);
+        value = (ushort)(low | high << 8);
+        return true;
     }
 
+    /// <summary>
+    /// Decode four NTSC orientation groups, preserving 196 bytes and all 195
+    /// overlapping word views. Opening walks three six-tick frames, then clears
+    /// for 94 ticks; closing reverses those frames at two ticks each and falls
+    /// into the one-tick closed-cap handoff. Packed sounds/BTS change alignment.
+    /// No persistent instruction table or generated cache remains.
+    /// </summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length)
+        value = 0;
+        if (address < FirstAddress || address > LastAddress) return false;
+        int orientation = (address - FirstAddress) / OrientationBytes;
+        int local = (address - FirstAddress) % OrientationBytes;
+        int clear = ClearLeft + orientation * 12;
+        int closed = ClosedDrawLeft + orientation * 60;
+        if (local is 2 or 31 or 42)
         {
-            value = Program[offset];
+            value = local == 2 ? (byte)7 : local == 31 ? (byte)8 :
+                (byte)(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + orientation);
             return true;
         }
-        value = 0;
-        return false;
+        int start;
+        int word;
+        if (local is >= 3 and < 19)
+        {
+            int offset = local - 3;
+            int frame = offset / 4 + 1;
+            word = offset % 4 < 2 ? (frame == 4 ? 94 : 6) : frame == 4 ? clear : closed + frame * 12;
+            start = 3 + offset / 2 * 2;
+        }
+        else if (local is >= 32 and < 40)
+        {
+            int offset = local - 32;
+            int frame = 2 - offset / 4;
+            word = offset % 4 < 2 ? 2 : closed + frame * 12;
+            start = 32 + offset / 2 * 2;
+        }
+        else
+        {
+            start = local == 0 || local == 1 || local is 40 or 41 ? local & ~1 : ((local - 1) & ~1) + 1;
+            word = start switch
+            {
+                0 or 29 => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
+                19 or 47 => RoomPlmInstructionCodes.Delete,
+                21 or 25 => 2,
+                23 => clear,
+                27 => closed + 3 * 12,
+                40 => RoomPlmInstructionCodes.SetPlmBtsFromByte,
+                43 => 1,
+                _ => closed, // Local 45: final closed-cap draw.
+            };
+        }
+        value = (byte)(word >> ((local - start) * 8));
+        return true;
     }
 }

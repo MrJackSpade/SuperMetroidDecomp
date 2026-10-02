@@ -8,27 +8,27 @@ namespace SuperMetroid.Core.Rooms;
 internal static class MotherBrainGlassPlmDrawDefinitions
 {
     /// <summary>Initial single glass block at $84:9717.</summary>
-    private const ushort Initial = 0x9717;
+    internal const ushort Initial = 0x9717;
     /// <summary>First full pane damage frame at $84:971D.</summary>
-    private const ushort PaneDamage1 = 0x971d;
+    internal const ushort PaneDamage1 = 0x971d;
     /// <summary>Second full pane damage frame at $84:9731.</summary>
-    private const ushort PaneDamage2 = 0x9731;
+    internal const ushort PaneDamage2 = 0x9731;
     /// <summary>Three-block pane transition at $84:9745.</summary>
-    private const ushort PaneTransition = 0x9745;
+    internal const ushort PaneTransition = 0x9745;
     /// <summary>First shifted pane damage frame at $84:974F.</summary>
-    private const ushort ShiftedPane1 = 0x974f;
+    internal const ushort ShiftedPane1 = 0x974f;
     /// <summary>Second shifted pane damage frame at $84:9769.</summary>
-    private const ushort ShiftedPane2 = 0x9769;
+    internal const ushort ShiftedPane2 = 0x9769;
     /// <summary>Reduced shifted pane frame at $84:9781.</summary>
-    private const ushort ShiftedPane3 = 0x9781;
+    internal const ushort ShiftedPane3 = 0x9781;
     /// <summary>First four-run shatter frame at $84:978F.</summary>
-    private const ushort Shatter1 = 0x978f;
+    internal const ushort Shatter1 = 0x978f;
     /// <summary>Second four-run shatter frame at $84:97B7.</summary>
-    private const ushort Shatter2 = 0x97b7;
+    internal const ushort Shatter2 = 0x97b7;
     /// <summary>Third four-run shatter frame at $84:97E7.</summary>
-    private const ushort Shatter3 = 0x97e7;
+    internal const ushort Shatter3 = 0x97e7;
     /// <summary>Four-run empty-glass frame at $84:9817.</summary>
-    private const ushort Cleared = 0x9817;
+    internal const ushort Cleared = 0x9817;
 
     private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();

@@ -26,7 +26,7 @@ internal static class PlmClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog", "plm-mother-brain-glass-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainGlassVisualCatalog.cs", "06943B286EC25BC003C6DC27B2E24BF404924BD418F32CD5BC1A72A5A2BB70DC"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs", "C8F25F652B354EC8655F83A71F7E3B6DFD3B90DEF0E69EF6BFABCC916B1A6D2C")],
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs", "E57659DF4BBDD19B3B65F46D81D784D9E5CCAE719988750DF33A9FF79641D940")],
             "The constructor requires all eleven glass frames, unique compiled identities and exact flattened word counts before cloning. GetWord bounds-checks each native run/word selection before flattening; glass damage and shatter timing remain outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog", "plm-noob-tube-complete-draws", ["GetWord"],
             [SharedDrawShape,

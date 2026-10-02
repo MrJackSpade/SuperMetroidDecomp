@@ -12,28 +12,14 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
-        for (int address = MotherBrainGlassPlmProgramDefinitions.FirstAddress;
-             address <= MotherBrainGlassPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(
-                checked((ushort)address), out byte compiled),
-                $"glass PLM claims authored byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"glass PLM byte $84:{address:X4} matches retail ROM");
-            if (address == MotherBrainGlassPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)address), out ushort compiledWord),
-                $"glass PLM claims authored word at $84:{address:X4}");
-            ushort nativeWord = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(nativeWord, compiledWord,
-                $"glass PLM word $84:{address:X4} matches retail ROM");
-        }
-        AssertTrue(!MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(0xd2f9, out _),
-            "glass list does not claim the adjacent threshold callback code");
-        AssertTrue(!MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(0xd2f8, out _),
-            "glass list refuses a word crossing into callback code");
+        VerifyGlassControls(rom);
+        VerifyGlassDraws(rom);
+        VerifyGlassTargets(rom);
+        VerifyGlassCallback(rom);
+        VerifyGlassEvents(rom);
+        VerifyGlassBossMask(rom);
+        VerifyGlassThresholds(rom);
+        VerifyGlassShardArguments(rom);
 
         var source = new TestAddressSpace();
         var bank84 = new byte[0x8000];

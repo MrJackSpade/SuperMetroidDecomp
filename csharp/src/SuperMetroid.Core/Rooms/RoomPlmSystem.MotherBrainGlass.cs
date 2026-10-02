@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort MotherBrainGlassPreInstruction = 0xd1e6;
+    private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();

@@ -2113,12 +2113,16 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (MotherBrainEscapeGatePlmDrawDefinitions.TryGet(drawPointer, out var escapeGate))
+        if (MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(drawPointer, out var escapeGate))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, escapeGate, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, escapeGateVisuals: escapeGateVisuals);
+            for (int row = 0; row < 4; row++)
+            {
+                ushort physical = escapeGate.WordAt(row);
+                ushort visual = escapeGateVisuals?.GetWord(drawPointer, row)
+                    ?? new RoomLevelWord(physical).VisualWord;
+                DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row, physical,
+                    layer1XPosition, layer1YPosition, bg1XOffset, visual);
+            }
             return;
         }
         if (BombTorizoHandPlmDrawDefinitions.TryGet(drawPointer, out var bombTorizoHand))

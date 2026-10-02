@@ -1,9 +1,11 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Bank-$84 instruction data for the gate that closes in the room after
-/// Mother Brain. The interval includes the normal closed list, an unused
-/// half-closed/open list, and the door-transition closing list.
+/// Decodes bank-$84 escape-gate programs BB34..BB51: closed for six frames,
+/// the unused half/open sequence (six then ninety-four frames), and three closing
+/// frames of two ticks each. Each list ends with Delete. Byte selection preserves
+/// all thirty bytes and all twenty-nine overlapping little-endian word views;
+/// no adjacent machine code, persistent byte blob or generated cache is included.
 /// </summary>
 internal static class MotherBrainEscapeGatePlmProgramDefinitions
 {
@@ -12,30 +14,31 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
     /// <summary>Last closing-gate instruction byte at $84:BB51.</summary>
     internal const ushort LastAddress = 0xbb51;
 
-    private static readonly byte[] Program = Convert.FromHexString(
-        "06008B94BC8606007F945E007394BC860200739402007F9402008B94BC86");
-
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length - 1)
-        {
-            value = (ushort)(Program[offset] | Program[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (address < FirstAddress || address >= LastAddress) return false;
+        TryReadMechanicsByte(address, out byte low);
+        TryReadMechanicsByte((ushort)(address + 1), out byte high);
+        value = (ushort)(low | high << 8);
+        return true;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length)
-        {
-            value = Program[offset];
-            return true;
-        }
         value = 0;
-        return false;
+        if (address < FirstAddress || address > LastAddress) return false;
+        ushort word = (address & ~1) switch
+        {
+            0xbb34 or 0xbb3a => 6,
+            0xbb3e => 94,
+            0xbb44 or 0xbb48 or 0xbb4c => 2,
+            0xbb38 or 0xbb42 or 0xbb50 => RoomPlmInstructionCodes.Delete,
+            0xbb36 or 0xbb4e => MotherBrainEscapeGatePlmDrawDefinitions.Closed,
+            0xbb3c or 0xbb4a => MotherBrainEscapeGatePlmDrawDefinitions.HalfClosed,
+            _ => MotherBrainEscapeGatePlmDrawDefinitions.Open, // BB40 and BB46 only.
+        };
+        value = (byte)(word >> ((address & 1) * 8));
+        return true;
     }
 }

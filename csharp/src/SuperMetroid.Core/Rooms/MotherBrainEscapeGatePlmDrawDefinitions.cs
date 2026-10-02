@@ -14,14 +14,52 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     /// <summary>Fully closed vertical gate draw at $84:948B.</summary>
     internal const ushort Closed = 0x948b;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    /// <summary>Four vertical cells, always solid, selected by open/half/closed state.</summary>
+    internal readonly record struct Draw(ushort Pointer)
+    {
+        /// <summary>
+        /// $84:9473..9496: open uses blank FF; half adds end caps 30F; closed
+        /// fills the middle with tile 2E8, vertically flipped for the upper half.
+        /// Collision nibble 8 is unchanged even for the visually open frame.
+        /// </summary>
+        internal ushort WordAt(int row)
+        {
+            if ((uint)row >= 4) throw new IndexOutOfRangeException();
+            int tile = Pointer == Open ? 0xff : row is 0 or 3 ? 0x30f :
+                Pointer == HalfClosed ? 0xff : 0x2e8 | (row == 1 ? 0x800 : 0);
+            return (ushort)(0x8000 | tile);
+        }
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        bool owned = pointer is Open or HalfClosed or Closed;
+        draw = owned ? new(pointer) : default;
+        return owned;
+    }
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            for (int pointer = Open; pointer <= Closed; pointer += 12)
+            {
+                TryGet((ushort)pointer, out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    // Temporary artwork DTOs; gameplay computes each cell directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var words = new ushort[4];
+        for (int row = 0; row < words.Length; row++) words[row] = draw.WordAt(row);
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(0x8004, words, 0, 0) });
+        return true;
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -35,7 +73,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
             {
@@ -47,20 +85,4 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return false;
     }
 
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
-        new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
-        {
-            [Open] = Draw(Open, [0x80ff, 0x80ff, 0x80ff, 0x80ff]),
-            [HalfClosed] = Draw(HalfClosed, [0x830f, 0x80ff, 0x80ff, 0x830f]),
-            [Closed] = Draw(Closed, [0x830f, 0x8ae8, 0x82e8, 0x830f]),
-        };
-
-    private static RoomPlmShotBlockDrawDefinitions.DrawList Draw(
-        ushort pointer,
-        ushort[] words) => new(pointer,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(0x8004, words, 0, 0),
-        });
 }

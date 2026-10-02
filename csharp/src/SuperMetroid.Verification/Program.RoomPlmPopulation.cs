@@ -1095,56 +1095,11 @@ internal static partial class Program
     private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int address = MotherBrainEscapeGatePlmProgramDefinitions.FirstAddress;
-             address <= MotherBrainEscapeGatePlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"escape-gate program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"escape-gate program byte $84:{address:X4} matches ROM");
-            if (address == MotherBrainEscapeGatePlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"escape-gate program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"escape-gate program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb33, out _),
-            "escape-gate program excludes preceding PLM header");
-        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb52, out _),
-            "escape-gate program excludes following pre-instruction machine code");
-
-        AssertEqual(3, MotherBrainEscapeGatePlmDrawDefinitions.All.Count(),
-            "escape gate owns open, half-closed and closed physical draws");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 MotherBrainEscapeGatePlmDrawDefinitions.All)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"escape-gate draw ${list.Pointer:X4} has one vertical run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            AssertEqual(run.DirectionAndCount,
-                (ushort)(rom.ReadByte(0x840000 | list.Pointer) |
-                    rom.ReadByte(0x840000 | (list.Pointer + 1)) << 8),
-                $"escape-gate draw ${list.Pointer:X4} direction and count match ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"escape-gate draw ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < run.LevelWords.Length; block++)
-            {
-                int address = 0x840000 | (list.Pointer + 2 + block * 2);
-                ushort native = (ushort)(rom.ReadByte(address) |
-                    rom.ReadByte(address + 1) << 8);
-                AssertEqual(native, run.LevelWords.Span[block],
-                    $"escape-gate draw ${list.Pointer:X4} block {block} matches ROM");
-            }
-            int terminator = 0x840000 | (list.Pointer + 10);
-            AssertEqual((ushort)0,
-                (ushort)(rom.ReadByte(terminator) | rom.ReadByte(terminator + 1) << 8),
-                $"escape-gate draw ${list.Pointer:X4} has zero offset terminator");
-        }
+        VerifyEscapeGateProgramControls(rom);
+        VerifyEscapeGateProgramDraws(rom);
+        VerifyEscapeGateDrawGeometry(rom);
+        VerifyEscapeGateDrawCollision(rom);
+        VerifyEscapeGateDrawVisuals(rom);
     }
 
     private static void WriteVerticalPlmDraw(

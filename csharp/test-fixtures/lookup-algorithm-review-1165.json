@@ -3784,7 +3784,7 @@
     "proof": "VerifySporeSpawnCeilingDrawMapping consolidates the old native layout check, independently lists all four pointers, compares every original physical cell and complete count/offset records with scalar/direct DTO/export, and checks all ushort ownership and zero/default missing outputs.",
     "consumers": "RoomPlmSystem draws the scalar square directly without constructing run arrays. Existing artwork interfaces materialize temporary DTOs; visual getter validates scalar identity and two-by-two bounds without allocating a draw. Normalized PlmProgression draw and visual source pins updated.",
     "confirmation": "Verification and ResourceAudit builds, --spore-spawn-ceiling-plms and --spore-spawn-ceiling-visuals pass native draw parity, both clear/crumble timelines with source reads forbidden, live custom artwork, collision/timing isolation and installation checks. Both focused flags now dispatch before unrelated verification suites.",
-    "scope": "Four physical ceiling draw records only. The stock visual dictionary is converted under sporeSpawnCeilingStockVisualReview; program selectors remain independently reviewable. No retention exception claimed."
+    "scope": "Four physical ceiling draw records only. The stock visual dictionary is converted under sporeSpawnCeilingStockVisualReview; program selectors are reviewed under sporeSpawnCeilingProgramReview. No retention exception claimed."
   }
 ,
   "sporeSpawnCeilingStockVisualReview": {
@@ -3795,6 +3795,19 @@
     "proof": "VerifySporeSpawnCeilingStockMapping consolidates the prior partial stock checks. Independent original pointers and words confirm all sixteen factory/imported/installed stock values and original hashes; full ushort pointer rejection; both row widths and invalid bounds; mixed custom/stock hash; source mutation isolation for changed and unchanged frames; missing/duplicate/non-ordinal/wrong-shape/collision-bit rejection.",
     "consumers": "Installation and artwork interfaces retain their existing contracts. Remaining dictionary contains selected custom artwork, not a generated stock cache. Normalized PlmProgression visual pin and contract explanation updated.",
     "confirmation": "Verification and ResourceAudit builds and --spore-spawn-ceiling-visuals pass complete stock/hash proof, live per-cell artwork changes, collision/deletion-timing isolation, source-read prohibition and stock repair checks.",
-    "scope": "Spore Spawn ceiling stock artwork and content identity only. Program selectors and the wider audit remain unfinished; no retention exception claimed."
+    "scope": "Spore Spawn ceiling stock artwork and content identity only. Program selectors are reviewed under sporeSpawnCeilingProgramReview; the wider audit remains unfinished. No retention exception claimed."
+  }
+,
+  "sporeSpawnCeilingProgramReview": {
+    "status": "existing bounded decoder independently verified",
+    "source": "NTSC J/U v1.0 84:AB12..AB26; pinned bank_84.asm InstList_PLM_CrumbleSporeSpawnCeiling and InstList_PLM_ClearSporeSpawnCeiling",
+    "algorithm": "Existing decoder has no stored lookup. Crumble queues library-two sound, then three four-tick records select consecutive named crumble frames; control falls through to the four-tick clear record and deletion. Frame pointer selection is already three named cases. Preserve this verified implementation without churn.",
+    "controls": {"disposition": "existing algorithm independently verified", "proof": "VerifySporeSpawnCeilingProgramControls independently specifies six original control addresses, compares native words and shared reader values, confirms all ten enumerated native addresses in order, and checks complete ushort word ownership/default outputs."},
+    "drawOperands": {"disposition": "existing named cases independently verified", "proof": "VerifySporeSpawnCeilingProgramDraws independently specifies four native operand locations and compares native words and shared reader values. It also compares the three frame-selector results directly with original program operands and confirms invalid integer frame rejection."},
+    "soundOperand": {"disposition": "existing scalar independently verified", "proof": "VerifySporeSpawnCeilingProgramSound checks every ushort byte address: only AB14 is owned and equals the original sound operand; all other outputs are false/zero."},
+    "domain": "Ten aligned instruction/operand words and one packed sound byte only. Odd/interior words, the sound byte as a word, adjacent Botwoon setup code at AB27, and all other pointers remain unowned. No arbitrary byte views or adjacent aliases are invented.",
+    "consumers": "RoomPlmProgramDefinitions composes these byte/word readers into the production instruction interpreter. CrumbleFramePointer has the single program-decoder consumer. Existing clear/crumble production fixtures cover the fallthrough, exact cell values, sound timing and deletion with migrated source reads forbidden.",
+    "confirmation": "Verification build and --spore-spawn-ceiling-plms pass the three complete field proofs, physical draw proof and both existing production timelines.",
+    "scope": "Spore Spawn ceiling control/draw/sound program mappings and crumble frame selector only. This is a verified existing implementation, not a retention exception. The wider audit remains unfinished."
   }
 }

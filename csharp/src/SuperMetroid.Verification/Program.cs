@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-fallback-door-closing"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Fallback closing oracle revision");
+    VerifyDoorClosingPlmDefinitions(rom, fallbackOnly: true);
+    Console.WriteLine("Fallback closing: all twelve original header/list selections, complete byte domain and production spawning pass.");
+    return 0;
+}
 if (args is ["--lookup-resident-door-closing"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

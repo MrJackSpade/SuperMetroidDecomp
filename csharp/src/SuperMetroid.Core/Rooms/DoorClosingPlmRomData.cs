@@ -11,9 +11,8 @@ internal readonly record struct DoorClosingPlmDefinition(
 /// <remarks>
 /// The low two bits retain physical travel direction. Values zero through three are
 /// non-closing doors, four through seven request a blue cap, and eight through eleven
-/// request the Mother Brain escape gate. Keeping this mapping outside the runtime logic
-/// makes the four duplicated native table entries explicit and prevents range arithmetic
-/// from accidentally treating an invalid direction byte as a valid header pointer.
+/// request the Mother Brain escape gate. Named direction cases replace stored records;
+/// the exact byte domain remains 0..11, with no masked or extrapolated inputs.
 /// </remarks>
 public static class DoorClosingPlmRomData
 {
@@ -35,38 +34,24 @@ public static class DoorClosingPlmRomData
     /// <summary>$84:C500, closing program selected by header $84:C8C2.</summary>
     internal const ushort BlueFacingUpInstructionList = 0xc500;
 
-    private static readonly DoorClosingPlmDefinition[] DefinitionsByDirection =
-    [
-        default,
-        default,
-        default,
-        default,
-        new(RoomPlmHeaders.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
-        new(RoomPlmHeaders.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
-        new(RoomPlmHeaders.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
-        new(RoomPlmHeaders.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
-        new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-        new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-        new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-        new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-    ];
-
-    /// <summary>Returns the complete fallback definition selected by a door direction.</summary>
-    internal static DoorClosingPlmDefinition GetDefinition(byte direction)
+    /// <summary>
+    /// Decode the twelve native direction cases at $8F:E68A. Zero through three
+    /// select no actor, four through seven select oriented blue closers, and eight
+    /// through eleven all select the escape gate. No persistent table/cache remains.
+    /// </summary>
+    internal static DoorClosingPlmDefinition GetDefinition(byte direction) => direction switch
     {
-        if (direction >= DefinitionsByDirection.Length)
-        {
-            throw new InvalidDataException(
-                $"Door direction ${direction:X2} indexes beyond the " +
-                $"{DefinitionsByDirection.Length}-entry retail closing-PLM table.");
-        }
-
-        return DefinitionsByDirection[direction];
-    }
+        < 4 => default,
+        4 => new(RoomPlmHeaders.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
+        5 => new(RoomPlmHeaders.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
+        6 => new(RoomPlmHeaders.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
+        7 => new(RoomPlmHeaders.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
+        < DirectionCount => new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
+            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
+        _ => throw new InvalidDataException(
+            $"Door direction ${direction:X2} indexes beyond the " +
+            $"{DirectionCount}-entry retail closing-PLM table."),
+    };
 
     /// <summary>Returns the exact bank-$84 header selected by a retail door direction.</summary>
     public static ushort GetHeader(byte direction) => GetDefinition(direction).Header;

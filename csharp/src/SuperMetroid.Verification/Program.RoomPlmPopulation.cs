@@ -54,26 +54,48 @@ internal static partial class Program
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
     }
 
-    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
+    private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
+
+    private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
+    {
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            byte direction = (byte)raw;
+            if (raw >= 12)
+            {
+                AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetDefinition(direction), "Fallback door rejected direction");
+                if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetHeader(direction), "Fallback door public rejected direction");
+                continue;
+            }
+            ushort header = ReadSamusEaterPlmWord(rom, 0x8fe68a + raw * 2);
+            var actual = DoorClosingPlmRomData.GetDefinition(direction);
+            if (list)
+                AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
+                    actual.InitialInstructionList, "Fallback original initial list or no-actor zero");
+            else
+            {
+                AssertEqual(header, actual.Header, "Fallback original direction header");
+                AssertEqual(header, DoorClosingPlmRomData.GetHeader(direction), "Fallback public original header");
+            }
+        }
+    }
+
+    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+        VerifyFallbackDoorHeaders(rom);
+        VerifyFallbackDoorLists(rom);
         for (byte direction = 0; direction < DoorClosingPlmRomData.DirectionCount; direction++)
         {
-            DoorClosingPlmDefinition definition =
-                DoorClosingPlmRomData.GetDefinition(direction);
             ushort expectedHeader = ReadWord(
                 rom,
                 DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort));
-            AssertEqual(expectedHeader, definition.Header,
-                $"door-closing direction {direction} header matches cartridge");
             ushort expectedList = expectedHeader == 0
                 ? (ushort)0
                 : ReadWord(rom, 0x840000 | unchecked((ushort)(expectedHeader + 2)));
-            AssertEqual(expectedList, definition.InitialInstructionList,
-                $"door-closing direction {direction} initial list matches cartridge");
-
             var plms = new RoomPlmSystem();
             RoomLevelData level = CreateRoom(
                 4,
@@ -108,6 +130,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
             "out-of-range door-closing direction fails loudly");
+        if (fallbackOnly) return;
         VerifyResidentDoorClosingDefinitions(rom);
         VerifyMotherBrainEscapeGateCompiledDefinitions(rom);
         VerifyEscapeGateVisuals(rom);

@@ -12,15 +12,33 @@ public sealed record RoomPlmBombTorizoHandVisualEntry(string Id, ushort[] Blocks
 public sealed class RoomPlmBombTorizoHandVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmBombTorizoHandVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmBombTorizoHandVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[16];
+        foreach (var frame in BombTorizoHandPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        {
+            BombTorizoHandPlmDrawDefinitions.TryDescribe(frame.Pointer, out var shape);
+            int count = 0;
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
+                words[count++] = GetWord(frame.Pointer, run, word);
+            content.Append("frame", frame.Pointer);
+            // Preserve the flattened single-run framing of installed hand artwork.
+            content.Append("runs", 1);
+            content.AppendWords("words", words[..count]);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+
+    private RoomPlmBombTorizoHandVisualCatalog() { }
 
     public RoomPlmBombTorizoHandVisualCatalog(
         IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmBombTorizoHandVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
@@ -31,28 +49,29 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Bomb Torizo hand visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
+            if (!seen.Add(draw.Pointer))
                 throw new InvalidDataException(
                     $"Bomb Torizo hand visuals repeat frame {entry.Id}.");
+            BombTorizoHandPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
+            int index = 0;
+            bool changed = false;
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
+                changed |= entry.Blocks[index++] != new RoomLevelWord(shape.WordAt(run, word)).VisualWord;
+            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != BombTorizoHandPlmDrawDefinitions.All.Count())
+        if (seen.Count != BombTorizoHandPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Bomb Torizo hand visuals do not cover all compiled frames.");
-        blocks = selected;
+        if (selected.Count != 0) customBlocks = selected;
     }
 
-    public static RoomPlmBombTorizoHandVisualCatalog Stock() => new(
-        BombTorizoHandPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmBombTorizoHandVisualEntry(
-                BombTorizoHandPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
+    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
+    public static RoomPlmBombTorizoHandVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Bomb Torizo hand visuals lack frame ${drawPointer:X4}.");
         if ((uint)runIndex >= (uint)draw.RunCount ||
@@ -61,6 +80,7 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += draw.WordCount(run);
-        return words[flatIndex];
+        return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
+            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

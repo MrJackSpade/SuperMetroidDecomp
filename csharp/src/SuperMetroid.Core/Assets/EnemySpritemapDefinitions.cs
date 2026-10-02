@@ -945,17 +945,16 @@ internal static class EnemySpritemapDefinitions
             : peak - (local - recovery) / 4;
         return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
     }
-    /// <summary>Four cartridge selectors in Kamer platform's $A2:EDE7 loop.</summary>
+    /// <summary>Four consecutive Kamer maps, each holding two five-byte OAM
+    /// records after its two-byte count, selected in forward animation order.</summary>
     internal static ushort KamerPlatformFrameAt(ushort operandAddress)
     {
-        if (operandAddress is (0xede9 or 0xeded or 0xedf1 or 0xedf5) &&
-            CompiledEnemyVisualSelectors.TryGet(KamerPlatformBank,
-                operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
+        if (!VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
+        int frame = (operandAddress - (VerticalShutterInstructionProgramDefinitions.KamerPlatform + 2)) / 4;
+        return (ushort)(0xf468 + 12 * frame);
     }
-
     /// <summary>The two visual operands in the native $A3:94D6 elevator loop.</summary>
     internal static ushort ElevatorFrameAt(ushort operandAddress)
     {

@@ -3043,4 +3043,23 @@
     "audit": "ResourceAudit source attribution names AlcoonFireballFrameAt; normalized sprite-catalog source pin updated. Verification and ResourceAudit build.",
     "scope": "Fireball visual pointer selection only; no retention exception claimed for other artwork/schema mappings."
   }
+,
+  "verticalShutterAndKamerProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank A2 E9AA-E9AF plain shutter, EDE7-EDFA Kamer loop, F468-F497 Kamer maps; pinned bank_A2.asm",
+    "mechanics": {
+      "disposition": "Removed eight stored words. Plain shutter selects a one-tick pose then sleeps; Kamer has four ten-tick frames followed by goto/start. Enumerate control positions from those layouts.",
+      "proof": "VerifyVerticalShutterMechanicsMapping independently checks all eight native ROM words, enumeration/direct lookup, full byte ownership, bank aliases, local holes and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed five stored positions. Plain shutter uses its single pose operand; Kamer positions follow the four-byte frame stride.",
+      "proof": "VerifyVerticalShutterPresentationAddresses checks five independent addresses, full ushort plain/Kamer membership and ordinal bounds."
+    },
+    "kamerVisualPointers": {
+      "disposition": "Removed four shared literal selectors. Four consecutive maps each contain two five-byte OAM records and a two-byte count, giving a twelve-byte stride in forward animation order.",
+      "proof": "VerifyKamerPlatformVisualSelectors compares all four original pointer words and map counts, shared dispatch and generator exclusion, and neighboring holes."
+    },
+    "integration": "--lookup-vertical-shutter-programs confirms both plain-shutter initializers and terminal sleep, Kamer initializer and loop restart, zero mechanics/visual ROM reads, and the full 5069-entry shared selector contract. Verification and ResourceAudit build.",
+    "scope": "Plain/Kamer instruction programs and Kamer pointer selection. Other shutter visual selectors, initial function selection, movement and artwork remain separately reviewable. No retention exception claimed."
+  }
 }

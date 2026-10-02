@@ -76,6 +76,7 @@ internal static class DefinitionAudit
         string calculatedMethod = kraidFamily ? "FrameAt"
             : bank == 0xa2 ? "BoyonFrameAt"
             : boulder ? "BoulderFrameAt"
+            : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
         string relative = calculated
             ? kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"

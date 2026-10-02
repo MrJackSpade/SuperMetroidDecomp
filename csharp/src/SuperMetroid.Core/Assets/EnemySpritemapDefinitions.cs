@@ -927,17 +927,24 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.RipperDefinition;
     }
 
-    /// <summary>Reads only the 38 Fune/Namihe presentation operands from their eight native programs.</summary>
+    /// <summary>Selects opening/recovery poses in the two directional sprite strips.
+    /// Every native map has eight five-byte OAM entries and a two-byte count.</summary>
     internal static ushort FuneNamiheFrameAt(ushort operandAddress)
     {
-        if (FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(FuneNamiheBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
+        if (!FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
+        bool namihe = operandAddress >= FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft;
+        int stride = namihe ? 52 : 48;
+        int offset = operandAddress - (namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
+            : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft);
+        int local = offset % stride;
+        int peak = namihe ? 5 : 4;
+        int recovery = 12 + 4 * peak;
+        int pose = local == 2 ? 0 : local < recovery ? (local - 8) / 4
+            : peak - (local - recovery) / 4;
+        return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
     }
-
     /// <summary>Four cartridge selectors in Kamer platform's $A2:EDE7 loop.</summary>
     internal static ushort KamerPlatformFrameAt(ushort operandAddress)
     {

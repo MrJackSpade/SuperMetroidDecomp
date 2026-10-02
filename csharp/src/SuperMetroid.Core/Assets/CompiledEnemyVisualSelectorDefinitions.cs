@@ -35,7 +35,7 @@ internal static partial class CompiledEnemyVisualSelectors
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
-        AlcoonInstructionProgramDefinitions.PresentationWordCount + AtomicInstructionProgramDefinitions.PresentationWordCount;
+        FuneNamiheInstructionProgramDefinitions.PresentationWordCount + AlcoonInstructionProgramDefinitions.PresentationWordCount + AtomicInstructionProgramDefinitions.PresentationWordCount;
     internal static int Count => Entries.Length + CalculatedCount;
 
     internal static CompiledEnemyVisualSelector At(int index)
@@ -89,6 +89,12 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa70000 | operand, KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operand));
         }
         index -= KraidNailInstructionProgramDefinitions.PresentationWordCount;
+        if (index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa80000 | operand, EnemySpritemapDefinitions.FuneNamiheFrameAt(operand));
+        }
+        index -= FuneNamiheInstructionProgramDefinitions.PresentationWordCount;
         if (index < AlcoonInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = AlcoonInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -105,7 +111,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa8 => AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+        0xa8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
@@ -121,7 +127,9 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
                 0xa7 => KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
-                _ => AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                    ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
+                    : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
                     : EnemySpritemapDefinitions.AtomicFrameAt(operandAddress),
             };

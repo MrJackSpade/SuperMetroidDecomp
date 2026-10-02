@@ -3002,4 +3002,16 @@
     "integration": "Existing eight production program cases confirm firing direction, projectile count, sound and return to species AI ownership with mechanics reads forbidden and zero visual-selector cartridge reads.",
     "scope": "Actor instruction timing/control and operand positions; visual selector values and artwork remain separately reviewable. No table-retention exception claimed."
   }
+,
+  "funeNamiheVisualSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A8 Fune/Namihe instruction operands and spritemaps 93F9-959C, 97B4-99AB; pinned bank_A8.asm",
+    "selectorValues": {
+      "disposition": "Replaced shared literal resolution with pose arithmetic. Idle selects pose zero; opening advances through four Fune or five Namihe poses; recovery selects the peak and descends three poses. Each map contains eight five-byte OAM records plus a two-byte count, yielding a 42-byte map stride and five/six maps per facing.",
+      "proof": "VerifyFuneNamiheVisualSelectors independently checks all 38 original ROM pointer operands and selected map counts, shared lookup equivalence, calculated-selector classification, rejected holes and distant invalid inputs."
+    },
+    "sharedCatalog": "Removed all 38 duplicate BankA8 literal entries. Sorted enumeration merges this calculated family ahead of Alcoon without a generated cache; generator exclusion and ResourceAudit source attribution use the same ownership predicate.",
+    "confirmation": "Verification and ResourceAudit build; --lookup-fune-namihe-programs confirms all eight production programs plus the complete 5069-entry shared enumeration, ordering, native values, direct lookup and bounds contract.",
+    "scope": "Visual pointer selection only. Artwork payloads and other Fune/Namihe mappings remain separately reviewable; no retention exception claimed."
+  }
 }

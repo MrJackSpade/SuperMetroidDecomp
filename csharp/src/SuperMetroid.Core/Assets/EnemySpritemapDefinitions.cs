@@ -712,11 +712,6 @@ internal static class EnemySpritemapDefinitions
         .. NuclearWaffleVisualDefinitions.Frames(),
     ];
 
-    private static readonly ushort[] AtomicUpRightFrames =
-        [0xe489, 0xe49f, 0xe4b5, 0xe4cb, 0xe4e1, 0xe4f2];
-    private static readonly ushort[] AtomicUpLeftFrames =
-        [0xe508, 0xe51e, 0xe534, 0xe54a, 0xe560, 0xe571];
-
     internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
 
     /// <summary>
@@ -1321,18 +1316,17 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort AtomicFrameAt(ushort operandAddress)
     {
-        if (operandAddress >= 0xe312 && operandAddress <= 0xe326 &&
-            (operandAddress - 0xe312) % 4 == 0)
-            return AtomicUpRightFrames[(operandAddress - 0xe312) / 4];
-        if (operandAddress >= 0xe32e && operandAddress <= 0xe342 &&
-            (operandAddress - 0xe32e) % 4 == 0)
-            return AtomicUpLeftFrames[(operandAddress - 0xe32e) / 4];
-        if (operandAddress >= 0xe34a && operandAddress <= 0xe35e &&
-            (operandAddress - 0xe34a) % 4 == 0)
-            return AtomicUpRightFrames[5 - (operandAddress - 0xe34a) / 4];
-        if (operandAddress >= 0xe366 && operandAddress <= 0xe37a &&
-            (operandAddress - 0xe366) % 4 == 0)
-            return AtomicUpLeftFrames[5 - (operandAddress - 0xe366) / 4];
+        int offset = operandAddress - 0xe312;
+        if ((uint)offset < 4 * 28 && offset % 28 <= 20 && offset % 4 == 0)
+        {
+            int direction = offset / 28;
+            int frame = offset % 28 / 4;
+            if (direction >= 2) frame = 5 - frame;
+            // Each spiral has six records: a two-byte count and four five-byte
+            // OAM entries, except frame four has three entries. Its shorter record
+            // moves frame five back five bytes and makes the spiral span127 bytes.
+            return (ushort)(0xe489 + (direction & 1) * 127 + frame * 22 - (frame == 5 ? 5 : 0));
+        }
         throw new InvalidDataException(
             $"Atomic visual operand $A8:{operandAddress:X4} is not compiled.");
     }

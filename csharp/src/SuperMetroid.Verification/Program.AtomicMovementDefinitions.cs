@@ -63,15 +63,17 @@ internal static partial class Program
                 "Atomic mechanics ordinal bounds");
     }
 
-    private static void VerifyAtomicPresentationAddresses()
-    {
-        ushort[] expected =
+    private static ushort[] AtomicPresentationAddressOracle() =>
         [
             0xe312, 0xe316, 0xe31a, 0xe31e, 0xe322, 0xe326,
             0xe32e, 0xe332, 0xe336, 0xe33a, 0xe33e, 0xe342,
             0xe34a, 0xe34e, 0xe352, 0xe356, 0xe35a, 0xe35e,
             0xe366, 0xe36a, 0xe36e, 0xe372, 0xe376, 0xe37a,
         ];
+
+    private static void VerifyAtomicPresentationAddresses()
+    {
+        ushort[] expected = AtomicPresentationAddressOracle();
         AssertEqual(expected.Length, AtomicInstructionProgramDefinitions.PresentationWordCount,
             "Atomic presentation operand count");
         for (int index = 0; index < expected.Length; index++)
@@ -82,11 +84,29 @@ internal static partial class Program
                 "Atomic presentation ordinal bounds");
     }
 
+    private static void VerifyAtomicVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = AtomicPresentationAddressOracle();
+        foreach (ushort address in addresses)
+            AssertEqual(ReadAtomicProgramWord(rom, address),
+                EnemySpritemapDefinitions.AtomicFrameAt(address),
+                "Atomic native visual operand value");
+        var valid = addresses.ToHashSet();
+        for (int address = 0xe30e; address <= 0xe382; address++)
+            if (!valid.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AtomicFrameAt((ushort)address),
+                    "Atomic mechanics words, odd bytes and boundaries reject visual selection");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AtomicFrameAt(address),
+                "Atomic distant invalid visual operand");
+    }
+
     private static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         VerifyAtomicInitialProgramSelection(rom);
         VerifyAtomicMechanicsMapping(rom);
         VerifyAtomicPresentationAddresses();
+        VerifyAtomicVisualSelectors(rom);
         const int instructionTable = 0xa8e380;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -154,22 +174,8 @@ internal static partial class Program
                 process.Invoke(programSystem, arguments);
         }
 
-        for (int index = 0;
-             index < AtomicInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                AtomicInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadAtomicProgramWord(rom, address),
-                EnemySpritemapDefinitions.AtomicFrameAt(address),
-                $"compiled Atomic visual selector $A8:{address:X4} matches cartridge");
-        }
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids compiled Atomic mechanics and visual bytes");
-
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.AtomicFrameAt(0xe380),
-            "uncompiled Atomic visual selector fails loudly");
 
         _ = AtomicInstructionProgramDefinitions.ReadMechanicsWord(
             AtomicInstructionProgramDefinitions.UpRight);

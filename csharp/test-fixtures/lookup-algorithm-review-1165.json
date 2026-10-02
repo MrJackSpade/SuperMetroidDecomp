@@ -2780,6 +2780,18 @@
         ],
         "rationale": "These mappings are repeated executable instruction structure and semantic direction selection. No arbitrary numerical fit, generated lookup cache or performance exemption is involved.",
         "confirmation": "Verification build and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0, including the existing four initializer and four production instruction-loop checks with source reads forbidden.",
-        "remainingScope": "Atomic artwork and its visual selector mapping require independent dispositions. SPC pan, Fake Kraid launch heights and the broader repository review remain open; this slice is not ticket completion."
+        "remainingScope": "Atomic visual selection is subsequently resolved in atomicVisualSelectorReview; its artwork still requires an independent disposition. SPC pan, Fake Kraid launch heights and the broader repository review remain open; this slice is not ticket completion."
+    }
+,
+    "atomicVisualSelectorReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs:AtomicFrameAt",
+        "nativeIdentity": "24 visual operands in A8:E312..E37A; twelve spritemap records A8:E489..E586",
+        "domain": "Only six four-byte-spaced visual operand starts in each of four28-byte loops are accepted. Every other ushort throws InvalidDataException. The renderer resolver delegates Atomic selection to this mapping.",
+        "reviewedEvidence": "Read all four instruction lists and all twelve spritemaps in pinned bank_A8.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Up-right uses frames0..5, up-left6..B, down-left5..0 and down-rightB..6. Each spritemap contains a two-byte count plus five bytes per OAM entry. Both spirals have counts4,4,4,4,3,4, so record positions are22*frame minus5 after the shorter fifth record; total spiral size127 bytes. This explains the nonuniform final stride structurally, not by a fitted correction.",
+        "disposition": "Remove AtomicUpRightFrames and AtomicUpLeftFrames. Decode loop direction and frame ordinal from the operand address, reverse the two downward sequences, and calculate the selected native record identity from record lengths. No generated pointer cache.",
+        "rationale": "Frame identity follows explicit program traversal and serialized record sizes. OAM artwork is distinct from the address-selection mapping and receives no retention disposition in this review.",
+        "proof": "VerifyAtomicVisualSelectors uses an independent24-address fixture and original ROM operand values, then rejects all holes and odd bytes in and adjacent to the program span plus distant invalid addresses. Extracts the prior visual-value loop and invalid-pointer assertion from VerifyAtomicMovementDefinitions. Existing initializer and production loop checks continue to exercise dispatch with source reads forbidden.",
+        "confirmation": "Verification and ResourceAudit builds and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0. Updated the normalized-LF source hash in EnemyDisplayArtworkClosedContractDefinitions."
     }
 }

@@ -7,7 +7,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "7B073282CE479E5B5BBA16DB8190B6B94A45C439407B622999E85D7BDD95307E"),
-             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "20B76AA3C9B120CB549503ACEBD219E8EF525E4FC3149EBD9C1B69BCDD1C1968")],
+             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "C9251AC312AACB3F9609016A0E4F25F14B205B92DC00A9182B80FAB5214A1CA3")],
             "Load alone reaches the private constructor. Current input requires every compiled frame and binding; each binding selects an installed identity in the same bank. Historical inputs inherit complete private stock and replace only existing identities with validated art/bindings. Definition identities are exposed by read-only spans over private arrays; derived additions feed both loader admission and the audit's valid domain, while separate definition inventory checks their dependencies. Known unowned bank/pointer pairs stay findings. This is valid-domain resource availability, not arbitrary selector correctness, room binding, positioning, timing or pixels."),
         new("SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog", "installed-extended-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs", "2A8DCB47F4C1E1B16847B2B64259F04C85FC4C57A54DBF9608023B6E335F379D"),

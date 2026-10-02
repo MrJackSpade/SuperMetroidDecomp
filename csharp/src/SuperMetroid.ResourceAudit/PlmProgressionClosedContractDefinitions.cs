@@ -14,9 +14,9 @@ internal static class PlmProgressionClosedContractDefinitions
     [
         new("SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmTourianAccessVisualCatalog.cs", "25425BE6F49769178C84BF52689E3A3DCEBD414A0EE17EA98A014D47CEB74432"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmTourianAccessVisualCatalog.cs", "3F0707A0985A007399871B76F2F2457FD5FFCF379D4B8C88270D41B7012E79A5"),
              new("csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs", "D028AAE6CF0E45642BD9AFB3F0FDF3C78EEBF54DAC77C3DCD589826F518B5616")],
-            "The constructor requires all five unique known crumble/clear layouts with exact cloned flattened payloads. GetWord guards their native run/word shapes, including all six clear rows. Floor mutations and event timing are not certified."),
+            "The constructor validates all five unique known crumble/clear layouts and clones only frames differing from calculated stock. GetWord guards their native run/word shapes, including all six clear rows. Floor mutations and event timing are not certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog", "plm-speed-booster-complete-reveal", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "CC1CED1AA9404BD570E700E43D0426C8E17F3EC2D4482459E1487981E25DB8A7"),

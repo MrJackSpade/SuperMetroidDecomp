@@ -292,7 +292,7 @@
                        "interpretation":  "Signed little-endian stream-byte latency added with ushort wrap before signed test. First four entries retain native initial 128 inert frames.",
                        "reviewedEvidence":  "Read all eight words and $A5:A13E loop (X=0x3E down to 0x38, Y=X-0x38); compare actual API to all four reachable original signed cartridge words.",
                        "disposition":  "Remove latency array; return 128*(slot-35) after validating slots.",
-                       "rationale":  "Exact linear progression in stream-byte units. Following unused words do not extend domain. Packed trajectory is a separate unreviewed logical table.",
+                       "rationale":  "Exact linear progression in stream-byte units. Following unused words do not extend domain. Packed trajectory is separately resolved in draygonIntroTraceReview; latency proof does not establish that disposition.",
                        "proofTest":  "VerifyDraygonIntroLatencyDefinitions (existing proof reused)",
                        "implementationCommit":  "phase-integer-algorithms"
                    },
@@ -2709,5 +2709,38 @@
         "rationale": "The meaningful content here is the particular irregular order itself. A code recitation or fitted representation would disguise that content without expressing an additional functional rule. This is not retention for speed, size, complexity, the label authored, or lack of authoring-tool provenance.",
         "confirmation": "Read-only source audit compares all49 bytes to the SHA-verified ROM and verifies the complete0..48 permutation. No behavior changed. Existing VerifyCrocomireMeltingDefinitions native comparisons and production erase-sequence assertions remain intact; no new retain-only test or exploratory run added.",
         "remainingScope": "The independently computed chronological mask remains converted. SPC pan gain and Draygon intro movement remain unresolved in the reopened-work record. Other Crocomire/repository mappings retain separate scope."
+    }
+,
+    "draygonIntroTraceReview": {
+        "state": "retained drawing data with converted control selection",
+        "owner": "csharp/src/SuperMetroid.Core/Game/DraygonIntroDanceDefinitions.cs",
+        "implementationCommit": "Resolve with git log for DraygonIntroDanceDefinitions.cs",
+        "nativeIdentity": "A5:CE07..DF44 aligned records, DraygonFightIntroDanceData_KeikoLove; A5:A13E..A19D consumer",
+        "domain": "ResolveMovement accepts ushort offsets0000..113C divisible by4,1104 records. Original native records are signed byte pairs two bytes long, but the consumer advances by4. Two aligned8080 commands at0FB8/0FBC delete sprites. All1102 non-command results, including96 records after the commands, remain supported exactly. Reject unaligned/outside offsets with InvalidDataException.",
+        "consumers": ["RoomEnemySystem.RunDraygonIntroDance", "original-movement and full-intro verification"],
+        "reviewedEvidence": "Pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d labels the data KeikoLove and explains the four-byte stride. Full native consumer sign-extends each X/Y byte, adds it directly to sprite position and checks8080 deletion; latency is independently defined. Integrating the original aligned signed deltas, starting at0,0 and stopping at the first command, yields1007 points with extent(0,-21)..(394,72). A local source-data plot visibly spells handwritten Keiko Love, independently corroborating the symbol rather than relying on its name alone. No ROM-derived plot or payload is published.",
+        "tables": [
+            {
+                "id": "draygon-intro-traced-x-deltas",
+                "state": "retained",
+                "disposition": "Retain signed horizontal pen-path increments packed with Y. After removing command markers, packed entries0..1005 precede deletion and1006..1101 preserve the96 supported continuation records.",
+                "rationale": "The exact horizontal strokes and per-frame tracing rhythm are authored lettering content. Replacing the particular drawn glyphs with fitted coefficients or per-stroke numeric cases would encode the same arbitrary drawing rather than derive an engine rule."
+            },
+            {
+                "id": "draygon-intro-traced-y-deltas",
+                "state": "retained",
+                "disposition": "Retain signed vertical pen-path increments with the same exact stride, signedness and continuation domain.",
+                "rationale": "Vertical rises, descenders and individual loop shapes form the same specific handwritten artwork. They are not acceleration, gravity or an angular lookup. Re-expressing these strokes as a fitted spline or a correction sequence would merely change the drawing's encoding."
+            },
+            {
+                "id": "draygon-intro-delete-command-selection",
+                "state": "converted",
+                "disposition": "Remove both FF packed control entries and DeleteSentinel. After validating the original domain, select the two named native command offsets directly; return0,0,true. Ordinary records compute packed index as offset/4, subtracting two after the commands.",
+                "proof": "VerifyDraygonIntroDeleteSelection is extracted from the existing movement proof. It compares every1104 original native command decision, verifies exactly two commands and rejects unaligned command neighbors and outer bounds. Existing X/Y comparisons independently confirm every decoded coordinate before and after the compacted commands."
+            }
+        ],
+        "generationAssessment": "The reconstructed path establishes representational content: a particular handwritten phrase with connected strokes, differing loops and drawing cadence. Linear/quadratic motion, circular motion, trigonometric sampling or fixed-point interpolation could draw primitives, but selecting enough glyph-specific control points and timing to recite this exact path is a representation of its artwork, not a derivation of a physical or selection rule. Handwriting capture versus historical curve-editing provenance is not asserted and is not the retention reason. No claim that no conceivable mathematical encoding exists is made. Preserve the same artifact's supported post-delete continuation rather than dropping it for lack of normal visible use.",
+        "confirmation": "Verification build and --lookup-draygon-intro-commands pass against SHA-verified NTSC J/U v1.0. All1104 original X/Y outputs and delete decisions match, including the96-record continuation; unchanged bounds remain checked. Existing full-intro fixture delegates the same movement proof. No gameplay sweep or new retain-only test added.",
+        "remainingScope": "SPC pan gain remains pending in the reopened-work record. Other repository tables still need their independent dispositions; this does not complete1165."
     }
 }

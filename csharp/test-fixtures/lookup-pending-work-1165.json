@@ -1,6 +1,6 @@
 {
   "issue": 1165,
-  "status": "two pending mappings; Crocomire column order independently resolved as retained",
+  "status": "SPC pan gain pending; Crocomire shuffle and Draygon trace independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
@@ -21,8 +21,8 @@
       "id": "draygon-intro-movement",
       "owner": "csharp/src/SuperMetroid.Core/Game/DraygonIntroDanceDefinitions.cs",
       "nativeIdentity": "A5:CE07 DraygonFightIntroDanceData, aligned offsets 0000..113C",
-      "status": "pending",
-      "task": "Review and implement the movement trajectory mapping; latency is already converted. Retain only if impossible or semantically nonsensical, with fresh evidence."
+      "status": "retained drawing; converted delete commands",
+      "resolution": "Source-delta integration visibly traces handwritten Keiko Love, corroborating the native symbol. Preserve the particular drawn X/Y content; explicit delete commands replace packed sentinels. See draygonIntroTraceReview in lookup-algorithm-review-1165.json. Latency remains independently converted."
     }
   ]
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Compiled fixed timing definitions for Draygon's opening Evir dance.</summary>
+/// <summary>Compiled timing and traced movement for Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
     /// <summary>Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>.</summary>
@@ -21,15 +21,24 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// Last four-byte-aligned movement offset reachable by the four Evir actors during
-    /// the native 1,232-frame intro. Each packed byte stores signed X and Y deltas as
-    /// biased nibbles; <c>FF</c> is the cartridge's <c>80 80</c> delete sentinel. The
-    /// authored deltas occupy only -4 through +5, so the sentinel cannot collide.
+    /// the native 1,232-frame intro. Movement bytes pack signed X/Y as biased nibbles;
+    /// the cartridge's <c>80 80</c> delete commands are separate control cases.
+    /// Non-command deltas occupy only -4 through +5.
     /// </summary>
     public const ushort LastMovementStreamOffset = 0x113c;
 
-    private const byte DeleteSentinel = 0xff;
+    /// <summary>$A5:DDBF and $A5:DDC3 are the two aligned 8080 delete commands,
+    /// at offsets0FB8/0FBC from DraygonFightIntroDanceData_KeikoLove.</summary>
+    private const ushort FirstDeleteOffset = 0x0fb8;
 
-    /// <summary>Exact authored Evir movement script, packed as one byte per reachable record.</summary>
+    /// <summary>Signed X/Y deltas of the handwritten Keiko Love path, packed as biased nibbles.</summary>
+    /// <remarks>Independently reviewed for #1165: integrating the original aligned
+    /// deltas visibly traces the lettering named by the pinned disassembly. Retain this
+    /// drawing content under the nonsense exception: fitted splines, per-stroke corrections
+    /// or a numeric switch would encode the same particular letter shapes and pen timing.
+    /// This is not a sampled physical trajectory. The supported post-delete continuation
+    /// remains exact; the two delete commands themselves are decoded as control cases and
+    /// occupy no packed entries. See draygonIntroTraceReview in the #1165 inventory.</remarks>
     private const string PackedMovementHex =
         "B8B8B8B8B7A7A6A6A59596969898898A8A8A7B8B8B8C8C7C7C8D7C7C7D7C7C7B7B7B7B7A8989788787878685958584949484959595A59595A695A696A6A7B6B6" +
         "B6B6B6B6B7A7A7A8A8A8998A8A8B7B7B6B6B6B6B6B6A5A69696959596857575757667696A6B6C7B8B8B8AAAAAAAA9B9B9BAB9A9B9B9B9AAAAAAAAAA9A9B9B9B8" +
@@ -46,7 +55,7 @@ internal static class DraygonIntroDanceDefinitions
         "9787978787787989897979788989898989897989898A898A898A89998A8989899999989887978798979797878787879697878786968686878786878777777878" +
         "787879787979798989999898989898989898979897979797978797988989898A8989898A8A7A8A8A898989897989898989998998989898989897979787979697" +
         "86979796878787968786878787978789898989898989998999898999998999899998999998999999999998999899989898989797979797978787879787978787" +
-        "87878787778687868787777787877778787878897989898979797989897989898A898A8989898A89898999999989FFFF979797A7A79796A69796969695969696" +
+        "87878787778687868787777787877778787878897989898979797989897989898A898A8989898A89898999999989979797A7A79796A69796969695969696" +
         "95969595959585968777777879797A6A6B6A6B6A7B7C7B7B8B8B8B8B9B8A9B9A9A9AA9A9A9A898A797A797A7A6A6A69596959595848585858575867666766677" +
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
 
@@ -69,9 +78,11 @@ internal static class DraygonIntroDanceDefinitions
     }
 
     /// <summary>
-    /// Resolves one normally reachable, four-byte-aligned Evir movement record from the
+    /// Resolves one supported, four-byte-aligned Evir movement record from the
     /// compiled <c>$A5:CE07-$A5:DF44</c> trajectory. The native 1,232-frame owner can
-    /// select exactly these 1,104 records after applying the four sprite latencies.
+    /// address these 1,104 records after applying the four sprite latencies; active
+    /// sprites stop consuming movement at the first delete command. Preserve the full
+    /// existing decoder domain, including its post-delete continuation.
     /// A restored index outside that domain is corrupt state, not permission to interpret
     /// adjacent executable or presentation bytes as signed movement.
     /// </summary>
@@ -84,9 +95,12 @@ internal static class DraygonIntroDanceDefinitions
                 "four-byte-aligned retail trajectory.");
         }
 
-        byte packed = PackedMovement[streamOffset / 4];
-        if (packed == DeleteSentinel)
+        if (streamOffset is FirstDeleteOffset or FirstDeleteOffset + StreamIndexAdvance)
             return new DraygonIntroMovement(0, 0, DeletesSprite: true);
+
+        int index = streamOffset / StreamIndexAdvance;
+        if (streamOffset > FirstDeleteOffset) index -= 2;
+        byte packed = PackedMovement[index];
 
         return new DraygonIntroMovement(
             unchecked((sbyte)((packed >> 4) - 8)),

@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-draygon-intro-commands"])
+{
+    var danceOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(danceOracle.Rom)),
+        "Draygon intro oracle is NTSC J/U v1.0");
+    VerifyDraygonIntroMovementDefinitions(danceOracle);
+    Console.WriteLine("Draygon intro: explicit delete selection and all 1104 original X/Y results and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-kraid-draws"])
 {
     var drawOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

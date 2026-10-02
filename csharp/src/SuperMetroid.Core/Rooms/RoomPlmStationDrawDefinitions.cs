@@ -37,7 +37,6 @@ internal static class RoomPlmStationDrawDefinitions
 
     private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-    private static readonly Dictionary<ushort, string> VisualIds = BuildVisualIds();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
 
@@ -45,48 +44,49 @@ internal static class RoomPlmStationDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
-    internal static string VisualId(ushort pointer) =>
-        VisualIds.TryGetValue(pointer, out string? id)
-            ? id
-            : throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID.");
+    /// <summary>
+    /// Published ordinal artwork IDs: three numbered frames per map/resource
+    /// station, and named save/access states. These are identity selections,
+    /// independent of the physical words. Only complete native lists have IDs.
+    /// </summary>
+    internal static string VisualId(ushort pointer)
+    {
+        for (int frame = 0; frame < 3; frame++)
+        {
+            if (pointer == MapFirst + frame * 12) return $"map-frame-{frame}";
+            if (pointer == EnergyFirst + frame * 12) return $"energy-frame-{frame}";
+            if (pointer == MissileFirst + frame * 12) return $"missile-frame-{frame}";
+        }
+        return pointer switch
+        {
+            SaveIdle => "save-idle",
+            SaveActive => "save-active-a",
+            SaveAlternate => "save-active-b",
+            MapRightRetracted => "map-right-retracted",
+            MapRightExtended => "map-right-extended",
+            MapLeftRetracted => "map-left-retracted",
+            MapLeftExtended => "map-left-extended",
+            ResourceRightRetracted => "resource-right-retracted",
+            ResourceRightExtended => "resource-right-extended",
+            ResourceLeftRetracted => "resource-left-retracted",
+            ResourceLeftExtended => "resource-left-extended",
+            _ => throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID."),
+        };
+    }
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach ((ushort pointer, string candidate) in VisualIds)
+        foreach (var candidate in All)
         {
-            if (string.Equals(id, candidate, StringComparison.Ordinal))
-                return Lists.TryGetValue(pointer, out list);
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
         }
-
         list = default;
         return false;
-    }
-
-    private static Dictionary<ushort, string> BuildVisualIds()
-    {
-        var ids = new Dictionary<ushort, string>();
-        for (int frame = 0; frame < 3; frame++)
-        {
-            ids.Add(checked((ushort)(MapFirst + frame * 12)), $"map-frame-{frame}");
-            ids.Add(checked((ushort)(EnergyFirst + frame * 12)), $"energy-frame-{frame}");
-            ids.Add(checked((ushort)(MissileFirst + frame * 12)), $"missile-frame-{frame}");
-        }
-
-        ids.Add(SaveIdle, "save-idle");
-        ids.Add(SaveActive, "save-active-a");
-        ids.Add(SaveAlternate, "save-active-b");
-        ids.Add(MapRightRetracted, "map-right-retracted");
-        ids.Add(MapRightExtended, "map-right-extended");
-        ids.Add(MapLeftRetracted, "map-left-retracted");
-        ids.Add(MapLeftExtended, "map-left-extended");
-        ids.Add(ResourceRightRetracted, "resource-right-retracted");
-        ids.Add(ResourceRightExtended, "resource-right-extended");
-        ids.Add(ResourceLeftRetracted, "resource-left-retracted");
-        ids.Add(ResourceLeftExtended, "resource-left-extended");
-        if (ids.Count != Lists.Count)
-            throw new InvalidDataException("Station visual IDs do not cover all draw lists.");
-        return ids;
     }
 
     private static Dictionary<ushort,

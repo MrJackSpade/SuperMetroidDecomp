@@ -4530,4 +4530,14 @@
     "confirmation":"Verification and ResourceAudit builds and --station-animation-programs pass both field proofs, existing twenty physical-list checks, access-selection proofs, real population/station/save-animation fixture and stock/custom/installed artwork checks. Old combined frame comparison consolidated. Focused command moved before unrelated suites and pins supported ROM SHA256; shared draw-constant source pin updated.",
     "scope":"Complete station timed-frame duration and draw-pointer mappings. No retention exception. Physical/artwork mappings and wider maintained-source audit remain active."
   }
+,
+  "stationVisualIdentityReview": {
+    "status":"converted: generated twenty-entry visual-ID dictionary removed",
+    "source":"Original published identity mapping in RoomPlmStationDrawDefinitions at e5f39739caae93e9e6f0a924317363d907158eb9. This is an exported application naming contract, not a cartridge string table. Read ID factory, reverse selector, visual catalog, extraction/validation and content-identity consumers; native physical ownership remains checked by the station suite.",
+    "algorithm":"Three numbered frames per map/energy/missile family use named first-pointer plus twelve-byte stride. Save states and map/resource access side/phase use explicit named cases. Reverse lookup compares ordinal names against owned draw identities without a stored or generated name cache.",
+    "domain":"Exactly twenty original pointers and names, original enumeration order preserved. All other ushort pointers throw InvalidDataException. Unknown, null, case-changed, padded and unsupported numbered IDs remain rejected with a default draw output.",
+    "proof":"VerifyStationVisualIds uses an independent literal copy of the original exported pointer/name contract, checks all twenty forward/reverse mappings and exact draw selections, all unsupported ushort pointers, ordinal and malformed-name rejection, null behavior and export order.",
+    "confirmation":"Verification and ResourceAudit builds plus --station-animation-programs pass the ID proof, existing native program/layout/access checks and production station/save/custom/installed-artwork fixtures. Presentation source pin updated.",
+    "scope":"Complete exported station artwork identity mapping. No retention exception. Separate physical layouts and stock artwork remain audit work; wider maintained-source audit remains active."
+  }
 }

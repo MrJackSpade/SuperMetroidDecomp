@@ -179,40 +179,12 @@ internal static partial class Program
 
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (ColoredDoorPlmProgramDefinitions.YellowStart,
-                ColoredDoorPlmProgramDefinitions.YellowEnd),
-            (ColoredDoorPlmProgramDefinitions.GreenStart,
-                ColoredDoorPlmProgramDefinitions.GreenEnd),
-            (ColoredDoorPlmProgramDefinitions.RedStart,
-                ColoredDoorPlmProgramDefinitions.RedEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                    $"colored-door program claims byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"colored-door program byte $84:{address:X4} matches ROM");
-                if (address == last)
-                    continue;
-                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                    $"colored-door program claims word $84:{address:X4}");
-                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8);
-                AssertEqual(native, compiledWord,
-                    $"colored-door program word $84:{address:X4} matches ROM");
-            }
-        }
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffc, out _),
-            "colored-door program does not claim preceding grey-door byte");
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc489, out _),
-            "colored-door program does not claim following blue-door byte");
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc184, out _),
-            "yellow list refuses a word crossing into the green list");
+        VerifyColoredProgramControls(rom);
+        VerifyColoredProgramDraws(rom);
+        VerifyColoredProgramTargets(rom);
+        VerifyColoredProgramSounds(rom);
+        VerifyColoredProgramHitCount(rom);
+        VerifyColoredProgramCallback(rom);
     }
 
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)

@@ -3599,4 +3599,14 @@
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass all three complete address-domain proofs, all 24 collision/bomb/power-bomb production timelines with source reads forbidden, and existing linked-visual and crumble checks.",
     "scope": "Bomb program descriptors and control/draw/sound readers only. Existing partial native assertions were consolidated into three complete independent logical proofs; no retention exception claimed."
   }
+,
+  "bombedRevealProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:C8EC..C903 and 84:C91C..C927; pinned bank_84.asm",
+    "descriptor": "Remove six stored Start/Draw pairs. Decode bounded six-byte records in the four crumble and two gated-weapon regions. Explicitly exclude the intervening C904..C91B unused bomb-reveal programs and reject odd addresses.",
+    "controls": {"algorithm": "Each supported record draws for one tick and then deletes; calculate field offset within its bounded region.", "proof": "VerifyBombedRevealControlMapping independently lists twelve original controls and six operands, checks the full ushort accepted/rejected word domain and cleared missing outputs, then compares every native control and its shared RoomPlmProgramDefinitions consumer result."},
+    "drawOperands": {"algorithm": "Named program cases select single/horizontal/vertical/square crumble or the Power Bomb/Super Missile reveal draw. No array or generated cache remains.", "proof": "VerifyBombedRevealDrawMapping independently lists all six original operand addresses and compares native values through both direct and shared program readers. The shared address-ownership contract is covered by the control proof."},
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass both reveal proofs through direct/shared readers and the existing bomb/crumble/linked-visual fixtures.",
+    "scope": "Six reveal programs and their controls/draw selection only. Separate reveal draw definitions and other program families still require independent review; no retention exception claimed."
+  }
 }

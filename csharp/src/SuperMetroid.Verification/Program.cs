@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--recharge-station-admission"])
+{
+    VerifyRechargeStationAdmission();
+    return 0;
+}
 if (args is ["--ridley-missed-lunge"])
 {
     VerifyRidleyMissedLunge();

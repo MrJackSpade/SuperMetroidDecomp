@@ -390,6 +390,20 @@ public sealed partial class RoomPlmSystem
                 (slot.Station.Kind != StationKind.Save ||
                     (slot.Station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
             {
+                // Recharge setup rejects an already-full resource before command six
+                // takes control. Rejecting it later leaves a locked Samus with no access
+                // animation running to release her. Collision itself remains solid.
+                if (slot.Station.Kind is StationKind.Energy or StationKind.Missile)
+                {
+                    SamusState samus = _collectibleSamus?.Invoke()
+                        ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
+                    if (slot.Station.Kind == StationKind.Energy
+                        ? samus.Health == samus.MaxHealth
+                        : samus.Missiles == samus.MaxMissiles)
+                    {
+                        return true;
+                    }
+                }
                 slot.Station.Triggered = true;
                 slot.Station.AccessBlockIndex = accessBlockIndex;
                 slot.Station.AccessBehavior = access;
@@ -447,11 +461,19 @@ public sealed partial class RoomPlmSystem
             {
                 StationKind.Map => !(_collectibleSystem ?? throw new InvalidOperationException(
                     "Map station has no bank-$80 state owner.")).HasAreaMap(station.AreaIndex),
-                StationKind.Energy => samus.Health < samus.MaxHealth,
-                StationKind.Missile => samus.Missiles < samus.MaxMissiles,
+                StationKind.Energy => samus.Health != samus.MaxHealth,
+                StationKind.Missile => samus.Missiles != samus.MaxMissiles,
                 StationKind.Save => true,
                 _ => throw new InvalidDataException($"Unknown station kind {station.Kind}."),
             };
+            if (!canActivate && station.Kind is StationKind.Energy or StationKind.Missile)
+            {
+                // The access-list full-resource branch runs command one before deleting
+                // itself. A refill between setup and this pass must release control too.
+                samus.InputLocked = false;
+                station.AccessBlockIndex = -1;
+                station.AccessBehavior = null;
+            }
             if (canActivate && station.Kind == StationKind.Save)
             {
                 station.SavePhase = SaveStationPhase.AwaitingConfirmation;

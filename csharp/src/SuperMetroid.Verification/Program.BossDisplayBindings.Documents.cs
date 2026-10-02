@@ -66,7 +66,7 @@ internal static partial class Program
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 
-        private static EnemyBg2FrameDocument Bg2(ReadOnlySpan<EnemyBg2FrameDefinition> definitions, bool edited) => new()
+        private static EnemyBg2FrameDocument Bg2(EnemyBg2FrameDefinitionSequence definitions, bool edited) => new()
         {
             Version = 1,
             Frames = definitions.ToArray().Select((frame, index) => KeyValuePair.Create(frame.Name,

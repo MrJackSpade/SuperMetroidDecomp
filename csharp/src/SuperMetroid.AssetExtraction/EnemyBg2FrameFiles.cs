@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction;
 internal static class EnemyBg2FrameFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
-        ReadOnlySpan<EnemyBg2FrameDefinition> definitions, int version,
+        EnemyBg2FrameDefinitionSequence definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
     {
         ArgumentNullException.ThrowIfNull(bus);

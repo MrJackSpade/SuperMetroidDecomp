@@ -87,7 +87,7 @@ internal static partial class Program
         }
         public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
 
-        private MemoryStream Bg2(string family, ReadOnlySpan<EnemyBg2FrameDefinition> definitions)
+        private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);
             var frames = definitions.ToArray().Select((frame, index) =>

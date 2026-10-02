@@ -1651,6 +1651,28 @@
     "proofTest":  "VerifyCrocomireBodyFrameGeometry (extracts original frame-set assertion from installed-body visual proof)",
     "confirmation":  "All fifty native selected roots in order, their native component counts, indexed/foreach/materialized enumeration, all 65,536 BG2-membership selectors and invalid index boundaries.",
     "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-body-frames",
-    "remainingRelatedScope":  "CrocomireBg2FrameDefinitions stores a derived pointer/name catalog; that separately owned catalog and CrocomireBodyCollisionDefinitions remain unreviewed. This disposition covers the body root enumeration and its HasBg2 view only."
+    "remainingRelatedScope":  "The derived BG2 pointer/name catalog is reviewed separately under crocomire-bg2-named-frame-catalog. CrocomireBodyCollisionDefinitions remains unreviewed. This disposition covers body root enumeration and its HasBg2 view only."
+},
+    "crocomireBg2CatalogReview": {
+    "id":  "crocomire-bg2-named-frame-catalog",
+    "state":  "converted",
+    "owner":  "csharp/src/SuperMetroid.Core/Assets/CrocomireBg2FrameDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate Crocomire BG2 catalog entries without lookup storage for #1165\"",
+                                 "subject":  "Generate Crocomire BG2 catalog entries without lookup storage for #1165"
+                             },
+    "nativeIdentity":  "Forty-two selected mixed OAM/BG2 body roots, exposed under published crocomire_body_bg2_XXXX artwork names",
+    "consumers":  [
+                      "CrocomireBg2FrameFiles",
+                      "CrocomireBg2FrameCatalog",
+                      "boss display/content identity fixtures"
+                  ],
+    "domain":  "Indices 0..41 with IndexOutOfRangeException outside; exact ordinal artwork keys and selected pointer order.",
+    "reviewedEvidence":  "Current cached definition construction and all loader/extractor/fixture consumers; native roots independently selected from SHA-verified NTSC J/U v1.0 instruction operands. Existing reviewed body geometry supplies the bounded root calculation.",
+    "disposition":  "Remove static Definitions array and LINQ materialization. Generate pointer/name records by bounded index. Shared BG2 APIs accept a span or generator-backed indexed sequence, consuming entries directly without a replacement generated cache.",
+    "rationale":  "Each key is the fixed published prefix followed by the selected pointer in uppercase four-digit hexadecimal; the mixed-frame domain is the first forty-two body roots.",
+    "proofTest":  "VerifyCrocomireBg2GeneratedCatalog",
+    "confirmation":  "All forty-two native pointer/name pairs, generated sequence materialization and bounds; exact JSON extraction comparison between independent ROM-derived definitions and generated catalog; load every extracted frame through production Crocomire catalog.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-bg2-catalog"
 }
 }

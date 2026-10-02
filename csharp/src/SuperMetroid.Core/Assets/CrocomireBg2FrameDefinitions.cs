@@ -11,12 +11,16 @@ internal static class CrocomireBg2FrameDefinitions
     internal const string FileName = "crocomire-bg2-frames.json";
     internal const byte Bank = CrocomireBodyVisualDefinitions.Bank;
 
-    private static readonly EnemyBg2FrameDefinition[] Definitions =
-        CrocomireBodyVisualDefinitions.Frames.ToArray()
-            .Where(CrocomireBodyVisualDefinitions.HasBg2)
-            .Select(pointer => new EnemyBg2FrameDefinition(pointer,
-                $"crocomire_body_bg2_{pointer:X4}"))
-            .ToArray();
+    internal static EnemyBg2FrameDefinitionSequence Frames =>
+        new(CrocomireBodyVisualDefinitions.MixedBg2FrameCount, Frame);
 
-    internal static ReadOnlySpan<EnemyBg2FrameDefinition> Frames => Definitions;
+    /// <summary>The first 42 selected body roots have BG2 components. Preserve
+    /// their published artwork keys with an uppercase four-digit native pointer.</summary>
+    internal static EnemyBg2FrameDefinition Frame(int index)
+    {
+        if ((uint)index >= CrocomireBodyVisualDefinitions.MixedBg2FrameCount)
+            throw new IndexOutOfRangeException();
+        ushort pointer = CrocomireBodyVisualDefinitions.FramePointer(index);
+        return new(pointer, $"crocomire_body_bg2_{pointer:X4}");
+    }
 }

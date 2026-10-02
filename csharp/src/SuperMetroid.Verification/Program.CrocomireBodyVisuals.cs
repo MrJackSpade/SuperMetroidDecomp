@@ -38,6 +38,40 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
+    private static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
+    {
+        var pointers = new SortedSet<ushort>();
+        for (int i = 0; i < CrocomireInstructionProgramDefinitions.PresentationWordCount; i++)
+        {
+            int operand = CrocomireInstructionProgramDefinitions.PresentationWordAddress(i);
+            ushort pointer = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
+            if (pointer < 0xca7e) pointers.Add(pointer);
+        }
+        EnemyBg2FrameDefinition[] expected = pointers.Select(pointer =>
+            new EnemyBg2FrameDefinition(pointer, $"crocomire_body_bg2_{pointer:X4}")).ToArray();
+        AssertEqual(42, expected.Length, "native Crocomire BG2 catalog size");
+        AssertEqual(expected.Length, CrocomireBg2FrameDefinitions.Frames.Length, "generated BG2 definition count");
+        for (int i = 0; i < expected.Length; i++)
+            AssertEqual(expected[i], CrocomireBg2FrameDefinitions.Frame(i), "native BG2 pointer and published artwork name");
+        AssertTrue(expected.SequenceEqual(CrocomireBg2FrameDefinitions.Frames.ToArray()), "BG2 sequence materialization");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(-1), "negative BG2 definition");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(42), "BG2 definition past end");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[-1], "negative generated sequence index");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[42], "generated sequence index past end");
+
+        // Confirm the changed generator boundary through the real extractor and
+        // loader, using original-ROM-derived definitions through the span path.
+        byte[] expectedJson = EnemyBg2FrameFiles.Extract(rom, 0xa4, expected, 1,
+            EnemyBg2FrameLayout.MaximumComponents, "Crocomire", allowMixedOam: true);
+        byte[] generatedJson = CrocomireBg2FrameFiles.Extract(rom);
+        AssertTrue(expectedJson.SequenceEqual(generatedJson), "generated catalog preserves exact extracted JSON");
+        using var input = new MemoryStream(generatedJson, writable: false);
+        var loaded = CrocomireBg2FrameCatalog.Load(input);
+        foreach (var frame in expected)
+            AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
+                "generated catalog loads every native BG2 stream by its published key");
+        AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
+    }
     private static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)

@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-crocomire-bg2-catalog"])
+{
+    var catalogOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(catalogOracle.Rom)),
+        "Crocomire BG2 catalog oracle is NTSC J/U v1.0");
+    VerifyCrocomireBg2GeneratedCatalog(catalogOracle);
+    Console.WriteLine("Crocomire BG2 catalog: 42 native identities/names, exact extracted JSON, loading and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-crocomire-body-frames"])
 {
     var bodyOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

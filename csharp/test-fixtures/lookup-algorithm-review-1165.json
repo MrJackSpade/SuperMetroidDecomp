@@ -3236,4 +3236,14 @@
     "confirmation": "Verification build and --lookup-beetom-programs confirm real initialization and all six production crawl/hop/drain programs, including offscreen-property changes, sleep and loop behavior with original mechanics reads forbidden.",
     "scope": "Used instruction control and presentation operand positions only. Shared visual-pointer literals, unused program content, AI dispatch, artwork and other Beetom mappings remain separate review obligations. No retention exception claimed."
   }
+,
+  "beetomVisualSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A8:B696-B74D used programs; BED3-C142 sprite maps; pinned bank_A8.asm",
+    "disposition": "Removed 32 shared literal pointers. Crawl and both drain phases use forward-and-return three-pose cycles. Hop uses first/second/first/crawl poses. Each facing has eight five-entry maps (27 bytes each) followed by three six-entry maps (32 bytes each), yielding 312 bytes per facing. FrameAt computes the selected pose and its record offset directly, with no lookup cache.",
+    "proof": "VerifyBeetomVisualSelectors independently compares all 32 original operands, all 22 native sprite counts, shared lookup and generator exclusion, local holes including unused small-hop programs, missing outputs and distant invalid operands.",
+    "sharedCatalog": "Calculated enumeration places Beetom between Fune/Namihe and Alcoon in bank A8. ResourceAudit identifies EnemySpritemapDefinitions.BeetomFrameAt as the source; its normalized source pin is updated.",
+    "confirmation": "Verification and ResourceAudit builds pass; --lookup-beetom-programs checks all six production programs and the complete 5069-entry shared selector ordering/value/lookup/bounds contract.",
+    "scope": "Used visual-pointer mapping only. Export identity fields, artwork, unused programs and other Beetom mappings remain separate review obligations; no retention exception claimed."
+  }
 }

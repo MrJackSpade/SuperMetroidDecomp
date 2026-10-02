@@ -79,7 +79,7 @@ internal static class DefinitionAudit
             : bank == 0xa2 ? VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address) ? "KamerPlatformFrameAt" : "BoyonFrameAt"
             : bank == 0xa3 ? "ElevatorFrameAt" : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
-            : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
+            : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BeetomFrameAt" : "AtomicFrameAt";
         string relative = calculated
             ? platform ? "csharp/src/SuperMetroid.Core/Assets/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"

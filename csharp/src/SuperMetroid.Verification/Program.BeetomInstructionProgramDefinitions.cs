@@ -18,6 +18,7 @@ internal static partial class Program
             BindingFlags.NonPublic;
         VerifyBeetomMechanicsMapping(rom);
         VerifyBeetomPresentationMapping();
+        VerifyBeetomVisualSelectors(rom);
 
         var guard = new BeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -176,6 +177,36 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitions.MechanicsWord(index), "Beetom mechanics ordinal bounds");
     }
 
+    private static void VerifyBeetomVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
+            0xb6ce,0xb6d2,0xb6d6,0xb6da,0xb6e0,0xb6e4,0xb6e8,0xb6ec,
+            0xb6f6,0xb6fa,0xb6fe,0xb702,0xb70c,0xb710,0xb714,0xb718,
+            0xb72a,0xb72e,0xb732,0xb736,0xb73c,0xb740,0xb744,0xb748];
+        foreach (ushort operand in operands)
+        {
+            ushort expected = ReadBeetomInstructionWord(rom, operand);
+            AssertEqual(expected, EnemySpritemapDefinitions.BeetomFrameAt(operand), "Beetom native visual pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, operand, out ushort shared), "Beetom shared selector found");
+            AssertEqual(expected, shared, "Beetom shared selector value");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa80000 | operand), "Beetom excluded from literal regeneration");
+        }
+        foreach (ushort pointer in new ushort[] {0xbed3,0xbeee,0xbf09,0xbf24,0xbf3f,0xbf5a,0xbf75,0xbf90,
+            0xc00b,0xc026,0xc041,0xc05c,0xc077,0xc092,0xc0ad,0xc0c8})
+            AssertEqual((ushort)5, ReadBeetomInstructionWord(rom, pointer), "Beetom five-entry native map");
+        foreach (ushort pointer in new ushort[] {0xbfab,0xbfcb,0xbfeb,0xc0e3,0xc103,0xc123})
+            AssertEqual((ushort)6, ReadBeetomInstructionWord(rom, pointer), "Beetom six-entry native map");
+        var known = operands.ToHashSet();
+        for (int address = 0xb694; address <= 0xb750; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt((ushort)address), "Beetom visual resolver rejects controls, small-hop gaps and adjacent data");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing), "Beetom shared holes rejected");
+                AssertEqual((ushort)0, missing, "Beetom missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt(address), "Beetom distant invalid operand");
+    }
     private static void VerifyBeetomPresentationMapping()
     {
         ushort[] expected = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,

@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -135,6 +135,12 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa80000 | operand, EnemySpritemapDefinitions.FuneNamiheFrameAt(operand));
         }
         index -= FuneNamiheInstructionProgramDefinitions.PresentationWordCount;
+        if (index < BeetomInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = BeetomInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa80000 | operand, EnemySpritemapDefinitions.BeetomFrameAt(operand));
+        }
+        index -= BeetomInstructionProgramDefinitions.PresentationWordCount;
         if (index < AlcoonInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = AlcoonInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -153,7 +159,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+        0xa8 => BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
@@ -180,6 +186,8 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
+                    : BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                    ? EnemySpritemapDefinitions.BeetomFrameAt(operandAddress)
                     : EnemySpritemapDefinitions.AtomicFrameAt(operandAddress),
             };
             return true;

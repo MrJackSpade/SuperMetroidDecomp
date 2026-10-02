@@ -1078,10 +1078,33 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort BeetomFrameAt(ushort operandAddress)
     {
-        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(BeetomBank, operandAddress,
-                out ushort frame))
-            return frame;
+        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int stride = BeetomInstructionProgramDefinitions.CrawlingRight - BeetomInstructionProgramDefinitions.CrawlingLeft;
+            int offset = operandAddress - BeetomInstructionProgramDefinitions.CrawlingLeft;
+            int local = offset % stride;
+            int pose;
+            if (local < BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            {
+                int frame = (local - 4) / 4;
+                pose = 2 - Math.Abs(2 - frame);
+            }
+            else if (local < BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            {
+                int frame = (local - (BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft) - 4) / 4;
+                pose = frame == 3 ? 0 : 4 - Math.Abs(1 - frame);
+            }
+            else
+            {
+                int drain = local - (BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft);
+                bool loop = drain >= 20;
+                int frame = (drain - (loop ? 20 : 2)) / 4;
+                pose = (loop ? 8 : 5) + 2 - Math.Abs(2 - frame);
+            }
+            // Each facing owns eight five-entry maps (27 bytes) then three six-entry
+            // maps (32 bytes). Account for the extra entry only after the eighth map.
+            return (ushort)(0xbed3 + 312 * (offset / stride) + 27 * pose + 5 * Math.Max(0, pose - 8));
+        }
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
     }

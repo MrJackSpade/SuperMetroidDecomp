@@ -3394,4 +3394,13 @@
     "confirmation": "Verification build and --lookup-botwoon-head-programs run all eight movement, hidden and eight spit programs through production, confirming radius installation, spit flag/sound and sleep with original mechanics reads forbidden.",
     "scope": "Head program controls and visual-operand positions only. Radius callback behavior, visual pointer values, program-selection tables, body/projectile programs and artwork require their own review; no retention exception claimed."
   }
+,
+  "botwoonHeadVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 B3:9341-942E head programs and B3:E31D-E420 OAM records; pinned bank_B3.asm",
+    "disposition": "Removed 25 shared literal sprite pointers. Closed head records contain two OAM pieces and occupy twelve bytes. Open-mouth records add one five-byte piece for diagonal directions; derive the pointer from the direction and preceding diagonal records, including the unused physical direction slot. Hidden head selects the shared empty map. No lookup cache.",
+    "proof": "VerifyBotwoonVisualMapping independently checks all 25 native operands, all relevant two-/three-piece native record counts including unused records, the empty hidden map, shared lookup and generator exclusion, all local holes and distant invalid operands. Sixteen exported pointers, bank, order and asset names remain exact.",
+    "confirmation": "Verification and ResourceAudit builds pass. --lookup-botwoon-head-programs confirms seventeen production head programs and the complete 5069-entry shared selector contract.",
+    "scope": "Head visual pointers only. Head/body program selection, radius behavior, body/projectile programs and artwork remain independent review work; no retention exception claimed."
+  }
 }

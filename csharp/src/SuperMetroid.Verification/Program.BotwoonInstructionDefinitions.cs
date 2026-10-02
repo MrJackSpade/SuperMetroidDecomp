@@ -140,6 +140,7 @@ internal static partial class Program
 
         VerifyBotwoonControlMapping(rom);
         VerifyBotwoonOperandMapping();
+        VerifyBotwoonVisualMapping(rom);
         var guard = new BotwoonInstructionReadGuard(rom);
         ushort[] movementPrograms =
         [
@@ -248,7 +249,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Botwoon head instruction mechanics: 74 compiled words, all seventeen " +
-            "selector-reachable programs and 25 live spritemap reads pass with mechanics " +
+            "selector-reachable programs and 25 calculated spritemap selectors pass with mechanics " +
             "bytes forbidden.");
 
         static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State)
@@ -378,6 +379,48 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,74,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitions.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
     }
+    private static void VerifyBotwoonVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,
+            0x93a1,0x93ab,0x93b1,0x93bb,0x93c1,0x93cb,0x93e1,0x93eb,0x93f1,0x93fb,
+            0x9401,0x940b,0x9411,0x941b,0x9421,0x942b];
+        foreach (ushort operand in operands)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb30000 | operand);
+            AssertEqual(native, BotwoonVisualDefinitions.FrameAt(operand), "Botwoon native head sprite selector");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xb3, operand, out ushort shared), "Botwoon shared selector found");
+            AssertEqual(native, shared, "Botwoon shared native sprite pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xb30000 | operand), "Botwoon excluded from literal regeneration");
+        }
+        // Include the unused records that still occupy space between live maps.
+        foreach (ushort pointer in new ushort[] {0xe31d,0xe329,0xe335,0xe341,0xe34d,0xe359,0xe365,0xe371,0xe37d,0xe389,
+            0xe395,0xe3b2,0xe3cf,0xe3db,0xe3f8,0xe415})
+            AssertEqual((ushort)2, ReadBotwoonInstructionWord(rom, 0xb30000 | pointer), "Botwoon two-piece native map");
+        foreach (ushort pointer in new ushort[] {0xe3a1,0xe3be,0xe3e7,0xe404})
+            AssertEqual((ushort)3, ReadBotwoonInstructionWord(rom, 0xb30000 | pointer), "Botwoon diagonal open-mouth third piece");
+        AssertEqual((ushort)0, ReadBotwoonInstructionWord(rom, 0xb3804d), "Botwoon hidden empty map");
+        ushort[] exports = [0xe329,0xe335,0xe341,0xe359,0xe365,0xe371,0xe37d,0xe389,
+            0xe3a1,0xe3b2,0xe3be,0xe3db,0xe3e7,0xe3f8,0xe404,0xe415];
+        var frames = BotwoonVisualDefinitions.Frames();
+        AssertEqual(exports.Length, frames.Length, "Botwoon export count");
+        for (int i = 0; i < exports.Length; i++)
+        {
+            AssertEqual(exports[i], frames[i].Pointer, "Botwoon export order and pointer");
+            AssertEqual((byte)0xb3, frames[i].Bank, "Botwoon export bank");
+            AssertEqual($"botwoon_head_{i:D2}", frames[i].Name, "Botwoon stable export identity");
+        }
+        var known = operands.ToHashSet();
+        for (int address = 0x933f; address <= 0x9431; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => BotwoonVisualDefinitions.FrameAt((ushort)address), "Botwoon controls and unused gaps rejected as visuals");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xb3, (ushort)address, out ushort missing), "Botwoon shared visual hole");
+                AssertEqual((ushort)0, missing, "Botwoon missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => BotwoonVisualDefinitions.FrameAt(address), "Botwoon distant invalid visual");
+    }
+
     private static void VerifyBotwoonOperandMapping()
     {
         ushort[] expected = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,

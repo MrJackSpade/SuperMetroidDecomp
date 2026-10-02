@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => BotwoonInstructionProgramDefinitions.PresentationWordCount + BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -165,8 +165,14 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa80000 | operand, EnemySpritemapDefinitions.AtomicFrameAt(operand));
         }
         index -= AtomicInstructionProgramDefinitions.PresentationWordCount;
-        ushort faceOperand = BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index);
-        return new(0xa80000 | faceOperand, BlueBrinstarFaceBlockVisualDefinitions.FrameAt(faceOperand));
+        if (index < BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa80000 | operand, BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operand));
+        }
+        index -= BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount;
+        ushort botwoonOperand = BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
+        return new(0xb30000 | botwoonOperand, BotwoonVisualDefinitions.FrameAt(botwoonOperand));
     }
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
@@ -179,6 +185,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0xb3 => BotwoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
@@ -204,6 +211,7 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
                 0xa7 => KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
+                0xb3 => BotwoonVisualDefinitions.FrameAt(operandAddress),
                 _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)

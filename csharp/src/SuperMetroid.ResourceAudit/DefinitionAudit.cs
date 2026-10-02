@@ -74,15 +74,16 @@ internal static class DefinitionAudit
         bool boulder = calculated && bank == 0xa6 && BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool kraidFamily = calculated && !boulder && bank is 0xa6 or 0xa7;
         bool shutter = calculated && bank == 0xa2 && ShutterVisualDefinitions.IsPresentationWord((ushort)address);
+        bool botwoon = calculated && bank == 0xb3;
         bool faceBlock = calculated && bank == 0xa8 && BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool platform = calculated && bank == 0xa3 && PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address);
-        string calculatedMethod = faceBlock ? "FrameAt" : platform ? "FrameAt" : shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoDroolFrameAt" : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoStatueFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
+        string calculatedMethod = botwoon ? "FrameAt" : faceBlock ? "FrameAt" : platform ? "FrameAt" : shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoDroolFrameAt" : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoStatueFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : bank == 0xa2 ? VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address) ? "KamerPlatformFrameAt" : "BoyonFrameAt"
             : bank == 0xa3 ? "ElevatorFrameAt" : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BeetomFrameAt" : "AtomicFrameAt";
         string relative = calculated
-            ? faceBlock ? "csharp/src/SuperMetroid.Core/Assets/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Assets/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
+            ? botwoon ? "csharp/src/SuperMetroid.Core/Assets/BotwoonVisualDefinitions.cs" : faceBlock ? "csharp/src/SuperMetroid.Core/Assets/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Assets/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
         int line = 0;

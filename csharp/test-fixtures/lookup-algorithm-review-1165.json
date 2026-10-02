@@ -2483,4 +2483,22 @@
         "confirmation": "Verification build and --lookup-kraid-ceiling-order pass all19 native byte windows and all27 derived PLM fields, order and bounds. No broad growth actor matrix run.",
         "remainingScope": "This resolves the shared ordering previously pending in kraidGrowthPlmReview. Other Kraid mappings and the full repository inventory remain separate unfinished work."
     }
+,
+    "kraidHealthThresholdReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidHealthThresholdDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidHealthThresholdDefinitions.cs",
+        "consumers": ["KraidEnemyState", "InitializeKraidBody", "Kraid palette/health consumers", "TryBeginKraidGrowth", "SelectKraidArmSpeedInstruction", "KraidAudit"],
+        "nativeIdentity": "A7:AA02-AA16 eighth-health generation; AA23-AA43 quarter-health generation",
+        "domain": "Every ushort initial health; eighth ordinal0..7 and quarter ordinal0..3. Invalid ordinals preserve IndexOutOfRangeException. Capture health once in living initialization; default/defeated state remains zero.",
+        "reviewedEvidence": "Pinned bank_A7.asm initialization LSR and repeated ADC sequences; all maintained reads/writes of both state arrays. Production only initializes and reads the thresholds. Independent native alias/spawn flags already reside in separate KraidPartState fields and are unchanged.",
+        "tables": [
+            { "id": "kraid-health-eighth-thresholds", "disposition": "Remove eight-word generated cache. Return(initialHealth>>3)*(index+1).", "proof": "VerifyKraidHealthEighths" },
+            { "id": "kraid-health-quarter-thresholds", "disposition": "Remove four-word generated cache. Return(initialHealth>>2)*(index+1).", "proof": "VerifyKraidHealthQuarters" }
+        ],
+        "rationale": "Native initialization truncates the unit fraction before repeated addition. Maximum products are65528/65532, so the valid domains never overflow. A single captured initial-health word fully defines both arrays; gameplay health changes must not recalculate their basis.",
+        "confirmation": "Two focused proofs independently execute native shift/add recurrence for all65536 initial health values and all12 ordinals, verify native LSR opcodes and invalid bounds. Verification and DebugRunner builds and --lookup-kraid-health-thresholds pass. All callers migrated; no threshold array remains.",
+        "fixtureChanges": "Growth fixture now sets initial health1000 for threshold875. Arm fixture uses initial health104 and below-half51 for native half52, replacing an impossible manually assigned half50. Debug audit enumerates calculated results against its independent retail arrays.",
+        "remainingScope": "Other generated caches and remaining lookup mappings still require their own reviews."
+    }
 }

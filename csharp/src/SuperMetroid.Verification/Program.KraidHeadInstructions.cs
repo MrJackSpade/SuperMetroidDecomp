@@ -116,7 +116,7 @@ internal static partial class Program
         var combat = Method<Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?>>(
             "RunKraidCombatFunction");
         RoomEnemySlot body = enemies.Slots[0];
-        state.HealthEighthThresholds[6] = 875;
+        state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;

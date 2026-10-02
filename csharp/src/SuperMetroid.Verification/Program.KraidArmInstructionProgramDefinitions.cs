@@ -51,7 +51,7 @@ internal static partial class Program
             arm.CurrentInstruction,
             "Kraid arm dying/lunge program reaches terminal sleep");
 
-        body.Health = 49;
+        body.Health = 51;
         arm.CurrentInstruction = 0x8a3b;
         arm.InstructionTimer = 1;
         InvokeKraidArmInstructionProcessor(process, enemies, arm);
@@ -100,7 +100,7 @@ internal static partial class Program
             "_bus",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, bus);
         var state = new KraidEnemyState();
-        state.HealthEighthThresholds[3] = 50;
+        state.InitialHealth = 104;
         typeof(RoomEnemySystem).GetField(
             "_kraidState",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, state);

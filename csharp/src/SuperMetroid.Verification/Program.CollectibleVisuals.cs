@@ -9,24 +9,15 @@ internal static partial class Program
 {
     private static void VerifyCollectibleVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(24, RoomPlmCollectibleDrawDefinitions.All.Length,
-            "all native collectible item/orb/reveal draw frames are compiled");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Collectible oracle revision");
+        VerifyCollectibleDrawGeometry(rom);
+        VerifyCollectibleDrawCollision(rom);
+        VerifyCollectibleDrawVisuals(rom);
+        VerifyCollectibleDrawIdentity(rom);
         RoomPlmCollectibleVisualCatalog stock = RoomPlmCollectibleVisualCatalog.Stock();
-        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-        {
-            AssertEqual((ushort)1, ReadCollectibleVisualWord(rom, frame.Pointer),
-                $"collectible {frame.Id} native one-block shape");
-            AssertEqual(frame.LevelWord,
-                ReadCollectibleVisualWord(rom, checked((ushort)(frame.Pointer + 2))),
-                $"collectible {frame.Id} native physical level word");
-            AssertEqual((ushort)0,
-                ReadCollectibleVisualWord(rom, checked((ushort)(frame.Pointer + 4))),
-                $"collectible {frame.Id} native terminator");
-            AssertEqual(new RoomLevelWord(frame.LevelWord).VisualWord,
-                stock.GetWord(frame.Pointer), $"collectible {frame.Id} stock visual word");
-        }
+
         for (int slot = 0; slot < 4; slot++)
         for (int animation = 0; animation < 2; animation++)
         {

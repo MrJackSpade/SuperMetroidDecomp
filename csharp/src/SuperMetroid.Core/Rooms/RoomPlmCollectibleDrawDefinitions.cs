@@ -27,51 +27,76 @@ internal static class RoomPlmCollectibleDrawDefinitions
     /// <summary>Dynamic-item second-frame selector table at $84:E077.</summary>
     internal const ushort DynamicFrame1Table = 0xe077;
 
-    private static readonly RoomPlmCollectibleDrawFrame[] Frames =
-    [
-        new(0xa2b5, 0x00ff, "empty"),
-        new(0xa2c7, 0xc072, "chozo-orb-0"),
-        new(0xa2cd, 0xc073, "chozo-orb-1"),
-        new(0xa2d3, 0xc074, "chozo-orb-2"),
-        new(0xa2d9, 0x8075, "chozo-orb-burst"),
-        new(0xa2df, 0xb04a, "energy-tank-0"),
-        new(0xa2e5, 0xb04b, "energy-tank-1"),
-        new(0xa2eb, 0xb04c, "missile-tank-0"),
-        new(0xa2f1, 0xb04d, "missile-tank-1"),
-        new(0xa2f7, 0xb04e, "super-missile-tank-0"),
-        new(0xa2fd, 0xb04f, "super-missile-tank-1"),
-        new(0xa303, 0xb050, "power-bomb-tank-0"),
-        new(0xa309, 0xb051, "power-bomb-tank-1"),
-        new(0xa30f, 0xb08e, "dynamic-slot-0-frame-0"),
-        new(0xa315, 0xb08f, "dynamic-slot-0-frame-1"),
-        new(0xa31b, 0xb090, "dynamic-slot-1-frame-0"),
-        new(0xa321, 0xb091, "dynamic-slot-1-frame-1"),
-        new(0xa327, 0xb092, "dynamic-slot-2-frame-0"),
-        new(0xa32d, 0xb093, "dynamic-slot-2-frame-1"),
-        new(0xa333, 0xb094, "dynamic-slot-3-frame-0"),
-        new(0xa339, 0xb095, "dynamic-slot-3-frame-1"),
-        new(0xa3dd, 0x8053, "shot-reveal-0"),
-        new(0xa3e3, 0x8054, "shot-reveal-1"),
-        new(0xa3e9, 0x8055, "shot-reveal-2"),
-    ];
-
-    internal static ReadOnlySpan<RoomPlmCollectibleDrawFrame> All => Frames;
-
-    internal static bool TryGet(ushort pointer, out RoomPlmCollectibleDrawFrame frame)
+    internal static IEnumerable<RoomPlmCollectibleDrawFrame> All
     {
-        foreach (RoomPlmCollectibleDrawFrame candidate in Frames)
+        get
         {
-            if (candidate.Pointer != pointer) continue;
-            frame = candidate;
-            return true;
+            TryGet(Empty, out var empty);
+            yield return empty;
+            for (int frame = 0; frame < 20; frame++)
+            {
+                TryGet((ushort)(OrbFirst + frame * 6), out var value);
+                yield return value;
+            }
+            for (int frame = 0; frame < 3; frame++)
+            {
+                TryGet((ushort)(ShotRevealFirst + frame * 6), out var value);
+                yield return value;
+            }
         }
-        frame = default;
-        return false;
     }
 
+    /// <summary>
+    /// Twenty-four one-cell lists: air, three shootable orb frames and solid burst,
+    /// eight trigger tank frames, eight trigger dynamic-slot frames, and three
+    /// solid reveal frames. Six-byte native records advance one tile within each
+    /// group. Preserve holes between groups and reject incomplete record starts.
+    /// </summary>
+    internal static bool TryGet(ushort pointer, out RoomPlmCollectibleDrawFrame frame) => TryResolve(pointer, true, out frame);
+
+    /// <summary>Physical runtime projection without constructing exported artwork names.</summary>
+    internal static bool TryGetWord(ushort pointer, out ushort word)
+    {
+        bool found = TryResolve(pointer, false, out var frame);
+        word = frame.LevelWord;
+        return found;
+    }
+
+    private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
+    {
+        int index;
+        ushort word;
+        string id;
+        if (pointer == Empty) { word = 0x00ff; id = "empty"; }
+        else if (TryIndex(pointer, OrbFirst, 3, out index))
+        { word = (ushort)(0xc072 + index); id = includeId ? $"chozo-orb-{index}" : string.Empty; }
+        else if (pointer == OrbBurst) { word = 0x8075; id = "chozo-orb-burst"; }
+        else if (TryIndex(pointer, TankFirst, 8, out index))
+        {
+            word = (ushort)(0xb04a + index);
+            string kind = (index / 2) switch
+            {
+                0 => "energy", 1 => "missile", 2 => "super-missile", _ => "power-bomb",
+            };
+            id = includeId ? $"{kind}-tank-{index % 2}" : string.Empty;
+        }
+        else if (TryIndex(pointer, DynamicFirst, 8, out index))
+        { word = (ushort)(0xb08e + index); id = includeId ? $"dynamic-slot-{index / 2}-frame-{index % 2}" : string.Empty; }
+        else if (TryIndex(pointer, ShotRevealFirst, 3, out index))
+        { word = (ushort)(0x8053 + index); id = includeId ? $"shot-reveal-{index}" : string.Empty; }
+        else { frame = default; return false; }
+        frame = new(pointer, word, id);
+        return true;
+    }
+    private static bool TryIndex(ushort pointer, ushort first, int count, out int index)
+    {
+        int offset = pointer - first;
+        index = offset / 6;
+        return offset >= 0 && offset % 6 == 0 && index < count;
+    }
     internal static bool TryGetById(string id, out RoomPlmCollectibleDrawFrame frame)
     {
-        foreach (RoomPlmCollectibleDrawFrame candidate in Frames)
+        foreach (var candidate in All)
         {
             if (!string.Equals(candidate.Id, id, StringComparison.Ordinal)) continue;
             frame = candidate;

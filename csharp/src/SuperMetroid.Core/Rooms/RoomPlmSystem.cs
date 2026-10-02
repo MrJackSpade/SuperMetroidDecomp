@@ -2224,10 +2224,10 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
+        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(drawPointer, out ushort collectible))
         {
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
-                collectible.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                collectible, layer1XPosition, layer1YPosition, bg1XOffset,
                 collectibleVisuals?.GetWord(drawPointer));
             return;
         }

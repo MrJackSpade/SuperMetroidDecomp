@@ -31,7 +31,7 @@ public sealed class RoomPlmCollectibleVisualCatalog
             if (!selected.TryAdd(frame.Pointer, entry.VisualWord))
                 throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
         }
-        if (selected.Count != RoomPlmCollectibleDrawDefinitions.All.Length)
+        if (selected.Count != RoomPlmCollectibleDrawDefinitions.All.Count())
             throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
         words = selected;
     }

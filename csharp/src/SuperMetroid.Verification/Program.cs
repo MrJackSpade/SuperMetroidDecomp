@@ -44,6 +44,11 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--collectible-visuals"])
+{
+    VerifyCollectibleVisuals();
+    return 0;
+}
 if (args is ["--station-animation-programs"])
 {
     VerifyStationAnimationProgramDefinitions();
@@ -1628,11 +1633,7 @@ if (args is ["--area-animated-tile-definitions"])
     VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
-if (args is ["--collectible-visuals"])
-{
-    VerifyCollectibleVisuals();
-    return 0;
-}
+
 if (args is ["--sand-animated-tiles"])
 {
     VerifySandAnimatedTiles();

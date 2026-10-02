@@ -30,7 +30,7 @@ internal static partial class Program
         new(0xdfe9, "mouth_0"),
         new(0xdff3, "mouth_1"),
         new(0xdffd, "mouth_2"),
-    
+
         ];
         byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected,
             PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.IsFrame,
@@ -79,7 +79,7 @@ internal static partial class Program
         new(0xa6cf, "draygon_bg2_A6CF"),
         new(0xa6d9, "draygon_bg2_A6D9"),
         new(0xa6e3, "draygon_bg2_A6E3"),
-    
+
         ];
         byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected,
             DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.IsFrame,

@@ -4443,7 +4443,7 @@
     "event":{"disposition":"converted", "algorithm":"Named LowerNorfairChozoLoweredAcid event selector.", "proof":"VerifyChozoProgramEvent compares the native event word."},
     "domain":"56 bytes and 52 overlapping word starts in exactly four original ranges. Every proof checks full ushort byte/word ownership, rejected zero outputs and native fields through direct/composed readers. Range-end words and all adjacent native code remain rejected. No persistent program data/cache or gameplay ROM read.",
     "confirmation":"Verification build and --chozo-plm-definitions pass the five independent field proofs plus existing five-header spawning, terrain draw/override and shared-delete checks. Old combined byte comparison consolidated. Existing command moved ahead of unrelated suites and pins supported ROM SHA256.",
-    "scope":"Four Chozo terrain programs and separately interpreted fields. Physical layouts are resolved under chozoTerrainPhysicalDrawReview; stock visual data and other owners remain audit work. No retention exception; wider maintained-source audit remains active."
+    "scope":"Four Chozo terrain programs and separately interpreted fields. Physical layouts are resolved under chozoTerrainPhysicalDrawReview; stock visuals are resolved under chozoTerrainStockVisualReview; other owners remain audit work. No retention exception; wider maintained-source audit remains active."
   }
 ,
   "chozoTerrainHeaderReview": {
@@ -4452,7 +4452,7 @@
     "algorithm":"Named lower-Norfair hand, Wrecked Ship hand, clear-slope, block-slope and crumble-plug cases return their named program origins. Existing semantic dispatch independently reviewed. Ordered enumeration yields the five cases without a stored record array or generated cache.",
     "proof":"VerifyChozoTerrainHeaders checks all ushort header values: five original ROM initial-list pointers and header identities, exact original enumeration order, rejection of every unsupported header, and five production spawn fixtures including Wrecked Ship collision/BTS behavior.",
     "confirmation":"Verification build and --chozo-plm-definitions pass header proof, five program-field proofs, shared deletion and existing terrain/artwork checks.",
-    "scope":"Complete owned header-to-initial-list mapping. No retention exception; physical layouts are resolved under chozoTerrainPhysicalDrawReview; stock visuals and wider maintained-source audit remain active."
+    "scope":"Complete owned header-to-initial-list mapping. No retention exception; physical layouts are resolved under chozoTerrainPhysicalDrawReview; stock visuals are resolved under chozoTerrainStockVisualReview; wider maintained-source audit remains active."
   }
 ,
   "chozoTerrainPhysicalDrawReview": {
@@ -4461,8 +4461,19 @@
     "geometry":{"disposition":"converted","algorithm":"Cleared hand is one horizontal air cell. Both slope states share five horizontal runs of 14/9/2/1/1 cells. Continuations are absolute origin-relative offsets (0,5), (5,6), (5,7), (5,8), then terminator, preserving native write order.","proof":"VerifyChozoLayoutGeometry checks original ROM headers and offsets, all ushort ownership/rejected defaults, integer bounds, published IDs/order and descriptor/DTO/export/reverse-ID views. All 55 original words are also checked at their native positions through three guarded production draws."},
     "collision":{"disposition":"converted","algorithm":"Clear state leaves slope type 1 only at the endpoints of the long row, second row and final stair cell; other cells are air. Block state is solid type 8 except the long row interior uses spike type A. Cleared hand is air.","proof":"VerifyChozoLayoutCollision compares all 55 original high-nibble fields through calculated cells and DTO/export/reverse-ID views."},
     "visuals":{"disposition":"converted","algorithm":"Both slope states share artwork: horizontal ledge tile 12B; lower row fill 111, transition 19B and edge 129; narrow stair wall 1BB with adjoining 129 in its two-cell row. The cleared hand uses air FF. No reflection flags occur.","proof":"VerifyChozoLayoutVisuals compares all 55 original low-twelve-bit fields through calculated cells and DTO/export/reverse-ID views."},
-    "consumers":"Runtime drawing calculates cells directly. Visual getter validates and flattens with the calculated descriptor. Temporary artwork DTOs remain for import/export; no stored physical layout or generated cache remains. Separate stock visual storage remains audit work.",
+    "consumers":"Runtime drawing calculates cells directly. Visual getter validates and flattens with the calculated descriptor. Temporary artwork DTOs remain for import/export; no stored physical layout or generated cache remains. Stock visual storage is resolved under chozoTerrainStockVisualReview.",
     "confirmation":"Verification and ResourceAudit builds and --chozo-plm-definitions pass three field proofs, all three guarded native draw paths, header/program proofs and existing custom/installed artwork checks. Physical and visual-getter presentation source hashes updated.",
-    "scope":"Complete owned physical geometry, collision and visual mappings. No retention exception; stock visual mapping and wider maintained-source audit remain active."
+    "scope":"Complete owned physical geometry, collision and visual mappings. No retention exception; stock visual mapping is resolved under chozoTerrainStockVisualReview; wider maintained-source audit remains active."
+  }
+,
+  "chozoTerrainStockVisualReview": {
+    "status":"converted: duplicate stock visual dictionary removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 A2B5, 9CC5 and 9D0F native draw records, with original run boundaries. Physical mapping independently established under chozoTerrainPhysicalDrawReview. Read constructor/factory/getter/hash and installed artwork consumers.",
+    "algorithm":"Stock creates an empty catalog. Getter validates the exact physical pointer/run/cell domain and projects the low-twelve-bit appearance from calculated physical words. Constructor still requires all three unique ordinal IDs and valid exact flattened payloads, cloning only changed artwork. No stock or generated cache remains; custom artwork remains selected data.",
+    "identity":"Preserve ascending pointer order and original flattened single-run hash framing using a temporary 27-word stack buffer. Imported entry order is irrelevant.",
+    "domain":"Three pointers and 55 cells. Unknown pointers throw InvalidDataException; invalid integer run/cell selections throw ArgumentOutOfRangeException. Missing, duplicate, wrong-case, wrong-shape and collision-bearing inputs remain rejected. Changed and unchanged input arrays cannot mutate results after import.",
+    "proof":"VerifyChozoStatueStockMapping independently parses original native layouts and compares all 55 visual words and canonical hash through stock, reversed import and installed catalogs. Covers full ushort pointer rejection, integer run/cell bounds, mixed custom/stock hash, changed/unchanged input-copy isolation and constructor rejection paths. Earlier isolated stock-word/missing-frame checks consolidated.",
+    "confirmation":"Verification and ResourceAudit builds and --chozo-plm-definitions pass the stock proof, three physical-field proofs with three guarded draws, header/program proofs and existing custom/installed artwork checks. Presentation source pin and ownership text updated.",
+    "scope":"Complete owned Chozo stock visual mapping and content identity. No retention exception; wider maintained-source audit remains active."
   }
 }

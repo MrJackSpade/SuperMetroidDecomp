@@ -11,9 +11,9 @@ internal static partial class Program
     {
         VerifyEyeDoorVisualIds();
         VerifyEyeDoorProgramDefinitions(rom);
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
+        VerifyEyeDoorLayoutGeometry(rom);
+        VerifyEyeDoorLayoutCollision(rom);
+        VerifyEyeDoorLayoutVisuals(rom);
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             EyeDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
         RoomPlmEyeDoorVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
@@ -40,23 +40,6 @@ internal static partial class Program
                 EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
                 edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
                 "left opening clear mirrors its authored appearance without changing the override schema");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"eye-door draw ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"eye-door draw ${list.Pointer:X4} direction/count matches ROM");
-            for (int block = 0; block < run.LevelWords.Length; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"eye-door draw ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0,
-                ReadWord(rom, source + 2 + run.LevelWords.Length * 2),
-                $"eye-door draw ${list.Pointer:X4} terminates after its physical words");
-        }
-
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null);
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited);
         VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists);

@@ -3121,4 +3121,23 @@
     "confirmation": "Verification and ResourceAudit builds; --lookup-shutter-visuals checks growing, horizontal and plain/Kamer production programs plus the full 5069-entry shared selector contract.",
     "scope": "Visual pointer selection and export pointer reuse only. Sprite artwork and names remain separately reviewable; no retention exception claimed."
   }
+,
+  "growingShutterInitialAndSpeedReview": {
+    "status": "existing algorithms independently reviewed",
+    "source": "NTSC J/U v1.0 A2:EA4E-EAB5; initializer EA36-EA49 masks parameter to byte and loads whole/fraction words; pinned bank_A2.asm",
+    "initialFunction": {
+      "disposition": "Existing four named cases select down timer, down proximity, up timer and up proximity. No lookup remains.",
+      "proof": "VerifyGrowingShutterInitialSelection compares all four original pointer words and rejects invalid signed/full-width integer selectors."
+    },
+    "wholeSpeed": {
+      "disposition": "Existing exact 16.16 ramp computes (low-byte index+1)*4096 and returns its signed high word, yielding whole speed zero or one over the supported domain.",
+      "proof": "VerifyGrowingShutterWholeSpeed checks all 24 original whole words and all 256 high-byte aliases."
+    },
+    "fractionalSpeed": {
+      "disposition": "The same exact ramp returns its unsigned low word, including wrap to zero at index fifteen. No generated table/cache is used.",
+      "proof": "VerifyGrowingShutterFractionalSpeed checks all 24 original fraction words and all 256 high-byte aliases. Both field proofs reject low bytes 24,25,127,255 for every high byte."
+    },
+    "integration": "Verification build and --lookup-growing-shutter-definitions run the existing focused 24576-initializer proof for all supported selectors/speeds/high bytes and wrapped stage origins without a bus. Production unchanged.",
+    "scope": "Initial function and two speed fields only. Other stage dispatch, palettes and artwork still require independent review; no table-retention exception claimed."
+  }
 }

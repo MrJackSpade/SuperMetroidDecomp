@@ -4476,4 +4476,15 @@
     "confirmation":"Verification and ResourceAudit builds and --chozo-plm-definitions pass the stock proof, three physical-field proofs with three guarded draws, header/program proofs and existing custom/installed artwork checks. Presentation source pin and ownership text updated.",
     "scope":"Complete owned Chozo stock visual mapping and content identity. No retention exception; wider maintained-source audit remains active."
   }
+,
+  "elevatorPlatformPlmProgramReview": {
+    "status":"converted: ten stored program address/value records removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 AFB6..AFC9, pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read program owner, shared RoomPlmProgramDefinitions composition, interpreter and original verification-only enumeration consumer. This is the B70B terrain PLM, distinct from the already-reviewed A3 elevator enemy program.",
+    "controls":{"disposition":"converted","algorithm":"Four animation frames each hold four ticks, followed by the named Goto instruction.","proof":"VerifyElevatorPlatformControls compares all five original control/duration words."},
+    "drawSelection":{"disposition":"converted","algorithm":"Four-phase triangular selection 2-abs(phase-2) chooses first/second/third/second. Native draw lists are 24 bytes apart, starting at named FirstDraw AA97.","proof":"VerifyElevatorPlatformDrawSelection compares all four original draw operands."},
+    "loopTarget":{"disposition":"converted","algorithm":"Final operand selects the named InstructionLoop AFB6.","proof":"VerifyElevatorPlatformLoopTarget compares the original loop-target word."},
+    "domain":"Exactly ten even word starts AFB6..AFC8. Each named proof checks the full ushort domain and rejected zero outputs, and compares its independent ROM fields through direct/shared readers. Odd reads, before/after addresses and adjacent Crocomire instructions remain excluded. Removed the unused stored-program enumeration seam; no generated cache or gameplay ROM access added.",
+    "confirmation":"Verification and ResourceAudit builds and --elevator-platform-visuals pass three program proofs, existing physical-list comparison, real platform rendering and installed/custom artwork checks. Focused command moved ahead of unrelated suites and pins the supported ROM SHA256. Presentation source hash updated.",
+    "scope":"Complete elevator-platform PLM program and separately interpreted fields. Physical draw and stock-visual mappings remain audit work. No retention exception; wider maintained-source audit remains active."
+  }
 }

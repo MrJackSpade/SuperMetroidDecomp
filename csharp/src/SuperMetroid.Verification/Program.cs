@@ -44,6 +44,15 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--elevator-platform-visuals"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator platform oracle revision");
+    VerifyElevatorPlatformPlmDefinitions(rom);
+    VerifyElevatorPlatformVisuals();
+    return 0;
+}
 if (args is ["--chozo-plm-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2701,11 +2710,6 @@ if (args is ["--room-plm-populations"])
         Path.GetFullPath("Super Metroid.smc"));
     VerifyCompiledRoomPlmPopulationDefinitions(rom);
     VerifyElevatorPlatformPlmDefinitions(rom);
-    return 0;
-}
-if (args is ["--elevator-platform-visuals"])
-{
-    VerifyElevatorPlatformVisuals();
     return 0;
 }
 if (args is ["--explored-map-packing-definitions"])

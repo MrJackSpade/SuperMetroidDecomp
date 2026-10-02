@@ -12,18 +12,9 @@ internal static partial class Program
             unchecked((ushort)(bus.ReadByte(0x840000 | address) |
                 bus.ReadByte(0x840000 | unchecked((ushort)(address + 1))) << 8));
 
-        foreach ((ushort address, ushort value) in ElevatorPlatformPlmDefinitions.ProgramWords)
-        {
-            AssertEqual(Word(rom, address), value,
-                $"elevator platform program word $84:{address:X4} matches cartridge");
-            AssertTrue(ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
-                    address, out ushort installed) && installed == value,
-                $"elevator platform program word $84:{address:X4} is installed");
-        }
-        AssertTrue(!ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
-                unchecked((ushort)(ElevatorPlatformPlmDefinitions.InstructionLoop - 2)),
-                out _),
-            "elevator program does not claim preceding cartridge data");
+        VerifyElevatorPlatformControls(rom);
+        VerifyElevatorPlatformDrawSelection(rom);
+        VerifyElevatorPlatformLoopTarget(rom);
 
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
                  ElevatorPlatformPlmDefinitions.DrawLists)

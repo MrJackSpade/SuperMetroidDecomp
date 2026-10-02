@@ -16,15 +16,6 @@ internal static class ElevatorPlatformPlmDefinitions
     /// <summary>Third elevator-platform draw list, $84:AAC7.</summary>
     internal const ushort ThirdDraw = 0xaac7;
 
-    private static readonly (ushort Address, ushort Value)[] Program =
-    [
-        (0xafb6, 4), (0xafb8, FirstDraw),
-        (0xafba, 4), (0xafbc, SecondDraw),
-        (0xafbe, 4), (0xafc0, ThirdDraw),
-        (0xafc2, 4), (0xafc4, SecondDraw),
-        (0xafc6, RoomPlmInstructionCodes.Goto), (0xafc8, InstructionLoop),
-    ];
-
     private static readonly IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists =
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
@@ -37,7 +28,6 @@ internal static class ElevatorPlatformPlmDefinitions
                 0x808c, 0x808d, 0x848d, 0x848c),
         };
 
-    internal static ReadOnlySpan<(ushort Address, ushort Value)> ProgramWords => Program;
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists => Lists.Values;
 
     internal static string VisualId(ushort pointer) => pointer switch
@@ -61,18 +51,29 @@ internal static class ElevatorPlatformPlmDefinitions
         return Lists.TryGetValue(pointer, out list);
     }
 
+    /// <summary>
+    /// $84:AFB6..AFC8, ten aligned words: four holds of four ticks with a
+    /// first/second/third/second ping-pong selection, then Goto the loop start.
+    /// Only original word starts are owned; odd and adjacent reads are rejected.
+    /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach ((ushort candidate, ushort word) in Program)
+        int offset = address - InstructionLoop;
+        if (offset < 0 || offset > 18 || (offset & 1) != 0)
         {
-            if (candidate == address)
-            {
-                value = word;
-                return true;
-            }
+            value = 0;
+            return false;
         }
-        value = 0;
-        return false;
+        if (offset == 16) value = RoomPlmInstructionCodes.Goto;
+        else if (offset == 18) value = InstructionLoop;
+        else if ((offset & 3) == 0) value = 4;
+        else
+        {
+            int phase = offset / 4;
+            int frame = 2 - Math.Abs(phase - 2);
+            value = (ushort)(FirstDraw + frame * 24);
+        }
+        return true;
     }
 
     internal static bool TryGetDraw(ushort pointer,

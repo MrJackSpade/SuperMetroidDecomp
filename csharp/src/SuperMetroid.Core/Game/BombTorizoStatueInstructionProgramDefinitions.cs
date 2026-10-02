@@ -60,6 +60,8 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         return unchecked((ushort)(program + ((index & 1) == 0 ? 2 : 13)));
     }
 
+    internal static bool IsPresentationWord(ushort address) =>
+        TryDecodeProgramOffset(address, out _, out int offset) && offset is 2 or 13;
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!TryDecodeProgramOffset(address, out int programIndex, out int offset))

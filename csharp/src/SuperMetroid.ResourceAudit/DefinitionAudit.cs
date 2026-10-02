@@ -76,7 +76,7 @@ internal static class DefinitionAudit
         bool shutter = calculated && bank == 0xa2 && ShutterVisualDefinitions.IsPresentationWord((ushort)address);
         bool faceBlock = calculated && bank == 0xa8 && BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool platform = calculated && bank == 0xa3 && PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address);
-        string calculatedMethod = faceBlock ? "FrameAt" : platform ? "FrameAt" : shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoDroolFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
+        string calculatedMethod = faceBlock ? "FrameAt" : platform ? "FrameAt" : shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoDroolFrameAt" : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BombTorizoStatueFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : bank == 0xa2 ? VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address) ? "KamerPlatformFrameAt" : "BoyonFrameAt"
             : bank == 0xa3 ? "ElevatorFrameAt" : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"

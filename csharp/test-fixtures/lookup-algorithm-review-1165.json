@@ -3360,4 +3360,14 @@
     "confirmation": "Verification build and --lookup-torizo-statue-programs pass all sixteen production fragment allocations and exact wait/fall/delete timelines with control reads forbidden.",
     "scope": "Program control and sprite-operand positions only. Packed sound values/routing, sprite-pointer values and artwork still require independent review; excluding sound bytes from word ownership is not a retention exception."
   }
+,
+  "bombTorizoStatueVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A4C3-A5D2 fragment programs and 8D:8DFB-8E6A sprite records; pinned bank_86.asm and bank_8D.asm",
+    "disposition": "Removed 32 shared literal sprite pointers. Each seventeen-byte program selects the same sprite for waiting and falling; sixteen consecutive sprite maps each contain a two-byte count and one five-byte OAM record. Derive program index from the validated operand and select 8DFB+7*index, without a lookup cache.",
+    "proof": "VerifyStatueFragmentVisualMapping independently checks all 32 native operands, sixteen native single-entry counts, shared lookup and generator exclusion, local controls/packed-audio/other holes, missing outputs and distant invalid operands. VerifyStatueProgramPresentationLayout now checks full ushort membership for the reused program decoder.",
+    "sharedCatalog": "Calculated bank-86 entries merge after Bomb Torizo drool and before Fune/Namihe fireball. ResourceAudit attributes them to EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt; normalized source pin updated.",
+    "confirmation": "Verification and ResourceAudit builds; --lookup-torizo-statue-programs passes all sixteen production fragment allocations and wait/fall/delete timelines plus the complete 5069-entry shared selector contract.",
+    "scope": "Statue sprite-pointer mapping only. Packed sound values/routing, export metadata and sprite artwork fields still require independent review; no retention exception claimed."
+  }
 }

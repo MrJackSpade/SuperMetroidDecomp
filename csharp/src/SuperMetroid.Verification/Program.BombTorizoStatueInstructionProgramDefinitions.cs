@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -15,6 +16,7 @@ internal static partial class Program
         VerifyBombTorizoStatueInitialDurations(rom);
         VerifyStatueProgramControlLayout(rom);
         VerifyStatueProgramPresentationLayout();
+        VerifyStatueFragmentVisualMapping(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount;
@@ -114,6 +116,35 @@ internal static partial class Program
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    private static void VerifyStatueFragmentVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
+            0xa509,0xa514,0xa51a,0xa525,0xa52b,0xa536,0xa53c,0xa547,
+            0xa54d,0xa558,0xa55e,0xa569,0xa56f,0xa57a,0xa580,0xa58b,
+            0xa591,0xa59c,0xa5a2,0xa5ad,0xa5b3,0xa5be,0xa5c4,0xa5cf];
+        foreach (ushort operand in operands)
+        {
+            int address = 0x860000 | operand;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operand), "statue native sprite selector");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,operand,out ushort shared), "statue shared selector found");
+            AssertEqual(native, shared, "statue shared native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(address), "statue excluded from literal regeneration");
+        }
+        foreach (ushort pointer in new ushort[] {0x8dfb,0x8e02,0x8e09,0x8e10,0x8e17,0x8e1e,0x8e25,0x8e2c,
+            0x8e33,0x8e3a,0x8e41,0x8e48,0x8e4f,0x8e56,0x8e5d,0x8e64})
+            AssertEqual((ushort)1, (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8), "statue native one-entry sprite record");
+        var known = operands.ToHashSet();
+        for (int address = 0xa4c1; address <= 0xa5d4; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt((ushort)address), "statue visual resolver rejects controls, packed audio and other holes");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86,(ushort)address,out ushort missing), "statue shared holes rejected");
+                AssertEqual((ushort)0, missing, "statue missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(address), "statue distant invalid visual operand");
+    }
     private static void VerifyStatueProgramControlLayout(SuperMetroidAddressSpace rom)
     {
         ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
@@ -158,6 +189,9 @@ internal static partial class Program
         AssertEqual(expected.Length, BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount, "statue native visual operand count");
         for (int i = 0; i < expected.Length; i++)
             AssertEqual(expected[i], BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(i), "statue native visual operand order");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address), "statue full visual membership excludes packed sound bytes");
         foreach (int index in new[] {int.MinValue,-1,32,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index), "statue visual ordinal bounds");
     }

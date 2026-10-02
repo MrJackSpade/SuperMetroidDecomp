@@ -33,6 +33,7 @@ if (args is ["--lookup-torizo-statue-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo statue NTSC J/U v1.0 oracle");
     VerifyBombTorizoStatueFragmentDefinitions(oracle);
     VerifyBombTorizoStatueInstructionProgramDefinitions(oracle);
+    VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
 if (args is ["--lookup-torizo-dormant-and-drool"])

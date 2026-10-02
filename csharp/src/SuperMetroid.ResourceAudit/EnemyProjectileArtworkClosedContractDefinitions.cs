@@ -7,7 +7,7 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.EnemyProjectileSpritemapCatalog", "installed-enemy-projectile-direct-and-program-frames",
             ["Get", "GetProgramFrame"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs", "51708D41C21BE528FB8A53570ED89EEB3DEC568F5D82FD857C0C11CEB82225D9"),
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs", "5CC60D60549BF8BC11B8742B9BDE358DE04015B2340F13C2A68DD734536C6CE6"),
              new("csharp/src/SuperMetroid.Core/Game/EnemyProjectilePresentationFrameDefinitions.cs", "EFED0B48AC4007EDA5128A805A7E2987861E25E2B04A676111859E0B88985923"),
              new("csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs", "2E81F5ABDE5EEA0E8ED8EC67DD167A3FAA0AAF3D9FB3E986202C0E73A97FE3EB"),
              new("csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs", "1D2E4DB442FED52CAA82DEEB84E6067FBC63DDB77A7A9081A2628FAA09629B81")],

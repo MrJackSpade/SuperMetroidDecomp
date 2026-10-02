@@ -6,8 +6,10 @@ internal static partial class Program
 {
     private static void VerifyCompiledSporeSpawnCeilingPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling oracle revision");
         ushort[] addresses = SporeSpawnCeilingPlmProgramDefinitions
             .NativeWordAddresses().ToArray();
         AssertEqual(10, addresses.Length,
@@ -35,10 +37,42 @@ internal static partial class Program
                 SporeSpawnCeilingPlmProgramDefinitions.EndExclusive, out _),
             "adjacent Botwoon setup code is not claimed as instruction data");
 
+        VerifySporeSpawnCeilingDrawMapping(rom);
+
+        VerifySporeSpawnCeiling(clear: false);
+        VerifySporeSpawnCeiling(clear: true);
+        Console.WriteLine(
+            "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
+    }
+
+    private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
+    {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             SporeSpawnCeilingPlmDrawDefinitions.All.ToArray();
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
+        ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort pointer = (ushort)raw;
+            int index = Array.IndexOf(pointers, pointer);
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(pointer, out ushort word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(pointer, out var dto), "Spore ceiling DTO ownership");
+            if (index < 0)
+            {
+                AssertEqual((ushort)0, word, "missing Spore ceiling scalar zero");
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
+                continue;
+            }
+            AssertEqual(pointer, draws[index].Pointer, "Spore ceiling native export order");
+            for (int row = 0; row < 2; row++)
+            for (int column = 0; column < 2; column++)
+            {
+                ushort native = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2));
+                AssertEqual(native, word, "Spore ceiling calculated scalar covers each native cell");
+                AssertEqual(native, dto.Runs.Span[row].LevelWords.Span[column], "Spore ceiling direct DTO word");
+            }
+        }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
         {
             int cursor = draw.Pointer;
@@ -67,10 +101,6 @@ internal static partial class Program
             }
         }
 
-        VerifySporeSpawnCeiling(clear: false);
-        VerifySporeSpawnCeiling(clear: true);
-        Console.WriteLine(
-            "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
     }
 
     private static void VerifySporeSpawnCeiling(bool clear)

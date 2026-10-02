@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--spore-spawn-ceiling-visuals"])
+{
+    VerifySporeSpawnCeilingVisuals();
+    return 0;
+}
+if (args is ["--spore-spawn-ceiling-plms"])
+{
+    VerifyCompiledSporeSpawnCeilingPlms();
+    return 0;
+}
 if (args is ["--samus-eater-plm-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2355,16 +2365,6 @@ if (args is ["--speed-booster-visuals"])
 if (args is ["--maridia-elevatube-visuals"])
 {
     VerifyMaridiaElevatubeVisuals();
-    return 0;
-}
-if (args is ["--spore-spawn-ceiling-plms"])
-{
-    VerifyCompiledSporeSpawnCeilingPlms();
-    return 0;
-}
-if (args is ["--spore-spawn-ceiling-visuals"])
-{
-    VerifySporeSpawnCeilingVisuals();
     return 0;
 }
 if (args is ["--botwoon-wall-plms"])

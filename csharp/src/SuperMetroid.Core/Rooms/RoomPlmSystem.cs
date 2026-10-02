@@ -1949,14 +1949,13 @@ public sealed partial class RoomPlmSystem
                 tourianAccessVisuals: tourianAccessVisuals);
             return;
         }
-        if (SporeSpawnCeilingPlmDrawDefinitions.TryGet(drawPointer,
-                out var sporeCeiling))
+        if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, sporeCeiling, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                sporeSpawnCeilingVisuals: sporeSpawnCeilingVisuals);
+            for (int row = 0; row < 2; row++)
+            for (int column = 0; column < 2; column++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
+                    sporeCeilingWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                    sporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))

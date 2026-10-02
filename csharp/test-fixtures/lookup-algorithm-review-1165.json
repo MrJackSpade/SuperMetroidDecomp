@@ -3776,4 +3776,14 @@
     "confirmation": "Verification build and --samus-eater-plm-definitions pass both header-field proofs, complete program-byte proofs and existing real aligned floor/ceiling allocation checks.",
     "scope": "Plant header/instruction/mounting descriptor selection only; no retention exception claimed. The complete source audit remains unfinished."
   }
+,
+  "sporeSpawnCeilingPhysicalDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:9413..9452; pinned bank_84.asm DrawInst_ClearSporeSpawnCeiling and DrawInst_CrumbleSporeSpawnCeiling_0..2",
+    "algorithm": "Remove four generated DrawList records. Named clear selects blank tile FF; the three aligned crumble pointers select consecutive 53..55 using sixteen-byte record stride. Each result fills a two-by-two air square, represented by two horizontal two-word runs and a one-row continuation. Preserve export order and exclude every interior or adjacent pointer.",
+    "proof": "VerifySporeSpawnCeilingDrawMapping consolidates the old native layout check, independently lists all four pointers, compares every original physical cell and complete count/offset records with scalar/direct DTO/export, and checks all ushort ownership and zero/default missing outputs.",
+    "consumers": "RoomPlmSystem draws the scalar square directly without constructing run arrays. Existing artwork interfaces materialize temporary DTOs; visual getter validates scalar identity and two-by-two bounds without allocating a draw. Normalized PlmProgression draw and visual source pins updated.",
+    "confirmation": "Verification and ResourceAudit builds, --spore-spawn-ceiling-plms and --spore-spawn-ceiling-visuals pass native draw parity, both clear/crumble timelines with source reads forbidden, live custom artwork, collision/timing isolation and installation checks. Both focused flags now dispatch before unrelated verification suites.",
+    "scope": "Four physical ceiling draw records only. Program selectors and stock visual dictionary remain independently reviewable; no retention exception claimed."
+  }
 }

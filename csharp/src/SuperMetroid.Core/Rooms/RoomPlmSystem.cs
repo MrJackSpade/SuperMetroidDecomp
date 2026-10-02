@@ -2116,13 +2116,22 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, customVisuals: stationVisuals);
             return;
         }
-        if (ElevatorPlatformPlmDefinitions.TryGetDraw(drawPointer, out var elevator))
+        if (ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var elevator))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, elevator, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                elevatorPlatformVisuals: elevatorPlatformVisuals);
+            int elevatorX = originX, elevatorY = originY;
+            for (int run = 0; run < elevator.RunCount; run++)
+            {
+                for (int cell = 0; cell < elevator.WordCount(run); cell++)
+                {
+                    ushort physical = elevator.WordAt(run, cell);
+                    ushort visual = elevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, elevatorX + cell, elevatorY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                elevatorX = originX + elevator.NextX(run);
+                elevatorY = originY + elevator.NextY(run);
+            }
             return;
         }
         if (DownwardGatePlmDrawDefinitions.TryDescribe(drawPointer, out var gate))

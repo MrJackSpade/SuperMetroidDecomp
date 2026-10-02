@@ -17,7 +17,7 @@ internal static class PlmActorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog", "plm-elevator-platform-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmElevatorPlatformVisualCatalog.cs", "AC987409A86B886E5AAC54BC98D45A80BAB3282FB1F16F91829DD1BB1541DB62"),
-             new("csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs", "E1852ECF671DE04C130AE22E7B38D859720D89D110BDAA4947E80E3D9F24E32E")],
+             new("csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs", "E3046A36AB0BB92585F0DD6A6215F822C4A2131ACA0F8367F9B9F84C598DB72C")],
             "The public constructor requires each of the three compiled draw identities with exact cloned run/word shapes and rejects duplicates. GetWord bounds-checks that complete domain. The four-step animation loop, camera and collision behavior are not executed or certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog", "plm-draygon-cannon-complete-reachable-draws", ["GetWord"],
             [SharedDrawShape,

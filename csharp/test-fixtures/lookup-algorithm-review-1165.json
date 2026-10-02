@@ -3978,8 +3978,18 @@
     "drawOperand": {"disposition": "existing named scalar selection independently verified", "proof": "VerifyElevatubeProgramDraw checks native B8F2 through direct/shared readers with full word domain validation."},
     "soundOperand": {"disposition": "existing scalar independently verified", "proof": "VerifyElevatubeProgramSound checks every ushort byte address: only B8F6 is accepted and equals the native sound byte; all misses yield zero."},
     "domain": "Preserve four exact word boundaries, including odd-address deletion after the packed sound byte. Reject sound-as-word, interior and adjacent header words. Draw pointer 9367 remains shared with Kraid; the existing owner-specific Kraid branch precedes the elevatube branch and retains separate visual ownership.",
-    "consumers": "RoomPlmSystem uses scalar physical draw and nullable visual selection; shared program readers are unchanged. Asset interfaces retain one-block shape and identity. Presentation source pins updated. The visual catalog already stores a selected scalar rather than a lookup; its separate full stock/identity review remains pending.",
+    "consumers": "RoomPlmSystem uses scalar physical draw and nullable visual selection; shared program readers are unchanged. Asset interfaces retain one-block shape and identity. Presentation source pins updated. The visual catalog already stores a selected scalar rather than a lookup; its full stock/identity review is recorded under maridiaElevatubeStockVisualReview.",
     "confirmation": "Verification and ResourceAudit builds, --maridia-elevatube-plm and --maridia-elevatube-visuals pass independent native proofs, production block mutation, sixteen-frame sound hold/deletion, custom artwork/physical isolation and source-read guards.",
     "scope": "Elevatube physical draw and program fields only. No retention exception claimed; the wider audit remains unfinished."
+  }
+,
+  "maridiaElevatubeStockVisualReview": {
+    "status": "existing scalar implementation independently verified",
+    "source": "NTSC J/U v1.0 84:9369 low twelve visual bits; RoomPlmMaridiaElevatubeVisualCatalog constructor, factory, GetWord and ContentIdentity; installed asset extraction/load consumers",
+    "algorithm": "Already stores one selected ushort rather than a lookup. Factory selects the physical scalar's visual bits; constructor copies the sole validated input cell by value. Getter accepts only draw 9367, run zero, cell zero. Keep the existing implementation without artificial churn or a retention exception.",
+    "identity": "Existing scalar hash framing uses catalog type plus visual word; custom selection affects only that scalar. Constructor source-array mutation cannot change the selected value.",
+    "proof": "VerifyElevatubeStockMapping replaces the old single expected-literal assertion with the original ROM word. Factory/imported/installed values and native scalar hashes agree. Full ushort unknown-pointer rejection, integer run/cell bounds, custom flipped value/hash, source-array mutation isolation, missing/duplicate/non-ordinal/wrong-shape/collision-bit rejection are confirmed.",
+    "confirmation": "Verification build and --maridia-elevatube-visuals pass the focused stock/identity proof plus live artwork edit, unchanged physical block and sixteen-frame sound timing, source-read prohibition, override persistence and stock repair checks.",
+    "scope": "Elevatube selected visual scalar and identity only. This is an independent review of existing code, not a new conversion or retain exception. The wider audit remains unfinished."
   }
 }

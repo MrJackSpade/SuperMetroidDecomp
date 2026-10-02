@@ -2029,12 +2029,16 @@ public sealed partial class RoomPlmSystem
                     linkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (BlueDoorPlmDrawDefinitions.TryGet(drawPointer, out var blueDoor))
+        if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, blueDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, blueDoorVisuals: blueDoorVisuals);
+            for (int cell = 0; cell < 4; cell++)
+            {
+                ushort physical = blueDoor.WordAt(cell);
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (blueDoor.Vertical ? 0 : cell), originY + (blueDoor.Vertical ? cell : 0),
+                    physical, layer1XPosition, layer1YPosition, bg1XOffset,
+                    blueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+            }
             return;
         }
         if (ColoredDoorPlmDrawDefinitions.TryGet(drawPointer, out var coloredDoor))

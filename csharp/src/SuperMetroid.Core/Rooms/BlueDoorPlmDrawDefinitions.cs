@@ -17,14 +17,69 @@ internal static class BlueDoorPlmDrawDefinitions
     /// <summary>Byte length of each native four-block draw list including its terminator.</summary>
     internal const int DrawListBytes = 12;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
+    internal readonly record struct Draw(ushort Pointer, int Orientation, int Frame)
+    {
+        internal bool Vertical => Orientation < 2;
+        internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
-    /// <summary>Opening frames also provide closed-cap appearance; the physical first-word collision differs.</summary>
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
-        Lists.Values.Where(draw => VisualSource(draw.Pointer) == draw.Pointer);
+        /// <summary>
+        /// Native A9A7..AA96 tiles follow orientation mirrors and bounded frame
+        /// strides: vertical tiles advance one per frame with a 32-tile inner row;
+        /// horizontal tiles alternate tileset rows and advance two per frame pair.
+        /// Frame -1 aliases frame zero visually but makes only its first cell solid.
+        /// Final vertical frames clear their middle cells; horizontal frames stay solid.
+        /// </summary>
+        internal ushort WordAt(int cell)
+        {
+            if ((uint)cell >= 4) throw new IndexOutOfRangeException();
+            int frame = Math.Max(Frame, 0);
+            bool inner = cell is 1 or 2;
+            int tile = Vertical ? 0x0c + frame + (inner ? 32 : 0) :
+                0x1c + frame / 2 * 2 + frame % 2 * 32 + (inner ? 0 : 1);
+            int flips = Vertical ? (Orientation == 1 ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
+                (cell < 2 ? 0x400 : 0) | (Orientation == 3 ? 0x800 : 0);
+            int collision = frame == 0 ? (cell == 0 ? (Frame < 0 ? 8 : 12) : Vertical ? 13 : 5) :
+                frame == 3 && Vertical && inner ? 0 : 8;
+            return (ushort)(collision << 12 | flips | tile);
+        }
+    }
 
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        int offset = pointer - (LeftFrame0 - DrawListBytes);
+        bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
+        int index = offset / DrawListBytes;
+        draw = owned ? new(pointer, index / 5, index % 5 - 1) : default;
+        return owned;
+    }
+
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (var frame in Editable) yield return frame;
+            for (int orientation = 0; orientation < 4; orientation++)
+            {
+                TryGet((ushort)(LeftFrame0 + orientation * 60 - DrawListBytes), out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable
+    {
+        get
+        {
+            for (int orientation = 0; orientation < 4; orientation++)
+            for (int frame = 0; frame < 4; frame++)
+            {
+                TryGet((ushort)(LeftFrame0 + orientation * 60 + frame * DrawListBytes), out var draw);
+                yield return draw;
+            }
+        }
+    }
     internal static ushort VisualSource(ushort pointer) => pointer switch
     {
         LeftFrame0 - DrawListBytes => LeftFrame0,
@@ -34,100 +89,34 @@ internal static class BlueDoorPlmDrawDefinitions
         _ => pointer,
     };
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
+    // Temporary import/export DTOs; the runtime calculates cells directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var words = new ushort[4];
+        for (int cell = 0; cell < 4; cell++) words[cell] = draw.WordAt(cell);
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, 0, 0) });
+        return true;
+    }
 
     internal static string VisualId(ushort pointer)
     {
-        pointer = VisualSource(pointer);
-        foreach ((ushort first, string direction) in new[]
-                 {
-                     (LeftFrame0, "left"), (RightFrame0, "right"),
-                     (UpFrame0, "up"), (DownFrame0, "down"),
-                 })
-        {
-            int offset = pointer - first;
-            if (offset >= 0 && offset < 4 * DrawListBytes &&
-                offset % DrawListBytes == 0)
-                return $"{direction}-frame-{offset / DrawListBytes}";
-        }
-        throw new InvalidDataException($"Blue-door draw ${pointer:X4} has no visual ID.");
+        if (!TryDescribe(pointer, out var draw))
+            throw new InvalidDataException($"Blue-door draw ${pointer:X4} has no visual ID.");
+        string direction = draw.Orientation switch { 0 => "left", 1 => "right", 2 => "up", _ => "down" };
+        return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
 
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Editable)
-        {
+        foreach (var candidate in Editable)
             if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
             {
                 list = candidate;
                 return true;
             }
-        }
         list = default;
         return false;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(20);
-        AddFourFrames(lists, LeftFrame0, 0x8004,
-            [0xc00c, 0xd02c, 0xd82c, 0xd80c],
-            [0x800d, 0x802d, 0x882d, 0x880d],
-            [0x800e, 0x802e, 0x882e, 0x880e],
-            [0x800f, 0x002f, 0x082f, 0x880f]);
-        AddFourFrames(lists, RightFrame0, 0x8004,
-            [0xc40c, 0xd42c, 0xdc2c, 0xdc0c],
-            [0x840d, 0x842d, 0x8c2d, 0x8c0d],
-            [0x840e, 0x842e, 0x8c2e, 0x8c0e],
-            [0x840f, 0x042f, 0x0c2f, 0x8c0f]);
-        AddFourFrames(lists, UpFrame0, 0x0004,
-            [0xc41d, 0x541c, 0x501c, 0x501d],
-            [0x843d, 0x843c, 0x803c, 0x803d],
-            [0x841f, 0x841e, 0x801e, 0x801f],
-            [0x843f, 0x843e, 0x803e, 0x803f]);
-        AddFourFrames(lists, DownFrame0, 0x0004,
-            [0xcc1d, 0x5c1c, 0x581c, 0x581d],
-            [0x8c3d, 0x8c3c, 0x883c, 0x883d],
-            [0x8c1f, 0x8c1e, 0x881e, 0x881f],
-            [0x8c3f, 0x8c3e, 0x883e, 0x883f]);
-        // Each preceding native closed-cap list draws the same four visual words
-        // as frame zero, but clears shootable type C on its first solid block.
-        // Compile all four orientations, including the two eye-door conversion users.
-        foreach (ushort first in new ushort[] { LeftFrame0, RightFrame0, UpFrame0, DownFrame0 })
-        {
-            RoomPlmShotBlockDrawDefinitions.Run opening = lists[first].Runs.Span[0];
-            ushort[] words = opening.LevelWords.ToArray();
-            words[0] = new RoomLevelWord(words[0]).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
-            ushort pointer = checked((ushort)(first - DrawListBytes));
-            lists.Add(pointer, new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
-                { new(opening.DirectionAndCount, words, 0, 0) }));
-        }
-        return lists;
-    }
-
-    private static void AddFourFrames(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        ushort firstPointer,
-        ushort directionAndCount,
-        params ushort[][] frames)
-    {
-        if (frames.Length != 4)
-            throw new InvalidDataException("A blue-door cap needs exactly four draw frames.");
-        for (int frame = 0; frame < frames.Length; frame++)
-        {
-            if (frames[frame].Length != 4)
-                throw new InvalidDataException("A blue-door draw frame needs four blocks.");
-            ushort pointer = checked((ushort)(firstPointer + frame * DrawListBytes));
-            if (!lists.TryAdd(pointer, new(pointer,
-                new RoomPlmShotBlockDrawDefinitions.Run[]
-                {
-                    new(directionAndCount, frames[frame], 0, 0),
-                })))
-                throw new InvalidDataException($"Duplicate blue-door draw list ${pointer:X4}.");
-        }
     }
 }

@@ -32,24 +32,9 @@ internal static partial class Program
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
             "stock blue-door visual retains native tile choice");
-        AssertEqual(20, lists.Length, "four orientations each have four animation frames and a closed physical layout");
-        AssertEqual(16, entries.Length, "closed cap aliases preserve all sixteen existing authored identities");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = list.Runs.Span;
-            AssertEqual(1, runs.Length, $"blue-cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = runs[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadNativeWord(rom, source),
-                $"blue-cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"blue-cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block], ReadNativeWord(rom, source + 2 + block * 2),
-                    $"blue-cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadNativeWord(rom, source + 10),
-                $"blue-cap ${list.Pointer:X4} ends at its signed-offset terminator");
-        }
+        VerifyBlueCapGeometry(rom);
+        VerifyBlueCapCollision(rom);
+        VerifyBlueCapVisuals(rom);
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {

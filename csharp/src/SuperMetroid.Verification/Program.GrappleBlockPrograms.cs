@@ -45,6 +45,29 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
+        var exported = RoomPlmGrappleBlockDrawDefinitions.All.ToArray();
+        AssertTrue(pointers.SequenceEqual(exported.Select(draw => draw.Pointer)), "Grapple native draw export order");
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool found = RoomPlmGrappleBlockDrawDefinitions.TryGet((ushort)pointer,out var draw);
+            AssertEqual(pointers.Contains((ushort)pointer),found,"Grapple full native draw pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmGrappleBlockDrawDefinitions.DrawList),draw,"Grapple missing draw cleared");
+                continue;
+            }
+            AssertEqual((ushort)pointer,draw.Pointer,"Grapple draw identity");
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),draw.LevelWord,"Grapple native collision and tile word");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
+            AssertEqual(draw,exported.Single(entry => entry.Pointer == pointer),"Grapple exported draw matches calculation");
+        }
+    }
+
     private static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -61,39 +84,9 @@ internal static partial class Program
         foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
-        int drawCount = 0;
-        foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 RoomPlmGrappleBlockDrawDefinitions.All)
-        {
-            ushort[] native = new ushort[2];
-            for (int word = 0; word < native.Length; word++)
-            {
-                int address = 0x840000 | (draw.Pointer + word * 2);
-                native[word] = unchecked((ushort)(rom.ReadByte(address) |
-                    rom.ReadByte(address + 1) << 8));
-                forbidden.Add(address);
-                forbidden.Add(address + 1);
-            }
-
-            AssertEqual(RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,
-                native[0], $"Grapple draw ${draw.Pointer:X4} native block count");
-            AssertEqual(draw.LevelWord, native[1],
-                $"Grapple draw ${draw.Pointer:X4} native level word");
-            int terminator = 0x840000 | (draw.Pointer + 4);
-            AssertEqual(unchecked((byte)RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX),
-                rom.ReadByte(terminator),
-                $"Grapple draw ${draw.Pointer:X4} native X terminator");
-            AssertEqual(unchecked((byte)RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY),
-                rom.ReadByte(terminator + 1),
-                $"Grapple draw ${draw.Pointer:X4} native Y terminator");
-            forbidden.Add(terminator);
-            forbidden.Add(terminator + 1);
-            drawCount++;
-        }
-
-        AssertEqual(5, drawCount, "all breakable-Grapple-block draw lists are compiled");
-        AssertTrue(!RoomPlmGrappleBlockDrawDefinitions.TryGet(0xa4f8, out _),
-            "a nearby unknown draw pointer does not alias a compiled Grapple list");
+        VerifyGrappleBlockPhysicalDrawMapping(rom);
+        for (int address = 0xa4f9; address < 0xa517; address++)
+            forbidden.Add(0x840000 | address);
 
         for (byte bts = 1; bts <= 2; bts++)
         {
@@ -125,7 +118,7 @@ internal static partial class Program
         VerifyGrappleBlockVisualSeparation(rom, forbidden);
         VerifyGrappleBlockVisualInstallation(rom);
 
-        Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and {drawCount} draw lists match ROM; both programs run with source reads forbidden.");
+        Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }
 
     private static void VerifyGrappleBlockVisualSeparation(

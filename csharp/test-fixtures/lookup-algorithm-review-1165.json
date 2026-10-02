@@ -3628,6 +3628,16 @@
     "drawOperands": {"algorithm": "Remove the four-entry local draw span. Initial frame selects named Grapple collision; subsequent stages use named breakup-zero/one/two/blank cases, with reverse indexing for respawn reveal.", "proof": "VerifyGrappleBlockDrawOperandMapping independently lists all thirteen native operand addresses, compares original pointers and checks every ushort non-operand and zero missing output."},
     "packedSound": {"algorithm": "Each program exposes its start+6 sound byte with common sound ID 0A. Queue opcode belongs to control mapping.", "proof": "VerifyGrappleBlockSoundMapping independently checks CD70/CDAF bytes and enumeration order, plus all ushort non-operands and cleared missing outputs."},
     "confirmation": "Verification build and --lookup-grapple-blocks pass all three complete native proofs and both existing 300-frame production timelines with source reads forbidden, plus visual separation and installation checks.",
-    "scope": "Program descriptors and control/draw/sound mappings only. Five physical draw definitions and the stock visual catalog remain independent required review/conversion work. No retention exception claimed."
+    "scope": "Program descriptors and control/draw/sound mappings only. Physical draws are now converted under grappleBlockPhysicalDrawReview; the stock visual catalog remains independent required work. No retention exception claimed."
+  }
+,
+  "grappleBlockPhysicalDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A4F9..A516; pinned bank_84.asm DrawInst_BreakableGrappleBlock_0..4",
+    "algorithm": "Remove five stored DrawList records. Named initial Grapple and blank cases select E0B7 and 00FF. Three breakup records select consecutive tiles 0053..0055 using their six-byte record stride. Preserve single-word row geometry, zero continuation offsets and native export order without a cache.",
+    "proof": "VerifyGrappleBlockPhysicalDrawMapping consolidates the previous draw comparison, independently names all five native pointers and compares complete count/word/offset records, direct/exported descriptors and export order. It checks all ushort pointer membership, unused/interior rejection and default missing outputs.",
+    "consumers": "The existing runtime and artwork callers retain the same TryGet/All contracts. Updated normalized PlmDoor source pin.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-grapple-blocks pass the complete draw proof, both production timelines with source reads forbidden, and existing custom-art separation/installation checks.",
+    "scope": "Five physical Grapple draws only. Separate stock visual lookup remains required work; no retention exception claimed."
   }
 }

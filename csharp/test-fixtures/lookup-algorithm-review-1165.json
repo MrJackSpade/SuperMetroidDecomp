@@ -3379,4 +3379,19 @@
     "evidence": "Source inspection of the native scripts and managed audio-opcode branch. Existing VerifyStatueProgramControlLayout establishes all sixteen packed-byte exclusions; no runtime behavior was changed and no new gameplay test was needed for this comment correction.",
     "scope": "Classification of these native immediate bytes and their current managed consumer only. This is neither an audio-playback completion claim nor a table-retention exception. Any independently stored audio mapping elsewhere still requires its own review."
   }
+,
+  "botwoonHeadProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 B3:9341-942E selector-reachable head programs; pinned bank_B3.asm",
+    "mechanics": {
+      "disposition": "Removed 74 stored control words. Eight movement programs use radius callback, one-tick frame and sleep. Eight spit programs use a 32-tick initial frame, the matching radius callback, sound and spit-flag callbacks, final hold and sleep. Preserve all distinct radius callback identities via named direction cases and the left-spit 25-tick hold (other directions sixteen). The hidden program is a one-tick frame and sleep. Decode layouts directly and skip the native-unused directional slots.",
+      "proof": "VerifyBotwoonControlMapping independently lists native starts and command positions, checks all 74 direct/enumerated values against ROM, full byte ownership/high-bit aliases/other-bank rejection, every local non-control start including unused gaps, distant invalid words and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed 25 stored operand positions. Derive one per movement program, one hidden operand and two per spit program, preserving all gaps.",
+      "proof": "VerifyBotwoonOperandMapping independently checks 25 native positions, complete ushort membership and ordinal exceptions."
+    },
+    "confirmation": "Verification build and --lookup-botwoon-head-programs run all eight movement, hidden and eight spit programs through production, confirming radius installation, spit flag/sound and sleep with original mechanics reads forbidden.",
+    "scope": "Head program controls and visual-operand positions only. Radius callback behavior, visual pointer values, program-selection tables, body/projectile programs and artwork require their own review; no retention exception claimed."
+  }
 }

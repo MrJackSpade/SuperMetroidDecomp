@@ -138,6 +138,8 @@ internal static partial class Program
                 $"Botwoon instruction mechanics word $B3:{definition.Address:X4}");
         }
 
+        VerifyBotwoonControlMapping(rom);
+        VerifyBotwoonOperandMapping();
         var guard = new BotwoonInstructionReadGuard(rom);
         ushort[] movementPrograms =
         [
@@ -338,5 +340,56 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+    private static void VerifyBotwoonControlMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] movement = [0x9341,0x9349,0x9351,0x9361,0x9369,0x9371,0x9379,0x9381];
+        ushort[] spit = [0x939f,0x93af,0x93bf,0x93df,0x93ef,0x93ff,0x940f,0x941f];
+        var addresses = new List<ushort>();
+        foreach (ushort start in movement)
+            foreach (int offset in new[] {0,2,6}) addresses.Add((ushort)(start + offset));
+        addresses.Add(0x9389); addresses.Add(0x938d);
+        foreach (ushort start in spit)
+            foreach (int offset in new[] {0,4,6,8,10,14}) addresses.Add((ushort)(start + offset));
+        AssertEqual(addresses.Count, BotwoonInstructionProgramDefinitions.MechanicsWordCount, "Botwoon native control count");
+        var bytes = new HashSet<int>();
+        for (int i = 0; i < addresses.Count; i++)
+        {
+            ushort address = addresses[i];
+            var actual = BotwoonInstructionProgramDefinitions.MechanicsWord(i);
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb30000 | address);
+            AssertEqual(address, actual.Address, "Botwoon native control order");
+            AssertEqual(native, actual.Value, "Botwoon enumerated control including distinct radius callbacks and left-spit hold");
+            AssertEqual(native, BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Botwoon direct native control");
+            bytes.Add(address); bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb30000 | address), "Botwoon full byte ownership");
+            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1b30000 | address), "Botwoon existing high-bit alias");
+            AssertTrue(!BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb40000 | address), "Botwoon other bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0x933f; address <= 0x9431; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BotwoonInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Botwoon rejects visual operands, odd bytes, unused gaps and adjacent programs");
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Botwoon distant invalid word");
+        foreach (int index in new[] {int.MinValue,-1,74,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitions.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
+    }
+    private static void VerifyBotwoonOperandMapping()
+    {
+        ushort[] expected = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,
+            0x93a1,0x93ab,0x93b1,0x93bb,0x93c1,0x93cb,0x93e1,0x93eb,0x93f1,0x93fb,
+            0x9401,0x940b,0x9411,0x941b,0x9421,0x942b];
+        AssertEqual(expected.Length, BotwoonInstructionProgramDefinitions.PresentationWordCount, "Botwoon native operand count");
+        for (int i = 0; i < expected.Length; i++)
+            AssertEqual(expected[i], BotwoonInstructionProgramDefinitions.PresentationWordAddress(i), "Botwoon native operand order");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), BotwoonInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Botwoon full operand membership");
+        foreach (int index in new[] {int.MinValue,-1,25,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitions.PresentationWordAddress(index), "Botwoon operand ordinal bounds");
     }
 }

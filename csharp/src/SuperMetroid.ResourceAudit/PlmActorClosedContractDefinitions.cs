@@ -31,7 +31,7 @@ internal static class PlmActorClosedContractDefinitions
             "The constructor requires the cleared-hand and two slope-access layouts, rejects unknown/duplicate IDs and clones exact flattened payloads. GetWord checks each native run/word shape before flattening. Statue movement, events and physical geometry are not modified."),
         new("SuperMetroid.Core.Rooms.RoomPlmLinkedRestoreVisualCatalog", "plm-linked-restore-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreVisualCatalog.cs", "499F0C96F9A44C1D3C31BD0115509385A420575083476D008358F3233539C3C9"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreVisualCatalog.cs", "709B39F8171A88F837087D55A0FF061A5D71644B1E5C50473828B3C7BB12CEB2"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreDrawDefinitions.cs", "32E489B25ED831F550E49FCDE454E87DEDFEAACC17CA94DDBA566D777775C9CD"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombBlockRestoreDrawDefinitions.cs", "B5EB8FBB21C0D16F5EFA61E8C2027B9D5393A2FD27F52CD1755A97B96622A3E9"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs", "46D84E659D58BE9F4F1E94A519B125090B26626263AAEA8A30C97A629452A050")],

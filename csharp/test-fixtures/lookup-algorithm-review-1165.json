@@ -3564,7 +3564,7 @@
     "proof": "VerifyContactCrumbleRestorationMapping consolidates the previous native restoration comparison, independently enumerates all three native identities, parses every original run/count/word/offset, compares direct calculated words and exported DTOs, confirms export order and full ushort pointer membership/default outputs, and checks run/block bounds.",
     "consumers": "RoomPlmSystem draws directly from the calculated descriptor with unchanged visual override coordinates. Existing import/export and linked visual interfaces receive temporary calculated DTOs. No persistent draw cache. Updated the normalized PlmActor source pin.",
     "confirmation": "Verification and ResourceAudit builds plus --lookup-block-reaction-selectors pass, including all eight crumble timelines, direct native draw comparison and existing custom-art physical/visual separation checks.",
-    "scope": "Physical contact-crumble restoration draws only. The separate linked-restoration stock visual catalog still needs independent conversion/review; its stored stock words are not justified by this disposition. Bomb restoration definitions remain separate work. No retention exception claimed."
+    "scope": "Physical contact-crumble restoration draws only. The separate stock visual mapping is now converted under linkedRestorationStockVisualReview. Bomb restoration definitions remain separate work. No retention exception claimed."
   }
 ,
   "bombBlockRestorationDrawReview": {
@@ -3575,6 +3575,17 @@
     "proof": "VerifyBombBlockRestorationMapping consolidates the previous native restoration comparison. It independently identifies the three native pointers, parses every native count, word and continuation offset, compares direct calculation and exported DTOs, checks all ushort accepted/rejected pointers and cleared outputs, and confirms run/block bounds.",
     "consumers": "RoomPlmSystem draws directly from the calculated descriptor, retaining visual override coordinates. Import/export and the linked artwork interface receive temporary calculated DTOs without a persistent draw cache. Updated the normalized PlmActor source pin.",
     "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including the native restoration proof, all 24 collision/bomb/power-bomb timelines with source reads forbidden and existing visual override separation checks.",
-    "scope": "Physical bomb restoration draws only. The separate linked-restoration stock visual mapping and bomb program descriptors remain independent required work. No retention exception claimed."
+    "scope": "Physical bomb restoration draws only. The separate stock visual mapping is now converted under linkedRestorationStockVisualReview; bomb program descriptors remain independent required work. No retention exception claimed."
+  }
+,
+  "linkedRestorationStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 linked restoration draws 84:A4A1/A4A9/A4B1 and A4C7/A4CF/A4D7; RoomPlmLinkedRestoreVisualCatalog factory, constructor, GetWord and content identity",
+    "algorithm": "Remove generated stock frame dictionaries and arrays. Stock factory is empty; selected stock entries are validated but not retained. Bomb and crumble draw descriptors supply run count and the common per-frame visual word. Only frames changed by external artwork are cloned and stored; per-run/block reads calculate the flattened offset.",
+    "identity": "Preserve original pointer-sorted frame/runs/words hash framing with one flattened run per frame, including square frames. Hash selected words through a four-word temporary stack buffer; no stock cache is kept.",
+    "proof": "VerifyLinkedRestoreStockMapping independently names six native pointers and parses their original words/continuations. It compares every factory/imported stock word and the original FromWordFrames hash, all unsupported ushort pointers, run/block bounds, mixed custom/stock hash and reads, clone isolation, and incomplete/duplicate/invalid-artwork rejection.",
+    "dataBoundary": "Remaining arrays represent selected external changed artwork only, not fixed stock lookup content. Temporary draw DTOs used during import and hash enumeration are not cached.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including complete native/hash proof, existing installation/override checks, bomb/crumble visual separation, and all existing block behavior fixtures.",
+    "scope": "Linked restoration stock visual selection and content identity only. Other program mappings and the broader independent inventory remain required work; no retention exception claimed."
   }
 }

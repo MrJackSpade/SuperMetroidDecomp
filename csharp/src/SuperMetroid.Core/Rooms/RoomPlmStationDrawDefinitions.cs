@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RoomPlmStationDrawDefinitions
 {
     /// <summary>First map-station frame draw list at $84:9F25.</summary>
-    private const ushort MapFirst = 0x9f25;
+    internal const ushort MapFirst = 0x9f25;
     /// <summary>First energy-station frame draw list at $84:9F6D.</summary>
-    private const ushort EnergyFirst = 0x9f6d;
+    internal const ushort EnergyFirst = 0x9f6d;
     /// <summary>First missile-station frame draw list at $84:9F91.</summary>
-    private const ushort MissileFirst = 0x9f91;
+    internal const ushort MissileFirst = 0x9f91;
     /// <summary>Save-pod idle draw list at $84:9A3F.</summary>
-    private const ushort SaveIdle = 0x9a3f;
+    internal const ushort SaveIdle = 0x9a3f;
     /// <summary>First active save-pod draw list at $84:9A9F.</summary>
-    private const ushort SaveActive = 0x9a9f;
+    internal const ushort SaveActive = 0x9a9f;
     /// <summary>Second active save-pod draw list at $84:9A6F.</summary>
-    private const ushort SaveAlternate = 0x9a6f;
+    internal const ushort SaveAlternate = 0x9a6f;
     /// <summary>Retracted right-side map access draw at $84:9F49.</summary>
     private const ushort MapRightRetracted = 0x9f49;
     /// <summary>Extended right-side map access draw at $84:9F55.</summary>

@@ -4520,4 +4520,14 @@
     "confirmation":"Verification build and --station-access-plm-definitions pass four field proofs and the existing one-pass population/slot-reuse/station-activation/access-animation fixture with runtime header words absent. Prior initial-list and draw-selection comparisons consolidated into these proofs. Focused command moved before unrelated suites and pins supported ROM SHA256.",
     "scope":"Complete station-access identity, initial-list and two draw-selection mappings. No retention exception. Station physical/artwork mappings and wider maintained-source audit remain active."
   }
+,
+  "stationAnimationFrameReview": {
+    "status":"converted: seven stored program arrays and fifteen frame records removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 AD66, AD76, ADC6, AE50 three-frame entries and AFE8, AFFA, AFFE single-frame entries; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read ordinary station timer/modulo consumer, save-animation phase selector and native packed save program.",
+    "durations":{"disposition":"converted","algorithm":"Map/resource cycles hold six ticks, acquired maps hold two. Save idle owns one one-tick draw; each active save entry owns one four-tick draw.","proof":"VerifyStationAnimationDurations compares all fifteen original duration words through Resolve and ordered NativeWords enumeration, all unsupported ushort lists and extreme/boundary invalid frame indexes."},
+    "drawSelection":{"disposition":"converted","algorithm":"Map idle/acquired share the named first map draw; energy and missile choose their respective named first draws. Three-frame families advance twelve bytes per frame. Save idle/first-active/second-active select named save-pod drawings. Existing draw constants reused across owners.","proof":"VerifyStationAnimationDraws compares all fifteen original draw operands through Resolve and NativeWords, independent native addresses/order and exact list/frame domain. Expected values come only from original ROM words."},
+    "domain":"Seven exact entry pointers, three frames on four cyclic entries and one on each save entry. Negative, out-of-range and unknown list/index pairs retain InvalidDataException. NativeWords preserves the original thirty-word enumeration order. No stored frame data/generated cache or gameplay ROM reads remain.",
+    "confirmation":"Verification and ResourceAudit builds and --station-animation-programs pass both field proofs, existing twenty physical-list checks, access-selection proofs, real population/station/save-animation fixture and stock/custom/installed artwork checks. Old combined frame comparison consolidated. Focused command moved before unrelated suites and pins supported ROM SHA256; shared draw-constant source pin updated.",
+    "scope":"Complete station timed-frame duration and draw-pointer mappings. No retention exception. Physical/artwork mappings and wider maintained-source audit remain active."
+  }
 }

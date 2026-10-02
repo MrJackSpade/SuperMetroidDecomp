@@ -44,6 +44,11 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--station-animation-programs"])
+{
+    VerifyStationAnimationProgramDefinitions();
+    return 0;
+}
 if (args is ["--station-access-plm-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2607,11 +2612,6 @@ if (args is ["--bomb-block-programs"])
 if (args is ["--contact-crumble-programs"])
 {
     VerifyContactCrumblePrograms();
-    return 0;
-}
-if (args is ["--station-animation-programs"])
-{
-    VerifyStationAnimationProgramDefinitions();
     return 0;
 }
 if (args is ["--arm-cannon-definitions"])

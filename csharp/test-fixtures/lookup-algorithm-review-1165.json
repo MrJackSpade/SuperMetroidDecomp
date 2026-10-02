@@ -1770,7 +1770,7 @@
                 "confirmation": "Original 588-entry ordered fingerprint, every indexed entry, legacy prefixes and suffixes, nested slices, invalid bounds. Verification and ResourceAudit compile. No ROM or gameplay required for this storage/sequence conversion."
             }
         ],
-        "remainingScope": "The three boss OAM pointer mappings are now separately converted in bossOamRootGeometryReview. WalkingNames, WallNames and other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
+        "remainingScope": "The three boss OAM pointer mappings are now separately converted in bossOamRootGeometryReview. WalkingNames and WallNames are separately converted in pirateArtworkNameReview. Other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
         "relatedAuditScope": "EnemyDisplayArtworkClosedContractDefinitions and NativeDisplaySelectorClosedContractDefinitions pin changed extended-catalog sources. Their fail-closed fingerprints require separate revalidation including the new EnemyExtendedFrameSequence dependency."
     },
     "bossOamRootGeometryReview": {
@@ -1814,6 +1814,37 @@
                 "confirmation": "All twelve original pointers and native component counts, index bounds; original combined catalog fingerprint confirms names and ordering."
             }
         ],
-        "remainingScope": "Walking/Wall Pirate name mappings and other family catalogs remain unreviewed. Extended-display audit source contracts remain pending revalidation as recorded in extendedFrameSequenceReview; include this new generator among their dependencies."
+        "remainingScope": "Walking/Wall Pirate name mappings are separately converted in pirateArtworkNameReview; other family catalogs remain unreviewed. Extended-display audit source contracts remain pending revalidation as recorded in extendedFrameSequenceReview; include this new generator among their dependencies."
+    },
+    "pirateArtworkNameReview": {
+        "implementationCommit": {
+            "subject": "Calculate Pirate artwork keys from action and facing for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Pirate artwork keys from action and facing for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Assets/PirateArtworkNameDefinitions.cs",
+        "formerOwner": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameDefinitions.cs",
+        "reviewedEvidence": "Published WalkingNames/WallNames arrays at 77d108f8 and their only consumers: first-seen distinct frame enumeration from compiled Pirate instruction selectors. These strings are port-authored asset keys, not cartridge strings. Original keys copied to verification-only fixtures before deletion; the independently captured 588-entry catalog fingerprint confirms pointer-to-name association and schema order.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-pirate-artwork-names",
+        "tables": [
+            {
+                "id": "walking-pirate-artwork-name-map",
+                "state": "converted",
+                "domain": "Indices 0..36; IndexOutOfRangeException outside.",
+                "disposition": "Remove WalkingNames. Compose stable keys from action, facing and local frame ordinal, with named cases for the two flinches and shared look pose.",
+                "rationale": "Each facing has eight walk, six fire and three look keys. The first two keys are flinches; index19 is the shared look key. Invariant decimal formatting preserves the serialized spelling.",
+                "proofTest": "VerifyWalkingPirateArtworkNames",
+                "confirmation": "All 37 original keys and invalid bounds; existing full catalog fingerprint confirms unchanged frame associations."
+            },
+            {
+                "id": "wall-pirate-artwork-name-map",
+                "state": "converted",
+                "domain": "Indices 0..17; IndexOutOfRangeException outside.",
+                "disposition": "Remove WallNames. Compose keys for two nine-frame facing groups, each containing four fire/jump keys and five climbing keys.",
+                "rationale": "Action, facing and local ordinal express the complete published naming convention directly. Invariant decimal formatting preserves key spelling.",
+                "proofTest": "VerifyWallPirateArtworkNames",
+                "confirmation": "All eighteen original keys and invalid bounds; existing full catalog fingerprint confirms unchanged frame associations."
+            }
+        ],
+        "remainingScope": "EnemyExtendedFrameDefinitions now owns no stored definition arrays. Its source dependencies still require their own reviews. Previously recorded extended-display audit revalidation must include PirateArtworkNameDefinitions among the new dependencies."
     }
 }

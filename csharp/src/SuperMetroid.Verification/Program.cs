@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pirate-artwork-names"])
+{
+    VerifyWalkingPirateArtworkNames();
+    VerifyWallPirateArtworkNames();
+    VerifyExtendedFrameSequence();
+    Console.WriteLine("Pirate artwork names: all 55 published keys and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-boss-oam-roots"])
 {
     var rootOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

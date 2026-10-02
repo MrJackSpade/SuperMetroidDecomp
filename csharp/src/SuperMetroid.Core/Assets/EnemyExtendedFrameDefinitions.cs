@@ -118,45 +118,6 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    private static readonly string[] WalkingNames =
-    [
-        "walking_pirate_flinch_left", "walking_pirate_flinch_right",
-        "walking_pirate_walk_left_0", "walking_pirate_walk_left_1",
-        "walking_pirate_walk_left_2", "walking_pirate_walk_left_3",
-        "walking_pirate_walk_left_4", "walking_pirate_walk_left_5",
-        "walking_pirate_walk_left_6", "walking_pirate_walk_left_7",
-        "walking_pirate_fire_left_0", "walking_pirate_fire_left_1",
-        "walking_pirate_fire_left_2", "walking_pirate_fire_left_3",
-        "walking_pirate_fire_left_4", "walking_pirate_fire_left_5",
-        "walking_pirate_look_left_0", "walking_pirate_look_left_1",
-        "walking_pirate_look_left_2", "walking_pirate_look_shared",
-        "walking_pirate_walk_right_0", "walking_pirate_walk_right_1",
-        "walking_pirate_walk_right_2", "walking_pirate_walk_right_3",
-        "walking_pirate_walk_right_4", "walking_pirate_walk_right_5",
-        "walking_pirate_walk_right_6", "walking_pirate_walk_right_7",
-        "walking_pirate_fire_right_0", "walking_pirate_fire_right_1",
-        "walking_pirate_fire_right_2", "walking_pirate_fire_right_3",
-        "walking_pirate_fire_right_4", "walking_pirate_fire_right_5",
-        "walking_pirate_look_right_0", "walking_pirate_look_right_1",
-        "walking_pirate_look_right_2",
-    ];
-
-    // First-seen order in the eight wall-Pirate instruction programs. The
-    // renderer's frame identity is the compiled selector's bank-local pointer;
-    // names are only stable keys for presentation overrides.
-    private static readonly string[] WallNames =
-    [
-        "wall_pirate_fire_jump_left_0", "wall_pirate_fire_jump_left_1",
-        "wall_pirate_fire_jump_left_2", "wall_pirate_fire_jump_left_3",
-        "wall_pirate_climb_left_0", "wall_pirate_climb_left_1",
-        "wall_pirate_climb_left_2", "wall_pirate_climb_left_3",
-        "wall_pirate_climb_left_4", "wall_pirate_fire_jump_right_0",
-        "wall_pirate_fire_jump_right_1", "wall_pirate_fire_jump_right_2",
-        "wall_pirate_fire_jump_right_3", "wall_pirate_climb_right_0",
-        "wall_pirate_climb_right_1", "wall_pirate_climb_right_2",
-        "wall_pirate_climb_right_3", "wall_pirate_climb_right_4",
-    ];
-
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
     /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>
@@ -195,13 +156,12 @@ internal static class EnemyExtendedFrameDefinitions
                     $"Walking Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
-            if (count == WalkingNames.Length)
+            if (count == WalkingFrameCount)
                 throw new InvalidDataException("Walking Pirate has more frames than names.");
             yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
-                WalkingNames[count]));
+                PirateArtworkNameDefinitions.Walking(count)));
         }
-        if (count != WalkingFrameCount ||
-            WalkingNames.Length != WalkingFrameCount)
+        if (count != WalkingFrameCount)
             throw new InvalidDataException(
                 $"Walking Pirate has {count} distinct frames; expected {WalkingFrameCount}.");
         int wallCount = 0;
@@ -216,12 +176,12 @@ internal static class EnemyExtendedFrameDefinitions
                     $"Wall Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
-            if (wallCount == WallNames.Length)
+            if (wallCount == WallFrameCount)
                 throw new InvalidDataException("Wall Pirate has more frames than names.");
             yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
-                WallNames[wallCount++]));
+                PirateArtworkNameDefinitions.Wall(wallCount++)));
         }
-        if (wallCount != WallFrameCount || WallNames.Length != WallFrameCount ||
+        if (wallCount != WallFrameCount ||
             count != WalkingFrameCount + WallFrameCount)
             throw new InvalidDataException(
                 $"Wall Pirate has {wallCount} distinct frames; expected {WallFrameCount}.");

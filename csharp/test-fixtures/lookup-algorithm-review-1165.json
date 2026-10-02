@@ -3424,4 +3424,17 @@
     "confirmation": "Verification build and --lookup-botwoon-projectile-programs pass. Real body/spit producers and all seventeen body/tail programs confirm exact presentation order, loop restart, frame durations and sleep timers with original controls forbidden. Corrected obsolete expectations of cartridge sprite-selector reads; installed definitions produce zero such reads.",
     "scope": "Projectile program controls, operand positions and enumeration only. Visual pointer values, artwork and other Botwoon data remain independent review work; no retention exception claimed."
   }
+,
+  "botwoonProjectileVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:E80F-E8F8 and 86:EBAE-EBC5 programs; 8D:B62E-B75B body/tail maps, B8B2 hidden map and B8B4-B8D6 spit maps; pinned bank_86.asm and bank_8D.asm",
+    "body": "Four single-entry maps per twenty-byte directional program. Derive physical direction and timed frame, then apply seven-byte sprite-record stride from B62E; preserve unused fourth physical direction.",
+    "tail": "Eight six-byte programs select consecutive single-entry maps from B72A at seven-byte stride.",
+    "hidden": "Hidden program selects its named zero-entry native map B8B2.",
+    "spit": "Five timed frames select consecutive single-entry maps from B8B4 at seven-byte stride.",
+    "proof": "VerifyBotwoonProjectileVisualMapping checks all 46 independent native operands and pointers, native visible/hidden map counts, the four unused physical map counts, shared lookup and generator exclusion, every local control/gap and distant invalid operand. Existing operand proof establishes full ushort membership.",
+    "sharedCatalog": "Removed all 46 literal bank-86 selectors; calculated enumeration follows Fune/Namihe fireball. ResourceAudit attributes the mapping to BotwoonProjectileFrameAt; normalized projectile catalog source pin updated.",
+    "confirmation": "Verification and ResourceAudit builds pass. --lookup-botwoon-projectile-programs confirms production program frame order/timing/sleep plus all 5069 shared selectors against ROM with sorted enumeration and missing-key behavior.",
+    "scope": "Body/tail/hidden/spit sprite-pointer mappings only. Artwork fields and export metadata remain independent review work; no retention exception claimed."
+  }
 }

@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => BotwoonInstructionProgramDefinitions.PresentationWordCount + BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount + BotwoonInstructionProgramDefinitions.PresentationWordCount + BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -89,6 +89,12 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand));
         }
         index -= FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
+        if (index < BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(operand));
+        }
+        index -= BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount;
         if (index < BoyonInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -177,7 +183,7 @@ internal static partial class CompiledEnemyVisualSelectors
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
-        0x86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0x86 => BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
         0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
@@ -201,7 +207,7 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operandAddress)
                     : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operandAddress)
-                    : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
+                    : BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(operandAddress) : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
                 0xa2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
                     : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),

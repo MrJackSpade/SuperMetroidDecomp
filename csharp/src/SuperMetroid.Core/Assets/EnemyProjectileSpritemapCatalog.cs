@@ -204,6 +204,21 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
+    /// <summary>Botwoon body/tail maps start at $8D:B62E/$B72A and spit at
+    /// $8D:B8B4. Each visible map has one OAM entry (seven bytes); hidden uses
+    /// the zero-entry record $8D:B8B2. Physical body slots include the unused fourth.</summary>
+    internal static ushort BotwoonProjectileFrameAt(ushort operandAddress)
+    {
+        if (!BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException($"Botwoon projectile visual operand $86:{operandAddress:X4} is not compiled.");
+        if (operandAddress >= BotwoonProjectileInstructionProgramDefinitions.Spit)
+            return (ushort)(0xb8b4 + 7 * ((operandAddress - BotwoonProjectileInstructionProgramDefinitions.Spit - 2) / 4));
+        if (operandAddress == BotwoonProjectileInstructionProgramDefinitions.Hidden + 2) return 0xb8b2;
+        if (operandAddress >= BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight)
+            return (ushort)(0xb72a + 7 * ((operandAddress - BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight - 2) / 6));
+        int relative = operandAddress - BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft;
+        return (ushort)(0xb62e + 7 * (4 * (relative / 20) + (relative % 20) / 4));
+    }
     /// <summary>Sixteen consecutive single-entry maps at $8D:8DFB. Each fragment
     /// selects the same seven-byte record for its waiting and falling poses.</summary>
     internal static ushort BombTorizoStatueFrameAt(ushort operandAddress)

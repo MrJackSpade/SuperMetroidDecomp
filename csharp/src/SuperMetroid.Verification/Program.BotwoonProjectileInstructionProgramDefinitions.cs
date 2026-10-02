@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -13,7 +14,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         VerifyBotwoonProjectileControlMapping(rom);
-        VerifyBotwoonProjectileOperandMapping();
+        VerifyBotwoonProjectileOperandMapping(rom);
         VerifyBotwoonProjectileProgramEnumeration();
         for (int index = 0;
              index < BotwoonProjectileInstructionProgramDefinitions.MechanicsWordCount;
@@ -170,7 +171,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.MechanicsWord(index), "Botwoon control ordinal domain");
     }
 
-    private static void VerifyBotwoonProjectileOperandMapping()
+    private static void VerifyBotwoonProjectileOperandMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe811,0xe815,0xe819,0xe81d,0xe825,0xe829,0xe82d,0xe831,
             0xe839,0xe83d,0xe841,0xe845,0xe861,0xe865,0xe869,0xe86d,
@@ -186,6 +187,34 @@ internal static partial class Program
             AssertEqual(known.Contains((ushort)address), BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Botwoon projectile full operand membership");
         foreach (int index in new[] {int.MinValue,-1,46,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress(index), "Botwoon operand ordinal domain");
+        VerifyBotwoonProjectileVisualMapping(rom, operands);
+    }
+
+    private static void VerifyBotwoonProjectileVisualMapping(SuperMetroidAddressSpace rom, ushort[] nativeOperands)
+    {
+        foreach (ushort operand in nativeOperands)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0x860000 | operand);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(operand), "Botwoon projectile native sprite pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared), "Botwoon projectile shared selector exists");
+            AssertEqual(native, shared, "Botwoon projectile shared native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0x860000 | operand), "Botwoon projectile excluded from literal regeneration");
+            AssertEqual(operand == 0xe8f5 ? (ushort)0 : (ushort)1,
+                ReadBotwoonInstructionWord(rom, 0x8d0000 | native), "Botwoon visible single-piece and hidden empty record sizes");
+        }
+        // Unused fourth body direction still occupies four single-entry OAM records.
+        foreach (ushort pointer in new ushort[] {0xb682,0xb689,0xb690,0xb697})
+            AssertEqual((ushort)1, ReadBotwoonInstructionWord(rom, 0x8d0000 | pointer), "Botwoon unused physical map contributes seven bytes");
+        var known = nativeOperands.ToHashSet();
+        for (int address = 0xe80d; address <= 0xebc7; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt((ushort)address), "Botwoon projectile visual rejects controls and gaps");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86, (ushort)address, out ushort missing), "Botwoon projectile shared gap rejected");
+                AssertEqual((ushort)0, missing, "Botwoon projectile missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(address), "Botwoon projectile distant invalid visual");
     }
 
     private static int ProbeBotwoonProjectileInstructionMechanicsAllocation()

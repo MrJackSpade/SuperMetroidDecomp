@@ -238,21 +238,21 @@ internal static class RoomPlmHeaders
     /// <summary>Permanent 2x2 Samus-contact crumble block at <c>$84:D060</c>.</summary>
     public const ushort ContactCrumble2x2Permanent = 0xd060;
 
-    private static readonly ushort[] ContactCrumbleHeaders =
-    [
-        ContactCrumble1x1Respawning,
-        ContactCrumble2x1Respawning,
-        ContactCrumble1x2Respawning,
-        ContactCrumble2x2Respawning,
-        ContactCrumble1x1Permanent,
-        ContactCrumble2x1Permanent,
-        ContactCrumble1x2Permanent,
-        ContactCrumble2x2Permanent,
-    ];
-
-    /// <summary>Bank-$94 special-block BTS `$00-$07` dispatch order.</summary>
-    public static ReadOnlySpan<ushort> ContactCrumbleByReactionIndex =>
-        ContactCrumbleHeaders;
+    /// <summary>Selects the named contact-crumble header for bank-$94 special-block
+    /// BTS $00..07 at $94:9139. Sizes 1x1, 2x1, 1x2, 2x2 appear first as
+    /// respawning blocks, then as permanent blocks.</summary>
+    public static ushort ContactCrumbleByReactionIndex(int index) => index switch
+    {
+        0 => ContactCrumble1x1Respawning,
+        1 => ContactCrumble2x1Respawning,
+        2 => ContactCrumble1x2Respawning,
+        3 => ContactCrumble2x2Respawning,
+        4 => ContactCrumble1x1Permanent,
+        5 => ContactCrumble2x1Permanent,
+        6 => ContactCrumble1x2Permanent,
+        7 => ContactCrumble2x2Permanent,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Mother Brain's missile-reactive glass actor at $84:D6DE.</summary>
     public const ushort MotherBrainGlass = 0xd6de;

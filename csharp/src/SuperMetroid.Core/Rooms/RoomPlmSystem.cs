@@ -799,7 +799,7 @@ public sealed partial class RoomPlmSystem
             ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer =
-                RoomPlmHeaders.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+                RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.BlockIndex = blockIndex;
             RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
                 .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);

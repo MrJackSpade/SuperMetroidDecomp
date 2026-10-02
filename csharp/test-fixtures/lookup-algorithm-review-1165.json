@@ -3534,4 +3534,14 @@
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass: five complete independent mappings, existing 24 bomb collision/bomb/power-bomb timelines, and all eight contact-crumble programs with source reads forbidden.",
     "scope": "Five instruction-selection mappings only; no retention exception claimed. Separate header mappings and program/draw data remain independently reviewable."
   }
+,
+  "contactCrumbleHeaderSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 94:9139..9148 header words and 84:D044..D063 PLM headers; pinned bank_94.asm and bank_84.asm",
+    "algorithm": "Replace the eight stored headers with named size/respawn cases. The contact caller validates normal BTS 0..7 and passes its unchanged index; 1x1, 2x1, 1x2, 2x2 respawning headers precede their permanent counterparts.",
+    "proof": "VerifyContactCrumbleHeaderSelection compares every result against the independent original bank-94 header word, rejects all byte values 8..255 without masking and checks negative/high int boundaries with the original IndexOutOfRangeException.",
+    "consumers": "Migrated the sole RoomPlmSystem contact allocation consumer. Removed ContactCrumbleHeaders and its span. Refreshed the normalized RoomPlmHeaders source pin in RoomRevealClosedContractDefinitions.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including all eight contact-crumble production programs and the existing bomb fixtures.",
+    "scope": "Contact-crumble header identity only; program descriptors, timing and draw definitions retain their independent review requirements. No retention exception claimed."
+  }
 }

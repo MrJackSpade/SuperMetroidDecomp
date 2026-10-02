@@ -3,6 +3,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int index = 0; index < 8; index++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0x949139 + 2 * index),
+                RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
+        for (int index = 8; index <= byte.MaxValue; index++)
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+                "contact crumble header rejects unsupported BTS without masking");
+        foreach (int index in new[] {int.MinValue, -1, 256, int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+                "contact crumble header int bounds");
+    }
+
     private static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
             RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb");

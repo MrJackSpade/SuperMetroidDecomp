@@ -25,7 +25,7 @@ internal static class RoomRevealClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "0691A7AF56C3A993FDB62346BD2BFF1EC58FFEEBCF5A9B5292CED34E6E717023"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs", "F77DFA3E4099F3D0BE62C504C0348FA72E16DA96E89D080C3DE4B096214811EC"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs", "5BD9B6917BB21DB972D7A56A6FB8DF4CB5C9F462F1D567EDA99EA4431D369971"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "9F8894CE22D32CC768CC70CFC36E7E90C55F890AE3C2BA4126676288BD8D85BF")],
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "77171D9ECCDF6404DB8E0C8A7F6CD273D1302165C47A9A7C73CC45C96C46E6B0")],
             "Construction rejects unknown/duplicate/null entries, requires all seventeen permanent kinds from Bombs through ReserveTank and independently copies each complete tile/palette payload. Compiled graphics admission also verifies every consecutive kind and unique pointer. Resolve's required domain excludes the four fixed tank/ammo kinds. Timing, item ownership, destinations and pixel correctness are not certified."),
     ];
 }

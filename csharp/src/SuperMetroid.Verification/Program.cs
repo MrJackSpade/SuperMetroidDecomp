@@ -53,6 +53,14 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--eye-door-plm-draws"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Eye door oracle revision");
+    VerifyEyeDoorPlmDrawDefinitions(rom);
+    return 0;
+}
 if (args is ["--collectible-visuals"])
 {
     VerifyCollectibleVisuals();
@@ -2585,12 +2593,6 @@ if (args is ["--kraid-room-visuals"])
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
-if (args is ["--eye-door-plm-draws"])
-{
-    VerifyEyeDoorPlmDrawDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }

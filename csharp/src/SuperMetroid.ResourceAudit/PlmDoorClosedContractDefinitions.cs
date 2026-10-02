@@ -27,7 +27,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog", "plm-eye-door-complete-mirrored-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEyeDoorVisualCatalog.cs", "263ABAB3229A5156D3EBC6E3504AAAA093446FD26F80BC424134B49F5D59F073"),
-             new("csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmDrawDefinitions.cs", "3C8EDDF7CCD760EDCBF239CDC96714F62D71EA5B68B708CD725220BDDF97063C")],
+             new("csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmDrawDefinitions.cs", "6CD43ACEF495215C1C60C7380E6AB7FB27BCE3C9E71FDFF1711D73E346BF6EAF")],
             "The constructor requires twenty-three unique authored frames with exact cloned one/two/four-word payloads. The twenty-fourth pointer uses the required four-word clear frame with horizontal flip. GetWord guards the mapped frame's array bounds; known narrow components cannot borrow clear-frame width. Eye attacks and conversion timing are outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog", "plm-escape-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,

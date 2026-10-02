@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyEyeDoorVisualIds();
         VerifyEyeDoorProgramDefinitions(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);

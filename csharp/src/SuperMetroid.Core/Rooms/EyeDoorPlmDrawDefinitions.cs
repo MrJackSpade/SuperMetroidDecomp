@@ -42,21 +42,20 @@ internal static class EyeDoorPlmDrawDefinitions
     internal static string VisualId(ushort pointer)
     {
         if (pointer == LeftEyeClear) return "left-eye-clear";
-        foreach ((ushort first, int count, int stride, string name) in new[]
-                 {
-                     (LeftEyeFirst, 5, 8, "left-eye"),
-                     (LeftMiddleFirst, 3, 6, "left-middle"),
-                     (LeftBottomFirst, 3, 6, "left-bottom"),
-                     (RightEyeFirst, 5, 8, "right-eye"),
-                     (RightMiddleFirst, 3, 6, "right-middle"),
-                     (RightBottomFirst, 3, 6, "right-bottom"),
-                 })
-        {
-            int offset = pointer - first;
-            if (offset >= 0 && offset < count * stride && offset % stride == 0)
-                return $"{name}-frame-{offset / stride}";
-        }
-        throw new InvalidDataException($"Eye-door draw ${pointer:X4} has no visual ID.");
+        bool right = pointer >= RightEyeFirst;
+        int normalized = right ? pointer - (RightEyeFirst - LeftEyeFirst) : pointer;
+        string component;
+        int first, count, stride;
+        if (normalized < LeftMiddleFirst)
+        { component = "eye"; first = LeftEyeFirst; count = 5; stride = 8; }
+        else if (normalized < LeftBottomFirst)
+        { component = "middle"; first = LeftMiddleFirst; count = 3; stride = 6; }
+        else
+        { component = "bottom"; first = LeftBottomFirst; count = 3; stride = 6; }
+        int offset = normalized - first;
+        if (offset < 0 || offset >= count * stride || offset % stride != 0)
+            throw new InvalidDataException($"Eye-door draw ${pointer:X4} has no visual ID.");
+        return $"{(right ? "right" : "left")}-{component}-frame-{offset / stride}";
     }
 
     internal static bool TryGetByVisualId(string id,

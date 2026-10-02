@@ -3261,4 +3261,24 @@
     "confirmation": "Verification build and --lookup-beetom-programs pass the new focused mappings and existing six instruction programs/shared selector checks.",
     "scope": "Distant-action choice and its direction field only. Other Beetom AI dispatch/state, movement, export metadata and artwork remain separate review obligations. No table-retention exception claimed."
   }
+,
+  "blueBrinstarFaceBlockProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A8:E80C-E82D programs and E92C-E999 OAM maps; pinned bank_A8.asm",
+    "mechanics": {
+      "disposition": "Removed ten stored control words. Two fourteen-byte turn programs wait 48 ticks facing forward, show two sixteen-tick turn poses and sleep. The six-byte initial program shows the neutral pose for one tick then sleeps. Compute control positions and return named Sleep operations from that structure.",
+      "proof": "VerifyFaceBlockMechanicsMapping independently checks ten native positions and direct/enumerated words, full byte ownership, high-bit aliases, bank rejection, invalid local/distant words and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed seven stored operand positions; derive three four-byte frames per turn program plus the initial program operand.",
+      "proof": "VerifyFaceBlockPresentationMapping checks seven independently listed native positions, full ushort membership and ordinal bounds."
+    },
+    "visualPointers": {
+      "disposition": "Removed seven shared literal sprite pointers. Both turns begin with the neutral map, followed by the two direction-specific maps. All five maps have four OAM records, so derive their pointers using a twenty-two-byte stride. Export pointers reuse the same calculation.",
+      "proof": "VerifyFaceBlockVisualMapping checks all seven native operands, five native sprite counts, export names/order/banks, shared lookup/generator exclusion, missing outputs and invalid operands."
+    },
+    "sharedCatalog": "Calculated enumeration appends this bank-A8 family after Atomic. ResourceAudit attributes it to BlueBrinstarFaceBlockVisualDefinitions.FrameAt.",
+    "confirmation": "Verification and ResourceAudit builds; --lookup-face-block-programs confirms all three production programs, both activation sides, sleep terminals and absence of program/selector ROM reads, plus the full 5069-entry shared selector contract.",
+    "scope": "Instruction controls, operand positions and sprite/export pointer values only. Activation geometry, asset naming/container design and artwork remain separate obligations; no retention exception claimed."
+  }
 }

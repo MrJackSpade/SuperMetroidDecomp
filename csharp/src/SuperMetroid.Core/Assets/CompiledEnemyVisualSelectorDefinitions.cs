@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -147,8 +147,14 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa80000 | operand, EnemySpritemapDefinitions.AlcoonFrameAt(operand));
         }
         index -= AlcoonInstructionProgramDefinitions.PresentationWordCount;
-        ushort atomicOperand = AtomicInstructionProgramDefinitions.PresentationWordAddress(index);
-        return new(0xa80000 | atomicOperand, EnemySpritemapDefinitions.AtomicFrameAt(atomicOperand));
+        if (index < AtomicInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = AtomicInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa80000 | operand, EnemySpritemapDefinitions.AtomicFrameAt(operand));
+        }
+        index -= AtomicInstructionProgramDefinitions.PresentationWordCount;
+        ushort faceOperand = BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index);
+        return new(0xa80000 | faceOperand, BlueBrinstarFaceBlockVisualDefinitions.FrameAt(faceOperand));
     }
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
@@ -159,7 +165,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa8 => BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+        0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
@@ -188,6 +194,8 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
                     : BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BeetomFrameAt(operandAddress)
+                    : BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                    ? BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress)
                     : EnemySpritemapDefinitions.AtomicFrameAt(operandAddress),
             };
             return true;

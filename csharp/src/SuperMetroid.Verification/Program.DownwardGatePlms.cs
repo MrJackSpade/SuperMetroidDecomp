@@ -80,32 +80,13 @@ internal static partial class Program
 
     private static void VerifyDownwardGateProgramDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        int wordCount = 0;
-        foreach ((ushort address, ushort compiled) in
-                 DownwardGatePlmProgramDefinitions.MechanicsWords)
-        {
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled,
-                $"downward-gate program word $84:{address:X4} matches ROM");
-            wordCount++;
-        }
-        AssertEqual(62, wordCount,
-            "resident and eight trigger gate streams have all compiled words");
-
-        int byteCount = 0;
-        foreach ((ushort address, byte compiled) in
-                 DownwardGatePlmProgramDefinitions.MechanicsBytes)
-        {
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"downward-gate sound byte $84:{address:X4} matches ROM");
-            byteCount++;
-        }
-        AssertEqual(2, byteCount, "both resident gate sound operands are compiled");
-        AssertTrue(!DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(0xbc61, out _),
-            "adjacent non-gate list bytes are not claimed");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate program oracle revision");
+        VerifyDownwardGateProgramControls(rom);
+        VerifyDownwardGateProgramDraws(rom);
+        VerifyDownwardGateProgramOperands(rom);
+        VerifyDownwardGateProgramSounds(rom);
     }
 
     private static void VerifyDownwardGateSetupAndProjectile()

@@ -10,7 +10,7 @@ internal static class EnemyVisualProgramRoutingContracts
 {
     private static readonly Dictionary<string, string> Methods = new()
     {
-        ["ReadEnemyInstructionMechanicsWord"] = "E572F93AD27F7E5CA4B30821787E4A8B0F50C44BB34A730153F170C511B16B11",
+        ["ReadEnemyInstructionMechanicsWord"] = "78C846F138FBD864577FC5B370924917A2AB4C55C287D73100C5637182DD70CE",
         ["ReadEnemyProjectileInstructionMechanicsWord"] = "0DFF0A03BFCE9607A45D28FA81E1B158023D6E1D9CFDCE682C587F0BA45240A9",
         ["ReadEnemyVisualSelector"] = "6FB5ADC8C63B8D832AE601B1B7C4EEEA018661AF7F54DAD526A6C539AA5AFC34",
         ["SetEnemyProjectileVisualOperand"] = "7769ECC83131B76FAEF68F04B0287AE7DB2E148B966162AA430CA4BB4EC0E701",

@@ -3954,6 +3954,8 @@ public sealed partial class RoomEnemySystem
 
         if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        if (slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition)
+            return RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (IsDraygonDefinition(slot.EnemyDefinitionPointer))
             return DraygonInstructionProgramDefinitions.ReadMechanicsWord(address);

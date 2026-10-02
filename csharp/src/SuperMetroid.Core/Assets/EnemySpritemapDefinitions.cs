@@ -11,6 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
+    internal const int PreRidleyBreakupVersion = 68;
+    internal const int PreRidleyBreakupFrameCount = 1404;
     /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
     internal const int PreSingleFrameVersion = 67;
     internal const int PreSingleFrameFrameCount = 1402;
@@ -48,7 +51,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 68;
+    internal const int Version = 69;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -715,6 +718,10 @@ internal static class EnemySpritemapDefinitions
         .. NuclearWaffleVisualDefinitions.Frames(),
         SingleFrameEnemyVisualDefinitions.Kzan,
         SingleFrameEnemyVisualDefinitions.Polyp,
+        .. RidleyBreakupVisualDefinitions.Legs,
+        .. RidleyBreakupVisualDefinitions.Torso,
+        .. RidleyBreakupVisualDefinitions.Head,
+        .. RidleyBreakupVisualDefinitions.Claw,
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

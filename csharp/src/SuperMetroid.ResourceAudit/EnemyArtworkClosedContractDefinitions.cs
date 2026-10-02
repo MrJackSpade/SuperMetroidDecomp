@@ -6,8 +6,8 @@ internal static class EnemyArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
-            // #1166: reviewed schema 67 -> 68 bump; provider and DMA routing are unchanged.
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs", "4B1DA25E3254188D1BF8A464A8E1F83837A2D58BB8FD49F1DA31B34F49EF2582"),
+            // #1172: reviewed schema 68 -> 69 bump; provider and DMA routing are unchanged.
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs", "EAC49F6D93853D57533C08DA6D0011D482C2B3BF58812000C7D8EAA35E57776F"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs", "01CDA4CA13BE7A3CA179F92B2A27FB4250BDFF5F632D6428F6C25C041C927F83"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyTileSourceDefinitions.cs", "4169C1F970535F5D03B6BBCCEAB32C50C41FB9CDB660F12672E7CB1AE4CA4DBE"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.cs", "CEF2D6749BB7759E33E6E6C97954FD0BDD89E42686EF681160A7D114CD01D536"),

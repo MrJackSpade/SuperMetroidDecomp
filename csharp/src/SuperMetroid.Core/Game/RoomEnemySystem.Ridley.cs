@@ -277,6 +277,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairPogoSetup:
+                state.IdealInterSegmentTailAngle = 11;
+                state.TailExtensionSpeed = 0x180;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
                 state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x1f) + 32));
                 TickNorfairRidleyPogo(slot, state, samus, descending: true);
@@ -295,11 +297,11 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairFireballMoveToSide:
-                TickNorfairRidleyGroundAttackMoveToSide(slot, state);
+                TickNorfairRidleyGroundAttackMoveToSide(slot, state, samus);
                 return;
 
             case RidleyAiFunction.NorfairFireballMoveToHeight:
-                TickNorfairRidleyGroundAttackMoveToHeight(slot, state);
+                TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
                 return;
 
             case RidleyAiFunction.NorfairFireballAttack:
@@ -549,19 +551,23 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
+        state.TailExtensionSpeed = 0xf0;
+        state.IdealInterSegmentTailAngle = 16;
+        state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
     }
 
     private void TickNorfairRidleyGroundAttackMoveToSide(
         RoomEnemySlot slot,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusState? samus)
     {
         if (unchecked((short)(slot.YPosition - 288)) < 0)
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
             state.FunctionTimer = 32;
-            TickNorfairRidleyGroundAttackMoveToHeight(slot, state);
+            TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
 
@@ -571,12 +577,15 @@ public sealed partial class RoomEnemySystem
 
     private void TickNorfairRidleyGroundAttackMoveToHeight(
         RoomEnemySlot slot,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusState? samus)
     {
         MoveNorfairRidleyToward(slot, state, slot.XPosition, 288, divisorIndex: 0);
         if (!TickRidleyFunctionTimer(state))
             return;
 
+        state.TailFunctionIndex = RidleyTailDefinitions.PogoSetup;
+        TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x3f) + 128));
@@ -594,6 +603,8 @@ public sealed partial class RoomEnemySystem
             state.VerticalVelocity = unchecked((ushort)-Math.Max(
                 512,
                 Math.Abs((int)unchecked((short)state.VerticalVelocity))));
+            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
             return;
         }
@@ -607,7 +618,14 @@ public sealed partial class RoomEnemySystem
 
         EarthquakeType = 13;
         EarthquakeTimer = 4;
+        SetRidleyPogoHorizontalDirection(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
+        for (int index = 0; index < state.TailSegments.Length; index++)
+        {
+            state.TailSegments[index].Distance = RidleyTailDefinitions.RestDistances[index];
+            state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
+        }
+        state.TailFunctionIndex = RidleyTailDefinitions.Pogo;
         state.PogoBounceCount = unchecked((ushort)(state.PogoBounceCount + 1));
         if (state.PogoBounceCount >= 2)
         {
@@ -624,7 +642,8 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null || samus.YPosition < 352 || TickRidleyFunctionTimer(state))
         {
-            state.TailWhipRequest = 0;
+            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailAngleDelta = 1;
             state.Function = RidleyAiFunction.NorfairSelectAttack;
             return;
         }

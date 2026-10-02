@@ -34,7 +34,7 @@ internal static partial class Program
         var pogo = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool>>(enemies);
         var moveSide = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToSide", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var slot = enemies.Slots[0];
@@ -81,7 +81,7 @@ internal static partial class Program
                 AssertEqual(Expected(x, target, hover[health]), state.HorizontalVelocity, "Pogo side target and health divisor reach motion");
             }
             state.HorizontalVelocity = state.VerticalVelocity = 0;
-            moveSide(slot, state);
+            moveSide(slot, state, null);
             AssertEqual(Expected(x, ground[Math.Min(facing, (ushort)2)], 0), state.HorizontalVelocity, "Ground side target reaches motion");
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             state.Function = RidleyAiFunction.NorfairCarryRelease;

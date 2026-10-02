@@ -88,6 +88,9 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreRidleyBreakupVersion when
+                stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreRidleyBreakupFrameCount,
             EnemySpritemapDefinitions.PreSingleFrameVersion when
                 stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreSingleFrameFrameCount,

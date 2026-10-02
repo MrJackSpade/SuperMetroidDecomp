@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ridley-flight-tail"])
+{
+    VerifyRidleyFlightTail();
+    return 0;
+}
+if (args is ["--ridley-breakup-programs"])
+{
+    VerifyRidleyBreakupPrograms();
+    return 0;
+}
 if (args is ["--attract-runtime-bindings"])
 {
     VerifyAttractRuntimeBindings();

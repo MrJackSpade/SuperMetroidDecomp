@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
     /// retaining that documented anomaly is why the tail curls and rotates at the same
     /// rate as the cartridge.
     /// </summary>
-    private static void TickRidleyTail(
+    private void TickRidleyTail(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -54,24 +54,19 @@ public sealed partial class RoomEnemySystem
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven native tail segments.");
 
-        if (state.TailFunctionIndex == 1)
+        if (state.TailFunctionIndex != 0)
         {
-            state.TailMinimumClockwiseAngle = state.FacingDirection == 2
-                ? (ushort)0x3fc0
-                : (ushort)0x3ff0;
-            state.TailMaximumCounterClockwiseAngle = state.FacingDirection == 2
-                ? (ushort)0x4010
-                : (ushort)0x4040;
+            state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
+            state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
 
-            HandleCeresRidleyNeutralTailControl(slot, state, samus);
-
-            for (int index = 0; index < state.TailSegments.Length; index++)
-                TickRidleyTailSegment(state, index);
-        }
-        else if (state.TailFunctionIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Ceres Ridley tail function {state.TailFunctionIndex} is not translated.");
+            if (state.TailFunctionIndex == RidleyTailDefinitions.Neutral)
+            {
+                HandleCeresRidleyNeutralTailControl(slot, state, samus);
+                for (int index = 0; index < state.TailSegments.Length; index++)
+                    TickRidleyTailSegment(state, index);
+            }
+            else
+                TickRidleyPogoTail(slot, state, samus);
         }
 
         // Tail function zero suppresses angular *motion* before $A6:A4C5 activates every
@@ -112,7 +107,7 @@ public sealed partial class RoomEnemySystem
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
-    private static void HandleCeresRidleyNeutralTailControl(
+    private void HandleCeresRidleyNeutralTailControl(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -123,25 +118,17 @@ public sealed partial class RoomEnemySystem
             bool targetsIdle =
                 (state.TailWhipTargetClockwiseAngle & 0x8000) != 0 &&
                 (state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0;
-            if (targetsIdle)
+            if (state.TailWhipRequest != 0 && targetsIdle)
             {
-                if (state.TailWhipRequest != 0)
-                {
-                    AimCeresRidleyTailWhip(
-                        state,
-                        samus,
-                        unchecked((byte)(state.TailWhipRequest - 1)));
-                }
-                else if (state.IdleTailWhipEnabled != 0 && samus is not null &&
-                         Math.Abs(unchecked((short)(samus.XPosition - slot.XPosition))) < 128)
-                {
-                    // The other native admission is a low-byte RNG value >= $F0. The
-                    // runtime's random delegate advances per call rather than exposing the
-                    // cartridge's once-per-frame seed, so consuming it here would alter the
-                    // attack selector. Proximity is the deterministic retail branch and is
-                    // the one reached during Ceres lunges.
+                AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
+            }
+            else if (state.IdleTailWhipEnabled != 0)
+            {
+                // Read the existing seed; this branch never advances the cartridge RNG.
+                if ((RequireRandomNumber() & 0xff) >= 0xf0)
+                    AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
+                else if (samus is not null && Math.Abs((short)(samus.XPosition - slot.XPosition)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: 0);
-                }
             }
 
             state.TailWhipRequest = 0;
@@ -161,7 +148,7 @@ public sealed partial class RoomEnemySystem
             : (ushort)2;
     }
 
-    private static void AimCeresRidleyTailWhip(
+    private void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
         byte additionalAngle)
@@ -173,9 +160,25 @@ public sealed partial class RoomEnemySystem
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
+        ushort targetX = samus.XPosition;
+        ushort targetY = unchecked((ushort)(samus.YPosition + 24));
+        // $D242 scans only the five ordinary projectile slots, first match wins.
+        if (_samusProjectilesForEnemyFrame is { ProjectileCounter: > 0 } projectiles)
+        {
+            RidleyTailSegment tip = state.TailSegments[6];
+            foreach (var projectile in projectiles.Slots.Take(5))
+            {
+                if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
+                if (Math.Abs((short)(projectile.XPosition - tip.XPosition)) - projectile.XRadius >= 64 ||
+                    Math.Abs((short)(projectile.YPosition - tip.YPosition)) - projectile.YRadius >= 64) continue;
+                targetX = projectile.XPosition;
+                targetY = projectile.YPosition;
+                break;
+            }
+        }
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - root.XPosition)),
-            unchecked((short)(samus.YPosition + 24 - root.YPosition)));
+            unchecked((short)(targetX - root.XPosition)),
+            unchecked((short)(targetY - root.YPosition)));
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
         ushort additional = unchecked((ushort)(additionalAngle << 8));
 

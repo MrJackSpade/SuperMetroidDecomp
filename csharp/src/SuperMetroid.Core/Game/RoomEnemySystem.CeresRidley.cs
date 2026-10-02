@@ -654,26 +654,16 @@ public sealed partial class RoomEnemySystem
             magnitude = Math.Max(targetMagnitude, magnitude - 32);
         state.SwoopSpeedMagnitude = unchecked((ushort)magnitude);
 
-        int angle = unchecked((short)state.SwoopAngleAccumulator);
-        angle = angleDelta < 0
-            ? Math.Max(targetAngle, angle + angleDelta)
-            : Math.Min(targetAngle, angle + angleDelta);
-        state.SwoopAngleAccumulator = unchecked((ushort)angle);
-
-        // Math_MultBySin/Cos uses the signed 8-bit sine table with the high byte of the
-        // 16-bit angle accumulator. Rounding to the nearest signed table byte reproduces
-        // the table's integer amplitude before its magnitude multiply/truncate.
-        int phase = unchecked((byte)(state.SwoopAngleAccumulator >> 8));
-        state.HorizontalVelocity = unchecked((ushort)MultiplyBySineTable(magnitude, phase));
-        state.VerticalVelocity = unchecked((ushort)MultiplyBySineTable(magnitude, phase + 64));
-    }
-
-    private static short MultiplyBySineTable(int magnitude, int phase)
-    {
-        int sine = (int)Math.Round(
-            Math.Sin((phase & 0xff) * (Math.PI * 2 / 256)) * 127,
-            MidpointRounding.AwayFromZero);
-        return unchecked((short)(Math.Sign(sine) * (magnitude * Math.Abs(sine) >> 8)));
+        ushort angle = unchecked((ushort)(state.SwoopAngleAccumulator + angleDelta));
+        // Native CMP branches on N, not signed less-than (N xor V). Preserve word
+        // wrapping, particularly the $8000 recovery target after a rightward swoop.
+        bool negativeDifference = unchecked((short)(angle - targetAngle)) < 0;
+        if (angleDelta < 0 ? negativeDifference : !negativeDifference)
+            angle = unchecked((ushort)targetAngle);
+        state.SwoopAngleAccumulator = angle;
+        byte phase = (byte)(angle >> 8);
+        state.HorizontalVelocity = EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase);
+        state.VerticalVelocity = EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)));
     }
 
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)

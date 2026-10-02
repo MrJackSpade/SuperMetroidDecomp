@@ -71,7 +71,7 @@ internal static partial class Program
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToHeight", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var slot = enemies.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -91,7 +91,8 @@ internal static partial class Program
             reads = advances = 0;
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
             state.FunctionTimer = 0;
-            attack(slot, state);
+            state.TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray();
+            attack(slot, state, null);
             AssertEqual(0, advances, "Native Ridley fireball setup must not advance RNG");
             AssertEqual(2, reads, "Pogo velocity and fireball timer sample the same current word");
             AssertEqual((ushort)((raw & 63) + 128), state.FunctionTimer, "Fireball attack exact native timer");

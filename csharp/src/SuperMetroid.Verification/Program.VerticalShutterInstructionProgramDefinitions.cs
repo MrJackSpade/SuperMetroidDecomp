@@ -228,6 +228,46 @@ internal static partial class Program
             AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
         }
     }
+    private static void VerifyShutterVisualPointerMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac, 0xe9d6];
+        for (int index = 0; index < operands.Length; index++)
+        {
+            ushort operand = operands[index];
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand);
+            AssertEqual(native, ShutterVisualDefinitions.PointerAt(operand), "shutter calculated native visual pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, operand, out ushort shared), "shutter shared selector exists");
+            AssertEqual(native, shared, "shutter shared selector matches native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa20000 | operand), "shutter excluded from literal regeneration");
+            AssertEqual(native, ShutterVisualDefinitions.Frames()[index].Pointer, "shutter export pointer reuses calculation");
+        }
+        ushort[] usedMaps = [0xed44, 0xed57, 0xed74, 0xed9b];
+        ushort[] betweenMaps = [0xed4b, 0xed63, 0xed85];
+        for (int stage = 0; stage < 4; stage++)
+        {
+            AssertEqual((ushort)(stage + 1), ReadVerticalShutterInstructionWord(rom, 0xa20000 | usedMaps[stage]), "native growing map sprite count");
+            if (stage < 3)
+                AssertEqual((ushort)(stage + 2), ReadVerticalShutterInstructionWord(rom, 0xa20000 | betweenMaps[stage]), "native intervening map sprite count");
+        }
+        var known = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(known.Contains((ushort)address), ShutterVisualDefinitions.IsPresentationWord((ushort)address), "shutter full visual membership domain");
+        for (int address = 0xe996; address <= 0xe9db; address++)
+            if (!known.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.PointerAt((ushort)address), "shutter pointer rejects mechanics and unowned neighboring programs");
+        foreach (ushort owner in new ushort[] { RoomEnemySystem.GrowingShutterDefinition, RoomEnemySystem.ShootableVerticalShutterDefinition,
+            RoomEnemySystem.DestroyableVerticalShutterDefinition, RoomEnemySystem.ShootableHorizontalShutterDefinition })
+            foreach (ushort operand in operands)
+            {
+                bool allowed = owner == RoomEnemySystem.GrowingShutterDefinition ? operand != 0xe9d6
+                    : owner == RoomEnemySystem.ShootableHorizontalShutterDefinition ? operand == 0xe9d6 : operand == 0xe9ac;
+                if (allowed)
+                    AssertEqual(ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand), ShutterVisualDefinitions.FrameAt(owner, operand), "shutter owner-specific native pointer");
+                else
+                    AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(owner, operand), "shutter cross-family operand rejected");
+            }
+        AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(0, 0xe9ac), "unknown shutter owner rejected");
+    }
     private static int ProbeVerticalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;

@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -83,6 +83,15 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa20000 | operand, EnemySpritemapDefinitions.BoyonFrameAt(operand));
         }
         index -= BoyonInstructionProgramDefinitions.PresentationWordCount;
+        int growingCount = GrowingShutterInstructionProgramDefinitions.PresentationWordCount;
+        if (index < growingCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = index < growingCount
+                ? GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(index)
+                : HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(index - growingCount);
+            return new(0xa20000 | operand, ShutterVisualDefinitions.PointerAt(operand));
+        }
+        index -= growingCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount;
         int kamerCount = VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1;
         if (index < kamerCount)
         {
@@ -127,7 +136,7 @@ internal static partial class CompiledEnemyVisualSelectors
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
         0x86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa2 => BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
+        0xa2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -145,7 +154,8 @@ internal static partial class CompiledEnemyVisualSelectors
                 0x86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
                     : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
-                0xa2 => VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
+                0xa2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
+                    : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)

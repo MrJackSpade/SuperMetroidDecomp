@@ -14,13 +14,33 @@ internal static class ShutterVisualDefinitions
 
     internal static EnemySpritemapDefinition[] Frames() =>
     [
-        new(Bank, 0xed44, "shutter_growing_10px"),
-        new(Bank, 0xed57, "shutter_growing_20px"),
-        new(Bank, 0xed74, "shutter_growing_30px"),
-        new(Bank, 0xed9b, "shutter_vertical_40px"),
-        new(Bank, 0xedb1, "shutter_horizontal"),
+        new(Bank, GrowingFrame(0), "shutter_growing_10px"),
+        new(Bank, GrowingFrame(1), "shutter_growing_20px"),
+        new(Bank, GrowingFrame(2), "shutter_growing_30px"),
+        new(Bank, GrowingFrame(3), "shutter_vertical_40px"),
+        new(Bank, HorizontalFrame, "shutter_horizontal"),
     ];
 
+    /// <summary><c>Spritemap_Shutters_Horizontal</c> at $A2:EDB1.</summary>
+    private const ushort HorizontalFrame = 0xedb1;
+
+    // A stage with n sprites occupies 2+5n bytes, followed by an unused
+    // intermediate map with n+1 sprites occupying 2+5(n+1) bytes.
+    // Sum those pairs for the preceding stages, where n starts at one.
+    private static ushort GrowingFrame(int stage) => (ushort)(0xed44 + 19 * stage + 5 * stage * (stage - 1));
+
+    internal static bool IsPresentationWord(ushort address) =>
+        GrowingShutterInstructionProgramDefinitions.IsPresentationWord(address) ||
+        HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(address);
+
+    internal static ushort PointerAt(ushort operandAddress)
+    {
+        if (GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            return GrowingFrame((operandAddress - (GrowingShutterInstructionProgramDefinitions.TenPixels + 2)) / 6);
+        if (HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            return HorizontalFrame;
+        throw new InvalidDataException($"Shutter visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
     /// <summary>Accepts only a native visual operand for the specified shutter family.</summary>
     internal static ushort FrameAt(ushort enemyDefinition, ushort operandAddress)
     {
@@ -36,9 +56,7 @@ internal static class ShutterVisualDefinitions
                 HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress),
             _ => false,
         };
-        if (isPresentation &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
+        if (isPresentation) return PointerAt(operandAddress);
         throw new InvalidDataException(
             $"Shutter ${enemyDefinition:X4} visual operand $A2:{operandAddress:X4} is not compiled.");
     }

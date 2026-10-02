@@ -3105,4 +3105,20 @@
     "integration": "Verification build and --lookup-shutter-pose-programs confirm all four real growth-stage transitions and the horizontal initializer, one-tick duration and terminal sleep, with mechanics reads forbidden and zero visual-selector cartridge reads.",
     "scope": "Pose instruction/control mappings only. Visual pointer selection, artwork and remaining movement mappings need separate review; no retention exception claimed."
   }
+,
+  "shutterVisualPointerReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A2 E99A/E9A0/E9A6/E9AC/E9D6 operands; ED44-EDB0 growing/intermediate map records and EDB1 horizontal identity; pinned bank_A2.asm",
+    "growingPointers": {
+      "disposition": "Replace four literals with record-size calculation. A used map with n sprites occupies 2+5n bytes, followed by an unused intermediate map with n+1 sprites occupying 2+5(n+1) bytes. Summing preceding pairs yields base ED44 plus 19*stage + 5*stage*(stage-1). This derives from native record structure, not numerical curve fitting.",
+      "proof": "VerifyShutterVisualPointerMapping compares original pointer operands and independently specified used/intermediate map counts."
+    },
+    "fixedPointers": {
+      "disposition": "Plain vertical shutter reuses the largest growth pose; horizontal shutter selects its single named native sprite identity directly. No lookup storage remains for these selector values.",
+      "proof": "The same focused proof checks both vertical owners, the horizontal owner, cross-family rejection, unknown owner rejection and export pointer reuse."
+    },
+    "sharedCatalog": "Removed all five distinct shared literals (the plain vertical pose aliases the fourth growing operand). Calculated enumeration stays ordered ahead of Kamer, with no generated cache. Generator exclusion and ResourceAudit source attribution use the precise ownership predicate.",
+    "confirmation": "Verification and ResourceAudit builds; --lookup-shutter-visuals checks growing, horizontal and plain/Kamer production programs plus the full 5069-entry shared selector contract.",
+    "scope": "Visual pointer selection and export pointer reuse only. Sprite artwork and names remain separately reviewable; no retention exception claimed."
+  }
 }

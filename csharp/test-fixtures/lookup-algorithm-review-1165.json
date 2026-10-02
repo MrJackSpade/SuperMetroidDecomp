@@ -3862,7 +3862,7 @@
     "algorithm": "Remove five persistent draw layouts. Clear bridge repeats blank 80 ten times; single-block clear and crumble use their named operations. Wall draws three vertical eight-cell columns: blank top/bottom cells, two repeats of alternating tile rows 107/127 plus column, then base row 147 plus column. Create ORs solid bit 8000 into every wall cell. Origin-relative continuation X is one then two, with zero Y and terminating zero pair.",
     "domain": "Only the five native start pointers are accepted. All interior, adjacent and other ushort pointers return false/default; descriptor run and cell bounds reject invalid integer indices. No arbitrary byte views or neighboring draw aliases are introduced.",
     "proof": "VerifyCrocomirePhysicalDrawMapping consolidates the previous native draw check: five independent native pointers, all sixty original level words, direction/counts, offsets and exact end boundaries; descriptor, temporary DTO and ordered export agree. Complete ushort ownership/defaults and invalid run/cell integer boundaries are checked against the original cartridge records.",
-    "consumers": "RoomPlmSystem evaluates physical cells directly and preserves nullable artwork selection. Import/export retain temporary DTOs; visual getters use descriptor shape without materializing layouts. Source-pinned presentation contracts updated. Stock artwork remains a separate pending review; instruction words are converted under crocomireArenaProgramReview.",
+    "consumers": "RoomPlmSystem evaluates physical cells directly and preserves nullable artwork selection. Import/export retain temporary DTOs; visual getters use descriptor shape without materializing layouts. Source-pinned presentation contracts updated. Stock artwork is converted under crocomireArenaStockVisualReview; instruction words are converted under crocomireArenaProgramReview.",
     "confirmation": "Verification and ResourceAudit builds plus --crocomire-arena-plms and --crocomire-arena-visuals confirm native mapping, all five production mutations, deletion timing, customized artwork/physical isolation, source-read prohibition and installation/override checks.",
     "scope": "Crocomire arena physical draws only. No retention exception claimed. The wider audit remains unfinished."
   }
@@ -3876,6 +3876,17 @@
     "domain": "Exactly fifteen aligned words AFCA..AFE6. Reject all odd, interior and outside addresses, including following save-station program AFE8. No native adjacent aliases were admitted by the former dictionary.",
     "consumers": "RoomPlmProgramDefinitions retains its composed TryReadWord interface to the production interpreter. Existing five real mutation fixtures check exact resulting cells, one-frame duration, next-frame deletion and forbidden migrated source reads.",
     "confirmation": "Verification build and --crocomire-arena-plms pass both independent program field proofs, native physical-draw proof and all five production mutation/timing checks.",
-    "scope": "Crocomire arena instruction control and draw operands only. Stock artwork is still pending; no retention exception claimed. The wider audit remains unfinished."
+    "scope": "Crocomire arena instruction control and draw operands only. Stock artwork is converted under crocomireArenaStockVisualReview; no retention exception claimed. The wider audit remains unfinished."
+  }
+,
+  "crocomireArenaStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 visual portions of five physical draws 84:9B5B/9B73/9B79/9B7F/9BBB; factory, constructor, GetWord and ContentIdentity consumers",
+    "algorithm": "Remove generated stock-frame dictionary and arrays. Stock evaluates the reviewed bridge/wall physical cell and selects its low twelve visual bits. Import validates every unique ordinal ID, complete shape and visual bits, retaining cloned arrays only for customized frames. This remaining storage is editable user content, not a generated stock lookup cache.",
+    "identity": "Sorted native pointer order and one-run flattened frame hashing are preserved with a twenty-four-word stack buffer sliced to each layout's actual length.",
+    "proof": "VerifyCrocomireStockMapping replaces the former partial stock check. Independently parse all sixty native visual cells from five original pointers. Factory, reverse-order import and installed stock match every value and original hash; complete ushort missing-pointer rejection, all run/cell bounds, mixed stock/custom hashes, changed and unchanged source-array mutation isolation, and missing/duplicate/non-ordinal/wrong-shape/collision-bit rejection are confirmed.",
+    "consumers": "Existing artwork extraction, loading and production drawing retain their interfaces. No new runtime cartridge access. PlmProgression visual source pin and contract explanation updated.",
+    "confirmation": "Verification and ResourceAudit builds and --crocomire-arena-visuals pass complete stock/hash proof plus existing bridge/wall custom artwork, physical isolation, source-read prohibition, override persistence and installation integrity checks.",
+    "scope": "Crocomire stock artwork and identity only. No retention exception claimed. The wider source audit remains unfinished."
   }
 }

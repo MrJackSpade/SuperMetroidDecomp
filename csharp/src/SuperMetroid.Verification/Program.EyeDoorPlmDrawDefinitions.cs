@@ -49,30 +49,18 @@ internal static partial class Program
 
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = EyeDoorPlmProgramDefinitions.FirstAddress;
-             address <= EyeDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"eye-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"eye-door program byte $84:{address:X4} matches ROM");
-            if (address == EyeDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"eye-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"eye-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xd81d, out _),
-            "eye-door program does not claim preceding executable setup code");
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xda8c, out _),
-            "eye-door program does not claim following unrelated data");
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(0xda8b, out _),
-            "eye-door program refuses a word crossing into unrelated data");
+        VerifyEyeDoorProgramControl(rom);
+        VerifyEyeDoorProgramDuration(rom);
+        VerifyEyeDoorProgramDraw(rom);
+        VerifyEyeDoorProgramTarget(rom);
+        VerifyEyeDoorProgramCallback(rom);
+        VerifyEyeDoorProgramColumns(rom);
+        VerifyEyeDoorProgramRows(rom);
+        VerifyEyeDoorProgramAttack(rom);
+        VerifyEyeDoorProgramSweat(rom);
+        VerifyEyeDoorProgramSound(rom);
+        VerifyEyeDoorProgramHitCount(rom);
+        VerifyEyeDoorProgramLoopCount(rom);
     }
 
     private static void VerifyEyeDoorNativeDrawPath(

@@ -2,7 +2,10 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Five bounded physical block-draw layouts for Crocomire's bridge and
-/// three-column arena wall at $84:9B5B..9BF6.
+/// three-column arena wall at $84:9B5B..9BF6. Bridge runs repeat one word;
+/// wall columns use consecutive tiles, two alternating rows and a final base row.
+/// Clear/create share artwork and differ only in the solid block bit. Native
+/// continuation offsets are relative to the origin, not the preceding column.
 /// </summary>
 internal static class CrocomireArenaPlmDrawDefinitions
 {
@@ -19,15 +22,75 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// <summary><c>$84:9BF7</c>: first byte of the following eye-door draw region.</summary>
     internal const ushort EndExclusive = 0x9bf7;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    internal readonly record struct Draw(ushort Pointer, bool Wall, bool Solid, int WordsPerRun)
+    {
+        internal int RunCount => Wall ? 3 : 1;
+        internal ushort DirectionAndCount => (ushort)(WordsPerRun | (Wall ? 0x8000 : 0));
+        internal sbyte NextX(int run)
+        {
+            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            return run + 1 < RunCount ? (sbyte)(run + 1) : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int block)
+        {
+            if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
+                throw new IndexOutOfRangeException();
+            if (!Wall) return Pointer == CrumbleBridgeBlock ? (ushort)0x810b : (ushort)0x0080;
+            int tile = block is 0 or >= 6 ? 0x80 :
+                0x107 + run + (block == 5 ? 2 : (block - 1) % 2) * 0x20;
+            return (ushort)(tile | (Solid ? 0x8000 : 0));
+        }
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        Lists.Values;
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        draw = pointer switch
+        {
+            ClearBridge => new(pointer, false, false, 10),
+            CrumbleBridgeBlock or ClearBridgeBlock => new(pointer, false, false, 1),
+            ClearInvisibleWall => new(pointer, true, false, 8),
+            CreateInvisibleWall => new(pointer, true, true, 8),
+            _ => default,
+        };
+        return draw.Pointer != 0;
+    }
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        Lists.TryGetValue(pointer, out draw);
+    // Temporary DTOs serve the existing artwork interface; gameplay evaluates cells directly.
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (ushort pointer in EnumeratePointers())
+            {
+                TryGet(pointer, out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    private static IEnumerable<ushort> EnumeratePointers()
+    {
+        yield return ClearBridge;
+        yield return CrumbleBridgeBlock;
+        yield return ClearBridgeBlock;
+        yield return ClearInvisibleWall;
+        yield return CreateInvisibleWall;
+    }
+
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribe(pointer, out var shape)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.WordsPerRun];
+            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
+            runs[run] = new(shape.DirectionAndCount, words, shape.NextX(run), 0);
+        }
+        draw = new(pointer, runs);
+        return true;
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -43,7 +106,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (string.Equals(VisualId(candidate.Pointer), id,
                     StringComparison.Ordinal))
@@ -56,38 +119,4 @@ internal static class CrocomireArenaPlmDrawDefinitions
         return false;
     }
 
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var result = new Dictionary<ushort,
-            RoomPlmShotBlockDrawDefinitions.DrawList>();
-        Add(ClearBridge, new RoomPlmShotBlockDrawDefinitions.Run(10,
-            Enumerable.Repeat((ushort)0x0080, 10).ToArray(), 0, 0));
-        Add(CrumbleBridgeBlock, new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x810b }, 0, 0));
-        Add(ClearBridgeBlock, new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x0080 }, 0, 0));
-        Add(ClearInvisibleWall,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x0080, 0x0107, 0x0127, 0x0107, 0x0127, 0x0147, 0x0080, 0x0080 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x0080, 0x0108, 0x0128, 0x0108, 0x0128, 0x0148, 0x0080, 0x0080 }, 2, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x0080, 0x0109, 0x0129, 0x0109, 0x0129, 0x0149, 0x0080, 0x0080 }, 0, 0));
-        Add(CreateInvisibleWall,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x8080, 0x8107, 0x8127, 0x8107, 0x8127, 0x8147, 0x8080, 0x8080 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x8080, 0x8108, 0x8128, 0x8108, 0x8128, 0x8148, 0x8080, 0x8080 }, 2, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8008, new ushort[]
-                { 0x8080, 0x8109, 0x8129, 0x8109, 0x8129, 0x8149, 0x8080, 0x8080 }, 0, 0));
-        return result;
-
-        void Add(ushort pointer,
-            params RoomPlmShotBlockDrawDefinitions.Run[] runs)
-        {
-            if (!result.TryAdd(pointer,
-                    new RoomPlmShotBlockDrawDefinitions.DrawList(pointer, runs)))
-                throw new InvalidDataException(
-                    $"Duplicate Crocomire draw ${pointer:X4}.");
-        }
-    }
 }

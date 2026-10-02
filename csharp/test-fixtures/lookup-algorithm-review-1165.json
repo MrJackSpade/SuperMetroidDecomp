@@ -3855,4 +3855,15 @@
     "confirmation": "Verification build and --tourian-access-plms pass both field proofs, existing real highest-slot spawns and fixed coordinates, program/domain proofs, physical draw parity and clear/crumble sequences with migrated source reads forbidden.",
     "scope": "Tourian access header/list selection only. Existing executable selection remains on independently verified functional grounds, not under a retention exception. The wider audit remains unfinished."
   }
+,
+  "crocomireArenaPhysicalDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:9B5B..9BF6; pinned bank_84.asm DrawInst_ClearCrocomiresBridge, CrumbleABlockOfCrocomiresBridge, ClearABlockOfCrocomiresBridge and ClearCrocomireInvisibleWall_0/1",
+    "algorithm": "Remove five persistent draw layouts. Clear bridge repeats blank 80 ten times; single-block clear and crumble use their named operations. Wall draws three vertical eight-cell columns: blank top/bottom cells, two repeats of alternating tile rows 107/127 plus column, then base row 147 plus column. Create ORs solid bit 8000 into every wall cell. Origin-relative continuation X is one then two, with zero Y and terminating zero pair.",
+    "domain": "Only the five native start pointers are accepted. All interior, adjacent and other ushort pointers return false/default; descriptor run and cell bounds reject invalid integer indices. No arbitrary byte views or neighboring draw aliases are introduced.",
+    "proof": "VerifyCrocomirePhysicalDrawMapping consolidates the previous native draw check: five independent native pointers, all sixty original level words, direction/counts, offsets and exact end boundaries; descriptor, temporary DTO and ordered export agree. Complete ushort ownership/defaults and invalid run/cell integer boundaries are checked against the original cartridge records.",
+    "consumers": "RoomPlmSystem evaluates physical cells directly and preserves nullable artwork selection. Import/export retain temporary DTOs; visual getters use descriptor shape without materializing layouts. Source-pinned presentation contracts updated. Remaining stock artwork dictionary and instruction decoder are separate pending reviews.",
+    "confirmation": "Verification and ResourceAudit builds plus --crocomire-arena-plms and --crocomire-arena-visuals confirm native mapping, all five production mutations, deletion timing, customized artwork/physical isolation, source-read prohibition and installation/override checks.",
+    "scope": "Crocomire arena physical draws only. No retention exception claimed. The wider audit remains unfinished."
+  }
 }

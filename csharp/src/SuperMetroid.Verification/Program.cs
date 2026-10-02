@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crocomire-arena-plms"])
+{
+    VerifyCompiledCrocomireArenaPlms();
+    return 0;
+}
+if (args is ["--crocomire-arena-visuals"])
+{
+    VerifyCrocomireArenaVisuals();
+    return 0;
+}
 if (args is ["--tourian-access-plms"])
 {
     VerifyCompiledTourianAccessPlmPrograms();
@@ -2384,11 +2394,7 @@ if (args is ["--kraid-room-plms"])
     VerifyCompiledKraidRoomPlms();
     return 0;
 }
-if (args is ["--crocomire-arena-plms"])
-{
-    VerifyCompiledCrocomireArenaPlms();
-    return 0;
-}
+
 if (args is ["--mother-brain-fake-death-plms"])
 {
     VerifyCompiledMotherBrainFakeDeathPlms();
@@ -2399,11 +2405,7 @@ if (args is ["--mother-brain-fake-death-visuals"])
     VerifyMotherBrainFakeDeathVisuals();
     return 0;
 }
-if (args is ["--crocomire-arena-visuals"])
-{
-    VerifyCrocomireArenaVisuals();
-    return 0;
-}
+
 if (args is ["--kraid-room-visuals"])
 {
     VerifyKraidRoomVisuals();

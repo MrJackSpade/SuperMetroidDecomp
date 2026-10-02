@@ -1919,14 +1919,17 @@ public sealed partial class RoomPlmSystem
                 null);
             return;
         }
-        if (CrocomireArenaPlmDrawDefinitions.TryGet(drawPointer,
+        if (CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer,
                 out var crocomireDraw))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, crocomireDraw, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                crocomireVisuals: crocomireVisuals);
+            for (int run = 0; run < crocomireDraw.RunCount; run++)
+            for (int block = 0; block < crocomireDraw.WordsPerRun; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (crocomireDraw.Wall ? run : block),
+                    originY + (crocomireDraw.Wall ? block : 0),
+                    crocomireDraw.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    crocomireVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer,

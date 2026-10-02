@@ -58,50 +58,16 @@ internal static partial class Program
 
     private static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
         VerifySpecialAirInsideHeaderMapping(rom);
         VerifySpecialAirInsideSetupMapping(rom);
         VerifySpecialAirCollisionHeaderMapping(rom);
         VerifySpecialAirCollisionSetupMapping(rom);
 
-        AssertEqual(8, QuicksandDefinitions.Reactions.Length,
-            "quicksand reaction definition count");
-        foreach (QuicksandReactionDefinition definition in QuicksandDefinitions.Reactions)
-        {
-            AssertEqual(
-                Word(rom, QuicksandRomData.PlmBank | definition.HeaderPointer),
-                definition.SetupPointer,
-                $"quicksand header ${definition.HeaderPointer:X4} setup");
-            AssertEqual(
-                Word(rom, QuicksandRomData.PlmBank |
-                    unchecked((ushort)(definition.HeaderPointer + 2))),
-                definition.InstructionListPointer,
-                $"quicksand header ${definition.HeaderPointer:X4} initial list");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => QuicksandDefinitions.ResolveReaction(0xb62f),
-            "ordinary no-op header cannot enter quicksand allocation domain");
-
-        for (int suit = 0; suit < 2; suit++)
-        {
-            int sourceOffset = suit * sizeof(ushort);
-            QuicksandSurfacePhysics physics =
-                QuicksandDefinitions.SurfacePhysics(suit != 0);
-            AssertEqual(
-                Word(rom, QuicksandRomData.MovingSurfaceDisplacement + sourceOffset),
-                physics.MovingDisplacement,
-                $"quicksand suit {suit} moving displacement");
-            AssertEqual(
-                Word(rom, QuicksandRomData.StationarySurfaceDisplacement + sourceOffset),
-                physics.StationaryDisplacement,
-                $"quicksand suit {suit} stationary displacement");
-            AssertEqual(
-                Word(rom, QuicksandRomData.SurfaceJumpLimit + sourceOffset),
-                physics.UpwardSpeedLimit,
-                $"quicksand suit {suit} upward speed limit");
-        }
+        VerifyQuicksandSetupMapping(rom);
+        VerifyQuicksandInstructionMapping(rom);
+        VerifyQuicksandMovingDisplacement(rom);
+        VerifyQuicksandStationaryDisplacement(rom);
+        VerifyQuicksandUpwardLimit(rom);
 
         var guarded = new QuicksandDefinitionReadGuard(rom);
         var level = new RoomLevelData(
@@ -167,6 +133,55 @@ internal static partial class Program
 
         Console.WriteLine(
             "Special-air/quicksand definitions: all 224 retail area dispatch records, eight quicksand setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
+    }
+
+    private static void VerifyQuicksandSetupMapping(SuperMetroidAddressSpace rom) =>
+        VerifyQuicksandReactionField(rom, false);
+
+    private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
+        VerifyQuicksandReactionField(rom, true);
+
+    private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
+    {
+        // Original non-clone sand PLM headers, independent of the replacement's named cases.
+        ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort header = (ushort)raw;
+            bool expected = headers.Contains(header);
+            bool found = QuicksandDefinitions.TryGetReaction(header, out var actual);
+            AssertEqual(expected, found, "quicksand header ownership");
+            if (!expected)
+            {
+                AssertEqual(default(QuicksandReactionDefinition), actual, "missing quicksand clears result");
+                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandDefinitions.ResolveReaction(header),
+                    "quicksand allocator rejects unsupported headers including clone gaps");
+                continue;
+            }
+            AssertEqual(header, actual.HeaderPointer, "quicksand retains requested identity");
+            AssertEqual(actual, QuicksandDefinitions.ResolveReaction(header), "quicksand allocator resolution");
+            ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
+            AssertEqual(native, instruction ? actual.InstructionListPointer : actual.SetupPointer,
+                $"quicksand header {header:X4} instruction {instruction}");
+        }
+    }
+
+    private static void VerifyQuicksandMovingDisplacement(SuperMetroidAddressSpace rom) =>
+        VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement);
+
+    private static void VerifyQuicksandStationaryDisplacement(SuperMetroidAddressSpace rom) =>
+        VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement);
+
+    private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
+        VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit);
+
+    private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
+        Func<QuicksandSurfacePhysics, ushort> field)
+    {
+        for (int suit = 0; suit < 2; suit++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, address + suit * 2),
+                field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
+                $"quicksand physics {address:X6} suit {suit}");
     }
 
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>

@@ -3717,4 +3717,18 @@
     "confirmation": "Verification build and --lookup-special-air confirm four complete native mapping proofs plus existing suit/direction, displacement, collision, grounding, pose-clearance and sandfall checks, including production paths with migrated source reads forbidden.",
     "scope": "Area-specific inside/collision header and setup mappings only. Separate QuicksandDefinitions reaction descriptors and surface-physics fields remain independently reviewable; no retention exception claimed."
   }
+,
+  "quicksandReactionAndPhysicsReview": {
+    "status": "reaction descriptors converted; existing physics cases independently verified",
+    "source": "NTSC J/U v1.0 84:B713/B71F/B723/B727/B72B/B737/B73B/B73F setup/list headers and B48B..B496 physics words; pinned bank_84.asm, disassembly 362be646929cf8e483f692b73a6561cfc2dc1d0d",
+    "descriptor": "Remove the eight-element reaction array and verification-only span exposure. Named header cases select setup behavior; all admitted headers construct the common delete instruction. Header identity passes through unchanged. This is semantic dispatch, not numerical recitation or retention.",
+    "setup": {"disposition": "converted", "proof": "VerifyQuicksandSetupMapping independently names the eight original non-clone headers and compares native setup words. All ushort inputs confirm ownership, identity, default missing output and throwing allocator behavior, including unused clone gaps."},
+    "instruction": {"disposition": "converted to common delete scalar", "proof": "VerifyQuicksandInstructionMapping compares all eight original header+2 instruction words and independently checks the full ushort resolver contract."},
+    "movingDisplacement": {"disposition": "existing scalar cases independently verified", "algorithm": "Both Gravity branches return unsigned 8.8 displacement 0200, shifted left eight by the caller for 16.16 extra displacement.", "proof": "VerifyQuicksandMovingDisplacement compares both boolean inputs to native B48B/B48D."},
+    "stationaryDisplacement": {"disposition": "existing named suit cases independently verified", "algorithm": "Without/with Gravity select 0120/0100 unsigned 8.8 grounded displacement, corresponding to 1.125/1 pixels.", "proof": "VerifyQuicksandStationaryDisplacement compares both boolean inputs to native B48F/B491."},
+    "upwardLimit": {"disposition": "existing named suit cases independently verified", "algorithm": "Without/with Gravity select NTSC 0280/0380, or 2.5/3.5 pixels per frame. Native caller selects offsets zero/two from equipment bit 0020 and compares the middle word of 16.16 upward speed. No PAL substitution or floating-point rounding occurs.", "proof": "VerifyQuicksandUpwardLimit compares both boolean inputs to native B493/B495."},
+    "consumers": "SamusInsideBlockReactions uses header setup for body/collision effects and the boolean Gravity equipment branch for physics. RoomPlmSystem.TrySpawnQuicksandReaction uses the selected delete list for transient slot lifetime. All runtime APIs keep their accepted domains; only the unused production-array exposure used by verification is removed.",
+    "confirmation": "Verification build and --lookup-special-air pass both complete header-field proofs, three complete physics-field proofs, the prior area selectors and focused production quicksand behavior with source reads forbidden.",
+    "scope": "QuicksandDefinitions reaction setup/list mapping and three suit-dependent physics fields. Named scalar cases remain executable selection, not retained lookup storage; no retention exception claimed. The broader source audit remains unfinished."
+  }
 }

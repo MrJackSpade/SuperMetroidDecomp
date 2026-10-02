@@ -67,6 +67,44 @@ internal static partial class Program
         }
     }
 
+    private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        const ushort pointer = 0xa4f3;
+        var exported = SpeedBoosterBlockPlmDrawDefinitions.All.ToArray();
+        AssertEqual(1,exported.Length,"speed reveal export count");
+        AssertEqual(pointer,exported[0].Pointer,"speed reveal export identity");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = SpeedBoosterBlockPlmDrawDefinitions.TryGet((ushort)address,out var draw);
+            AssertEqual(address == pointer,found,"speed reveal full pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
+                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDrawDefinitions.VisualId((ushort)address),"speed reveal rejects unknown visual identity");
+            }
+        }
+        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDrawDefinitions.VisualId(pointer),"speed reveal stable semantic ID");
+        AssertTrue(SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
+        {
+            AssertTrue(!SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
+            AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
+        }
+        ushort nativeWord = ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2));
+        AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,"speed reveal calculated physical word");
+        foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
+        {
+            AssertEqual(pointer,draw.Pointer,"speed reveal DTO identity");
+            AssertEqual(1,draw.Runs.Length,"speed reveal single run");
+            var run = draw.Runs.Span[0];
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
+            AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
+            AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.NextX,"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.NextY,"speed reveal native terminal Y");
+        }
+    }
+
     private static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -75,18 +113,7 @@ internal static partial class Program
         VerifySpeedBlockDrawOperandMapping(rom);
         VerifySpeedBlockSoundMapping(rom);
 
-        RoomPlmShotBlockDrawDefinitions.DrawList reveal =
-            SpeedBoosterBlockPlmDrawDefinitions.BombReveal;
-        AssertEqual((ushort)1, reveal.Runs.Span[0].DirectionAndCount,
-            "bombed speed-block reveal has one physical block");
-        AssertEqual((ushort)0xb0b6, reveal.Runs.Span[0].LevelWords.Span[0],
-            "bombed speed-block reveal retains native type-B collision");
-        ushort drawPointer = reveal.Pointer;
-        byte[] expectedDraw = [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00];
-        for (int offset = 0; offset < expectedDraw.Length; offset++)
-            AssertEqual(rom.ReadByte(0x840000 | (drawPointer + offset)),
-                expectedDraw[offset],
-                $"bombed speed-block draw byte {offset} matches ROM");
+        VerifySpeedBlockRevealDrawMapping(rom);
 
         var cases = new (RoomBlockBehavior Bts, AreaId Area, bool Respawns)[]
         {

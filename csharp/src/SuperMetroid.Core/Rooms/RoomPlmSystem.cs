@@ -1883,14 +1883,12 @@ public sealed partial class RoomPlmSystem
                     shotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (SpeedBoosterBlockPlmDrawDefinitions.TryGet(drawPointer,
-                out var speedReveal))
+        if (drawPointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, speedReveal, originX, originY,
+            DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
+                SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                speedBoosterVisuals: speedBoosterVisuals);
+                speedBoosterVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&

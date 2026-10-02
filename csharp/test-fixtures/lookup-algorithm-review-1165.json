@@ -3672,4 +3672,14 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-speed-blocks pass all native proofs, the five existing boosted-contact fixtures and bomb reveal with source reads forbidden. Normalized PlmProgression program source pin updated.",
     "scope": "Speed-block program descriptors and control/draw/sound mappings only. Physical reveal, stock visuals and collision selectors remain separately reviewable. No retention exception claimed."
   }
+,
+  "speedBlockRevealDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A4F3..A4F8; pinned bank_84.asm DrawInst_BombReactionSpeedBlock",
+    "algorithm": "Remove the persistent one-record draw and word arrays. Combine physical type B with the named SpeedBoosterParent tile; RoomPlmSystem draws this scalar directly. Preserve one-block horizontal geometry and zero continuation. Existing artwork interfaces materialize temporary DTOs without retaining a generated cache.",
+    "identity": "The only admitted pointer selects bomb-reveal. Preserve ordinal visual-ID matching, missing-output clearing and all unknown-pointer rejection.",
+    "proof": "VerifySpeedBlockRevealDrawMapping consolidates the prior native draw check, compares the complete original record with direct scalar, exported record, direct property and ID lookup, checks all ushort pointers and visual-ID rejection, and preserves one-record export identity.",
+    "confirmation": "Verification and ResourceAudit builds, --lookup-speed-blocks and --speed-booster-visuals pass: native draw/domain proof, five boosted contacts and bomb reveal without source reads, live artwork editing, physical isolation and stock repair. Normalized PlmProgression draw source pin updated.",
+    "scope": "Physical Speed Booster bomb-reveal draw only. The visual selection catalog and collision selectors remain independently reviewable; no retention exception claimed."
+  }
 }

@@ -3246,4 +3246,19 @@
     "confirmation": "Verification and ResourceAudit builds pass; --lookup-beetom-programs checks all six production programs and the complete 5069-entry shared selector ordering/value/lookup/bounds contract.",
     "scope": "Used visual-pointer mapping only. Export identity fields, artwork, unused programs and other Beetom mappings remain separate review obligations; no retention exception claimed."
   }
+,
+  "beetomDistantActionReview": {
+    "status": "reviewed-existing-algorithm",
+    "source": "NTSC J/U v1.0 A8:B74E-B75D function pointers and B82F-B84E selection; pinned bank_A8.asm",
+    "action": {
+      "disposition": "Existing ChooseDistantBeetomAction already replaces the eight-entry pointer table with named cases: idle for residues zero/one, short-hop left for two/four, long-hop right for three/seven, short-hop right for five and long-hop left for six. This is state dispatch, not an arbitrary random-value table. Production unchanged.",
+      "proof": "VerifyBeetomDistantActionMapping drives the real selector through all 65536 random words, compares the selected function to the original ROM pointer, verifies exactly one RNG call and preserves the current program/timer until the separately scheduled setup state. Native short-hop symbol names are reversed relative to their code behavior; pointer identities confirm the managed names."
+    },
+    "direction": {
+      "disposition": "Existing direction projection masks the low bit of the same random word independently of the selected action.",
+      "proof": "VerifyBeetomDistantDirectionMapping independently confirms both direction values over all 65536 random words through the production selector, matching native B844-B84A."
+    },
+    "confirmation": "Verification build and --lookup-beetom-programs pass the new focused mappings and existing six instruction programs/shared selector checks.",
+    "scope": "Distant-action choice and its direction field only. Other Beetom AI dispatch/state, movement, export metadata and artwork remain separate review obligations. No table-retention exception claimed."
+  }
 }

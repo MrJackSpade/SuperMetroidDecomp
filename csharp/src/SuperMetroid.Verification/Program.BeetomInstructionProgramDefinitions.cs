@@ -19,6 +19,8 @@ internal static partial class Program
         VerifyBeetomMechanicsMapping(rom);
         VerifyBeetomPresentationMapping();
         VerifyBeetomVisualSelectors(rom);
+        VerifyBeetomDistantActionMapping(rom);
+        VerifyBeetomDistantDirectionMapping();
 
         var guard = new BeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -177,6 +179,58 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitions.MechanicsWord(index), "Beetom mechanics ordinal bounds");
     }
 
+    private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
+        CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(enemies, (Action<ushort>)(_ => { }));
+        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, nextRandom);
+        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
+        RoomEnemySlot slot = enemies.Slots[0];
+        slot.EnemyDefinitionPointer = RoomEnemySystem.BeetomDefinition;
+        initialize(slot, new SamusState(), 0);
+        var choose = typeof(RoomEnemySystem).GetMethod("ChooseDistantBeetomAction", flags)!
+            .CreateDelegate<Action<BeetomEnemyState>>(enemies);
+        return (enemies, enemies.BeetomStates[0]!, choose);
+    }
+
+    private static void VerifyBeetomDistantActionMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort random = 0;
+        int randomCalls = 0;
+        var fixture = CreateBeetomDistantSelectionFixture(() => { randomCalls++; return random; });
+        // The original eight pointer words at A8:B74E; high RNG bits are masked by B839.
+        // Native short-hop labels are swapped; compare pointer identities, not label spelling.
+        for (int value = 0; value <= ushort.MaxValue; value++)
+        {
+            random = (ushort)value;
+            fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
+            fixture.State.FunctionTimer = 0x1234;
+            ushort instruction = fixture.Enemies.Slots[0].CurrentInstruction;
+            fixture.Choose(fixture.State);
+            ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
+            AssertEqual(expected, (ushort)fixture.State.Function, "Beetom distant action matches native pointer for every RNG word");
+            AssertEqual((ushort)0x1234, fixture.State.FunctionTimer, "Beetom choice preserves timer until setup runs");
+            AssertEqual(instruction, fixture.Enemies.Slots[0].CurrentInstruction, "Beetom choice preserves program until setup runs");
+            AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");
+        }
+    }
+
+    private static void VerifyBeetomDistantDirectionMapping()
+    {
+        ushort random = 0;
+        var fixture = CreateBeetomDistantSelectionFixture(() => random);
+        // A8:B844-B84A reloads that same seed, masks bit zero and stores direction.
+        for (int value = 0; value <= ushort.MaxValue; value++)
+        {
+            random = (ushort)value;
+            fixture.State.Direction = 0xffff;
+            fixture.Choose(fixture.State);
+            AssertEqual((ushort)(value % 2), fixture.State.Direction, "Beetom direction preserves native low-bit mapping independently of selected action");
+        }
+    }
     private static void VerifyBeetomVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,

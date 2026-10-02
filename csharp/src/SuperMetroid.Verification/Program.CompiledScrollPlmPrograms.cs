@@ -7,28 +7,10 @@ internal static partial class Program
 {
     private static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers = RoomPlmScrollProgramDefinitions.Pointers.Order().ToArray();
-        AssertEqual(RoomPlmScrollProgramDefinitions.RetailProgramCount,
-            pointers.Length, "retail scroll-program count");
-        int byteCount = 0;
-        int pairCount = 0;
-        foreach (ushort pointer in pointers)
-        {
-            ReadOnlySpan<byte> program = RoomPlmScrollProgramDefinitions.Get(pointer).Span;
-            for (int offset = 0; offset < program.Length; offset++)
-                AssertEqual(rom.ReadByte(0x8f0000 | (pointer + offset)),
-                    program[offset],
-                    $"scroll program $8F:{pointer:X4} byte {offset} matches ROM");
-            byteCount += program.Length;
-            pairCount += (program.Length - 1) / 2;
-        }
-        AssertEqual(RoomPlmScrollProgramDefinitions.RetailByteCount,
-            byteCount, "retail scroll-program byte count");
-        AssertEqual(RoomPlmScrollProgramDefinitions.RetailPairCount,
-            pairCount, "retail scroll-program pair count");
-        AssertThrows<InvalidDataException>(
-            () => RoomPlmScrollProgramDefinitions.Get(0xffff),
-            "unknown retail scroll-program pointer fails loudly");
+        VerifyScrollProgramIdentities(rom);
+        VerifyScrollProgramIndices(rom);
+        VerifyScrollProgramStates(rom);
+        VerifyScrollProgramTermination(rom);
 
         // Retail population $8F:8230 contains one resident $B703 trigger at
         // (8,13). Its $8F:94FA program changes storage cell zero to green.

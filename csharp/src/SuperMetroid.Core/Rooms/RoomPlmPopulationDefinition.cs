@@ -13,7 +13,11 @@ public sealed record RoomPlmPlacement(
     byte BlockY,
     ushort RoomArgument,
     ReadOnlyMemory<byte> ScrollProgram = default,
-    RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null);
+    RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null)
+{
+    /// <summary>Internal retail identity; constructed placements must still supply validated decoded pairs.</summary>
+    internal ushort? CompiledScrollSource { get; init; }
+}
 
 /// <summary>
 /// Immutable, ordered input to the room PLM allocator. Native pointers survive only
@@ -47,9 +51,8 @@ public sealed class RoomPlmPopulationDefinition
             ushort header = BinaryPrimitives.ReadUInt16LittleEndian(source[offset..]);
             ushort argument = BinaryPrimitives.ReadUInt16LittleEndian(source[(offset + 4)..]);
             records.Add(new RoomPlmPlacement(
-                RoomPlmHeaderDefinitions.Get(header), source[offset + 2], source[offset + 3], argument,
-                header == RoomPlmHeaders.ScrollTrigger
-                    ? RoomPlmScrollProgramDefinitions.Get(argument) : default));
+                RoomPlmHeaderDefinitions.Get(header), source[offset + 2], source[offset + 3], argument)
+                { CompiledScrollSource = header == RoomPlmHeaders.ScrollTrigger ? argument : null });
         }
         return new RoomPlmPopulationDefinition(pointer, records);
     }
@@ -60,7 +63,14 @@ public sealed class RoomPlmPopulationDefinition
         if (placement.Header.Header == 0)
             throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
         byte[] program = placement.ScrollProgram.ToArray();
-        if (placement.Header.Header == RoomPlmHeaders.ScrollTrigger)
+        ushort? compiledSource = program.Length == 0 ? placement.CompiledScrollSource : null;
+        if (compiledSource is { } sourcePointer)
+        {
+            if (placement.Header.Header != RoomPlmHeaders.ScrollTrigger || program.Length != 0 ||
+                !RoomPlmScrollProgramDefinitions.TryApply(sourcePointer, null))
+                throw new InvalidDataException("Retail scroll placement has an invalid program identity.");
+        }
+        else if (placement.Header.Header == RoomPlmHeaders.ScrollTrigger)
         {
             if (program.Length is < 1 or > 2 * RoomScrollGrid.StorageByteCount - 1 ||
                 program.Length % 2 == 0 || (program[^1] & 0x80) == 0)
@@ -85,6 +95,6 @@ public sealed class RoomPlmPopulationDefinition
                 throw new InvalidDataException("Decoded collectible graphics do not match their placement or payload shape.");
             graphic = graphic with { Tiles = graphic.Tiles.ToArray(), PaletteOffsets = graphic.PaletteOffsets.ToArray() };
         }
-        return placement with { ScrollProgram = program, DynamicGraphic = graphic };
+        return placement with { ScrollProgram = program, DynamicGraphic = graphic, CompiledScrollSource = compiledSource };
     }
 }

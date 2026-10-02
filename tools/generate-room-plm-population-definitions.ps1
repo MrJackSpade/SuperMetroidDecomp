@@ -134,13 +134,18 @@ public static class PlmHeaderGenerationProcessPolicy {
         throw "Expected 173 distinct retail scroll programs, found $($orderedScrollPrograms.Count)."
     }
     $scrollLines = [Collections.Generic.List[string]]::new()
+    $scrollLines.Add('#nullable enable')
+    $scrollLines.Add('using SuperMetroid.Core.Game;')
+    $scrollLines.Add('')
     $scrollLines.Add('namespace SuperMetroid.Core.Rooms;')
     $scrollLines.Add('')
-    $scrollLines.Add('/// <summary>Pinned room-scroll byte-pair programs; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
+    $scrollLines.Add('/// <summary>Explicit ordered room-scroll state writes; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
     $scrollLines.Add('internal static partial class RoomPlmScrollProgramDefinitions')
     $scrollLines.Add('{')
-    $scrollLines.Add('    private static readonly (ushort Pointer, string Hex)[] Sources =')
-    $scrollLines.Add('    [')
+    $scrollLines.Add('    internal static bool TryApply(ushort pointer, Action<int, RoomScrollState>? write)')
+    $scrollLines.Add('    {')
+    $scrollLines.Add('        switch (pointer)')
+    $scrollLines.Add('        {')
     $scrollByteTotal = 0
     $scrollPairTotal = 0
     foreach ($pointer in $orderedScrollPrograms) {
@@ -170,12 +175,20 @@ public static class PlmHeaderGenerationProcessPolicy {
             throw ('Scroll program $8F:{0:X4} has no bounded terminator.' -f $pointer)
         }
         $scrollByteTotal += $bytes.Count
-        $scrollLines.Add(('        (0x{0:X4}, "{1}"),' -f $pointer, [Convert]::ToHexString($bytes.ToArray())))
+        if ($bytes[$bytes.Count - 1] -ne 0x80) { throw 'Scroll terminator differs from canonical negative end marker.' }
+        $scrollLines.Add(('            case 0x{0:X4}:' -f $pointer))
+        for ($pair = 0; $pair -lt $bytes.Count - 1; $pair += 2) {
+            $stateName = switch ($bytes[$pair + 1]) { 0 { 'RedBoundary' } 1 { 'Blue' } 2 { 'Green' } }
+            $scrollLines.Add(('                write?.Invoke({0}, RoomScrollState.{1});' -f $bytes[$pair], $stateName))
+        }
+        $scrollLines.Add('                return true;')
     }
     if ($scrollByteTotal -ne 743 -or $scrollPairTotal -ne 285) {
         throw "Expected 743 scroll-program bytes/285 pairs, found $scrollByteTotal/$scrollPairTotal."
     }
-    $scrollLines.Add('    ];')
+    $scrollLines.Add('            default: return false;')
+    $scrollLines.Add('        }')
+    $scrollLines.Add('    }')
     $scrollLines.Add('}')
     [IO.File]::WriteAllLines($scrollOutputFile, $scrollLines, [Text.UTF8Encoding]::new($false))
     Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records, $($orderedHeaders.Count) headers and $($orderedScrollPrograms.Count) scroll programs."

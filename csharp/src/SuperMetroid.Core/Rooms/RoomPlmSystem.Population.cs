@@ -277,7 +277,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.DownwardsScrollExtension or
             RoomPlmHeaders.UpwardsScrollExtension)
         {
-            SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span);
+            SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span, placement.CompiledScrollSource);
             return true;
         }
 

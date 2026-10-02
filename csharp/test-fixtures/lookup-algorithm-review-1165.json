@@ -4445,4 +4445,13 @@
     "confirmation":"Verification build and --chozo-plm-definitions pass the five independent field proofs plus existing five-header spawning, terrain draw/override and shared-delete checks. Old combined byte comparison consolidated. Existing command moved ahead of unrelated suites and pins supported ROM SHA256.",
     "scope":"Four Chozo terrain programs and separately interpreted fields. Physical layouts, stock visual data and other owners remain audit work. No retention exception; wider maintained-source audit remains active."
   }
+,
+  "chozoTerrainHeaderReview": {
+    "status":"converted: stored five-record terrain header collection removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 headers D6D6, D6EE, D6F8, D6FC and D113; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read runtime Resolve and enumeration consumers.",
+    "algorithm":"Named lower-Norfair hand, Wrecked Ship hand, clear-slope, block-slope and crumble-plug cases return their named program origins. Existing semantic dispatch independently reviewed. Ordered enumeration yields the five cases without a stored record array or generated cache.",
+    "proof":"VerifyChozoTerrainHeaders checks all ushort header values: five original ROM initial-list pointers and header identities, exact original enumeration order, rejection of every unsupported header, and five production spawn fixtures including Wrecked Ship collision/BTS behavior.",
+    "confirmation":"Verification build and --chozo-plm-definitions pass header proof, five program-field proofs, shared deletion and existing terrain/artwork checks.",
+    "scope":"Complete owned header-to-initial-list mapping. No retention exception; physical layouts, stock visuals and wider maintained-source audit remain active."
+  }
 }

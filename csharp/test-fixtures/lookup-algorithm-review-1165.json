@@ -1771,7 +1771,7 @@
             }
         ],
         "remainingScope": "The three boss OAM pointer mappings are now separately converted in bossOamRootGeometryReview. WalkingNames and WallNames are separately converted in pirateArtworkNameReview. Other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
-        "relatedAuditScope": "EnemyDisplayArtworkClosedContractDefinitions and NativeDisplaySelectorClosedContractDefinitions pin changed extended-catalog sources. Their fail-closed fingerprints require separate revalidation including the new EnemyExtendedFrameSequence dependency."
+        "relatedAuditScope": "Extended display availability and non-resource selector projection are revalidated in extendedDisplayAuditIntegration, including the new sequence and generator dependencies."
     },
     "bossOamRootGeometryReview": {
         "implementationCommit": {
@@ -1814,7 +1814,7 @@
                 "confirmation": "All twelve original pointers and native component counts, index bounds; original combined catalog fingerprint confirms names and ordering."
             }
         ],
-        "remainingScope": "Walking/Wall Pirate name mappings are separately converted in pirateArtworkNameReview; other family catalogs remain unreviewed. Extended-display audit source contracts remain pending revalidation as recorded in extendedFrameSequenceReview; include this new generator among their dependencies."
+        "remainingScope": "Walking/Wall Pirate name mappings are separately converted in pirateArtworkNameReview; other family catalogs remain unreviewed. Extended-display audit source contracts are revalidated in extendedDisplayAuditIntegration, including BossOamFrameDefinitions as a pinned dependency."
     },
     "pirateArtworkNameReview": {
         "implementationCommit": {
@@ -1845,6 +1845,19 @@
                 "confirmation": "All eighteen original keys and invalid bounds; existing full catalog fingerprint confirms unchanged frame associations."
             }
         ],
-        "remainingScope": "EnemyExtendedFrameDefinitions now owns no stored definition arrays. Its source dependencies still require their own reviews. Previously recorded extended-display audit revalidation must include PirateArtworkNameDefinitions among the new dependencies."
+        "remainingScope": "EnemyExtendedFrameDefinitions now owns no stored definition arrays. Its source dependencies still require their own reviews. Extended-display audit revalidation is recorded in extendedDisplayAuditIntegration, including PirateArtworkNameDefinitions as a pinned dependency."
+    },
+    "extendedDisplayAuditIntegration": {
+        "status": "confirmed integration; not an additional table conversion",
+        "implementationCommit": {
+            "subject": "Revalidate generated extended-display audit contracts for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Revalidate generated extended-display audit contracts for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.ResourceAudit/EnemyDisplayArtworkClosedContractDefinitions.cs",
+        "scope": "Extended-frame TryGetDisplay availability and GetDisplayPointer non-resource projection after the catalog cache, boss-root and Pirate-name conversions. Unchanged simple-display contract is used as the existing check's independent control.",
+        "reviewedEvidence": "Private construction through Load, exact current and legacy named-frame admission, bounded copied components, same-family binding targets, complete-stock inheritance, compiled empty fallback and total selector passthrough. Sequence ranges preserve schema prefixes; generators preserve published identities and keys. Refresh changed loader/roster fingerprints, pin EnemyExtendedFrameSequence, BossOamFrameDefinitions and PirateArtworkNameDefinitions, and require their declarations to stay within reviewed source files.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.ResourceAudit --no-build -- --extended-display-contract-check",
+        "confirmation": "Build passes. Reused EnemyDisplayArtworkContractChecks and NativeDisplaySelectorContractChecks confirm valid installation, rejection of unowned targets, empty fallback, known/unknown selector classification and non-resource passthrough. Mutated sequence output, boss stride and Pirate key each revoke only extended availability; an extra generator declaration also revokes it. Existing shared-admission and selector-fallback mutations still revoke their respective proofs.",
+        "remainingScope": "This revalidation covers the changed roster/loader and the three newly introduced helpers. Other family definition dependencies retain their separately tracked review scope; no whole-source or whole-game completion claim."
     }
 }

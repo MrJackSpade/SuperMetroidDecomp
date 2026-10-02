@@ -35,6 +35,13 @@ internal static partial class Program
                 Console.WriteLine("Generated BG2 catalog source contracts and stale-source revocation passed.");
                 return 0;
             }
+            if (args is ["--extended-display-contract-check"])
+            {
+                EnemyDisplayArtworkContractChecks.Run();
+                NativeDisplaySelectorContractChecks.Run();
+                Console.WriteLine("Extended display admission, generated-source guards and selector projection contracts passed.");
+                return 0;
+            }
             if (args is ["--vram-dma-self-check"])
             {
                 VramDmaContractChecks.Run();
@@ -98,7 +105,8 @@ internal static partial class Program
                     case "--plm-program-audit": plmPrograms = true; break;
                     case "--vram-dma-audit": vramDma = true; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
-                        "--self-check | --bg2-catalog-contract-check | --work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
+                        "--self-check | --bg2-catalog-contract-check | --extended-display-contract-check | " +
+                        "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +
                         "--nuclear-waffle-resource-check | --plm-program-self-check | " +

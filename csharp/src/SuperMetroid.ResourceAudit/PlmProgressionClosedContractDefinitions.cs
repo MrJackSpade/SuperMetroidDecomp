@@ -44,7 +44,7 @@ internal static class PlmProgressionClosedContractDefinitions
             "The constructor requires exactly one known nine-word clear frame and clones its payload. GetWord guards the sole pointer/run and array bounds. Crumble frames use the separately reviewed shot-block provider; no boss event is inferred."),
         new("SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs", "1ADF0D0F967B71B9348BD328683F48DC080DA608C8B8790B4D033031BC13321E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs", "AD6C8443D35DC314397BBEC00D237AD18DED3C845AD0D9850D04F36AE11C599A"),
              new("csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs", "5AF2E8E144F7AEDD020844CCBCF7F4BDECB168D8F9199CA3A506FF4AB883E696")],
             "The constructor requires all ten unique known ceiling/spike layouts and clones exact payloads. GetWord guards their individual widths, including fifteen-word ceiling and twenty-two-word spike clears. The shared elevatube pointer source is guarded. Death/event sequencing is not certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog", "plm-crocomire-arena-complete-draws", ["GetWord"],

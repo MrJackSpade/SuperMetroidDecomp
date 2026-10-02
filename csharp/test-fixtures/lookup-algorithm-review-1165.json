@@ -2637,4 +2637,19 @@
         "confirmation": "Verification build and --lookup-fake-kraid-spit-velocities pass. Existing aggregate delegates the extracted field proofs. Four-record SpitLaunches storage is removed.",
         "remainingScope": "SpikeYOffsets remains pending, not accepted retention: native86:9E7D stores-2,12,24 and the initializer adds the selected word to body Y. Inspected A6:9C64 onward walking OAM has pose-dependent component Y coordinates, whereas launch Y ignores animation; projectile8D:8427/842E has a fixed-4 local Y origin. A direct current-OAM-origin mapping is not established. Further geometry review or a demonstrated nonsense justification is still required. Actual artwork and broader repository mappings also remain outstanding."
     }
+,
+    "kraidRoomVisualSelectionReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs",
+        "implementationCommit": "Resolve with git log for RoomPlmKraidVisualCatalog.cs",
+        "id": "kraid-room-installed-visual-role-selection",
+        "domain": "Ten fixed draw pointers9367,936D,9373,9379,937F,9385,9391,9397,939D,93BF; one run each, eight one-word draws and15/22-word clears. Constructor accepts each known ID exactly once in any order, copies values and rejects missing/duplicate/invalid entries. Unknown pointer throws InvalidDataException; bad run/block throws ArgumentOutOfRangeException.",
+        "consumers": ["RoomPlmSystem draw visual selection", "RoomPlmKraidVisualFiles import/override codec", "presentation identity and debugger catalog identity", "ResourceAudit closed provider contract"],
+        "reviewedEvidence": "Full catalog constructor/GetWord and SelectedPresentationHash.FromWordFrames implementation, draw definitions, import/load codec wrapper and call sites. Pinned bank_84.asm9367..93EE confirms ten identities and all run widths, excluding unused938B. Public catalog selection mapping is an installed-content contract; fixture values are deliberately independent editable values, not stock production outputs.",
+        "disposition": "Remove pointer-to-block-array dictionary. Store ten private named visual fields and dispatch using named draw constants. Preserve cloning, uniqueness and completeness checks. Hash fields in original ascending-pointer order with unchanged frame/run/word framing.",
+        "rationale": "The key mapping selects fixed named crumble stages, ceiling backgrounds, spike variants and clear draws. It is semantic dispatch and does not require a numeric fit or a generic key-value table.",
+        "proof": "VerifyKraidRoomVisualSelection covers every role and all45 independent input words, reversed entry order, original dictionary-based content hash, defensive copying, every missing and duplicate role, invalid IDs/empty/physical-bit payloads/null input, all holes in native envelope, far invalid pointers and run/block bounds. Existing Kraid room visual verifier calls this focused proof; no gameplay sweep is needed.",
+        "confirmation": "Verification build, --lookup-kraid-room-visual-selection and ResourceAudit build pass. Reviewed provider source pin updated after confirming exact constructor shapes and reader guards.",
+        "remainingScope": "KraidRoomPlmDrawDefinitions still contains its separate draw-shape/stock-word mapping and must be converted or independently justified. Editable input words are preserved; this conversion does not certify stock word patterns or the wider repository inventory."
+    }
 }

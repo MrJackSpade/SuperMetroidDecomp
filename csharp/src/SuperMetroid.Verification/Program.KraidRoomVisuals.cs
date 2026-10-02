@@ -8,6 +8,7 @@ internal static partial class Program
 {
     private static void VerifyKraidRoomVisuals()
     {
+        VerifyKraidRoomVisualSelection();
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",

@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-room-visual-selection"])
+{
+    VerifyKraidRoomVisualSelection();
+    return 0;
+}
 if (args is ["--lookup-fake-kraid-spit-velocities"])
 {
     var velocityOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

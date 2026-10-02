@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--mother-brain-fake-death-plms"])
+{
+    VerifyCompiledMotherBrainFakeDeathPlms();
+    return 0;
+}
 if (args is ["--crocomire-arena-plms"])
 {
     VerifyCompiledCrocomireArenaPlms();
@@ -2395,11 +2400,7 @@ if (args is ["--kraid-room-plms"])
     return 0;
 }
 
-if (args is ["--mother-brain-fake-death-plms"])
-{
-    VerifyCompiledMotherBrainFakeDeathPlms();
-    return 0;
-}
+
 if (args is ["--mother-brain-fake-death-visuals"])
 {
     VerifyMotherBrainFakeDeathVisuals();

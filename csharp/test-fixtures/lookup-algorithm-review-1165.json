@@ -3889,4 +3889,16 @@
     "confirmation": "Verification and ResourceAudit builds and --crocomire-arena-visuals pass complete stock/hash proof plus existing bridge/wall custom artwork, physical isolation, source-read prohibition, override persistence and installation integrity checks.",
     "scope": "Crocomire stock artwork and identity only. No retention exception claimed. The wider source audit remains unfinished."
   }
+,
+  "motherBrainMutationProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:AC05..AC88; pinned bank_84.asm twenty-two Mother Brain fake-death mutation lists, including unused background rows E/F",
+    "algorithm": "Remove twenty-two stored draw operands. Background rows 2..F select thirteen-word horizontal layouts with thirty-byte stride. Eight remaining wall/door/tube programs select named operations. Existing six-byte duration/draw/delete decoding is preserved and independently verified; program count derives from the bounded byte region.",
+    "controls": {"disposition": "existing bounded decoder independently verified", "proof": "VerifyMotherBrainMutationProgramControls compares all forty-four original duration/delete words and shared reader results using twenty-two independently specified native list starts. It confirms all sixty-six enumerated addresses and complete ushort ownership/default output."},
+    "drawOperands": {"disposition": "converted to row stride and named cases", "proof": "VerifyMotherBrainMutationProgramDraws compares all twenty-two original operand words through direct and shared readers, including both unused rows, with full ushort ownership/default checks."},
+    "domain": "Exactly sixty-six aligned words AC05..AC87. Preserve unused row programs AC59/AC5F. Reject odd relative offsets, outside words and the following AC89 plant callback; no byte-reader or adjacent alias is introduced.",
+    "consumers": "RoomPlmProgramDefinitions composes the same word reader for production interpretation. Existing twenty reachable mutation fixtures verify cell results, one draw frame, following-frame deletion and prohibition of migrated source reads. Separate draw payload and stock-artwork reviews remain outstanding.",
+    "confirmation": "Verification build and --mother-brain-fake-death-plms pass both full field proofs, existing native physical-draw comparison and twenty reachable production mutations.",
+    "scope": "Mother Brain fake-death program control/draw mappings only. No retention exception claimed. The wider audit remains unfinished."
+  }
 }

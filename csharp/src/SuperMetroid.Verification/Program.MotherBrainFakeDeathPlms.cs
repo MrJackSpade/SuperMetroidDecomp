@@ -5,23 +5,12 @@ internal static partial class Program
 {
     private static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = MotherBrainFakeDeathPlmProgramDefinitions
-            .NativeWordAddresses().ToArray();
-        AssertEqual(66, addresses.Length,
-            "Mother Brain fake death owns twenty-two three-word programs");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(MotherBrainFakeDeathPlmProgramDefinitions
-                    .TryReadMechanicsWord(address, out ushort compiled),
-                $"Mother Brain fake-death instruction ${address:X4} is compiled");
-            AssertEqual(ReadWord(rom, address), compiled,
-                $"Mother Brain fake-death instruction ${address:X4} matches ROM");
-        }
-        AssertTrue(!MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(
-                MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive, out _),
-            "following native region is not claimed as fake-death instructions");
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain mutation oracle revision");
+        VerifyMotherBrainMutationProgramControls(rom);
+        VerifyMotherBrainMutationProgramDraws(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();

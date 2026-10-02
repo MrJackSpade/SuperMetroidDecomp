@@ -181,6 +181,53 @@ internal static partial class Program
                 AssertEqual((ushort)0, missing, "Kamer shared missing value cleared");
             }
     }
+    private static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    {
+        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialVerticalShutterFunction",
+            BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<VerticalShutterEnemyState, VerticalShutterFunction>>();
+        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0))
+        {
+            Function = VerticalShutterFunction.Initial,
+        };
+        for (ushort offset = 0; offset <= 8; offset += 2)
+        {
+            state.InitialFunctionTableOffset = offset;
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa2edfb + offset);
+            AssertEqual(native, (ushort)select(state), "vertical shutter native initial function pointer");
+            AssertEqual(VerticalShutterFunction.Initial, state.Function,
+                "vertical initial dispatch selects a function without installing it");
+        }
+        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 0x100, 0xfffe, 0xffff })
+        {
+            state.InitialFunctionTableOffset = offset;
+            AssertThrows<InvalidDataException>(() => select(state), "vertical shutter invalid initial offset");
+            AssertEqual(VerticalShutterFunction.Initial, state.Function, "invalid vertical selector preserves state");
+        }
+    }
+
+    private static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    {
+        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialHorizontalShutterFunction",
+            BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<HorizontalShutterEnemyState>>();
+        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0));
+        for (ushort offset = 0; offset <= 8; offset += 2)
+        {
+            state.Function = HorizontalShutterFunction.Initial;
+            state.InitialFunctionTableOffset = offset;
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa2f107 + offset);
+            select(state);
+            AssertEqual(native, (ushort)state.Function, "horizontal shutter installs native initial function pointer");
+        }
+        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 0x100, 0xfffe, 0xffff })
+        {
+            state.Function = HorizontalShutterFunction.Initial;
+            state.InitialFunctionTableOffset = offset;
+            AssertThrows<InvalidDataException>(() => select(state), "horizontal shutter invalid initial offset");
+            AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
+        }
+    }
     private static int ProbeVerticalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;

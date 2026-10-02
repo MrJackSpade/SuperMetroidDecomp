@@ -3062,4 +3062,20 @@
     "integration": "--lookup-vertical-shutter-programs confirms both plain-shutter initializers and terminal sleep, Kamer initializer and loop restart, zero mechanics/visual ROM reads, and the full 5069-entry shared selector contract. Verification and ResourceAudit build.",
     "scope": "Plain/Kamer instruction programs and Kamer pointer selection. Other shutter visual selectors, initial function selection, movement and artwork remain separately reviewable. No retention exception claimed."
   }
+,
+  "shutterInitialFunctionSelectionReview": {
+    "status": "existing named-case algorithms independently reviewed",
+    "vertical": {
+      "source": "NTSC J/U v1.0 A2:EDFB-EE04; EF09-EF14 indirect dispatcher",
+      "disposition": "Existing SelectInitialVerticalShutterFunction expresses timer, horizontal proximity, immediate activation and shared no-op modes as named cases. No runtime lookup table remains; no retention exception is needed.",
+      "proof": "VerifyVerticalShutterInitialFunctionSelection compares all five original ROM pointer words, including both no-op aliases; confirms selection leaves Initial installed and invalid odd/out-of-range offsets throw without mutating state."
+    },
+    "horizontal": {
+      "source": "NTSC J/U v1.0 A2:F107-F110; F224 initial dispatcher",
+      "disposition": "Existing SelectInitialHorizontalShutterFunction expresses the corresponding five modes as named cases. Unlike vertical selection, it installs the selected function in state. No runtime lookup table remains.",
+      "proof": "VerifyHorizontalShutterInitialFunctionSelection compares all five original ROM pointer words, confirms installed function state, and checks invalid odd/out-of-range offsets preserve state while throwing."
+    },
+    "confirmation": "Verification build and --lookup-shutter-initial-functions. Production behavior unchanged; this adds independent evidence for two existing conversions.",
+    "scope": "Initial function selection only; remaining shutter movement and artwork mappings require separate review."
+  }
 }

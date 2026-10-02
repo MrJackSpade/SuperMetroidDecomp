@@ -15,7 +15,7 @@ internal static class DownwardGatePlmHeaderDefinitions
     internal const int ShotBlockInitialInstructionAddress =
         0x840000 | (RoomPlmHeaders.DownwardGateShotBlock + 2);
 
-    /// <summary>$84:C82C begins the resident gate in its open-and-wait list.</summary>
+    /// <summary>$84:C82C begins the resident gate in its closed-frame-and-wait list.</summary>
     internal const ushort ResidentInitialInstruction =
         RoomPlmInstructionLists.DownwardGateOpening;
 

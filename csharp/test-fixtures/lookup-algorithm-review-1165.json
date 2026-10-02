@@ -4051,7 +4051,7 @@
     "domain": "Fourteen exact draw pointers, six five-cell column frames and eight two-cell triggers with their original asymmetric run shapes. Unknown pointers throw InvalidDataException; invalid integer run/word indices throw ArgumentOutOfRangeException. Constructor requires all unique ordinal IDs and exact shapes with visual bits only; cloned custom arrays cannot be mutated through caller input.",
     "proof": "VerifyDownwardGateStockMapping independently parses all 46 original ROM visual cells from fourteen explicit native starts. Factory, reverse-order import and installed catalogs match every word and original run-framed hash. It covers full ushort missing-pointer rejection, integer run/word boundaries, mixed flipped custom values, hash identity, changed/unchanged input mutation isolation and missing/duplicate/non-ordinal/wrong-run/wrong-word/collision-bit rejection. Earlier partial installed-stock assertion is consolidated into this proof.",
     "confirmation": "Verification and ResourceAudit builds plus --downward-gate-definitions pass the stock proof, existing visual edit/streaming/install/override checks and gate production integration. Source pin updated; supported ROM hash explicitly checked in the stock fixture.",
-    "scope": "Downward-gate stock selection and content identity only. No retention exception for stock, and no change to custom-artwork ownership. Gate instruction fields are resolved under downwardGateProgramReview; header mappings and the wider source audit still require independent dispositions."
+    "scope": "Downward-gate stock selection and content identity only. No retention exception for stock, and no change to custom-artwork ownership. Gate instruction fields are resolved under downwardGateProgramReview; the gate header helper is resolved under downwardGateHeaderSelectionReview; the shared header catalog and wider source audit remain pending."
   }
 ,
   "downwardGateProgramReview": {
@@ -4063,6 +4063,16 @@
     "sounds": {"disposition": "converted", "algorithm": "Only BC29 and BC4C select the movement-sound byte. Their packed width determines subsequent even/odd word boundaries.", "proof": "VerifyDownwardGateProgramSounds checks both original bytes, ordered enumeration and every ushort byte address with zero missing output and composed-reader equivalence."},
     "domain": "Exactly 62 word starts and two byte starts. Reject sound bytes as words, interior/overlapping words and the intervening upward-gate program. Preserve ordered enumeration without a persistent generated cache. The prior ClosedStart label was corrected to OpenStart in accordance with the native list's actual state; behavior is unchanged.",
     "confirmation": "Verification build and --downward-gate-definitions pass all four focused native field proofs plus existing production opening/closing, actor handoff, animation timing and eight trigger checks. Prior partial program proof consolidated; ROM revision explicitly hashed.",
-    "scope": "Resident and eight trigger program fields only. No retention exception; remaining header review and the wider audit are still outstanding."
+    "scope": "Resident and eight trigger program fields only. No retention exception; the gate header helper is resolved under downwardGateHeaderSelectionReview; the shared header catalog and wider audit remain outstanding."
+  }
+,
+  "downwardGateHeaderSelectionReview": {
+    "status": "existing semantic selector independently verified",
+    "source": "NTSC J/U v1.0 native first-instruction fields 84:C82C and C838; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d; DownwardGatePlmHeaderDefinitions and RoomPlmHeaderDefinitions.Generated.cs gate records",
+    "algorithm": "Existing switch selects the closed-frame gate list BC3A for resident header C82A and blue-left trigger BCAF for shot-block header C836. Every other ushort header returns false and zero. No array or generated cache exists in this helper, so retain the correct implementation without artificial churn.",
+    "consumers": "The helper now serves verification/support rather than production dispatch. Production population loading uses placement.Header.InitialInstruction, originating in imported metadata or the compiled retail header catalog. The proof compares both gate entries in that catalog with independent original native fields; setup subsequently selects the trigger variant by room argument. Correct the helper's misleading open-and-wait XML description to closed-frame-and-wait.",
+    "proof": "VerifyDownwardGateHeaderDefinitions consolidates the earlier two-value/single-invalid check into every ushort selector input, original ROM output and shared compiled-population first-instruction values, with explicit supported-ROM SHA256.",
+    "confirmation": "Verification build and --downward-gate-definitions pass the full selector proof and existing guarded production population/setup checks.",
+    "scope": "Two gate first-instruction selections only. This is review of an existing algorithm, not a new conversion or retention exception. The separate shared seventy-record header catalog, including setup fields, still requires its complete review; this entry does not certify that larger mapping. The wider ticket remains active."
   }
 }

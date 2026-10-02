@@ -24,21 +24,8 @@ public static class KraidPlmDefinitions
         new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes),
     ];
 
-    private static readonly KraidPlmRequest[] GrowthCeilingRequests =
-    [
-        new(0x06, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x0d, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x02, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1),
-        new(0x0a, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x05, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x0c, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x03, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x0b, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x04, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-    ];
-
     /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
-    public static IReadOnlyList<KraidPlmRequest> GrowthCeiling => GrowthCeilingRequests;
+    public static IReadOnlyList<KraidPlmRequest> GrowthCeiling { get; } = new GrowthCeilingSequence();
 
     /// <summary>
     /// The hardcoded PLMs spawned by defeated-room initialization at
@@ -47,6 +34,32 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static IReadOnlyList<KraidPlmRequest> DefeatedRoom => DefeatedRoomRequests;
 
+    /// <summary>
+    /// $A7:ACC5 selects the ceiling callbacks at ACD7..AD3A. Each block lies
+    /// directly above its paired rock center; row18 is constant. Column2 uses
+    /// the left-edge background, then odd/even columns alternate variants2/3.
+    /// </summary>
+    private sealed class GrowthCeilingSequence : IReadOnlyList<KraidPlmRequest>
+    {
+        public int Count => 9;
+        public KraidPlmRequest this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                byte column = (byte)(KraidCeilingRockPositions.AtByteOffset(2 * index) >> 4);
+                ushort header = column == 2 ? RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1
+                    : (column & 1) == 0 ? RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3
+                    : RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2;
+                return new(column, 0x12, header);
+            }
+        }
+        public IEnumerator<KraidPlmRequest> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
     public static KraidPlmRequest? ForSinkCallback(ushort callback) => callback switch
     {

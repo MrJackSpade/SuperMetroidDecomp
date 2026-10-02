@@ -2399,4 +2399,22 @@
         "rationale": "This is a finite state transition policy with explicit random weights and pause categories. Named conditional cases express destination selection and branch timing directly, not a fitted numerical trajectory or disguised arbitrary animation sequence.",
         "confirmation": "Separate target and timer proofs reuse the existing independent original-data oracle. Each covers every RNG word at each native position plus all65536 positions across all eight choices. This exhausts the distinct input equivalence classes established by the source mask. Build and --lookup-kraid-movement pass; broad actor-transition matrix is not run. Stored rows removed; no generated cache."
     }
+,
+    "kraidGrowthPlmReview": {
+        "state": "row/header converted; column alias consolidated, shared ordering pending",
+        "implementationCommit": "Resolve with git log for KraidPlmDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidPlmDefinitions.cs",
+        "consumers": ["RoomEnemySystem.RunKraidGrowthFunction", "KraidAudit", "VerifyKraidCeilingRockPositions"],
+        "nativeIdentity": "A7:ACC5 nine callback pointers; ACD7..AD39 inline PLM arguments",
+        "reviewedEvidence": "Pinned bank_A7.asm AC4D-AD44: growth cursor advances by2, spawns the selected rock then invokes its paired callback. All nine callback inline records independently checked against SHA-verified NTSC J/U v1.0 ROM.",
+        "domain": "IReadOnlyList ordinal0..8; invalid indexing retains ArgumentOutOfRangeException; ascending enumeration and count9 preserved.",
+        "tables": [
+            { "id": "kraid-growth-plm-column-alias", "state": "alias consolidated; underlying order pending", "disposition": "Remove duplicate PLM X storage. Derive block column from paired rock center X shifted right4. The shared KraidCeilingRockPositions chronology remains a pending mapping, not an accepted retention.", "proof": "VerifyKraidGrowthPlmColumns" },
+            { "id": "kraid-growth-plm-row", "state": "converted", "disposition": "All nine mutations address ceiling block row18; return that constant directly.", "proof": "VerifyKraidGrowthPlmRows" },
+            { "id": "kraid-growth-plm-header", "state": "converted", "disposition": "Select background1 at left-edge column2; elsewhere select background2 for odd columns and background3 for even columns.", "proof": "VerifyKraidGrowthPlmHeaders" }
+        ],
+        "rationale": "The block mutation occurs directly above the paired falling rock, on one ceiling row. The background variants form a distinct left edge followed by alternating column variants. These rules explain the fields independently of the pending chronology.",
+        "confirmation": "Three separate native callback-data proofs cover all27 fields, ordered enumeration and invalid list bounds. Verification build and --lookup-kraid-growth-plms pass. No gameplay sweep or generated request cache.",
+        "remainingScope": "Shared ceiling/rock column chronology, defeated-room requests and sink callback selection still require their own reviewed dispositions."
+    }
 }

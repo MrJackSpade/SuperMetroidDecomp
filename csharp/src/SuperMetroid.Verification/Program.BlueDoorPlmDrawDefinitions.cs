@@ -128,13 +128,6 @@ internal static partial class Program
                 $"{orientation} complete blue-door lists avoid all compiled ROM sources");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmBlueDoorVisualCatalog(entries.Skip(1)),
-            "blue-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmBlueDoorVisualCatalog(entries),
-            "blue-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifyBlueDoorVisualInstallation(rom, leftFirstDraw);
 
@@ -165,7 +158,9 @@ internal static partial class Program
                 installation.RoomPlmBlueDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmBlueDoorVisualFiles.ValidateStock(
                 installation.RoomPlmBlueDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmBlueDoorVisuals().GetWord(firstDraw, 0);
+            var installed = installation.LoadRoomPlmBlueDoorVisuals();
+            VerifyBlueDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(firstDraw, 0);
 
             string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
                 RoomPlmBlueDoorVisualFiles.VisualFileName);

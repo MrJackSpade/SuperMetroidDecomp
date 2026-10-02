@@ -11,9 +11,9 @@ internal static class PlmDoorClosedContractDefinitions
     [
         new("SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog", "plm-blue-door-complete-aliased-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBlueDoorVisualCatalog.cs", "4B051251DC9A26C6F4308643181AE8AF53383AB4AABCA369D7A14EDD09D549C5"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBlueDoorVisualCatalog.cs", "F65EC90050ECB86745604F22A7D8D62C0C1B9E74E4FC2BBC17F460EA23DF7AEB"),
              new("csharp/src/SuperMetroid.Core/Rooms/BlueDoorPlmDrawDefinitions.cs", "307447692C701C172A97F876BE3D5D5087B7369950E0C3E80E86860389ECA3B4")],
-            "The constructor requires sixteen unique known four-word authored frames and clones every payload. Four closed-cap pointers resolve to required opening frames through the guarded VisualSource mapping; all twenty supported pointers have four words. Unknown pointers are not accepted by aliasing. Collision and opening timing are outside this proof."),
+            "The constructor requires sixteen unique known four-word authored frames and clones only changed artwork; stock visuals project calculated physical words. Four closed-cap pointers resolve to required opening frames through the guarded VisualSource mapping; all twenty supported pointers have four words. Unknown pointers are not accepted by aliasing. Collision and opening timing are outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog", "plm-colored-door-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmColoredDoorVisualCatalog.cs", "57852600BDA37D9B0CADA4FE32228346A7A05AFF0ADA1636BF221831454FFE15"),

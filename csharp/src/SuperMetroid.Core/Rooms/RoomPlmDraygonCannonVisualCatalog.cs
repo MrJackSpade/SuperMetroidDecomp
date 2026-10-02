@@ -2,26 +2,43 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>One reachable Draygon cannon frame's blocks in native run order.</summary>
+/// <summary>One Draygon cannon frame's visible blocks in cartridge run order.</summary>
 public sealed record RoomPlmDraygonCannonVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
-/// Editable cannon block appearances. Native draw geometry, collision,
-/// projectile thresholds, damaged-state transitions and control-word writes
-/// remain compiled and cannot be modified through this resource.
+/// Editable appearance for the cannon PLM. The compiled draw geometry, full
+/// level words, hit thresholds, damage transitions, and control writes remain fixed.
 /// </summary>
 public sealed class RoomPlmDraygonCannonVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmDraygonCannonVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmDraygonCannonVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[4];
+        foreach (var frame in DraygonCannonPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        {
+            DraygonCannonPlmDrawDefinitions.TryDescribe(frame.Pointer, out var shape);
+            int count = 0;
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
+                words[count++] = GetWord(frame.Pointer, run, word);
+            content.Append("frame", frame.Pointer);
+            // Preserve the flattened single-run framing of installed cannon artwork.
+            content.Append("runs", 1);
+            content.AppendWords("words", words[..count]);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+
+    private RoomPlmDraygonCannonVisualCatalog() { }
 
     public RoomPlmDraygonCannonVisualCatalog(
         IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmDraygonCannonVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
@@ -32,28 +49,29 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Draygon cannon visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
+            if (!seen.Add(draw.Pointer))
                 throw new InvalidDataException(
                     $"Draygon cannon visuals repeat frame {entry.Id}.");
+            DraygonCannonPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
+            int index = 0;
+            bool changed = false;
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
+                changed |= entry.Blocks[index++] != new RoomLevelWord(shape.WordAt(run, word)).VisualWord;
+            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != DraygonCannonPlmDrawDefinitions.All.Count())
+        if (seen.Count != DraygonCannonPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Draygon cannon visuals do not cover all reachable compiled frames.");
-        blocks = selected;
+        if (selected.Count != 0) customBlocks = selected;
     }
 
-    public static RoomPlmDraygonCannonVisualCatalog Stock() => new(
-        DraygonCannonPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmDraygonCannonVisualEntry(
-                DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
+    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
+    public static RoomPlmDraygonCannonVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Draygon cannon visuals lack frame ${drawPointer:X4}.");
         if ((uint)runIndex >= (uint)draw.RunCount ||
@@ -62,6 +80,7 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += draw.WordCount(run);
-        return words[flatIndex];
+        return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
+            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

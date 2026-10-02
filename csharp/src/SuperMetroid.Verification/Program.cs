@@ -34,6 +34,8 @@ if (args is ["--lookup-alcoon-programs"])
         "Alcoon oracle is NTSC J/U v1.0");
     VerifyAlcoonMechanicsMapping(alcoonOracle);
     VerifyAlcoonPresentationAddressMapping();
+    VerifyAlcoonVisualSelectorMapping(alcoonOracle);
+    VerifyCompiledEnemyVisualSelectors();
     Console.WriteLine("Alcoon programs: all 68 native words, 44 visual positions, full ownership domains and bounds pass.");
     return 0;
 }

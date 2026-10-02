@@ -56,9 +56,7 @@ internal static partial class Program
                 "Alcoon mechanics ordinal bounds");
     }
 
-    private static void VerifyAlcoonPresentationAddressMapping()
-    {
-        ushort[] expected =
+    private static ushort[] AlcoonPresentationAddressOracle() =>
         [
             0xdbeb,0xdbf1,0xdbf7,0xdbfd,
             0xdc05,0xdc09,0xdc0d,0xdc11,0xdc17,0xdc1b,0xdc1f,0xdc23,
@@ -67,6 +65,10 @@ internal static partial class Program
             0xdc75,0xdc79,0xdc7d,0xdc81,0xdc87,0xdc8b,0xdc8f,0xdc93,
             0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
         ];
+
+    private static void VerifyAlcoonPresentationAddressMapping()
+    {
+        ushort[] expected = AlcoonPresentationAddressOracle();
         AssertEqual(expected.Length, AlcoonInstructionProgramDefinitions.PresentationWordCount, "Alcoon visual count");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
@@ -78,6 +80,37 @@ internal static partial class Program
         foreach (int index in new[] { int.MinValue, -1, 44, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
                 "Alcoon presentation ordinal bounds");
+    }
+
+    private static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = AlcoonPresentationAddressOracle();
+        foreach (ushort address in addresses)
+        {
+            ushort expected = ReadAlcoonInstructionWord(rom, address);
+            AssertEqual(expected, EnemySpritemapDefinitions.AlcoonFrameAt(address), "Alcoon direct native visual");
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(RoomEnemySystem.AlcoonDefinition, address, out ushort frame),
+                "Alcoon actor visual dispatch");
+            AssertEqual(expected, frame, "Alcoon actor selected visual");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared), "Alcoon shared visual dispatch");
+            AssertEqual(expected, shared, "Alcoon shared selected visual");
+        }
+        var valid = addresses.ToHashSet();
+        for (int address = 0xdbe5; address <= 0xdcc9; address++)
+            if (!valid.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt((ushort)address),
+                    "Alcoon rejects control, misaligned and adjacent visual operands");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing),
+                    "Alcoon shared selector rejects holes");
+                AssertEqual((ushort)0, missing, "Alcoon missing shared selector clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt(address),
+                "Alcoon distant invalid visual operand");
+        foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),
+                "Shared selector merged enumeration bounds");
     }
 
     private static void VerifyAlcoonInstructionProgramDefinitions()

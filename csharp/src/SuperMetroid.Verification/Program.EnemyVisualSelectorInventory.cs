@@ -245,9 +245,8 @@ internal static partial class Program
     private static void GenerateCompiledEnemyVisualSelectorCatalog(
         Dictionary<int, ushort> selectors)
     {
-        const string outputPath =
-            "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs";
         IGrouping<int, KeyValuePair<int, ushort>>[] banks = selectors
+            .Where(pair => !CompiledEnemyVisualSelectors.IsCalculatedSelector(pair.Key))
             .GroupBy(pair => pair.Key >> 16)
             .OrderBy(group => group.Key)
             .ToArray();
@@ -270,55 +269,8 @@ internal static partial class Program
             File.WriteAllText(bankPath, bankSource.ToString(), new UTF8Encoding(false));
         }
 
-        var source = new StringBuilder(2500);
-        source.AppendLine("// Generated from the pinned retail cartridge by --generate-enemy-visual-selectors.");
-        source.AppendLine("// Edit the producer catalog and regenerate; do not hand-edit individual entries.");
-        source.AppendLine("namespace SuperMetroid.Core.Assets;");
-        source.AppendLine();
-        source.AppendLine("/// <summary>One immutable cartridge visual-pointer operand and its selected target.</summary>");
-        source.AppendLine("internal readonly record struct CompiledEnemyVisualSelector(int Address, ushort Pointer);");
-        source.AppendLine();
-        source.AppendLine("/// <summary>");
-        source.AppendLine("/// Sparse fixed visual selectors from compiled instruction catalogs. These are");
-        source.AppendLine("/// engine definitions, not editable art, callback code, or a reconstructed ROM.");
-        source.AppendLine("/// A selected target still needs its own renderer and presentation asset.");
-        source.AppendLine("/// </summary>");
-        source.AppendLine("internal static partial class CompiledEnemyVisualSelectors");
-        source.AppendLine("{");
-        source.AppendLine("    private static readonly CompiledEnemyVisualSelector[] Entries =");
-        source.AppendLine("    [");
-        foreach (IGrouping<int, KeyValuePair<int, ushort>> bank in banks)
-            source.AppendLine($"        .. Bank{bank.Key:X2},");
-        source.AppendLine("    ];");
-        source.AppendLine();
-        source.AppendLine("    internal static int Count => Entries.Length;");
-        source.AppendLine("    internal static CompiledEnemyVisualSelector At(int index) => Entries[index];");
-        source.AppendLine();
-        source.AppendLine("    internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)");
-        source.AppendLine("    {");
-        source.AppendLine("        int key = (bank << 16) | operandAddress;");
-        source.AppendLine("        int low = 0;");
-        source.AppendLine("        int high = Entries.Length - 1;");
-        source.AppendLine("        while (low <= high)");
-        source.AppendLine("        {");
-        source.AppendLine("            int middle = low + ((high - low) >> 1);");
-        source.AppendLine("            CompiledEnemyVisualSelector entry = Entries[middle];");
-        source.AppendLine("            if (entry.Address == key)");
-        source.AppendLine("            {");
-        source.AppendLine("                pointer = entry.Pointer;");
-        source.AppendLine("                return true;");
-        source.AppendLine("            }");
-        source.AppendLine("            if (entry.Address < key)");
-        source.AppendLine("                low = middle + 1;");
-        source.AppendLine("            else");
-        source.AppendLine("                high = middle - 1;");
-        source.AppendLine("        }");
-        source.AppendLine("        pointer = 0;");
-        source.AppendLine("        return false;");
-        source.AppendLine("    }");
-        source.AppendLine("}");
-        File.WriteAllText(outputPath, source.ToString(), new UTF8Encoding(false));
+        // The calculated-family dispatcher is maintained separately from literal bank generation.
         Console.WriteLine(
-            $"Generated {selectors.Count} fixed visual selectors in {banks.Length} bank files and {outputPath}.");
+            $"Generated {banks.Sum(bank => bank.Count())} remaining literal visual selectors in {banks.Length} bank files; calculated families stay in their dispatcher.");
     }
 }

@@ -1,5 +1,7 @@
-// Generated from the pinned retail cartridge by --generate-enemy-visual-selectors.
-// Edit the producer catalog and regenerate; do not hand-edit individual entries.
+using SuperMetroid.Core.Game;
+
+// Bank files contain remaining literal selectors. Calculated families are dispatched
+// here and merged into the public enumeration without materializing a lookup cache.
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One immutable cartridge visual-pointer operand and its selected target.</summary>
@@ -29,12 +31,39 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    internal static int Count => Entries.Length;
-    internal static CompiledEnemyVisualSelector At(int index) => Entries[index];
+    internal static int Count => Entries.Length + AlcoonInstructionProgramDefinitions.PresentationWordCount;
+    internal static CompiledEnemyVisualSelector At(int index)
+    {
+        if ((uint)index >= Count) throw new IndexOutOfRangeException();
+        int low = 0, high = Entries.Length;
+        while (low < high)
+        {
+            int middle = low + (high - low) / 2;
+            if (Entries[middle].Address < 0xa8dbeb) low = middle + 1;
+            else high = middle;
+        }
+        int calculatedIndex = index - low;
+        if (calculatedIndex < 0) return Entries[index];
+        if (calculatedIndex < AlcoonInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = AlcoonInstructionProgramDefinitions.PresentationWordAddress(calculatedIndex);
+            return new(0xa80000 | operand, EnemySpritemapDefinitions.AlcoonFrameAt(operand));
+        }
+        return Entries[index - AlcoonInstructionProgramDefinitions.PresentationWordCount];
+    }
+
+    internal static bool IsCalculatedSelector(int address) =>
+        (address >> 16) == EnemySpritemapDefinitions.AlcoonBank &&
+        AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address);
 
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
         int key = (bank << 16) | operandAddress;
+        if (IsCalculatedSelector(key))
+        {
+            pointer = EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress);
+            return true;
+        }
         int low = 0;
         int high = Entries.Length - 1;
         while (low <= high)

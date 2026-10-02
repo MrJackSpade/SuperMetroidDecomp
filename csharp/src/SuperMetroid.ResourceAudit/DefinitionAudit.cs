@@ -70,12 +70,16 @@ internal static class DefinitionAudit
 
     private static string SelectorSource(string root, int bank, int address)
     {
-        string relative = $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
+        bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
+        string relative = calculated
+            ? "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
+            : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))
         {
             line++;
-            if (text.Contains($"0x{address:X6}", StringComparison.OrdinalIgnoreCase)) return $"{relative}:{line}";
+            if (calculated ? text.Contains("internal static ushort AlcoonFrameAt", StringComparison.Ordinal)
+                : text.Contains($"0x{address:X6}", StringComparison.OrdinalIgnoreCase)) return $"{relative}:{line}";
         }
         throw new InvalidDataException($"Compiled selector ${address:X6} has no matching source declaration.");
     }

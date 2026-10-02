@@ -1040,10 +1040,29 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort AlcoonFrameAt(ushort operandAddress)
     {
-        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(AlcoonBank, operandAddress,
-                out ushort frame))
-            return frame;
+        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int offset = operandAddress - AlcoonInstructionProgramDefinitions.WalkingLeft;
+            int local = offset % 112;
+            int pose = local switch
+            {
+                < 28 => (local - 4) / 6,
+                < 94 => ((local - 28) % 22) switch
+                {
+                    2 => 4,             // Wing extended before the shot.
+                    6 or 14 => 5,       // Mouth opening, also used for windup.
+                    10 => 6,            // Ready to spit.
+                    _ => 7,             // Recovery after firing.
+                },
+                98 => 7,                // Trailing recovery pose after StartWalking.
+                102 => 8,               // Airborne, looking up.
+                _ => 3,                 // Airborne, looking forward reuses walking pose.
+            };
+            // Nine records per facing. Each has a two-byte count and six five-byte
+            // OAM entries, except poses2/5 have seven and pose6 has nine:313 bytes.
+            return (ushort)(0xdfa2 + 313 * (offset / 112) + 32 * pose +
+                (pose > 2 ? 5 : 0) + (pose > 5 ? 5 : 0) + (pose > 6 ? 15 : 0));
+        }
         throw new InvalidDataException(
             $"Alcoon visual operand $A8:{operandAddress:X4} is not compiled.");
     }

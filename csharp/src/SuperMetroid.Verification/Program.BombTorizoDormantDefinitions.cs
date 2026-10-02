@@ -11,6 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyBombTorizoDormantDefinitions(ISnesAddressSpace rom)
     {
+        VerifyBombTorizoDormantControlMapping(rom);
         const byte bank = BombTorizoDormantFrameDefinitions.Bank;
         for (int index = 0;
              index < BombTorizoDormantInstructionProgramDefinitions.MechanicsWordCount;
@@ -65,5 +66,30 @@ internal static partial class Program
             (ushort)(rom.ReadByte((bank << 16) | address) |
                 rom.ReadByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
+    }
+    private static void VerifyBombTorizoDormantControlMapping(ISnesAddressSpace rom)
+    {
+        ushort[] expected = [0xb879,0xb87b,0xb87d,0xb881,0xb883,0xb885];
+        AssertEqual(expected.Length, BombTorizoDormantInstructionProgramDefinitions.MechanicsWordCount, "dormant native control count");
+        var words = expected.ToHashSet();
+        var bytes = expected.SelectMany(address => new[] {(int)address, address + 1}).ToHashSet();
+        for (int i = 0; i < expected.Length; i++)
+            AssertEqual(expected[i], BombTorizoDormantInstructionProgramDefinitions.MechanicsWord(i).Address, "dormant native enumeration position");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(words.Contains((ushort)address), found, "dormant full control membership");
+            ushort native = found ? (ushort)(rom.ReadByte(0xaa0000 | address) | rom.ReadByte(0xaa0000 | (address + 1)) << 8) : (ushort)0;
+            AssertEqual(native, value, "dormant original control value or cleared missing output");
+            AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0xaa0000 | address), "dormant exact byte ownership");
+            AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1aa0000 | address), "dormant existing high-bit alias");
+            AssertTrue(!BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0xab0000 | address), "dormant other bank rejected");
+        }
+        foreach (int index in new[] {int.MinValue,-1,6,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BombTorizoDormantInstructionProgramDefinitions.MechanicsWord(index), "dormant control ordinal bounds");
+        AssertEqual(1, BombTorizoDormantInstructionProgramDefinitions.PresentationWordCount, "dormant one visual operand");
+        AssertEqual((ushort)0xb87f, BombTorizoDormantInstructionProgramDefinitions.PresentationWordAddress(0), "dormant native visual operand position");
+        foreach (int index in new[] {int.MinValue,-1,1,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoDormantInstructionProgramDefinitions.PresentationWordAddress(index), "dormant existing visual ordinal exception");
     }
 }

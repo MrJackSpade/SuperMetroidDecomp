@@ -25,18 +25,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
 
-    private static readonly ushort[] InitialPrograms =
-    [
-        NoDelay,
-        TwoFrameDelay,
-        FourFrameDelay,
-        NoDelay,
-        TwoFrameDelay,
-        FourFrameDelay,
-        NoDelay,
-        TwoFrameDelay,
-    ];
-
     private static readonly BombTorizoDroolInstructionMechanicsWord[] Words =
     [
         new(FourFrameDelay, 2),
@@ -80,7 +68,12 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
     /// <c>$86:A64D</c> low-health-drool instruction-list table.
     /// </summary>
     internal static ushort SelectLowHealthInitialProgram(ushort random) =>
-        InitialPrograms[(random >> 2) & 7];
+        (((random >> 2) & 7) % 3) switch
+        {
+            0 => NoDelay,
+            1 => TwoFrameDelay,
+            _ => FourFrameDelay,
+        };
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

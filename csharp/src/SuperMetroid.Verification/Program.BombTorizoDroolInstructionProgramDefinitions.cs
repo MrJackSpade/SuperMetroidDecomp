@@ -4,6 +4,17 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyBombTorizoDroolInitialSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int random = 0; random <= ushort.MaxValue; random++)
+        {
+            // Native LSR, AND #000E produces the byte offset, independently of the modulo conversion.
+            int address = 0x86a64d + ((random >> 1) & 0x000e);
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram((ushort)random),
+                "Bomb Torizo drool native delay selection for all RNG words");
+        }
+    }
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         VerifyBombTorizoDroolInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -11,6 +22,7 @@ internal static partial class Program
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyBombTorizoDroolInitialSelection(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount;
@@ -72,10 +84,13 @@ internal static partial class Program
             for (int frame = 0; frame < delay; frame++)
             {
                 process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+                AssertEqual((ushort)(delay == 4 && frame < 2 ? 0xa46c : 0xa470), drool.PresentationOperandAddress,
+                    "drool delay installs its original presentation operand" );
                 AssertEqual(EnemyProjectileDrawPriority.High, drool.DrawPriority,
                     $"drool selector {selection} stays high priority during delay {frame + 1}");
             }
             process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+            AssertEqual((ushort)0xa47c, drool.PresentationOperandAddress, "drool first falling pose operand" );
             AssertEqual(BombTorizoDroolInstructionProgramDefinitions.FallingPreInstruction,
                 drool.PreInstruction,
                 $"drool selector {selection} installs falling callback after delay");
@@ -89,6 +104,7 @@ internal static partial class Program
             process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
             AssertEqual(EnemyProjectileDrawPriority.Low, drool.DrawPriority,
                 $"drool selector {selection} clears priority before 64-frame loop");
+            AssertEqual((ushort)0xa484, drool.PresentationOperandAddress, "drool loop pose operand" );
             AssertEqual((ushort)0x0040, drool.InstructionTimer,
                 $"drool selector {selection} installs exact loop duration");
         }
@@ -128,6 +144,7 @@ internal static partial class Program
         for (int frame = 0; frame < 24; frame++)
         {
             process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);
+            AssertEqual((ushort)(0xa492 + 4 * (frame / 8)), floor.PresentationOperandAddress, "drool impact pose follows native eight-tick sequence" );
             AssertTrue(floor.IsActive,
                 $"drool floor impact remains active through frame {frame + 1}");
             AssertEqual(EnemyProjectileCodePointers.RTS_868170, floor.PreInstruction,
@@ -137,9 +154,9 @@ internal static partial class Program
         AssertTrue(!floor.IsActive,
             "drool floor impact deletes on the tick after three eight-frame poses");
 
-        AssertEqual(BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Bomb Torizo drool spritemaps remain cartridge reads");
+            "Bomb Torizo drool uses installed presentation operands without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Bomb Torizo drool mechanics byte");
         AssertThrows<InvalidDataException>(

@@ -3281,4 +3281,21 @@
     "confirmation": "Verification and ResourceAudit builds; --lookup-face-block-programs confirms all three production programs, both activation sides, sleep terminals and absence of program/selector ROM reads, plus the full 5069-entry shared selector contract.",
     "scope": "Instruction controls, operand positions and sprite/export pointer values only. Activation geometry, asset naming/container design and artwork remain separate obligations; no retention exception claimed."
   }
+,
+  "bombTorizoDormantControlReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 AA:B879-B886; pinned bank_AA.asm initial dormant entry",
+    "disposition": "Removed six stored control words. Named command cases establish foot state and animation lock, show one dormant frame, install the hand-crumble wake callback and sleep. Enumeration derives contiguous word positions while excluding the interleaved visual operand.",
+    "proof": "VerifyBombTorizoDormantControlMapping checks independent native positions, all ushort inputs and native words/missing-output clearing, exact byte ownership, high-bit aliases, bank rejection and ordinal exceptions. The existing one-operand projection is independently checked with its ArgumentOutOfRangeException contract.",
+    "confirmation": "Verification build and --lookup-torizo-dormant-and-drool check the original dormant words, shared visual identity and empty hitbox list. No full awakening/combat claim.",
+    "scope": "Dormant control-word mapping and existing operand position only; later programs and dormant presentation data remain separate obligations. No retention exception claimed."
+  },
+  "bombTorizoDroolInitialSelectionReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A64D-A65C and native LSR/AND selection; pinned bank_86.asm",
+    "disposition": "Removed the eight-entry initial-program array. Mask the native three-bit selection, then cycle modulo three through named no-delay, two-frame-delay and four-frame-delay programs.",
+    "proof": "VerifyBombTorizoDroolInitialSelection independently reproduces native byte-offset selection and compares all 65536 random words against the original eight ROM pointers.",
+    "confirmation": "Verification build and --lookup-torizo-dormant-and-drool run all eight production spawns with exact RNG consumption and delay timing, plus initial-drool and impact programs. Replaced a stale expected-ROM-read assertion with no-read and exact installed-operand assertions for delay, falling, loop and impact poses.",
+    "scope": "Initial delay program selection only. Drool control-word and presentation arrays remain required work, along with their pointer mappings; no retention exception claimed."
+  }
 }

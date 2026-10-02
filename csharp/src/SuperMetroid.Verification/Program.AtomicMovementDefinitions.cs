@@ -5,8 +5,88 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    private static void VerifyAtomicInitialProgramSelection(SuperMetroidAddressSpace rom)
+    {
+        for (ushort selector = 0; selector < 4; selector++)
+            AssertEqual(ReadAtomicProgramWord(rom, (ushort)(0xe380 + 2 * selector)),
+                AtomicMovementDefinitions.InitialInstructionList(selector), "Atomic native direction program");
+        foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => AtomicMovementDefinitions.InitialInstructionList(selector),
+                "Atomic invalid direction selector");
+    }
+
+    private static void VerifyAtomicMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+        [
+            0xe310, 0xe314, 0xe318, 0xe31c, 0xe320, 0xe324, 0xe328, 0xe32a,
+            0xe32c, 0xe330, 0xe334, 0xe338, 0xe33c, 0xe340, 0xe344, 0xe346,
+            0xe348, 0xe34c, 0xe350, 0xe354, 0xe358, 0xe35c, 0xe360, 0xe362,
+            0xe364, 0xe368, 0xe36c, 0xe370, 0xe374, 0xe378, 0xe37c, 0xe37e,
+        ];
+        AssertEqual(addresses.Length, AtomicInstructionProgramDefinitions.MechanicsWordCount,
+            "Atomic mechanics count");
+        var ownedBytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadAtomicProgramWord(rom, address);
+            var actual = AtomicInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, actual.Address, "Atomic native word enumeration");
+            AssertEqual(expected, actual.Value, "Atomic enumerated native value");
+            AssertEqual(expected, AtomicInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "Atomic direct native word");
+            ownedBytes.Add(address);
+            ownedBytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = ownedBytes.Contains(address);
+            AssertEqual(expected, AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address),
+                "Atomic full bank ownership");
+            AssertEqual(expected, AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address),
+                "Atomic high address bits remain masked");
+            AssertTrue(!AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+                "Atomic wrong bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0xe30e; address <= 0xe382; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(
+                    () => AtomicInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Atomic visual operands, odd bytes and adjacent words rejected");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => AtomicInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "Atomic distant invalid word");
+        foreach (int index in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitions.MechanicsWord(index),
+                "Atomic mechanics ordinal bounds");
+    }
+
+    private static void VerifyAtomicPresentationAddresses()
+    {
+        ushort[] expected =
+        [
+            0xe312, 0xe316, 0xe31a, 0xe31e, 0xe322, 0xe326,
+            0xe32e, 0xe332, 0xe336, 0xe33a, 0xe33e, 0xe342,
+            0xe34a, 0xe34e, 0xe352, 0xe356, 0xe35a, 0xe35e,
+            0xe366, 0xe36a, 0xe36e, 0xe372, 0xe376, 0xe37a,
+        ];
+        AssertEqual(expected.Length, AtomicInstructionProgramDefinitions.PresentationWordCount,
+            "Atomic presentation operand count");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Atomic native presentation operand position");
+        foreach (int index in new[] { int.MinValue, -1, 24, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Atomic presentation ordinal bounds");
+    }
+
     private static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyAtomicInitialProgramSelection(rom);
+        VerifyAtomicMechanicsMapping(rom);
+        VerifyAtomicPresentationAddresses();
         const int instructionTable = 0xa8e380;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -22,8 +102,6 @@ internal static partial class Program
         {
             int address = instructionTable + selector * 2;
             ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-            AssertEqual(native, AtomicMovementDefinitions.InitialInstructionList(selector),
-                $"compiled Atomic instruction selector {selector}");
 
             slot.Parameter1 = selector;
             slot.Parameter2 = (ushort)(selector * 7);
@@ -45,25 +123,6 @@ internal static partial class Program
                 $"Atomic negative whole speed {selector}");
             AssertEqual(negativeFraction, state.NegativeSpeedFraction,
                 $"Atomic negative fractional speed {selector}");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => AtomicMovementDefinitions.InitialInstructionList(4),
-            "Atomic selector beyond authored table");
-        AssertThrows<InvalidDataException>(
-            () => AtomicMovementDefinitions.InitialInstructionList(ushort.MaxValue),
-            "Atomic restored selector does not read adjacent code");
-
-        for (int index = 0;
-             index < AtomicInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            AtomicInstructionMechanicsWord definition =
-                AtomicInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadAtomicProgramWord(rom, definition.Address),
-                $"Atomic mechanics word $A8:{definition.Address:X4}");
         }
 
         var programGuard = new AtomicProgramReadGuard(rom);
@@ -108,12 +167,6 @@ internal static partial class Program
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids compiled Atomic mechanics and visual bytes");
 
-        AssertThrows<InvalidDataException>(
-            () => AtomicInstructionProgramDefinitions.ReadMechanicsWord(0xe312),
-            "interleaved Atomic spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => AtomicInstructionProgramDefinitions.ReadMechanicsWord(0xffff),
-            "restored pointer outside all Atomic programs fails loudly");
         AssertThrows<InvalidDataException>(
             () => EnemySpritemapDefinitions.AtomicFrameAt(0xe380),
             "uncompiled Atomic visual selector fails loudly");

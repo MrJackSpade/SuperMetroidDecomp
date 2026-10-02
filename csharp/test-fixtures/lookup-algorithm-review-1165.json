@@ -2755,4 +2755,31 @@
         "proof": "VerifyKraidDrawOwnerClassification independently checks the eight original header program pointers against ROM and every ushort input against the native identity fixture. It is shared by --lookup-kraid-draws and the existing Kraid PLM suite. Existing VerifyKraidVisualOwnerIsolation covers production dispatch and edited Kraid/elevatube appearance separation; no duplicate integration fixture added.",
         "confirmation": "Verification build and --lookup-kraid-draws pass against SHA-verified NTSC J/U v1.0. Production behavior is unchanged."
     }
+,
+    "atomicInstructionProgramReview": {
+        "state": "converted",
+        "owners": ["csharp/src/SuperMetroid.Core/Game/AtomicInstructionProgramDefinitions.cs", "csharp/src/SuperMetroid.Core/Game/AtomicMovementDefinitions.cs"],
+        "nativeIdentity": "A8:E310..E37F four six-frame animation loops; E380..E387 four direction program pointers",
+        "reviewedEvidence": "Read all four instruction lists, direction selector source and their runtime dispatch/initializer consumers. Pinned bank_A8.asm362be646929cf8e483f692b73a6561cfc2dc1d0d has six eight-frame duration/visual pairs per loop, then Common_GotoY and that loop's entry address. Each loop occupies28 bytes. Native direction order is up-right,up-left,down-left,down-right.",
+        "tables": [
+            {
+                "id": "atomic-direction-program-selection",
+                "disposition": "Replace the four stored initial pointers with named direction cases. Invalid ushort selectors still throw InvalidDataException.",
+                "proof": "VerifyAtomicInitialProgramSelection independently reads the four original pointers and confirms adjacent and distant invalid selectors. Extracted from the existing initializer verification."
+            },
+            {
+                "id": "atomic-instruction-mechanics-words",
+                "disposition": "Remove the32-record word array. Compute ordered addresses from eight mechanics words per28-byte loop; evaluate six duration stages as8, terminal opcode as CommonEnemyInstructionCodes.Goto and its operand as the current loop start. ReadMechanicsWord still rejects all visual operands and odd words. Byte ownership preserves the bank mask, including ignored high address bits.",
+                "proof": "VerifyAtomicMechanicsMapping uses an independently listed32-address native fixture and original-ROM word values, checks enumeration and direct reads, every bank byte with high-bit aliasing and wrong-bank rejection, every hole/odd address in and adjacent to the program span, distant invalid addresses and ordinal bounds. Replaces the prior numerical word loop."
+            },
+            {
+                "id": "atomic-presentation-operand-addresses",
+                "disposition": "Remove the24-entry address array. Compute loop base plus two-byte operand displacement and four-byte frame stride. Preserve IndexOutOfRangeException outside0..23.",
+                "proof": "VerifyAtomicPresentationAddresses independently lists all24 native positions and checks invalid ordinal boundaries. Existing visual value comparisons and production program execution remain separate."
+            }
+        ],
+        "rationale": "These mappings are repeated executable instruction structure and semantic direction selection. No arbitrary numerical fit, generated lookup cache or performance exemption is involved.",
+        "confirmation": "Verification build and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0, including the existing four initializer and four production instruction-loop checks with source reads forbidden.",
+        "remainingScope": "Atomic artwork and its visual selector mapping require independent dispositions. SPC pan, Fake Kraid launch heights and the broader repository review remain open; this slice is not ticket completion."
+    }
 }

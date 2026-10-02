@@ -23,70 +23,47 @@ internal static class AtomicInstructionProgramDefinitions
     /// <summary><c>$A8:E364</c>, spinning down-right.</summary>
     internal const ushort DownRight = 0xe364;
 
-    private static readonly AtomicInstructionMechanicsWord[] Words =
-    [
-        new(0xe310, 0x0008), new(0xe314, 0x0008), new(0xe318, 0x0008),
-        new(0xe31c, 0x0008), new(0xe320, 0x0008), new(0xe324, 0x0008),
-        new(0xe328, 0x80ed), new(0xe32a, 0xe310),
-        new(0xe32c, 0x0008), new(0xe330, 0x0008), new(0xe334, 0x0008),
-        new(0xe338, 0x0008), new(0xe33c, 0x0008), new(0xe340, 0x0008),
-        new(0xe344, 0x80ed), new(0xe346, 0xe32c),
-        new(0xe348, 0x0008), new(0xe34c, 0x0008), new(0xe350, 0x0008),
-        new(0xe354, 0x0008), new(0xe358, 0x0008), new(0xe35c, 0x0008),
-        new(0xe360, 0x80ed), new(0xe362, 0xe348),
-        new(0xe364, 0x0008), new(0xe368, 0x0008), new(0xe36c, 0x0008),
-        new(0xe370, 0x0008), new(0xe374, 0x0008), new(0xe378, 0x0008),
-        new(0xe37c, 0x80ed), new(0xe37e, 0xe364),
-    ];
+    // Four loops: six duration/visual pairs followed by goto and its target.
+    internal static int MechanicsWordCount => 4 * 8;
+    internal static int PresentationWordCount => 4 * 6;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe312, 0xe316, 0xe31a, 0xe31e, 0xe322, 0xe326,
-        0xe32e, 0xe332, 0xe336, 0xe33a, 0xe33e, 0xe342,
-        0xe34a, 0xe34e, 0xe352, 0xe356, 0xe35a, 0xe35e,
-        0xe366, 0xe36a, 0xe36e, 0xe372, 0xe376, 0xe37a,
-    ];
+    internal static AtomicInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int word = index % 8;
+        ushort address = (ushort)(UpRight + 28 * (index / 8) +
+            (word < 6 ? 4 * word : 24 + 2 * (word - 6)));
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static AtomicInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(UpRight + 28 * (index / 6) + 4 * (index % 6) + 2);
+    }
 
-    /// <summary>Returns one fixed control word or rejects pointers outside all four loops.</summary>
+    /// <summary>Evaluates the six eight-frame durations, goto and loop target at
+    /// $A8:E310..E37F. Interleaved visual operands remain outside this decoder.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - UpRight;
+        if ((uint)offset < 4 * 28 && (offset & 1) == 0)
         {
-            int middle = low + ((high - low) >> 1);
-            AtomicInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int stage = offset % 28;
+            if (stage < 24 && stage % 4 == 0) return 8;
+            if (stage == 24) return CommonEnemyInstructionCodes.Goto;
+            if (stage == 26) return (ushort)(address - 26);
         }
-
         throw new InvalidDataException(
             $"Atomic instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa80000) return false;
+        int offset = (ushort)address - UpRight;
+        if ((uint)offset >= 4 * 28) return false;
+        int stage = offset % 28;
+        return stage >= 24 || stage % 4 < 2;
     }
 }

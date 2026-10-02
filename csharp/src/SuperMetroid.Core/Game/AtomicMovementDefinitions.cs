@@ -5,25 +5,16 @@ internal static class AtomicMovementDefinitions
 {
     /// <summary>
     /// $A8:E380, InstructionListPointers_Atomic: four instruction-list pointers
-    /// selected by the enemy population's first parameter. The mixed instruction
-    /// programs themselves remain separate runtime dependencies.
+    /// selected by the enemy population's first parameter. Named direction cases
+    /// select the independently calculated control programs.
     /// </summary>
-    private static ReadOnlySpan<ushort> InitialInstructionLists =>
-    [
-        AtomicInstructionProgramDefinitions.UpRight,
-        AtomicInstructionProgramDefinitions.UpLeft,
-        AtomicInstructionProgramDefinitions.DownLeft,
-        AtomicInstructionProgramDefinitions.DownRight,
-    ];
-
-    internal static ushort InitialInstructionList(ushort parameter)
+    internal static ushort InitialInstructionList(ushort parameter) => parameter switch
     {
-        if (parameter >= InitialInstructionLists.Length)
-        {
-            throw new InvalidDataException(
-                $"Atomic instruction selector ${parameter:X4} is outside the four authored appearances.");
-        }
-
-        return InitialInstructionLists[parameter];
-    }
+        0 => AtomicInstructionProgramDefinitions.UpRight,
+        1 => AtomicInstructionProgramDefinitions.UpLeft,
+        2 => AtomicInstructionProgramDefinitions.DownLeft,
+        3 => AtomicInstructionProgramDefinitions.DownRight,
+        _ => throw new InvalidDataException(
+            $"Atomic instruction selector ${parameter:X4} is outside the four authored appearances."),
+    };
 }

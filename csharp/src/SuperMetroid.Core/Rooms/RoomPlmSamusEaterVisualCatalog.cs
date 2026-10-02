@@ -13,15 +13,32 @@ public sealed record RoomPlmSamusEaterVisualEntry(string Id, ushort[] Blocks);
 public sealed class RoomPlmSamusEaterVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmSamusEaterVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSamusEaterVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[8];
+        foreach (var draw in SamusEaterPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        {
+            int index = 0;
+            for (int run = 0; run < 3; run++)
+            for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
+                words[index++] = GetWord(draw.Pointer, run, block);
+            content.Append("frame", draw.Pointer);
+            // Preserve the original flattened-frame hash, not the three physical runs.
+            content.Append("runs", 1);
+            content.AppendWords("words", words);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customWords;
+
+    private RoomPlmSamusEaterVisualCatalog() { }
 
     public RoomPlmSamusEaterVisualCatalog(
         IEnumerable<RoomPlmSamusEaterVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmSamusEaterVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
@@ -31,28 +48,28 @@ public sealed class RoomPlmSamusEaterVisualCatalog
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Samus Eater visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
+            if (!seen.Add(draw.Pointer))
                 throw new InvalidDataException(
                     $"Samus Eater visuals repeat frame {entry.Id}.");
+            bool differs = false;
+            int index = 0;
+            foreach (var run in draw.Runs.Span)
+            foreach (ushort word in run.LevelWords.Span)
+                differs |= entry.Blocks[index++] != new RoomLevelWord(word).VisualWord;
+            if (differs) selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != SamusEaterPlmDrawDefinitions.All.Count())
+        if (seen.Count != SamusEaterPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Samus Eater visuals do not cover all eight compiled frames.");
-        blocks = selected;
+        if (selected.Count != 0) customWords = selected;
     }
 
-    public static RoomPlmSamusEaterVisualCatalog Stock() => new(
-        SamusEaterPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmSamusEaterVisualEntry(
-                SamusEaterPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
+    /// <summary>Stock appearance is calculated from the physical draw's visual bits without a cache.</summary>
+    public static RoomPlmSamusEaterVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Samus Eater visuals lack frame ${drawPointer:X4}.");
         if ((uint)runIndex >= 3 ||
@@ -61,6 +78,7 @@ public sealed class RoomPlmSamusEaterVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += SamusEaterPlmDrawDefinitions.Draw.Count(run);
-        return words[flatIndex];
+        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

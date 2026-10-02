@@ -3740,6 +3740,17 @@
     "levelWords": {"disposition": "converted", "proof": "VerifySamusEaterDrawWords compares all 64 calculated physical words with the original records, direct DTOs and export. It checks complete pointer ownership/default outputs and invalid run/block bounds."},
     "consumers": "RoomPlmSystem now draws the scalar descriptor directly. Artwork interfaces materialize temporary DTOs; the visual getter uses descriptor counts without allocating draws. Existing ordinal visual IDs and export order remain intact. Normalized PlmProgression source pins updated.",
     "confirmation": "Verification and ResourceAudit builds and --samus-eater-visuals pass complete native draw proofs, stock extraction/validation, custom floor/ceiling redraw with original collision words at every native run position, source-read prohibition, visual isolation and stock repair checks.",
-    "scope": "Physical draw geometry and words only. The separate stock visual dictionary and plant program/behavior mappings remain independently reviewable; no retention exception claimed."
+    "scope": "Physical draw geometry and words only. The stock visual dictionary is converted under samusEaterStockVisualReview. Plant program/behavior mappings remain independently reviewable; no retention exception claimed."
+  }
+,
+  "samusEaterStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 visual portions of eight original floor/ceiling plant draws at 84:9E0D/9E45/9E61/9E7D/9E99/9ED1/9EED/9F09; RoomPlmSamusEaterVisualCatalog factory, import, getter and hash",
+    "algorithm": "Remove generated stock dictionary and arrays. Empty stock factory calculates visual words from the reviewed physical descriptor. Import validates complete unique ordinal frame IDs, exact shapes and visual-only bits, then stores cloned payloads only for frames actually differing from stock. Custom frames fall back to calculated stock for other identities.",
+    "identity": "Preserve sorted native-pointer order and the original one-run flattened eight-word hash framing, using a stack buffer. Physical run boundaries remain getter bounds, not new hash boundaries.",
+    "proof": "VerifySamusEaterStockVisualMapping consolidates the previous native stock comparison. Independent original pointers/IDs and parsed native words/counts confirm factory, reversed-order import and installed stock values/hashes; complete ushort pointer rejection; each run width and invalid run/block bounds; mixed custom/stock hash; custom and unchanged-input mutation isolation; incomplete/duplicate/non-ordinal/wrong-shape/collision-bit rejection.",
+    "consumers": "Existing installation and artwork extraction APIs are unchanged. Remaining dictionary stores selected custom appearance, not a fixed stock lookup. Normalized PlmProgression visual source pin and contract explanation updated.",
+    "confirmation": "Verification and ResourceAudit builds and --samus-eater-visuals pass the complete stock proof, physical draw proofs, custom floor/ceiling placement with source reads forbidden, collision isolation and installation/stock-repair checks.",
+    "scope": "Plant stock appearance and content identity only. Program and behavior mappings and the wider audit remain unfinished; no retention exception claimed."
   }
 }

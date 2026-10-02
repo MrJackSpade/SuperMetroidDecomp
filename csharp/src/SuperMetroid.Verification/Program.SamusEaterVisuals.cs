@@ -30,28 +30,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmSamusEaterVisualFiles.ValidateStock(
                 installation.RoomPlmSamusEaterVisualDirectory);
-            RoomPlmSamusEaterVisualCatalog stock =
-                installation.LoadRoomPlmSamusEaterVisuals();
-            AssertEqual(8, SamusEaterPlmDrawDefinitions.All.Count(),
-                "all eight floor/ceiling frames are compiled");
-            foreach (var draw in SamusEaterPlmDrawDefinitions.All)
-            {
-                ushort cursor = draw.Pointer;
-                for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
-                {
-                    var run = draw.Runs.Span[runIndex];
-                    for (int block = 0; block < run.LevelWords.Length; block++)
-                    {
-                        ushort native = ReadSamusEaterPlmWord(rom,
-                            0x840000 | checked((ushort)(cursor + 2 + 2 * block)));
-                        AssertEqual(new RoomLevelWord(native).VisualWord,
-                            stock.GetWord(draw.Pointer, runIndex, block),
-                            "Samus Eater stock visual block word");
-                    }
-                    cursor = checked((ushort)(cursor + 4 +
-                        2 * run.LevelWords.Length));
-                }
-            }
+            VerifySamusEaterStockVisualMapping(rom, installation.LoadRoomPlmSamusEaterVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmSamusEaterVisualDirectory,
@@ -103,6 +82,84 @@ internal static partial class Program
                 Directory.Delete(testRoot, recursive: true);
         }
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
+    }
+
+    private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
+        RoomPlmSamusEaterVisualCatalog installed)
+    {
+        (ushort Pointer, string Id)[] frames = [(0x9e0d,"floor-idle"), (0x9e45,"floor-chew-1"),
+            (0x9e61,"floor-chew-2"), (0x9e7d,"floor-chew-3"), (0x9e99,"ceiling-idle"),
+            (0x9ed1,"ceiling-chew-1"), (0x9eed,"ceiling-chew-2"), (0x9f09,"ceiling-chew-3")];
+        var native = new Dictionary<ushort, ushort[]>();
+        var counts = new Dictionary<ushort, int[]>();
+        foreach (var frame in frames)
+        {
+            var words = new List<ushort>();
+            var runs = new List<int>();
+            int cursor = 0x840000 | frame.Pointer;
+            while (true)
+            {
+                int count = ReadSamusEaterPlmWord(rom, cursor) & 0x7fff;
+                runs.Add(count);
+                for (int block = 0; block < count; block++)
+                    words.Add((ushort)(ReadSamusEaterPlmWord(rom, cursor + 2 + block * 2) & 0xfff));
+                cursor += 2 + count * 2;
+                ushort offset = ReadSamusEaterPlmWord(rom, cursor);
+                cursor += 2;
+                if (offset == 0) break;
+            }
+            native.Add(frame.Pointer, words.ToArray());
+            counts.Add(frame.Pointer, runs.ToArray());
+        }
+        var entries = frames.Select(frame => new RoomPlmSamusEaterVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var stock = RoomPlmSamusEaterVisualCatalog.Stock();
+        var imported = new RoomPlmSamusEaterVisualCatalog(entries.Reverse());
+        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+            nameof(RoomPlmSamusEaterVisualCatalog), words);
+        foreach (var catalog in new[] {stock, imported, installed})
+        {
+            AssertEqual(Hash(native), catalog.ContentIdentity, "plant native flattened stock hash");
+            foreach (var frame in frames)
+            {
+                int index = 0;
+                for (int run = 0; run < counts[frame.Pointer].Length; run++)
+                {
+                    int count = counts[frame.Pointer][run];
+                    for (int block = 0; block < count; block++)
+                        AssertEqual(native[frame.Pointer][index++], catalog.GetWord(frame.Pointer, run, block), "plant native stock appearance");
+                    foreach (int bad in new[] {int.MinValue, -1, count, int.MaxValue})
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "plant stock block bounds");
+                }
+                foreach (int bad in new[] {int.MinValue, -1, counts[frame.Pointer].Length, int.MaxValue})
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "plant stock run bounds");
+            }
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            if (!native.ContainsKey((ushort)pointer))
+                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "plant stock rejects unknown pointer");
+        entries[0].Blocks[7] = 0x0c58;
+        entries[6].Blocks[0] = 0x0059;
+        var mixed = new RoomPlmSamusEaterVisualCatalog(entries);
+        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
+        AssertEqual(Hash(expected), mixed.ContentIdentity, "plant mixed custom and stock hash");
+        entries[0].Blocks[7] = 0x005a;
+        entries[1].Blocks[0] = 0x005b;
+        foreach (var frame in frames)
+        {
+            int index = 0;
+            for (int run = 0; run < counts[frame.Pointer].Length; run++)
+            for (int block = 0; block < counts[frame.Pointer][run]; block++)
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(frame.Pointer,run,block), "plant custom cloning and calculated stock isolation");
+        }
+        AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries[..7]), "plant missing frame rejected");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries.Append(entries[0])), "plant duplicate frame rejected");
+        var badEntries = entries.ToArray();
+        badEntries[0] = new("FLOOR-IDLE", entries[0].Blocks);
+        AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(badEntries), "plant IDs remain ordinal");
+        badEntries[0] = new(entries[0].Id, new ushort[7]);
+        AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(badEntries), "plant wrong shape rejected");
+        entries[0].Blocks[0] = 0xf058;
+        AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries), "plant collision bits rejected");
     }
 
     private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>

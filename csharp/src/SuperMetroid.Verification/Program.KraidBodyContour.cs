@@ -6,14 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
-        var tops = new short[7];
-        var lefts = new short[7];
-        for (int i = 0; i < 7; i++)
-        {
-            tops[i] = Word(EnemyRomTablePointers.Kraid.HitboxTopWords + i * 4);
-            lefts[i] = Word(EnemyRomTablePointers.Kraid.HitboxLeftWords + i * 4);
-        }
+        VerifyKraidBodyContourCases(rom);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
@@ -25,10 +18,7 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             short y = unchecked((short)raw);
-            int index = 0;
-            while (y < tops[index]) index++;
-            short expected = lefts[index];
-            AssertEqual(expected, KraidBodyContour.LeftEdge(y), "Native overlapping contour record");
+            short expected = NativeKraidBodyLeftEdge(rom, y);
             body.YPosition = (ushort)raw;
             shot.YPosition = unchecked((ushort)(raw + y));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })

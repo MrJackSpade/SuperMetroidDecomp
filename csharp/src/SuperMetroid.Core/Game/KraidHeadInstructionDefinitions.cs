@@ -148,10 +148,16 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
-    /// Ports $A7:AC0B's tilemap-dependent resume selection used when Kraid crosses the
-    /// one-eighth-health growth boundary. The returned cursor names the next command,
+    /// Ports $A7:C005's tilemap-dependent resume selection used when Kraid crosses the
+    /// seven-eighths-health growth boundary. The returned cursor names the next command,
     /// while the timer retains the current displayed head frame.
     /// </summary>
+    /// <remarks>
+    /// Independently checked for #1165 against $C029..C04F's LDY/CMP/ADC/LDA operands
+    /// and all ushort tilemaps. The native offsets select the command after the
+    /// current closing frame and the timer from that frame; the default preserves
+    /// the 64-tick open-mouth delay, including the native quick-kill behavior.
+    /// </remarks>
     public static KraidHeadResumeDefinition GrowthResume(ushort currentTilemap) =>
         currentTilemap switch
         {

@@ -2126,5 +2126,38 @@
             }
         ],
         "remainingScope": "Body contour and growth-resume cases are identified for their own independent reviews. Verification build passes with existing warnings. No broad gameplay or reflection matrix was run."
+    },
+    "kraidContourCaseReview": {
+        "implementationCommit": {
+            "subject": "Preserve Kraid body contour comparison wrapping for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Preserve Kraid body contour comparison wrapping for #1165\""
+        },
+        "reviewedEvidence": "Pinned bank_A7.asm B161-B180 contour words and B24B/B250 CMP/BPL body-projectile walk; C029-C04F growth-resume instruction operands and head records. SHA-verified NTSC J/U v1.0; production body-projectile caller and TryBeginKraidGrowth. Review found the prior body proof omitted the bottom comparison and used ordered signed comparison instead of wrapped subtraction.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-contour-cases",
+        "tables": [
+            {
+                "id": "kraid-body-projectile-contour",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidBodyContour.cs",
+                "state": "converted",
+                "originalImplementationCommit": "1876de5cc0a7d641dfd9f14c3cea26aec5999e68",
+                "domain": "Every signed16 relativeY; caller wraps projectile-minus-body Y before selection, then applies the strict left-edge collision comparison.",
+                "disposition": "Review existing case conversion and correct its missing native first-bottom wrap case. No new stored-table conversion counted.",
+                "rationale": "Native CMP/BPL examines signed16 subtraction, not ordered signed values. RelativeY -32768..-31746 wraps nonnegative when subtracting first bottom03FF, selecting -48 before any top boundary. Other inputs follow the inclusive top-boundary staircase. Existing semantic range cases are appropriate.",
+                "proofTest": "VerifyKraidBodyContourCases",
+                "confirmation": "Independent two-comparison native walk failed before the fix at Y=-32768 (expected-48, actual8). After the fix all65536 inputs match; nine production collision-edge checks at the two wrap endpoints and the next ordinary value pass with ROM reads forbidden. Existing aggregate now reuses this proof and corrected oracle."
+            },
+            {
+                "id": "kraid-growth-head-resume",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidHeadInstructionDefinitions.cs",
+                "state": "converted",
+                "originalImplementationCommit": "6105e16d07210d2381b534c9279fa8351d72e59c",
+                "domain": "All ushort currentTilemap values; three named pose identities select closing cursors/timer10, every other value selects96F4/timer64.",
+                "disposition": "Independently confirm existing case mapping. Correct source address/health-boundary documentation; runtime cases unchanged and no new conversion counted.",
+                "rationale": "Native LDY/CMP branches select an offset added to RoarContinuation, while the same offset reads the preceding frame duration. This is case-selection semantics, including the default64-frame quick-kill behavior.",
+                "proofTest": "VerifyKraidGrowthResumeCases",
+                "confirmation": "Every65536 tilemap values compared with native instruction-immediate decoding and original timer words. Existing growth integration expected value now uses this independent oracle instead of the production mapping itself."
+            }
+        ],
+        "remainingScope": "Broader Kraid and repository inventory remain incomplete. Build and focused checks pass; no broad collision/timer matrix or exploratory gameplay was run. The corrected collision behavior awaits player validation."
     }
 }

@@ -10,6 +10,7 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
         VerifyKraidHeadCommandMapping(rom);
+        VerifyKraidGrowthResumeCases(rom);
 
         AssertEqual(Word(0xa796d2), KraidHeadInstructionDefinitions.RoarEntryTimer,
             "Native roar entry timer");
@@ -141,7 +142,7 @@ internal static partial class Program
             guard.MutableTilemap = (ushort)raw;
             AssertTrue(growth(body, state), "Growth threshold admits timer setup");
             KraidHeadResumeDefinition expected =
-                KraidHeadInstructionDefinitions.GrowthResume((ushort)raw);
+                NativeKraidGrowthResume(rom, (ushort)raw);
             AssertEqual(expected.Timer, body.VariableC,
                 "Growth timer follows selected native resume row");
             AssertEqual(expected.Pointer, body.VariableB,

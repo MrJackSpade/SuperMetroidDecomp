@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-contour-cases"])
+{
+    var contourOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(contourOracle.Rom)),
+        "Kraid contour oracle is NTSC J/U v1.0");
+    VerifyKraidBodyContourCases(contourOracle);
+    VerifyKraidGrowthResumeCases(contourOracle);
+    Console.WriteLine("Kraid body contour and growth resume: full signed-Y and tilemap domains match native records and instruction operands.");
+    return 0;
+}
 if (args is ["--lookup-kraid-nail-contour"])
 {
     var nailOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -37,104 +37,63 @@ internal static class PlatformInstructionProgramDefinitions
     /// <summary>The first callback implementation immediately after the programs.</summary>
     internal const ushort FirstAdjacentCallback = 0x9c6b;
 
-    private static readonly PlatformInstructionMechanicsWord[] Words =
-    [
-        new(KamerMovingLeft,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement_duplicate),
-        new(0x9bbd, 10), new(0x9bc1, 10), new(0x9bc5, 10), new(0x9bc9, 10),
-        new(0x9bcd, CommonEnemyInstructionCodes.Goto), new(0x9bcf, 0x9bbd),
+    internal static int MechanicsWordCount => 56;
+    internal static int PresentationWordCount => 32;
+    internal static PlatformInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int word = index % 7;
+        int offset = word == 0 ? 0 : word < 5 ? 2 + 4 * (word - 1) : 18 + 2 * (word - 5);
+        ushort address = (ushort)(KamerMovingLeft + 22 * (index / 7) + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(KamerMovingLeft + 22 * (index / 4) + 4 + 4 * (index % 4));
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - KamerMovingLeft;
+        int local = offset % 22;
+        return (uint)offset < 176 && local >= 4 && local <= 16 && local % 4 == 0;
+    }
 
-        new(KamerMovingRight,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement_duplicate),
-        new(0x9bd3, 10), new(0x9bd7, 10), new(0x9bdb, 10), new(0x9bdf, 10),
-        new(0x9be3, CommonEnemyInstructionCodes.Goto), new(0x9be5, 0x9bd3),
-
-        new(KamerStillLeft,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement),
-        new(0x9be9, 10), new(0x9bed, 10), new(0x9bf1, 10), new(0x9bf5, 10),
-        new(0x9bf9, CommonEnemyInstructionCodes.Goto), new(0x9bfb, 0x9be9),
-
-        new(KamerStillRight,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement),
-        new(0x9bff, 10), new(0x9c03, 10), new(0x9c07, 10), new(0x9c0b, 10),
-        new(0x9c0f, CommonEnemyInstructionCodes.Goto), new(0x9c11, 0x9bff),
-
-        new(TripperMovingLeft,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement_duplicate),
-        new(0x9c15, 7), new(0x9c19, 8), new(0x9c1d, 7), new(0x9c21, 8),
-        new(0x9c25, CommonEnemyInstructionCodes.Goto), new(0x9c27, 0x9c15),
-
-        new(TripperMovingRight,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement_duplicate),
-        new(0x9c2b, 7), new(0x9c2f, 8), new(0x9c33, 7), new(0x9c37, 8),
-        new(0x9c3b, CommonEnemyInstructionCodes.Goto), new(0x9c3d, 0x9c2b),
-
-        new(TripperStillMovingLeft,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement),
-        new(0x9c41, 7), new(0x9c45, 8), new(0x9c49, 7), new(0x9c4d, 8),
-        new(0x9c51, CommonEnemyInstructionCodes.Goto), new(0x9c53, 0x9c41),
-
-        new(TripperStillMovingRight,
-            EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement),
-        new(0x9c57, 7), new(0x9c5b, 8), new(0x9c5f, 7), new(0x9c63, 8),
-        new(0x9c67, CommonEnemyInstructionCodes.Goto), new(0x9c69, 0x9c57),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9bbf, 0x9bc3, 0x9bc7, 0x9bcb,
-        0x9bd5, 0x9bd9, 0x9bdd, 0x9be1,
-        0x9beb, 0x9bef, 0x9bf3, 0x9bf7,
-        0x9c01, 0x9c05, 0x9c09, 0x9c0d,
-        0x9c17, 0x9c1b, 0x9c1f, 0x9c23,
-        0x9c2d, 0x9c31, 0x9c35, 0x9c39,
-        0x9c43, 0x9c47, 0x9c4b, 0x9c4f,
-        0x9c59, 0x9c5d, 0x9c61, 0x9c65,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PlatformInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Whether the address selects a native Tripper/Kamer OAM frame.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    /// <summary>Direction callback, four timed frames, then goto the first timed frame.
+    /// Moving and still states have distinct native callbacks; the callback is not repeated by the loop.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - KamerMovingLeft;
+        if ((uint)offset < 176)
         {
-            int middle = low + ((high - low) >> 1);
-            PlatformInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int program = offset / 22;
+            int local = offset % 22;
+            if (local == 0)
+            {
+                bool right = (program & 1) != 0;
+                bool moving = (program & 2) == 0;
+                return (moving, right) switch
+                {
+                    (true, false) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement_duplicate,
+                    (true, true) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement_duplicate,
+                    (false, false) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement,
+                    (false, true) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement,
+                };
+            }
+            if (local >= 2 && local <= 14 && local % 4 == 2)
+                return (ushort)(program < 4 ? 10 : 7 + ((local - 2) / 4) % 2);
+            if (local == 18) return CommonEnemyInstructionCodes.Goto;
+            if (local == 20) return (ushort)(address - 18);
         }
-
         throw new InvalidDataException(
             $"Tripper/Kamer instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa30000) return false;
+        int offset = unchecked((ushort)address) - KamerMovingLeft;
+        if ((uint)offset >= 176) return false;
+        int local = offset % 22;
+        return local < 2 || local >= 18 || (local - 2) % 4 < 2;
     }
 }

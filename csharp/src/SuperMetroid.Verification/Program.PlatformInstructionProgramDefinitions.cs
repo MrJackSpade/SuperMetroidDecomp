@@ -16,17 +16,8 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        for (int index = 0;
-             index < PlatformInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            PlatformInstructionMechanicsWord definition =
-                PlatformInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadPlatformInstructionWord(rom, definition.Address),
-                $"Tripper/Kamer mechanics word $A3:{definition.Address:X4}");
-        }
+        VerifyPlatformMechanicsMapping(rom);
+        VerifyPlatformPresentationMapping();
 
         var guard = new PlatformInstructionProgramReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
@@ -145,6 +136,45 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyPlatformMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0x9bbb, 0x9bbd, 0x9bc1, 0x9bc5, 0x9bc9, 0x9bcd, 0x9bcf, 0x9bd1, 0x9bd3, 0x9bd7, 0x9bdb, 0x9bdf, 0x9be3, 0x9be5, 0x9be7, 0x9be9, 0x9bed, 0x9bf1, 0x9bf5, 0x9bf9, 0x9bfb, 0x9bfd, 0x9bff, 0x9c03, 0x9c07, 0x9c0b, 0x9c0f, 0x9c11, 0x9c13, 0x9c15, 0x9c19, 0x9c1d, 0x9c21, 0x9c25, 0x9c27, 0x9c29, 0x9c2b, 0x9c2f, 0x9c33, 0x9c37, 0x9c3b, 0x9c3d, 0x9c3f, 0x9c41, 0x9c45, 0x9c49, 0x9c4d, 0x9c51, 0x9c53, 0x9c55, 0x9c57, 0x9c5b, 0x9c5f, 0x9c63, 0x9c67, 0x9c69];
+        AssertEqual(addresses.Length, PlatformInstructionProgramDefinitions.MechanicsWordCount, "platform native mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort native = ReadPlatformInstructionWord(rom, addresses[index]);
+            var word = PlatformInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(addresses[index], word.Address, "platform native mechanics address");
+            AssertEqual(native, word.Value, "platform enumerated native word");
+            AssertEqual(native, PlatformInstructionProgramDefinitions.ReadMechanicsWord(addresses[index]), "platform direct native word");
+            bytes.Add(addresses[index]); bytes.Add(addresses[index] + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), PlatformInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "platform full byte ownership");
+            AssertEqual(bytes.Contains(address), PlatformInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a30000 | address), "platform bank mask aliases");
+            AssertTrue(!PlatformInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "platform other bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0x9bb9; address <= 0x9c6d; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => PlatformInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "platform rejects odd words, visual operands and adjacent callbacks");
+        foreach (int index in new[] { int.MinValue, -1, 56, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PlatformInstructionProgramDefinitions.MechanicsWord(index), "platform mechanics bounds");
+    }
+    private static void VerifyPlatformPresentationMapping()
+    {
+        ushort[] expected = [0x9bbf, 0x9bc3, 0x9bc7, 0x9bcb, 0x9bd5, 0x9bd9, 0x9bdd, 0x9be1, 0x9beb, 0x9bef, 0x9bf3, 0x9bf7, 0x9c01, 0x9c05, 0x9c09, 0x9c0d, 0x9c17, 0x9c1b, 0x9c1f, 0x9c23, 0x9c2d, 0x9c31, 0x9c35, 0x9c39, 0x9c43, 0x9c47, 0x9c4b, 0x9c4f, 0x9c59, 0x9c5d, 0x9c61, 0x9c65];
+        AssertEqual(expected.Length, PlatformInstructionProgramDefinitions.PresentationWordCount, "platform native presentation count");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], PlatformInstructionProgramDefinitions.PresentationWordAddress(index), "platform native presentation position");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address), "platform full visual membership");
+        foreach (int index in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PlatformInstructionProgramDefinitions.PresentationWordAddress(index), "platform presentation bounds");
+    }
     private static int ProbePlatformInstructionMechanicsAllocation()
     {
         int checksum = 0;

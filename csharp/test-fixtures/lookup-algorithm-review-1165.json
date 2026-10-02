@@ -3168,4 +3168,19 @@
     "integration": "Existing production initialization/departure fixture now also rejects the opposite direction before accepting the required direction; verifies departure state/event, input lock and both sound requests with original input-table reads forbidden. Verification build and --lookup-elevator-programs pass.",
     "scope": "Ordinary elevator direction input only; other movement and presentation mappings remain separately reviewable. No retention exception claimed."
   }
+,
+  "tripperKamerInstructionProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A3:9BBB-9C6A; pinned bank_A3.asm eight moving/still left/right programs",
+    "mechanics": {
+      "disposition": "Removed 56 stored words. Eight 22-byte programs each contain a named direction callback, four timed frames and goto the first timed frame. Decode movement/facing for the callback; Kamer durations are ten, Tripper alternates seven/eight. Preserve the distinct duplicate callback identities and native still-program naming mismatch.",
+      "proof": "VerifyPlatformMechanicsMapping independently specifies all 56 native addresses and compares enumerated/direct words against ROM, full byte ownership, high-bit aliases, invalid holes and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed 32 stored operand positions; compute from program stride twenty-two and frame stride four after the callback.",
+      "proof": "VerifyPlatformPresentationMapping checks 32 independent native positions, full ushort membership and ordinal bounds."
+    },
+    "integration": "Verification build and --lookup-platform-programs run all eight production program cases, real initializers/installers, direction callbacks and loop restarts with mechanics reads forbidden and no selector ROM reads.",
+    "scope": "Instruction control and operand positions only. Tripper/Kamer visual pointer values, artwork and movement mappings remain separately reviewable; no retention exception claimed."
+  }
 }

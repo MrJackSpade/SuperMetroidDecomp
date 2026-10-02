@@ -21,11 +21,11 @@ internal static class RoomRevealClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "456E784B457DC4B8361279DDA9069B6B039AA160EF819498EF60DF7F410A1D4B")],
             "Public construction requires eight valid item metatiles and every nonzero overlay source selected by immutable compiled room states, copying all tiles. Only item slots zero through seven and required overlay keys qualify. A semantic Core-use guard rejects the internal partial fixture factory. This proves membership, not arbitrary pointers, overlay coordinates, caller selection, traversal, host binding, placement or pixels."),
         new("SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog", "plm-complete-seventeen-item-uploads", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "20C0F14DBDC85E704D21CAB64040C054F87B9BE1F818A7762C7EA52BA7DDF80F"),
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "4D392128D687D27703A53B4FC86E2BE3680F235FB429A098B793738032268726"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "AACC9D5CC27B974EDD9CC76C0ACB6DECCB4F2DDBBC20B08A7E740827D7D650FF"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs", "2E6382D58A583EB57FB480C310AD978A397F5EA1E5935F5E321BB88422505C5F"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs", "5BD9B6917BB21DB972D7A56A6FB8DF4CB5C9F462F1D567EDA99EA4431D369971"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "77171D9ECCDF6404DB8E0C8A7F6CD273D1302165C47A9A7C73CC45C96C46E6B0")],
-            "Construction rejects unknown/duplicate/null entries, requires all seventeen permanent kinds from Bombs through ReserveTank and independently copies each complete tile/palette payload. Compiled graphics admission also verifies every consecutive kind and unique pointer. Resolve's required domain excludes the four fixed tank/ammo kinds. Timing, item ownership, destinations and pixel correctness are not certified."),
+            "Construction rejects unknown/duplicate/null entries, requires all seventeen permanent kinds from Bombs through ReserveTank and copies only edited tile/palette payloads. Stock resolves calculated kind/source/palette definitions and the selected native artwork block directly. Resolve's required domain excludes the four fixed tank/ammo kinds. Timing, item ownership, destinations and pixel correctness are not certified."),
     ];
 }

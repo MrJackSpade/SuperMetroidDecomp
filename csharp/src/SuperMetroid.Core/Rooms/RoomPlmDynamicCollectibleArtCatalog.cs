@@ -13,22 +13,23 @@ public sealed record RoomPlmDynamicCollectibleArtEntry(
 /// </summary>
 public sealed class RoomPlmDynamicCollectibleArtCatalog
 {
-    private readonly RoomPlmDynamicCollectibleGraphic[] graphics;
+    private readonly Dictionary<InWorldCollectibleKind, RoomPlmDynamicCollectibleGraphic>? customGraphics;
+
+    private RoomPlmDynamicCollectibleArtCatalog() { }
 
     public RoomPlmDynamicCollectibleArtCatalog(
         IEnumerable<RoomPlmDynamicCollectibleArtEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
-        graphics = new RoomPlmDynamicCollectibleGraphic[
-            RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount];
-        var seen = new bool[graphics.Length];
+        var selected = new Dictionary<InWorldCollectibleKind, RoomPlmDynamicCollectibleGraphic>();
+        var seen = new bool[RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount];
         foreach (RoomPlmDynamicCollectibleArtEntry entry in entries)
         {
             if (entry is null)
                 throw new InvalidDataException("Permanent-item artwork contains a null entry.");
             int index = (int)entry.Kind -
                 RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
-            if ((uint)index >= graphics.Length || seen[index])
+            if ((uint)index >= RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount || seen[index])
                 throw new InvalidDataException(
                     $"Permanent-item artwork has an unknown or duplicate kind {entry.Kind}.");
             if (entry.Tiles is not { Length: 0x100 } ||
@@ -38,41 +39,44 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
                     $"Permanent-item artwork for {entry.Kind} has invalid tile or palette data.");
             RoomPlmDynamicCollectibleGraphic stock =
                 RoomPlmDynamicCollectibleGraphicsDefinitions.Get(entry.Kind);
-            graphics[index] = new RoomPlmDynamicCollectibleGraphic(
-                entry.Kind, stock.GraphicsPointer,
-                entry.PaletteOffsets.ToArray(), entry.Tiles.ToArray());
+            if (!entry.Tiles.AsSpan().SequenceEqual(stock.Tiles.Span) ||
+                !entry.PaletteOffsets.AsSpan().SequenceEqual(stock.PaletteOffsets.Span))
+                selected.Add(entry.Kind, new RoomPlmDynamicCollectibleGraphic(
+                    entry.Kind, stock.GraphicsPointer,
+                    entry.PaletteOffsets.ToArray(), entry.Tiles.ToArray()));
             seen[index] = true;
         }
         if (seen.Any(present => !present))
             throw new InvalidDataException(
                 "Permanent-item artwork is missing one or more item kinds.");
+        if (selected.Count != 0) customGraphics = selected;
     }
 
     /// <summary>Canonical identity of the selected item pixels and palette selectors.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(
         nameof(RoomPlmDynamicCollectibleArtCatalog), content =>
         {
-            foreach (RoomPlmDynamicCollectibleGraphic graphic in graphics)
+            for (int kind = RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
+                 kind < RoomPlmHeaders.PermanentCollectibleKindCount; kind++)
             {
+                RoomPlmDynamicCollectibleGraphic graphic = Resolve((InWorldCollectibleKind)kind);
                 content.Append("kind", (int)graphic.Kind);
                 content.Append("characters", graphic.Tiles.Span);
                 content.Append("palette selectors", graphic.PaletteOffsets.Span);
             }
         });
 
-    /// <summary>Copies the compiled cartridge appearance for installations without overrides.</summary>
-    public static RoomPlmDynamicCollectibleArtCatalog Stock() => new(
-        RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray().Select(graphic =>
-            new RoomPlmDynamicCollectibleArtEntry(graphic.Kind,
-                graphic.Tiles.ToArray(), graphic.PaletteOffsets.ToArray())));
+    /// <summary>Resolve stock directly; retain only customized item artwork.</summary>
+    public static RoomPlmDynamicCollectibleArtCatalog Stock() => new();
 
     internal RoomPlmDynamicCollectibleGraphic Resolve(InWorldCollectibleKind kind)
     {
         int index = (int)kind -
             RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
-        if ((uint)index >= graphics.Length)
+        if ((uint)index >= RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount)
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic artwork.");
-        return graphics[index];
+        return customGraphics is not null && customGraphics.TryGetValue(kind, out var graphic)
+            ? graphic : RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
     }
 }

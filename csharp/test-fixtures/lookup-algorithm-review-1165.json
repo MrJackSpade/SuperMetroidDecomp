@@ -3477,4 +3477,16 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-botwoon-wall pass. Updated normalized visual-catalog source pin and contract description.",
     "scope": "Stock wall appearance and visual-ID mapping only. This grants no retention exception to other artwork, navigation samples or geometry."
   }
+,
+  "shotBlockDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A345-A3DC breakup draws and 84:A47B-A49A parent-restoration draws; pinned bank_84.asm",
+    "identityAndShape": "Removed the nineteen-entry generated dictionary. Validate pointers by each shape's native record stride: six bytes for single, eight for horizontal/vertical pairs, sixteen for square. Restoration pointers are named shape cases. Geometry is one single/pair run or two horizontal square rows.",
+    "breakupWords": "Removed BreakFrames and all generated repeated words. Four stages use consecutive visual blocks 0053..0055 followed by air 00FF. Fill every block of the selected shape with the current stage.",
+    "restorationWords": "Horizontal/vertical/square choose named base blocks 96/98/99. Tile identity advances by column plus 32 times row. Top-left parent keeps shootable collision C; other first-row blocks link left with collision 5 and lower-row blocks link up with collision D. This reproduces every original full level word.",
+    "proof": "Existing VerifyShotBlockPlmPrograms now independently lists all nineteen native pointers/export order, checks full ushort lookup membership and missing outputs, direct calculated geometry/words and exported records against ROM, every native run offset, and invalid run/block bounds. The existing production fixtures confirm all eight shot-block behaviors, native restoration/clear paths and visual separation with source reads forbidden.",
+    "consumers": "RoomPlmSystem draws calculated words directly; visual catalog constructor validates calculated run/word counts. Export/audit All creates temporary DTOs from the same operation without a stored draw cache. Shared Run/DrawList DTOs remain compatible with other domains.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-shot-block-draws pass, including Botwoon wall's shared crumble frames. Updated normalized draw-shape and visual-catalog pins.",
+    "scope": "Shot-block physical draw identity, geometry and word mappings only. Other shot-block program/visual-stock mappings and selected artwork remain independently reviewable; no retention exception claimed."
+  }
 }

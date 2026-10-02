@@ -52,6 +52,17 @@ internal static partial class Program
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var forbidden = new HashSet<int>();
+        ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
+            0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
+        AssertTrue(nativeDraws.SequenceEqual(RoomPlmShotBlockDrawDefinitions.All.Select(draw => draw.Pointer)),
+            "shot-block independent native draw order");
+        var knownDraws = nativeDraws.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool found = RoomPlmShotBlockDrawDefinitions.TryGet((ushort)pointer, out var draw);
+            AssertEqual(knownDraws.Contains((ushort)pointer), found, "shot-block full draw-pointer domain");
+            if (!found) AssertEqual(default(RoomPlmShotBlockDrawDefinitions.Draw), draw, "shot-block unknown draw output cleared");
+        }
         int wordCount = 0;
         foreach (ushort address in RoomPlmShotBlockProgramDefinitions.MechanicsWordAddresses())
         {
@@ -87,9 +98,15 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  RoomPlmShotBlockDrawDefinitions.All)
         {
+            AssertTrue(RoomPlmShotBlockDrawDefinitions.TryGet(list.Pointer, out var calculated), "shot-block calculated draw exists");
+            AssertEqual(list.Runs.Length, calculated.RunCount, "shot-block calculated run count");
             int cursor = list.Pointer;
+            int runIndex = 0;
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
+                AssertEqual(run.LevelWords.Length, calculated.WordsPerRun, "shot-block calculated run width");
+                AssertEqual((run.DirectionAndCount & 0x8000) != 0, calculated.Vertical, "shot-block calculated direction");
+                int blockIndex = 0;
                 AssertEqual(run.DirectionAndCount,
                     unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
                         (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
@@ -98,6 +115,7 @@ internal static partial class Program
                 forbidden.Add(0x840000 | cursor++);
                 foreach (ushort word in run.LevelWords.Span)
                 {
+                    AssertEqual(word, calculated.WordAt(runIndex, blockIndex++), "shot-block direct and exported word agree");
                     AssertEqual(word,
                         unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
                             (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
@@ -112,7 +130,16 @@ internal static partial class Program
                 AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
                     $"shot-block draw list ${list.Pointer:X4} next Y");
                 forbidden.Add(0x840000 | cursor++);
+                runIndex++;
             }
+
+            foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
+            {
+                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(invalid, 0), "shot-block invalid run");
+                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, invalid), "shot-block invalid block");
+            }
+            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(calculated.RunCount, 0), "shot-block run upper bound");
+            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, calculated.WordsPerRun), "shot-block word upper bound");
 
             drawListCount++;
         }

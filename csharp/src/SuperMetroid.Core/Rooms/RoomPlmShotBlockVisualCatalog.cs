@@ -26,13 +26,13 @@ public sealed class RoomPlmShotBlockVisualCatalog
         {
             if (entry is null || entry.Runs is null ||
                 !RoomPlmShotBlockDrawDefinitions.TryGet(entry.DrawPointer, out var definition) ||
-                entry.Runs.Length != definition.Runs.Length)
+                entry.Runs.Length != definition.RunCount)
                 throw new InvalidDataException("Shot-block visuals changed a compiled draw-list identity or shape.");
             for (int run = 0; run < entry.Runs.Length; run++)
             {
                 ushort[] visualWords = entry.Runs[run];
                 if (visualWords is null ||
-                    visualWords.Length != definition.Runs.Span[run].LevelWords.Length ||
+                    visualWords.Length != definition.WordsPerRun ||
                     visualWords.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                     throw new InvalidDataException(
                         $"Shot-block visuals ${entry.DrawPointer:X4} contain an invalid visual word.");
@@ -44,7 +44,7 @@ public sealed class RoomPlmShotBlockVisualCatalog
                     $"Shot-block visuals repeat draw list ${entry.DrawPointer:X4}.");
         }
 
-        if (selected.Count != RoomPlmShotBlockDrawDefinitions.All.Count())
+        if (selected.Count != RoomPlmShotBlockDrawDefinitions.DrawCount)
             throw new InvalidDataException("Shot-block visuals do not cover all compiled draw lists.");
         words = selected;
     }

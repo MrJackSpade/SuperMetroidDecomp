@@ -1874,10 +1874,13 @@ public sealed partial class RoomPlmSystem
         }
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, compiled, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: true);
+            for (int run = 0; run < compiled.RunCount; run++)
+            for (int block = 0; block < compiled.WordsPerRun; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (compiled.Vertical ? 0 : block),
+                    originY + (compiled.Vertical ? block : run),
+                    compiled.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    shotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (SpeedBoosterBlockPlmDrawDefinitions.TryGet(drawPointer,

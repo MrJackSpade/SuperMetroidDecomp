@@ -5,13 +5,13 @@ internal static class PlmClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-        "19F9D9CA7C66D96B22490DD06A42871CB3EE08B4A5A6717600C216CFF30935D8");
+        "8842E019D7874313116829DE7C9A9C16E84CB4242AA242BA106EEDA683DEDACD");
 
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog", "plm-shot-block-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockVisualCatalog.cs", "312BEF82F7D722E570D8CE6D408095F6C0D4BF90556DA64814D6803B6BDF5B23")],
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockVisualCatalog.cs", "35303CCD99A375121918D3640A30FFF0E9546984FB8EDF8B5B1BFA39979353D0")],
             "The public constructor accepts only compiled draw identities with exact run/word shapes, rejects duplicate IDs and requires all nineteen lists. It clones every run. GetWord guards pointer/run/word selections into that complete domain."),
         new("SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog", "plm-station-complete-draws", ["GetWord"],
             [SharedDrawShape,

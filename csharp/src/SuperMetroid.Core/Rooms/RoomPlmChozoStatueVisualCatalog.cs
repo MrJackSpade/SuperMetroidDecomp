@@ -51,15 +51,15 @@ public sealed class RoomPlmChozoStatueVisualCatalog
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !ChozoStatuePlmDrawDefinitions.TryGet(drawPointer, out var draw))
+            !ChozoStatuePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Chozo statue visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= (uint)draw.RunCount ||
+            (uint)blockIndex >= (uint)draw.WordCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
+            flatIndex += draw.WordCount(run);
         return words[flatIndex];
     }
 }

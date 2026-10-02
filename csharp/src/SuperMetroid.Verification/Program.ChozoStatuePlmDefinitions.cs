@@ -21,6 +21,9 @@ internal static partial class Program
         AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
             RoomPlmSharedDeleteProgramDefinitions.End, out _),
             "shared delete list refuses a word crossing its boundary");
+        VerifyChozoLayoutGeometry(rom);
+        VerifyChozoLayoutCollision(rom);
+        VerifyChozoLayoutVisuals(rom);
         VerifyChozoStatueVisualInstallation(rom);
         Console.WriteLine(
             "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");

@@ -15,14 +15,100 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// <summary>Wrecked Ship statue's block-slope-access draw, $84:9D0F.</summary>
     internal const ushort BlockSlopeAccess = 0x9d0f;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    /// <summary>
+    /// The two slope-access states share five horizontal runs and identical art.
+    /// Clearing leaves slope endpoints; blocking makes the access solid, with
+    /// spikes across the long row except its final cell. The hand is one air cell.
+    /// </summary>
+    internal readonly record struct Draw(ushort Pointer)
+    {
+        private bool Hand => Pointer == LowerNorfairClearedHand;
+        internal int RunCount => Hand ? 1 : 5;
+        private void CheckRun(int run)
+        {
+            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+        }
+        internal int WordCount(int run)
+        {
+            CheckRun(run);
+            return Hand ? 1 : run switch { 0 => 14, 1 => 9, 2 => 2, _ => 1 };
+        }
+        internal sbyte NextX(int run)
+        {
+            CheckRun(run);
+            return !Hand && run is > 0 and < 4 ? (sbyte)5 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return !Hand && run < 4 ? (sbyte)(run + 5) : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int cell)
+        {
+            int count = WordCount(run);
+            if ((uint)cell >= (uint)count) throw new IndexOutOfRangeException();
+            if (Hand) return 0x00ff;
+            // Horizontal ledge, lower fill/transition, then the narrow stair wall.
+            int tile = run switch
+            {
+                0 => 0x12b,
+                1 => cell < 5 ? 0x111 : cell == 5 ? 0x19b : 0x129,
+                2 => cell == 0 ? 0x1bb : 0x129,
+                _ => 0x1bb,
+            };
+            bool endpoint = cell == count - 1;
+            int collision = Pointer == BlockSlopeAccess
+                ? run == 0 && !endpoint ? 10 : 8
+                : (run is 0 or 1 or 4) && endpoint ? 1 : 0;
+            return (ushort)(collision << 12 | tile);
+        }
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
-
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        bool owned = pointer is LowerNorfairClearedHand or ClearSlopeAccess or BlockSlopeAccess;
+        draw = owned ? new(pointer) : default;
+        return owned;
+    }
+    private static IEnumerable<ushort> Pointers()
+    {
+        yield return LowerNorfairClearedHand;
+        yield return ClearSlopeAccess;
+        yield return BlockSlopeAccess;
+    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (ushort pointer in Pointers())
+            {
+                TryGet(pointer, out var list);
+                yield return list;
+            }
+        }
+    }
+    // Temporary artwork DTOs; runtime cells are calculated directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, draw.NextX(run), draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
+    }
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (ushort pointer in Pointers())
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
+        list = default;
+        return false;
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -32,51 +118,4 @@ internal static class ChozoStatuePlmDrawDefinitions
         _ => throw new InvalidDataException($"Chozo statue draw ${pointer:X4} has no visual ID."),
     };
 
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
-        {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
-        new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
-        {
-            [LowerNorfairClearedHand] = new(LowerNorfairClearedHand,
-                new RoomPlmShotBlockDrawDefinitions.Run[]
-                {
-                    new(1, new ushort[] { 0x00ff }, 0, 0),
-                }),
-            [ClearSlopeAccess] = SlopeAccess(ClearSlopeAccess,
-                0x012b, 0x112b, 0x0111, 0x019b, 0x0129, 0x1129,
-                0x01bb, 0x0129, 0x01bb, 0x11bb),
-            [BlockSlopeAccess] = SlopeAccess(BlockSlopeAccess,
-                0xa12b, 0x812b, 0x8111, 0x819b, 0x8129, 0x8129,
-                0x81bb, 0x8129, 0x81bb, 0x81bb),
-        };
-
-    private static RoomPlmShotBlockDrawDefinitions.DrawList SlopeAccess(
-        ushort pointer, ushort longRow, ushort longRowEnd,
-        ushort secondRow, ushort secondRowTransition, ushort secondRowEnd,
-        ushort secondRowLast, ushort thirdRowStart, ushort thirdRowEnd,
-        ushort fourthRow, ushort fifthRow) => new(pointer,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(14, Enumerable.Repeat(longRow, 13).Append(longRowEnd).ToArray(), 0, 5),
-            new(9, Enumerable.Repeat(secondRow, 5)
-                .Concat(new ushort[] { secondRowTransition, secondRowEnd,
-                    secondRowEnd, secondRowLast }).ToArray(), 5, 6),
-            new(2, new ushort[] { thirdRowStart, thirdRowEnd }, 5, 7),
-            new(1, new ushort[] { fourthRow }, 5, 8),
-            new(1, new ushort[] { fifthRow }, 0, 0),
-        });
 }

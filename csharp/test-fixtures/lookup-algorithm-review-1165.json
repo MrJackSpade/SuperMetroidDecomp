@@ -2159,5 +2159,52 @@
             }
         ],
         "remainingScope": "Broader Kraid and repository inventory remain incomplete. Build and focused checks pass; no broad collision/timer matrix or exploratory gameplay was run. The corrected collision behavior awaits player validation."
+    },
+    "kraidFootCoordinateReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid foot collision coordinates by motion phase for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid foot collision coordinates by motion phase for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidFootCollisionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm extended foot records8CE3-8F58, initialA565 and shared hitbox9453; physical coordinate paths and moving-foot artwork pose changes at frames5,10,11,21,23,31. SHA-verified NTSC J/U v1.0 and all component/hitbox consumers. Existing numerical checks extracted into five focused proofs; broad collision matrix remains available but was not run.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-foot-coordinates",
+        "tables": [
+            {
+                "id": "kraid-foot-first-component-x", "state": "converted",
+                "domain": "35 native frame ordinals0..34, plus initialA565 alias of frame0; signed coordinates.",
+                "disposition": "Remove first-component X storage; calculate8-2*min(frame,34-frame).",
+                "rationale": "Two-pixel outbound travel reverses at frame17 and retraces to the initial placement.",
+                "proofTest": "VerifyKraidFootFirstX", "confirmation": "All35 original X words, initial alias, production view and invalid ordinal bounds."
+            },
+            {
+                "id": "kraid-foot-first-component-y", "state": "converted",
+                "domain": "35 native frame ordinals0..34, plus initialA565 alias of frame0; signed coordinates.",
+                "disposition": "Calculate initial one-pixel rise, native pose-A transition29, two-pixel descent from pose-B28, then hold40.",
+                "rationale": "Piecewise linear fixed-component motion with explicit native transition and hold phases; no per-frame correction array.",
+                "proofTest": "VerifyKraidFootFirstY", "confirmation": "All35 original Y words, initial alias, production view and invalid ordinal bounds."
+            },
+            {
+                "id": "kraid-foot-second-component-x", "state": "converted",
+                "domain": "35 native frame ordinals0..34, plus initialA565 alias of frame0; signed coordinates.",
+                "disposition": "Calculate two-pixel translations within the native foot poses, with explicit raised pose2 at frame10 and direction reversal after17.",
+                "rationale": "Piecewise translation origins change with the foot's native pose0/1/2/3 selector; returning poses use their own anchoring. These pose boundaries explain the discontinuities.",
+                "proofTest": "VerifyKraidFootSecondX", "confirmation": "All35 original X words, initial alias, production view and invalid ordinal bounds."
+            },
+            {
+                "id": "kraid-foot-second-component-y", "state": "converted",
+                "domain": "35 native frame ordinals0..34, plus initialA565 alias of frame0; signed coordinates.",
+                "disposition": "Calculate one-pixel rise, raised transition, two-pixel descent and pose-specific return holds.",
+                "rationale": "Native pose changes explain the vertical anchor changes, while each pose's movement follows a linear segment or constant hold.",
+                "proofTest": "VerifyKraidFootSecondY", "confirmation": "All35 original Y words, initial alias, production view and invalid ordinal bounds."
+            },
+            {
+                "id": "kraid-foot-shared-hitbox", "state": "converted",
+                "domain": "Only hitbox pointer9453, one rectangle with four signed edges and two callback identities.",
+                "disposition": "Remove SharedHitboxes array; construct the centered six-pixel-radius rectangle and named callbacks directly.",
+                "rationale": "A single shared collision primitive requires no indexed storage. Calculated component sequences replace generated Frames cache and preserve the initial alias and empty rejected result.",
+                "proofTest": "VerifyKraidFootSharedHitbox", "confirmation": "Original rectangle/callback words, original component counts/selectors, complete ushort frame membership, enumeration and index/pointer bounds."
+            }
+        ],
+        "remainingScope": "Arm collision, launch selectors and other Kraid mappings remain independently unreviewed. Build and focused proofs pass; no broad collision matrix or exploratory gameplay was run."
     }
 }

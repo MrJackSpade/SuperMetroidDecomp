@@ -3059,7 +3059,7 @@ public sealed partial class RoomEnemySystem
         {
             // Kraid's foot art is replaceable, but each native extended frame
             // still places two physical components against one shared hitbox list.
-            foreach (KraidFootCollisionComponent component in footComponents.Span)
+            foreach (KraidFootCollisionComponent component in footComponents)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));

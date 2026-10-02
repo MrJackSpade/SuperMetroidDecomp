@@ -1933,5 +1933,35 @@
             }
         ],
         "remainingScope": "Native visual selectors, foot collision and other Kraid definition mappings retain their separate review scope. No broad gameplay or allocation benchmark campaign was run."
+    },
+    "kraidArmGeneratedProgramReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid arm instruction mappings from program structure for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid arm instruction mappings from program structure for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmInstructionProgramDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm normal 89F3-8A40, slow 8A41-8A8E, rising/sinking 8AA4-8AEF and dying/lunge 8AF0-8AFD lists; existing builders and all callers. The intervening 8A8F-8AA3 native callback body is not instruction data. Independent decoder reads original SHA-verified NTSC J/U v1.0 duration/frame pairs, callbacks and goto operands. Existing numerical verification is reused through focused helpers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-arm-programs",
+        "tables": [
+            {
+                "id": "kraid-arm-instruction-mechanics-map",
+                "state": "converted",
+                "domain": "66 ordinal mechanics words at their exact sparse A7 addresses; byte ownership includes each high byte but word reads reject it.",
+                "disposition": "Remove Words and BuildWords. Calculate frame duration/address runs and explicit health-callback, goto, target and sleep endings by program role.",
+                "rationale": "Normal and slow each contain eighteen duration words plus three control words; rising/sinking has eighteen plus two; dying/lunge has three plus Sleep. Four-byte frame pairs and two-byte control words explain the address mapping. Pauses and speed-dependent durations are named program cases.",
+                "proofTest": "VerifyKraidArmGeneratedMechanics",
+                "confirmation": "All 66 native addresses/values and indexed reads; full bank byte-ownership domain, odd word rejection, callback-body gap, adjacent lint list, wrong bank and index bounds."
+            },
+            {
+                "id": "kraid-arm-presentation-position-map",
+                "state": "converted",
+                "domain": "57 positions, indices 0..56 with IndexOutOfRangeException outside.",
+                "disposition": "Remove PresentationWords and its builder. Calculate entry + 4*localFrame + 2 for three eighteen-frame lists and the final three-frame list.",
+                "rationale": "Each visual operand follows its duration word in a four-byte frame pair. Explicit program starts preserve the intervening callback-body gap.",
+                "proofTest": "VerifyKraidArmGeneratedPresentation",
+                "confirmation": "All 57 positions decoded independently from native lists, rejection as mechanics, and invalid index bounds."
+            }
+        ],
+        "remainingScope": "Arm collision and native visual-selector mappings retain their separate review scope. No gameplay sweep or benchmark campaign was run."
     }
 }

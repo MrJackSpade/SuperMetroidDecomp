@@ -25,105 +25,79 @@ internal static class KraidArmInstructionProgramDefinitions
     /// <summary>First adjacent Kraid-lint instruction program at $A7:8AFE.</summary>
     internal const ushort AdjacentLintProgram = 0x8afe;
 
-    private static readonly KraidArmInstructionMechanicsWord[] Words = BuildWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal const int MechanicsWordCount = 2 * 21 + 20 + 4;
+    internal const int PresentationWordCount = 3 * 18 + 3;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KraidArmInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Normal and slow loops each have eighteen frames, a health
+    /// callback and a two-word goto. Rising/sinking omits the callback; the
+    /// final program has three frames and Sleep. Frame pairs are four bytes,
+    /// while control words are two bytes. The intervening native callback
+    /// body is outside the instruction-list domain.</summary>
+    internal static KraidArmInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 42)
+        {
+            bool slow = index >= 21;
+            ushort entry = slow ? Slow : Normal;
+            int word = index % 21;
+            if (word < 18)
+                return new((ushort)(entry + 4 * word), (ushort)(word == 17 ? (slow ? 0x30 : 0x20) : (slow ? 8 : 6)));
+            ushort value = word switch
+            {
+                18 => EnemyInstructionCodePointers.Instruction_KraidArm_SlowArmIfLessThanHalfHealth,
+                19 => CommonEnemyInstructionCodes.Goto,
+                _ => entry,
+            };
+            return new((ushort)(entry + 18 * 4 + 2 * (word - 18)), value);
+        }
+        if (index < 62)
+        {
+            int word = index - 42;
+            return word < 18
+                ? new((ushort)(RisingOrSinking + 4 * word), (ushort)(word == 17 ? 0x20 : 6))
+                : new((ushort)(RisingOrSinking + 18 * 4 + 2 * (word - 18)),
+                    word == 18 ? CommonEnemyInstructionCodes.Goto : RisingOrSinking);
+        }
+        int frame = index - 62;
+        return new((ushort)(DyingOrPreparingToLunge + 4 * frame), frame switch
+        {
+            < 2 => 6,
+            2 => 0x7fff,
+            _ => CommonEnemyInstructionCodes.Sleep,
+        });
+    }
+
+    /// <summary>Three eighteen-frame lists and the final three-frame list;
+    /// every presentation operand is two bytes after its duration word.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        ushort entry = index < 18 ? Normal : index < 36 ? Slow : index < 54 ? RisingOrSinking : DyingOrPreparingToLunge;
+        int frame = index < 54 ? index % 18 : index - 54;
+        return (ushort)(entry + 4 * frame + 2);
+    }
 
     /// <summary>Returns fixed Kraid-arm control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            var word = MechanicsWord(index);
+            if (word.Address == address) return word.Value;
         }
-
-        throw new InvalidDataException(
-            $"Kraid arm mechanics pointer $A7:{address:X4} is not compiled.");
+        throw new InvalidDataException($"Kraid arm mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
-
+        if ((address & 0xff0000) != 0xa70000) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
         }
         return false;
-    }
-
-    private static KraidArmInstructionMechanicsWord[] BuildWords()
-    {
-        var words = new List<KraidArmInstructionMechanicsWord>(capacity: 66);
-        AddFrames(words, Normal, frameCount: 17, duration: 6);
-        words.Add(new(NormalPause, 0x0020));
-        words.Add(new(0x8a3b,
-            EnemyInstructionCodePointers.Instruction_KraidArm_SlowArmIfLessThanHalfHealth));
-        words.Add(new(0x8a3d, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(0x8a3f, Normal));
-
-        AddFrames(words, Slow, frameCount: 17, duration: 8);
-        words.Add(new(0x8a85, 0x0030));
-        words.Add(new(0x8a89,
-            EnemyInstructionCodePointers.Instruction_KraidArm_SlowArmIfLessThanHalfHealth));
-        words.Add(new(0x8a8b, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(0x8a8d, Slow));
-
-        AddFrames(words, RisingOrSinking, frameCount: 17, duration: 6);
-        words.Add(new(0x8ae8, 0x0020));
-        words.Add(new(0x8aec, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(0x8aee, RisingOrSinking));
-
-        words.Add(new(DyingOrPreparingToLunge, 6));
-        words.Add(new(0x8af4, 6));
-        words.Add(new(0x8af8, 0x7fff));
-        words.Add(new(0x8afc, CommonEnemyInstructionCodes.Sleep));
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 57);
-        AddFramePresentation(words, Normal, frameCount: 17);
-        words.Add(unchecked((ushort)(NormalPause + 2)));
-        AddFramePresentation(words, Slow, frameCount: 17);
-        words.Add(0x8a87);
-        AddFramePresentation(words, RisingOrSinking, frameCount: 17);
-        words.Add(0x8aea);
-        words.Add(0x8af2);
-        words.Add(0x8af6);
-        words.Add(0x8afa);
-        return words.ToArray();
-    }
-
-    private static void AddFrames(
-        List<KraidArmInstructionMechanicsWord> words,
-        ushort entry,
-        int frameCount,
-        ushort duration)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(new(unchecked((ushort)(entry + frame * 4)), duration));
-    }
-
-    private static void AddFramePresentation(
-        List<ushort> words,
-        ushort entry,
-        int frameCount)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(entry + frame * 4 + 2)));
     }
 }

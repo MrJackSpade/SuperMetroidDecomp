@@ -35,8 +35,7 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
     public static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
         [new RoomPlmMaridiaElevatubeVisualEntry(
             MaridiaElevatubePlmDefinitions.VisualId,
-            [new RoomLevelWord(MaridiaElevatubePlmDefinitions.Draw.Runs
-                .Span[0].LevelWords.Span[0]).VisualWord])]);
+            [new RoomLevelWord(MaridiaElevatubePlmDefinitions.PhysicalWord).VisualWord])]);
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

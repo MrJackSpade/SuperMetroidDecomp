@@ -6,35 +6,14 @@ internal static partial class Program
 {
     private static void VerifyMaridiaElevatubePlm()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort start = MaridiaElevatubePlmDefinitions.InstructionList;
-        foreach (ushort address in new ushort[] { start, (ushort)(start + 2),
-                     (ushort)(start + 4), (ushort)(start + 7) })
-        {
-            AssertTrue(MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"elevatube control word $84:{address:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8),
-                compiled, $"elevatube control word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(
-                (ushort)(start + 6), out byte sound),
-            "elevatube sound operand is compiled");
-        AssertEqual(rom.ReadByte(0x840000 | (start + 6)), sound,
-            "elevatube sound operand matches ROM");
-
-        RoomPlmShotBlockDrawDefinitions.DrawList draw =
-            MaridiaElevatubePlmDefinitions.Draw;
-        AssertEqual((ushort)1, draw.Runs.Span[0].DirectionAndCount,
-            "elevatube physical draw contains one horizontal block");
-        AssertEqual((ushort)0x8180, draw.Runs.Span[0].LevelWords.Span[0],
-            "elevatube physical block word matches ROM");
-        byte[] drawBytes = [1, 0, 0x80, 0x81, 0, 0];
-        for (int offset = 0; offset < drawBytes.Length; offset++)
-            AssertEqual(rom.ReadByte(0x840000 | (draw.Pointer + offset)),
-                drawBytes[offset], $"elevatube physical draw byte {offset} matches ROM");
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube oracle revision");
+        VerifyElevatubePhysicalDraw(rom);
+        VerifyElevatubeProgramControls(rom);
+        VerifyElevatubeProgramDraw(rom);
+        VerifyElevatubeProgramSound(rom);
 
         RoomLevelData level = CreateRoom(4, 4, new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);

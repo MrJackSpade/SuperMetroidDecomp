@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--maridia-elevatube-plm"])
+{
+    VerifyMaridiaElevatubePlm();
+    return 0;
+}
+if (args is ["--maridia-elevatube-visuals"])
+{
+    VerifyMaridiaElevatubeVisuals();
+    return 0;
+}
 if (args is ["--mother-brain-fake-death-visuals"])
 {
     VerifyMotherBrainFakeDeathVisuals();
@@ -2374,21 +2384,13 @@ if (args is ["--speed-booster-block-plms"])
     VerifySpeedBoosterCollisionBlocks();
     return 0;
 }
-if (args is ["--maridia-elevatube-plm"])
-{
-    VerifyMaridiaElevatubePlm();
-    return 0;
-}
+
 if (args is ["--speed-booster-visuals"])
 {
     VerifySpeedBoosterVisuals();
     return 0;
 }
-if (args is ["--maridia-elevatube-visuals"])
-{
-    VerifyMaridiaElevatubeVisuals();
-    return 0;
-}
+
 if (args is ["--botwoon-wall-plms"])
 {
     VerifyCompiledBotwoonWallPlms();

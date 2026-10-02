@@ -1904,11 +1904,10 @@ public sealed partial class RoomPlmSystem
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, MaridiaElevatubePlmDefinitions.Draw,
-                originX, originY, layer1XPosition, layer1YPosition,
-                bg1XOffset, useShotBlockVisuals: false,
-                maridiaElevatubeVisuals: maridiaElevatubeVisuals);
+            DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
+                MaridiaElevatubePlmDefinitions.PhysicalWord,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                maridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))

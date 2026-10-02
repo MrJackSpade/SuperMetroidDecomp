@@ -13,11 +13,15 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
     internal const byte SoundId = 0x15;
 
-    internal static readonly RoomPlmShotBlockDrawDefinitions.DrawList Draw =
+    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw.</summary>
+    internal const ushort PhysicalWord = 0x8180;
+
+    // Temporary artwork DTO only. Gameplay draws the single physical word directly.
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList Draw =>
         new(DrawPointer,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { 0x8180 }, 0, 0),
+                new(1, new ushort[] { PhysicalWord }, 0, 0),
             });
 
     internal const string VisualId = "elevatube-block";

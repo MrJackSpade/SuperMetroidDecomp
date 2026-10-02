@@ -17,6 +17,7 @@ internal static partial class Program
         VerifyMotherBrainBoundaryGeometry(rom);
         VerifyMotherBrainBoundaryCollision(rom);
         VerifyMotherBrainWallVisuals(rom);
+        VerifyMotherBrainDoorVisuals(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();

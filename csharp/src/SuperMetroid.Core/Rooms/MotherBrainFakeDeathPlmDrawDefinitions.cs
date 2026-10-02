@@ -240,8 +240,26 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
-    // Escape-door visual cells remain pending independent artwork review under #1165.
-    private static readonly ushort[] EscapeDoorVisuals = [0x222,0x1af,0x1d0,0x220,0x223,0x1eb,0x1d0,0x221];
+    /// <summary>84:94B3/94BF: left tile of the two-wide broken upper edge (222/223).</summary>
+    private const ushort DoorUpperEdgeLeft = 0x222;
+    /// <summary>84:94B9/94C5: left tile of the two-wide broken lower edge (220/221).</summary>
+    private const ushort DoorLowerEdgeLeft = 0x220;
+    /// <summary>84:94B5: upper interior panel with its left vertical seam.</summary>
+    private const ushort DoorInteriorLeft = 0x1af;
+    /// <summary>84:94C1: upper interior panel without that left seam.</summary>
+    private const ushort DoorInteriorRight = 0x1eb;
+    /// <summary>84:94B7/94C3: repeated lower-interior strip across both columns.</summary>
+    private const ushort DoorLowerInterior = 0x1d0;
+
+    // Called only after validating the two-column/four-row door domain.
+    private static ushort EscapeDoorVisualAt(int column, int row) => row switch
+    {
+        0 => (ushort)(DoorUpperEdgeLeft + column),
+        1 => column == 0 ? DoorInteriorLeft : DoorInteriorRight,
+        2 => DoorLowerInterior,
+        3 => (ushort)(DoorLowerEdgeLeft + column),
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>
     /// 84:94A3/94B1: a three-cell wall centered on the origin, or a two-column
@@ -273,7 +291,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
                 return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
             RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :
                 block == 0 ? RoomCollisionType.DoorBlock : RoomCollisionType.VerticalExtension;
-            return (ushort)(((int)collision << 12) | EscapeDoorVisuals[run * 4 + block]);
+            return (ushort)(((int)collision << 12) | EscapeDoorVisualAt(run, block));
         }
     }
 

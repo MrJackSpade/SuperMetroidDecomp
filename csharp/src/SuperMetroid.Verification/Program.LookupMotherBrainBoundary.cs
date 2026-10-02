@@ -52,20 +52,23 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
-        VerifyMotherBrainBoundaryCells(rom, false);
+        VerifyMotherBrainBoundaryCells(rom, 0);
 
     private static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
-        VerifyMotherBrainBoundaryCells(rom, true);
+        VerifyMotherBrainBoundaryCells(rom, 1);
 
-    private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, bool wallVisual)
+    private static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
+        VerifyMotherBrainBoundaryCells(rom, 2);
+
+    private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)
     {
         foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})
         {
-            if (wallVisual && pointer != 0x94a3) continue;
+            if (field == 1 && pointer != 0x94a3 || field == 2 && pointer != 0x94b1) continue;
             MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(pointer, out var shape);
             MotherBrainFakeDeathPlmDrawDefinitions.TryGet(pointer, out var dto);
             int cursor = pointer;
-            int mask = wallVisual ? 0xfff : 0xf000;
+            int mask = field == 0 ? 0xf000 : 0xfff;
             for (int run = 0; run < 2; run++)
             {
                 int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;

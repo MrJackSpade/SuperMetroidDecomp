@@ -3753,4 +3753,16 @@
     "confirmation": "Verification and ResourceAudit builds and --samus-eater-visuals pass the complete stock proof, physical draw proofs, custom floor/ceiling placement with source reads forbidden, collision isolation and installation/stock-repair checks.",
     "scope": "Plant stock appearance and content identity only. Program and behavior mappings and the wider audit remain unfinished; no retention exception claimed."
   }
+,
+  "samusEaterProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:ACB8..AD37; pinned bank_84.asm InstList_PLM_BrinstarFloorPlant and InstList_PLM_BrinstarCeilingPlant",
+    "algorithm": "Remove two 64-byte hex program blobs. Named instruction cases share floor/ceiling control structure: install hold callback, set four/eight loops, five-tick chew stages with two damage callbacks and one sound per loop, decrement/branch, release immunity and hold, wait 96 ticks, restore idle for one tick, delete. Byte extraction accounts for one-byte timer and sound operands without a generated cache.",
+    "controls": {"disposition": "converted to semantic instruction cases", "proof": "VerifySamusEaterProgramControls consolidates old blob parity, independently compares original control/timer bytes and all 127 byte-aligned word views; checks all ushort byte/word ownership and missing zero outputs, including odd reads, ACF7 cross-program view and terminal AD37 word rejection. Shared RoomPlmProgramDefinitions word reads agree."},
+    "drawOperands": {"disposition": "converted to named floor/ceiling pose cases", "proof": "VerifySamusEaterProgramDraws independently lists all twenty native operand addresses and compares original pointers and their byte halves."},
+    "soundOperand": {"disposition": "converted to common chew sound scalar", "proof": "VerifySamusEaterProgramSound compares original packed operands at ACCD/AD0D."},
+    "consumers": "RoomPlmProgramDefinitions retains the same byte/word API used by the instruction interpreter; no caller or supported address domain changes. The focused plant-program flag now runs before unrelated verification suites and verifies the ROM revision.",
+    "confirmation": "Verification build and --samus-eater-plm-definitions pass full native control/operand/view proofs and existing real aligned floor/ceiling spawn checks.",
+    "scope": "Plant program bytes and their control/draw/sound mappings only. Separate SamusEaterPlmDefinitions header descriptors remain independently reviewable; the broader audit is unfinished. No retention exception claimed."
+  }
 }

@@ -17,10 +17,10 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
         Span<ushort> words = stackalloc ushort[16];
         foreach (var frame in MotherBrainGlassPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
         {
-            MotherBrainGlassPlmDrawDefinitions.TryGet(frame.Pointer, out var shape);
+            MotherBrainGlassPlmDrawDefinitions.TryDescribe(frame.Pointer, out var shape);
             int count = 0;
-            for (int run = 0; run < shape.Runs.Length; run++)
-            for (int word = 0; word < shape.Runs.Span[run].LevelWords.Length; word++)
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
                 words[count++] = GetWord(frame.Pointer, run, word);
             content.Append("frame", frame.Pointer);
             // Preserve the flattened single-run framing of installed glass artwork.
@@ -52,12 +52,12 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
             if (!seen.Add(draw.Pointer))
                 throw new InvalidDataException(
                     $"Mother Brain glass visuals repeat frame {entry.Id}.");
-            MotherBrainGlassPlmDrawDefinitions.TryGet(draw.Pointer, out var shape);
+            MotherBrainGlassPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
             int index = 0;
             bool changed = false;
-            for (int run = 0; run < shape.Runs.Length; run++)
-            for (int word = 0; word < shape.Runs.Span[run].LevelWords.Length; word++)
-                changed |= entry.Blocks[index++] != new RoomLevelWord(shape.Runs.Span[run].LevelWords.Span[word]).VisualWord;
+            for (int run = 0; run < shape.RunCount; run++)
+            for (int word = 0; word < shape.WordCount(run); word++)
+                changed |= entry.Blocks[index++] != new RoomLevelWord(shape.WordAt(run, word)).VisualWord;
             if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
         if (seen.Count != MotherBrainGlassPlmDrawDefinitions.All.Count())
@@ -71,16 +71,16 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!MotherBrainGlassPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+        if (!MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Mother Brain glass visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= (uint)draw.RunCount ||
+            (uint)blockIndex >= (uint)draw.WordCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
+            flatIndex += draw.WordCount(run);
         return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
-            ? words[flatIndex] : new RoomLevelWord(draw.Runs.Span[runIndex].LevelWords.Span[blockIndex]).VisualWord;
+            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

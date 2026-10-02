@@ -2071,13 +2071,24 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, eyeDoorVisuals: eyeDoorVisuals);
             return;
         }
-        if (MotherBrainGlassPlmDrawDefinitions.TryGet(drawPointer, out var motherBrainGlass))
+        if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var motherBrainGlass))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, motherBrainGlass, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                motherBrainGlassVisuals: motherBrainGlassVisuals);
+            int glassX = originX, glassY = originY;
+            for (int run = 0; run < motherBrainGlass.RunCount; run++)
+            {
+                bool vertical = motherBrainGlass.Vertical(run);
+                for (int cell = 0; cell < motherBrainGlass.WordCount(run); cell++)
+                {
+                    ushort physical = motherBrainGlass.WordAt(run, cell);
+                    ushort visual = motherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, glassX + (vertical ? 0 : cell),
+                        glassY + (vertical ? cell : 0), physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                glassX = originX + motherBrainGlass.NextX(run);
+                glassY = originY + motherBrainGlass.NextY(run);
+            }
             return;
         }
         if (NoobTubePlmDrawDefinitions.TryDescribe(drawPointer, out var noobTube))

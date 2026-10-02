@@ -3298,4 +3298,19 @@
     "confirmation": "Verification build and --lookup-torizo-dormant-and-drool run all eight production spawns with exact RNG consumption and delay timing, plus initial-drool and impact programs. Replaced a stale expected-ROM-read assertion with no-read and exact installed-operand assertions for delay, falling, loop and impact poses.",
     "scope": "Initial delay program selection only. Drool control-word and presentation arrays remain required work, along with their pointer mappings; no retention exception claimed."
   }
+,
+  "bombTorizoDroolProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A46A-A49D; pinned bank_86.asm low-health and initial drool programs",
+    "mechanics": {
+      "disposition": "Removed nineteen stored control words. Named command cases implement the two blank delays, falling preinstruction/property setup, five-tick first pose, priority clear and 64-tick loop. Wall impact clears the callback and deletes; floor impact clears the callback, shows three eight-tick poses and deletes. Enumerate the contiguous word layout while excluding visual operands, without a cache.",
+      "proof": "VerifyBombTorizoDroolMechanicsMapping independently checks nineteen native positions and direct/enumerated words, full byte ownership, existing high-bit aliases, bank rejection, invalid visual/odd/adjacent/distant inputs and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed seven stored operand positions. Derive the two blank-delay operands, first falling and looping operands, and three equally spaced floor-impact operands from their named program starts.",
+      "proof": "VerifyBombTorizoDroolPresentationMapping independently checks all seven original positions, full ushort membership and ordinal bounds."
+    },
+    "confirmation": "Verification build and --lookup-torizo-dormant-and-drool confirm all eight production delay choices, RNG sequencing, priority handoff, exact installed presentation operands and both impact lifetimes with original control reads forbidden.",
+    "scope": "Drool control words and visual operand positions only. Sprite-pointer values, projectile ownership, artwork and other Torizo families remain separately reviewable; no retention exception claimed."
+  }
 }

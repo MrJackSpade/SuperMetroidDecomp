@@ -4,6 +4,49 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyBombTorizoDroolMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] expected = [0xa46a,0xa46e,0xa472,0xa474,0xa476,0xa478,0xa47a,0xa47e,0xa480,
+            0xa482,0xa486,0xa488,0xa48a,0xa48c,0xa48e,0xa490,0xa494,0xa498,0xa49c];
+        AssertEqual(expected.Length, BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount, "drool native control count");
+        var bytes = new HashSet<int>();
+        for (int i = 0; i < expected.Length; i++)
+        {
+            var actual = BombTorizoDroolInstructionProgramDefinitions.MechanicsWord(i);
+            AssertEqual(expected[i], actual.Address, "drool native control order");
+            int address = 0x860000 | expected[i];
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, actual.Value, "drool enumerated native control");
+            AssertEqual(native, BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(expected[i]), "drool direct native control");
+            bytes.Add(expected[i]); bytes.Add(expected[i] + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "drool full byte ownership");
+            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address), "drool existing high-bit alias");
+            AssertTrue(!BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x870000 | address), "drool other bank rejected");
+        }
+        var words = expected.ToHashSet();
+        for (int address = 0xa468; address <= 0xa4a0; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "drool rejects visual, odd and adjacent words");
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address), "drool distant invalid words");
+        foreach (int index in new[] {int.MinValue,-1,19,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.MechanicsWord(index), "drool mechanics ordinal bounds");
+    }
+    private static void VerifyBombTorizoDroolPresentationMapping()
+    {
+        ushort[] expected = [0xa46c,0xa470,0xa47c,0xa484,0xa492,0xa496,0xa49a];
+        AssertEqual(expected.Length, BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount, "drool native operand count");
+        for (int i = 0; i < expected.Length; i++)
+            AssertEqual(expected[i], BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(i), "drool native operand position");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address), "drool full visual membership");
+        foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index), "drool operand ordinal bounds");
+    }
     private static void VerifyBombTorizoDroolInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
@@ -23,6 +66,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         VerifyBombTorizoDroolInitialSelection(rom);
+        VerifyBombTorizoDroolMechanicsMapping(rom);
+        VerifyBombTorizoDroolPresentationMapping();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount;

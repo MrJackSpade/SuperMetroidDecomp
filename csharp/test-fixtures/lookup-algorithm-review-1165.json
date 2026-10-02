@@ -1706,5 +1706,37 @@
                        "nativeIdentity":  "A5:A31B-A3BB and A643-A6E3 selected body roots"
                    }
                ]
+},
+    "motherBrainVisualCatalogReview": {
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Calculate Mother Brain visual catalogs from frame geometry for #1165\"",
+                                 "subject":  "Calculate Mother Brain visual catalogs from frame geometry for #1165"
+                             },
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-mother-brain-visual-catalogs",
+    "owner":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyVisualDefinitions.cs",
+    "reviewedEvidence":  "Pinned bank_A9.asm body extended records 9FA0-A462, count-dependent record sizes, current OAM/BG2 catalog construction and all consumers; SHA-verified NTSC J/U v1.0 ROM. Published keys preserved in independent expected-output fixtures.",
+    "relatedAuditScope":  "BackgroundTransferClosedContractDefinitions fingerprints several visual owners and the shared loader changed during #1165. Its existing fail-closed source reviews require separate revalidation; this catalog conversion does not refresh or certify them.",
+    "tables":  [
+                   {
+                       "id":  "mother-brain-oam-named-frame-catalog",
+                       "disposition":  "Remove stored OAM definitions. Derive roots from bounded nine-/ten-component runs, explicit crouch/dummy boundaries and death-beam run; choose published pose names by semantic state and frame ordinal.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Seventeen A9 body roots 9FA0-A462 including A320 initial dummy",
+                       "confirmation":  "All seventeen original pointer/name pairs and native component counts, enumeration/materialization and index bounds.",
+                       "rationale":  "Each native root occupies two count bytes plus eight bytes per component. Standing, walking, posture, dummy and beam identities define the published name mapping.",
+                       "domain":  "Indices 0..16; IndexOutOfRangeException outside.",
+                       "proofTest":  "VerifyMotherBrainGeneratedOamCatalog"
+                   },
+                   {
+                       "id":  "mother-brain-bg2-named-frame-catalog",
+                       "disposition":  "Remove filtered cached BG2 array and membership scan. Skip OAM ordinal twelve, derive BG2 keys from corresponding pose names, and calculate membership with bounded native stride runs.",
+                       "state":  "converted",
+                       "nativeIdentity":  "Sixteen mixed BG2 roots among the seventeen selected A9 body frames",
+                       "confirmation":  "Sixteen original pointer/name pairs, full membership domain and invalid indices, exact JSON extraction and production catalog load, explicit dummy rejection.",
+                       "rationale":  "The native dummy has only OAM; the remaining selected roots use the matching mixed-frame identity and stable BG2 name prefix.",
+                       "domain":  "Indices 0..15; exactly sixteen HasBg2 pointers across the full ushort domain. Initial dummy excluded.",
+                       "proofTest":  "VerifyMotherBrainGeneratedBg2Catalog"
+                   }
+               ]
 }
 }

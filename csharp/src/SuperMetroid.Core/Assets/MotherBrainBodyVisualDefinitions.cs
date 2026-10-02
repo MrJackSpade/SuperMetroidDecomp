@@ -18,39 +18,79 @@ internal static class MotherBrainBodyVisualDefinitions
     internal const int Bg2Version = 1;
     internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
 
-    private static readonly EnemyExtendedFrameDefinition[] FrameDefinitions =
-    [
-        new(Bank, 0x9fa0, "mother_brain_body_oam_standing"),
-        new(Bank, 0x9fea, "mother_brain_body_oam_walking_0"),
-        new(Bank, 0xa03c, "mother_brain_body_oam_walking_1"),
-        new(Bank, 0xa08e, "mother_brain_body_oam_walking_2"),
-        new(Bank, 0xa0e0, "mother_brain_body_oam_walking_3"),
-        new(Bank, 0xa12a, "mother_brain_body_oam_walking_4"),
-        new(Bank, 0xa174, "mother_brain_body_oam_walking_5"),
-        new(Bank, 0xa1be, "mother_brain_body_oam_walking_6"),
-        new(Bank, 0xa208, "mother_brain_body_oam_walking_7"),
-        new(Bank, 0xa252, "mother_brain_body_oam_crouched"),
-        new(Bank, 0xa28c, "mother_brain_body_oam_uncrouching"),
-        new(Bank, 0xa2d6, "mother_brain_body_oam_leaning_down"),
-        new(Bank, InitialDummyFrame, "mother_brain_body_oam_initial_dummy"),
-        new(Bank, 0xa384, "mother_brain_body_oam_death_beam_0"),
-        new(Bank, 0xa3ce, "mother_brain_body_oam_death_beam_1"),
-        new(Bank, 0xa418, "mother_brain_body_oam_death_beam_2"),
-        new(Bank, 0xa462, "mother_brain_body_oam_death_beam_3"),
-    ];
+    /// <summary>$A9:9FA0, standing frame with nine components.</summary>
+    private const ushort Standing = 0x9fa0;
+    /// <summary>$A9:9FEA, first of three ten-component walking frames.</summary>
+    private const ushort WalkingStart = 0x9fea;
+    /// <summary>$A9:A0E0, five nine-component walking frames followed by crouched.</summary>
+    private const ushort LaterWalkingStart = 0xa0e0;
+    /// <summary>$A9:A28C, uncrouching and leaning-down nine-component frames.</summary>
+    private const ushort Uncrouching = 0xa28c;
+    /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
+    private const ushort DeathBeamStart = 0xa384;
 
-    private static readonly EnemyBg2FrameDefinition[] Bg2Definitions = FrameDefinitions
-        .Where(frame => frame.Pointer != InitialDummyFrame)
-        .Select(frame => new EnemyBg2FrameDefinition(frame.Pointer,
-            frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal))).ToArray();
+    internal static MotherBrainBodyFrameSequence Frames => new(FrameCount);
+    internal static EnemyBg2FrameDefinitionSequence Bg2Frames => new(Bg2FrameCount, Bg2Frame);
 
-    internal static ReadOnlySpan<EnemyExtendedFrameDefinition> Frames => FrameDefinitions;
-    internal static ReadOnlySpan<EnemyBg2FrameDefinition> Bg2Frames => Bg2Definitions;
-
-    internal static bool HasBg2(ushort pointer)
+    /// <summary>Calculates the published OAM identity. Native record strides are
+    /// two header bytes plus eight bytes per component; explicit run boundaries
+    /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
+    internal static EnemyExtendedFrameDefinition Frame(int index)
     {
-        foreach (EnemyBg2FrameDefinition frame in Bg2Definitions)
-            if (frame.Pointer == pointer) return true;
-        return false;
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        ushort pointer = (ushort)(index == 0 ? Standing
+            : index < 4 ? WalkingStart + 0x52 * (index - 1)
+            : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
+            : index < 13 ? Uncrouching + 0x4a * (index - 10)
+            : DeathBeamStart + 0x4a * (index - 13));
+        string pose = index switch
+        {
+            0 => "standing",
+            >= 1 and <= 8 => FormattableString.Invariant($"walking_{index - 1}"),
+            9 => "crouched",
+            10 => "uncrouching",
+            11 => "leaning_down",
+            12 => "initial_dummy",
+            _ => FormattableString.Invariant($"death_beam_{index - 13}"),
+        };
+        return new(Bank, pointer, $"mother_brain_body_oam_{pose}");
+    }
+
+    /// <summary>BG2 uses the same pose identity with its published BG2 prefix,
+    /// omitting the OAM-only dummy at OAM index twelve.</summary>
+    internal static EnemyBg2FrameDefinition Bg2Frame(int index)
+    {
+        if ((uint)index >= Bg2FrameCount) throw new IndexOutOfRangeException();
+        var frame = Frame(index < 12 ? index : index + 1);
+        return new(frame.Pointer, frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal));
+    }
+
+    internal static bool HasBg2(ushort pointer) => pointer == Standing ||
+        InRun(pointer, WalkingStart, 3, 0x52) || InRun(pointer, LaterWalkingStart, 6, 0x4a) ||
+        InRun(pointer, Uncrouching, 2, 0x4a) || InRun(pointer, DeathBeamStart, 4, 0x4a);
+
+    private static bool InRun(ushort pointer, ushort start, int count, int stride)
+    {
+        int offset = pointer - start;
+        return offset >= 0 && offset < count * stride && offset % stride == 0;
+    }
+}
+
+/// <summary>Calculated Mother Brain OAM catalog entries without stored lookup data.</summary>
+internal readonly record struct MotherBrainBodyFrameSequence(int Length)
+{
+    internal EnemyExtendedFrameDefinition this[int index] => MotherBrainBodyVisualDefinitions.Frame(index);
+    internal EnemyExtendedFrameDefinition[] ToArray()
+    {
+        var result = new EnemyExtendedFrameDefinition[Length];
+        for (int i = 0; i < result.Length; i++) result[i] = this[i];
+        return result;
+    }
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(MotherBrainBodyFrameSequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public EnemyExtendedFrameDefinition Current => sequence[index];
     }
 }

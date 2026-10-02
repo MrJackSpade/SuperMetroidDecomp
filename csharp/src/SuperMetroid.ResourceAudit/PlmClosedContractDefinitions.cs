@@ -31,7 +31,7 @@ internal static class PlmClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog", "plm-noob-tube-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmNoobTubeVisualCatalog.cs", "9FCE1ABB071EF40C17B2557D6577E6AFA74118A90AFC65FD8BBBE226A2F716BA"),
-             new("csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs", "817C842877E508EC6F06F588CAE95F3CCD3F75A95C556055CAF8930206626B06")],
+             new("csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs", "50A37A644C4EA2A5BC4C446DF9BB70AC86594327E3EB5D51E97F6B7476697D5E")],
             "The constructor requires all seven tube frames with unique compiled identities and exact cloned flattened payloads. GetWord checks the declared run/word shape. Power-bomb gating, shards, events and liquid mechanics are not part of this resource-domain proof."),
     ];
 }

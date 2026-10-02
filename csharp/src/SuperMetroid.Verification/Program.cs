@@ -44,6 +44,14 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--noob-tube-plm-draws"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube draw oracle revision");
+    VerifyNoobTubePlmDrawDefinitions(rom);
+    return 0;
+}
 if (args is ["--noob-tube-plm-program"])
 {
     VerifyNoobTubePlm();
@@ -2531,12 +2539,6 @@ if (args is ["--mother-brain-glass-plm-draws"])
 if (args is ["--draygon-cannon-plm-program"])
 {
     VerifyDraygonCannonPlmProgram();
-    return 0;
-}
-if (args is ["--noob-tube-plm-draws"])
-{
-    VerifyNoobTubePlmDrawDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--reported-shaft-momentum"])

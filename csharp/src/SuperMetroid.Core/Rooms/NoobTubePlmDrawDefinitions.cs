@@ -23,14 +23,117 @@ internal static class NoobTubePlmDrawDefinitions
     /// <summary>Full broken-tube panel at $84:99E5.</summary>
     internal const ushort BrokenFull = 0x99e5;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    /// <summary>
+    /// Seven named NTSC layouts at 84:98D1..9A3E. Wide runs are twelve cells:
+    /// symmetric pipe edges surround air; the floor adds a second solid edge cell.
+    /// Panel rows use adjacent tiles, vertically reflected below the centre.
+    /// Continuations are absolute offsets from the PLM origin, not accumulated steps.
+    /// </summary>
+    internal readonly record struct Draw(ushort Pointer)
+    {
+        internal int RunCount => Pointer switch
+        {
+            Cleared or BrokenFull => 4,
+            BrokenLate or OpenedRows => 3,
+            _ => 1,
+        };
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+        private void CheckRun(int run)
+        {
+            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+        }
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
+        internal int WordCount(int run)
+        {
+            CheckRun(run);
+            return Pointer is Intact or Damaged or Opened ||
+                (Pointer is BrokenLate or BrokenFull && run == 0) ? 1 : 12;
+        }
+
+        private int Row(int run) => Pointer switch
+        {
+            BrokenLate => run + 3,
+            BrokenFull => run + 2,
+            _ => run,
+        };
+
+        internal sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return run == RunCount - 1 ? (sbyte)0 : (sbyte)Row(run + 1);
+        }
+
+        internal ushort WordAt(int run, int cell)
+        {
+            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if (WordCount(run) == 1)
+                return Pointer switch
+                {
+                    Intact => 0xc540, // Projectile trigger, mirrored intact glass tile.
+                    Damaged => 0x8540, // Same glass tile, solid collision after activation.
+                    Opened => 0x8141, // Solid upper rim at the origin.
+                    _ => 0x0141, // Broken frames clear collision at the origin.
+                };
+            int row = Row(run);
+            int edgeDistance = Math.Min(cell, 11 - cell);
+            if (edgeDistance > (row == 5 ? 1 : 0)) return 0x00ff;
+            int tile = row switch
+            {
+                0 => 0x141,
+                5 => 0x14e + edgeDistance,
+                _ => 0x322 + Math.Min(row - 1, 4 - row),
+            };
+            int flips = (cell >= 6 ? 0x400 : 0) | (row is 3 or 4 ? 0x800 : 0);
+            int collision = row is 0 or 5 ? 0x8000 : 0;
+            return (ushort)(collision | flips | tile);
+        }
+    }
+
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        bool owned = pointer is Intact or Damaged or Opened or Cleared or BrokenLate or OpenedRows or BrokenFull;
+        draw = owned ? new(pointer) : default;
+        return owned;
+    }
+
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (ushort pointer in Pointers())
+            {
+                TryGet(pointer, out var list);
+                yield return list;
+            }
+        }
+    }
+
+    private static IEnumerable<ushort> Pointers()
+    {
+        yield return Intact;
+        yield return Damaged;
+        yield return Opened;
+        yield return Cleared;
+        yield return BrokenLate;
+        yield return OpenedRows;
+        yield return BrokenFull;
+    }
+
+    // Temporary artwork import/export DTOs; gameplay calculates cells directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, 0, draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -41,85 +144,14 @@ internal static class NoobTubePlmDrawDefinitions
         BrokenLate => "broken-late",
         OpenedRows => "opened-rows",
         BrokenFull => "broken-full",
-        _ => throw new InvalidDataException(
-            $"N00b-tube draw ${pointer:X4} has no visual ID."),
+        _ => throw new InvalidDataException($"N00b-tube draw ${pointer:X4} has no visual ID."),
     };
 
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
-        {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
+        foreach (ushort pointer in Pointers())
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
         list = default;
         return false;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(7);
-        Add(lists, Intact, R(0x0001, [0xc540]));
-        Add(lists, Damaged, R(0x0001, [0x8540]));
-        Add(lists, Opened, R(0x0001, [0x8141]));
-        Add(lists, Cleared,
-            R(0x000c, EdgedRow(0x8141, 0x8541), nextY: 1),
-            R(0x000c, EdgedRow(0x0322, 0x0722), nextY: 2),
-            R(0x000c, EdgedRow(0x0323, 0x0723), nextY: 3),
-            R(0x000c, EdgedRow(0x0b23, 0x0f23)));
-        Add(lists, BrokenLate,
-            R(0x0001, [0x0141], nextY: 4),
-            R(0x000c, EdgedRow(0x0b22, 0x0f22), nextY: 5),
-            R(0x000c, FinalRow()));
-        Add(lists, OpenedRows,
-            R(0x000c, EdgedRow(0x8141, 0x8541), nextY: 1),
-            R(0x000c, EdgedRow(0x0322, 0x0722), nextY: 2),
-            R(0x000c, EdgedRow(0x0323, 0x0723)));
-        Add(lists, BrokenFull,
-            R(0x0001, [0x0141], nextY: 3),
-            R(0x000c, EdgedRow(0x0b23, 0x0f23), nextY: 4),
-            R(0x000c, EdgedRow(0x0b22, 0x0f22), nextY: 5),
-            R(0x000c, FinalRow()));
-        return lists;
-    }
-
-    private static ushort[] EdgedRow(ushort first, ushort last)
-    {
-        ushort[] words = Enumerable.Repeat((ushort)0x00ff, 12).ToArray();
-        words[0] = first;
-        words[^1] = last;
-        return words;
-    }
-
-    private static ushort[] FinalRow()
-    {
-        ushort[] words = EdgedRow(0x814e, 0x854e);
-        words[1] = 0x814f;
-        words[^2] = 0x854f;
-        return words;
-    }
-
-    private static RoomPlmShotBlockDrawDefinitions.Run R(
-        ushort directionAndCount, ushort[] words, sbyte nextY = 0)
-    {
-        if ((directionAndCount & 0x7fff) != words.Length)
-            throw new InvalidDataException("N00b-tube draw count differs from its payload.");
-        return new(directionAndCount, words, 0, nextY);
-    }
-
-    private static void Add(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        ushort pointer, params RoomPlmShotBlockDrawDefinitions.Run[] runs)
-    {
-        if (runs.Length is < 1 or > 4 ||
-            runs[^1].NextX != 0 || runs[^1].NextY != 0)
-            throw new InvalidDataException($"N00b-tube draw ${pointer:X4} has invalid runs.");
-        if (!lists.TryAdd(pointer, new(pointer, runs)))
-            throw new InvalidDataException($"Duplicate n00b-tube draw ${pointer:X4}.");
     }
 }

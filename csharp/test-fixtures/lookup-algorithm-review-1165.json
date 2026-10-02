@@ -2044,5 +2044,26 @@
             }
         ],
         "remainingScope": "Projectile visual selectors, launch policy and other Kraid definitions retain their separately tracked review scope. No gameplay sweep or benchmark campaign was run."
+    },
+    "kraidHeadCommandReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid head commands from mouth stages for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid head commands from mouth stages for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidHeadInstructionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm complete 96D2-9787 stream and mouth hitbox layout; SHA-verified NTSC J/U v1.0 ROM; head interpreter, growth tilemap resolver, entry-timer consumers, asset extraction and presentation verifier enumeration consumers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-head-programs",
+        "tables": [
+            {
+                "id": "kraid-head-command-records",
+                "state": "converted",
+                "domain": "28 ordered command records; Resolve accepts only exact native command starts. Frames expose duration, tilemap and two hitbox selectors; callbacks expose kind and sound ID. Invalid ordinal indices throw IndexOutOfRangeException; unsupported cursors throw InvalidDataException.",
+                "disposition": "Remove Definitions array. Calculate commands from roar/glow/death roles, mouth stage and native eight-byte frame/two-byte callback widths. All is a calculated sequence with explicit materialization only for existing asset consumers.",
+                "rationale": "Both roars open stages0..3 and close2..0, with distinct normal/open timers. Glow uses0,1,0 with a doubled middle timer; death opens0..3 and stops. Sound precedes the fully open stage. Tilemaps and hitboxes have fixed strides; closed-mouth invulnerability uses FFFF. These are program and pose semantics, not an arbitrary value-by-value switch.",
+                "proofTest": "VerifyKraidHeadCommandMapping",
+                "confirmation": "Independent original-ROM opcode decoder checks every field of all28 records, exact Resolve and frame tilemap reads, enumeration/materialization, command-vs-operand alignment, adjacent data and index bounds. Extracted existing numerical comparison; aggregate verifier reuses it. Verification build passes with existing warnings."
+            }
+        ],
+        "remainingScope": "GrowthResume, mouth geometry and other Kraid mappings require their own dispositions. Live low-half tilemap aliases and boundary-byte handling are unchanged. No gameplay sweep or broad timer matrix was run."
     }
 }

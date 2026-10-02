@@ -202,6 +202,9 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(5069, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
+        foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),
+                "Shared selector enumeration bounds");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
         {

@@ -108,9 +108,6 @@ internal static partial class Program
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt(address),
                 "Alcoon distant invalid visual operand");
-        foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),
-                "Shared selector merged enumeration bounds");
     }
 
     private static void VerifyAlcoonInstructionProgramDefinitions()

@@ -2863,4 +2863,28 @@
         "confirmation": "Verification and ResourceAudit builds and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0, including existing focused actor initialization/program execution and complete shared-catalog comparison. Updated normalized-LF source pin.",
         "remainingScope": "Other shared literal families and the artwork catalog remain independently unresolved, including duplicate selectors for some earlier actor-specific algorithms. This removes Atomic's shared copies only; it does not justify retaining other lookup data."
     }
+,
+    "kraidSharedVisualSelectorReview": {
+        "state": "converted",
+        "owners": ["csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs", "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA6.Definitions.cs", "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA7.Definitions.cs"],
+        "tables": [
+            {
+                "id": "fake-kraid-shared-visual-selectors",
+                "nativeIdentity": "24 operands A6:99B0..9A3C",
+                "disposition": "Remove all24 duplicate literal records. Shared lookup and enumeration delegate to the independently reviewed KraidVisualDefinitions.FrameAt Fake Kraid calculation. Membership follows the paired forward/backward walk and spit operand layout, including the unused-program gaps.",
+                "proof": "Extend VerifyFakeKraidVisualSelectors through its existing domain helper with full ushort membership comparison, original-ROM shared values and shared hole rejection/zero output."
+            },
+            {
+                "id": "kraid-nail-shared-visual-selectors",
+                "nativeIdentity": "Eight operands A7:8B0C..8B28 shared by both nail actors",
+                "disposition": "Remove all eight literal records. Shared selection delegates to the existing alternating two-/four-OAM-entry frame calculation. Membership is eight four-byte-spaced operands beginning two bytes after the instruction-loop start.",
+                "proof": "Extend VerifyKraidNailVisualSelectors through its existing domain helper with complete ushort membership and shared original-ROM values/hole checks for both existing actor identities."
+            }
+        ],
+        "reviewedEvidence": "Read every remaining literal record for both families, existing instruction address calculations and KraidVisualDefinitions pose/record-layout algorithms. These shared copies select exactly the same native frames as the previously reviewed actor-specific operations. Inspected native identities from pinned bank_A6/bank_A7 sources and current dispatch, generator and audit consumers.",
+        "sharedEnumeration": "Replace the adjacent-family merge with a general merge of sorted calculated entries and remaining literal entries. Each calculated record's merged rank is its ordinal plus a lower-bound count of preceding literals; binary search locates the requested rank or determines how many calculated entries to subtract for a literal index. CalculatedAt enumerates Fake Kraid, nails, Alcoon and Atomic in bank/address order. No generated selector array or cache is created.",
+        "tooling": "IsCalculatedSelector now owns A6 Fake Kraid and A7 nails as well as the two A8 families, so existing generator filtering cannot reintroduce those32 records. ResourceAudit attributes calculated Kraid-family entries to the actual FrameAt source line in KraidVisualDefinitions. Move the shared enumeration bounds assertion into the existing shared-catalog verifier, avoiding an Alcoon-specific duplicate.",
+        "confirmation": "Verification and ResourceAudit builds and --lookup-kraid-visual-selectors pass against SHA-verified NTSC J/U v1.0. The same command invokes the existing5069-entry original-ROM/sorted-enumeration/shared-lookup proof for the changed merge contract.",
+        "remainingScope": "Other shared literals, artwork/catalog data, unresolved mathematical mappings and the rest of the repository inventory remain open. Existing actor-level conversion alone does not resolve separately stored shared copies."
+    }
 }

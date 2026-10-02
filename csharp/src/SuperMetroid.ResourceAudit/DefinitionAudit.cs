@@ -71,10 +71,12 @@ internal static class DefinitionAudit
     private static string SelectorSource(string root, int bank, int address)
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
-        string calculatedMethod = AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address)
-            ? "AlcoonFrameAt" : "AtomicFrameAt";
+        bool kraidFamily = calculated && bank is 0xa6 or 0xa7;
+        string calculatedMethod = kraidFamily ? "FrameAt"
+            : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
         string relative = calculated
-            ? "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
+            ? kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
+                : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))

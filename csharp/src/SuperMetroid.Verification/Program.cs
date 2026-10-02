@@ -129,6 +129,7 @@ if (args is ["--lookup-kraid-visual-selectors"])
         "Kraid visual oracle is NTSC J/U v1.0");
     VerifyKraidNailVisualSelectors(visualOracle);
     VerifyFakeKraidVisualSelectors(visualOracle);
+    VerifyCompiledEnemyVisualSelectors();
     Console.WriteLine("Kraid visual selectors: eight nail operands for both actors,24 Fake Kraid operands, holes and bounds pass.");
     return 0;
 }

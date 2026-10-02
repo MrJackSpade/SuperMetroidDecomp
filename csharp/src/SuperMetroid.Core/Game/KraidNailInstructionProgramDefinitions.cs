@@ -36,6 +36,12 @@ internal static class KraidNailInstructionProgramDefinitions
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Loop + 4 * index + 2);
     }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Loop + 2);
+        return (uint)offset < 4 * PresentationWordCount && offset % 4 == 0;
+    }
+
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

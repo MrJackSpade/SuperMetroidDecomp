@@ -26,6 +26,12 @@ internal static partial class Program
         ushort enemy, ushort[] operands)
     {
         // Operand identities are independently recorded from native timed-frame instructions.
+        var valid = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(valid.Contains((ushort)address), bank == 0xa60000
+                ? FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address)
+                : KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Kraid-family complete presentation membership domain");
         for (int address = operands[0] - 2; address <= operands[^1] + 8; address++)
         {
             ushort selected = (ushort)address;
@@ -33,10 +39,16 @@ internal static partial class Program
             {
                 AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(enemy, selected),
                     "Nonvisual instruction bytes and unused program gap rejected");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet((byte)(bank >> 16), selected, out ushort missing),
+                    "Kraid-family shared selector rejects holes");
+                AssertEqual((ushort)0, missing, "Kraid-family missing shared selector clears output");
                 continue;
             }
             ushort expected = (ushort)(rom.ReadByte(bank | address) | rom.ReadByte(bank | (address + 1)) << 8);
             AssertEqual(expected, KraidVisualDefinitions.FrameAt(enemy, selected), "Original native visual selector word");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)(bank >> 16), selected, out ushort shared),
+                "Kraid-family shared calculated selector");
+            AssertEqual(expected, shared, "Kraid-family shared native visual value");
         }
         foreach (ushort invalid in new ushort[] { 0, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(enemy, invalid), "Outside visual program bounds");

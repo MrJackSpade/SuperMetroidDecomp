@@ -67,6 +67,18 @@ internal static class FakeKraidInstructionProgramDefinitions
             facing * (ChooseActionFacingRight - ChooseActionFacingLeft) + offset);
     }
 
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - ChooseActionFacingLeft;
+        if ((uint)offset >= 2 * (ChooseActionFacingRight - ChooseActionFacingLeft)) return false;
+        int local = offset % (ChooseActionFacingRight - ChooseActionFacingLeft);
+        return local is >= 4 and <= 16 && local % 4 == 0 ||
+            local == 0x1c ||
+            local is >= 0x22 and <= 0x2a && (local - 0x22) % 4 == 0 ||
+            local is >= 0x32 and <= 0x3e && (local - 0x32) % 6 == 0 ||
+            local == 0x42;
+    }
+
     /// <summary>Returns fixed Fake Kraid control or rejects pointers outside the live programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {

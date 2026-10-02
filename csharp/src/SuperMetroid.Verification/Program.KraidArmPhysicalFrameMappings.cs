@@ -29,8 +29,26 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
     }
 
+    private static void VerifyKraidArmStationaryPositions(SuperMetroidAddressSpace rom)
+    {
+        int checkedPositions = 0;
+        foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))
+        {
+            int count = ReadKraidArmInstructionWord(rom, frame);
+            int stationary = count == 1 ? 0 : 2;
+            ushort record = (ushort)(frame + 2 + 8 * stationary);
+            var expected = (unchecked((short)ReadKraidArmInstructionWord(rom, record)),
+                unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))));
+            AssertTrue(KraidArmCollisionDefinitions.TryGetComponents(frame, out var components), "Stationary arm frame exists");
+            KraidArmCollisionComponent actual = components[stationary];
+            AssertEqual(expected, (actual.X, actual.Y), "Native stationary arm component anchor");
+            checkedPositions++;
+        }
+        AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
+    }
     private static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
+        VerifyKraidArmStationaryPositions(rom);
         var expectedPointers = NativeKraidArmPhysicalFrames(rom).ToHashSet();
         HashSet<ushort> hitboxPointers = [];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -48,7 +66,8 @@ internal static partial class Program
                     unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                     unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))),
                     ReadKraidArmInstructionWord(rom, (ushort)(record + 6)));
-                AssertEqual((expected.X, expected.Y), (compiled[index].X, compiled[index].Y), "Native arm frame selects exact ordered physical positions");
+                if (compiled.Length != 1 && index != 2)
+                    AssertEqual((expected.X, expected.Y), (compiled[index].X, compiled[index].Y), "Native arm frame selects exact ordered articulated positions");
                 hitboxPointers.Add(expected.HitboxPointer);
             }
         }

@@ -10,34 +10,34 @@ internal static class KraidArmCollisionDefinitions
     internal const byte Bank = 0xa7;
 
     private static readonly KraidArmComponentPosition[] Phase0 =
-        [new(-36, -33), new(-28, -24), new(0, 0),
+        [new(-36, -33), new(-28, -24),
          new(-36, -40), new(-28, -31)];
     private static readonly KraidArmComponentPosition[] Phase1 =
-        [new(-38, -33), new(-30, -26), new(0, 0),
+        [new(-38, -33), new(-30, -26),
          new(-36, -40), new(-28, -31)];
     private static readonly KraidArmComponentPosition[] Phase2 =
-        [new(-48, -13), new(-38, -13), new(0, 0),
+        [new(-48, -13), new(-38, -13),
          new(-45, -27), new(-37, -19)];
     private static readonly KraidArmComponentPosition[] Phase3 =
-        [new(-46, -13), new(-37, -13), new(0, 0),
+        [new(-46, -13), new(-37, -13),
          new(-45, -19), new(-36, -18)];
     private static readonly KraidArmComponentPosition[] Phase4 =
-        [new(-45, 8), new(-38, 2), new(0, 0),
+        [new(-45, 8), new(-38, 2),
          new(-46, 3), new(-39, -3)];
     private static readonly KraidArmComponentPosition[] Phase5 =
-        [new(-44, 8), new(-37, 2), new(0, 0),
+        [new(-44, 8), new(-37, 2),
          new(-46, 4), new(-39, -2)];
     private static readonly KraidArmComponentPosition[] Phase6 =
-        [new(-39, 10), new(-38, 0), new(0, 0),
+        [new(-39, 10), new(-38, 0),
          new(-43, 10), new(-41, -2)];
     private static readonly KraidArmComponentPosition[] Phase7 =
-        [new(-39, 10), new(-38, 0), new(0, 0),
+        [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
     private static readonly KraidArmComponentPosition[] Phase8 =
-        [new(-39, 10), new(-38, 0), new(0, 0),
+        [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
     private static readonly KraidArmComponentPosition[] Phase9 =
-        [new(-39, 10), new(-38, 0), new(0, 0),
+        [new(-39, 10), new(-38, 0),
          new(-42, 9), new(-42, -2)];
 
     /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
@@ -161,16 +161,23 @@ internal static class KraidArmCollisionDefinitions
         return (ushort)(FirstArticulatedShape + 40 * (shape / 2) + 26 * (shape % 2));
     }
 
+    /// <summary>Constructs one physical component with its calculated hitbox selector.</summary>
+    /// <remarks>Component2 in the twenty general/rising frames and both final
+    /// single-component records are anchored at the enemy origin. All22 native
+    /// zero-coordinate pairs are independently confirmed for #1165; the remaining
+    /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidArmCollisionComponent Component(int pose, int component)
     {
         ushort hitbox = ComponentHitbox(pose, component);
-        if (pose >= 10) return new(0, 0, hitbox);
+        // The central body component and both single-component poses are anchored
+        // at the enemy origin. Only the four articulated positions are stored.
+        if (pose >= 10 || component == 2) return new(0, 0, hitbox);
         KraidArmComponentPosition[] positions = pose switch
         {
             0 => Phase0, 1 => Phase1, 2 => Phase2, 3 => Phase3, 4 => Phase4,
             5 => Phase5, 6 => Phase6, 7 => Phase7, 8 => Phase8, _ => Phase9,
         };
-        KraidArmComponentPosition position = positions[component];
+        KraidArmComponentPosition position = positions[component < 2 ? component : component - 1];
         return new(position.X, position.Y, hitbox);
     }
     internal static bool TryGetComponents(ushort pointer,

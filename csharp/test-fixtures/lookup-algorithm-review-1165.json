@@ -2284,5 +2284,33 @@
         ],
         "integrationConfirmation": "The complete existing arm definition check passes after the view migration: original component positions, all96 rectangle edge words, both callback fields, exact frame membership and pointer bounds. Build passes with existing warnings. No gameplay/collision sweep.",
         "remainingScope": "The ten pose coordinate arrays and rectangle edge array are still unfinished, with no retention decision. Final single-component positions are uniformly zero and now constructed directly. No whole-arm or repository completion claim."
+    },
+    "kraidArmStationaryPositionReview": {
+        "implementationCommit": {
+            "subject": "Remove stored Kraid arm body anchors for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Remove stored Kraid arm body anchors for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm general/rising extended-frame component2 and the final two single-component records. Every corresponding native X/Y is zero. The ordinary-combat caller adds the owning enemy position, so these components are anchored at the origin rather than following articulated placement.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-arm-component-selectors",
+        "tables": [
+            {
+                "id": "kraid-arm-stationary-component-position", "state": "converted",
+                "domain": "Component2 in ten normalized poses, shared by both native frame groups; the final two single-component positions already use the same origin rule.",
+                "disposition": "Remove ten stored zero vectors and return the enemy-origin anchor directly. Translate the four articulated component indices around the removed body slot.",
+                "rationale": "This component's position is uniformly the owner origin for all selected body shapes; no pose-dependent placement data is needed.",
+                "proofTest": "VerifyKraidArmStationaryPositions",
+                "confirmation": "Extracted existing coordinate comparison into one proof covering all22 original stationary X/Y pairs. Existing physical-layout proof still checks every articulated coordinate and the complete arm definition command confirms selectors, callbacks, rectangles and bounds."
+            }
+        ],
+        "pendingArticulatedPositionEvidence": {
+            "status": "pending; no retention decision",
+            "rejectedCandidate": "One exact integer connector-offset vector per articulated hitbox shape does not reproduce all component placements.",
+            "counterexamples": [
+                "Shape1(92EB): first pair in pose1 is(-38,-33) to(-30,-26), offset(8,7); second pair in pose2 is(-45,-27) to(-37,-19), offset(8,8).",
+                "Shape2(92F9): first pair in pose2 is(-48,-13) to(-38,-13), offset(10,0); second pair in pose3 is(-45,-19) to(-36,-18), offset(9,1)."
+            ],
+            "limits": "These examples reject only that exact integer attachment model. They do not prove arbitrary authoring, rule out quantized transforms, or justify retention. Articulated coordinate fields and rectangle edges remain unfinished."
+        }
     }
 }

@@ -33,6 +33,7 @@ if (args is ["--lookup-torizo-dormant-and-drool"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo NTSC J/U v1.0 oracle");
     VerifyBombTorizoDormantDefinitions(oracle);
     VerifyBombTorizoDroolInstructionProgramDefinitions(oracle);
+    VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
 if (args is ["--lookup-face-block-programs"])

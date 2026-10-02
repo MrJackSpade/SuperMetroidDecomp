@@ -3313,4 +3313,14 @@
     "confirmation": "Verification build and --lookup-torizo-dormant-and-drool confirm all eight production delay choices, RNG sequencing, priority handoff, exact installed presentation operands and both impact lifetimes with original control reads forbidden.",
     "scope": "Drool control words and visual operand positions only. Sprite-pointer values, projectile ownership, artwork and other Torizo families remain separately reviewable; no retention exception claimed."
   }
+,
+  "bombTorizoDroolVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A46A-A49D programs; 8D:8000 blank map and 8C54-8C6F drool maps; pinned bank_86.asm and bank_8D.asm",
+    "disposition": "Removed seven shared literal pointers. Both delay operands select the named blank map. Initial falling and falling loop select the first drool map; the three floor-impact poses select its consecutive successors. Four maps each have a two-byte count and one five-byte OAM record, giving a seven-byte stride. Compute directly without a cache.",
+    "proof": "VerifyBombTorizoDroolVisualMapping independently compares all seven native pointer words, the blank count and four single-entry map counts, shared lookup and generator exclusion, local holes/missing outputs and distant invalid inputs.",
+    "sharedCatalog": "Calculated entries merge in bank 86 after Alcoon fireball and before Fune/Namihe fireball. ResourceAudit attributes them to EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt; normalized source pin updated.",
+    "confirmation": "Verification and ResourceAudit builds; --lookup-torizo-dormant-and-drool checks all eight production delay paths, exact installed operands, falling/impact behavior and the full 5069-entry shared selector contract.",
+    "scope": "Drool sprite-pointer mapping only. Projectile ownership, export metadata, artwork and remaining Torizo families still require their own review; no retention exception claimed."
+  }
 }

@@ -204,6 +204,17 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
+    /// <summary>Drool delays use the blank map; falling uses $8D:8C54 and floor
+    /// impact advances through the next three single-entry maps (seven bytes each).</summary>
+    internal static ushort BombTorizoDroolFrameAt(ushort operandAddress)
+    {
+        if (!BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException($"Bomb Torizo drool visual operand $86:{operandAddress:X4} is not compiled.");
+        if (operandAddress < BombTorizoDroolInstructionProgramDefinitions.NoDelay) return BlankSpritemap;
+        int frame = operandAddress < BombTorizoDroolInstructionProgramDefinitions.FloorImpact ? 0 :
+            1 + (operandAddress - (BombTorizoDroolInstructionProgramDefinitions.FloorImpact + 4)) / 4;
+        return (ushort)(0x8c54 + 7 * frame);
+    }
     /// <summary>Four consecutive fireball maps at $8D:8404, each with a
     /// two-byte count and one five-byte OAM record, selected in animation order.</summary>
     internal static ushort AlcoonFireballFrameAt(ushort operandAddress)

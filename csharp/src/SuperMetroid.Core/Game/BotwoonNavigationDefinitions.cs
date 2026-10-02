@@ -3,10 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One rectangular Botwoon hole and its four-pixel inset movement target.</summary>
 internal readonly record struct BotwoonHoleDefinition(
     ushort Left,
-    ushort Right,
-    ushort Top,
-    ushort Bottom)
+    ushort Top)
 {
+    /// <summary>$B3:949D right boundaries: all four hole hitboxes are eight pixels wide.</summary>
+    internal ushort Right => unchecked((ushort)(Left + 8));
+    /// <summary>$B3:94A1 bottom boundaries: all four hole hitboxes are eight pixels tall.</summary>
+    internal ushort Bottom => unchecked((ushort)(Top + 8));
     internal ushort TargetX => unchecked((ushort)(Left + 4));
     internal ushort TargetY => unchecked((ushort)(Top + 4));
 }
@@ -35,10 +37,10 @@ internal static class BotwoonNavigationDefinitions
     /// </summary>
     private static readonly BotwoonHoleDefinition[] Holes =
     [
-        new(0x003c, 0x0044, 0x006c, 0x0074),
-        new(0x007c, 0x0084, 0x00ac, 0x00b4),
-        new(0x009c, 0x00a4, 0x005c, 0x0064),
-        new(0x00dc, 0x00e4, 0x008c, 0x0094),
+        new(0x003c, 0x006c),
+        new(0x007c, 0x00ac),
+        new(0x009c, 0x005c),
+        new(0x00dc, 0x008c),
     ];
 
     /// <summary>Returns a hole selected by its native eight-byte table offset.</summary>

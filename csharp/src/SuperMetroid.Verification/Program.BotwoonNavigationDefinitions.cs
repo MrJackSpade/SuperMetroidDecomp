@@ -4,6 +4,49 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
+    {
+        var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
+        for (int offset = 0; offset < 32; offset += 8)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb3949d + offset);
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Right, "Botwoon native right boundary");
+            var head = new RoomEnemySystem().Slots[0];
+            head.YPosition = ReadBotwoonInstructionWord(rom, 0xb3949f + offset);
+            foreach (int x in new[] {native - 1, native})
+            {
+                head.XPosition = (ushort)x;
+                var state = new BotwoonEnemyState(head);
+                detect(head, state);
+                AssertEqual(x < native, state.InsideHole, "Botwoon right boundary is exclusive");
+            }
+        }
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+            if (offset > 24 || offset % 8 != 0)
+                AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
+    }
+
+    private static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
+    {
+        var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
+        for (int offset = 0; offset < 32; offset += 8)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb394a1 + offset);
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Bottom, "Botwoon native bottom boundary");
+            var head = new RoomEnemySystem().Slots[0];
+            head.XPosition = ReadBotwoonInstructionWord(rom, 0xb3949b + offset);
+            foreach (int y in new[] {native - 1, native})
+            {
+                head.YPosition = (ushort)y;
+                var state = new BotwoonEnemyState(head);
+                detect(head, state);
+                AssertEqual(y < native, state.InsideHole, "Botwoon bottom boundary is exclusive");
+            }
+        }
+    }
+
     private static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
         VerifyBotwoonPathPointerMapping(rom);
@@ -65,6 +108,8 @@ internal static partial class Program
 
     private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyBotwoonHoleRightBounds(rom);
+        VerifyBotwoonHoleBottomBounds(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>
@@ -78,9 +123,7 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.HoleForByteOffset(byteOffset);
             holes[byteOffset >> 3] = hole;
             AssertEqual(Word(address), hole.Left, $"Botwoon hole {byteOffset:X2} left");
-            AssertEqual(Word(address + 2), hole.Right, $"Botwoon hole {byteOffset:X2} right");
             AssertEqual(Word(address + 4), hole.Top, $"Botwoon hole {byteOffset:X2} top");
-            AssertEqual(Word(address + 6), hole.Bottom, $"Botwoon hole {byteOffset:X2} bottom");
         }
 
         var runMovement = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!

@@ -3447,4 +3447,14 @@
     "confirmation": "Verification build and --lookup-botwoon-path-descriptors pass separate pointer/direction/destination proofs, all 32 production installations with native descriptor reads forbidden, the existing reverse four-byte rewind and handoff, and every invalid ushort choice offset.",
     "scope": "Descriptor fields only. The movement sample corpus and hole geometry still require independent review; relying on existing samples to find boundaries does not justify retaining the sample lookup table."
   }
+,
+  "botwoonHoleBoundsReview": {
+    "status": "converted-right-and-bottom-fields",
+    "source": "NTSC J/U v1.0 B3:949B-94BA BotwoonHoleHitboxes and native boundary comparisons B3:9FA9-9FC1; pinned bank_B3.asm",
+    "right": {"status": "converted", "algorithm": "Right=Left+8 with the existing ushort result. All four holes have width eight; remove the stored right words.", "proof": "VerifyBotwoonHoleRightBounds compares all four native right edges, confirms production inclusion one pixel before and exclusion at each edge, and rejects every unsupported ushort hole offset."},
+    "bottom": {"status": "converted", "algorithm": "Bottom=Top+8 with the existing ushort result. All four holes have height eight; remove the stored bottom words.", "proof": "VerifyBotwoonHoleBottomBounds compares all four native bottom edges and confirms production inclusion one pixel before and exclusion at each edge."},
+    "confirmation": "Verification build and --lookup-botwoon-hole-bounds pass. Source inspection found no other constructor consumers; existing detection and target consumers use the calculated record properties.",
+    "leftAndTop": {"status": "unreviewed", "remainingData": "Four left/top pairs remain stored; no retention exception is claimed.", "rejectedHypothesis": "Native hidden path integration does not consistently determine hole centers. Six forward streams sum to (64,64), (96,-16), (159,48), (32,-80), (96,-32), (64,48). Left-to-right hole-center displacement is (160,32), differing from its direct stream (159,48). Stream endpoints cannot simply replace these room positions."},
+    "scope": "Right/bottom bounds only. Left/top placement, existing target-offset operations and the movement corpus still require independent disposition."
+  }
 }

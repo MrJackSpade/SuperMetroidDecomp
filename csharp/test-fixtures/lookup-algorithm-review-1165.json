@@ -3212,4 +3212,13 @@
     "confirmation": "Verification build and --lookup-platform-programs confirm the independent mappings and existing eight real initialization/installation/animation-loop cases with original mechanics reads forbidden.",
     "scope": "Initial and later animation-program choice only. Movement speeds/dispatch, export metadata and artwork are separate review items; no retention exception claimed."
   }
+,
+  "platformExportPointerReview": {
+    "status": "converted",
+    "source": "TripperKamerVisualDefinitions.Frames; native A3:9F29-A050 consecutive OAM maps",
+    "disposition": "Removed sixteen repeated numeric export pointers by extracting the existing runtime record-layout calculations into shared Kamer, moving-Tripper and still-Tripper helpers. Frozen export entries already reuse the native branch identity constants. Runtime FrameAt computes directly and never reads the export array.",
+    "proof": "VerifyPlatformExportIdentities independently checks all eighteen published names, banks, pointer values and ordering. Each original native OAM count also proves the next record boundary, including the final A051 boundary. Existing VerifyPlatformVisualPointers checks all thirty-two original instruction operands through the same shared calculations.",
+    "confirmation": "Verification and ResourceAudit builds pass; --lookup-platform-programs passes including export identity checks, eight production loops and the shared-selector contract.",
+    "scope": "Export pointer fields only. The existing export metadata container, naming fields and broader artwork catalog remain separate review obligations; this does not claim a retention exception for them or introduce a runtime selector cache."
+  }
 }

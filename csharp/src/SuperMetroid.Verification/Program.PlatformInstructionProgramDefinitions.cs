@@ -92,6 +92,7 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Tripper/Kamer execution uses compiled spritemap selectors");
         VerifyPlatformVisualPointers(rom);
+        VerifyPlatformExportIdentities(rom);
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Tripper/Kamer mechanics byte");
 
@@ -201,6 +202,33 @@ internal static partial class Program
             }
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt(address), "platform distant invalid visual operand");
+    }
+    private static void VerifyPlatformExportIdentities(SuperMetroidAddressSpace rom)
+    {
+        // Independent published export order and names; addresses are the native map labels.
+        (ushort Pointer, string Name)[] expected =
+        [
+            (0x9f29, "tripper_moving_left_0"), (0x9f3a, "tripper_moving_left_1"),
+            (0x9f4b, "tripper_moving_left_2"), (0x9f5c, "tripper_moving_right_0"),
+            (0x9f6d, "tripper_moving_right_1"), (0x9f7e, "tripper_moving_right_2"),
+            (0x9f8f, "tripper_still_moving_left_0"), (0x9fa5, "tripper_still_moving_left_1"),
+            (0x9fb6, "tripper_still_moving_left_2"), (0x9fcc, "tripper_still_moving_right_0"),
+            (0x9fe2, "tripper_still_moving_right_1"), (0x9ff3, "tripper_still_moving_right_2"),
+            (0xa009, "tripper_frozen_moving_left"), (0xa015, "tripper_frozen_moving_right"),
+            (0xa021, "tripper_kamer_platform_0"), (0xa02d, "tripper_kamer_platform_1"),
+            (0xa039, "tripper_kamer_platform_2"), (0xa045, "tripper_kamer_platform_3"),
+        ];
+        EnemySpritemapDefinition[] actual = TripperKamerVisualDefinitions.Frames();
+        AssertEqual(expected.Length, actual.Length, "platform export frame count");
+        for (int i = 0; i < expected.Length; i++)
+        {
+            AssertEqual((byte)0xa3, actual[i].Bank, "platform export bank");
+            AssertEqual(expected[i].Pointer, actual[i].Pointer, "platform export native map pointer and order");
+            AssertEqual(expected[i].Name, actual[i].Name, "platform export stable asset identity");
+            int nativeSize = 2 + 5 * ReadPlatformInstructionWord(rom, expected[i].Pointer);
+            ushort next = i + 1 < expected.Length ? expected[i + 1].Pointer : (ushort)0xa051;
+            AssertEqual((int)next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
+        }
     }
     private static void VerifyPlatformInitialProgramSelection(SuperMetroidAddressSpace rom)
     {

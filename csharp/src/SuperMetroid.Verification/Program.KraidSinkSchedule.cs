@@ -45,6 +45,36 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(invalid), "Unknown sink callback rejected");
     }
 
+    private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
+        Dictionary<ushort, ushort> callbacks)
+    {
+        var enemies = new RoomEnemySystem();
+        var state = new KraidEnemyState();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new KraidSinkReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+        var step = typeof(RoomEnemySystem).GetMethod("ProcessKraidSinkTable", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
+        var requests = (List<KraidPlmRequest>)typeof(RoomEnemySystem).GetField("_kraidPlmRequests", flags)!.GetValue(enemies)!;
+        foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
+        {
+            foreach (var occupied in enemies.EnemyProjectiles) occupied.Clear();
+            requests.Clear();
+            state.SinkTableEventCount = 0;
+            enemies.Slots[0].YPosition = entry.Key;
+            step(enemies.Slots[0], state);
+            int code = 0xa70000 | entry.Value;
+            bool empty = rom.ReadByte(code) == 0x60;
+            AssertEqual(1, state.SinkTableEventCount, "Every callback including RTS counts once");
+            AssertEqual(empty ? 0 : 1, requests.Count, "Sinking callback mutation count");
+            AssertEqual(empty ? 0 : 1, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
+                "Sinking callback rock count");
+            if (empty) continue;
+            ushort expectedX = (ushort)(rom.ReadByte(code + 1) | rom.ReadByte(code + 2) << 8);
+            AssertEqual(expectedX, enemies.EnemyProjectiles[^1].XPosition, "Production sinking rock matches native immediate");
+        }
+    }
+
     private static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
@@ -59,9 +89,10 @@ internal static partial class Program
         VerifyKraidSinkPlmColumns(rom, callbacks.Values);
         VerifyKraidSinkPlmRows(rom, callbacks.Values);
         VerifyKraidSinkPlmHeaders(rom, callbacks.Values);
+        VerifyKraidSinkRockPlacement(rom, callbacks);
         if (definitionsOnly)
         {
-            Console.WriteLine("Kraid sinking: full Y selection domain, six native PLM records, empty RTS and rejection checks pass.");
+            Console.WriteLine("Kraid sinking: full Y selection, native PLM fields and all seven production rock/mutation callbacks pass.");
             return;
         }
         var enemies = new RoomEnemySystem();
@@ -87,7 +118,6 @@ internal static partial class Program
             AssertEqual(crumble ? 1 : 0, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
-            AssertEqual(Word(code + 1), enemies.EnemyProjectiles[^1].XPosition, "Rock X from native callback immediate");
             AssertEqual(new KraidPlmRequest(rom.ReadByte(code + 17), rom.ReadByte(code + 18), Word(code + 19)), requests[0], "Native callback inline PLM arguments");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");

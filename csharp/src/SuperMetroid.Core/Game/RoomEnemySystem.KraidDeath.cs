@@ -199,22 +199,12 @@ public sealed partial class RoomEnemySystem
             // deliberately empty RTS used by rows whose only job is the BG2 strip upload.
             // Do not merge that address with the adjacent $C6A7 crumble routine: they are
             // distinct legal indirect-JSR targets in the retail table.
-            ushort? rockX = function switch
-            {
-                KraidSinkCallbacks.NoOperation => null,
-                KraidSinkCallbacks.CrumbleLeftPlatformLeft => 0x0070,
-                KraidSinkCallbacks.CrumbleRightPlatformMiddle => 0x00f0,
-                KraidSinkCallbacks.CrumbleRightPlatformLeft => 0x00e0,
-                KraidSinkCallbacks.CrumbleLeftPlatformRight => 0x0090,
-                KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 0x0080,
-                KraidSinkCallbacks.CrumbleRightPlatformRight => 0x0100,
-                _ => throw new InvalidDataException(
-                    $"Kraid sink table Y=${body.YPosition:X4} names unknown function $A7:{function:X4}."),
-            };
-            if (rockX is ushort xPosition)
-                _ = SpawnKraidCeilingRock(xPosition);
             if (KraidPlmDefinitions.ForSinkCallback(function) is { } request)
+            {
+                // Each sinking rock starts at the left pixel edge of the removed block.
+                _ = SpawnKraidCeilingRock((ushort)(request.BlockX * 16));
                 _kraidPlmRequests.Add(request);
+            }
             return;
         }
     }

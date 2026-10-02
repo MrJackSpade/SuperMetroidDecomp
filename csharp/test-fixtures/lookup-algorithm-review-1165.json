@@ -2453,4 +2453,19 @@
         "remainingScope": "Sinking presentation tilemap offsets and callback rock-position selection retain their separate review scope.",
         "newConversions": 0
     }
+,
+    "kraidSinkRockPlacementReview": {
+        "state": "converted from duplicated numeric cases to block geometry",
+        "implementationCommit": "Resolve with git log for RoomEnemySystem.KraidDeath.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidDeath.cs",
+        "consumer": "ProcessKraidSinkTable / SpawnKraidCeilingRock",
+        "nativeIdentity": "A7:C691,C6A7,C6BD,C6D3,C6E9,C6FF LDA immediate rock origins; C6A6 empty RTS",
+        "domain": "Six named crumble callbacks plus empty RTS, selected by the independently reviewed sinking schedule. Unknown callbacks continue to fail through ForSinkCallback with InvalidDataException.",
+        "reviewedEvidence": "Pinned bank_A7.asm complete six callback bodies: each LDA rock X immediate equals its inline PLM blockX times16, with no center offset. Each native callback spawns the rock before the PLM. Current production sink dispatcher and no-op event counting reviewed.",
+        "disposition": "Remove duplicate per-callback numeric rock-coordinate switch. Resolve the named platform request, derive pixelX=BlockX*16, spawn rock, then enqueue the mutation. Empty RTS emits neither rock nor mutation while counting its scheduled event.",
+        "rationale": "Exact block-to-pixel geometry independently explains all six native immediate values; the platform identity remains expressed by named callback cases.",
+        "proof": "VerifyKraidSinkRockPlacement extracted from existing integration coverage: invoke real ProcessKraidSinkTable once for each of seven distinct callbacks, compare six emitted rock X coordinates to original instruction immediates, and verify native empty callback/event/rock/request counts with schedule ROM reads prohibited.",
+        "confirmation": "Verification build and --lookup-kraid-sink-mappings pass; focused command also reuses prior callback/PLM proofs. Broad65536 actor sweep not run.",
+        "remainingScope": "Sinking presentation mapping remains pending static reconciliation; this does not establish completion of the entire native sinking table."
+    }
 }

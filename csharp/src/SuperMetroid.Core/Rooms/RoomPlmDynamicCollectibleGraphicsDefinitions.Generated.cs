@@ -3,6 +3,15 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Pinned bank-$89 item tiles; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>
 internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
 {
+    /// <summary>
+    /// ItemPLMGFX_Bombs through ItemPLMGFX_ReserveTank, $89:8000-$90FF:
+    /// seventeen two-frame 16x16 drawings encoded as eight planar 4bpp tiles each.
+    /// Decoding shows item silhouettes, shading and beam lettering. These bytes
+    /// are pixels consumed by VRAM, not samples of a numeric or control function.
+    /// A fitted formula or per-pixel case list would only disguise the same drawing;
+    /// retain this artwork under the nonsense exception (dynamicCollectibleArtworkReview).
+    /// Kind, source address and palette selection are calculated separately.
+    /// </summary>
     private static readonly string[] Tiles =
     [
         "2C305F7F25632F673F6C6F387F387F383F017F007F117E007803780670147014340CFAFEFCFEFCFEFC3EFE1C3E1C7E5CFC80FE00FEF07E181EC81E68CEE8CEE87F387F3C7F3F3F7B1C60181F54487E5E781678137E087F027F011F007F017F00FE1CFE3CFEFCFCDE380618F82A127E7A1E681EC87E10FE40FE80F800FE80FE0028305F7F236126672B6C7E28343834383F017F007F1978107000710173137313140CFAFEFCFE7CFEDC3E7E1C2C1C6C1CFC80FE00FEF01E180E088E88CEC8CE883E383B3C7E3F3F7B1860181F54487E5E7111701078087F027F011F007F017F007C1CDC3C7EFCFCDE180618F82A127E7A8E880E081E10FE40FE80F800FE80FE00",

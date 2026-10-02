@@ -2652,4 +2652,20 @@
         "confirmation": "Verification build, --lookup-kraid-room-visual-selection and ResourceAudit build pass. Reviewed provider source pin updated after confirming exact constructor shapes and reader guards.",
         "remainingScope": "KraidRoomPlmDrawDefinitions still contains its separate draw-shape/stock-word mapping and must be converted or independently justified. Editable input words are preserved; this conversion does not certify stock word patterns or the wider repository inventory."
     }
+,
+    "kraidRoomInstructionProgramReview": {
+        "state": "converted",
+        "id": "kraid-room-plm-instruction-words",
+        "owner": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmProgramDefinitions.cs",
+        "implementationCommit": "Resolve with git log for KraidRoomPlmProgramDefinitions.cs",
+        "nativeIdentity": "84:AB6D..ABE2, excluding byte timerABAB and callback machine codeABD6..ABDC from the word mapping",
+        "domain": "55 exact word starts across three ceiling programs, two clears, byte-timer setup and a two-column spike loop. TryReadMechanicsWord accepts ushort addresses, returns false and zero elsewhere. NativeWordAddresses enumerates accepted starts in increasing order. Separate unchanged byte API accepts onlyABAB and returns11.",
+        "consumers": ["RoomPlmProgramDefinitions.TryReadWord/TryReadByte", "PLM interpreter", "static program coverage verification"],
+        "reviewedEvidence": "Full pinned bank_84.asmAB6D..ABE2 instruction lists and callback, current definitions and generic reader composition. Three ceiling programs have identical four-frame crumble/final-stage layout and terminal delete. Spike body repeats that layout for alternating column backgrounds with move-right after each; decrement-and-goto loops eleven pairs.",
+        "disposition": "Remove the55-entry dictionary and initializer arrays. Normalize three eighteen-byte ceiling programs and two eighteen-byte spike-column stages. Named control and draw cases evaluate duration/draw pairs, final delete or movement, timer setup, decrement/goto and clear operations. Enumerate valid addresses from the direct decoder without cached words.",
+        "rationale": "The mapping is executable control flow with repeated named stages and fixed instruction sizes, not arbitrary numerical data. Exact byte-timer alignment and the machine-code gap stay explicit.",
+        "proof": "VerifyKraidRoomProgramMapping independently reconstructs the native list extents, reads each original ROM word, checks exact sorted55-address enumeration and every ushort address for both word and byte readers, including zero-valued out parameters on misses. Extracts the previous numerical proof from VerifyCompiledKraidRoomPlms rather than duplicating it.",
+        "confirmation": "Verification build and --lookup-kraid-room-programs pass against SHA-verified NTSC J/U v1.0. No actor playthrough or exploratory test matrix run.",
+        "remainingScope": "KraidRoomPlmDrawDefinitions block patterns and draw selection remain pending. Its consumers use the common memory-backed DrawList/Run interface; implementing computed words requires adapting those consumers, not generating a replacement cache. This is outstanding implementation work, not a retention justification."
+    }
 }

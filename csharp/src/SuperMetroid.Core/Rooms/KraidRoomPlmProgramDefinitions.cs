@@ -40,10 +40,66 @@ internal static class KraidRoomPlmProgramDefinitions
     /// <summary>Native duration of each Kraid crumble appearance.</summary>
     internal const ushort CrumbleFrameDuration = 3;
 
-    private static readonly Dictionary<ushort, ushort> Words = Build();
+    /// <summary>Evaluates the three ceiling crumble programs, two clear programs and
+    /// two-column spike loop. Only exact instruction-word starts are accepted.</summary>
+    /// <remarks>Each crumble stage is four duration/draw pairs followed by a command.
+    /// The ceiling groups are eighteen bytes apart; the spike loop uses the same
+    /// layout twice, moves right after each column, then decrements its byte timer.
+    /// The byte timer changes alignment at ABAC; ABD6..ABDC is excluded machine code.</remarks>
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    {
+        int ceilingOffset = address - CrumbleCeilingBackground1;
+        if ((uint)ceilingOffset < ClearCeiling - CrumbleCeilingBackground1 &&
+            (ceilingOffset & 1) == 0)
+        {
+            ushort finalDraw = (ceilingOffset / 18) switch
+            {
+                0 => KraidRoomPlmDrawDefinitions.CeilingBackground1,
+                1 => KraidRoomPlmDrawDefinitions.CeilingBackground2,
+                _ => KraidRoomPlmDrawDefinitions.CeilingBackground3,
+            };
+            value = CrumbleWord((ceilingOffset % 18) / 2, finalDraw, RoomPlmInstructionCodes.Delete);
+            return true;
+        }
+        int spikeOffset = address - SpikeLoopBody;
+        if ((uint)spikeOffset < MoveRightCallback - SpikeLoopBody && (spikeOffset & 1) == 0)
+        {
+            int word = spikeOffset / 2;
+            value = word < 18
+                ? CrumbleWord(word % 9, word < 9
+                    ? KraidRoomPlmDrawDefinitions.SpikeFirst : KraidRoomPlmDrawDefinitions.SpikeSecond,
+                    MoveRightCallback)
+                : word switch
+                {
+                    18 => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+                    19 => SpikeLoopBody,
+                    _ => RoomPlmInstructionCodes.Delete,
+                };
+            return true;
+        }
+        int selected = address switch
+        {
+            ClearCeiling or ClearSpikes => 1,
+            ClearCeiling + 2 => KraidRoomPlmDrawDefinitions.ClearCeiling,
+            ClearSpikes + 2 => KraidRoomPlmDrawDefinitions.ClearSpikes,
+            ClearCeiling + 4 or ClearSpikes + 4 => RoomPlmInstructionCodes.Delete,
+            CrumbleSpikes => RoomPlmInstructionCodes.SetEightBitTimer,
+            _ => -1,
+        };
+        value = selected < 0 ? (ushort)0 : (ushort)selected;
+        return selected >= 0;
+    }
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Words.TryGetValue(address, out value);
+    private static ushort CrumbleWord(int word, ushort finalDraw, ushort afterDraw) => word switch
+    {
+        0 or 2 or 4 or 6 => CrumbleFrameDuration,
+        1 => KraidRoomPlmDrawDefinitions.CrumbleFirst,
+        3 => KraidRoomPlmDrawDefinitions.CrumbleSecond,
+        5 => KraidRoomPlmDrawDefinitions.CrumbleThird,
+        7 => finalDraw,
+        8 => afterDraw,
+        _ => throw new ArgumentOutOfRangeException(nameof(word)),
+    };
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
@@ -56,64 +112,10 @@ internal static class KraidRoomPlmProgramDefinitions
         return false;
     }
 
-    internal static IEnumerable<ushort> NativeWordAddresses() => Words.Keys.Order();
-
-    private static Dictionary<ushort, ushort> Build()
+    internal static IEnumerable<ushort> NativeWordAddresses()
     {
-        var words = new Dictionary<ushort, ushort>();
-        Add(CrumbleCeilingBackground1,
-            [3, KraidRoomPlmDrawDefinitions.CrumbleFirst,
-             3, KraidRoomPlmDrawDefinitions.CrumbleSecond,
-             3, KraidRoomPlmDrawDefinitions.CrumbleThird]);
-        Add(CeilingBackground1,
-            [3, KraidRoomPlmDrawDefinitions.CeilingBackground1,
-             RoomPlmInstructionCodes.Delete]);
-        Add(CrumbleCeilingBackground2,
-            [3, KraidRoomPlmDrawDefinitions.CrumbleFirst,
-             3, KraidRoomPlmDrawDefinitions.CrumbleSecond,
-             3, KraidRoomPlmDrawDefinitions.CrumbleThird]);
-        Add(CeilingBackground2,
-            [3, KraidRoomPlmDrawDefinitions.CeilingBackground2,
-             RoomPlmInstructionCodes.Delete]);
-        Add(CrumbleCeilingBackground3,
-            [3, KraidRoomPlmDrawDefinitions.CrumbleFirst,
-             3, KraidRoomPlmDrawDefinitions.CrumbleSecond,
-             3, KraidRoomPlmDrawDefinitions.CrumbleThird]);
-        Add(CeilingBackground3,
-            [3, KraidRoomPlmDrawDefinitions.CeilingBackground3,
-             RoomPlmInstructionCodes.Delete]);
-        Add(ClearCeiling,
-            [1, KraidRoomPlmDrawDefinitions.ClearCeiling,
-             RoomPlmInstructionCodes.Delete]);
-        Add(CrumbleSpikes,
-            [RoomPlmInstructionCodes.SetEightBitTimer]);
-        Add(SpikeLoopBody,
-            [3, KraidRoomPlmDrawDefinitions.CrumbleFirst,
-             3, KraidRoomPlmDrawDefinitions.CrumbleSecond,
-             3, KraidRoomPlmDrawDefinitions.CrumbleThird,
-             3, KraidRoomPlmDrawDefinitions.SpikeFirst,
-             MoveRightCallback,
-             3, KraidRoomPlmDrawDefinitions.CrumbleFirst,
-             3, KraidRoomPlmDrawDefinitions.CrumbleSecond,
-             3, KraidRoomPlmDrawDefinitions.CrumbleThird,
-             3, KraidRoomPlmDrawDefinitions.SpikeSecond,
-             MoveRightCallback,
-             RoomPlmInstructionCodes.DecrementTimerAndGoto, SpikeLoopBody,
-             RoomPlmInstructionCodes.Delete]);
-        Add(ClearSpikes,
-            [1, KraidRoomPlmDrawDefinitions.ClearSpikes,
-             RoomPlmInstructionCodes.Delete]);
-        return words;
-
-        void Add(ushort start, ushort[] values)
-        {
-            for (int index = 0; index < values.Length; index++)
-            {
-                ushort address = checked((ushort)(start + index * 2));
-                if (!words.TryAdd(address, values[index]))
-                    throw new InvalidDataException(
-                        $"Duplicate compiled Kraid instruction ${address:X4}.");
-            }
-        }
+        for (int address = CrumbleCeilingBackground1; address < EndExclusive; address++)
+            if (TryReadMechanicsWord((ushort)address, out _))
+                yield return (ushort)address;
     }
 }

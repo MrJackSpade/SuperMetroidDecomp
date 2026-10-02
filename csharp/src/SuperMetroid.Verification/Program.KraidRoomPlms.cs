@@ -7,35 +7,7 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = KraidRoomPlmProgramDefinitions
-            .NativeWordAddresses().ToArray();
-        AssertEqual(55, addresses.Length,
-            "Kraid ceiling/spikes own fifty-five instruction words");
-        AssertEqual(addresses.Length, addresses.Distinct().Count(),
-            "Kraid room instruction words do not overlap");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"Kraid room word $84:{address:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8),
-                compiled,
-                $"Kraid room word $84:{address:X4} matches ROM");
-        }
-        ushort loopCountAddress = checked((ushort)(
-            KraidRoomPlmProgramDefinitions.CrumbleSpikes + 2));
-        AssertTrue(KraidRoomPlmProgramDefinitions.TryReadMechanicsByte(
-                loopCountAddress, out byte loopCount),
-            "Kraid spike-loop count is compiled");
-        AssertEqual(rom.ReadByte(0x840000 | loopCountAddress), loopCount,
-            "Kraid spike-loop count matches ROM");
-        AssertTrue(!KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                KraidRoomPlmProgramDefinitions.MoveRightCallback, out _),
-            "Kraid move-right callback is not instruction data");
-        AssertTrue(!KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                KraidRoomPlmProgramDefinitions.EndExclusive, out _),
-            "following Mother Brain program is not claimed by Kraid");
+        VerifyKraidRoomProgramMapping(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             KraidRoomPlmDrawDefinitions.All.ToArray();

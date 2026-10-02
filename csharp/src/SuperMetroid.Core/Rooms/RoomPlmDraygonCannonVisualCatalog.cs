@@ -53,15 +53,15 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !DraygonCannonPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+            !DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Draygon cannon visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= (uint)draw.RunCount ||
+            (uint)blockIndex >= (uint)draw.WordCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
+            flatIndex += draw.WordCount(run);
         return words[flatIndex];
     }
 }

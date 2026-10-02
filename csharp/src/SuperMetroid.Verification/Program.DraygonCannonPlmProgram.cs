@@ -16,6 +16,9 @@ internal static partial class Program
         VerifyCannonTargets(rom);
         VerifyCannonCallback(rom);
         VerifyCannonHitCount(rom);
+        VerifyCannonLayoutGeometry(rom);
+        VerifyCannonLayoutCollision(rom);
+        VerifyCannonLayoutVisuals(rom);
         VerifyDraygonCannonVisualInstallation(rom);
 
         var source = new TestAddressSpace();

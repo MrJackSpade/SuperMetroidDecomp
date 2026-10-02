@@ -2169,13 +2169,22 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (DraygonCannonPlmDrawDefinitions.TryGet(drawPointer, out var draygonCannon))
+        if (DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draygonCannon))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, draygonCannon, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                draygonCannonVisuals: draygonCannonVisuals);
+            int cannonX = originX, cannonY = originY;
+            for (int run = 0; run < draygonCannon.RunCount; run++)
+            {
+                for (int cell = 0; cell < draygonCannon.WordCount(run); cell++)
+                {
+                    ushort physical = draygonCannon.WordAt(run, cell);
+                    ushort visual = draygonCannonVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, cannonX + cell, cannonY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                cannonX = originX + draygonCannon.NextX(run);
+                cannonY = originY + draygonCannon.NextY(run);
+            }
             return;
         }
         if (ChozoStatuePlmDrawDefinitions.TryGet(drawPointer, out var chozoStatue))

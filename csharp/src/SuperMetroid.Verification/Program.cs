@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-alcoon-fireball-programs"])
+{
+    VerifyAlcoonFireballInstructionProgramDefinitions();
+    VerifyCompiledEnemyVisualSelectors();
+    return 0;
+}
 if (args is ["--lookup-fune-namihe-programs"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

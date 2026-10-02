@@ -36,6 +36,11 @@ internal static class AlcoonFireballInstructionProgramDefinitions
         return (ushort)(Initial + 2 + 4 * index);
     }
 
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Initial + 2);
+        return (uint)offset < 16 && offset % 4 == 0;
+    }
     /// <summary>Four duration/visual pairs, then goto and its loop-start operand.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {

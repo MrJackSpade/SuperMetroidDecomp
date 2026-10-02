@@ -3033,4 +3033,14 @@
     "audit": "ResourceAudit resolves these selectors to EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt; normalized source pin updated.",
     "scope": "Fireball visual pointer selection only. Remaining projectile artwork/schema catalogs require separate review; no retention exception claimed."
   }
+,
+  "alcoonFireballVisualSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank 86 9EA0/9EA4/9EA8/9EAC and bank 8D 8404-841F; pinned bank_86.asm and bank_8D.asm",
+    "disposition": "Removed four shared literal selectors. Animation advances through four consecutive seven-byte maps, each comprising a two-byte count and one five-byte OAM entry. Calculate pointer from frame ordinal and record size.",
+    "proof": "VerifyAlcoonFireballVisualSelectors independently compares all four native pointer operands and map counts, full ushort membership, shared dispatch and generator exclusion, interval holes and distant invalid inputs.",
+    "integration": "--lookup-alcoon-fireball-programs confirms six real launches across all three fire commands and both facings, four-frame order/timing/restart and shared deletion with original program bytes forbidden; complete shared catalog contract checks all 5069 selectors after the merge change.",
+    "audit": "ResourceAudit source attribution names AlcoonFireballFrameAt; normalized sprite-catalog source pin updated. Verification and ResourceAudit build.",
+    "scope": "Fireball visual pointer selection only; no retention exception claimed for other artwork/schema mappings."
+  }
 }

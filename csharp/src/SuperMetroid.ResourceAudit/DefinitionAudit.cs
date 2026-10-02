@@ -73,7 +73,7 @@ internal static class DefinitionAudit
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
         bool boulder = calculated && bank == 0xa6 && BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool kraidFamily = calculated && !boulder && bank is 0xa6 or 0xa7;
-        string calculatedMethod = bank == 0x86 ? "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
+        string calculatedMethod = bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : bank == 0xa2 ? "BoyonFrameAt"
             : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"

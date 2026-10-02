@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -13,6 +14,39 @@ internal static partial class Program
         VerifyAlcoonFireballInstructionProgramDefinitions(rom);
     }
 
+    private static void VerifyAlcoonFireballVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
+        foreach (ushort operand in operands)
+        {
+            ushort native = ReadAlcoonFireballInstructionWord(rom, operand);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operand),
+                "Alcoon fireball native visual pointer");
+            AssertEqual((byte)1, rom.ReadByte(0x8d0000 | native), "fireball native single-sprite map count");
+            AssertEqual((byte)0, rom.ReadByte(0x8d0000 | (native + 1)), "fireball map count high byte");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared),
+                "shared fireball selector exists");
+            AssertEqual(native, shared, "shared fireball selector matches native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0x860000 | operand),
+                "fireball selector excluded from literal regeneration");
+        }
+        var expected = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(expected.Contains((ushort)address), AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Alcoon fireball full visual operand domain");
+        for (int address = 0x9e9c; address <= 0x9eb4; address++)
+            if (!expected.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt((ushort)address),
+                    "fireball visual resolver rejects program controls and adjacent data");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86, (ushort)address, out ushort missing),
+                    "shared fireball catalog rejects holes");
+                AssertEqual((ushort)0, missing, "missing fireball selector clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(address),
+                "fireball resolver rejects distant invalid inputs");
+    }
     private static void VerifyAlcoonFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa, 0x9eae, 0x9eb0];
@@ -74,6 +108,7 @@ internal static partial class Program
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         VerifyAlcoonFireballMechanicsMapping(rom);
         VerifyAlcoonFireballPresentationAddresses();
+        VerifyAlcoonFireballVisualSelectors(rom);
 
         var guard = new AlcoonFireballInstructionReadGuard(rom);
         var observedVisualOperands = new HashSet<ushort>();

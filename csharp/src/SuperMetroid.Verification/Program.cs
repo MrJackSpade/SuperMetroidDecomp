@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--evir-death-frame"])
+{
+    VerifyEvirDeathFrame();
+    return 0;
+}
 if (args is ["--recharge-station-admission"])
 {
     VerifyRechargeStationAdmission();

@@ -245,30 +245,12 @@ internal static partial class Program
 
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = GreyDoorPlmProgramDefinitions.FirstAddress;
-             address <= GreyDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"grey-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"grey-door program byte $84:{address:X4} matches ROM");
-            if (address == GreyDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"grey-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"grey-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbe58, out _),
-            "ordinary grey-door program does not claim preceding condition table");
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffd, out _),
-            "ordinary grey-door program does not claim following yellow door");
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(0xbffc, out _),
-            "ordinary grey-door program refuses a cross-family word");
+        VerifyGreyProgramControls(rom);
+        VerifyGreyProgramDraws(rom);
+        VerifyGreyProgramTargets(rom);
+        VerifyGreyProgramSounds(rom);
+        VerifyGreyProgramHitCount(rom);
+        VerifyGreyProgramCallback(rom);
     }
 
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(

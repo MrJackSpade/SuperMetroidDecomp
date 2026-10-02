@@ -1770,7 +1770,50 @@
                 "confirmation": "Original 588-entry ordered fingerprint, every indexed entry, legacy prefixes and suffixes, nested slices, invalid bounds. Verification and ResourceAudit compile. No ROM or gameplay required for this storage/sequence conversion."
             }
         ],
-        "remainingScope": "The stored DraygonOamPointers, SporeSpawnOamPointers, RidleyBodyPointers, WalkingNames and WallNames mappings in this owner and the other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
+        "remainingScope": "The three boss OAM pointer mappings are now separately converted in bossOamRootGeometryReview. WalkingNames, WallNames and other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
         "relatedAuditScope": "EnemyDisplayArtworkClosedContractDefinitions and NativeDisplaySelectorClosedContractDefinitions pin changed extended-catalog sources. Their fail-closed fingerprints require separate revalidation including the new EnemyExtendedFrameSequence dependency."
+    },
+    "bossOamRootGeometryReview": {
+        "implementationCommit": {
+            "subject": "Calculate boss OAM roots from native record geometry for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate boss OAM roots from native record geometry for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Assets/BossOamFrameDefinitions.cs",
+        "formerOwner": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A5.asm selected Draygon/Spore Spawn extended records and bank_A6.asm Ridley records; original published pointer lists, combined catalog enumeration and loader consumers. Native two-byte count plus eight-byte component structure independently explains each stride. Original pointers captured before removal; SHA-verified NTSC J/U v1.0 count words confirm the geometry.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-boss-oam-roots",
+        "tables": [
+            {
+                "id": "ridley-oam-frame-roots",
+                "state": "converted",
+                "nativeIdentity": "A6:E983-EAD7 eleven selected extended-frame roots",
+                "domain": "Indices 0..10; IndexOutOfRangeException outside.",
+                "disposition": "Remove RidleyBodyPointers. Calculate E983 + 34*index and preserve ridley_body_XXXX catalog keys.",
+                "rationale": "Ten four-component records are each 2+8*4 bytes; the final forward pose starts at the next boundary and has one component. No extrapolation beyond that final root.",
+                "proofTest": "VerifyRidleyOamRootGeometry",
+                "confirmation": "Eleven original pointers and all native component counts, index bounds; original complete combined catalog fingerprint confirms consumer names and ordering."
+            },
+            {
+                "id": "draygon-oam-frame-roots",
+                "state": "converted",
+                "nativeIdentity": "A5:A2DF-A59D and A607-A90B selected ordinary OAM roots",
+                "domain": "Indices 0..47, two facing groups of 24; IndexOutOfRangeException outside.",
+                "disposition": "Remove DraygonOamPointers. Calculate bounded one-component and two-component runs plus the sum of increasing three-to-eight-component record sizes; preserve draygon_oam_XXXX keys.",
+                "rationale": "Each facing has six and four one-component roots, seven two-component roots, six records growing from three through eight components, and a final eight-component pose. Summing 2+8*(3+k) for the growing prefix gives 26*t+4*t*(t-1). Explicit run starts exclude BG2 and unselected records.",
+                "proofTest": "VerifyDraygonOamRootGeometry",
+                "confirmation": "All 48 original pointers and native component counts including both final eight-component records, index bounds; original combined catalog fingerprint confirms names and ordering."
+            },
+            {
+                "id": "spore-spawn-oam-frame-roots",
+                "state": "converted",
+                "nativeIdentity": "A5:EE65-EEE5 and EF3D-EF61 selected roots",
+                "domain": "Indices 0..11; IndexOutOfRangeException outside.",
+                "disposition": "Remove SporeSpawnOamPointers. Calculate two ten-byte roots, seven eighteen-byte opening/closing roots and three eighteen-byte fully-open roots.",
+                "rationale": "Native component counts explain the strides. Seven unused records between selected runs remain excluded. Published spore_spawn_oam_XXXX keys and legacy version-6 key migration remain intact.",
+                "proofTest": "VerifySporeSpawnOamRootGeometry",
+                "confirmation": "All twelve original pointers and native component counts, index bounds; original combined catalog fingerprint confirms names and ordering."
+            }
+        ],
+        "remainingScope": "Walking/Wall Pirate name mappings and other family catalogs remain unreviewed. Extended-display audit source contracts remain pending revalidation as recorded in extendedFrameSequenceReview; include this new generator among their dependencies."
     }
 }

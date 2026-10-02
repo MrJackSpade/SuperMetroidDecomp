@@ -118,39 +118,6 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    // Every bank-$A5 Draygon extended frame selected by a compiled instruction
-    // that contains ordinary OAM components. The other 34 selected frames carry
-    // BG2 tilemap commands and require a separate presentation catalog.
-    private static readonly ushort[] DraygonOamPointers =
-    [
-        0xa2df, 0xa2e9, 0xa2f3, 0xa2fd, 0xa307, 0xa311,
-        0xa3c5, 0xa3cf, 0xa3d9, 0xa3e3,
-        0xa40b, 0xa41d, 0xa42f, 0xa441, 0xa453, 0xa465, 0xa477, 0xa489,
-        0xa4a3, 0xa4c5, 0xa4ef, 0xa521, 0xa55b, 0xa59d,
-        0xa607, 0xa611, 0xa61b, 0xa625, 0xa62f, 0xa639,
-        0xa6ed, 0xa6f7, 0xa701, 0xa70b,
-        0xa779, 0xa78b, 0xa79d, 0xa7af, 0xa7c1, 0xa7d3, 0xa7e5, 0xa7f7,
-        0xa811, 0xa833, 0xa85d, 0xa88f, 0xa8c9, 0xa90b,
-    ];
-
-    // These twelve bank-$A5 roots are selected by Spore Spawn's instruction
-    // programs, not Draygon. Version 6 accidentally published Draygon-prefixed
-    // author keys for them; the loader migrates those keys by physical pointer.
-    private static readonly ushort[] SporeSpawnOamPointers =
-    [
-        0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
-        0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
-    ];
-
-    // Distinct extended body frames selected by Ridley's bank-$A6 instruction
-    // programs at $A6:E53E-$E824. These physical identities cover the Ceres
-    // and Lower Norfair body poses; collision pointers stay in engine data.
-    private static readonly ushort[] RidleyBodyPointers =
-    [
-        0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
-        0xea4f, 0xea71, 0xea93, 0xeab5, 0xead7,
-    ];
-
     private static readonly string[] WalkingNames =
     [
         "walking_pirate_flinch_left", "walking_pirate_flinch_right",
@@ -280,22 +247,26 @@ internal static class EnemyExtendedFrameDefinitions
         if (ninjaCount != NinjaFrameCount || count != PirateFrameCount)
             throw new InvalidDataException(
                 $"Ninja Pirate has {ninjaCount} distinct frames; expected {NinjaFrameCount}.");
-        if (RidleyBodyPointers.Length != RidleyFrameCount)
-            throw new InvalidDataException("Ridley extended-body frame count changed.");
-        foreach (ushort pointer in RidleyBodyPointers)
+        for (int index = 0; index < RidleyFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.RidleyPointer(index);
             yield return Emit(new EnemyExtendedFrameDefinition(0xa6, pointer,
                 $"ridley_body_{pointer:X4}"));
-        if (count != PreDraygonFrameCount ||
-            DraygonOamPointers.Length != DraygonOamFrameCount ||
-            SporeSpawnOamPointers.Length != SporeSpawnOamFrameCount)
-            throw new InvalidDataException(
-                "Draygon/Spore Spawn OAM frame catalog prefix changed.");
-        foreach (ushort pointer in DraygonOamPointers)
+        }
+        if (count != PreDraygonFrameCount)
+            throw new InvalidDataException("Draygon/Spore Spawn OAM frame catalog prefix changed.");
+        for (int index = 0; index < DraygonOamFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.DraygonPointer(index);
             yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"draygon_oam_{pointer:X4}"));
-        foreach (ushort pointer in SporeSpawnOamPointers)
+        }
+        for (int index = 0; index < SporeSpawnOamFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.SporeSpawnPointer(index);
             yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"spore_spawn_oam_{pointer:X4}"));
+        }
         if (count != PreCeresSteamFrameCount ||
             CeresSteamCollisionDefinitions.FramePointers.Length != CeresSteamFrameCount)
             throw new InvalidDataException("Ceres steam extended-frame prefix changed.");

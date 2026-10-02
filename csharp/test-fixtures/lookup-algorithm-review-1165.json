@@ -1963,5 +1963,56 @@
             }
         ],
         "remainingScope": "Arm collision and native visual-selector mappings retain their separate review scope. No gameplay sweep or benchmark campaign was run."
+    },
+    "kraidSmallProgramReview": {
+        "implementationCommit": {
+            "subject": "Replace Kraid lint and nail instruction tables with bounded rules for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Replace Kraid lint and nail instruction tables with bounded rules for #1165\""
+        },
+        "reviewedEvidence": "Pinned bank_A7.asm complete lint programs 8AFE-8B09 and fingernail loop 8B0A-8B2D; original address arrays and all instruction/selector callers. Expected addresses preserved independently from the original lists; mechanics values read from SHA-verified NTSC J/U v1.0. Existing numerical verification reuses the focused helpers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-small-programs",
+        "tables": [
+            {
+                "id": "kraid-lint-instruction-mechanics-map",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidLintInstructionProgramDefinitions.cs",
+                "state": "converted",
+                "domain": "Four mechanics ordinals and exact native word starts; byte ownership includes their high bytes.",
+                "disposition": "Remove Words. Calculate two six-byte pose records and select duration 7FFF or Sleep by word role.",
+                "rationale": "Each pose consists of one duration/frame pair followed by Sleep; mechanics offsets are zero and four within the record.",
+                "proofTest": "VerifyKraidLintMechanicsMapping",
+                "confirmation": "All four original addresses and native values, indexed reads, full bank ownership domain, odd/adjacent/wrong-bank and index rejection."
+            },
+            {
+                "id": "kraid-lint-presentation-position-map",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidLintInstructionProgramDefinitions.cs",
+                "state": "converted",
+                "domain": "Two offsets, indices 0..1; IndexOutOfRangeException outside.",
+                "disposition": "Remove PresentationWords. Calculate Initial + 6*index + 2.",
+                "rationale": "The visual operand occupies the middle word of each six-byte pose record.",
+                "proofTest": "VerifyKraidLintPresentationMapping",
+                "confirmation": "Both original positions, mechanics-read exclusion and invalid index bounds."
+            },
+            {
+                "id": "kraid-nail-instruction-mechanics-map",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidNailInstructionProgramDefinitions.cs",
+                "state": "converted",
+                "domain": "Ten mechanics ordinals and exact native word starts; byte ownership includes high bytes.",
+                "disposition": "Remove Words. Calculate eight four-byte duration/frame records followed by two-word Goto control.",
+                "rationale": "All eight frames last three ticks; the final two words are the named Goto instruction and Loop target. This expresses actual instruction semantics.",
+                "proofTest": "VerifyKraidNailMechanicsMapping",
+                "confirmation": "All ten original addresses and native values, indexed reads, full bank ownership domain, odd/adjacent/wrong-bank and index rejection."
+            },
+            {
+                "id": "kraid-nail-presentation-position-map",
+                "owner": "csharp/src/SuperMetroid.Core/Game/KraidNailInstructionProgramDefinitions.cs",
+                "state": "converted",
+                "domain": "Eight offsets, indices 0..7; IndexOutOfRangeException outside.",
+                "disposition": "Remove PresentationWords. Calculate Loop + 4*index + 2.",
+                "rationale": "Each visual operand follows its duration in a four-byte frame record; terminal Goto words are excluded.",
+                "proofTest": "VerifyKraidNailPresentationMapping",
+                "confirmation": "All eight original positions, mechanics-read exclusion and invalid index bounds."
+            }
+        ],
+        "remainingScope": "Kraid artwork selections and other source mappings remain under separate review; this does not certify whole-family completion."
     }
 }

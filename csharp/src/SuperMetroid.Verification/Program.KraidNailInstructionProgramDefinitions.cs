@@ -38,16 +38,8 @@ internal static partial class Program
                     (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
                 $"retail Kraid nail slot {slotIndex} uses ordinary OAM composition");
         }
-        for (int index = 0;
-             index < KraidNailInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidNailInstructionMechanicsWord definition =
-                KraidNailInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadKraidNailInstructionWord(rom, definition.Address),
-                $"Kraid fingernail mechanics word $A7:{definition.Address:X4}");
-        }
+        VerifyKraidNailMechanicsMapping(rom);
+        VerifyKraidNailPresentationMapping();
 
         var guard = new KraidNailInstructionReadGuard(rom);
         foreach (ushort definitionPointer in new ushort[]

@@ -15,17 +15,8 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        for (int index = 0;
-             index < KraidLintInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidLintInstructionMechanicsWord definition =
-                KraidLintInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadKraidLintInstructionWord(rom, 0xa70000 | definition.Address),
-                $"Kraid lint instruction mechanics word $A7:{definition.Address:X4}");
-        }
+        VerifyKraidLintMechanicsMapping(rom);
+        VerifyKraidLintPresentationMapping();
 
         var guard = new KraidLintInstructionReadGuard(rom);
         ushort[] definitions =

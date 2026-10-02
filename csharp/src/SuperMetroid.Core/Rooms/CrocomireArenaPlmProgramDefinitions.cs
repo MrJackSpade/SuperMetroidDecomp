@@ -19,35 +19,37 @@ internal static class CrocomireArenaPlmProgramDefinitions
     /// <summary><c>$84:AFE8</c>: first byte of the following save-station program.</summary>
     internal const ushort EndExclusive = 0xafe8;
 
-    private static readonly Dictionary<ushort, ushort> Words = Build();
-
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Words.TryGetValue(address, out value);
-
-    internal static IEnumerable<ushort> NativeWordAddresses() => Words.Keys.Order();
-
-    private static Dictionary<ushort, ushort> Build()
+    /// <summary>
+    /// Each six-byte list owns aligned duration, draw and delete words only.
+    /// The five named draw operations are semantic selections, not stored operands.
+    /// Odd words and the following save-station program remain unowned.
+    /// </summary>
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        var words = new Dictionary<ushort, ushort>();
-        Add(ClearBridge, CrocomireArenaPlmDrawDefinitions.ClearBridge);
-        Add(CrumbleBridgeBlock,
-            CrocomireArenaPlmDrawDefinitions.CrumbleBridgeBlock);
-        Add(ClearBridgeBlock,
-            CrocomireArenaPlmDrawDefinitions.ClearBridgeBlock);
-        Add(ClearInvisibleWall,
-            CrocomireArenaPlmDrawDefinitions.ClearInvisibleWall);
-        Add(CreateInvisibleWall,
-            CrocomireArenaPlmDrawDefinitions.CreateInvisibleWall);
-        return words;
-
-        void Add(ushort start, ushort drawPointer)
+        value = 0;
+        int relative = address - ClearBridge;
+        if (relative < 0 || address >= EndExclusive || (relative & 1) != 0)
+            return false;
+        value = (relative % 6) switch
         {
-            if (!words.TryAdd(start, 1) ||
-                !words.TryAdd(checked((ushort)(start + 2)), drawPointer) ||
-                !words.TryAdd(checked((ushort)(start + 4)),
-                    RoomPlmInstructionCodes.Delete))
-                throw new InvalidDataException(
-                    $"Crocomire PLM program at ${start:X4} overlaps another list.");
-        }
+            0 => 1,
+            4 => RoomPlmInstructionCodes.Delete,
+            _ => (address - 2) switch
+            {
+                ClearBridge => CrocomireArenaPlmDrawDefinitions.ClearBridge,
+                CrumbleBridgeBlock => CrocomireArenaPlmDrawDefinitions.CrumbleBridgeBlock,
+                ClearBridgeBlock => CrocomireArenaPlmDrawDefinitions.ClearBridgeBlock,
+                ClearInvisibleWall => CrocomireArenaPlmDrawDefinitions.ClearInvisibleWall,
+                CreateInvisibleWall => CrocomireArenaPlmDrawDefinitions.CreateInvisibleWall,
+                _ => throw new InvalidOperationException("Invalid bounded Crocomire program."),
+            },
+        };
+        return true;
+    }
+
+    internal static IEnumerable<ushort> NativeWordAddresses()
+    {
+        for (int address = ClearBridge; address < EndExclusive; address += 2)
+            yield return (ushort)address;
     }
 }

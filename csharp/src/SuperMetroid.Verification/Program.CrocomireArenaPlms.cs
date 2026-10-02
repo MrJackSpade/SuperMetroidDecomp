@@ -9,18 +9,8 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire native oracle revision");
-        ushort[] addresses = CrocomireArenaPlmProgramDefinitions.NativeWordAddresses().ToArray();
-        AssertEqual(15, addresses.Length, "Crocomire owns fifteen instruction words");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort compiled), $"Crocomire instruction ${address:X4} is compiled");
-            AssertEqual(ReadRomWord(rom, address), compiled,
-                $"Crocomire instruction ${address:X4} matches pinned ROM");
-        }
-        AssertTrue(!CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(
-                CrocomireArenaPlmProgramDefinitions.EndExclusive, out _),
-            "following save-station instruction is not claimed");
+        VerifyCrocomireProgramControls(rom);
+        VerifyCrocomireProgramDraws(rom);
 
         VerifyCrocomirePhysicalDrawMapping(rom);
 
@@ -36,9 +26,6 @@ internal static partial class Program
             (x, y) => x < 3 && y < 8 ? WallWord(x, y, true) : (ushort)0x8123);
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
-        static ushort ReadRomWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(0x840000 | address) |
-                bus.ReadByte(0x840000 | (address + 1)) << 8);
     }
 
     private static ushort WallWord(int x, int y, bool solid)

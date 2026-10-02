@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Game;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Kraid's independently animated extended foot compositions, not his BG2 body.</summary>
@@ -10,22 +8,39 @@ internal static class KraidFootVisualDefinitions
     /// <summary>Thirty-five selected roots: initial $A565 and walking/lunging/backwards $8CE3..8F47.</summary>
     internal const int FrameCount = 35;
 
-    private static readonly EnemyExtendedFrameDefinition[] Definitions = Build();
-    internal static ReadOnlySpan<EnemyExtendedFrameDefinition> Frames => Definitions;
+    /// <summary>$A7:8CE3, ExtendedSpritemap_KraidFoot_0; each root has two components.</summary>
+    private const ushort MovingStart = 0x8ce3;
+    /// <summary>$A7:A565, ExtendedSpritemap_KraidFoot_Initial, sorted after moving roots.</summary>
+    private const ushort InitialFrame = 0xa565;
+    internal static KraidFootFrameSequence Frames => new(FrameCount);
 
-    private static EnemyExtendedFrameDefinition[] Build()
+    /// <summary>Selected moving roots use eighteen-byte records (two count bytes
+    /// plus two eight-byte components). Native ordinal $21 is never selected by
+    /// the compiled programs; skip it and append the separate initial root.</summary>
+    internal static EnemyExtendedFrameDefinition Frame(int index)
     {
-        var pointers = new SortedSet<ushort>();
-        for (int index = 0; index < KraidFootInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            ushort operand = KraidFootInstructionProgramDefinitions.PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException($"Kraid foot visual operand $A7:{operand:X4} is not compiled.");
-            pointers.Add(pointer);
-        }
-        if (pointers.Count != FrameCount)
-            throw new InvalidDataException("Kraid foot visual inventory changed.");
-        return pointers.Select(pointer => new EnemyExtendedFrameDefinition(Bank, pointer,
-            $"kraid_foot_oam_{pointer:X4}")).ToArray();
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        ushort pointer = index == FrameCount - 1 ? InitialFrame
+            : (ushort)(MovingStart + 18 * (index < 0x21 ? index : index + 1));
+        return new(Bank, pointer, $"kraid_foot_oam_{pointer:X4}");
+    }
+}
+
+/// <summary>Calculated foot-frame enumeration without a stored definition lookup.</summary>
+internal readonly record struct KraidFootFrameSequence(int Length)
+{
+    internal EnemyExtendedFrameDefinition this[int index] => KraidFootVisualDefinitions.Frame(index);
+    internal EnemyExtendedFrameDefinition[] ToArray()
+    {
+        var result = new EnemyExtendedFrameDefinition[Length];
+        for (int index = 0; index < result.Length; index++) result[index] = this[index];
+        return result;
+    }
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(KraidFootFrameSequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public EnemyExtendedFrameDefinition Current => sequence[index];
     }
 }

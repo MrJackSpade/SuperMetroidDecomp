@@ -1859,5 +1859,27 @@
         "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.ResourceAudit --no-build -- --extended-display-contract-check",
         "confirmation": "Build passes. Reused EnemyDisplayArtworkContractChecks and NativeDisplaySelectorContractChecks confirm valid installation, rejection of unowned targets, empty fallback, known/unknown selector classification and non-resource passthrough. Mutated sequence output, boss stride and Pirate key each revoke only extended availability; an extra generator declaration also revokes it. Existing shared-admission and selector-fallback mutations still revoke their respective proofs.",
         "remainingScope": "This revalidation covers the changed roster/loader and the three newly introduced helpers. Other family definition dependencies retain their separately tracked review scope; no whole-source or whole-game completion claim."
+    },
+    "kraidFootVisualCatalogReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid foot frame catalog from native geometry for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid foot frame catalog from native geometry for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Assets/KraidFootVisualDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm foot instruction lists 86E7-893C and extended frames 8CE3-8F47/A565; existing sorted catalog construction and all consumers. Native instruction operands independently establish the selected roots; every record has two components. Source selection omits native ordinal 0x21 and includes the separate initial frame.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-foot-frames",
+        "tables": [
+            {
+                "id": "kraid-foot-named-frame-catalog",
+                "state": "converted",
+                "nativeIdentity": "A7:8CE3-8F47 selected moving roots and A565 initial root",
+                "domain": "Indices 0..34, ascending physical pointer order; IndexOutOfRangeException outside.",
+                "disposition": "Remove startup SortedSet and cached Definitions array. Calculate eighteen-byte moving roots with ordinal 0x21 omitted, append the separate initial root, and format the existing kraid_foot_oam_XXXX keys on demand.",
+                "rationale": "Two count bytes plus two eight-byte components explain the constant stride. Instruction lists select all moving roots except ordinal 0x21; the higher-addressed initial root is last in the published sorted order.",
+                "proofTest": "VerifyKraidFootFrameGeometry",
+                "confirmation": "All 35 roots read independently from native instruction operands, native two-component counts, published names, indexed and foreach enumeration, materialization and invalid bounds. Reused combined-catalog proof confirms the complete original 588-entry ordering and key association."
+            }
+        ],
+        "remainingScope": "Kraid foot instruction mechanics and other family catalogs still require their own review; no retention decision or broader completion claim is made."
     }
 }

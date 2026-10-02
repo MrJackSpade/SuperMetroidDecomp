@@ -2794,4 +2794,26 @@
         "proof": "VerifyAtomicVisualSelectors uses an independent24-address fixture and original ROM operand values, then rejects all holes and odd bytes in and adjacent to the program span plus distant invalid addresses. Extracts the prior visual-value loop and invalid-pointer assertion from VerifyAtomicMovementDefinitions. Existing initializer and production loop checks continue to exercise dispatch with source reads forbidden.",
         "confirmation": "Verification and ResourceAudit builds and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0. Updated the normalized-LF source hash in EnemyDisplayArtworkClosedContractDefinitions."
     }
+,
+    "alcoonFireballInstructionProgramReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/AlcoonFireballInstructionProgramDefinitions.cs",
+        "nativeIdentity": "86:9E9E..9EB1 four-frame fireball loop; following9EB2 starts initializer code",
+        "reviewedEvidence": "Read the complete native list in bank_86.asm at pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d, managed projectile instruction dispatch and all mapping consumers. The list has four three-frame duration/visual pairs, then goto and its own entry address. Presentation operands remain separate from control words.",
+        "tables": [
+            {
+                "id": "alcoon-fireball-instruction-mechanics",
+                "disposition": "Remove six stored address/value records and binary search. Calculate four duration positions at stride4, then the terminal opcode/target at stride2. Direct read evaluates duration3, named goto, or loop start and rejects all other ushort addresses. Byte ownership checks the20-byte envelope and word role; preserves masked bank and ignored high bits.",
+                "proof": "VerifyAlcoonFireballMechanicsMapping independently lists six native addresses, compares every enumerated/direct value with ROM, checks every bank byte including high-bit masking and wrong-bank rejection, all holes/odd bytes in and adjacent to the list, distant invalid pointers and ordinal bounds. Extracts the old numerical word proof and invalid-reader assertions."
+            },
+            {
+                "id": "alcoon-fireball-presentation-addresses",
+                "disposition": "Remove the four stored operand addresses. Compute Initial+2+4*ordinal for0..3 and preserve IndexOutOfRangeException otherwise.",
+                "proof": "VerifyAlcoonFireballPresentationAddresses independently lists all four native operand positions and checks adjacent/extreme ordinal bounds."
+            }
+        ],
+        "rationale": "The table encodes an explicit repeating instruction format. Arithmetic follows instruction sizes and named terminal control; it is not an arbitrary numerical fit or a generated cache.",
+        "confirmation": "Verification build and --alcoon-fireball-instruction-mechanics pass against SHA-verified NTSC J/U v1.0. Existing focused integration covers three launch commands in each facing, exact four-frame operand order and loop restart, three-frame durations and shared deletion with all20 original program bytes forbidden. Its old expectation of four visual ROM reads failed because SetEnemyProjectileVisualOperand now selects installed artwork by operand identity; replaced that stale expectation with exact live operand/duration assertions and a stronger original-byte guard. No additional production fix was needed.",
+        "remainingScope": "Alcoon actor instruction tables, projectile artwork and the broader repository inventory remain separate unresolved work. No retention exception is inferred."
+    }
 }

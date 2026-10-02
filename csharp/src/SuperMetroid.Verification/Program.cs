@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-fake-kraid-spit-velocities"])
+{
+    var velocityOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(velocityOracle.Rom)),
+        "Fake Kraid velocity oracle is NTSC J/U v1.0");
+    VerifyFakeKraidSpitHorizontalVelocity(velocityOracle);
+    VerifyFakeKraidSpitVerticalVelocity(velocityOracle);
+    Console.WriteLine("Fake Kraid spit: both velocity fields match all four native launches; invalid ordinals pass.");
+    return 0;
+}
 if (args is ["--lookup-fake-kraid-projectile-programs"])
 {
     var projectileProgramOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

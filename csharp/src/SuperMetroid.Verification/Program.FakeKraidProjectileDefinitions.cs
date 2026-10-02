@@ -6,24 +6,14 @@ internal static partial class Program
 {
     private static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int spitTable = 0xa69a48;
         const int spikeTable = 0x869e7d;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-        foreach (bool movingRight in new[] { false, true })
-        for (int projectile = 0; projectile < 2; projectile++)
-        {
-            int index = (movingRight ? 2 : 0) + projectile;
-            FakeKraidSpitLaunch launch =
-                FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
-            AssertEqual(ReadWord(rom, spitTable + index * 4), launch.XVelocity,
-                $"Fake Kraid {(movingRight ? "right" : "left")} spit {projectile} X velocity");
-            AssertEqual(ReadWord(rom, spitTable + index * 4 + 2), launch.YVelocity,
-                $"Fake Kraid {(movingRight ? "right" : "left")} spit {projectile} Y velocity");
-        }
+        VerifyFakeKraidSpitHorizontalVelocity(rom);
+        VerifyFakeKraidSpitVerticalVelocity(rom);
 
         for (int row = 0; row < 3; row++)
         {

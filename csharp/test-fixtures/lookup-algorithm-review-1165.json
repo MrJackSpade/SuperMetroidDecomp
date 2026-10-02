@@ -2615,4 +2615,26 @@
         "confirmation": "Verification build and --lookup-fake-kraid-projectile-programs pass. Existing actor verifier delegates the two focused mapping proofs. No unrelated gameplay test matrix run.",
         "remainingScope": "Spit launch velocities, spike-row positions, projectile artwork and the repository-wide review remain separate outstanding work."
     }
+,
+    "fakeKraidSpitVelocityReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileDefinitions.cs",
+        "nativeIdentity": "A6:9A48..9A57, two signed8.8 launch pairs per facing",
+        "reviewedEvidence": "Pinned bank_A6.asm explicitly defines horizontal launches as +/-0200 and +/-0400, all vertical launches as -0500. RoomEnemySystem.SpawnFakeKraidSpitPair consumes ordinals0/1 for the selected facing without other table aliases.",
+        "tables": [
+            {
+                "id": "fake-kraid-spit-horizontal-velocity",
+                "disposition": "Compute two pixels/frame times projectile ordinal plus one, negate when facing left, encode signed8.8 with unchecked ushort conversion.",
+                "proof": "VerifyFakeKraidSpitHorizontalVelocity independently reads all four native X words and checks invalid ordinals for both facings."
+            },
+            {
+                "id": "fake-kraid-spit-vertical-velocity",
+                "disposition": "Return the constant upward five pixels/frame encoded as signed8.8.",
+                "proof": "VerifyFakeKraidSpitVerticalVelocity independently reads all four native Y words and checks invalid ordinals for both facings."
+            }
+        ],
+        "rationale": "The pair differs only by horizontal launch magnitude; facing mirrors it and gravity acts on an identical initial upward velocity. No empirical fit or cached sequence is required.",
+        "confirmation": "Verification build and --lookup-fake-kraid-spit-velocities pass. Existing aggregate delegates the extracted field proofs. Four-record SpitLaunches storage is removed.",
+        "remainingScope": "SpikeYOffsets remains pending, not accepted retention: native86:9E7D stores-2,12,24 and the initializer adds the selected word to body Y. Inspected A6:9C64 onward walking OAM has pose-dependent component Y coordinates, whereas launch Y ignores animation; projectile8D:8427/842E has a fixed-4 local Y origin. A direct current-OAM-origin mapping is not established. Further geometry review or a demonstrated nonsense justification is still required. Actual artwork and broader repository mappings also remain outstanding."
+    }
 }

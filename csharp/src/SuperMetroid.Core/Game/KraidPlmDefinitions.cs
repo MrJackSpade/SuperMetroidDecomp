@@ -18,11 +18,11 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static readonly KraidPlmRequest LiveDeathSpikes = new(0x05, 0x1b, RoomPlmHeaders.CrumbleKraidSpikes);
 
-    private static readonly KraidPlmRequest[] DefeatedRoomRequests =
-    [
-        new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling),
-        new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes),
-    ];
+    /// <summary>$A7:C168 SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
+    private static KraidPlmRequest ClearCeiling => new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling);
+
+    /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
+    private static KraidPlmRequest ClearSpikes => new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes);
 
     /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
     public static IReadOnlyList<KraidPlmRequest> GrowthCeiling { get; } = new GrowthCeilingSequence();
@@ -32,7 +32,23 @@ public static class KraidPlmDefinitions
     /// <c>$A7:C168</c> (<c>Kraid_SpawnPlmToClearCeiling</c>) and <c>$A7:C171</c>
     /// (<c>Kraid_ClearSomeSpikes</c>), in native call order.
     /// </summary>
-    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom => DefeatedRoomRequests;
+    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
+
+    private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
+    {
+        public int Count => 2;
+        public KraidPlmRequest this[int index] => index switch
+        {
+            0 => ClearCeiling,
+            1 => ClearSpikes,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<KraidPlmRequest> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     /// <summary>
     /// $A7:ACC5 selects the ceiling callbacks at ACD7..AD3A. Each block lies

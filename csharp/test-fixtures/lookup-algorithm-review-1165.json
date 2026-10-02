@@ -2417,4 +2417,21 @@
         "confirmation": "Three separate native callback-data proofs cover all27 fields, ordered enumeration and invalid list bounds. Verification build and --lookup-kraid-growth-plms pass. No gameplay sweep or generated request cache.",
         "remainingScope": "Shared ceiling/rock column chronology, defeated-room requests and sink callback selection still require their own reviewed dispositions."
     }
+,
+    "kraidDefeatedPlmReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidPlmDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidPlmDefinitions.cs",
+        "consumers": ["RoomEnemySystem.InitializeKraidBody AddRange", "KraidAudit defeated-room enumeration and spike selection"],
+        "nativeIdentity": "A7:C168 SpawnPLMToClearTheCeiling and C171 SpawnPLMToClearTheSpikes",
+        "reviewedEvidence": "Pinned bank_A7.asm defeated initializer call order and both hardcoded PLM calls. Original NTSC J/U v1.0 inline bytes C16C..C16F and C175..C178 independently supply expected fields.",
+        "domain": "Two ordered requests through IReadOnlyList indices0/1. Other indices retain ArgumentOutOfRangeException. Enumeration, Count and AddRange contract preserved.",
+        "tables": [
+            { "id": "kraid-defeated-plm-columns", "disposition": "Select named ceiling-clear column2 or spike-clear column5.", "proof": "VerifyKraidDefeatedPlmColumns" },
+            { "id": "kraid-defeated-plm-rows", "disposition": "Select ceiling row18 or spike row27 by named operation.", "proof": "VerifyKraidDefeatedPlmRows" },
+            { "id": "kraid-defeated-plm-headers", "disposition": "Select ClearKraidCeiling or ClearKraidSpikes by named operation.", "proof": "VerifyKraidDefeatedPlmHeaders" }
+        ],
+        "rationale": "Two explicit room-restoration actions correspond directly to separate named native functions. This is semantic operation selection, not a fitted curve or arbitrary animation sequence. The stored request array is removed; each record is constructed on demand.",
+        "confirmation": "Three focused independent field proofs cover both original records, ordered enumeration and invalid bounds. Verification build and --lookup-kraid-defeated-plms pass. Existing broad room-loading diagnostics remain unchanged and are not run for this definition-only conversion."
+    }
 }

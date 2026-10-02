@@ -5,7 +5,7 @@ internal static class PlmDoorClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-        "8842E019D7874313116829DE7C9A9C16E84CB4242AA242BA106EEDA683DEDACD");
+        "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
 
     internal static readonly ClosedPresentationContract[] All =
     [

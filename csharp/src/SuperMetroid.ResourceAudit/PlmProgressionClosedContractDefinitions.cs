@@ -5,7 +5,7 @@ internal static class PlmProgressionClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-        "8842E019D7874313116829DE7C9A9C16E84CB4242AA242BA106EEDA683DEDACD");
+        "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
         "A8BF7A13320D197ED18F792CD9843710ED73A8A4A4A0658618B8D3004F0D9704");

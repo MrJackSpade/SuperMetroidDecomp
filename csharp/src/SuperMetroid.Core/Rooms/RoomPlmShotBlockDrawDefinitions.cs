@@ -87,26 +87,33 @@ internal static class RoomPlmShotBlockDrawDefinitions
 
     // Preserve the published interleaved export order; materialize DTOs only for
     // asset tooling. Runtime uses the calculated draw directly.
-    internal static IEnumerable<DrawList> All
+    internal static IEnumerable<Draw> Calculated
     {
         get
         {
             for (int frame = 0; frame < 4; frame++)
             {
-                yield return Export((ushort)(SingleFrame0 + frame * 6));
-                yield return Export((ushort)(HorizontalFrame0 + frame * 8));
-                yield return Export((ushort)(VerticalFrame0 + frame * 8));
-                yield return Export((ushort)(SquareFrame0 + frame * 16));
+                yield return Describe((ushort)(SingleFrame0 + frame * 6));
+                yield return Describe((ushort)(HorizontalFrame0 + frame * 8));
+                yield return Describe((ushort)(VerticalFrame0 + frame * 8));
+                yield return Describe((ushort)(SquareFrame0 + frame * 16));
             }
-            yield return Export(RestoreHorizontal);
-            yield return Export(RestoreVertical);
-            yield return Export(RestoreSquare);
+            yield return Describe(RestoreHorizontal);
+            yield return Describe(RestoreVertical);
+            yield return Describe(RestoreSquare);
         }
     }
 
-    private static DrawList Export(ushort pointer)
+    internal static IEnumerable<DrawList> All => Calculated.Select(Export);
+
+    private static Draw Describe(ushort pointer)
     {
         if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
+        return draw;
+    }
+
+    private static DrawList Export(Draw draw)
+    {
         var runs = new Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
@@ -115,6 +122,6 @@ internal static class RoomPlmShotBlockDrawDefinitions
             runs[run] = new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words,
                 0, (sbyte)(run + 1 < runs.Length ? 1 : 0));
         }
-        return new(pointer, runs);
+        return new(draw.Pointer, runs);
     }
 }

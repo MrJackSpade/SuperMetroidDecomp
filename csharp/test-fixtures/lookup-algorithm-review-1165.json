@@ -3489,4 +3489,15 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-shot-block-draws pass, including Botwoon wall's shared crumble frames. Updated normalized draw-shape and visual-catalog pins.",
     "scope": "Shot-block physical draw identity, geometry and word mappings only. Other shot-block program/visual-stock mappings and selected artwork remain independently reviewable; no retention exception claimed."
   }
+,
+  "shotBlockStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A345-A3DC and 84:A47B-A49A draw words; RoomPlmShotBlockVisualCatalog factory/import/GetWord/content identity",
+    "algorithm": "Factory stock and constructor-selected stock use the visual portion of the calculated draw word. Remove the generated stock frame dictionary and arrays. Constructor still validates all nineteen unique identities and exact shapes; only changed external artwork frames are cloned and stored.",
+    "identity": "Enumerate calculated draw descriptors in pointer order, preserve the original frame/runs/words framing, and hash each selected run through a temporary two-word stack buffer. No persistent generated stock cache or export DTO is used by the identity path.",
+    "proof": "VerifyShotBlockStockVisualMapping parses native draw records independently for every stock appearance, compares factory/imported values and the prior content-identity encoding, confirms mixed changed/stock frames and their hash, clone isolation, all per-shape run/word bounds and incomplete-input rejection. Existing visual fixtures retain duplicate/invalid-word validation and production custom-art separation.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-shot-block-draws pass, including all eight shot-block behaviors and the shared Botwoon crumble sequence. Draw-shape and visual-catalog source pins updated.",
+    "dataBoundary": "The remaining dictionary contains only selected external custom artwork, not the fixed stock mapping. This is not a retention exception for any fixed numerical or control table.",
+    "scope": "Stock shot-block presentation lookup and identity preservation only. Other program mappings and the broader inventory remain independent work."
+  }
 }

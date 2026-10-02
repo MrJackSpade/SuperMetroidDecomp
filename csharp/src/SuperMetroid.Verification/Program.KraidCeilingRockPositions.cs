@@ -4,12 +4,21 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
+    private static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
-        for (int offset = 0; offset < 18; offset++)
+        for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
                 KraidCeilingRockPositions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
+        foreach (int invalid in new[] { int.MinValue, -1, 19, 20, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => KraidCeilingRockPositions.AtByteOffset(invalid),
+                "Ceiling rock byte-window bounds");
+    }
+
+    private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
+    {
+        VerifyKraidCeilingRockCoordinates(rom);
+        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

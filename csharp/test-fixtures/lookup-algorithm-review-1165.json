@@ -2401,7 +2401,7 @@
     }
 ,
     "kraidGrowthPlmReview": {
-        "state": "row/header converted; column alias consolidated, shared ordering pending",
+        "state": "row/header converted; column alias consolidated; shared ordering converted in kraidCeilingOrderReview",
         "implementationCommit": "Resolve with git log for KraidPlmDefinitions.cs",
         "owner": "csharp/src/SuperMetroid.Core/Game/KraidPlmDefinitions.cs",
         "consumers": ["RoomEnemySystem.RunKraidGrowthFunction", "KraidAudit", "VerifyKraidCeilingRockPositions"],
@@ -2409,7 +2409,7 @@
         "reviewedEvidence": "Pinned bank_A7.asm AC4D-AD44: growth cursor advances by2, spawns the selected rock then invokes its paired callback. All nine callback inline records independently checked against SHA-verified NTSC J/U v1.0 ROM.",
         "domain": "IReadOnlyList ordinal0..8; invalid indexing retains ArgumentOutOfRangeException; ascending enumeration and count9 preserved.",
         "tables": [
-            { "id": "kraid-growth-plm-column-alias", "state": "alias consolidated; underlying order pending", "disposition": "Remove duplicate PLM X storage. Derive block column from paired rock center X shifted right4. The shared KraidCeilingRockPositions chronology remains a pending mapping, not an accepted retention.", "proof": "VerifyKraidGrowthPlmColumns" },
+            { "id": "kraid-growth-plm-column-alias", "state": "alias consolidated; underlying order converted in kraidCeilingOrderReview", "disposition": "Remove duplicate PLM X storage. Derive block column from paired rock center X shifted right4. The shared KraidCeilingRockPositions chronology is now converted; see kraidCeilingOrderReview.", "proof": "VerifyKraidGrowthPlmColumns" },
             { "id": "kraid-growth-plm-row", "state": "converted", "disposition": "All nine mutations address ceiling block row18; return that constant directly.", "proof": "VerifyKraidGrowthPlmRows" },
             { "id": "kraid-growth-plm-header", "state": "converted", "disposition": "Select background1 at left-edge column2; elsewhere select background2 for odd columns and background3 for even columns.", "proof": "VerifyKraidGrowthPlmHeaders" }
         ],
@@ -2467,5 +2467,20 @@
         "proof": "VerifyKraidSinkRockPlacement extracted from existing integration coverage: invoke real ProcessKraidSinkTable once for each of seven distinct callbacks, compare six emitted rock X coordinates to original instruction immediates, and verify native empty callback/event/rock/request counts with schedule ROM reads prohibited.",
         "confirmation": "Verification build and --lookup-kraid-sink-mappings pass; focused command also reuses prior callback/PLM proofs. Broad65536 actor sweep not run.",
         "remainingScope": "Sinking presentation mapping remains pending static reconciliation; this does not establish completion of the entire native sinking table."
+    }
+,
+    "kraidCeilingOrderReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidCeilingRockPositions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidCeilingRockPositions.cs",
+        "consumers": ["RoomEnemySystem.RunKraidGrowthFunction", "KraidPlmDefinitions.GrowthCeilingSequence"],
+        "nativeIdentity": "A7:ACB3 nine rock X words; ACC5 following AD03 callback word",
+        "domain": "Byte offsets0..18 inclusive. Even0..16 select nine rock centers; odd offsets compose overlapping little-endian words; offset17 includes callback low byte and offset18 returns fullAD03. All other int inputs preserve IndexOutOfRangeException.",
+        "reviewedEvidence": "Pinned bank_A7.asm complete AC4D-AD39 growth dispatcher, nine X words, paired callback ordering and inline block coordinates. Six later sink callbacks identify surviving platform columns7..9 and14..16. Original NTSC J/U v1.0 bytes independently confirm all19 supported byte windows.",
+        "disposition": "Remove ten-word span. Alternate left ceiling gap2..6 with right gap10..13. Within each gap alternate rightmost and leftmost remaining column, moving inward. Return column*16+8 for block-center rock origin; preserve named adjacent callback and odd-byte composition.",
+        "rationale": "The two contiguous ceiling gaps flank the surviving three-block platforms. Their native order interleaves the gaps and closes inward from alternating edges: left6,2,5,3,4 and right13,10,12,11. One bounded geometric traversal explains every entry without fitted coefficients or per-index corrections.",
+        "proof": "VerifyKraidCeilingRockCoordinates extracted from the original verifier, expanded to include supported adjacent callback offset18 and invalid bounds. Existing three growth-PLM proofs confirm all downstream block coordinates, row and variant fields.",
+        "confirmation": "Verification build and --lookup-kraid-ceiling-order pass all19 native byte windows and all27 derived PLM fields, order and bounds. No broad growth actor matrix run.",
+        "remainingScope": "This resolves the shared ordering previously pending in kraidGrowthPlmReview. Other Kraid mappings and the full repository inventory remain separate unfinished work."
     }
 }

@@ -24,17 +24,17 @@ internal static partial class Program
             KraidNailInstructionProgramDefinitions.PresentationWordCount,
             KraidNailInstructionProgramDefinitions.PresentationWordAddress, KraidNailInstructionProgramDefinitions.ReadMechanicsWord);
 
-    // Independent original address lists from the pinned A7:8AFE-8B2D programs;
+    // Independent original address lists from the pinned native programs;
     // all expected values come from the cartridge, not the replacement formulas.
     private static void VerifyKraidSmallMechanics(SuperMetroidAddressSpace rom, ushort[] addresses, int count,
-        Func<int, (ushort Address, ushort Value)> indexed, Func<ushort, ushort> read, Func<int, bool> ownsByte)
+        Func<int, (ushort Address, ushort Value)> indexed, Func<ushort, ushort> read, Func<int, bool> ownsByte, int bank = 0xa7)
     {
         AssertEqual(addresses.Length, count, "small Kraid mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            int full = 0xa70000 | address;
+            int full = bank << 16 | address;
             ushort expected = (ushort)(rom.ReadByte(full) | rom.ReadByte(full + 1) << 8);
             AssertEqual((address, expected), indexed(index), "native small Kraid mechanics address/value");
             AssertEqual(expected, read(address), "native small Kraid mechanics read");
@@ -43,8 +43,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "odd mechanics address rejected");
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), ownsByte(0xa70000 | address), "small Kraid mechanics byte domain");
-        AssertTrue(!ownsByte(0xa60000 | addresses[0]), "wrong mechanics bank rejected");
+            AssertEqual(bytes.Contains(address), ownsByte(bank << 16 | address), "small Kraid mechanics byte domain");
+        AssertTrue(!ownsByte((bank ^ 1) << 16 | addresses[0]), "wrong mechanics bank rejected");
         AssertThrows<InvalidDataException>(() => read((ushort)(addresses[^1] + 2)), "adjacent program excluded");
         AssertThrows<IndexOutOfRangeException>(() => indexed(-1), "negative mechanics index");
         AssertThrows<IndexOutOfRangeException>(() => indexed(addresses.Length), "mechanics index past end");

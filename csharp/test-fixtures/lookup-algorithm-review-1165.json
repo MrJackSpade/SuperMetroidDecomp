@@ -2014,5 +2014,35 @@
             }
         ],
         "remainingScope": "Kraid artwork selections and other source mappings remain under separate review; this does not certify whole-family completion."
+    },
+    "kraidRockGeneratedProgramReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid rock instruction mappings from program roles for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid rock instruction mappings from program roles for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidRockProjectileInstructionProgramDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_86.asm complete shared rock/Kago pose, right-rising-rock pose and shot-rock sequence 9C7D-9CA2; original arrays and every mechanics/ownership consumer. Original address lists retained only as verification fixtures; values read independently from SHA-verified NTSC J/U v1.0. Existing numerical proof delegates to the focused helpers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-rock-programs",
+        "tables": [
+            {
+                "id": "kraid-rock-projectile-mechanics-map",
+                "state": "converted",
+                "domain": "Twelve ordinal mechanics words and exact bank86 word starts; byte ownership includes high bytes. IndexOutOfRangeException outside ordinal domain.",
+                "disposition": "Remove Words. Calculate fixed-pose duration/Sleep roles and the shot sequence's pre-instruction command/operand, five duration words and terminal Delete. Existing address lookup evaluates calculated entries.",
+                "rationale": "Two six-byte poses each have 7FFF duration then Sleep. Shot control installs the named palette pre-instruction, uses five four-byte frames at duration4, then Delete. Named roles and native word sizes define the complete mapping.",
+                "proofTest": "VerifyKraidRockMechanicsMapping",
+                "confirmation": "All twelve original address/value pairs, indexed and address reads, full bank byte-ownership domain, high-byte word rejection, wrong bank, adjacent data and index bounds."
+            },
+            {
+                "id": "kraid-rock-presentation-position-map",
+                "state": "converted",
+                "domain": "Seven offsets, indices 0..6; IndexOutOfRangeException outside.",
+                "disposition": "Remove PresentationWords. Calculate two six-byte fixed-pose operands and five four-byte shot operands after the pre-instruction pair.",
+                "rationale": "Visual operands occur two bytes after durations; the shot program starts with four bytes of callback setup before its duration/frame sequence.",
+                "proofTest": "VerifyKraidRockPresentationMapping",
+                "confirmation": "All seven original offsets, mechanics-read exclusion and invalid index bounds."
+            }
+        ],
+        "remainingScope": "Projectile visual selectors, launch policy and other Kraid definitions retain their separately tracked review scope. No gameplay sweep or benchmark campaign was run."
     }
 }

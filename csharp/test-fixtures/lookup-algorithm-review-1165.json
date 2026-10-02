@@ -3159,4 +3159,13 @@
     "integration": "Verification and ResourceAudit build; --lookup-elevator-programs confirms real initializer and complete animation loop with no original program/selector reads, plus the full 5069-entry shared selector contract.",
     "scope": "Elevator instruction and visual-selector mappings only. Input selection, movement, artwork and other elevator families remain separately reviewable; no retention exception claimed."
   }
+,
+  "elevatorDirectionInputReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A3:94E2-94E5, elevator initializer and input handler; pinned bank_A3.asm",
+    "disposition": "Removed the two-entry input mask span. Named cases select Down for offset zero and Up for offset two. All other full-word offsets retain InvalidDataException; this is directional state selection rather than arbitrary numeric recitation.",
+    "proof": "VerifyElevatorDirectionInputMapping independently compares both original ROM masks and checks odd, adjacent, high-byte and maximal invalid offsets.",
+    "integration": "Existing production initialization/departure fixture now also rejects the opposite direction before accepting the required direction; verifies departure state/event, input lock and both sound requests with original input-table reads forbidden. Verification build and --lookup-elevator-programs pass.",
+    "scope": "Ordinary elevator direction input only; other movement and presentation mappings remain separately reviewable. No retention exception claimed."
+  }
 }

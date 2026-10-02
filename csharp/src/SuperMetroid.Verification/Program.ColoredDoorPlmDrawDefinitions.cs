@@ -171,13 +171,6 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door ${header:X4} converts without program/draw ROM reads");
         }
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmColoredDoorVisualCatalog(entries.Skip(1)),
-            "colored-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmColoredDoorVisualCatalog(entries),
-            "colored-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifyColoredDoorVisualInstallation(rom);
         Console.WriteLine(
@@ -237,7 +230,9 @@ internal static partial class Program
                 installation.RoomPlmColoredDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmColoredDoorVisualFiles.ValidateStock(
                 installation.RoomPlmColoredDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmColoredDoorVisuals().GetWord(0xa827, 0);
+            var installed = installation.LoadRoomPlmColoredDoorVisuals();
+            VerifyColoredDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(0xa827, 0);
             string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

@@ -32,10 +32,6 @@ internal static partial class Program
             "collision-bomb instruction table preserves all native reactions");
         AssertEqual(8, RoomPlmInstructionLists.ReactionBombByReactionIndex.Length,
             "reaction-bomb instruction table preserves all native reactions");
-        AssertEqual(4, RoomPlmInstructionLists.RespawningShotBySize.Length,
-            "respawning shot instruction table preserves all native sizes");
-        AssertEqual(4, RoomPlmInstructionLists.PermanentShotBySize.Length,
-            "permanent shot instruction table preserves all native sizes");
         AssertEqual(4, RoomPlmInstructionLists.CrumbleRevealBySize.Length,
             "crumble-reveal instruction table preserves all native sizes");
 

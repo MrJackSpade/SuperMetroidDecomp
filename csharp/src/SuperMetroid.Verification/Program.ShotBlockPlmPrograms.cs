@@ -55,6 +55,8 @@ internal static partial class Program
         VerifyShotBlockProgramControlMapping(rom);
         VerifyShotBlockProgramDrawMapping(rom);
         VerifyShotBlockProgramSoundMapping(rom);
+        VerifyRespawningShotSizeSelection(rom);
+        VerifyPermanentShotSizeSelection(rom);
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
@@ -185,6 +187,30 @@ internal static partial class Program
         VerifyShotBlockVisualInstallation(rom);
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
+    }
+
+    private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+                RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot native shape selection");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot rejects other BTS values without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
+    }
+
+    private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+                RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot native shape selection after caller subtracts four");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot rejects out-of-range size without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
     }
 
     private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>

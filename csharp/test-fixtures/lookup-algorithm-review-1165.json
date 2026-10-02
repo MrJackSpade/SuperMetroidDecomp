@@ -3511,4 +3511,14 @@
     "confirmation": "Verification build and --lookup-shot-block-draws pass the separate proofs, existing eight ordinary shot-block production paths, visual override checks and Botwoon shared draw behavior.",
     "scope": "Thirteen program descriptors and their control/draw/sound readers only. Other selectors and unrelated program families remain independent review work; no retention exception claimed."
   }
+,
+  "shotBlockSizeSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 PLM instruction fields 84:D066/D06A/D06E/D072 and D076/D07A/D07E/D082; pinned bank_84.asm",
+    "respawning": {"algorithm": "Replace four stored instruction pointers with explicit named 1x1, 2x1, 1x2 and 2x2 program cases for validated size indices 0..3.", "proof": "VerifyRespawningShotSizeSelection compares all four results with independent native PLM fields, rejects byte indices 4..255 without masking and checks negative/high int bounds with the original IndexOutOfRangeException."},
+    "permanent": {"algorithm": "Replace four stored permanent-program pointers with the corresponding named size cases. Callers still subtract four from valid normal BTS values 4..7.", "proof": "VerifyPermanentShotSizeSelection independently checks all four native PLM fields and invalid byte/int indices with unchanged exceptions."},
+    "consumers": "Migrated both respawning and permanent branches in both allocation paths. Source search confirms no remaining span/index consumers or redundant production arrays. Existing area-reaction guards remain unchanged.",
+    "confirmation": "Verification build and --lookup-shot-block-draws pass the two selector proofs and existing all-eight ordinary shot-block production paths, native program/draw checks and visual separation.",
+    "scope": "The two shot-block size-to-program selectors only. Other instruction-list arrays remain separate review work; no retention exception claimed."
+  }
 }

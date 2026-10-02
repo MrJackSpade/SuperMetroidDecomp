@@ -1063,7 +1063,7 @@ public sealed partial class RoomPlmSystem
                 // word, exactly like the retail setup's two consecutive stores.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -1076,7 +1076,7 @@ public sealed partial class RoomPlmSystem
                 // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                 // solid until the same-frame list draws its first breaking frame.
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -1219,7 +1219,7 @@ public sealed partial class RoomPlmSystem
                 // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -1232,7 +1232,7 @@ public sealed partial class RoomPlmSystem
                 // permanent. The current word loses the shootable collision bits before
                 // the first animated breaking frame runs later in this gameplay pass.
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));

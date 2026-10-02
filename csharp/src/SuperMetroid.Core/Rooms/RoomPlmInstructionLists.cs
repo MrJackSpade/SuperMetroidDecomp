@@ -263,22 +263,6 @@ public static class RoomPlmInstructionLists
         ReactionBombBlock2x2Permanent,
     ];
 
-    private static readonly ushort[] RespawningShotLists =
-    [
-        RespawningShotBlock1x1,
-        RespawningShotBlock2x1,
-        RespawningShotBlock1x2,
-        RespawningShotBlock2x2,
-    ];
-
-    private static readonly ushort[] PermanentShotLists =
-    [
-        PermanentShotBlock1x1,
-        PermanentShotBlock2x1,
-        PermanentShotBlock1x2,
-        PermanentShotBlock2x2,
-    ];
-
     private static readonly ushort[] CrumbleRevealLists =
     [
         CrumbleReveal1x1,
@@ -301,8 +285,26 @@ public static class RoomPlmInstructionLists
 
     public static ReadOnlySpan<ushort> CollisionBombByReactionIndex => CollisionBombLists;
     public static ReadOnlySpan<ushort> ReactionBombByReactionIndex => ReactionBombLists;
-    public static ReadOnlySpan<ushort> RespawningShotBySize => RespawningShotLists;
-    public static ReadOnlySpan<ushort> PermanentShotBySize => PermanentShotLists;
+    /// <summary>Selects the native respawning-shot program for size 0=1x1,
+    /// 1=2x1, 2=1x2, 3=2x2, from PLM instruction fields $84:D066/D06A/D06E/D072.</summary>
+    public static ushort RespawningShotBySize(int sizeIndex) => sizeIndex switch
+    {
+        0 => RespawningShotBlock1x1,
+        1 => RespawningShotBlock2x1,
+        2 => RespawningShotBlock1x2,
+        3 => RespawningShotBlock2x2,
+        _ => throw new IndexOutOfRangeException(),
+    };
+    /// <summary>Selects the native permanent-shot program for size 0=1x1,
+    /// 1=2x1, 2=1x2, 3=2x2, from PLM instruction fields $84:D076/D07A/D07E/D082.</summary>
+    public static ushort PermanentShotBySize(int sizeIndex) => sizeIndex switch
+    {
+        0 => PermanentShotBlock1x1,
+        1 => PermanentShotBlock2x1,
+        2 => PermanentShotBlock1x2,
+        3 => PermanentShotBlock2x2,
+        _ => throw new IndexOutOfRangeException(),
+    };
     public static ReadOnlySpan<ushort> CrumbleRevealBySize => CrumbleRevealLists;
     public static ReadOnlySpan<ushort> ContactCrumbleByReactionIndex => ContactCrumbleLists;
 }

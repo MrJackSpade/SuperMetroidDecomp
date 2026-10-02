@@ -3992,4 +3992,16 @@
     "confirmation": "Verification build and --maridia-elevatube-visuals pass the focused stock/identity proof plus live artwork edit, unchanged physical block and sixteen-frame sound timing, source-read prohibition, override persistence and stock repair checks.",
     "scope": "Elevatube selected visual scalar and identity only. This is an independent review of existing code, not a new conversion or retain exception. The wider audit remains unfinished."
   }
+,
+  "speedBoosterEscapeProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:B88A..B89B InstList_PLM_SpeedBoosterEscape; pinned bank_84.asm; composed RoomPlmProgramDefinitions word reader and production resident-PLM interpreter",
+    "algorithm": "Remove the nine-word array. Three six-byte records each install a callback then sleep. Named callback phases wait for Speed Booster, wait for Samus moving left, then advance lava. Opcode positions derive from offset modulo six; callback selection derives from the bounded phase index. No cached/generated operand array remains.",
+    "controls": {"disposition": "converted", "proof": "VerifySpeedEscapeProgramControls compares six independent native install/sleep word addresses through direct and shared readers; full ushort ownership/default checks preserve the exact nine-word domain."},
+    "callbacks": {"disposition": "converted to semantic cases", "proof": "VerifySpeedEscapeProgramCallbacks compares three independent native callback operands B88C/B892/B898 through direct/shared readers with the same complete domain check."},
+    "domain": "Exactly nine aligned words B88A..B89A. Reject odd words, preceding stage data and following B89C setup routine, with false/zero missing output. No byte or overread domain is introduced.",
+    "consumers": "Shared compiled reader retains its interface. The existing production fixture poisons all native program words with DEAD and verifies the three real callback handoffs, item/position gating, FX/earthquake effects and terminal event. Earlier partial program proof is consolidated into the two independent field proofs.",
+    "confirmation": "Verification build and --lookup-speed-escape-program pass both full native field proofs and existing production handoff/completion fixture. Focused dispatch occurs before unrelated suites inside the protected process boundary.",
+    "scope": "Speed Booster escape instruction opcodes and callback selector only. The separate lava stage data still needs its independent disposition. No retention exception claimed; the wider audit remains unfinished."
+  }
 }

@@ -210,22 +210,8 @@ internal static partial class Program
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
-        {
-            ushort address = checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2));
-            AssertTrue(SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"Speed Booster escape instruction ${address:X4} is compiled");
-            AssertEqual(ReadWord(rom, 0x840000 | address), compiled,
-                $"Speed Booster escape instruction ${address:X4} matches cartridge");
-        }
-        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start - 2)), out _),
-            "Speed Booster escape instruction owner excludes the preceding routine");
-        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start +
-                    SpeedBoosterEscapePlmProgramDefinitions.WordCount * 2)), out _),
-            "Speed Booster escape instruction owner excludes the following setup routine");
+        VerifySpeedEscapeProgramControls(rom);
+        VerifySpeedEscapeProgramCallbacks(rom);
 
         for (ushort offset = 0;
              offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;

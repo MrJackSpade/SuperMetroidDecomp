@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-speed-escape-program"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape oracle revision");
+    VerifySpeedEscapeProgramControls(rom);
+    VerifySpeedEscapeProgramCallbacks(rom);
+    VerifySpeedBoosterEscapePlm(new TestAddressSpace());
+    Console.WriteLine("Speed escape program: all native fields and complete address domain pass; production handoffs and lava completion pass.");
+    return 0;
+}
 if (args is ["--maridia-elevatube-plm"])
 {
     VerifyMaridiaElevatubePlm();

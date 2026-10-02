@@ -17,35 +17,12 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// </summary>
     internal const ushort ProjectileDefinition = 0xa993;
 
-    /// <summary>
-    /// The sixteen instruction/X-offset selections at <c>$86:A7AB-$A7EA</c>, joined with
-    /// the eight wrapping Y-offset, launch-speed, and acceleration rows at
-    /// <c>$86:A7EB-$A81A</c>. Native parameters are even byte offsets <c>$00..$1E</c>.
-    /// </summary>
-    private static readonly BombTorizoStatueFragmentDefinition[] Definitions =
-    [
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(0), 8, -8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(1), 24, -8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(2), -8, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(3), 8, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(4), 24, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(5), -8, 24, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(6), 8, 24, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(7), 24, 24, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(8), 8, -8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(9), -8, -8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(10), 24, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(11), 8, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(12), -8, 8, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(13), 24, 24, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(14), 8, 24, 0x0100, 0x0010),
-        new(BombTorizoStatueInstructionProgramDefinitions.Program(15), -8, 24, 0x0100, 0x0010),
-    ];
-
-    /// <summary>Returns the definition selected by an even native parameter.</summary>
+    /// <summary>Returns the definition selected by an even native parameter.
+    /// The initializer at $86:A764 reads program pointers at $86:A7AB, X offsets at
+    /// $86:A7CB, and eight wrapping Y/velocity/acceleration rows at $86:A7EB/A7FB/A80B.</summary>
     internal static BombTorizoStatueFragmentDefinition ForParameter(ushort parameter)
     {
-        if ((parameter & 1) != 0 || parameter >= Definitions.Length * 2)
+        if ((parameter & 1) != 0 || parameter >= BombTorizoStatueInstructionProgramDefinitions.ProgramCount * 2)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(parameter),
@@ -53,6 +30,17 @@ internal static class BombTorizoStatueFragmentDefinitions
                 "the sixteen-entry even parameter table.");
         }
 
-        return Definitions[parameter >> 1];
+        int index = parameter >> 1;
+        // A three-by-three grid of sixteen-pixel cells, omitting the first corner.
+        // The second eight-fragment set mirrors X about the middle column (x = 8).
+        int cell = (index & 7) + 1;
+        int x = 16 * (cell % 3) - 8;
+        if (index >= 8) x = 16 - x;
+        return new(
+            BombTorizoStatueInstructionProgramDefinitions.Program(index),
+            (short)x,
+            (short)(16 * (cell / 3) - 8),
+            YVelocity: 0x0100,
+            Acceleration: 0x0010);
     }
 }

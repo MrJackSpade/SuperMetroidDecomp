@@ -3332,4 +3332,17 @@
     "confirmation": "Verification build and --lookup-torizo-statue-programs exercise all sixteen production-spawned fragments. The integration fixture now derives expected wait lengths from the original ROM words and checks the exact presentation operand on every waiting/falling tick, callback installation, 112-tick falling duration and deletion. Updated the stale expected-selector-ROM-read assertion to the installed-presentation contract.",
     "scope": "Initial duration field only. Remaining preexisting program structure, packed sound data, visual-pointer mappings, movement and artwork require independent review; no retention exception claimed."
   }
+,
+  "bombTorizoStatueFragmentFieldsReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A764-A81A initializer and five tables; pinned bank_86.asm",
+    "disposition": "Removed the sixteen-row compound fragment definition array. Preserve the even-parameter domain 0..30, including the native-unused mirrored half that the managed API already supports. Compute each field independently; no generated cache.",
+    "instructionList": {"algorithm": "Reuse the existing 17-byte program-stride calculation for parameter/2.", "proof": "VerifyStatueFragmentProgramField compares all sixteen original instruction pointers."},
+    "xOffset": {"algorithm": "First half walks a three-column sixteen-pixel grid, omitting the first corner: 16*((index+1)%3)-8. The second half mirrors about X=8.", "proof": "VerifyStatueFragmentXField checks all sixteen original signed offsets, including the mirrored half."},
+    "yOffset": {"algorithm": "The same grid uses row=floor(((index&7)+1)/3), with Y=16*row-8; native eight-row wrapping preserved.", "proof": "VerifyStatueFragmentYField independently checks every supported parameter against the eight native signed Y words."},
+    "yVelocity": {"algorithm": "Constant 0x0100 in native 1/256-pixel-per-frame units.", "proof": "VerifyStatueFragmentVelocityField checks all eight native words and their second-half aliases."},
+    "acceleration": {"algorithm": "Constant 0x0010 in native 1/256-pixel-per-frame-squared units.", "proof": "VerifyStatueFragmentAccelerationField checks all eight native words and their second-half aliases."},
+    "confirmation": "Verification build and --lookup-torizo-statue-programs check the five separately named mappings, every odd in-range parameter and representative high/maximum invalid values, all sixteen real projectile allocations with all five original tables forbidden, and existing fragment timelines.",
+    "scope": "Compound spawn table's five fields only. Remaining program structure, packed sound bytes, visual pointers and artwork still require review; no retention exception claimed."
+  }
 }

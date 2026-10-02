@@ -61,14 +61,6 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x978f ? edited : null);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmMotherBrainGlassVisualCatalog(entries.Skip(1)),
-            "glass catalog rejects missing frames");
-        shatter.Blocks[6] = 0xf057;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmMotherBrainGlassVisualCatalog(entries),
-            "glass catalog rejects collision bits in visual words");
-        shatter.Blocks[6] = originalWord;
         VerifyMotherBrainGlassVisualInstallation(rom);
         Console.WriteLine(
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -170,6 +162,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(
                 installation.RoomPlmMotherBrainGlassVisualDirectory);
+            VerifyMotherBrainGlassStockMapping(rom, installation.LoadRoomPlmMotherBrainGlassVisuals());
             string stockPath = Path.Combine(
                 installation.RoomPlmMotherBrainGlassVisualDirectory,
                 RoomPlmMotherBrainGlassVisualFiles.VisualFileName);

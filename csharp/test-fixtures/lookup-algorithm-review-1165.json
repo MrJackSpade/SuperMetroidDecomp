@@ -4375,4 +4375,15 @@
     "confirmation":"Verification build and --mother-brain-glass-instruction-mechanics pass six native-field proofs, all eight production shard loops, sparkle lifetime, shared deletion and existing allocation check. Corrected a stale fixture expectation of 68 live artwork cartridge reads: the current extracted-art path correctly performs zero. Supported ROM SHA256 is pinned; prior combined word proof consolidated.",
     "scope":"Complete generated mechanics/address storage in this projectile-program owner. No retention exception. Wider maintained-source audit remains active."
   }
+,
+  "motherBrainGlassStockVisualReview": {
+    "status":"converted: duplicate eleven-frame stock visual dictionary removed; physical source tables remain separately unresolved",
+    "source":"Supported NTSC J/U v1.0 bank 84 9717..9876, eleven glass draw layouts and 92 visual words. Read RoomPlmMotherBrainGlassVisualCatalog constructor/getter/hash and native draw records. Stock data was a redundant flattened low-twelve-bit copy of the physical definitions.",
+    "algorithm":"Stock creates an empty catalog. Getter validates pointer/run/cell then projects the physical word's visual bits. Import still requires all eleven unique ordinal IDs and exact valid flattened payloads, cloning only changed frames. This removes duplicate stock storage without claiming the underlying physical tables have been converted.",
+    "identity":"Hash selected visual values in ascending pointer order using a temporary sixteen-word stack buffer, preserving the original flattened one-run hash framing. Import entry order remains irrelevant.",
+    "domain":"All eleven frame pointers and 92 cells. Unknown pointers throw InvalidDataException; invalid run/cell integers throw ArgumentOutOfRangeException. Missing, duplicate, wrong-case, wrong-shape and collision-bearing entries remain rejected. Later mutation of changed or unchanged input arrays cannot alter results.",
+    "proof":"VerifyMotherBrainGlassStockMapping independently parses original ROM draw records and compares every visual word and native canonical hash through stock, reversed import and installed catalogs. It covers the complete ushort pointer-rejection domain, integer run/cell bounds, mixed custom/stock hash, changed/unchanged input isolation and constructor rejection paths. Earlier duplicate missing-frame/collision checks consolidated.",
+    "confirmation":"Verification and ResourceAudit builds and --mother-brain-glass-plm-draws pass the focused stock proof and existing eleven guarded production draw paths, program shatter sequence, custom visual updates and installed override checks. Presentation source pin and ownership text updated.",
+    "scope":"Duplicate stock appearance mapping only. No retention exception. Physical geometry/collision/artword storage still requires its own conversion or concrete permitted justification; wider source audit remains active."
+  }
 }

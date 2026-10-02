@@ -11,6 +11,7 @@ internal static partial class Program
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain mutation oracle revision");
         VerifyMotherBrainMutationProgramControls(rom);
         VerifyMotherBrainMutationProgramDraws(rom);
+        VerifyMotherBrainRegularDrawMapping(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
@@ -30,6 +31,7 @@ internal static partial class Program
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
         {
+            if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw.Pointer, out _)) continue;
             int cursor = draw.Pointer;
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {

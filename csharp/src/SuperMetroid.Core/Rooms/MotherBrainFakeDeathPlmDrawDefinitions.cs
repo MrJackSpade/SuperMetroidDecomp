@@ -54,11 +54,11 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        Lists.Values;
+        Lists.Values.Concat(RegularDraws());
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        Lists.TryGetValue(pointer, out draw);
+        TryGetRegular(pointer, out draw) || Lists.TryGetValue(pointer, out draw);
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -91,7 +91,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (string.Equals(VisualId(candidate.Pointer), id,
                     StringComparison.Ordinal))
@@ -102,6 +102,79 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
         draw = default;
         return false;
+    }
+
+    /// <summary>
+    /// Native 84:966D..9716: two thirteen-cell solid fill rows and six tube
+    /// clears. Tube interiors become blank FF; ceiling/floor endpoints restore
+    /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
+    /// clear one extra cell toward the center using signed origin-relative X.
+    /// </summary>
+    internal readonly record struct RegularDraw(ushort Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
+    {
+        internal int RunCount => Width;
+        internal int Count(int run)
+        {
+            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            return Side != 0 && run == 1 ? 1 : Height;
+        }
+        internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
+        internal sbyte NextX(int run)
+        {
+            Count(run);
+            return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
+        }
+        internal ushort WordAt(int run, int block)
+        {
+            int count = Count(run);
+            if ((uint)block >= count) throw new IndexOutOfRangeException();
+            if (Fill) return Pointer == BackgroundRowEUnused ? (ushort)0x8319 : (ushort)0x8044;
+            if (Side != 0 && run == 1) return 0x00ff;
+            return Ceiling ? (block == 0 ? (ushort)0x12fc : (ushort)0x00ff) :
+                (block == count - 1 ? (ushort)0x1339 : (ushort)0x00ff);
+        }
+    }
+
+    internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
+    {
+        draw = pointer switch
+        {
+            BackgroundRowEUnused or BackgroundRowFUnused => new(pointer, 13, 1, false, true, 0),
+            ClearCeilingBlock => new(pointer, 2, 1, true, false, 0),
+            ClearCeilingTube => new(pointer, 5, 1, true, false, 0),
+            ClearBottomMiddleSideTube => new(pointer, 4, 1, false, false, 0),
+            ClearBottomMiddleTubes => new(pointer, 7, 2, false, false, 0),
+            ClearBottomLeftTube => new(pointer, 5, 2, false, false, 1),
+            ClearBottomRightTube => new(pointer, 5, 2, false, false, -1),
+            _ => default,
+        };
+        return draw.Pointer != 0;
+    }
+
+    private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeRegular(pointer, out var shape)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.Count(run)];
+            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
+            runs[run] = new((ushort)(words.Length | (shape.Vertical(run) ? 0x8000 : 0)), words, shape.NextX(run), 0);
+        }
+        draw = new(pointer, runs);
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
+    {
+        // Each next record follows its counts, cells and two-byte continuation pairs.
+        for (int pointer = BackgroundRowEUnused; pointer < EndExclusive;)
+        {
+            TryGetRegular((ushort)pointer, out var draw);
+            yield return draw;
+            foreach (var run in draw.Runs.ToArray()) pointer += 4 + run.LevelWords.Length * 2;
+        }
     }
 
     private static Dictionary<ushort,
@@ -158,36 +231,6 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         Add(BackgroundRowD,
             new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
                 new ushort[] { 0x1248, 0x1249, 0x124a, 0x124b, 0x1339, 0x124c, 0x124d, 0x1339, 0x124e, 0x1339, 0x1339, 0x124f, 0x1249 }, 0, 0));
-        Add(BackgroundRowEUnused,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319 }, 0, 0));
-        Add(BackgroundRowFUnused,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044 }, 0, 0));
-        Add(ClearCeilingBlock,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8002,
-                new ushort[] { 0x12fc, 0x00ff }, 0, 0));
-        Add(ClearCeilingTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x12fc, 0x00ff, 0x00ff, 0x00ff, 0x00ff }, 0, 0));
-        Add(ClearBottomMiddleSideTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 0, 0));
-        Add(ClearBottomMiddleTubes,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8007,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8007,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 0, 0));
-        Add(ClearBottomLeftTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x0001,
-                new ushort[] { 0x00ff }, 0, 0));
-        Add(ClearBottomRightTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, -1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x0001,
-                new ushort[] { 0x00ff }, 0, 0));
         return lists;
 
         void Add(ushort pointer,

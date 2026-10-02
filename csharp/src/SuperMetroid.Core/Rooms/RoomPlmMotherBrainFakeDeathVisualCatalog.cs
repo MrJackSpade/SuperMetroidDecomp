@@ -52,6 +52,12 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regular))
+        {
+            if ((uint)runIndex >= regular.RunCount || (uint)blockIndex >= regular.Count(runIndex))
+                throw new ArgumentOutOfRangeException(nameof(blockIndex));
+            return blocks[drawPointer][(runIndex == 0 ? 0 : regular.Count(0)) + blockIndex];
+        }
         if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
             !MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out var draw))
             throw new InvalidDataException(

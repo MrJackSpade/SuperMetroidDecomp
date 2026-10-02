@@ -54,8 +54,8 @@ internal static class PlmProgressionClosedContractDefinitions
             "The constructor requires all five unique known bridge/wall draws and clones only custom frames. Stock words are calculated from native geometry. GetWord guards each run and width before custom or stock selection; flattened content identity is preserved. Arena mechanics and boss phases are unchanged."),
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "5992F2F5927E71545098B708893F4FCBB148848A074414B4799E8B301A529C57"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "6C2F24B4EC799FB773A560EF5A3C7F69AD68CA40874C272097830D75CBBAB798")],
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "05A7BFA2D41E5BD2A71CDA012FD8C4832DA16833E760E1BD8EEF11A3B4B7829E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "6F10B160CB85DBA47F869949B1611DC8017DEE4FB5EA3156BF9E5A5011D6B1AC")],
             "The constructor requires all twenty-two unique compiled background/door/tube layouts, including the two unused-but-owned rows, and clones exact payloads. GetWord guards asymmetric run shapes before flattening. Ownership does not claim reachability or certify battle timing."),
     ];
 }

@@ -1932,6 +1932,20 @@ public sealed partial class RoomPlmSystem
                     crocomireVisuals?.GetWord(drawPointer, run, block));
             return;
         }
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regularFakeDeath))
+        {
+            for (int run = 0; run < regularFakeDeath.RunCount; run++)
+            for (int block = 0; block < regularFakeDeath.Count(run); block++)
+            {
+                bool vertical = regularFakeDeath.Vertical(run);
+                int x = originX + (run == 0 ? 0 : regularFakeDeath.NextX(run - 1));
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    x + (vertical ? 0 : block), originY + (vertical ? block : 0),
+                    regularFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+            }
+            return;
+        }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer,
                 out var fakeDeathDraw))
         {

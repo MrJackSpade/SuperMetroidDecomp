@@ -3619,4 +3619,15 @@
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass the complete reveal draw proof and existing block/visual checks. Production code unchanged.",
     "scope": "Three physical reveal-draw cases only. This is a checked existing implementation, not a retention exception based on table size or complexity. Temporary return DTOs are not stored lookup tables."
   }
+,
+  "grappleBlockProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:CD6A..CD92 and 84:CDA9..CDC1; pinned bank_84.asm",
+    "descriptor": "Remove two stored program descriptors; named respawning/permanent cases construct values. Preserve native enumeration order and exclude the CD93..CDA8 executable BTS callback gap.",
+    "controls": {"algorithm": "Independently review existing timed-record decoder: 240/120 initial ticks, queue-six sound, four forward frames or seven forward/reverse frames, six-tick respawning blank versus one-tick permanent blank and four-tick other transitions. Respawning termination restores BTS one and original block before deleting; permanent termination deletes.", "proof": "VerifyGrappleBlockControlMapping independently lists nineteen native addresses, compares original words and enumeration, and checks the full ushort membership domain and cleared missing output."},
+    "drawOperands": {"algorithm": "Remove the four-entry local draw span. Initial frame selects named Grapple collision; subsequent stages use named breakup-zero/one/two/blank cases, with reverse indexing for respawn reveal.", "proof": "VerifyGrappleBlockDrawOperandMapping independently lists all thirteen native operand addresses, compares original pointers and checks every ushort non-operand and zero missing output."},
+    "packedSound": {"algorithm": "Each program exposes its start+6 sound byte with common sound ID 0A. Queue opcode belongs to control mapping.", "proof": "VerifyGrappleBlockSoundMapping independently checks CD70/CDAF bytes and enumeration order, plus all ushort non-operands and cleared missing outputs."},
+    "confirmation": "Verification build and --lookup-grapple-blocks pass all three complete native proofs and both existing 300-frame production timelines with source reads forbidden, plus visual separation and installation checks.",
+    "scope": "Program descriptors and control/draw/sound mappings only. Five physical draw definitions and the stock visual catalog remain independent required review/conversion work. No retention exception claimed."
+  }
 }

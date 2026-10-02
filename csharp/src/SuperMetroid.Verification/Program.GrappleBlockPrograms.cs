@@ -6,45 +6,60 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
+            0xcda9,0xcdad,0xcdb0,0xcdb4,0xcdb8,0xcdbc,0xcdc0];
+        AssertTrue(addresses.SequenceEqual(RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses()), "Grapple native control enumeration");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
+            AssertEqual(known.Contains((ushort)address),found,"Grapple complete control domain including callback gap");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native timing, sound queue, BTS restoration and deletion");
+        }
+    }
+
+    private static void VerifyGrappleBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcd6c,0xcd73,0xcd77,0xcd7b,0xcd7f,0xcd83,0xcd87,0xcd8b,
+            0xcdab,0xcdb2,0xcdb6,0xcdba,0xcdbe];
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address,out ushort value);
+            AssertEqual(known.Contains((ushort)address),found,"Grapple complete draw operand domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native initial, forward and reverse draw selection");
+        }
+    }
+
+    private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcd70,0xcdaf];
+        AssertTrue(addresses.SequenceEqual(RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses()), "Grapple native sound enumeration");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
+            AssertEqual(addresses.Contains((ushort)address),found,"Grapple complete packed sound domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,value,"Grapple native packed sound bytes");
+        }
+    }
+
     private static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifyGrappleBlockControlMapping(rom);
+        VerifyGrappleBlockDrawOperandMapping(rom);
+        VerifyGrappleBlockSoundMapping(rom);
         var forbidden = new HashSet<int>();
-        int wordCount = 0;
         foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses())
         {
-            AssertTrue(RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort compiled), $"Grapple-block control ${address:X4} exists");
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled, $"Grapple-block control ${address:X4} matches ROM");
             forbidden.Add(0x840000 | address);
             forbidden.Add(0x840000 | (address + 1));
-            wordCount++;
         }
-
-        int byteCount = 0;
         foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses())
-        {
-            AssertTrue(RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(
-                address, out byte compiled), $"Grapple-block sound ${address:X4} exists");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"Grapple-block sound ${address:X4} matches ROM");
             forbidden.Add(0x840000 | address);
-            byteCount++;
-        }
-
-        AssertEqual(19, wordCount, "both Grapple-block programs contain all control words");
-        AssertEqual(2, byteCount, "both Grapple-block programs contain sound bytes");
-        ConfirmCompiledPlmDrawOperands(RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses(),
-            RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord,
-            RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord,
-            address => ReadImportedPlmWord(rom, address),
-            13, "grapple-block");
-        AssertTrue(!RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(
-                RoomPlmInstructionLists.RespawningBreakableGrappleBlock + 2, out _),
-            "first draw pointer remains outside the compiled control domain");
 
         int drawCount = 0;
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
@@ -110,7 +125,7 @@ internal static partial class Program
         VerifyGrappleBlockVisualSeparation(rom, forbidden);
         VerifyGrappleBlockVisualInstallation(rom);
 
-        Console.WriteLine($"Grapple-block PLMs: {wordCount} control words, {byteCount} sound bytes, and {drawCount} draw lists match ROM; both programs run with source reads forbidden.");
+        Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and {drawCount} draw lists match ROM; both programs run with source reads forbidden.");
     }
 
     private static void VerifyGrappleBlockVisualSeparation(

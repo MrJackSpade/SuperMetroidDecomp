@@ -2887,4 +2887,31 @@
         "confirmation": "Verification and ResourceAudit builds and --lookup-kraid-visual-selectors pass against SHA-verified NTSC J/U v1.0. The same command invokes the existing5069-entry original-ROM/sorted-enumeration/shared-lookup proof for the changed merge contract.",
         "remainingScope": "Other shared literals, artwork/catalog data, unresolved mathematical mappings and the rest of the repository inventory remain open. Existing actor-level conversion alone does not resolve separately stored shared copies."
     }
+,
+    "boulderProgramAndVisualReview": {
+        "state": "converted; existing visual algorithm independently reviewed",
+        "owners": ["csharp/src/SuperMetroid.Core/Game/BoulderInstructionProgramDefinitions.cs", "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs:BoulderFrameAt", "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA6.Definitions.cs"],
+        "nativeIdentity": "A6:86A7..86EE two instruction loops; eight spritemaps8A59..8B08",
+        "reviewedEvidence": "Read both native lists and eight sprite-record headers in pinned bank_A6.asm362be646929cf8e483f692b73a6561cfc2dc1d0d, current mechanics/visual consumers and both shared and actor-specific selection paths. Each36-byte loop contains eight eight-frame duration/visual pairs then goto/self target. Left selects frames0..7; right selects0,7,6,5,4,3,2,1. Each OAM record contains four five-byte entries plus a two-byte count, giving22-byte stride.",
+        "tables": [
+            {
+                "id": "boulder-instruction-mechanics",
+                "disposition": "Remove20 stored control records and binary search. Calculate record positions from the repeated loop layout, return duration8, named goto or loop start. Byte ownership preserves odd native word starts, bank mask and ignored high address bits.",
+                "proof": "VerifyBoulderMechanicsMapping independently lists20 addresses and checks all enumerated/direct ROM values, full bank byte ownership, high-bit aliases/wrong bank, holes/misalignment/adjacent and distant invalid words, and ordinal bounds. Extracts the old numerical word loop and rejection assertions."
+            },
+            {
+                "id": "boulder-presentation-operand-addresses",
+                "disposition": "Remove16 stored addresses. Compute each36-byte loop base plus two-byte operand displacement and four-byte frame stride. Add direct membership for the same exact domain.",
+                "proof": "VerifyBoulderPresentationAddresses independently lists all16 positions, verifies full ushort membership and ordinal bounds."
+            },
+            {
+                "id": "boulder-visual-selection-and-shared-copies",
+                "disposition": "Existing BoulderFrameAt arithmetic correctly expresses sequential left rotation and reverse right rotation after frame zero. Retain that completed algorithm and remove16 duplicate shared literal records. Shared lookup/enumeration delegate to it; generator filtering and audit attribution now recognize Boulder.",
+                "proof": "VerifyBoulderVisualSelectors extracts the prior original-ROM comparisons and extends them to the shared path, rejects every hole/misaligned/adjacent visual operand and distant invalid inputs, and checks shared miss output."
+            }
+        ],
+        "rationale": "Instruction sizes, loop control, rotation direction and fixed sprite-record size explain every mapping; there is no arbitrary numerical fit or generated cache. Actual OAM component content is separate and not given a retention exception here.",
+        "confirmation": "Verification and ResourceAudit builds and --lookup-boulder-programs pass against SHA-verified NTSC J/U v1.0. Existing focused producer/interpreter fixture confirms both70-frame loops return to the first frame without original control/visual reads. Existing shared-catalog proof checks the changed merged enumeration's5069 sorted unique native values and lookups.",
+        "remainingScope": "Boulder movement/bounce definitions, actual artwork/catalog identity data and the wider repository inventory still require independent dispositions. Other shared selector families remain unresolved."
+    }
 }

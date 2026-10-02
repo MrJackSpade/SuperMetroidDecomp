@@ -31,7 +31,8 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => FakeKraidInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => BoulderInstructionProgramDefinitions.PresentationWordCount +
+        FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
         AlcoonInstructionProgramDefinitions.PresentationWordCount + AtomicInstructionProgramDefinitions.PresentationWordCount;
     internal static int Count => Entries.Length + CalculatedCount;
@@ -63,6 +64,12 @@ internal static partial class CompiledEnemyVisualSelectors
 
     private static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
+        if (index < BoulderInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = BoulderInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa60000 | operand, EnemySpritemapDefinitions.BoulderFrameAt(operand));
+        }
+        index -= BoulderInstructionProgramDefinitions.PresentationWordCount;
         if (index < FakeKraidInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = FakeKraidInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -87,7 +94,8 @@ internal static partial class CompiledEnemyVisualSelectors
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
-        0xa6 => FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+            FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa8 => AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -100,7 +108,9 @@ internal static partial class CompiledEnemyVisualSelectors
         {
             pointer = bank switch
             {
-                0xa6 => KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
+                0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                    ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
+                    : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
                 0xa7 => KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
                 _ => AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)

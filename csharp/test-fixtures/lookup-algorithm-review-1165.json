@@ -2573,4 +2573,25 @@
         "confirmation": "Verification build and --lookup-kraid-visual-selectors pass. Existing program verifiers delegate their numerical selector proofs to the new focused helpers; actor execution matrices are not run.",
         "remainingScope": "Actual OAM content, arm collision geometry and remaining FakeKraid mechanics are separate mappings awaiting their own dispositions."
     }
+,
+    "fakeKraidInstructionProgramReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FakeKraidInstructionProgramDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A6.asm99AC..9A46: matching left/right forward-walk, backward-walk and spit programs, with interleaved frame operands and two excluded unused standing programs. NTSC J/U v1.0 native words provide the independent control oracle.",
+        "tables": [
+            {
+                "id": "fake-kraid-instruction-control",
+                "disposition": "Remove48 address/value records and binary search. Direct control-flow cases normalize facing, select delays, movement, sound, facing-specific spit and jump targets. Enumerate actual control words in address order without a stored roster.",
+                "proof": "VerifyFakeKraidMechanicsMapping independently lists48 native addresses, checks enumeration and original-ROM values, verifies every bank byte including high-address-bit masking, rejects another bank, all holes/odd bytes/unused programs in the program envelope, distant invalid addresses and ordinal bounds. Extracted prior numerical proof from the existing actor verifier."
+            },
+            {
+                "id": "fake-kraid-presentation-operand-positions",
+                "disposition": "Remove24 addresses. Calculate frame operand locations from walking frame stride, interleaved backward move, firing sound/spit instructions and paired facing-program stride.",
+                "proof": "VerifyFakeKraidPresentationAddresses independently checks all24 positions and invalid ordinals."
+            }
+        ],
+        "rationale": "These records encode executable control flow and instruction layout. Direct semantic cases and layout arithmetic replace both lookups without changing timing or visual operand ownership.",
+        "confirmation": "Verification build and --lookup-fake-kraid-programs pass. No generated cache remains. Actor execution is unchanged and its verifier delegates both focused mapping proofs.",
+        "remainingScope": "Fake Kraid projectile definitions, actual artwork and other repository mappings still require separate review."
+    }
 }

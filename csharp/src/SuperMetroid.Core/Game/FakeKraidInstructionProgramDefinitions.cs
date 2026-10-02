@@ -7,7 +7,7 @@ internal readonly record struct FakeKraidInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Fake Kraid's walking, action-selection, and spit programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are resolved by the installed visual definitions.
 /// </summary>
 internal static class FakeKraidInstructionProgramDefinitions
 {
@@ -32,103 +32,79 @@ internal static class FakeKraidInstructionProgramDefinitions
     /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
     internal const ushort FireSpitFacingRight = 0x9a2a;
 
-    private static readonly FakeKraidInstructionMechanicsWord[] Words =
-    [
-        new(0x99ac, EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction),
-        new(0x99ae, 0x0010), new(0x99b2, 0x000c),
-        new(0x99b6, 0x0008), new(0x99ba, 0x000c),
-        new(0x99be, EnemyInstructionCodePointers.Instruction_MiniKraid_Move),
-        new(0x99c0, CommonEnemyInstructionCodes.Goto),
-        new(0x99c2, ChooseActionFacingLeft),
+    internal static int MechanicsWordCount => 48;
+    internal static int PresentationWordCount => 24;
 
-        new(0x99c4, EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction),
-        new(0x99c6, 0x0010),
-        new(0x99ca, EnemyInstructionCodePointers.Instruction_MiniKraid_Move),
-        new(0x99cc, 0x000c), new(0x99d0, 0x0008), new(0x99d4, 0x000c),
-        new(0x99d8, CommonEnemyInstructionCodes.Goto),
-        new(0x99da, ChooseAlternateActionFacingLeft),
+    /// <summary>Enumerates control words in native program order, skipping visual operands.</summary>
+    internal static FakeKraidInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        for (int address = ChooseActionFacingLeft; address < FireSpitFacingRight + 24; address += 2)
+        {
+            if (TryReadMechanicsWord((ushort)address, out ushort value) && index-- == 0)
+                return new((ushort)address, value);
+        }
+        throw new InvalidOperationException("Fake Kraid instruction enumeration is incomplete.");
+    }
 
-        new(0x99dc, 0x0010),
-        new(0x99e0, EnemyInstructionCodePointers.Instruction_MiniKraid_PlayCrySFX),
-        new(0x99e2, 0x0008),
-        new(0x99e6, EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitLeft),
-        new(0x99e8, 0x0010), new(0x99ec, 0x0008),
-        new(0x99f0, CommonEnemyInstructionCodes.Goto),
-        new(0x99f2, ChooseActionFacingLeft),
-
-        new(0x99fa, EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction),
-        new(0x99fc, 0x0010), new(0x9a00, 0x000c),
-        new(0x9a04, 0x0008), new(0x9a08, 0x000c),
-        new(0x9a0c, EnemyInstructionCodePointers.Instruction_MiniKraid_Move),
-        new(0x9a0e, CommonEnemyInstructionCodes.Goto),
-        new(0x9a10, ChooseActionFacingRight),
-
-        new(0x9a12, EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction),
-        new(0x9a14, 0x0010),
-        new(0x9a18, EnemyInstructionCodePointers.Instruction_MiniKraid_Move),
-        new(0x9a1a, 0x000c), new(0x9a1e, 0x0008), new(0x9a22, 0x000c),
-        new(0x9a26, CommonEnemyInstructionCodes.Goto),
-        new(0x9a28, ChooseAlternateActionFacingRight),
-
-        new(0x9a2a, 0x0010),
-        new(0x9a2e, EnemyInstructionCodePointers.Instruction_MiniKraid_PlayCrySFX),
-        new(0x9a30, 0x0008),
-        new(0x9a34, EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitRight),
-        new(0x9a36, 0x0010), new(0x9a3a, 0x0008),
-        new(0x9a3e, CommonEnemyInstructionCodes.Goto),
-        new(0x9a40, ChooseActionFacingRight),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x99b0, 0x99b4, 0x99b8, 0x99bc,
-        0x99c8, 0x99ce, 0x99d2, 0x99d6,
-        0x99de, 0x99e4, 0x99ea, 0x99ee,
-        0x99fe, 0x9a02, 0x9a06, 0x9a0a,
-        0x9a16, 0x9a1c, 0x9a20, 0x9a24,
-        0x9a2c, 0x9a32, 0x9a38, 0x9a3c,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FakeKraidInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Visual operands follow each frame delay in the paired walking and firing programs.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        int facing = index / 12;
+        int frame = index % 12;
+        int offset = frame switch
+        {
+            < 4 => 4 + 4 * frame,
+            4 => 0x1c,
+            < 8 => 0x22 + 4 * (frame - 5),
+            < 11 => 0x32 + 6 * (frame - 8),
+            _ => 0x42,
+        };
+        return (ushort)(ChooseActionFacingLeft +
+            facing * (ChooseActionFacingRight - ChooseActionFacingLeft) + offset);
+    }
 
     /// <summary>Returns fixed Fake Kraid control or rejects pointers outside the live programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            FakeKraidInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryReadMechanicsWord(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Fake Kraid instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    private static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        bool right = address >= ChooseActionFacingRight;
+        ushort choose = right ? ChooseActionFacingRight : ChooseActionFacingLeft;
+        int offset = address - choose;
+        // The two facing programs have identical control flow. Walking moves after
+        // the forward cycle but after the first backward frame. Firing cries,
+        // opens the mouth, emits spit, closes it, then chooses the next action.
+        int word = offset switch
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+            0 or 0x18 => EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction,
+            2 or 0x1a or 0x30 or 0x3c => 16,
+            6 or 0xe or 0x20 or 0x28 => 12,
+            0xa or 0x24 or 0x36 or 0x40 => 8,
+            0x12 or 0x1e => EnemyInstructionCodePointers.Instruction_MiniKraid_Move,
+            0x14 or 0x2c or 0x44 => CommonEnemyInstructionCodes.Goto,
+            0x16 or 0x46 => choose,
+            0x2e => right ? ChooseAlternateActionFacingRight : ChooseAlternateActionFacingLeft,
+            0x34 => EnemyInstructionCodePointers.Instruction_MiniKraid_PlayCrySFX,
+            0x3a => right
+                ? EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitRight
+                : EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitLeft,
+            _ => -1,
+        };
+        value = unchecked((ushort)word);
+        return word >= 0;
     }
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == 0xa60000 &&
+        TryReadMechanicsWord(unchecked((ushort)(address & ~1)), out _);
 }

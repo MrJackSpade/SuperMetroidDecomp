@@ -29,17 +29,8 @@ internal static partial class Program
                 (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
             "retail Fake Kraid uses ordinary OAM composition");
 
-        for (int index = 0;
-             index < FakeKraidInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            FakeKraidInstructionMechanicsWord definition =
-                FakeKraidInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadFakeKraidInstructionWord(rom, 0xa60000 | definition.Address),
-                $"Fake Kraid instruction mechanics word $A6:{definition.Address:X4}");
-        }
+        VerifyFakeKraidMechanicsMapping(rom);
+        VerifyFakeKraidPresentationAddresses();
 
         var guard = new FakeKraidInstructionProgramReadGuard(rom);
         var level = new RoomLevelData(

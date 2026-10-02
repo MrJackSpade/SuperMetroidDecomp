@@ -2045,12 +2045,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, coloredDoorVisuals: coloredDoorVisuals);
             return;
         }
-        if (GreyDoorPlmDrawDefinitions.TryGet(drawPointer, out var greyDoor))
+        if (GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var greyDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, greyDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, greyDoorVisuals: greyDoorVisuals);
+            for (int cell = 0; cell < 4; cell++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (greyDoor.Vertical ? 0 : cell),
+                    originY + (greyDoor.Vertical ? cell : 0), greyDoor.WordAt(cell),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    greyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
             return;
         }
         if (EyeDoorPlmDrawDefinitions.TryGet(drawPointer, out var eyeDoor))

@@ -22,7 +22,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmGreyDoorVisualCatalog", "plm-grey-door-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGreyDoorVisualCatalog.cs", "9533DFF0CE05C213EA9E2E774836C0B1CE83A96D22CAA9805156039743251B5A"),
-             new("csharp/src/SuperMetroid.Core/Rooms/GreyDoorPlmDrawDefinitions.cs", "C105E863132F7FF51358E917B1D64331FB684B7F1108A1F56B7B7C1159E92179")],
+             new("csharp/src/SuperMetroid.Core/Rooms/GreyDoorPlmDrawDefinitions.cs", "52B836170AD73B5000E3A1895C5BA9A1A5DA2E429EDDC7E0FD097E557B3B3B83")],
             "The constructor requires all twenty unique known grey/clear frames with exact cloned four-word payloads. GetWord guards the pointer and array bounds. Condition gates, timers and sounds are not certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog", "plm-eye-door-complete-mirrored-draws", ["GetWord"],
             [SharedDrawShape,

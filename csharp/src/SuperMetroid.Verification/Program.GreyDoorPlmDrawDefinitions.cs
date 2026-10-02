@@ -32,25 +32,9 @@ internal static partial class Program
             "grey-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa6d7, 0),
             "stock grey-door visual retains native tile choice");
-        AssertEqual(20, lists.Length,
-            "four grey-cap orientations each have four frames plus four shared clear frames");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"grey-door cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"grey-door cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"grey-door cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"grey-door cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadWord(rom, source + 10),
-                $"grey-door cap ${list.Pointer:X4} has a zero offset terminator");
-        }
+        VerifyGreyCapGeometry(rom);
+        VerifyGreyCapCollision(rom);
+        VerifyGreyCapVisuals(rom);
 
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)

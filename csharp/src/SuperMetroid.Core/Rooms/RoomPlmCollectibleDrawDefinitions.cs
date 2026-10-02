@@ -106,15 +106,16 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return false;
     }
 
-    internal static ushort OrbFrame(int animationIndex) => animationIndex switch
+    /// <summary>$84:DFB3 cycles forward through three orb draws and back through the middle draw.</summary>
+    internal static ushort OrbFrame(int animationIndex)
     {
-        0 => OrbFirst,
-        1 or 3 => unchecked((ushort)(OrbFirst + 6)),
-        2 => unchecked((ushort)(OrbFirst + 12)),
-        _ => throw new InvalidDataException(
-            $"Chozo orb animation index {animationIndex} is outside four authored phases."),
-    };
+        if ((uint)animationIndex >= 4)
+            throw new InvalidDataException(
+                $"Chozo orb animation index {animationIndex} is outside four authored phases.");
+        return checked((ushort)(OrbFirst + (2 - Math.Abs(animationIndex - 2)) * 6));
+    }
 
+    /// <summary>$84:E012 reveals three consecutive draws; $84:E022 consumes them in reverse.</summary>
     internal static ushort ShotRevealFrame(int animationIndex)
     {
         if ((uint)animationIndex >= 3)
@@ -123,6 +124,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return checked((ushort)(ShotRevealFirst + animationIndex * 6));
     }
 
+    /// <summary>Two six-byte draws per tank kind or allocated dynamic graphics slot.</summary>
     internal static ushort VisibleFrame(InWorldCollectibleKind kind,
         int animationIndex, int graphicsSlot)
     {

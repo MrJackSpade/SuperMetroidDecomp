@@ -36,7 +36,7 @@ internal static class PlmDoorClosedContractDefinitions
             "The constructor requires all three unique known escape-gate frames with exact cloned four-word payloads. GetWord guards the pointer and array bounds. Escape progression, physical words and animation cadence are not altered."),
         new("SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog", "plm-collectible-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleVisualCatalog.cs", "EF64C05BF9EE9D884BEC0CB6B336BD2B610DC51ED3341D57EF63FC84F8C93473"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "D2A48A3087E85CAC358B6274CABF3BBDFAE80172582EAFE06E783CA9689CBD57")],
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "662600481B44367430E07ABAEB217EA8D826FF6074D5008B2CBAC7789C2C08B7")],
             "The constructor requires all twenty-four unique known collectible frame identities and retains only changed visual words. Stock words are calculated from physical draw definitions; GetWord guards membership in the complete pointer set. Pickup effects, graphics allocation and item persistence are not certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog", "plm-grapple-block-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockVisualCatalog.cs", "928B33A7F718A82B5523D2EACADDB4417222B5F05D2D94FEB816370F40BB6499"),

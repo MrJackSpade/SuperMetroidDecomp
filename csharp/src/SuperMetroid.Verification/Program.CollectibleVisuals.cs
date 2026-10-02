@@ -18,18 +18,10 @@ internal static partial class Program
         VerifyCollectibleDrawIdentity(rom);
         RoomPlmCollectibleVisualCatalog stock = RoomPlmCollectibleVisualCatalog.Stock();
 
-        for (int slot = 0; slot < 4; slot++)
-        for (int animation = 0; animation < 2; animation++)
-        {
-            ushort table = animation == 0
-                ? RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table
-                : RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table;
-            AssertEqual(ReadCollectibleVisualWord(rom,
-                    checked((ushort)(table + slot * 2))),
-                RoomPlmCollectibleDrawDefinitions.VisibleFrame(
-                    InWorldCollectibleKind.Bombs, animation, slot),
-                $"dynamic collectible slot {slot} frame {animation}");
-        }
+        VerifyCollectibleOrbSelector(rom);
+        VerifyCollectibleRevealSelector(rom);
+        VerifyCollectibleTankSelector(rom);
+        VerifyCollectibleDynamicSelector(rom);
 
         RoomPlmCollectibleVisualEntry[] entries =
             RoomPlmCollectibleDrawDefinitions.All.ToArray()

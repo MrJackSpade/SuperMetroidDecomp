@@ -2312,5 +2312,30 @@
             ],
             "limits": "These examples reject only that exact integer attachment model. They do not prove arbitrary authoring, rule out quantized transforms, or justify retention. Articulated coordinate fields and rectangle edges remain unfinished."
         }
+    },
+    "kraidArmQuantizedAttachmentInvestigation": {
+        "analysisCommit": {
+            "subject": "Record bounded Kraid arm attachment analysis for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Record bounded Kraid arm attachment analysis for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+        "state": "pending; no retention decision",
+        "reviewedEvidence": "Pinned bank_A7.asm General_0 at8F59 and General_3 at8FD7; original component0/1 placements and selected general spritemaps0/A versus3/7. Current source placement arrays agree with those native records.",
+        "candidate": "A fixed-length rotating link directly between the stored component origins, followed by independent nearest-integer endpoint rounding (also a common floor quantizer or same-sign truncation with endpoint error intervals of width1).",
+        "exactCounterexample": {
+            "pose0": "Component0(-36,-33), component1(-28,-24): observed displacement(8,9).",
+            "pose3": "Component0(-46,-13), component1(-37,-13): observed displacement(9,0).",
+            "roundingBound": "Subtracting two endpoint quantization errors permits at most1 pixel of error in each displacement coordinate. Use closed intervals for a conservative bound.",
+            "pose0LengthBound": "True displacement lies within[7,9] x [8,10]; squared length is at least7^2+8^2=113.",
+            "pose3LengthBound": "True displacement lies within[8,10] x [-1,1]; squared length is at most10^2+1^2=101.",
+            "conclusion": "The length intervals are disjoint, so this specific fixed-length origin-to-origin model cannot generate both poses. No parameter search or curve fitting is needed."
+        },
+        "artworkOriginCaveat": {
+            "pose0": "Spritemap_General_0 uses one16x16 tile at(-14,-12); General_A uses one16x16 tile at(-12,-12).",
+            "pose3": "Spritemap_General_3 uses two8x8 tiles at(-6,7) and(-6,-1); General_7 uses two8x8 tiles at(-6,-4) and(-14,-4).",
+            "meaning": "Stored component origins are not established anatomical pivots. This counterexample does not rule out a model with independently evidenced artwork-relative pivots, other quantization conventions or another meaningful generation rule. Do not invent pivot corrections merely to fit the data."
+        },
+        "nextReview": "Assess whether native artwork/component definitions establish shared attachment pivots or another exact functional mapping. If they do not, that absence alone is still not proof of arbitrary authoring or permission to retain.",
+        "scope": "Static mathematical analysis of identified lookup data only. No new conversion, runtime change, gameplay probe or test campaign. Articulated coordinate fields and rectangle edges remain unfinished."
     }
 }

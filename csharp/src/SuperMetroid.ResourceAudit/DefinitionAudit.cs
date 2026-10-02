@@ -74,6 +74,7 @@ internal static class DefinitionAudit
         bool boulder = calculated && bank == 0xa6 && BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool kraidFamily = calculated && !boulder && bank is 0xa6 or 0xa7;
         string calculatedMethod = kraidFamily ? "FrameAt"
+            : bank == 0xa2 ? "BoyonFrameAt"
             : boulder ? "BoulderFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
         string relative = calculated

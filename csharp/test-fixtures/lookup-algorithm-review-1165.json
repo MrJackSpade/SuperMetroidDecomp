@@ -2914,4 +2914,31 @@
         "confirmation": "Verification and ResourceAudit builds and --lookup-boulder-programs pass against SHA-verified NTSC J/U v1.0. Existing focused producer/interpreter fixture confirms both70-frame loops return to the first frame without original control/visual reads. Existing shared-catalog proof checks the changed merged enumeration's5069 sorted unique native values and lookups.",
         "remainingScope": "Boulder movement/bounce definitions, actual artwork/catalog identity data and the wider repository inventory still require independent dispositions. Other shared selector families remain unresolved."
     }
+,
+    "boyonProgramAndVisualReview": {
+        "state": "converted",
+        "owners": ["csharp/src/SuperMetroid.Core/Game/BoyonInstructionProgramDefinitions.cs", "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs:BoyonFrameAt", "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA2.Definitions.cs"],
+        "nativeIdentity": "A2:86A7..86DE idle/bounce programs; seven spritemaps88DA..890A, excluding unused890B record",
+        "reviewedEvidence": "Read complete native lists and OAM records in pinned bank_A2.asm362be646929cf8e483f692b73a6561cfc2dc1d0d, named property/callback catalog entries and current instruction/visual/shared consumers. Both programs start with off-screen processing selection and a callback. Idle has four ten-frame poses; bounce has six five-frame poses. Goto targets the first timed frame, skipping setup. Visual order is idle0,1,2,1 and bounce0,1,2,3,2,1. Each record is two-byte count plus one five-byte OAM entry, so frame stride is7.",
+        "tables": [
+            {
+                "id": "boyon-instruction-mechanics",
+                "disposition": "Remove18 stored word records. Calculate setup/timed-frame/terminal positions and decode named property/callback commands, durations, goto and timed-loop target. Preserve odd native word alignment, complete byte ownership and bank/high-bit masks.",
+                "proof": "VerifyBoyonMechanicsMapping independently lists18 native addresses and checks every enumerated/direct ROM value, full bank ownership, high-bit aliases, wrong bank, program holes/misalignment/adjacent and distant invalid words, and ordinal bounds. Extracts the old numerical word and rejection assertions."
+            },
+            {
+                "id": "boyon-presentation-operand-addresses",
+                "disposition": "Remove ten stored addresses. Evaluate each program base plus six-byte setup/duration displacement and four-byte frame stride; classify the same exact membership domain.",
+                "proof": "VerifyBoyonPresentationAddresses checks ten independently listed native addresses, all ushort membership results and ordinal bounds."
+            },
+            {
+                "id": "boyon-visual-selection-and-shared-copies",
+                "disposition": "Replace the raw ten-address switch with forward/reverse pose traversal using peak-abs(peak-frame), peak2 for idle and3 for bounce, then seven-byte record stride. Remove ten duplicate shared literals; shared lookup and sorted enumeration delegate to the calculation. Generator exclusion and source attribution now recognize Boyon.",
+                "proof": "VerifyBoyonVisualSelectors extracts existing native-value checks, adds shared lookup comparisons, rejects every control/misaligned/adjacent visual input and distant invalid operands, and verifies zero shared output on misses."
+            }
+        ],
+        "rationale": "Setup and timed-loop structure explain the control data. Symmetric pose traversal and one-entry record size explain visual selection, including repeated interior frames. Actual tile artwork is separate and receives no retention disposition.",
+        "confirmation": "Verification and ResourceAudit builds and --lookup-boyon-programs pass against SHA-verified NTSC J/U v1.0. Existing idle/bouncing production fixture checks initial/proximity selection, off-screen property changes, native bounce sound and movement enablement with source reads forbidden. Existing5069-entry catalog verifier confirms the changed merged enumeration and shared lookups. Updated normalized-LF source pin.",
+        "remainingScope": "Other Boyon movement/definition mappings, artwork/catalog data and the wider source inventory remain independently unresolved."
+    }
 }

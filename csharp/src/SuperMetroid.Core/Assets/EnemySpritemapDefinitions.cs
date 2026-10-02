@@ -1239,21 +1239,22 @@ internal static class EnemySpritemapDefinitions
     /// The ten fixed pointer operands interleaved with Boyon's compiled idle and bounce
     /// instructions. Repeated frames retain the cartridge's exact visual sequence.
     /// </summary>
-    internal static ushort BoyonFrameAt(ushort operandAddress) => operandAddress switch
+    internal static ushort BoyonFrameAt(ushort operandAddress)
     {
-        0x86ad => 0x88da,
-        0x86b1 => 0x88e1,
-        0x86b5 => 0x88e8,
-        0x86b9 => 0x88e1,
-        0x86c5 => 0x88ef,
-        0x86c9 => 0x88f6,
-        0x86cd => 0x88fd,
-        0x86d1 => 0x8904,
-        0x86d5 => 0x88fd,
-        0x86d9 => 0x88f6,
-        _ => throw new InvalidDataException(
-            $"Boyon visual operand $A2:{operandAddress:X4} is not compiled."),
-    };
+        if (BoyonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            bool bouncing = operandAddress >= BoyonInstructionProgramDefinitions.Bouncing;
+            int firstOperand = (bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + 6;
+            int frame = (operandAddress - firstOperand) / 4;
+            int peak = bouncing ? 3 : 2;
+            int pose = peak - Math.Abs(peak - frame);
+            // One five-byte OAM entry and a two-byte count per frame; both sequences
+            // advance to their peak pose then reverse without repeating the endpoints.
+            return (ushort)((bouncing ? 0x88ef : 0x88da) + 7 * pose);
+        }
+        throw new InvalidDataException(
+            $"Boyon visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
 
     /// <summary>
     /// Four native Cacatac programs: eight idle frames and four attack selectors

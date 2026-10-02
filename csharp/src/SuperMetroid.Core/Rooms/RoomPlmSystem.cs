@@ -2125,13 +2125,18 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (BombTorizoHandPlmDrawDefinitions.TryGet(drawPointer, out var bombTorizoHand))
+        if (BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var bombTorizoHand))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, bombTorizoHand, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                bombTorizoHandVisuals: bombTorizoHandVisuals);
+            for (int run = 0; run < bombTorizoHand.RunCount; run++)
+            for (int word = 0; word < bombTorizoHand.WordCount(run); word++)
+            {
+                ushort physical = bombTorizoHand.WordAt(run, word);
+                ushort visual = bombTorizoHandVisuals?.GetWord(drawPointer, run, word)
+                    ?? new RoomLevelWord(physical).VisualWord;
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + bombTorizoHand.OriginX(run) + word, originY + bombTorizoHand.OriginY(run),
+                    physical, layer1XPosition, layer1YPosition, bg1XOffset, visual);
+            }
             return;
         }
         if (DraygonCannonPlmDrawDefinitions.TryGet(drawPointer, out var draygonCannon))

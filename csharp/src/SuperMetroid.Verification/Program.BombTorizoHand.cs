@@ -212,6 +212,11 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Torizo hand oracle revision");
+        VerifyBombTorizoHandDrawGeometry(rom);
+        VerifyBombTorizoHandDrawCollision(rom);
+        VerifyBombTorizoHandDrawVisuals(rom);
         for (int address = BombTorizoHandPlmProgramDefinitions.FirstAddress;
              address <= BombTorizoHandPlmProgramDefinitions.LastAddress; address++)
         {

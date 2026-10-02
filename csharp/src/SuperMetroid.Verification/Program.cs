@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--bomb-torizo-hand-plm-program"])
+{
+    VerifyBombTorizoHandPlm();
+    return 0;
+}
+if (args is ["--bomb-torizo-hand-artwork"])
+{
+    VerifyBombTorizoHandArtwork();
+    return 0;
+}
 if (args is ["--lookup-escape-gate"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2491,16 +2501,6 @@ if (args is ["--mother-brain-glass-plm-draws"])
 if (args is ["--draygon-cannon-plm-program"])
 {
     VerifyDraygonCannonPlmProgram();
-    return 0;
-}
-if (args is ["--bomb-torizo-hand-plm-program"])
-{
-    VerifyBombTorizoHandPlm();
-    return 0;
-}
-if (args is ["--bomb-torizo-hand-artwork"])
-{
-    VerifyBombTorizoHandArtwork();
     return 0;
 }
 if (args is ["--noob-tube-plm-draws"])

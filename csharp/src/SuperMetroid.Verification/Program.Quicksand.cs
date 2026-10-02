@@ -61,59 +61,10 @@ internal static partial class Program
         static ushort Word(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-        var distinctDefinitions = new HashSet<SpecialAirReactionDefinition>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-        {
-            int areaOffset = AreaIds.ToIndex(area) * sizeof(ushort);
-            ushort insideTable = Word(
-                rom,
-                QuicksandRomData.InsideAreaTables + areaOffset);
-            ushort collisionTable = Word(
-                rom,
-                QuicksandRomData.CollisionAreaTables + areaOffset);
-            for (byte index = 0;
-                 index < SpecialAirReactionDefinitions.EntriesPerArea;
-                 index++)
-            {
-                SpecialAirReactionDefinition inside =
-                    SpecialAirReactionDefinitions.ResolveInside(area, index);
-                AssertEqual(
-                    Word(rom, QuicksandRomData.CollisionBank |
-                        unchecked((ushort)(insideTable + index * sizeof(ushort)))),
-                    inside.HeaderPointer,
-                    $"{area} inside header {index}");
-                AssertEqual(
-                    Word(rom, QuicksandRomData.PlmBank | inside.HeaderPointer),
-                    inside.SetupPointer,
-                    $"{area} inside setup {index}");
-                distinctDefinitions.Add(inside);
-
-                SpecialAirReactionDefinition collision =
-                    SpecialAirReactionDefinitions.ResolveCollision(area, index);
-                AssertEqual(
-                    Word(rom, QuicksandRomData.CollisionBank |
-                        unchecked((ushort)(collisionTable + index * sizeof(ushort)))),
-                    collision.HeaderPointer,
-                    $"{area} collision header {index}");
-                AssertEqual(
-                    Word(rom, QuicksandRomData.PlmBank | collision.HeaderPointer),
-                    collision.SetupPointer,
-                    $"{area} collision setup {index}");
-                distinctDefinitions.Add(collision);
-            }
-        }
-
-        AssertEqual(22, distinctDefinitions.Count,
-            "special-air dispatch distinct header/setup definition count");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SpecialAirReactionDefinitions.ResolveInside(AreaId.Maridia, 16),
-            "out-of-range inside dispatch rejects adjacent code");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SpecialAirReactionDefinitions.ResolveCollision(AreaId.Maridia, 16),
-            "out-of-range collision dispatch rejects adjacent code");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SpecialAirReactionDefinitions.ResolveInside((AreaId)7, 0),
-            "debug-area inside dispatch is outside the retail area domain");
+        VerifySpecialAirInsideHeaderMapping(rom);
+        VerifySpecialAirInsideSetupMapping(rom);
+        VerifySpecialAirCollisionHeaderMapping(rom);
+        VerifySpecialAirCollisionSetupMapping(rom);
 
         AssertEqual(8, QuicksandDefinitions.Reactions.Length,
             "quicksand reaction definition count");
@@ -215,7 +166,54 @@ internal static partial class Program
         }
 
         Console.WriteLine(
-            "Special-air/quicksand definitions: all 224 retail area dispatch records, 22 distinct setup identities, eight quicksand setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
+            "Special-air/quicksand definitions: all 224 retail area dispatch records, eight quicksand setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
+    }
+
+    private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
+        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false);
+
+    private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
+        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true);
+
+    private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
+        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false);
+
+    private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
+        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true);
+
+    private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
+        Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
+    {
+        for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
+        for (int index = 0; index <= byte.MaxValue; index++)
+        {
+            var area = (AreaId)rawArea;
+            if (rawArea >= 7 || index >= 16)
+            {
+                try
+                {
+                    resolve(area, (byte)index);
+                    throw new InvalidOperationException("Special-air selector accepted an unsupported area/index.");
+                }
+                catch (ArgumentOutOfRangeException exception)
+                {
+                    AssertEqual(rawArea >= 7 ? "area" : "areaReactionIndex", exception.ParamName!,
+                        "special-air bounds and validation order");
+                }
+                continue;
+            }
+
+            // Follow the original area pointer and header, independently of the production cases.
+            ushort table = ReadBotwoonInstructionWord(rom, nativePointers + rawArea * 2);
+            ushort header = ReadBotwoonInstructionWord(rom, 0x940000 | (table + index * 2));
+            ushort expected = setup ? ReadBotwoonInstructionWord(rom, 0x840000 | header) : header;
+            var bts = new RoomBlockBehavior((byte)(0x80 | index));
+            AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
+            AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
+            SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
+            AssertEqual(expected, setup ? actual.SetupPointer : actual.HeaderPointer,
+                $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
+        }
     }
 
     private sealed class QuicksandDefinitionReadGuard(ISnesAddressSpace source)

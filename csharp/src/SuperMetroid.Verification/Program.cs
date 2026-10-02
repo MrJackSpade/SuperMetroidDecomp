@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--samus-eater-visuals"])
+{
+    VerifySamusEaterVisuals();
+    return 0;
+}
 if (args is ["--lookup-special-air"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2352,11 +2357,6 @@ if (args is ["--spore-spawn-ceiling-plms"])
 if (args is ["--spore-spawn-ceiling-visuals"])
 {
     VerifySporeSpawnCeilingVisuals();
-    return 0;
-}
-if (args is ["--samus-eater-visuals"])
-{
-    VerifySamusEaterVisuals();
     return 0;
 }
 if (args is ["--botwoon-wall-plms"])

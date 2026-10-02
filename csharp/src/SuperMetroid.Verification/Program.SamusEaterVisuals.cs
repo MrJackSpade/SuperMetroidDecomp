@@ -9,8 +9,13 @@ internal static partial class Program
 {
     private static void VerifySamusEaterVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
+            "Samus Eater native oracle revision");
+        VerifySamusEaterDrawGeometry(rom);
+        VerifySamusEaterDrawWords(rom);
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "samus-eater-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
@@ -35,25 +40,14 @@ internal static partial class Program
                 for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
                 {
                     var run = draw.Runs.Span[runIndex];
-                    AssertEqual(run.DirectionAndCount,
-                        ReadSamusEaterPlmWord(rom, 0x840000 | cursor),
-                        "Samus Eater native draw direction/count");
                     for (int block = 0; block < run.LevelWords.Length; block++)
                     {
                         ushort native = ReadSamusEaterPlmWord(rom,
                             0x840000 | checked((ushort)(cursor + 2 + 2 * block)));
-                        AssertEqual(native, run.LevelWords.Span[block],
-                            "Samus Eater native physical block word");
                         AssertEqual(new RoomLevelWord(native).VisualWord,
                             stock.GetWord(draw.Pointer, runIndex, block),
                             "Samus Eater stock visual block word");
                     }
-                    ushort offset = ReadSamusEaterPlmWord(rom,
-                        0x840000 | checked((ushort)(cursor + 2 +
-                            2 * run.LevelWords.Length)));
-                    AssertEqual((ushort)(unchecked((byte)run.NextX) |
-                        unchecked((byte)run.NextY) << 8), offset,
-                        "Samus Eater native signed run offset");
                     cursor = checked((ushort)(cursor + 4 +
                         2 * run.LevelWords.Length));
                 }
@@ -79,9 +73,9 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             RoomPlmSamusEaterVisualCatalog edited =
                 installation.LoadRoomPlmSamusEaterVisuals();
-            VerifySamusEaterLiveDraw(edited,
+            VerifySamusEaterLiveDraw(rom, edited,
                 SamusEaterPlmDrawDefinitions.FloorChew2, 0x05a5, 0x0058);
-            VerifySamusEaterLiveDraw(edited,
+            VerifySamusEaterLiveDraw(rom, edited,
                 SamusEaterPlmDrawDefinitions.CeilingChew2, 0x0da5, 0x0059);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -111,8 +105,79 @@ internal static partial class Program
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
     }
 
+    private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterDrawField(rom, false);
+
+    private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterDrawField(rom, true);
+
+    private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
+    {
+        ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
+        var exported = SamusEaterPlmDrawDefinitions.All.ToArray();
+        AssertEqual(pointers.Length, exported.Length, "plant draw export coverage");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort pointer = (ushort)raw;
+            int frame = Array.IndexOf(pointers, pointer);
+            AssertEqual(frame >= 0, SamusEaterPlmDrawDefinitions.TryDescribe(pointer, out var draw),
+                "plant draw pointer ownership includes only supported records");
+            AssertEqual(frame >= 0, SamusEaterPlmDrawDefinitions.TryGet(pointer, out var dto),
+                "plant draw DTO pointer ownership");
+            if (frame < 0)
+            {
+                AssertEqual(default(SamusEaterPlmDrawDefinitions.Draw), draw, "missing plant descriptor");
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing plant DTO");
+                continue;
+            }
+            AssertEqual(pointer, exported[frame].Pointer, "plant export native order");
+            AssertEqual(3, dto.Runs.Length, "plant run count");
+            int cursor = 0x840000 | pointer;
+            for (int run = 0; run < 3; run++)
+            {
+                ushort count = ReadSamusEaterPlmWord(rom, cursor);
+                var exportedRun = exported[frame].Runs.Span[run];
+                var dtoRun = dto.Runs.Span[run];
+                if (words)
+                {
+                    for (int block = 0; block < count; block++)
+                    {
+                        ushort native = ReadSamusEaterPlmWord(rom, cursor + 2 + block * 2);
+                        AssertEqual(native, draw.WordAt(run, block), "calculated plant physical word");
+                        AssertEqual(native, dtoRun.LevelWords.Span[block], "direct plant DTO word");
+                        AssertEqual(native, exportedRun.LevelWords.Span[block], "exported plant word");
+                    }
+                    foreach (int invalid in new[] { int.MinValue, -1, (int)count, 256, int.MaxValue })
+                        AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(run, invalid), "plant block bounds");
+                }
+                else
+                {
+                    AssertEqual((int)count, SamusEaterPlmDrawDefinitions.Draw.Count(run), "plant native horizontal count");
+                    AssertEqual(count, dtoRun.DirectionAndCount, "plant DTO count");
+                    AssertEqual(count, exportedRun.DirectionAndCount, "plant export count");
+                    ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
+                    sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(offset >> 8));
+                    AssertEqual(x, SamusEaterPlmDrawDefinitions.Draw.NextX(run), "plant signed horizontal offset");
+                    AssertEqual(y, draw.NextY(run), "plant signed vertical offset");
+                    AssertEqual(x, dtoRun.NextX, "plant DTO horizontal offset");
+                    AssertEqual(y, dtoRun.NextY, "plant DTO vertical offset");
+                    AssertEqual(x, exportedRun.NextX, "plant export horizontal offset");
+                    AssertEqual(y, exportedRun.NextY, "plant export vertical offset");
+                }
+                cursor += 4 + count * 2;
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, 3, 256, int.MaxValue })
+            {
+                AssertThrows<IndexOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.Count(invalid), "plant run count bounds");
+                AssertThrows<IndexOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.NextX(invalid), "plant offset X bounds");
+                AssertThrows<IndexOutOfRangeException>(() => draw.NextY(invalid), "plant offset Y bounds");
+                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "plant word run bounds");
+            }
+        }
+    }
+
     private static void VerifySamusEaterLiveDraw(
-        RoomPlmSamusEaterVisualCatalog visuals, ushort pointer,
+        SuperMetroidAddressSpace rom, RoomPlmSamusEaterVisualCatalog visuals, ushort pointer,
         ushort physicalWord, ushort visualWord)
     {
         const int width = 16;
@@ -125,7 +190,7 @@ internal static partial class Program
         var streamer = level.CreateBackgroundStreamer();
         MethodInfo draw = typeof(RoomPlmSystem)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
-            .Single(method => method.Name == "DrawRomInstruction" &&
+            .Single(method => method.Name == "DrawPlmInstruction" &&
                 method.GetParameters().Length == 9);
         int origin = 8 * width + 8;
         draw.Invoke(plms, [guard, level, streamer, (ushort)0, origin, pointer,
@@ -136,6 +201,20 @@ internal static partial class Program
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.BlockIndex == origin && update.TopRow[0] == visualWord),
             "Samus Eater edited block reaches the real redraw path");
+        int nativeCursor = 0x840000 | pointer;
+        int expectedX = 8, expectedY = 8;
+        for (int run = 0; run < 3; run++)
+        {
+            int count = ReadSamusEaterPlmWord(rom, nativeCursor);
+            for (int block = 0; block < count; block++)
+                AssertEqual(ReadSamusEaterPlmWord(rom, nativeCursor + 2 + block * 2),
+                    level.GetCollisionBlockByIndex(expectedY * width + expectedX + block).LevelWord,
+                    "plant live placement follows native signed run offsets");
+            ushort offset = ReadSamusEaterPlmWord(rom, nativeCursor + 2 + count * 2);
+            expectedX = 8 + unchecked((sbyte)offset);
+            expectedY = 8 + unchecked((sbyte)(offset >> 8));
+            nativeCursor += 4 + count * 2;
+        }
         AssertEqual(0, guard.Reads,
             "compiled Samus Eater draw never reads ROM at runtime");
     }

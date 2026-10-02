@@ -52,15 +52,15 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !SamusEaterPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+            !SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Samus Eater visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= 3 ||
+            (uint)blockIndex >= (uint)SamusEaterPlmDrawDefinitions.Draw.Count(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
+            flatIndex += SamusEaterPlmDrawDefinitions.Draw.Count(run);
         return words[flatIndex];
     }
 }

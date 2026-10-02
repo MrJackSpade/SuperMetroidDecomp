@@ -1959,13 +1959,18 @@ public sealed partial class RoomPlmSystem
                 sporeSpawnCeilingVisuals: sporeSpawnCeilingVisuals);
             return;
         }
-        if (SamusEaterPlmDrawDefinitions.TryGet(drawPointer, out var samusEater))
+        if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, samusEater, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                samusEaterVisuals: samusEaterVisuals);
+            int plantX = originX, plantY = originY;
+            for (int run = 0; run < 3; run++)
+            {
+                for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
+                    DrawPlmWordAt(level, streamer, drawPointer, plantX + block, plantY,
+                        samusEater.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                        samusEaterVisuals?.GetWord(drawPointer, run, block));
+                plantX = originX + SamusEaterPlmDrawDefinitions.Draw.NextX(run);
+                plantY = originY + samusEater.NextY(run);
+            }
             return;
         }
         if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)

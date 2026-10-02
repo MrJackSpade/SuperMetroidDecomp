@@ -3731,4 +3731,15 @@
     "confirmation": "Verification build and --lookup-special-air pass both complete header-field proofs, three complete physics-field proofs, the prior area selectors and focused production quicksand behavior with source reads forbidden.",
     "scope": "QuicksandDefinitions reaction setup/list mapping and three suit-dependent physics fields. Named scalar cases remain executable selection, not retained lookup storage; no retention exception claimed. The broader source audit remains unfinished."
   }
+,
+  "samusEaterPhysicalDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:9E0D/9E45/9E61/9E7D/9E99/9ED1/9EED/9F09; pinned bank_84.asm DrawInst_BrinstarFloorPlant_0..3 and DrawInst_BrinstarCeilingPlant_0..3",
+    "algorithm": "Remove eight stored DrawList records and their run/word arrays. Named pointer cases select floor/ceiling and idle/chew phase. Each phase advances paired mouth and foliage tiles by two. Mouth halves mirror horizontally, foliage draws the pair and its reflection, and ceiling adds vertical flip. Solid mouth centers and foliage collision classes are fixed; only idle restores the special-air parent and horizontal-extension child.",
+    "geometry": {"disposition": "converted", "algorithm": "Three horizontal runs have counts 2,2,4. Draw right mouth at origin, left mouth at origin-2 X, then foliage at origin-2 X and one row above/below for floor/ceiling. Continuation offsets are origin-relative, ending at zero.", "proof": "VerifySamusEaterDrawGeometry independently lists eight original pointers and compares native counts and signed XY offsets with descriptor, direct DTO and ordered export. Full ushort membership rejects interiors and unused native records; invalid run bounds throw."},
+    "levelWords": {"disposition": "converted", "proof": "VerifySamusEaterDrawWords compares all 64 calculated physical words with the original records, direct DTOs and export. It checks complete pointer ownership/default outputs and invalid run/block bounds."},
+    "consumers": "RoomPlmSystem now draws the scalar descriptor directly. Artwork interfaces materialize temporary DTOs; the visual getter uses descriptor counts without allocating draws. Existing ordinal visual IDs and export order remain intact. Normalized PlmProgression source pins updated.",
+    "confirmation": "Verification and ResourceAudit builds and --samus-eater-visuals pass complete native draw proofs, stock extraction/validation, custom floor/ceiling redraw with original collision words at every native run position, source-read prohibition, visual isolation and stock repair checks.",
+    "scope": "Physical draw geometry and words only. The separate stock visual dictionary and plant program/behavior mappings remain independently reviewable; no retention exception claimed."
+  }
 }

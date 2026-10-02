@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -24,66 +26,75 @@ internal static class ChozoStatuePlmProgramDefinitions
     /// <summary>Last byte before native spike restore $84:D3F4.</summary>
     internal const ushort BlockSlopeEnd = 0xd3f3;
 
-    private static readonly byte[] CrumblePlug = Convert.FromHexString(
-        "040045A304004BA3040051A3010057A3BC86");
-    private static readonly byte[] LowerNorfairHand = Convert.FromHexString(
-        "2D880C004DD1C1865CD1B486BC8655D10100B5A2BC86");
-    private static readonly byte[] ClearSlope = Convert.FromHexString(
-        "0100C59CD7D3BC86");
-    private static readonly byte[] BlockSlope = Convert.FromHexString(
-        "01000F9DF4D3BC86");
+    /// <summary>$84:D14D: restore lowered acid and clear the hand on event-set room entry.</summary>
+    private const ushort RestoreLoweredAcid = 0xd14d;
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (TryGetBytes(address, out byte[] bytes, out int offset) &&
-            offset + 1 < bytes.Length)
-        {
-            value = (ushort)(bytes[offset] | bytes[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (!TryLocate(address, out int start, out int length) || address == start + length - 1) return false;
+        value = (ushort)(ByteAt(start, address - start) | ByteAt(start, address - start + 1) << 8);
+        return true;
     }
-
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        if (TryGetBytes(address, out byte[] bytes, out int offset))
-        {
-            value = bytes[offset];
-            return true;
-        }
         value = 0;
-        return false;
+        if (!TryLocate(address, out int start, out _)) return false;
+        value = ByteAt(start, address - start);
+        return true;
     }
-
-    private static bool TryGetBytes(ushort address, out byte[] bytes, out int offset)
+    private static bool TryLocate(ushort address, out int start, out int length)
     {
+        start = 0; length = 0;
         if (address >= CrumblePlugStart && address <= CrumblePlugEnd)
+        { start = CrumblePlugStart; length = 18; }
+        else if (address >= LowerNorfairHandStart && address <= LowerNorfairHandEnd)
+        { start = LowerNorfairHandStart; length = 22; }
+        else if (address >= ClearSlopeStart && address <= ClearSlopeEnd)
+        { start = ClearSlopeStart; length = 8; }
+        else if (address >= BlockSlopeStart && address <= BlockSlopeEnd)
+        { start = BlockSlopeStart; length = 8; }
+        return length != 0;
+    }
+    private static byte ByteAt(int start, int offset) =>
+        (byte)(WordAt(start, offset & ~1) >> ((offset & 1) * 8));
+
+    /// <summary>
+    /// Native crumble uses four six-byte draw records with holds 4/4/4/1.
+    /// The hand branches on lowered acid, otherwise sleeps under its trigger callback.
+    /// Slope programs draw once, apply their named transform and delete.
+    /// Canonical words are calculated here; byte projection preserves all 52 overlaps.
+    /// </summary>
+    private static ushort WordAt(int start, int offset)
+    {
+        if (start == CrumblePlugStart)
         {
-            bytes = CrumblePlug;
-            offset = address - CrumblePlugStart;
-            return true;
+            if (offset == 16) return RoomPlmInstructionCodes.Delete;
+            int frame = offset / 4;
+            return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
+                (ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * 6);
         }
-        if (address >= LowerNorfairHandStart && address <= LowerNorfairHandEnd)
+        if (start == LowerNorfairHandStart)
+            return offset switch
+            {
+                0 => RoomPlmInstructionCodes.GotoIfEventSet,
+                2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
+                4 => RestoreLoweredAcid,
+                6 => RoomPlmInstructionCodes.InstallPreInstruction,
+                8 => ChozoStatuePlmRomData.WaitForLowerNorfairHand,
+                10 => RoomPlmInstructionCodes.Sleep,
+                14 => ChozoStatuePlmRomData.SetLoweredAcidHeight,
+                16 => 1,
+                18 => ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand,
+                _ => RoomPlmInstructionCodes.Delete,
+            };
+        bool clear = start == ClearSlopeStart;
+        return offset switch
         {
-            bytes = LowerNorfairHand;
-            offset = address - LowerNorfairHandStart;
-            return true;
-        }
-        if (address >= ClearSlopeStart && address <= ClearSlopeEnd)
-        {
-            bytes = ClearSlope;
-            offset = address - ClearSlopeStart;
-            return true;
-        }
-        if (address >= BlockSlopeStart && address <= BlockSlopeEnd)
-        {
-            bytes = BlockSlope;
-            offset = address - BlockSlopeStart;
-            return true;
-        }
-        bytes = Array.Empty<byte>();
-        offset = 0;
-        return false;
+            0 => 1,
+            2 => clear ? ChozoStatuePlmDrawDefinitions.ClearSlopeAccess : ChozoStatuePlmDrawDefinitions.BlockSlopeAccess,
+            4 => clear ? ChozoStatuePlmRomData.TransformSpikesToSlopes : ChozoStatuePlmRomData.RevertSlopesToSpikes,
+            _ => RoomPlmInstructionCodes.Delete,
+        };
     }
 }

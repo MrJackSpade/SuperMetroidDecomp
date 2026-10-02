@@ -4432,4 +4432,17 @@
     "confirmation":"Verification and ResourceAudit builds and --draygon-cannon-plm-program pass the stock proof, three physical-field proofs, five program-field proofs, guarded damage sequences and existing custom/installed artwork checks. Presentation source pin and ownership text updated.",
     "scope":"Complete cannon stock visual mapping and content identity. No retention exception; wider maintained-source audit remains active."
   }
+,
+  "chozoStatuePlmProgramReview": {
+    "status":"converted: four stored terrain-program blobs removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 D0F6..D107, D13F..D154, D3CF..D3D6, D3EC..D3F3; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read shared program composition and RoomPlmSystem.ChozoStatue consumers. Adjacent setup/callback code remains excluded.",
+    "controls":{"disposition":"converted", "algorithm":"Crumble advances four frames with holds 4/4/4/1 then deletes. Lower Norfair hand checks the event, installs its callback and sleeps, or restores lowered acid and draws once before deletion. Wrecked Ship slope programs draw once, run the named spike/slope transform, then delete.", "proof":"VerifyChozoProgramControls compares all 36 original opcode/duration bytes."},
+    "draws":{"disposition":"converted", "algorithm":"Crumble selects four existing one-block breakup frames using their six-byte stride; the hand and both slope programs select named physical layouts.", "proof":"VerifyChozoProgramDraws compares all seven original draw operands."},
+    "target":{"disposition":"converted", "algorithm":"Named restore-lowered-acid continuation at D14D.", "proof":"VerifyChozoProgramTargets compares the native branch word."},
+    "callback":{"disposition":"converted", "algorithm":"Named Lower Norfair hand trigger callback D15C.", "proof":"VerifyChozoProgramCallback compares the native callback word."},
+    "event":{"disposition":"converted", "algorithm":"Named LowerNorfairChozoLoweredAcid event selector.", "proof":"VerifyChozoProgramEvent compares the native event word."},
+    "domain":"56 bytes and 52 overlapping word starts in exactly four original ranges. Every proof checks full ushort byte/word ownership, rejected zero outputs and native fields through direct/composed readers. Range-end words and all adjacent native code remain rejected. No persistent program data/cache or gameplay ROM read.",
+    "confirmation":"Verification build and --chozo-plm-definitions pass the five independent field proofs plus existing five-header spawning, terrain draw/override and shared-delete checks. Old combined byte comparison consolidated. Existing command moved ahead of unrelated suites and pins supported ROM SHA256.",
+    "scope":"Four Chozo terrain programs and separately interpreted fields. Physical layouts, stock visual data and other owners remain audit work. No retention exception; wider maintained-source audit remains active."
+  }
 }

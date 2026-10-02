@@ -44,6 +44,14 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--chozo-plm-definitions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Chozo program oracle revision");
+    VerifyChozoStatuePlmDefinitions(rom);
+    return 0;
+}
 if (args is ["--draygon-cannon-plm-program"])
 {
     VerifyDraygonCannonPlmProgram();
@@ -2598,12 +2606,6 @@ if (args is ["--arm-cannon-definitions"])
 if (args is ["--tourian-access-definitions"])
 {
     VerifyTourianAccessPlmDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
-if (args is ["--chozo-plm-definitions"])
-{
-    VerifyChozoStatuePlmDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }

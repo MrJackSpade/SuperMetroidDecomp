@@ -14,19 +14,11 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < FuneNamiheFireballInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            FuneNamiheFireballInstructionMechanicsWord definition =
-                FuneNamiheFireballInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadFuneNamiheFireballInstructionWord(rom, definition.Address),
-                $"Fune/Namihe fireball mechanics word $86:{definition.Address:X4}");
-        }
+        VerifyFuneNamiheFireballMechanicsMapping(rom);
+        VerifyFuneNamiheFireballPresentationAddresses();
 
         var guard = new FuneNamiheFireballInstructionReadGuard(rom);
+        var observedVisuals = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var spawn = typeof(RoomEnemySystem).GetMethod(
@@ -69,25 +61,19 @@ internal static partial class Program
                 {
                     projectile.InstructionTimer = 1;
                     process.Invoke(enemies, arguments);
+                    AssertEqual((ushort)(program + 2 + 4 * (frame % 3)), projectile.PresentationOperandAddress,
+                        "Fune/Namihe fireball frame order including loop restart");
+                    AssertEqual((ushort)5, projectile.InstructionTimer,
+                        "Fune/Namihe fireball frame duration");
+                    observedVisuals.Add(projectile.PresentationOperandAddress);
                 }
                 AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                     $"{kind} {(movingRight ? "right" : "left")} loops to first frame");
             }
         }
 
-        AssertEqual(
-            FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Fune/Namihe fireball spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address = FuneNamiheFireballInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Fune/Namihe presentation $86:{address:X4}");
-        }
+        AssertTrue(observedVisuals.SetEquals(new ushort[] { 0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0 }),
+            "production selects all six installed Fune/Namihe fireball visual operands");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Fune/Namihe fireball mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -108,8 +94,63 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fune/Namihe fireball instruction mechanics: ten compiled words, both " +
-            "directional loops for both species, and six live spritemap reads pass " +
+            "directional loops for both species, and six installed visual operands pass " +
             "with mechanics bytes forbidden.");
+    }
+
+    private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
+        AssertEqual(addresses.Length, FuneNamiheFireballInstructionProgramDefinitions.MechanicsWordCount,
+            "FuneNamihe-fireball mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadFuneNamiheFireballInstructionWord(rom, address);
+            var definition = FuneNamiheFireballInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, definition.Address, "FuneNamihe-fireball native word position");
+            AssertEqual(expected, definition.Value, "FuneNamihe-fireball native enumerated word");
+            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "FuneNamihe-fireball native direct word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = bytes.Contains(address);
+            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                "FuneNamihe-fireball full bank ownership");
+            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address),
+                "FuneNamihe-fireball preserves high-bit masking");
+            AssertTrue(!FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x850000 | address),
+                "FuneNamihe-fireball rejects other bank");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0xde94; address <= 0xdeb8; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(
+                    () => FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "FuneNamihe-fireball rejects odd words, visuals and adjacent code");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "FuneNamihe-fireball rejects distant invalid word");
+        foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheFireballInstructionProgramDefinitions.MechanicsWord(index),
+                "FuneNamihe-fireball mechanics ordinal bounds");
+    }
+
+    private static void VerifyFuneNamiheFireballPresentationAddresses()
+    {
+        ushort[] expected = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
+        AssertEqual(expected.Length, FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
+            "FuneNamihe-fireball presentation count");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index),
+                "FuneNamihe-fireball native presentation position");
+        foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index),
+                "FuneNamihe-fireball presentation ordinal bounds");
     }
 
     private static int ProbeFuneNamiheFireballInstructionMechanicsAllocation()
@@ -137,38 +178,17 @@ internal static partial class Program
     private sealed class FuneNamiheFireballInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {
-            if (FuneNamiheFireballInstructionProgramDefinitions
-                .IsCompiledMechanicsByte(address))
+            if ((address & 0xff0000) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FuneNamiheFireballInstructionProgramDefinitions
-                         .PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = FuneNamiheFireballInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
             }
 
             return source.ReadByte(address);

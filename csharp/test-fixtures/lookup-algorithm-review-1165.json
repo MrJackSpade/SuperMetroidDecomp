@@ -2972,4 +2972,19 @@
         "confirmation": "Verification build and --lookup-enemy-fireball-launches pass against SHA-verified NTSC J/U v1.0. Existing aggregate now delegates the three extracted field proofs. Caller integration and velocity storage conventions are unchanged.",
         "remainingScope": "This resolves the named launch mappings only. Other actor/projectile definitions, SPC pan and the wider repository inventory remain open."
     }
+,
+  "funeNamiheFireballInstructionProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank 86 DE96-DEB5; pinned bank_86.asm directional fireball lists",
+    "mechanics": {
+      "disposition": "Ten stored mechanics words replaced by two sixteen-byte loops: three five-tick frames, named goto, and own program start.",
+      "proof": "VerifyFuneNamiheFireballMechanicsMapping independently checks all ten original ROM words, ordinal bounds, holes, full byte ownership and bank aliases."
+    },
+    "presentationAddresses": {
+      "disposition": "Six stored operand positions replaced by facing stride sixteen and frame stride four.",
+      "proof": "VerifyFuneNamiheFireballPresentationAddresses checks the six independently specified native addresses and ordinal bounds."
+    },
+    "integration": "Both species and both directions traverse all three frames and restart with five-tick timers, while original program bytes are forbidden. Installed visual operands are asserted directly.",
+    "scope": "Instruction timing/control and operand-address mappings only; artwork and other actor mappings require their own review. No retained-table exception claimed."
+  }
 }

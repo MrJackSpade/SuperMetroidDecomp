@@ -10,6 +10,7 @@ internal static partial class Program
         VerifyKraidRoomProgramMapping(rom);
 
         VerifyKraidDrawAddresses();
+        VerifyKraidDrawOwnerClassification(rom);
         VerifyKraidDrawShapes(rom);
         VerifyKraidDrawWords(rom);
         VerifyKraidDrawVisualIds();

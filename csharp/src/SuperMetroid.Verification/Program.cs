@@ -43,11 +43,12 @@ if (args is ["--lookup-kraid-draws"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(drawOracle.Rom)),
         "Kraid draw oracle is NTSC J/U v1.0");
     VerifyKraidDrawAddresses();
+    VerifyKraidDrawOwnerClassification(drawOracle);
     VerifyKraidDrawShapes(drawOracle);
     VerifyKraidDrawWords(drawOracle);
     VerifyKraidDrawVisualIds();
     VerifyKraidRoomVisualSelection();
-    Console.WriteLine("Kraid draw definitions: ten identities, native shapes, all 45 words, visual IDs and bounds pass.");
+    Console.WriteLine("Kraid draw definitions: ten identities, eight owners, native shapes, all 45 words, visual IDs and bounds pass.");
     return 0;
 }
 if (args is ["--lookup-kraid-room-programs"])

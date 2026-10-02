@@ -3,6 +3,27 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
+    {
+        // Independent native header/list identities from bank_84.asm B7A3..B7C1.
+        // B79F is the unused background-one setter, outside the managed owner set.
+        (ushort Header, ushort Program)[] owners =
+        [
+            (0xb7a3, 0xab6d), (0xb7a7, 0xab8b),
+            (0xb7ab, 0xab7f), (0xb7af, 0xab9d),
+            (0xb7b3, 0xab91), (0xb7b7, 0xaba3),
+            (0xb7bb, 0xabdd), (0xb7bf, 0xaba9),
+        ];
+        foreach (var owner in owners)
+            AssertEqual(owner.Program, KraidDrawRomWord(rom, owner.Header + 2),
+                "Kraid draw owner native program identity");
+        var headers = owners.Select(owner => owner.Header).ToHashSet();
+        for (int header = 0; header <= ushort.MaxValue; header++)
+            AssertEqual(headers.Contains((ushort)header),
+                KraidRoomPlmDrawDefinitions.IsKraidOwner((ushort)header),
+                "Kraid visual owner classification across full header domain");
+    }
+
     private static (ushort Pointer, int Count, string Id)[] KraidDrawOracle() =>
     [
         (0x9367, 1, "crumble-first"), (0x936d, 1, "crumble-second"),

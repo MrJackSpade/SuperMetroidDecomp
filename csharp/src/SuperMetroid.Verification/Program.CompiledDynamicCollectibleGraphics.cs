@@ -9,7 +9,7 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         AssertEqual(RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount,
-            RoomPlmDynamicCollectibleGraphicsDefinitions.All.Length,
+            RoomPlmDynamicCollectibleGraphicsDefinitions.All.Count(),
             "compiled dynamic collectible graphics count");
         foreach (RoomPlmDynamicCollectibleGraphic graphic in
                  RoomPlmDynamicCollectibleGraphicsDefinitions.All)
@@ -34,16 +34,15 @@ internal static partial class Program
                 AssertEqual(graphic.GraphicsPointer,
                     ReadCollectibleGraphicsWord(rom, instruction + 2),
                     $"{graphic.Kind} header $84:{header:X4} graphics pointer");
-                for (int offset = 0; offset < 8; offset++)
-                    AssertEqual(rom.ReadByte(0x840000 | (instruction + 4 + offset)),
-                        graphic.PaletteOffsets.Span[offset],
-                        $"{graphic.Kind} header $84:{header:X4} palette offset {offset}");
+
             }
         }
         AssertThrows<InvalidDataException>(
             () => RoomPlmDynamicCollectibleGraphicsDefinitions.Get(
                 InWorldCollectibleKind.EnergyTank),
             "non-dynamic item cannot request a graphics upload");
+
+        VerifyDynamicCollectiblePaletteSelectors(rom);
 
         // Retail population $8F:83FE contains a Chozo-orb Bombs item. Ban every
         // compiled graphics payload and every retail item-list upload from the bus,

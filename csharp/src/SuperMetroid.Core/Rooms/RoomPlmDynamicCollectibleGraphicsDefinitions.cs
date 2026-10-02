@@ -19,46 +19,49 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     internal const int FirstKind = (int)InWorldCollectibleKind.Bombs;
     internal const int GraphicCount = RoomPlmHeaders.PermanentCollectibleKindCount - FirstKind;
 
-    private static readonly RoomPlmDynamicCollectibleGraphic[] Graphics;
-
-    static RoomPlmDynamicCollectibleGraphicsDefinitions() => Graphics = Parse();
-
-    internal static ReadOnlySpan<RoomPlmDynamicCollectibleGraphic> All => Graphics;
+    internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All
+    {
+        get
+        {
+            for (int kind = FirstKind; kind < FirstKind + GraphicCount; kind++)
+                yield return Get((InWorldCollectibleKind)kind);
+        }
+    }
 
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         int index = (int)kind - FirstKind;
-        if ((uint)index >= Graphics.Length)
+        if ((uint)index >= GraphicCount)
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic graphics upload.");
-        return Graphics[index];
+        var source = Sources[index];
+        byte[] palettes = new byte[8];
+        for (int tile = 0; tile < palettes.Length; tile++)
+            palettes[tile] = PaletteOffset(kind, tile);
+        return new(kind, source.GraphicsPointer, palettes, Convert.FromHexString(source.TilesHex));
     }
 
-    private static RoomPlmDynamicCollectibleGraphic[] Parse()
+    /// <summary>
+    /// Eight upload palette selectors are two row-major 2x2 frames. Beam icons
+    /// select their accent palette in the top-right tile of each frame; X-ray
+    /// uses its top row with different palettes between the two frames.
+    /// </summary>
+    internal static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
     {
-        if (Sources.Length != GraphicCount)
+        if ((uint)((int)kind - FirstKind) >= GraphicCount)
             throw new InvalidDataException(
-                $"Compiled permanent-item graphics count is {Sources.Length}, expected {GraphicCount}.");
-        var result = new RoomPlmDynamicCollectibleGraphic[GraphicCount];
-        var pointers = new HashSet<ushort>();
-        for (int index = 0; index < result.Length; index++)
+                $"Permanent-item kind {kind} has no dynamic graphics upload.");
+        if ((uint)tile >= 8)
+            throw new ArgumentOutOfRangeException(nameof(tile));
+        if (kind == InWorldCollectibleKind.XrayScope)
+            return (byte)(tile % 4 < 2 ? (tile < 4 ? 1 : 3) : 0);
+        if (tile % 4 != 1) return 0;
+        return kind switch
         {
-            var source = Sources[index];
-            if (source.Kind != FirstKind + index ||
-                source.GraphicsPointer < 0x8000 ||
-                !pointers.Add(source.GraphicsPointer))
-                throw new InvalidDataException(
-                    $"Compiled permanent-item graphics entry {index} has an invalid kind or pointer.");
-            byte[] palettes = Convert.FromHexString(source.PaletteHex);
-            byte[] tiles = Convert.FromHexString(source.TilesHex);
-            if (palettes.Length != 8 || tiles.Length != 0x100 ||
-                palettes.Any(offset => offset > 7))
-                throw new InvalidDataException(
-                    $"Compiled permanent-item graphics entry {index} has invalid payload sizes or palettes.");
-            result[index] = new RoomPlmDynamicCollectibleGraphic(
-                (InWorldCollectibleKind)source.Kind,
-                source.GraphicsPointer, palettes, tiles);
-        }
-        return result;
+            InWorldCollectibleKind.IceBeam => 3,
+            InWorldCollectibleKind.WaveBeam => 2,
+            InWorldCollectibleKind.PlasmaBeam => 1,
+            _ => 0,
+        };
     }
 }

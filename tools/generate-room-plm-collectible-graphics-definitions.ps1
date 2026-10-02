@@ -17,10 +17,10 @@ try {
     $lines = [Collections.Generic.List[string]]::new()
     $lines.Add('namespace SuperMetroid.Core.Rooms;')
     $lines.Add('')
-    $lines.Add('/// <summary>Pinned bank-$89 item tiles and bank-$84 palette offsets; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
+    $lines.Add('/// <summary>Pinned bank-$89 item tiles; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
     $lines.Add('internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions')
     $lines.Add('{')
-    $lines.Add('    private static readonly (byte Kind, ushort GraphicsPointer, string PaletteHex, string TilesHex)[] Sources =')
+    $lines.Add('    private static readonly (byte Kind, ushort GraphicsPointer, string TilesHex)[] Sources =')
     $lines.Add('    [')
     $uniqueGraphics = [Collections.Generic.HashSet[int]]::new()
     for ($kind = 4; $kind -lt 21; $kind++) {
@@ -51,7 +51,7 @@ try {
         }
         $sourceOffset = 0x48000 + ($graphicPointer - 0x8000)
         $tilesHex = [Convert]::ToHexString($rom[$sourceOffset..($sourceOffset + 0xFF)])
-        $lines.Add(('        ({0}, 0x{1:X4}, "{2}", "{3}"),' -f $kind, $graphicPointer, $paletteHex, $tilesHex))
+        $lines.Add(('        ({0}, 0x{1:X4}, "{2}"),' -f $kind, $graphicPointer, $tilesHex))
     }
     $lines.Add('    ];')
     $lines.Add('}')

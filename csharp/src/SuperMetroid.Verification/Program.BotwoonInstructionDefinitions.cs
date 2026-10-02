@@ -18,6 +18,10 @@ internal static partial class Program
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
+        VerifyBotwoonHeadMovementSelection(rom);
+        VerifyBotwoonHeadSpitSelection(rom);
+        VerifyBotwoonBodyTailSelection(rom);
+
         var guarded = new BotwoonInstructionReadGuard(rom);
         var animateHead = typeof(RoomEnemySystem).GetMethod(
             "AnimateBotwoonHeadFromMovement", flags)!
@@ -379,6 +383,32 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,74,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitions.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
     }
+    private static void VerifyBotwoonHeadMovementSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int angle = 0; angle <= byte.MaxValue; angle++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3946b + 2 * (angle / 32)),
+                BotwoonInstructionDefinitions.HeadMovementInstruction((byte)angle), "Botwoon movement all byte angles");
+        foreach (int octant in new[] {int.MinValue,-1,8,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonInstructionDefinitions.HeadForOctant(octant), "Botwoon invalid octant domain");
+    }
+
+    private static void VerifyBotwoonHeadSpitSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int angle = 0; angle <= byte.MaxValue; angle++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3948b + 2 * (((angle + 16) % 256) / 32)),
+                BotwoonInstructionDefinitions.HeadSpitInstruction((byte)angle), "Botwoon spit bias and byte wrap for all angles");
+    }
+
+    private static void VerifyBotwoonBodyTailSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+            if (offset < 64 && offset % 2 == 0)
+                AssertEqual(ReadBotwoonInstructionWord(rom, 0x86e9f1 + offset),
+                    BotwoonInstructionDefinitions.BodyInstruction((ushort)offset), "Botwoon visible/hidden body/tail selectors");
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => BotwoonInstructionDefinitions.BodyInstruction((ushort)offset), "Botwoon body selector rejects odd and high offsets");
+    }
+
     private static void VerifyBotwoonVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,

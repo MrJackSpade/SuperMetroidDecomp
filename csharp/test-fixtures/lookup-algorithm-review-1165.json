@@ -3403,4 +3403,15 @@
     "confirmation": "Verification and ResourceAudit builds pass. --lookup-botwoon-head-programs confirms seventeen production head programs and the complete 5069-entry shared selector contract.",
     "scope": "Head visual pointers only. Head/body program selection, radius behavior, body/projectile programs and artwork remain independent review work; no retention exception claimed."
   }
+,
+  "botwoonProgramSelectionReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 B3:946B-949A head selectors and 86:E9F1-EA30 body/tail selectors; pinned bank_B3.asm and bank_86.asm",
+    "headMovement": {"algorithm": "Map clockwise octant to the counterclockwise physical program slot, accounting for the unused down-facing-left slot, then apply the eight-byte program stride.", "proof": "VerifyBotwoonHeadMovementSelection checks all 256 angles against native selectors and invalid octant extremes. Existing production movement checks cover all eight directions with original tables forbidden."},
+    "headSpit": {"algorithm": "Apply native sixteen-step angle bias with byte wrap, reuse physical direction calculation and apply sixteen-byte spit-program stride.", "proof": "VerifyBotwoonHeadSpitSelection independently checks all 256 angles against native selectors. Existing production aim checks cover all eight directions."},
+    "bodyTail": {"algorithm": "Decode visible/hidden and body/tail regions from the validated even byte offset. Hidden regions select the common hidden program. Body reuses physical octant conversion and twenty-byte program stride; tail reverses circular octant order over six-byte programs.", "proof": "VerifyBotwoonBodyTailSelection checks all 32 native selectors and rejects every other ushort input. Existing production animation checks all 32 selections, installed selector and timer with original table reads forbidden."},
+    "hiddenHead": {"algorithm": "Existing single named hidden program replaces all eight identical native entries.", "proof": "VerifyBotwoonInstructionDefinitions independently compares all eight native entries."},
+    "confirmation": "Verification build and --lookup-botwoon-program-selection pass.",
+    "scope": "Head movement/spit, hidden-head and body/tail program selection only. Body/projectile program contents, radius behavior and artwork still require their own review; no retention exception claimed."
+  }
 }

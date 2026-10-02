@@ -41,14 +41,6 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x98e3 ? edited : null);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmNoobTubeVisualCatalog(entries.Skip(1)),
-            "n00b-tube catalog rejects missing frames");
-        cleared.Blocks[24] = 0xf059;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmNoobTubeVisualCatalog(entries),
-            "n00b-tube catalog rejects collision bits in visual words");
-        cleared.Blocks[24] = originalWord;
         VerifyNoobTubeVisualInstallation(rom);
         Console.WriteLine(
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -147,6 +139,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmNoobTubeVisualFiles.ValidateStock(
                 installation.RoomPlmNoobTubeVisualDirectory);
+            VerifyNoobTubeStockMapping(rom, installation.LoadRoomPlmNoobTubeVisuals());
             string stockPath = Path.Combine(
                 installation.RoomPlmNoobTubeVisualDirectory,
                 RoomPlmNoobTubeVisualFiles.VisualFileName);

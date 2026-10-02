@@ -30,8 +30,8 @@ internal static class PlmClosedContractDefinitions
             "The constructor requires all eleven glass frames, unique compiled identities and exact flattened word counts before cloning. GetWord bounds-checks each native run/word selection before flattening; glass damage and shatter timing remain outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog", "plm-noob-tube-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmNoobTubeVisualCatalog.cs", "9FCE1ABB071EF40C17B2557D6577E6AFA74118A90AFC65FD8BBBE226A2F716BA"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmNoobTubeVisualCatalog.cs", "28793D14E283207822071158031EAE5CC02C76F7144436ABAA85C64DE360D5E4"),
              new("csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs", "50A37A644C4EA2A5BC4C446DF9BB70AC86594327E3EB5D51E97F6B7476697D5E")],
-            "The constructor requires all seven tube frames with unique compiled identities and exact cloned flattened payloads. GetWord checks the declared run/word shape. Power-bomb gating, shards, events and liquid mechanics are not part of this resource-domain proof."),
+            "The constructor requires all seven tube frames with unique compiled identities and exact flattened payloads, cloning only custom frames. GetWord checks the calculated run/word shape and calculates unchanged stock visuals. Power-bomb gating, shards, events and liquid mechanics are not part of this resource-domain proof."),
     ];
 }

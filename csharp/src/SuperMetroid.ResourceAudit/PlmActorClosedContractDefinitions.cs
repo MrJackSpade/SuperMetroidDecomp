@@ -12,7 +12,7 @@ internal static class PlmActorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog", "plm-downward-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDownwardGateVisualCatalog.cs", "828BCFD646AB89659A548EA2E6597D16D5CFBAD1016DFB31C952548C03DA5961"),
-             new("csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmDrawDefinitions.cs", "52DB7900C127F7046C761CC255471A20A5B2AA1B21BF0E970FCBE2E1635AA004")],
+             new("csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmDrawDefinitions.cs", "B918E2F1F25F6A244F86BA34654B373755D14D94C4C6B0C5E052A463733C8887")],
             "The constructor accepts only compiled named frames, rejects duplicate IDs, requires all six gate-column frames and eight trigger draws with exact cloned run/word shapes. GetWord guards the complete pointer/run/word domain. Actor sprites and shot filters are outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog", "plm-elevator-platform-complete-draws", ["GetWord"],
             [SharedDrawShape,

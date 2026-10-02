@@ -70,41 +70,12 @@ internal static partial class Program
 
     private static void VerifyDownwardGateDrawDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        int count = 0;
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDrawDefinitions.All)
-        {
-            int cursor = list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                ushort directionAndCount = unchecked((ushort)(
-                    rom.ReadByte(0x840000 | cursor) |
-                    rom.ReadByte(0x840000 | (cursor + 1)) << 8));
-                AssertEqual(run.DirectionAndCount, directionAndCount,
-                    $"gate draw ${list.Pointer:X4} direction/count matches ROM");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8));
-                    AssertEqual(word, native,
-                        $"gate draw ${list.Pointer:X4} physical level word matches ROM");
-                    cursor += 2;
-                }
-
-                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor++),
-                    $"gate draw ${list.Pointer:X4} next X matches ROM");
-                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor++),
-                    $"gate draw ${list.Pointer:X4} next Y matches ROM");
-            }
-
-            count++;
-        }
-        AssertEqual(14, count, "all six resident and eight shot-trigger gate draws are compiled");
-        AssertTrue(!DownwardGatePlmDrawDefinitions.TryGet(0xa518, out _),
-            "adjacent payload bytes cannot alias a complete gate draw list");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate draw oracle revision");
+        VerifyDownwardGateDrawGeometry(rom);
+        VerifyDownwardGateDrawCollision(rom);
+        VerifyDownwardGateDrawVisuals(rom);
     }
 
     private static void VerifyDownwardGateProgramDefinitions()

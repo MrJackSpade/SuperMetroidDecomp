@@ -2095,12 +2095,22 @@ public sealed partial class RoomPlmSystem
                 elevatorPlatformVisuals: elevatorPlatformVisuals);
             return;
         }
-        if (DownwardGatePlmDrawDefinitions.TryGet(drawPointer, out var gate))
+        if (DownwardGatePlmDrawDefinitions.TryDescribe(drawPointer, out var gate))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, gate, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, gateVisuals: downwardGateVisuals);
+            int gateX = originX;
+            for (int run = 0; run < gate.RunCount; run++)
+            {
+                for (int word = 0; word < gate.WordCount(run); word++)
+                {
+                    ushort physical = gate.WordAt(run, word);
+                    ushort visual = downwardGateVisuals?.GetWord(drawPointer, run, word)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, gateX + (gate.Column ? 0 : word),
+                        originY + (gate.Column ? word : 0), physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                gateX = originX + gate.NextX(run);
+            }
             return;
         }
         if (MotherBrainEscapeGatePlmDrawDefinitions.TryGet(drawPointer, out var escapeGate))

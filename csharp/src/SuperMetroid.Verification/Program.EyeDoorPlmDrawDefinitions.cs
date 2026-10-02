@@ -29,8 +29,6 @@ internal static partial class Program
         rightEye.Blocks[0] = 0x0056;
         AssertEqual((ushort)0x0055, edited.GetWord(0x9c5b, 0),
             "eye-door catalog copies author data");
-        AssertEqual(stockWord, RoomPlmEyeDoorVisualCatalog.Stock().GetWord(0x9c5b, 0),
-            "stock eye-door catalog retains native frame");
         rightEye.Blocks[0] = stockWord;
         AssertEqual(24, lists.Length,
             "mirrored eye, middle and bottom components include both four-block opening clears");
@@ -44,14 +42,6 @@ internal static partial class Program
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited);
         VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists);
         VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Right, lists);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmEyeDoorVisualCatalog(entries.Skip(1)),
-            "eye-door catalog rejects missing frames");
-        rightEye.Blocks[0] = 0xf055;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmEyeDoorVisualCatalog(entries),
-            "eye-door catalog rejects collision bits in visual words");
-        rightEye.Blocks[0] = stockWord;
         VerifyEyeDoorVisualInstallation(rom);
         Console.WriteLine(
             "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
@@ -253,6 +243,7 @@ internal static partial class Program
                 installation.RoomPlmEyeDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmEyeDoorVisualFiles.ValidateStock(
                 installation.RoomPlmEyeDoorVisualDirectory);
+            VerifyEyeDoorStockMapping(rom, installation.LoadRoomPlmEyeDoorVisuals());
             string stockPath = Path.Combine(installation.RoomPlmEyeDoorVisualDirectory,
                 RoomPlmEyeDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

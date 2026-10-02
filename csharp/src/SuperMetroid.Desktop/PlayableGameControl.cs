@@ -873,8 +873,8 @@ public sealed partial class PlayableGameControl : UserControl
             ?? throw new InvalidOperationException(
                 $"Room $8F:{pointer:X4} has no logical room identity.");
         host.Text =
-            $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, " +
-            $"room {identity}]";
+            $"Super Metroid C# — RoomId: {identity} — {name} " +
+            $"[$8F:{pointer:X4}, state $8F:{state:X4}]";
     }
 
     /// <summary>

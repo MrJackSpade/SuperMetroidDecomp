@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grey-door-plm-draws"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Grey door oracle revision");
+    VerifyGreyDoorPlmDrawDefinitions(rom);
+    Console.WriteLine("Grey door definitions and guarded lifecycle pass, including all Bomb Torizo program fields.");
+    return 0;
+}
 if (args is ["--bomb-torizo-hand-plm-program"])
 {
     VerifyBombTorizoHandPlm();
@@ -2477,12 +2486,6 @@ if (args is ["--blue-door-plm-draws"])
 if (args is ["--colored-door-plm-draws"])
 {
     VerifyColoredDoorPlmDrawDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
-if (args is ["--grey-door-plm-draws"])
-{
-    VerifyGreyDoorPlmDrawDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }

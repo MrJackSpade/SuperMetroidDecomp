@@ -297,36 +297,12 @@ internal static partial class Program
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (BombTorizoGreyDoorPlmProgramDefinitions.ClosingStart,
-                BombTorizoGreyDoorPlmProgramDefinitions.ClosingEnd),
-            (BombTorizoGreyDoorPlmProgramDefinitions.ResidentStart,
-                BombTorizoGreyDoorPlmProgramDefinitions.ResidentEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                        checked((ushort)address), out byte compiled),
-                    $"Bomb Torizo door program claims byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"Bomb Torizo door program byte $84:{address:X4} matches ROM");
-                if (address == last)
-                    continue;
-                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                        checked((ushort)address), out ushort compiledWord),
-                    $"Bomb Torizo door program claims word $84:{address:X4}");
-                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8);
-                AssertEqual(native, compiledWord,
-                    $"Bomb Torizo door program word $84:{address:X4} matches ROM");
-            }
-        }
-        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xba6f, out _),
-            "Bombs callback machine code remains outside compiled instruction data");
-        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbad1, out _),
-            "unused setup machine code remains outside compiled instruction data");
+        VerifyTorizoDoorControls(rom);
+        VerifyTorizoDoorDraws(rom);
+        VerifyTorizoDoorTargets(rom);
+        VerifyTorizoDoorSounds(rom);
+        VerifyTorizoDoorHitCount(rom);
+        VerifyTorizoDoorCallback(rom);
     }
 
     private static void VerifySharedDoorClearVisual(

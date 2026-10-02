@@ -3,46 +3,82 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    // Native list boundaries and timed-record counts from pinned bank_84.asm.
+    private static (ushort Start, int Frames, ushort End)[] ContactCrumbleNativeLayouts() =>
+        [(0xc9f9,7,0xca1c),(0xca1c,8,0xca41),(0xca41,8,0xca66),(0xca66,8,0xca8b),
+         (0xca8b,4,0xcaa0),(0xcaa0,4,0xcab5),(0xcab5,4,0xcaca),(0xcaca,4,0xcadf)];
+
+    private static void VerifyContactCrumbleControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort>();
+        foreach (var layout in ContactCrumbleNativeLayouts())
+        {
+            addresses.Add(layout.Start);
+            int cursor = layout.Start + 3;
+            for (int frame = 0; frame < layout.Frames; frame++, cursor += 4)
+                addresses.Add((ushort)cursor);
+            for (; cursor < layout.End; cursor += 2)
+                addresses.Add((ushort)cursor);
+        }
+        AssertEqual(64, addresses.Count, "contact crumble native control extent");
+        AssertTrue(addresses.SequenceEqual(RoomPlmContactCrumbleProgramDefinitions.MechanicsWordAddresses()),
+            "contact crumble complete native control enumeration");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(known.Contains((ushort)address), found, "contact crumble full control address domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0,
+                value, "contact crumble native timing, restoration and deletion controls");
+        }
+    }
+
+    private static void VerifyContactCrumbleDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new HashSet<ushort>();
+        foreach (var layout in ContactCrumbleNativeLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Start + 5 + frame * 4));
+        AssertEqual(47, addresses.Count, "contact crumble native draw operand extent");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            AssertEqual(addresses.Contains((ushort)address), found, "contact crumble full draw address domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0,
+                value, "contact crumble native breakup, reverse reveal and linked restoration draws");
+        }
+    }
+
+    private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xc9fb,0xca1e,0xca43,0xca68,0xca8d,0xcaa2,0xcab7,0xcacc];
+        AssertTrue(addresses.SequenceEqual(RoomPlmContactCrumbleProgramDefinitions.MechanicsByteAddresses()),
+            "contact crumble native packed sound enumeration");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            AssertEqual(known.Contains((ushort)address), found, "contact crumble full sound address domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,
+                value, "contact crumble native packed sound bytes");
+        }
+    }
+
     private static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifyContactCrumbleControlMapping(rom);
+        VerifyContactCrumbleDrawMapping(rom);
+        VerifyContactCrumbleSoundMapping(rom);
         var forbidden = new HashSet<int>();
-        int wordCount = 0;
         foreach (ushort address in RoomPlmContactCrumbleProgramDefinitions.MechanicsWordAddresses())
         {
-            AssertTrue(RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort compiled), $"contact-crumble control ${address:X4} exists");
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled,
-                $"contact-crumble control ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
             forbidden.Add(0x840000 | (address + 1));
-            wordCount++;
         }
-
-        int byteCount = 0;
         foreach (ushort address in RoomPlmContactCrumbleProgramDefinitions.MechanicsByteAddresses())
-        {
-            AssertTrue(RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(
-                address, out byte compiled), $"contact-crumble sound ${address:X4} exists");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"contact-crumble sound ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
-            byteCount++;
-        }
-
-        AssertEqual(64, wordCount, "all eight contact-crumble control streams are compiled");
-        AssertEqual(8, byteCount, "all eight contact-crumble sound operands are compiled");
-        ConfirmCompiledPlmDrawOperands(RoomPlmContactCrumbleProgramDefinitions.MechanicsWordAddresses(),
-            RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord,
-            RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord,
-            address => ReadImportedPlmWord(rom, address),
-            47, "contact-crumble");
-        AssertTrue(!RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(
-                RoomPlmInstructionLists.ContactCrumble1x1Respawning + 5, out _),
-            "an interleaved draw pointer is not classified as control");
 
         int restoreCount = 0;
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
@@ -130,7 +166,7 @@ internal static partial class Program
         VerifyContactCrumbleVisualSeparation(rom, forbidden);
         VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false);
 
-        Console.WriteLine($"Contact-crumble PLMs: {wordCount} control words, {byteCount} sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
+        Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
     private static void VerifyContactCrumbleVisualSeparation(

@@ -3544,4 +3544,15 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including all eight contact-crumble production programs and the existing bomb fixtures.",
     "scope": "Contact-crumble header identity only; program descriptors, timing and draw definitions retain their independent review requirements. No retention exception claimed."
   }
+,
+  "contactCrumbleProgramDescriptorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:C9F9..CADE; pinned bank_84.asm contact-crumble lists",
+    "descriptor": "Remove eight stored Start/Respawns/Dimension records. Reuse the independently proved named instruction selector; BTS bit two chooses permanent versus respawning and its low two bits choose size. All consumers calculate value descriptors, preserving native order without a cache.",
+    "controls": {"algorithm": "Independently reviewed the existing packed-sound/timed-record decoder. Permanent programs use four forward frames and delete; respawning programs use seven forward/reverse frames, restore the original single block or draw the linked shape, then delete. Named stage/shape cases preserve the single-block initial 8/6 ticks, 16-tick single/horizontal hold, 32-tick vertical/square hold, four-tick other transitions, and one-tick final permanent/linked draw.", "proof": "VerifyContactCrumbleControlMapping independently specifies native starts, record counts and end boundaries, compares all 64 control words and enumeration order, and checks the entire ushort accepted/rejected domain including zero missing outputs."},
+    "drawOperands": {"algorithm": "Reuse calculated shape-specific frame base/stride and ascending/reversed frame index; linked respawn termination selects named horizontal, vertical or square restoration draws.", "proof": "VerifyContactCrumbleDrawMapping compares all 47 native operands from independent list boundaries and timed-record counts, and checks all ushort non-operands and missing outputs."},
+    "packedSound": {"algorithm": "Expose only the packed start+2 byte for each named program, with common direct sound ID 0A; queue policy remains part of control decoding.", "proof": "VerifyContactCrumbleSoundMapping independently lists all eight native packed operand addresses, checks bytes and enumeration order, and rejects every other ushort address with zero output."},
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass the three complete address-domain proofs and existing eight contact-crumble production timelines with source reads forbidden, plus the selector and bomb fixtures.",
+    "scope": "Contact-crumble descriptors and program control/draw/sound mappings only. The existing proof was consolidated into three independent logical mapping proofs; restoration draw payloads and unrelated program families remain separate work. No retention exception claimed."
+  }
 }

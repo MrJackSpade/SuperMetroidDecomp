@@ -16,22 +16,18 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         internal ushort Terminal => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    private static readonly Program[] Programs =
-    [
-        new(RoomPlmInstructionLists.ContactCrumble1x1Respawning, true, 0),
-        new(RoomPlmInstructionLists.ContactCrumble2x1Respawning, true, 1),
-        new(RoomPlmInstructionLists.ContactCrumble1x2Respawning, true, 2),
-        new(RoomPlmInstructionLists.ContactCrumble2x2Respawning, true, 3),
-        new(RoomPlmInstructionLists.ContactCrumble1x1Permanent, false, 0),
-        new(RoomPlmInstructionLists.ContactCrumble2x1Permanent, false, 1),
-        new(RoomPlmInstructionLists.ContactCrumble1x2Permanent, false, 2),
-        new(RoomPlmInstructionLists.ContactCrumble2x2Permanent, false, 3),
-    ];
+    private const int ProgramCount = 8;
+
+    // Native BTS order selects size in its low two bits and permanent versus
+    // respawning behavior in bit two. Descriptors are values, not a stored table.
+    private static Program ProgramAt(int index) => new(
+        RoomPlmInstructionLists.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
 
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             int drawOffset = address - program.Start - 5;
             if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
             {
@@ -56,8 +52,9 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start)
             {
                 value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct;
@@ -106,8 +103,9 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
                 value = BreakSoundId;
@@ -121,8 +119,9 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsWordAddresses()
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return program.Start;
             for (int frame = 0; frame < program.FrameCount; frame++)
                 yield return checked((ushort)(program.Start + 3 + 4 * frame));
@@ -135,7 +134,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsByteAddresses()
     {
-        foreach (Program program in Programs)
-            yield return checked((ushort)(program.Start + 2));
+        for (int index = 0; index < ProgramCount; index++)
+            yield return checked((ushort)(ProgramAt(index).Start + 2));
     }
 }

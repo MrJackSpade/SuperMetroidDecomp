@@ -7,10 +7,43 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        const ushort pointer = 0xa4f3;
+        ushort native = (ushort)(ReadBotwoonInstructionWord(rom,0x84a4f5) & 0xfff);
+        var stock = RoomPlmSpeedBoosterVisualCatalog.Stock();
+        var imported = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native])]);
+        string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+            nameof(RoomPlmSpeedBoosterVisualCatalog), content => content.Append("visual word",word));
+        AssertEqual(native,stock.GetWord(pointer,0,0),"speed stock visual matches original native draw");
+        AssertEqual(native,imported.GetWord(pointer,0,0),"speed imported visual matches original native draw");
+        AssertEqual(Hash(native),stock.ContentIdentity,"speed stock scalar identity");
+        AssertEqual(Hash(native),imported.ContentIdentity,"speed imported scalar identity");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            if (address != pointer)
+                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)address,0,0),"speed visual full pointer rejection");
+        foreach (int invalid in new[] {int.MinValue,-1,1,2,int.MaxValue})
+        {
+            AssertThrows<InvalidDataException>(() => stock.GetWord(pointer,invalid,0),"speed visual run bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetWord(pointer,0,invalid),"speed visual block bounds");
+        }
+        ushort[] custom = [0x0453];
+        var edited = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",custom)]);
+        custom[0] = 0x0054;
+        AssertEqual((ushort)0x0453,edited.GetWord(pointer,0,0),"speed visual scalar isolates source-array edits");
+        AssertEqual(Hash(0x0453),edited.ContentIdentity,"speed custom scalar identity including flip bits");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([]),"speed visual requires entry");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[0xb0b6])]),"speed visual rejects collision bits");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
+    }
+
     private static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifySpeedBoosterStockVisualMapping(rom);
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "speed-booster-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +

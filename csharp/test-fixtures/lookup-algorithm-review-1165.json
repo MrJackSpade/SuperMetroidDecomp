@@ -3680,6 +3680,16 @@
     "identity": "The only admitted pointer selects bomb-reveal. Preserve ordinal visual-ID matching, missing-output clearing and all unknown-pointer rejection.",
     "proof": "VerifySpeedBlockRevealDrawMapping consolidates the prior native draw check, compares the complete original record with direct scalar, exported record, direct property and ID lookup, checks all ushort pointers and visual-ID rejection, and preserves one-record export identity.",
     "confirmation": "Verification and ResourceAudit builds, --lookup-speed-blocks and --speed-booster-visuals pass: native draw/domain proof, five boosted contacts and bomb reveal without source reads, live artwork editing, physical isolation and stock repair. Normalized PlmProgression draw source pin updated.",
-    "scope": "Physical Speed Booster bomb-reveal draw only. The visual selection catalog and collision selectors remain independently reviewable; no retention exception claimed."
+    "scope": "Physical Speed Booster bomb-reveal draw only. The visual catalog is independently checked under speedBlockStockVisualReview; collision selectors remain independently reviewable; no retention exception claimed."
+  }
+,
+  "speedBlockStockVisualReview": {
+    "status": "existing scalar implementation independently verified",
+    "source": "NTSC J/U v1.0 84:A4F5 visual portion; RoomPlmSpeedBoosterVisualCatalog factory, constructor, getter and identity",
+    "algorithm": "Existing stock selection takes the visual portion of the physical reveal word. Constructor validates exactly one named single-block entry and copies the selected word into an immutable scalar. Temporary input/DTO arrays are not retained; there is no stock lookup table or generated cache to remove. Custom visual content remains separate from collision bits.",
+    "identity": "Existing selected-content identity hashes the scalar under the visual word label and catalog domain, independent of the input array or installation path.",
+    "proof": "VerifySpeedBoosterStockVisualMapping independently reads the original A4F5 word, checks factory/imported stock and native scalar hashes, full ushort pointer rejection, invalid run/block bounds, custom flipped appearance and hash, source-array isolation, and missing/duplicate/wrong-ID/collision-bit/shape rejection.",
+    "confirmation": "Verification build and --speed-booster-visuals pass the scalar proof, native reveal parity, live edits, collision isolation, stock repair and existing strict-failure checks. Production code unchanged.",
+    "scope": "Speed Booster stock visual scalar and content identity only. Existing implementation is preserved on verified functional grounds, not under a size/performance retention exception. Collision selectors and the wider inventory remain required work."
   }
 }

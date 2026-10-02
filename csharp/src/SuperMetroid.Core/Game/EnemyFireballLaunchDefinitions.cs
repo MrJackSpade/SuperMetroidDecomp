@@ -8,16 +8,18 @@ public static class EnemyFireballLaunchDefinitions
     /// <summary>$86:DEB6, NamiFuneFireball_XVelocityTable: eight signed left/right pairs.</summary>
     public const int NamiFuneReferenceAddress = 0x86deb6;
 
-    /// <summary>Retains the native byte selector and signed 8.8 encoding.</summary>
-    public static ushort AlcoonYVelocity(ushort byteOffset) => byteOffset switch
+    /// <summary>Maps the three even native selectors to upward, level and downward
+    /// one-pixel/frame launches, preserving the signed8.8 word representation.</summary>
+    public static ushort AlcoonYVelocity(ushort byteOffset)
     {
-        0 => 0xff00,
-        2 => 0,
-        4 => 0x100,
-        _ => throw new InvalidDataException($"Alcoon launch byte offset {byteOffset} is not 0, 2 or 4."),
-    };
+        if (byteOffset > 4 || (byteOffset & 1) != 0)
+            throw new InvalidDataException($"Alcoon launch byte offset {byteOffset} is not 0, 2 or 4.");
+        return unchecked((ushort)((byteOffset / 2 - 1) * 256));
+    }
 
-    /// <summary>Only parameter two's low byte selects the authored velocity pair.</summary>
+    /// <summary>Parameter two's low byte selects quarter-pixel/frame increments1..8,
+    /// mirrored by direction. The native caller stores the left speed in YVelocity
+    /// and the right speed in XVelocity; both are horizontal signed8.8 velocities.</summary>
     public static (ushort Left, ushort Right) NamiFuneVelocities(ushort parameter)
     {
         int index = (byte)parameter;

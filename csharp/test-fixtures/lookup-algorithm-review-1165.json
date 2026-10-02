@@ -2941,4 +2941,35 @@
         "confirmation": "Verification and ResourceAudit builds and --lookup-boyon-programs pass against SHA-verified NTSC J/U v1.0. Existing idle/bouncing production fixture checks initial/proximity selection, off-screen property changes, native bounce sound and movement enablement with source reads forbidden. Existing5069-entry catalog verifier confirms the changed merged enumeration and shared lookups. Updated normalized-LF source pin.",
         "remainingScope": "Other Boyon movement/definition mappings, artwork/catalog data and the wider source inventory remain independently unresolved."
     }
+,
+    "enemyFireballLaunchAlgorithmReview": {
+        "state": "converted Alcoon; independently reviewed existing Namihe/Fune algorithm",
+        "owner": "csharp/src/SuperMetroid.Core/Game/EnemyFireballLaunchDefinitions.cs",
+        "reviewedEvidence": "Read native86:9EE5..9EFD Alcoon selection and three words,86:DEB6..DED5 NTSC NamiFune left/right pairs, initializerDED6..DF38 and both DF40/DF6A horizontal movers in pinned bank_86.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Read both managed producers and direction movers. PAL alternatives are outside this NTSC mapping. Alcoon callback inputs are byte offsets0,2,4. NamiFune masks parameter two to its low byte before multiplying the index by four; left speed is intentionally stored in YVelocity but consumed horizontally, right speed in XVelocity.",
+        "tables": [
+            {
+                "id": "alcoon-fireball-vertical-launch",
+                "nativeIdentity": "86:9EF9 three signed8.8 words",
+                "disposition": "Replace raw three-case numerical mapping with (byteOffset/2-1)*256, encoded by unchecked ushort conversion. Preserve rejection of odd offsets and all values above4; high-byte aliases are not accepted.",
+                "rationale": "The three launch commands specify upward, level and downward trajectories at one-pixel/frame vertical increments. The arithmetic directly expresses the signed velocity axis.",
+                "proof": "VerifyAlcoonVerticalLaunchMapping independently compares all three original words and rejects odd, adjacent, distant and high-byte selectors. Extracted from the prior aggregate proof."
+            },
+            {
+                "id": "namihe-fune-left-horizontal-launch",
+                "nativeIdentity": "Eight negative words at86:DEB6+4*index",
+                "disposition": "Existing unchecked negative of (lowByte+1)*64 is the completed algorithm; preserve full low-byte selector masking and rejection at8 or above.",
+                "rationale": "The native pairs are signed mirrors with magnitude increasing by one quarter pixel/frame from0.25 to2.0. This is a fixed-point speed progression, not arbitrary per-enemy tuning.",
+                "proof": "VerifyNamiFuneLeftLaunchMapping compares all eight independent original words for all256 high-byte aliases and checks invalid low selectors for every high byte."
+            },
+            {
+                "id": "namihe-fune-right-horizontal-launch",
+                "nativeIdentity": "Eight positive words at86:DEB8+4*index",
+                "disposition": "Existing positive (lowByte+1)*64 is the completed mirrored launch calculation with the same masking/bounds contract.",
+                "rationale": "Positive quarter-pixel/frame steps are the opposite-facing component of the same explicitly paired speed definition.",
+                "proof": "VerifyNamiFuneRightLaunchMapping independently compares the right-word ROM field over all valid parameter aliases and invalid selector checks. Left/right share harness code but have separate named field proofs."
+            }
+        ],
+        "confirmation": "Verification build and --lookup-enemy-fireball-launches pass against SHA-verified NTSC J/U v1.0. Existing aggregate now delegates the three extracted field proofs. Caller integration and velocity storage conventions are unchanged.",
+        "remainingScope": "This resolves the named launch mappings only. Other actor/projectile definitions, SPC pan and the wider repository inventory remain open."
+    }
 }

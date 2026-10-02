@@ -8,8 +8,10 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainFakeDeathVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain stock oracle revision");
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "mother-brain-fake-death-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
@@ -27,17 +29,7 @@ internal static partial class Program
                 installation.RoomPlmMotherBrainFakeDeathVisualDirectory);
             RoomPlmMotherBrainFakeDeathVisualCatalog stock =
                 installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                     MotherBrainFakeDeathPlmDrawDefinitions.All)
-            for (int run = 0; run < draw.Runs.Length; run++)
-            for (int block = 0; block < draw.Runs.Span[run].LevelWords.Length; block++)
-                AssertEqual(new RoomLevelWord(
-                        draw.Runs.Span[run].LevelWords.Span[block]).VisualWord,
-                    stock.GetWord(draw.Pointer, run, block),
-                    $"Mother Brain stock draw ${draw.Pointer:X4} run {run} block {block}");
-            AssertThrows<InvalidDataException>(
-                () => new RoomPlmMotherBrainFakeDeathVisualCatalog([]),
-                "Mother Brain fake-death visuals reject missing draws");
+            VerifyMotherBrainStockMapping(rom, stock);
 
             string stockPath = Path.Combine(
                 installation.RoomPlmMotherBrainFakeDeathVisualDirectory,

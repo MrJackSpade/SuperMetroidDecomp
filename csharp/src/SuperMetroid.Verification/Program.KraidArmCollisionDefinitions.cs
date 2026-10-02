@@ -6,6 +6,8 @@ internal static partial class Program
     private static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyKraidArmTouchCallbacks(rom);
+        VerifyKraidArmShotCallbacks(rom);
         VerifyKraidArmPhysicalFramePointers(rom);
         HashSet<ushort> hitboxPointers = VerifyKraidArmPhysicalLayoutSelection(rom);
 
@@ -14,7 +16,7 @@ internal static partial class Program
         int hitboxCount = 0;
         foreach (ushort pointer in hitboxPointers)
         {
-            ReadOnlySpan<KraidArmCollisionHitbox> compiled =
+            KraidArmHitboxSequence compiled =
                 KraidArmCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length,
                 $"Kraid arm hitbox count $A7:{pointer:X4}");
@@ -33,12 +35,6 @@ internal static partial class Program
                 AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom,
                         unchecked((ushort)(record + 6)))),
                     hitbox.Bottom, $"Kraid arm hitbox bottom $A7:{record:X4}");
-                AssertEqual(ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 8))),
-                    hitbox.TouchAi, $"Kraid arm touch AI $A7:{record:X4}");
-                AssertEqual(ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 10))),
-                    hitbox.ShotAi, $"Kraid arm shot AI $A7:{record:X4}");
                 hitboxCount++;
             }
         }

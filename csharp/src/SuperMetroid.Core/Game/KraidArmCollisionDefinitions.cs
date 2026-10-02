@@ -64,34 +64,64 @@ internal static class KraidArmCollisionDefinitions
         return (ushort)(index < 20 ? FirstGeneralFrame + GeneralFrameBytes * index
             : FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
     }
-    private static readonly KraidArmCollisionHitbox[] Hitboxes =
+    private static readonly KraidArmCollisionGeometry[] Geometry =
     [
-        new(-13, -11, -3, -5, 0x9490, 0x94b6),
-        new(-9, -5, 1, 2, 0x9490, 0x94b6),
-        new(-16, -5, 1, 2, 0x9490, 0x94b6),
-        new(-9, -2, 1, 7, 0x9490, 0x94b6),
-        new(-12, 3, -6, 12, 0x9490, 0x94b6),
-        new(-6, -1, 1, 14, 0x9490, 0x94b6),
-        new(-3, -2, 6, 9, 0x9490, 0x94b6),
-        new(2, 7, 11, 11, 0x9490, 0x94b6),
-        new(-1, -4, 14, 4, 0x9490, 0x94b6),
-        new(-3, -7, 6, 2, 0x9490, 0x94b6),
-        new(4, -12, 10, -1, 0x9490, 0x94b6),
-        new(-15, -5, 2, 4, 0x9490, 0x94b6),
-        new(-11, 2, -4, 10, 0x9490, 0x94b6),
-        new(-6, -3, 3, 5, 0x9490, 0x94b6),
-        new(-4, -2, 3, 13, 0x9490, 0x94b6),
-        new(-12, -12, -3, -3, 0x9490, 0x94b6),
-        new(-6, -6, 3, 2, 0x9490, 0x94b6),
-        new(-45, -9, 4, 8, 0x948b, 0x94b6),
-        new(-28, -17, -12, 0, 0x948b, 0x94b6),
-        new(-42, -23, -28, -6, 0x948b, 0x94b6),
-        new(-22, -25, -8, -5, 0x948b, 0x94b6),
-        new(-35, -35, -19, -17, 0x948b, 0x94b6),
-        new(-64, -48, -32, -16, 0x948b, 0x94b6),
-        new(-64, -4, 0, 4, 0x948b, 0x94b6),
+        new(-13, -11, -3, -5),
+        new(-9, -5, 1, 2),
+        new(-16, -5, 1, 2),
+        new(-9, -2, 1, 7),
+        new(-12, 3, -6, 12),
+        new(-6, -1, 1, 14),
+        new(-3, -2, 6, 9),
+        new(2, 7, 11, 11),
+        new(-1, -4, 14, 4),
+        new(-3, -7, 6, 2),
+        new(4, -12, 10, -1),
+        new(-15, -5, 2, 4),
+        new(-11, 2, -4, 10),
+        new(-6, -3, 3, 5),
+        new(-4, -2, 3, 13),
+        new(-12, -12, -3, -3),
+        new(-6, -6, 3, 2),
+        new(-45, -9, 4, 8),
+        new(-28, -17, -12, 0),
+        new(-42, -23, -28, -6),
+        new(-22, -25, -8, -5),
+        new(-35, -35, -19, -17),
+        new(-64, -48, -32, -16),
+        new(-64, -4, 0, 4),
     ];
 
+    /// <summary>Twenty-four rectangles selected by the compiled arm frame families.</summary>
+    internal const int RectangleCount = 24;
+    /// <summary>First compiled rectangle from $A7:9411, Hitbox_KraidArm_10, using normal background touch.</summary>
+    private const int FirstBackgroundRectangle = 17;
+
+    /// <summary>Selects arm pushback/lint activation for active shapes, normal touch for background/lunge shapes.</summary>
+    /// <remarks>Independently reviewed for #1165 against all selected bank_A7 native
+    /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
+    /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
+    internal static ushort TouchCallback(int rectangle)
+    {
+        if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
+        return rectangle < FirstBackgroundRectangle ? EnemyAiCodePointers.BankA7.KraidArmTouch
+            : EnemyAiCodePointers.BankA7.KraidBackgroundTouch;
+    }
+
+    /// <summary>Every selected arm rectangle uses $A7:94B6, EnemyShot_KraidArm.</summary>
+    internal static ushort ShotCallback(int rectangle)
+    {
+        if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
+        return EnemyAiCodePointers.BankA7.KraidArmShot;
+    }
+
+    internal static KraidArmCollisionHitbox Rectangle(int index)
+    {
+        if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
+        KraidArmCollisionGeometry geometry = Geometry[index];
+        return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
+            TouchCallback(index), ShotCallback(index));
+    }
     internal static bool TryGetComponents(ushort pointer,
         out ReadOnlyMemory<KraidArmCollisionComponent> components)
     {
@@ -129,25 +159,25 @@ internal static class KraidArmCollisionDefinitions
     /// The native callbacks are Kraid-arm touch $9490 or background touch $948B,
     /// and Kraid-arm shot $94B6.
     /// </summary>
-    internal static ReadOnlySpan<KraidArmCollisionHitbox> HitboxesAt(ushort pointer) =>
+    internal static KraidArmHitboxSequence HitboxesAt(ushort pointer) =>
         pointer switch
         {
-            0x92d1 => Hitboxes.AsSpan(0, 2),
-            0x92eb => Hitboxes.AsSpan(2, 1),
-            0x92f9 => Hitboxes.AsSpan(3, 2),
-            0x9313 => Hitboxes.AsSpan(5, 1),
-            0x9321 => Hitboxes.AsSpan(6, 2),
-            0x933b => Hitboxes.AsSpan(8, 1),
-            0x9349 => Hitboxes.AsSpan(9, 2),
-            0x9371 => Hitboxes.AsSpan(11, 1),
-            0x937f => Hitboxes.AsSpan(12, 2),
-            0x9399 => Hitboxes.AsSpan(14, 1),
-            0x93f7 => Hitboxes.AsSpan(15, 2),
-            0x9411 => Hitboxes.AsSpan(17, 1),
-            0x941f => Hitboxes.AsSpan(18, 2),
-            0x9439 => Hitboxes.AsSpan(20, 2),
-            0x946f => Hitboxes.AsSpan(22, 1),
-            0x947d => Hitboxes.AsSpan(23, 1),
+            0x92d1 => new(0, 2),
+            0x92eb => new(2, 1),
+            0x92f9 => new(3, 2),
+            0x9313 => new(5, 1),
+            0x9321 => new(6, 2),
+            0x933b => new(8, 1),
+            0x9349 => new(9, 2),
+            0x9371 => new(11, 1),
+            0x937f => new(12, 2),
+            0x9399 => new(14, 1),
+            0x93f7 => new(15, 2),
+            0x9411 => new(17, 1),
+            0x941f => new(18, 2),
+            0x9439 => new(20, 2),
+            0x946f => new(22, 1),
+            0x947d => new(23, 1),
             _ => throw new InvalidDataException(
                 $"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled."),
         };
@@ -156,3 +186,31 @@ internal static class KraidArmCollisionDefinitions
 internal readonly record struct KraidArmCollisionComponent(short X, short Y, ushort HitboxPointer);
 internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
+
+/// <summary>Ordered rectangle view that attaches calculated callbacks without storing them per record.</summary>
+internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
+{
+    internal KraidArmCollisionHitbox this[int index]
+    {
+        get
+        {
+            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            return KraidArmCollisionDefinitions.Rectangle(Start + index);
+        }
+    }
+    internal KraidArmCollisionHitbox[] ToArray()
+    {
+        var result = new KraidArmCollisionHitbox[Length];
+        for (int index = 0; index < result.Length; index++) result[index] = this[index];
+        return result;
+    }
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(KraidArmHitboxSequence sequence)
+    {
+        private int next;
+        public bool MoveNext() => next++ < sequence.Length;
+        public KraidArmCollisionHitbox Current => sequence[next - 1];
+    }
+}
+
+internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);

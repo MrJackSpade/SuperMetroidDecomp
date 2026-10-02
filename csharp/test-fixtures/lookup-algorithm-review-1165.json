@@ -2234,5 +2234,34 @@
             }
         ],
         "remainingScope": "Phase component-coordinate/hitbox arrays and hitbox rectangle content remain unfinished, without retention decisions. This converts their frame selection only. No whole-family completion or gameplay-validation claim."
+    },
+    "kraidArmCallbackReview": {
+        "implementationCommit": {
+            "subject": "Derive Kraid arm hitbox callbacks from collision roles for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Derive Kraid arm hitbox callbacks from collision roles for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm all16 selected hitbox lists and touch/shot implementations948B/9490/94B6. Native frame traversal derives the selected lists independently. SHA-verified NTSC J/U v1.0; ordinary-combat caller walks ordered rectangles and dispatches the selected callback. Unselected neighboring hitbox lists are not part of this catalog's accepted domain.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-arm-callbacks",
+        "tables": [
+            {
+                "id": "kraid-arm-hitbox-touch-callbacks", "state": "converted",
+                "domain": "24 selected rectangles in native list order; invalid ordinal indices throw IndexOutOfRangeException.",
+                "disposition": "Remove repeated touch words from stored rectangle records. Select named arm-touch callback for the first17 active-arm rectangles and background-touch callback for the remaining background/lunge rectangles.",
+                "rationale": "Selected hitbox lists through native shapeF use the arm pushback/lint-trigger routine. Shapes10..12 and final dying/lunge shapes use normal background touch; these are collision roles, not arbitrary numerical output cases.",
+                "proofTest": "VerifyKraidArmTouchCallbacks",
+                "confirmation": "All24 original touch words, direct policy and composed rectangle views, list enumeration/materialization and ordinal/index bounds."
+            },
+            {
+                "id": "kraid-arm-hitbox-shot-callbacks", "state": "converted",
+                "domain": "Same24 selected rectangle indices; invalid ordinal indices throw IndexOutOfRangeException.",
+                "disposition": "Remove repeated shot words. Return named KraidArmShot after ordinal validation.",
+                "rationale": "Every selected rectangle uses the same native94B6 shot handler, regardless of geometry or touch role.",
+                "proofTest": "VerifyKraidArmShotCallbacks",
+                "confirmation": "All24 original shot words, direct policy and composed rectangle views, list enumeration/materialization and ordinal/index bounds."
+            }
+        ],
+        "integrationConfirmation": "Existing arm physical-definition check now delegates to the two callback proofs and independently checks all96 rectangle geometry words, selected component streams and frame domain against ROM. Build passes with existing warnings. No gameplay sweep or broad collision matrix.",
+        "remainingScope": "Rectangle edge storage and phase component data remain unfinished without a retention decision. Calculated callback composition does not count those fields as converted."
     }
 }

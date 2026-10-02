@@ -31,7 +31,7 @@ internal static class PlmDoorClosedContractDefinitions
             "The constructor requires twenty-three unique authored frames with exact cloned one/two/four-word payloads. The twenty-fourth pointer uses the required four-word clear frame with horizontal flip. GetWord guards the mapped frame's array bounds; known narrow components cannot borrow clear-frame width. Eye attacks and conversion timing are outside this proof."),
         new("SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog", "plm-escape-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEscapeGateVisualCatalog.cs", "D585F90656F9493C4FB54FD1EF20A09A75C56285941DBA5D090E7DA8E1C57511"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEscapeGateVisualCatalog.cs", "44F12ED552662A3F5A66CB9EF61FF56E6F6F21B043D7F76122A4AF18186321AB"),
              new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs", "A020A85763B93F69C7292FEF49EE3E086382DAD5F894CD7D4522434F91EF7036")],
             "The constructor requires all three unique known escape-gate frames with exact cloned four-word payloads. GetWord guards the pointer and array bounds. Escape progression, physical words and animation cadence are not altered."),
         new("SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog", "plm-collectible-complete-single-words", ["GetWord"],

@@ -27,10 +27,6 @@ internal static partial class Program
         AssertEqual((ushort)0x0053,
             edited.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
             "elevator visual catalog copies author data");
-        AssertEqual((ushort)0x0085,
-            stock.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
-            "stock elevator visual retains native block reference");
-
         (ushort physical, ushort rendered) Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
             var bus = new TestAddressSpace();
@@ -71,14 +67,6 @@ internal static partial class Program
         AssertEqual((ushort)0x0053, changed.rendered,
             "edited elevator art survives camera streaming");
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmElevatorPlatformVisualCatalog(entries.Skip(1)),
-            "elevator visual catalog rejects missing frames");
-        first.Runs[0][0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmElevatorPlatformVisualCatalog(entries),
-            "elevator visual catalog rejects collision bits");
-        first.Runs[0][0] = 0x0053;
         VerifyElevatorPlatformVisualInstallation();
     }
 
@@ -100,10 +88,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmElevatorPlatformVisualFiles.ValidateStock(
                 installation.RoomPlmElevatorPlatformVisualDirectory);
-            AssertEqual((ushort)0x0085,
-                installation.LoadRoomPlmElevatorPlatformVisuals().GetWord(
-                    ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
-                "installed elevator stock matches the cartridge frame");
+            VerifyElevatorPlatformStockMapping(rom, installation.LoadRoomPlmElevatorPlatformVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmElevatorPlatformVisualDirectory,

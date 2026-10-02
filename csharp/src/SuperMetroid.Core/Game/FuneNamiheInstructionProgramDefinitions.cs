@@ -9,7 +9,7 @@ internal readonly record struct FuneNamiheInstructionMechanicsWord(
 /// <remarks>
 /// Durations, callbacks, common sleep/goto opcodes, and loop targets affect simulation and
 /// live here. Each word following a duration selects replaceable spritemap presentation and
-/// deliberately remains a live cartridge read.
+/// resolves through separately compiled presentation selectors.
 /// </remarks>
 internal static class FuneNamiheInstructionProgramDefinitions
 {
@@ -37,88 +37,97 @@ internal static class FuneNamiheInstructionProgramDefinitions
     /// <summary><c>$A8:95F1</c>, idle right-facing Namihe program.</summary>
     internal const ushort NamiheIdleRight = 0x95f1;
 
-    private static readonly FuneNamiheInstructionMechanicsWord[] Words =
-    [
-        new(0x9399, 0x0001), new(0x939d, 0x812f),
-        new(0x939f, 0x0010), new(0x93a3, 0x0008), new(0x93a7, 0x0008),
-        new(0x93ab, 0x0008), new(0x93af, 0x9663), new(0x93b1, 0x9625),
-        new(0x93b3, 0x0010), new(0x93b7, 0x0008), new(0x93bb, 0x0008),
-        new(0x93bf, 0x0008), new(0x93c3, 0x9695), new(0x93c5, 0x80ed),
-        new(0x93c7, 0x9399), new(0x93c9, 0x0001), new(0x93cd, 0x812f),
-        new(0x93cf, 0x0010), new(0x93d3, 0x0008), new(0x93d7, 0x0008),
-        new(0x93db, 0x0008), new(0x93df, 0x967c), new(0x93e1, 0x9625),
-        new(0x93e3, 0x0010), new(0x93e7, 0x0008), new(0x93eb, 0x0008),
-        new(0x93ef, 0x0008), new(0x93f3, 0x96b4), new(0x93f5, 0x80ed),
-        new(0x93f7, 0x93c9),
-        new(0x95bd, 0x0001), new(0x95c1, 0x812f),
-        new(0x95c3, 0x0008), new(0x95c7, 0x0008), new(0x95cb, 0x0008),
-        new(0x95cf, 0x0008), new(0x95d3, 0x0008), new(0x95d7, 0x9631),
-        new(0x95d9, 0x9625), new(0x95db, 0x0008), new(0x95df, 0x0008),
-        new(0x95e3, 0x0008), new(0x95e7, 0x0008), new(0x95eb, 0x9695),
-        new(0x95ed, 0x80ed), new(0x95ef, 0x95bd),
-        new(0x95f1, 0x0001), new(0x95f5, 0x812f),
-        new(0x95f7, 0x0008), new(0x95fb, 0x0008), new(0x95ff, 0x0008),
-        new(0x9603, 0x0008), new(0x9607, 0x0008), new(0x960b, 0x964a),
-        new(0x960d, 0x9625), new(0x960f, 0x0008), new(0x9613, 0x0008),
-        new(0x9617, 0x0008), new(0x961b, 0x0008), new(0x961f, 0x96b4),
-        new(0x9621, 0x80ed), new(0x9623, 0x95f1),
-    ];
+    internal static int MechanicsWordCount => 62;
+    internal static int PresentationWordCount => 38;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x939b, 0x93a1, 0x93a5, 0x93a9, 0x93ad, 0x93b5, 0x93b9, 0x93bd,
-        0x93c1, 0x93cb, 0x93d1, 0x93d5, 0x93d9, 0x93dd, 0x93e5, 0x93e9,
-        0x93ed, 0x93f1, 0x95bf, 0x95c5, 0x95c9, 0x95cd, 0x95d1, 0x95d5,
-        0x95dd, 0x95e1, 0x95e5, 0x95e9, 0x95f3, 0x95f9, 0x95fd, 0x9601,
-        0x9605, 0x9609, 0x9611, 0x9615, 0x9619, 0x961d,
-    ];
+    internal static FuneNamiheInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool namihe = index >= 30;
+        int wordsPerFacing = namihe ? 16 : 15;
+        int speciesIndex = namihe ? index - 30 : index;
+        int word = speciesIndex % wordsPerFacing;
+        int openingFrames = namihe ? 5 : 4;
+        int offset;
+        if (word < 2) offset = word * 4; // Idle frame and sleep.
+        else if (word < openingFrames + 2) offset = 6 + 4 * (word - 2);
+        else if (word < openingFrames + 4) offset = 6 + 4 * openingFrames + 2 * (word - openingFrames - 2);
+        else if (word < openingFrames + 8) offset = 10 + 4 * openingFrames + 4 * (word - openingFrames - 4);
+        else offset = 26 + 4 * openingFrames + 2 * (word - openingFrames - 8);
+        ushort address = (ushort)((namihe ? NamiheIdleLeft : FuneIdleLeft) +
+            (namihe ? 52 : 48) * (speciesIndex / wordsPerFacing) + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        bool namihe = index >= 18;
+        int frames = namihe ? 10 : 9;
+        int speciesIndex = namihe ? index - 18 : index;
+        int frame = speciesIndex % frames;
+        int offset = frame == 0 ? 2 : 4 + 4 * frame + (frame > (namihe ? 5 : 4) ? 4 : 0);
+        return (ushort)((namihe ? NamiheIdleLeft : FuneIdleLeft) +
+            (namihe ? 52 : 48) * (speciesIndex / frames) + offset);
+    }
 
-    internal static FuneNamiheInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Normalize species and facing without accepting the intervening artwork.</summary>
+    private static bool TryLocate(ushort address, out bool namihe, out bool right, out int local)
+    {
+        namihe = address >= NamiheIdleLeft;
+        int stride = namihe ? 52 : 48;
+        int offset = address - (namihe ? NamiheIdleLeft : FuneIdleLeft);
+        right = offset >= stride;
+        local = offset % stride;
+        return (uint)offset < 2 * stride;
+    }
 
     /// <summary>Whether an operand in the eight native lists owns a visual frame pointer.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
+    internal static bool IsPresentationWord(ushort address)
+    {
+        if (!TryLocate(address, out bool namihe, out _, out int local)) return false;
+        int openingFrames = namihe ? 5 : 4;
+        int recovery = 12 + 4 * openingFrames;
+        return local == 2 ||
+            (local >= 8 && local < 8 + 4 * openingFrames && local % 4 == 0) ||
+            (local >= recovery && local < recovery + 16 && local % 4 == 0);
+    }
 
-    /// <summary>Returns one fixed control word or rejects pointers outside all eight lists.</summary>
+    /// <summary>Idle/sleep, opening frames, fire/sound, recovery frames, finish/goto idle.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        if (TryLocate(address, out bool namihe, out bool right, out int local))
         {
-            int middle = low + ((high - low) >> 1);
-            FuneNamiheInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int fire = 6 + 4 * (namihe ? 5 : 4);
+            if (local == 0) return 1;
+            if (local == 4) return CommonEnemyInstructionCodes.Sleep;
+            if ((local >= 6 && local < fire && local % 4 == 2) ||
+                (local >= fire + 4 && local < fire + 20 && local % 4 == 2))
+                return (ushort)(!namihe && (local == 6 || local == fire + 4) ? 16 : 8);
+            if (local == fire)
+                return namihe
+                    ? right ? EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingRight
+                        : EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingLeft
+                    : right ? EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingRight
+                        : EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingLeft;
+            if (local == fire + 2) return EnemyInstructionCodePointers.Instruction_FuneNamihe_QueueSpitSFX;
+            if (local == fire + 20) return right
+                ? EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity_duplicate
+                : EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity;
+            if (local == fire + 22) return CommonEnemyInstructionCodes.Goto;
+            if (local == fire + 24) return (ushort)(address - local);
         }
-
         throw new InvalidDataException(
             $"Fune/Namihe instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    /// <summary>True when an absolute address names a byte owned by compiled mechanics.</summary>
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
+        if ((address & 0xff0000) != 0xa80000) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if (!TryLocate(bankAddress, out _, out _, out int local)) return false;
+        // Every program begins at an odd bank address; align relative to that start.
+        ushort word = (ushort)(bankAddress - (local & 1));
+        return !IsPresentationWord(word);
     }
 }

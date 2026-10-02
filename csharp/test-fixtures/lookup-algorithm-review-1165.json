@@ -2987,4 +2987,19 @@
     "integration": "Both species and both directions traverse all three frames and restart with five-tick timers, while original program bytes are forbidden. Installed visual operands are asserted directly.",
     "scope": "Instruction timing/control and operand-address mappings only; artwork and other actor mappings require their own review. No retained-table exception claimed."
   }
+,
+  "funeNamiheActorInstructionProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank A8 9399-93F8 and 95BD-9624; pinned bank_A8.asm idle and active lists for both species/facings",
+    "mechanics": {
+      "disposition": "Removed 62 stored words. Species and facing normalize to idle/sleep, four or five opening frames, directional fire callback, sound, four recovery frames, finish callback, and goto idle. Fune holds its first opening/recovery poses for sixteen ticks; the other active frames last eight. Right-facing finish retains its distinct native callback identity.",
+      "proof": "VerifyFuneNamiheMechanicsMapping checks all 62 independently specified native word positions against ROM, enumeration/direct values, full byte ownership, bank aliases, holes including intervening artwork, and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed 38 stored operand addresses; derive idle, opening and recovery positions with species-specific facing strides and callback gaps.",
+      "proof": "VerifyFuneNamihePresentationAddresses checks the independent native address fixture, all ushort membership inputs, and ordinal bounds."
+    },
+    "integration": "Existing eight production program cases confirm firing direction, projectile count, sound and return to species AI ownership with mechanics reads forbidden and zero visual-selector cartridge reads.",
+    "scope": "Actor instruction timing/control and operand positions; visual selector values and artwork remain separately reviewable. No table-retention exception claimed."
+  }
 }

@@ -7,6 +7,17 @@ internal static class CrocomireMeltingDefinitions
     /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>.
     /// The cartridge uses this permutation to choose the next physical X column.
     /// </summary>
+    /// <remarks>
+    /// Retained under #1165's arbitrary-sequence exception: these are the fixed shuffled
+    /// visitation identities of all columns 0..48, not samples of motion or geometry.
+    /// The erase routine consumes their chronological order and keeps height per selected
+    /// column; its separate pixel mask uses cursor modulo eight. The pinned C reference
+    /// names this kCrocoVlineRandomPos. Replacing this order with a new shuffle changes the
+    /// dissolve; a switch or fitted polynomial would only encode the same arbitrary choices.
+    /// Full native bytes, consumers, bounded-generator checks and the distinction from
+    /// an impossibility claim are recorded in crocomireColumnOrderRetentionReview in the
+    /// #1165 inventory. This exception does not cover the separately computed masks.
+    /// </remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
         0x2b, 0x28, 0x21, 0x1f, 0x2c, 0x10, 0x16, 0x17,

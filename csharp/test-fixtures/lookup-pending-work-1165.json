@@ -1,6 +1,6 @@
 {
   "issue": 1165,
-  "status": "pending implementation and review",
+  "status": "two pending mappings; Crocomire column order independently resolved as retained",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
@@ -14,8 +14,8 @@
       "id": "crocomire-melt-column-order",
       "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
       "nativeIdentity": "$A4:9697 CrocomireMeltingXOffsetTable",
-      "status": "pending",
-      "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with fresh evidence."
+      "status": "retained",
+      "resolution": "Fixed shuffled visitation order retained under the nonsense exception; reciting its arbitrary chronological choices in code would disguise the same data. See crocomireColumnOrderRetentionReview in lookup-algorithm-review-1165.json for fresh native/source evidence, bounded hypotheses and exact retention rationale."
     },
     {
       "id": "draygon-intro-movement",

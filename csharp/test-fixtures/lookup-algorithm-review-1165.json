@@ -682,7 +682,7 @@
                                               },
                                               {
                                                   "id":  "crocomire-melt-column-order",
-                                                  "state":  "unreviewed",
+                                                  "state":  "retained",
                                                   "owner":  "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
                                                   "nativeIdentity":  "$A4:9697 CrocomireMeltingXOffsetTable",
                                                   "consumers":  [
@@ -2687,5 +2687,27 @@
         "materializationBoundary": "All creates temporary common DrawList records for existing asset import/export and audit APIs; these are output documents, not a runtime lookup cache. Core uses All only to construct editable stock visual content. Gameplay and visual reader validation use computed Draw.BlockCount/WordAt directly, with no per-draw arrays. Both owned-Kraid and fallback draw paths are migrated; shared9367 still selects elevatube behavior for its own owner.",
         "confirmation": "Verification and ResourceAudit builds pass. --lookup-kraid-draws checks all mappings and the previous installed-visual selection contract. Existing --kraid-room-plms and --kraid-room-visuals pass, confirming the changed runtime draw path, collision/timing, source-read prohibition, editable appearances and shared elevatube owner isolation. Previous native numerical draw proof is extracted into the new named helpers. Source provider pins updated after review.",
         "remainingScope": "This resolves the previously pending Kraid room draw storage conversion. Existing IsKraidOwner header classification and the broader repository mappings still require their own independent dispositions; this is not ticket completion."
+    }
+,
+    "crocomireColumnOrderRetentionReview": {
+        "state": "retained",
+        "id": "crocomire-melt-column-order",
+        "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs:ColumnOrder",
+        "implementationCommit": "Resolve with git log for CrocomireMeltingDefinitions.cs",
+        "nativeIdentity": "A4:9697..96C7,49 bytes; following96C8 begins executable erase code",
+        "domain": "SelectColumn chronological int cursor0..48 returns unsigned physical X identity; ArgumentOutOfRangeException otherwise. Existing production stop at49 is preserved; no new adjacent-opcode reads are authorized.",
+        "consumers": ["RoomEnemySystem.EraseNextCrocomireMeltingColumn", "Crocomire melt native comparison and effect-isolation fixtures"],
+        "reviewedEvidence": "Read every byte of the complete native sequence and full96C8 erase routine in disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Read managed erase loop and all SelectColumn call sites. Pinned C source578f90b3cc49557bb70060ad033bb90b8cf8ac50 explicitly calls this kCrocoVlineRandomPos and bounds its49 entries. Native/managed mask selection uses cursor&7; C translation instead uses selected column&7, so it is not treated as the mask oracle. SHA-verified NTSC J/U v1.0 source-byte comparison confirms every stored value and exactly one occurrence of each column0..48.",
+        "positiveSemanticEvidence": "This is a shuffled visitation order, not a numerical motion curve: entries are distinct column identities, the consumer looks up each identity's independent height, skips exhausted columns and erases the selected column without deriving a displacement, angle or stage from the cursor. The pixel-bit position is independently tied to chronological cursor. Ordering is the concrete visual sequence: e.g. its first three selected columns43,40,33 identify different tile/mask combinations; substituting a different permutation changes which artwork disappears on those frames. The pinned reference's RandomPos name corroborates the sequence's role; it is not sole authority for the decision.",
+        "generationAssessment": [
+            "Arithmetic/geometric motion, ordinary interpolation and trigonometric trajectory sampling do not model this consumer: outputs are a permutation of visitation identities, with no position integration, geometric parameter or sampled angle. Encoding or sorting by an invented curve would introduce a generator unrelated to the demonstrated operation.",
+            "A direct affine recurrence modulo49 cannot generate this permutation: transitions43->40->33 imply3*a=7 mod49, hencea=35, which is noninvertible modulo49 and cannot visit every identity once.",
+            "Source-data analysis enumerated full-period affine recurrences modulo64,128,256 (a=1 mod4, odd increment), starting at43 and rejecting outputs49 and above. None reproduces all49 entries. This rejects only these explicitly bounded hypotheses, not every possible generator.",
+            "A random shuffle is a meaningful way to choose an order, but an arbitrary replacement shuffle does not preserve this chosen order. No game RNG is consulted by the selector; the stored chronology is the data consumed. Packing the permutation into a seed, rank, correction stream, interpolation coefficients or49 unrelated cases would merely encode those same arbitrary choices. This is the ticket's fixed-random-sequence example, not a proof that every conceivable generator is impossible."
+        ],
+        "disposition": "Retain the original fixed shuffled chronology under the semantically-nonsensical-port exception. Keep its49 values and exact cursor bounds. Do not replace them with arbitrary numeric cases or claim a mathematical trajectory.",
+        "rationale": "The meaningful content here is the particular irregular order itself. A code recitation or fitted representation would disguise that content without expressing an additional functional rule. This is not retention for speed, size, complexity, the label authored, or lack of authoring-tool provenance.",
+        "confirmation": "Read-only source audit compares all49 bytes to the SHA-verified ROM and verifies the complete0..48 permutation. No behavior changed. Existing VerifyCrocomireMeltingDefinitions native comparisons and production erase-sequence assertions remain intact; no new retain-only test or exploratory run added.",
+        "remainingScope": "The independently computed chronological mask remains converted. SPC pan gain and Draygon intro movement remain unresolved in the reopened-work record. Other Crocomire/repository mappings retain separate scope."
     }
 }

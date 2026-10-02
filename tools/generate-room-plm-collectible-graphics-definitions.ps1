@@ -20,8 +20,9 @@ try {
     $lines.Add('/// <summary>Pinned bank-$89 item tiles; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
     $lines.Add('internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions')
     $lines.Add('{')
-    $lines.Add('    private static readonly (byte Kind, ushort GraphicsPointer, string TilesHex)[] Sources =')
+    $lines.Add('    private static readonly string[] Tiles =')
     $lines.Add('    [')
+    $tileBlocks = [Collections.Generic.SortedDictionary[int,string]]::new()
     $uniqueGraphics = [Collections.Generic.HashSet[int]]::new()
     for ($kind = 4; $kind -lt 21; $kind++) {
         $graphicPointer = -1
@@ -51,7 +52,15 @@ try {
         }
         $sourceOffset = 0x48000 + ($graphicPointer - 0x8000)
         $tilesHex = [Convert]::ToHexString($rom[$sourceOffset..($sourceOffset + 0xFF)])
-        $lines.Add(('        ({0}, 0x{1:X4}, "{2}"),' -f $kind, $graphicPointer, $tilesHex))
+        $tileBlocks.Add($graphicPointer, $tilesHex)
+    }
+    $blockIndex = 0
+    foreach ($block in $tileBlocks.GetEnumerator()) {
+        if ($block.Key -ne 0x8000 + $blockIndex * 0x100) {
+            throw 'Native item artwork blocks are not consecutive.'
+        }
+        $lines.Add(('        "{0}",' -f $block.Value))
+        $blockIndex++
     }
     $lines.Add('    ];')
     $lines.Add('}')

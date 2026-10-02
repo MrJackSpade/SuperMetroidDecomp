@@ -3467,4 +3467,14 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-botwoon-wall pass; native reads remain forbidden in production wall fixtures. Source consumers use the fill operation or export DTO as appropriate. Normalized draw-definition source pin updated.",
     "scope": "Wall mechanics program and clear physical draw only. Visual-ID mapping, selected artwork and shared shot-block definitions retain their independent review obligations; no retention exception claimed."
   }
+,
+  "botwoonWallStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:9311-9322 nine stock clear words; RoomPlmBotwoonWallVisualCatalog stock/constructor/GetWord/ContentIdentity consumers",
+    "stock": {"algorithm": "Remove Stock's generated nine-word lookup payload. Stock and identical loaded stock evaluate the visual portion of BotwoonWallPlmDrawDefinitions.LevelWordAt. Custom selected artwork remains a cloned external payload; no generated stock cache is stored.", "proof": "VerifyBotwoonWallStockMapping compares all nine factory/imported stock values to native words and checks prior hash framing/content identity, every custom value, clone isolation, distinct custom identity, invalid block/run/pointer handling and production visual/physical separation."},
+    "visualId": {"status": "reviewed-existing-algorithm", "algorithm": "The single known clear-draw pointer selects the semantic export ID clear-wall; all other pointers throw InvalidDataException. Existing direct conditional already expresses this case.", "proof": "VerifyBotwoonWallVisualIdMapping checks the stable independent export identity and complete ushort pointer domain."},
+    "dataBoundary": "Custom appearance arrays are selected editable asset payloads, not retained copies of the fixed stock lookup. Constructor validation and copying remain intact; content hashing materializes only a temporary nine-word stack span and preserves the previous identity encoding.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-botwoon-wall pass. Updated normalized visual-catalog source pin and contract description.",
+    "scope": "Stock wall appearance and visual-ID mapping only. This grants no retention exception to other artwork, navigation samples or geometry."
+  }
 }

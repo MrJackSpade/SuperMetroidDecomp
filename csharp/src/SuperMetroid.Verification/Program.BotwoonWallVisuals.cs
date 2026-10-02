@@ -7,6 +7,50 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] native = new ushort[9];
+        for (int index = 0; index < native.Length; index++)
+            native[index] = (ushort)(ReadBotwoonInstructionWord(rom, 0x849311 + 2 * index) & 0x0fff);
+        var stock = RoomPlmBotwoonWallVisualCatalog.Stock();
+        var loaded = new RoomPlmBotwoonWallVisualCatalog([new("clear-wall", native)]);
+        string expectedIdentity = SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+            nameof(RoomPlmBotwoonWallVisualCatalog), content => content.AppendWords("blocks", native));
+        AssertEqual(expectedIdentity, stock.ContentIdentity, "Botwoon calculated stock preserves prior content identity");
+        AssertEqual(expectedIdentity, loaded.ContentIdentity, "Botwoon loaded stock identity");
+        ushort[] customWords = [0x10,0x20,0x30,0x58,0x50,0x60,0x70,0x80,0x90];
+        var custom = new RoomPlmBotwoonWallVisualCatalog([new("clear-wall", customWords)]);
+        string customIdentity = custom.ContentIdentity;
+        for (int index = 0; index < native.Length; index++)
+        {
+            AssertEqual(native[index], stock.GetWord(0x930f, 0, index), "Botwoon stock appearance matches native");
+            AssertEqual(native[index], loaded.GetWord(0x930f, 0, index), "Botwoon imported stock appearance matches native");
+            AssertEqual(customWords[index], custom.GetWord(0x930f, 0, index), "Botwoon custom appearance preserved");
+        }
+        Array.Fill(customWords, (ushort)0);
+        AssertEqual(customIdentity, custom.ContentIdentity, "Botwoon custom payload remains cloned");
+        AssertTrue(customIdentity != expectedIdentity, "Botwoon custom content retains distinct identity");
+        foreach (var catalog in new[] {stock, loaded, custom})
+        {
+            foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(0x930f, 0, index), "Botwoon visual block domain");
+            foreach (int run in new[] {int.MinValue,-1,1,int.MaxValue})
+                AssertThrows<InvalidDataException>(() => catalog.GetWord(0x930f, run, 0), "Botwoon visual run domain");
+            foreach (ushort pointer in new ushort[] {0,0x930e,0x9310,0xffff})
+                AssertThrows<InvalidDataException>(() => catalog.GetWord(pointer, 0, 0), "Botwoon visual pointer domain");
+        }
+        VerifyBotwoonWallVisualSeparation(custom);
+    }
+
+    private static void VerifyBotwoonWallVisualIdMapping()
+    {
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            if (pointer == 0x930f)
+                AssertEqual("clear-wall", BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon stable export identity");
+            else
+                AssertThrows<InvalidDataException>(() => BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon visual ID accepts only the clear draw");
+    }
+
     private static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(

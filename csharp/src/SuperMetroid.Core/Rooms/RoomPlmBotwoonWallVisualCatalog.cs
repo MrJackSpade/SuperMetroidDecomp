@@ -14,9 +14,17 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmBotwoonWallVisualCatalog),
-        content => content.AppendWords("blocks", blocks));
+        content =>
+        {
+            Span<ushort> selected = stackalloc ushort[BotwoonWallPlmDrawDefinitions.BlockCount];
+            for (int index = 0; index < selected.Length; index++)
+                selected[index] = GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, index);
+            content.AppendWords("blocks", selected);
+        });
 
-    private readonly ushort[] blocks;
+    private readonly ushort[]? blocks;
+
+    private RoomPlmBotwoonWallVisualCatalog() { }
 
     public RoomPlmBotwoonWallVisualCatalog(
         IEnumerable<RoomPlmBotwoonWallVisualEntry> entries)
@@ -30,12 +38,18 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             selected[0].Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
             throw new InvalidDataException(
                 "Botwoon wall visuals must contain exactly one nine-block clear frame.");
-        blocks = selected[0].Blocks.ToArray();
+        bool stock = true;
+        for (int index = 0; index < BotwoonWallPlmDrawDefinitions.BlockCount; index++)
+            stock &= selected[0].Blocks[index] == StockWord(index);
+        if (!stock) blocks = selected[0].Blocks.ToArray();
     }
 
-    public static RoomPlmBotwoonWallVisualCatalog Stock() => new(
-        [new RoomPlmBotwoonWallVisualEntry("clear-wall",
-            Enumerable.Repeat((ushort)0x00ff, 9).ToArray())]);
+    /// <summary>The native stock appearance is the visual part of the calculated
+    /// nine-block air fill. Only custom artwork needs a stored payload.</summary>
+    public static RoomPlmBotwoonWallVisualCatalog Stock() => new();
+
+    private static ushort StockWord(int index) =>
+        new RoomLevelWord(BotwoonWallPlmDrawDefinitions.LevelWordAt(index)).VisualWord;
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
@@ -43,8 +57,8 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             runIndex != 0)
             throw new InvalidDataException(
                 $"Botwoon wall visuals lack draw ${drawPointer:X4}, run {runIndex}.");
-        if ((uint)blockIndex >= (uint)blocks.Length)
+        if ((uint)blockIndex >= BotwoonWallPlmDrawDefinitions.BlockCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return blocks[blockIndex];
+        return blocks is null ? StockWord(blockIndex) : blocks[blockIndex];
     }
 }

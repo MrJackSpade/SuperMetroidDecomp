@@ -32,6 +32,8 @@ if (args is ["--lookup-botwoon-wall"])
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon wall NTSC J/U v1.0 oracle");
     VerifyCompiledBotwoonWallPlms();
+    VerifyBotwoonWallStockMapping(oracle);
+    VerifyBotwoonWallVisualIdMapping();
     VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog(
         [new("clear-wall", [0xff,0xff,0xff,0x58,0xff,0xff,0xff,0xff,0xff])]));
     return 0;

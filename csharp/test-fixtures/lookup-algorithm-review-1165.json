@@ -3784,6 +3784,17 @@
     "proof": "VerifySporeSpawnCeilingDrawMapping consolidates the old native layout check, independently lists all four pointers, compares every original physical cell and complete count/offset records with scalar/direct DTO/export, and checks all ushort ownership and zero/default missing outputs.",
     "consumers": "RoomPlmSystem draws the scalar square directly without constructing run arrays. Existing artwork interfaces materialize temporary DTOs; visual getter validates scalar identity and two-by-two bounds without allocating a draw. Normalized PlmProgression draw and visual source pins updated.",
     "confirmation": "Verification and ResourceAudit builds, --spore-spawn-ceiling-plms and --spore-spawn-ceiling-visuals pass native draw parity, both clear/crumble timelines with source reads forbidden, live custom artwork, collision/timing isolation and installation checks. Both focused flags now dispatch before unrelated verification suites.",
-    "scope": "Four physical ceiling draw records only. Program selectors and stock visual dictionary remain independently reviewable; no retention exception claimed."
+    "scope": "Four physical ceiling draw records only. The stock visual dictionary is converted under sporeSpawnCeilingStockVisualReview; program selectors remain independently reviewable. No retention exception claimed."
+  }
+,
+  "sporeSpawnCeilingStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 visual words in 84:9413/9423/9433/9443 square draws; RoomPlmSporeSpawnCeilingVisualCatalog factory, constructor, getter and hash",
+    "algorithm": "Remove generated stock dictionary and four-word arrays. Stock is empty and each getter calculates the reviewed physical draw's visual bits. Import validates all four unique ordinal frame identities, exact shapes and visual bits, storing cloned arrays only for frames actually differing from stock. Custom per-cell edits remain supported.",
+    "identity": "Preserve sorted-pointer, one-run flattened four-word hash framing with a stack buffer, independent of constructor enumeration order.",
+    "proof": "VerifySporeSpawnCeilingStockMapping consolidates the prior partial stock checks. Independent original pointers and words confirm all sixteen factory/imported/installed stock values and original hashes; full ushort pointer rejection; both row widths and invalid bounds; mixed custom/stock hash; source mutation isolation for changed and unchanged frames; missing/duplicate/non-ordinal/wrong-shape/collision-bit rejection.",
+    "consumers": "Installation and artwork interfaces retain their existing contracts. Remaining dictionary contains selected custom artwork, not a generated stock cache. Normalized PlmProgression visual pin and contract explanation updated.",
+    "confirmation": "Verification and ResourceAudit builds and --spore-spawn-ceiling-visuals pass complete stock/hash proof, live per-cell artwork changes, collision/deletion-timing isolation, source-read prohibition and stock repair checks.",
+    "scope": "Spore Spawn ceiling stock artwork and content identity only. Program selectors and the wider audit remain unfinished; no retention exception claimed."
   }
 }

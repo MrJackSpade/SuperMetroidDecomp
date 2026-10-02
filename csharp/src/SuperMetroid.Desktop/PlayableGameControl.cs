@@ -673,6 +673,7 @@ public sealed partial class PlayableGameControl : UserControl
             input = forcedInput ?? BuildControllerWord();
             inputRecorder?.RecordFrame(input);
         }
+        string beforeFrameContext = game.CaptureGameplayFailureContext();
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
@@ -729,6 +730,24 @@ public sealed partial class PlayableGameControl : UserControl
                     recorderException);
             }
 
+            string frameDiagnostics = GameplayFrameFailureDiagnostics.Format(
+                beforeFrameContext, game.CaptureGameplayFailureContext(), input,
+                replay is not null ? "in-memory replay (path unavailable)" : inputRecorder?.Path,
+                replay is not null ? replayFrameIndex - 1 : inputRecorder?.FrameCount - 1);
+            // Printed before either fatal rethrow or recoverable reporting. The session
+            // log/ZIP captures stderr even when GitHub reporting is disabled.
+            try
+            {
+                Console.Error.WriteLine(frameDiagnostics);
+                Console.Error.Flush();
+            }
+            catch (Exception diagnosticException)
+            {
+                frameException = new AggregateException(
+                    "The emulated frame and diagnostic console write both failed.",
+                    frameException, diagnosticException);
+            }
+
             if (errorReporter is null)
             {
                 ExceptionDispatchInfo.Capture(frameException).Throw();
@@ -751,7 +770,8 @@ public sealed partial class PlayableGameControl : UserControl
                     RoomPointer: game.GameplayActiveRoomPointer,
                     RoomStatePointer: game.GameplayActiveRoomStatePointer,
                     DoorPointer: game.GameplayActiveDoorPointer,
-                    InputRecordingPath: inputRecorder?.Path));
+                    InputRecordingPath: inputRecorder?.Path,
+                    FrameDiagnostics: frameDiagnostics));
             return game.CurrentFrame;
         }
     }

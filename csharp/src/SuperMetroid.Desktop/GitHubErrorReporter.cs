@@ -18,7 +18,8 @@ public sealed record GitHubErrorContext(
     ushort? RoomPointer = null,
     ushort? RoomStatePointer = null,
     ushort? DoorPointer = null,
-    string? InputRecordingPath = null);
+    string? InputRecordingPath = null,
+    string? FrameDiagnostics = null);
 
 /// <summary>
 /// Queues recoverable failures to one private GitHub repository without blocking emulation.
@@ -260,6 +261,9 @@ public sealed class GitHubErrorReporter : IDisposable
         AppendBankContext(body, "Door", 0x83, context.DoorPointer);
         if (context.InputRecordingPath is not null)
             body.Append("- Input recording: `").Append(context.InputRecordingPath).AppendLine("`");
+        if (context.FrameDiagnostics is not null)
+            body.AppendLine().AppendLine("## Frame failure state").AppendLine()
+                .AppendLine("```text").AppendLine(context.FrameDiagnostics).AppendLine("```");
 
         body.AppendLine()
             .AppendLine("## Exception")

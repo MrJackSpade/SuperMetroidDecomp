@@ -4291,4 +4291,18 @@
     "confirmation": "Verification build and --colored-door-plm-draws pass six native-field proofs plus all twelve guarded close/hit/open/reload paths and existing custom-artwork checks. Prior combined program comparison consolidated; original operand locations and independent native values form the oracle, with supported-ROM SHA256 pinned.",
     "scope": "Complete three coloured-door program intervals and their separate fields. No retention exception; the wider maintained-source audit remains active."
   }
+,
+  "noobTubeProgramReview": {
+    "status": "converted: both stored instruction arrays removed",
+    "source": "Supported NTSC J/U v1.0 84:D4D4..D518 and D521..D524; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. RoomPlmProgramDefinitions composes these exact word/byte readers for the runtime interpreter and static coverage audit.",
+    "controls": {"disposition":"converted", "algorithm":"Named opcodes express event gating, power-bomb/input waits, input lock, crack, debris, earthquake, water enable, unlock and deletion. Durations remain explicit semantic holds: one tick for immediate draws, 48 for cracking, 96 for the final opened image.", "proof":"VerifyTubeControls compares all 24 native control/duration words."},
+    "draws": {"disposition":"converted", "algorithm":"Named intact, damaged, opened-rows, broken-full and opened physical definitions select the five coroutine stages.", "proof":"VerifyTubeDraws compares five native draw operands."},
+    "targets": {"disposition":"converted", "algorithm":"Named already-broken, wait-for-input and break-tube continuations.", "proof":"VerifyTubeTargets compares three native branch/link words."},
+    "callbacks": {"disposition":"converted", "algorithm":"Named power-bomb and accepted-input wake callbacks.", "proof":"VerifyTubeCallbacks compares both native callback operands."},
+    "events": {"disposition":"converted", "algorithm":"Both event accesses select the named Maridia tube-broken event.", "proof":"VerifyTubeEvents compares both native event words."},
+    "sound": {"disposition":"converted", "algorithm":"Single named break sound at its packed byte address D506.", "proof":"VerifyTubeSound compares the original sound byte."},
+    "domain":"Exactly 36 word starts: 25 even starts D4D4..D504, nine odd starts D507..D517 and D521/D523; one byte at D506. Each named proof checks the complete ushort ownership/rejected-zero domain and original values through direct and composed readers. Ordered address enumerations are preserved. Interior/odd overlaps, the unused D519..D520 branch and adjacent machine code remain rejected. No cache or gameplay ROM read.",
+    "confirmation":"Verification and ResourceAudit builds pass. --noob-tube-plm-program passes six native-field proofs and the existing full two-stage wake/break/event/water/reload fixture with program-source reads guarded. Fixed that fixture's stale synthetic FX address to use the compiled Glass Tunnel record and import-time presentation assets; no production FX behavior changed. Supported-ROM SHA256 is pinned and the old combined program comparison is consolidated.",
+    "scope":"N00b tube instruction program and its six separately interpreted fields. No retention exception. Physical draw and stock visual owners remain separate audit work; the wider maintained-source audit remains active."
+  }
 }

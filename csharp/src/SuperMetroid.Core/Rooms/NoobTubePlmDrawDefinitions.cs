@@ -9,19 +9,19 @@ namespace SuperMetroid.Core.Rooms;
 internal static class NoobTubePlmDrawDefinitions
 {
     /// <summary>Intact projectile-trigger block at $84:98D1.</summary>
-    private const ushort Intact = 0x98d1;
+    internal const ushort Intact = 0x98d1;
     /// <summary>First damaged origin block at $84:98D7.</summary>
-    private const ushort Damaged = 0x98d7;
+    internal const ushort Damaged = 0x98d7;
     /// <summary>Opened origin block at $84:98DD.</summary>
-    private const ushort Opened = 0x98dd;
+    internal const ushort Opened = 0x98dd;
     /// <summary>Four-row cleared tube at $84:98E3.</summary>
     private const ushort Cleared = 0x98e3;
     /// <summary>Late broken-tube panel at $84:9953.</summary>
     private const ushort BrokenLate = 0x9953;
     /// <summary>Three-row opened tube at $84:9991.</summary>
-    private const ushort OpenedRows = 0x9991;
+    internal const ushort OpenedRows = 0x9991;
     /// <summary>Full broken-tube panel at $84:99E5.</summary>
-    private const ushort BrokenFull = 0x99e5;
+    internal const ushort BrokenFull = 0x99e5;
 
     private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();

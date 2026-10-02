@@ -7,12 +7,8 @@ internal static partial class Program
     private static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
-        var native = new ushort[12];
-        for (int i = 0; i < native.Length; i++)
-        {
-            native[i] = Word(EnemyRomTablePointers.Kraid.NailPositionOffsetWords + i * 2);
-            AssertEqual(native[i], KraidNailContour.Words[i], "Native contour and adjacent word window");
-        }
+        VerifyKraidNailLeftOffsets(rom);
+        VerifyKraidNailTopBoundaries(rom);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
@@ -39,7 +35,7 @@ internal static partial class Program
             histogram[record]++;
             if (record >= 4) overreadCases++;
             ushort nativeLeft = Word(0xa7bf1d + record * 4);
-            AssertEqual(nativeLeft, KraidNailContour.LeftOffset((ushort)raw), "Native unbounded walk selects compiled left offset");
+
             ushort edge = unchecked((ushort)(body.XPosition + nativeLeft));
             foreach (ushort velocity in new ushort[] { 0, 1, 0x7fff, 0x8000, 0xffff })
             for (int delta = -1; delta <= 1; delta++)

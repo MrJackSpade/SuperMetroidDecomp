@@ -2096,5 +2096,35 @@
             }
         ],
         "remainingScope": "GrowthResume and other Kraid mappings retain their separate review scope. Verification build passes with existing warnings; no exploratory gameplay or broad address-space/collision matrix was run."
+    },
+    "kraidNailContourMappingReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid nail contour fields and bounded overreads for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid nail contour fields and bounded overreads for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidNailContour.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm native fingernail contour walk, BF1D-BF2C geometry and BF2D-BF34 adjacent instruction fields. JSR HandleKraidPhase1, LDA Enemy[1].instList and CMP InstList_KraidArm_Normal_1 explain all four compatibility words. Original NTSC J/U v1.0 ROM SHA verified. Production KraidBodyContourReflectsNail wraps nail-minus-body Y and selected body-X sum before signed comparisons.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-nail-contour",
+        "tables": [
+            {
+                "id": "kraid-nail-contour-left-offsets",
+                "state": "converted",
+                "domain": "Six records: four signed geometry offsets and two unsigned native overread words. LeftOffset accepts every ushort relativeY and preserves signed16 subtraction wrapping.",
+                "disposition": "Remove stored left words. Calculate -64+24*record for four authored ledges and construct the two bounded instruction aliases from named opcode/operand roles.",
+                "rationale": "Uniform24-pixel horizontal spacing explains the four ordinary ledges. Overreads are JSR opcode plus low target byte and the absolute WRAM arm instruction-list address, not extrapolated geometry.",
+                "proofTest": "VerifyKraidNailLeftOffsets",
+                "confirmation": "All six original words, negative/upper record bounds, and all65536 relativeY values against an independent original-ROM contour walk, including both overread records. Extracted existing numerical proof; broad reflection matrix not rerun."
+            },
+            {
+                "id": "kraid-nail-contour-top-boundaries",
+                "state": "converted",
+                "domain": "Six unsigned comparison words interpreted by signed wrapped subtraction; ordinal indices0..5 only.",
+                "disposition": "Remove stored top words. Calculate16-56*record for the first three ledges, select the terminal authored -128 boundary, and compose adjacent JSR-high/LDA and CMP/arm-program-low words.",
+                "rationale": "Three uniformly spaced body ledges end at a separate upper boundary; two subsequent records expose exact instruction byte fields. Geometry and native overread roles stay explicit without a correction blob or cached lookup.",
+                "proofTest": "VerifyKraidNailTopBoundaries",
+                "confirmation": "All six original ROM words and negative/upper bounds. The shared selection contract is confirmed by the left-offset proof over the complete ushort domain."
+            }
+        ],
+        "remainingScope": "Body contour and growth-resume cases are identified for their own independent reviews. Verification build passes with existing warnings. No broad gameplay or reflection matrix was run."
     }
 }

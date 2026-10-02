@@ -2594,4 +2594,25 @@
         "confirmation": "Verification build and --lookup-fake-kraid-programs pass. No generated cache remains. Actor execution is unchanged and its verifier delegates both focused mapping proofs.",
         "remainingScope": "Fake Kraid projectile definitions, actual artwork and other repository mappings still require separate review."
     }
+,
+    "fakeKraidProjectileInstructionProgramReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileInstructionProgramDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_86.asm9DDA..9DEA: three identical six-byte pose programs, each containing duration7FFF, a visual operand and terminal sleep. Native NTSC J/U v1.0 words independently confirm mechanics values.",
+        "tables": [
+            {
+                "id": "fake-kraid-projectile-instruction-control",
+                "disposition": "Remove six address/value records and binary search. Named pose-entry cases return duration7FFF; named sleep cases return the sleep opcode. Calculate enumeration addresses and byte ownership from six-byte instruction layout.",
+                "proof": "VerifyFakeKraidProjectileMechanicsMapping independently checks all six native addresses and ROM words, every bank byte including preserved high-bit masking, wrong bank rejection, holes, odd addresses, neighboring code, distant invalid addresses and ordinal bounds. Extracts the old numerical proof from the existing actor verifier."
+            },
+            {
+                "id": "fake-kraid-projectile-presentation-operand-positions",
+                "disposition": "Remove three addresses. Operand position equals program base plus six times pose index plus two.",
+                "proof": "VerifyFakeKraidProjectilePresentationAddresses independently checks9DDC,9DE2,9DE8 and invalid ordinals."
+            }
+        ],
+        "rationale": "Programs implement the same hold-pose-then-sleep operation. Named control cases and actual instruction sizes explain every value and address; no stored or generated lookup remains.",
+        "confirmation": "Verification build and --lookup-fake-kraid-projectile-programs pass. Existing actor verifier delegates the two focused mapping proofs. No unrelated gameplay test matrix run.",
+        "remainingScope": "Spit launch velocities, spike-row positions, projectile artwork and the repository-wide review remain separate outstanding work."
+    }
 }

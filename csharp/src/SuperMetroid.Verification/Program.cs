@@ -44,6 +44,14 @@ if (args is ["--lookup-resident-door-closing"])
     Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
     return 0;
 }
+if (args is ["--mother-brain-glass-shard-definitions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass shard oracle revision");
+    VerifyMotherBrainGlassShardDefinitions(rom);
+    return 0;
+}
 if (args is ["--mother-brain-glass-plm-draws"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2869,12 +2877,6 @@ if (args is ["--mother-brain-contact-hitboxes"])
 if (args is ["--mother-brain-turret-definitions"])
 {
     VerifyMotherBrainTurretDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
-if (args is ["--mother-brain-glass-shard-definitions"])
-{
-    VerifyMotherBrainGlassShardDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }

@@ -4343,4 +4343,14 @@
     "confirmation":"Verification and ResourceAudit builds pass. --mother-brain-glass-plm-draws passes eight native-field proofs, the guarded zero-hit wait/full 40-shard destruction sequence, and existing eleven physical-layout/custom-artwork checks. Old combined byte comparison consolidated. Focused command moved ahead of unrelated suites and pins supported ROM SHA256; draw constant visibility change has an updated presentation source pin.",
     "scope":"Glass PLM control program and eight interpreted fields. No retention exception. Physical glass layouts, stock visuals and wider maintained-source audit remain active."
   }
+,
+  "motherBrainGlassShardPlacementReview": {
+    "status":"converted: three stored coordinate pairs removed",
+    "source":"NTSC J/U v1.0 bank 86 CE61..CE66 X offsets and CE67..CE6C Y offsets; pinned bank_86.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Native initializer CE08/CE16 and RoomEnemySystem.MotherBrainGlassProjectiles scale PLM block coordinates by sixteen then add these offsets before independent -8..7 jitter. Bank 84 D30B emits parameters 0/2/4 for glass sections.",
+    "x":{"disposition":"converted", "algorithm":"Meaningful emitter selection cases: parameter zero is right (+8), two is left (-40), four is centre (-16) relative to the PLM origin. Preserve signed offsets and native parameter byte units; this is spatial dispatch rather than a sampled motion curve.", "proof":"VerifyGlassShardXPlacement compares all three original signed X words and checks every ushort parameter for exact domain rejection."},
+    "y":{"disposition":"converted", "algorithm":"All three emitters are two blocks below the PLM origin, so Y is exactly 2*16 after the shared parameter-domain check.", "proof":"VerifyGlassShardYPlacement compares all three original signed Y words and complete ushort parameter rejection."},
+    "domain":"Exactly parameters 0, 2 and 4. All others retain ArgumentOutOfRangeException, including odd inputs; no clamping, wrapping or extrapolation is introduced. No persistent coordinate array/cache remains.",
+    "confirmation":"Verification build and --mother-brain-glass-shard-definitions pass both focused field proofs and the existing 48 production spawns with source tables forbidden. Production coordinate assertions now use independent native words rather than the proposed placement result. Existing selector, angle, graphics and RNG-consumption checks pass. Moved the existing command ahead of unrelated suites and pinned supported ROM SHA256.",
+    "scope":"Both independently stored shard-origin axes. Animation selection/programs remain separate audit owners. No retention exception; wider source review remains active."
+  }
 }

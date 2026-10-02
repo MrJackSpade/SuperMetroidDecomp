@@ -4017,4 +4017,17 @@
     "confirmation": "Verification build and --speed-booster-escape-definitions confirm the three separate native field proofs, original program fields and the existing production fixture with item gating, checkpoint waits, height caps and completion event. The old partial compound proof is consolidated; focused dispatch now precedes unrelated suites and pins the ROM SHA256.",
     "scope": "All three lava-stage record fields. The wider ticket remains active until all other mappings have acceptable dispositions."
   }
+,
+  "downwardGateSetupSelectionReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:C70A..C739; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d; setup C6E0..C709, consecutive six-byte instruction lists BCAF..BCDE",
+    "evidence": "Room argument is an even byte offset 0..14 selecting blue/red/green/yellow, each left then right. Native setup loads one instruction list and independently writes nonzero left then right block operands. Adjacent list records each contain duration/draw/sleep and occupy six bytes. Trigger block type C is constant and BTS 46..4D enumerates the same color/side order.",
+    "instructionList": {"disposition": "converted", "algorithm": "i=argument/2; pointer=DownwardGateShotBlockBlueLeft+6*i within eight records.", "proof": "VerifyDownwardGateListSelection compares all eight original native pointers and rejects every other ushort argument."},
+    "leftBlock": {"disposition": "converted", "algorithm": "C046+i for even i (left), zero for odd i (right).", "proof": "VerifyDownwardGateLeftSelection compares all eight original words and complete invalid-input domain."},
+    "rightBlock": {"disposition": "converted", "algorithm": "C046+i for odd i (right), zero for even i (left).", "proof": "VerifyDownwardGateRightSelection compares all eight original words and complete invalid-input domain."},
+    "consumers": "Remove the compound eight-record array. RoomPlmSystem keeps separate left/right writes in native order and receives freshly calculated values. Correct its setup-address comment from C7B1 to the independently inspected C6E0. The earlier XML claim of a formula now corresponds to actual implementation; obsolete instructions to retain records are removed.",
+    "domain": "Exactly even arguments 0..14; all remaining ushort values throw. No modulo folding, interpolation, odd reads, adjacent-table alias or overread domain introduced.",
+    "confirmation": "Verification build and --downward-gate-definitions pass three native field proofs and the existing synthetic gate integration checks, including all eight color/side setups, trigger filters, gate slot ownership and projectile handoff. The partial compound proof was consolidated. The stale integration fixture previously forbade header reads during import; it now supplies typed placements directly while preserving the runtime read guard. Focused dispatch precedes unrelated suites and pins the supported ROM hash.",
+    "scope": "The three downward-gate shot-block setup selectors only. Instruction contents, physical draws and selected visual catalog require their own independent dispositions; no retention exception is claimed."
+  }
 }

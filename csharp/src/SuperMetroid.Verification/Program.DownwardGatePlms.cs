@@ -7,33 +7,9 @@ internal static partial class Program
 {
     private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-
-        for (ushort roomArgument = 0; roomArgument <= 14; roomArgument += 2)
-        {
-            DownwardGateShotBlockDefinition definition =
-                DownwardGateShotBlockDefinitions.Resolve(roomArgument);
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.InstructionListTableAddress + roomArgument),
-                definition.InstructionList,
-                $"gate row ${roomArgument:X2} instruction list matches the cartridge");
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.LeftBlockWordTableAddress + roomArgument),
-                definition.LeftBlockWord,
-                $"gate row ${roomArgument:X2} left block matches the cartridge");
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.RightBlockWordTableAddress + roomArgument),
-                definition.RightBlockWord,
-                $"gate row ${roomArgument:X2} right block matches the cartridge");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => DownwardGateShotBlockDefinitions.Resolve(1),
-            "odd downward-gate table offsets fail loudly");
-        AssertThrows<InvalidDataException>(
-            () => DownwardGateShotBlockDefinitions.Resolve(16),
-            "out-of-range downward-gate table offsets fail loudly");
+        VerifyDownwardGateListSelection(rom);
+        VerifyDownwardGateLeftSelection(rom);
+        VerifyDownwardGateRightSelection(rom);
 
         // The synthetic address space intentionally omits all three source tables. Running
         // every row through production setup proves room loading no longer reads them.
@@ -330,13 +306,15 @@ internal static partial class Program
         const byte gateY = 2;
         const int roomWidth = 16;
         ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
-        bus.WriteBytes(0x8f0000 | populationPointer, [
-            0x2a, 0xc8, gateX, gateY, 0x00, 0x00,
-            0x36, 0xc8, gateX, gateY, unchecked((byte)argument), 0x00,
-            0x00, 0x00,
+        // Supply imported placements directly. Cartridge header reads belong to import;
+        // the guard below prohibits them only while the production runtime sets up slots.
+        var population = new RoomPlmPopulationDefinition(populationPointer,
+        [
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGate),
+                gateX, gateY, 0),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGateShotBlock),
+                gateX, gateY, argument),
         ]);
-        // Gate header first-list words are intentionally absent; the population
-        // allocator must use the compiled definitions before gate setup/dispatch.
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
         SeedDownwardGateProjectileRom(bus);
 
@@ -359,7 +337,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            RoomPlmPopulationImporter.Read(new DownwardGateHeaderReadGuard(bus), populationPointer),
+            population,
             new Bank80SystemState(),
             AreaId.Brinstar,
             getSamus: () => null,
@@ -368,9 +346,9 @@ internal static partial class Program
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
 
         public byte ReadByte(int address)
         {

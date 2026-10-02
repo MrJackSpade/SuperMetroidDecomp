@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--downward-gate-definitions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Downward gate oracle revision");
+    VerifyDownwardGateShotBlockDefinitions(rom);
+    return 0;
+}
 if (args is ["--speed-booster-escape-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2384,12 +2392,6 @@ if (args is ["--kraid-mouth-hitboxes"])
 if (args is ["--shaktool-instruction-mechanics"])
 {
     VerifyShaktoolInstructionProgramDefinitions();
-    return 0;
-}
-if (args is ["--downward-gate-definitions"])
-{
-    VerifyDownwardGateShotBlockDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--speed-booster-block-plms"])

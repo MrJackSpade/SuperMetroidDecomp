@@ -38,53 +38,44 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     /// <summary>Finite glass-sparkle animation at $86:CDB3.</summary>
     internal const ushort Sparkle = 0xcdb3;
 
-    private static readonly ushort[] ShardPrograms =
-    [
-        ShardGroup0, ShardGroup1, ShardGroup2, ShardGroup3,
-        ShardGroup4, ShardGroup5, ShardGroup6, ShardGroup7,
-    ];
-
-    private static readonly ushort[] ShardSelectorPrograms =
-    [
-        ShardGroup0,
-        ShardGroup1,
-        ShardGroup1,
-        ShardGroup2,
-        ShardGroup2,
-        ShardGroup2,
-        ShardGroup3,
-        ShardGroup3,
-        ShardGroup4,
-        ShardGroup5,
-        ShardGroup5,
-        ShardGroup6,
-        ShardGroup6,
-        ShardGroup6,
-        ShardGroup7,
-        ShardGroup7,
-    ];
-
     private static readonly MotherBrainGlassInstructionMechanicsWord[] Words = BuildWords();
     private static readonly ushort[] PresentationWords = BuildPresentationWords();
 
     internal static int MechanicsWordCount => Words.Length;
     internal static int PresentationWordCount => PresentationWords.Length;
-    internal static int ShardProgramCount => ShardPrograms.Length;
+    internal static int ShardProgramCount => 8;
     internal static MotherBrainGlassInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static ushort ShardProgram(int index) => ShardPrograms[index];
+    /// <summary>Eight 36-byte loops at $86:CC93..CDB2, each eight timed frames plus goto/self.</summary>
+    internal static ushort ShardProgram(int index)
+    {
+        if ((uint)index >= ShardProgramCount) throw new IndexOutOfRangeException();
+        return (ushort)(ShardGroup0 + index * 36);
+    }
 
     internal static ushort SelectShardProgram(ushort animationIndex)
     {
-        if (animationIndex >= ShardSelectorPrograms.Length)
+        if (animationIndex >= 16)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(animationIndex), animationIndex,
                 "Mother Brain glass-shard animation index must be zero through fifteen.");
         }
 
-        return ShardSelectorPrograms[animationIndex];
+        // $86:CE41 selects an angular sprite group from sixteen RNG-angle bins.
+        // The asymmetric widths 1/2/3/2 repeat in the opposite half-turn.
+        return animationIndex switch
+        {
+            0 => ShardGroup0,
+            1 or 2 => ShardGroup1,
+            3 or 4 or 5 => ShardGroup2,
+            6 or 7 => ShardGroup3,
+            8 => ShardGroup4,
+            9 or 10 => ShardGroup5,
+            11 or 12 or 13 => ShardGroup6,
+            _ => ShardGroup7,
+        };
     }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
@@ -134,8 +125,9 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     {
         var words = new List<MotherBrainGlassInstructionMechanicsWord>(85);
         ushort[] shardDurations = [4, 3, 2, 3, 4, 3, 2, 3];
-        foreach (ushort program in ShardPrograms)
+        for (int group = 0; group < ShardProgramCount; group++)
         {
+            ushort program = ShardProgram(group);
             AddTimedFrames(words, program, shardDurations);
             Add(words, program + 0x20,
                 EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
@@ -151,8 +143,8 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     private static ushort[] BuildPresentationWords()
     {
         var words = new List<ushort>(68);
-        foreach (ushort program in ShardPrograms)
-            AddPresentationFrames(words, program, 8);
+        for (int group = 0; group < ShardProgramCount; group++)
+            AddPresentationFrames(words, ShardProgram(group), 8);
         AddPresentationFrames(words, Sparkle, 4);
         return words.ToArray();
     }

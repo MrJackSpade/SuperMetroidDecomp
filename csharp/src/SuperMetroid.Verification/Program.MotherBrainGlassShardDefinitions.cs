@@ -14,13 +14,8 @@ internal static partial class Program
         FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
         var guarded = new MotherBrainGlassShardReadGuard(rom);
 
-        for (ushort animationIndex = 0; animationIndex < 16; animationIndex++)
-        {
-            AssertEqual(ReadMotherBrainGlassShardWord(
-                    rom, 0x86ce41 + animationIndex * 2),
-                MotherBrainGlassShardDefinitions.InstructionPointer(animationIndex),
-                $"Mother Brain glass-shard instruction {animationIndex}");
-        }
+        VerifyGlassShardProgramSelection(rom);
+        VerifyGlassShardProgramOrigins(rom);
 
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
@@ -64,6 +59,33 @@ internal static partial class Program
             "Mother Brain glass-shard odd placement parameter");
         Console.WriteLine(
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
+    }
+
+    private static void VerifyGlassShardProgramSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort index = (ushort)raw;
+            if (raw >= 16)
+                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassShardDefinitions.InstructionPointer(index),
+                    "Glass shard selector full rejected domain");
+            else
+                AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * raw),
+                    MotherBrainGlassShardDefinitions.InstructionPointer(index), "Glass shard original angular selector");
+        }
+    }
+
+    private static void VerifyGlassShardProgramOrigins(SuperMetroidAddressSpace rom)
+    {
+        // Original selector entries that introduce each native loop, independent of its stride.
+        int[] entries = [0,1,3,6,8,9,11,14];
+        AssertEqual(8, MotherBrainGlassInstructionProgramDefinitions.ShardProgramCount, "Glass shard original loop count");
+        for (int index = 0; index < entries.Length; index++)
+            AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + entries[index] * 2),
+                MotherBrainGlassInstructionProgramDefinitions.ShardProgram(index), "Glass shard original loop origin");
+        foreach (int invalid in new[] {int.MinValue,-1,8,16,ushort.MaxValue,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainGlassInstructionProgramDefinitions.ShardProgram(invalid),
+                "Glass shard ordinal bounds preserve array contract");
     }
 
     private static void VerifyGlassShardXPlacement(SuperMetroidAddressSpace rom) => VerifyGlassShardPlacementField(rom, false);

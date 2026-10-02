@@ -4353,4 +4353,13 @@
     "confirmation":"Verification build and --mother-brain-glass-shard-definitions pass both focused field proofs and the existing 48 production spawns with source tables forbidden. Production coordinate assertions now use independent native words rather than the proposed placement result. Existing selector, angle, graphics and RNG-consumption checks pass. Moved the existing command ahead of unrelated suites and pinned supported ROM SHA256.",
     "scope":"Both independently stored shard-origin axes. Animation selection/programs remain separate audit owners. No retention exception; wider source review remains active."
   }
+,
+  "motherBrainGlassShardSelectionReview": {
+    "status":"converted: sixteen selector entries and eight program-origin entries removed",
+    "source":"Supported NTSC J/U v1.0 86:CE41..CE60 and eight 36-byte loops CC93..CDB2; pinned bank_86.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Native doubled RNG angle masked to 01FE selects one of sixteen bins via ((angleOffset>>4)&1E)>>1. RoomEnemySystem.MotherBrainGlassProjectiles uses the same indexing.",
+    "selector":{"disposition":"converted", "algorithm":"Meaningful angle-group cases select the eight named shard loops. Bin widths 1/2/3/2 repeat for the opposite half-turn: 0;1..2;3..5;6..7;8;9..10;11..13;14..15. No claim of uniform octants or an inferred trigonometric generator is needed for explicit angular dispatch.", "proof":"VerifyGlassShardProgramSelection compares all sixteen native selector words and rejects every other ushort input with the existing ArgumentOutOfRangeException contract."},
+    "origins":{"disposition":"converted", "algorithm":"Program ordinal zero through seven maps to CC93+36*ordinal. Each native loop has eight four-byte timed-frame records followed by a four-byte goto/self. Construction of mechanics and presentation definitions now calls that calculation rather than the removed array.", "proof":"VerifyGlassShardProgramOrigins independently reads the original selector entries introducing each loop, compares all eight calculated origins and checks negative, past-end and extreme integer indices preserve IndexOutOfRangeException."},
+    "confirmation":"Verification build and --mother-brain-glass-shard-definitions pass both named native proofs and the existing 48 guarded production spawns covering every parameter/angle selector. Existing coordinate, angle, graphics and RNG-consumption checks also pass. Prior combined selector loop consolidated.",
+    "scope":"Shard angular dispatch and ordinal program origins only. Generated mechanics/presentation word storage and their cadence mappings remain separate active audit work; no retention exception is claimed. Wider maintained-source scope remains active."
+  }
 }

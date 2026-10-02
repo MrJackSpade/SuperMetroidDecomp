@@ -3692,4 +3692,15 @@
     "confirmation": "Verification build and --speed-booster-visuals pass the scalar proof, native reveal parity, live edits, collision isolation, stock repair and existing strict-failure checks. Production code unchanged.",
     "scope": "Speed Booster stock visual scalar and content identity only. Existing implementation is preserved on verified functional grounds, not under a size/performance retention exception. Collision selectors and the wider inventory remain required work."
   }
+,
+  "speedBlockCollisionSelectorReview": {
+    "status": "existing named cases independently verified",
+    "source": "NTSC J/U v1.0 bank-94 special collision entries 9155/9157 and Brinstar 91FD/91FF/9201/9203, with bank-84 PLM setup/instruction fields; pinned bank_94.asm and bank_84.asm",
+    "algorithm": "Existing TryResolve uses two area-independent named cases and four Brinstar cases for slow/standard and respawning/permanent variants. Five immutable named descriptors are semantic catalog identities, not an indexed lookup table. No production rewrite is needed.",
+    "header": {"proof": "VerifySpeedBlockHeaderSelection independently names the six original bank-94 entry locations, confirms they reference setup CDEA and compares selected header fields. It checks every byte BTS/area pair and default missing definitions."},
+    "instruction": {"proof": "VerifySpeedBlockInstructionSelection independently dereferences the original header instruction field for every admitted selector. It checks the same complete byte BTS/area contract separately for the instruction mapping."},
+    "domain": "Preserve the method's exact contract: normal BTS 0E/0F ignores area (including raw non-retail enum bytes); negative BTS 82..85 requires Brinstar; all others return false/default. The production caller supplies its active retail area. This disposition does not claim unsupported raw BTS overreads are implemented as native cartridge memory aliases.",
+    "confirmation": "Verification build and --lookup-speed-blocks pass both full selector-field proofs, native program checks and all five existing boosted-contact fixtures plus bomb reveal with source reads forbidden. Production unchanged.",
+    "scope": "SpeedBoosterBlockPlmDefinitions header/instruction selection only. Special-air reaction tables and the broader inventory remain required work. This is an independently checked semantic case implementation, not a retention exception."
+  }
 }

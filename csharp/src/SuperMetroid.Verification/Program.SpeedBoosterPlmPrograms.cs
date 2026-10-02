@@ -105,10 +105,47 @@ internal static partial class Program
         }
     }
 
+    private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
+        VerifySpeedBlockSelectionField(rom, instruction: false);
+
+    private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
+        VerifySpeedBlockSelectionField(rom, instruction: true);
+
+    private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
+    {
+        // Original bank-94 speed-entry locations, independent of named C# results.
+        (byte Bts, int Area, int Address)[] entries =
+            [(0x0e,-1,0x949155),(0x0f,-1,0x949157),(0x82,1,0x9491fd),
+             (0x83,1,0x9491ff),(0x84,1,0x949201),(0x85,1,0x949203)];
+        for (int area = 0; area <= byte.MaxValue; area++)
+        for (int bts = 0; bts <= byte.MaxValue; bts++)
+        {
+            int tableAddress = 0;
+            foreach (var entry in entries)
+                if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
+                    tableAddress = entry.Address;
+            bool found = SpeedBoosterBlockPlmDefinitions.TryResolve(new RoomBlockBehavior((byte)bts),
+                (AreaId)(byte)area,out var definition);
+            AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
+            if (!found)
+            {
+                AssertEqual(default(SpeedBoosterBlockPlmDefinition),definition,"speed selector missing definition cleared");
+                continue;
+            }
+            ushort header = ReadBotwoonInstructionWord(rom,tableAddress);
+            AssertEqual((ushort)0xcdea,ReadBotwoonInstructionWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
+            ushort expected = instruction ? ReadBotwoonInstructionWord(rom,0x840000 | (header + 2)) : header;
+            AssertEqual(expected,instruction ? definition.InstructionPointer : definition.HeaderPointer,
+                instruction ? "speed native selected instruction" : "speed native selected header");
+        }
+    }
+
     private static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifySpeedBlockHeaderSelection(rom);
+        VerifySpeedBlockInstructionSelection(rom);
         VerifySpeedBlockControlMapping(rom);
         VerifySpeedBlockDrawOperandMapping(rom);
         VerifySpeedBlockSoundMapping(rom);

@@ -211,7 +211,7 @@ public sealed class EnemyExtendedFrameCatalog
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
-        ReadOnlySpan<EnemyExtendedFrameDefinition> expected =
+        EnemyExtendedFrameSequence expected =
             EnemyExtendedFrameDefinitions.Frames[..expectedCount];
 
         var frames = new Dictionary<int, EnemyExtendedDrawComponent[]>();

@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-extended-frame-sequence"])
+{
+    VerifyExtendedFrameSequence();
+    return 0;
+}
 if (args is ["--lookup-mother-brain-visual-catalogs"])
 {
     var catalogOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

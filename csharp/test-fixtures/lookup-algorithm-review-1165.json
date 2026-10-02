@@ -1750,5 +1750,27 @@
         "reviewedEvidence": "Reviewed private catalog construction, exact named-set admission, copied and bounded tile writes, computed frame identities and names, and shared sequence indexing/enumeration. Refreshed changed loader/definition fingerprints and pinned EnemyBg2FrameDefinitionSequence as a dependency of all four contracts.",
         "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.ResourceAudit --no-build -- --bg2-catalog-contract-check",
         "confirmation": "ResourceAudit builds with zero errors. Reused BackgroundTransferPresentationContractChecks with a four-call fixture: four unresolved without adapters, four classified with current reviewed sources, and all four revoked independently by a changed shared admission guard or changed generator index. No full audit or gameplay exploration performed."
+    },
+    "extendedFrameSequenceReview": {
+        "implementationCommit": {
+            "subject": "Remove combined extended-frame lookup cache for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Remove combined extended-frame lookup cache for #1165\""
+        },
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-extended-frame-sequence",
+        "reviewedEvidence": "Original combined catalog construction at 1f7c6f72: ordered family concatenation, first-seen instruction-frame deduplication, Torizo identity reuse and legacy schema boundaries. All source consumers inspected; loader migrates span prefixes to sequence ranges. Original 588 bank/pointer/name triples captured before implementation as SHA256 3C4FA3A572E604B69A4CE48F276BD1985E930C5EA3DFC239D8AD882D5CBAFB40 over UTF-8 uppercase BB:PPPP:name lines separated by LF without trailing LF.",
+        "tables": [
+            {
+                "id": "combined-extended-frame-generated-cache",
+                "owner": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameDefinitions.cs",
+                "state": "converted",
+                "domain": "588 ordered extended-frame definitions; indexing 0..587; bounded range views including empty ranges and legacy prefixes.",
+                "disposition": "Remove FrameDefinitions startup array and Build list. Emit the ordered roster on demand, calling calculated boss definitions directly. Use transient identity sets only for first-seen deduplication, not a generated definition lookup.",
+                "rationale": "The combined mapping is ordered family composition and instruction-identity deduplication. Its algorithm already defines the published order; retaining its materialized startup lookup unnecessarily recaches newly calculated boss entries.",
+                "proofTest": "VerifyExtendedFrameSequence",
+                "confirmation": "Original 588-entry ordered fingerprint, every indexed entry, legacy prefixes and suffixes, nested slices, invalid bounds. Verification and ResourceAudit compile. No ROM or gameplay required for this storage/sequence conversion."
+            }
+        ],
+        "remainingScope": "The stored DraygonOamPointers, SporeSpawnOamPointers, RidleyBodyPointers, WalkingNames and WallNames mappings in this owner and the other family definition sources still require independent conversion/review. This entry only removes the combined generated lookup cache, and grants no retention decisions.",
+        "relatedAuditScope": "EnemyDisplayArtworkClosedContractDefinitions and NativeDisplaySelectorClosedContractDefinitions pin changed extended-catalog sources. Their fail-closed fingerprints require separate revalidation including the new EnemyExtendedFrameSequence dependency."
     }
 }

@@ -3183,4 +3183,14 @@
     "integration": "Verification build and --lookup-platform-programs run all eight production program cases, real initializers/installers, direction callbacks and loop restarts with mechanics reads forbidden and no selector ROM reads.",
     "scope": "Instruction control and operand positions only. Tripper/Kamer visual pointer values, artwork and movement mappings remain separately reviewable; no retention exception claimed."
   }
+,
+  "tripperKamerVisualPointerReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A3:9BBB-9C6A programs; 9F29-A008 Tripper maps and A021-A050 Kamer maps; pinned bank_A3.asm",
+    "disposition": "Removed 32 shared literal pointer selectors. Kamer advances through four two-entry maps (12-byte stride). Tripper alternates neutral/first/neutral/second poses. Moving maps have three entries each (17-byte stride, 51 bytes per facing); still maps have four/three/four entries (22/17/22 bytes, 61 per facing), with the shorter middle record explicitly accounted for.",
+    "proof": "VerifyPlatformVisualPointers independently compares all 32 native pointer words, checks all sixteen selected maps' original counts, shared dispatch and literal-generation exclusion, local holes and distant invalid operands.",
+    "sharedCatalog": "Calculated entries merge after the elevator and before bank A6. ResourceAudit attributes these selectors to TripperKamerVisualDefinitions.FrameAt. No generated lookup cache introduced.",
+    "confirmation": "Verification and ResourceAudit builds; --lookup-platform-programs runs all eight production-installed loops plus the complete 5069-entry shared-selector ordering/value/lookup/bounds proof.",
+    "scope": "Animation visual pointer values only. Frozen-frame selection, export metadata, artwork and movement remain separately reviewable; no retention exception claimed."
+  }
 }

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -87,15 +88,7 @@ internal static partial class Program
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Tripper/Kamer execution uses compiled spritemap selectors");
-        for (int index = 0;
-             index < PlatformInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                PlatformInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, (byte)0xa3,
-                address, $"Tripper/Kamer $A3:{address:X4}");
-        }
+        VerifyPlatformVisualPointers(rom);
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Tripper/Kamer mechanics byte");
 
@@ -174,6 +167,37 @@ internal static partial class Program
             AssertEqual(words.Contains((ushort)address), PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address), "platform full visual membership");
         foreach (int index in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PlatformInstructionProgramDefinitions.PresentationWordAddress(index), "platform presentation bounds");
+    }
+    private static void VerifyPlatformVisualPointers(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0x9bbf, 0x9bc3, 0x9bc7, 0x9bcb, 0x9bd5, 0x9bd9, 0x9bdd, 0x9be1,
+            0x9beb, 0x9bef, 0x9bf3, 0x9bf7, 0x9c01, 0x9c05, 0x9c09, 0x9c0d,
+            0x9c17, 0x9c1b, 0x9c1f, 0x9c23, 0x9c2d, 0x9c31, 0x9c35, 0x9c39,
+            0x9c43, 0x9c47, 0x9c4b, 0x9c4f, 0x9c59, 0x9c5d, 0x9c61, 0x9c65];
+        foreach (ushort operand in operands)
+        {
+            ushort native = ReadPlatformInstructionWord(rom, operand);
+            AssertEqual(native, TripperKamerVisualDefinitions.FrameAt(operand), "platform native visual pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, operand, out ushort shared), "platform shared selector exists");
+            AssertEqual(native, shared, "platform shared selector matches native word");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa30000 | operand), "platform excluded from literal regeneration");
+        }
+        foreach (ushort pointer in new ushort[] { 0xa021, 0xa02d, 0xa039, 0xa045 })
+            AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, pointer), "Kamer native two-entry map");
+        foreach (ushort pointer in new ushort[] { 0x9f29, 0x9f3a, 0x9f4b, 0x9f5c, 0x9f6d, 0x9f7e, 0x9fa5, 0x9fe2 })
+            AssertEqual((ushort)3, ReadPlatformInstructionWord(rom, pointer), "Tripper native three-entry map");
+        foreach (ushort pointer in new ushort[] { 0x9f8f, 0x9fb6, 0x9fcc, 0x9ff3 })
+            AssertEqual((ushort)4, ReadPlatformInstructionWord(rom, pointer), "Tripper native four-entry map");
+        var known = operands.ToHashSet();
+        for (int address = 0x9bb9; address <= 0x9c6d; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt((ushort)address), "platform visual resolver rejects controls and adjacent callbacks");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa3, (ushort)address, out ushort missing), "platform shared holes rejected");
+                AssertEqual((ushort)0, missing, "platform shared missing output cleared");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt(address), "platform distant invalid visual operand");
     }
     private static int ProbePlatformInstructionMechanicsAllocation()
     {

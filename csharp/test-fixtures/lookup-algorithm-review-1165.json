@@ -3193,4 +3193,13 @@
     "confirmation": "Verification and ResourceAudit builds; --lookup-platform-programs runs all eight production-installed loops plus the complete 5069-entry shared-selector ordering/value/lookup/bounds proof.",
     "scope": "Animation visual pointer values only. Frozen-frame selection, export metadata, artwork and movement remain separately reviewable; no retention exception claimed."
   }
+,
+  "tripperFrozenFrameSelectionReview": {
+    "status": "reviewed-existing-algorithm",
+    "source": "NTSC J/U v1.0 A3:9F14-9F25; pinned bank_A3.asm EnemyShot_Tripper",
+    "disposition": "Centralized the existing zero/nonzero direction branch from two combat paths in TripperKamerVisualDefinitions.FrozenFrame. Moved both frozen sprite identities into that domain catalog and reused them in export definitions. This mapping is already a native case distinction; no lookup table or generated cache remains for this selector.",
+    "proof": "VerifyTripperFrozenFrameSelection compares both native immediate operands and original two-entry sprite counts, then confirms all 65536 direction words. Zero selects left and every nonzero selects right, including values outside the ordinary movement dispatcher domain.",
+    "confirmation": "Verification build and --lookup-platform-programs pass. Both existing combat call sites use the shared selector; surrounding combat state/order is unchanged.",
+    "scope": "Frozen-frame identity selection only. This does not claim full freeze gameplay validation or disposition of other platform movement, export metadata or artwork mappings."
+  }
 }

@@ -12,6 +12,15 @@ internal static class TripperKamerVisualDefinitions
     /// <summary>Native Tripper/Kamer spritemap bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
+    /// <summary><c>Spritemap_Tripper_Frozen_MovingLeft</c> at $A3:A009.</summary>
+    internal const ushort FrozenMovingLeft = 0xa009;
+    /// <summary><c>Spritemap_Tripper_Frozen_MovingRight</c> at $A3:A015.</summary>
+    internal const ushort FrozenMovingRight = 0xa015;
+
+    /// <summary>$A3:9F14-9F25 tests the complete X-movement word for zero.
+    /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
+    internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
+        direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, 0x9f29, "tripper_moving_left_0"),
@@ -26,9 +35,9 @@ internal static class TripperKamerVisualDefinitions
         new(Bank, 0x9fcc, "tripper_still_moving_right_0"),
         new(Bank, 0x9fe2, "tripper_still_moving_right_1"),
         new(Bank, 0x9ff3, "tripper_still_moving_right_2"),
-        new(Bank, RoomEnemySystem.TripperFrozenMovingLeftSpritemap,
+        new(Bank, FrozenMovingLeft,
             "tripper_frozen_moving_left"),
-        new(Bank, RoomEnemySystem.TripperFrozenMovingRightSpritemap,
+        new(Bank, FrozenMovingRight,
             "tripper_frozen_moving_right"),
         new(Bank, 0xa021, "tripper_kamer_platform_0"),
         new(Bank, 0xa02d, "tripper_kamer_platform_1"),

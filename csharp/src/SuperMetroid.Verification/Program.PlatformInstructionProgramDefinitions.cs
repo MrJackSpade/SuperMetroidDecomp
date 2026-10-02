@@ -19,6 +19,7 @@ internal static partial class Program
 
         VerifyPlatformMechanicsMapping(rom);
         VerifyPlatformPresentationMapping();
+        VerifyTripperFrozenFrameSelection(rom);
 
         var guard = new PlatformInstructionProgramReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
@@ -198,6 +199,20 @@ internal static partial class Program
             }
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt(address), "platform distant invalid visual operand");
+    }
+    private static void VerifyTripperFrozenFrameSelection(SuperMetroidAddressSpace rom)
+    {
+        // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
+        ushort left = ReadPlatformInstructionWord(rom, 0x9f23);
+        ushort right = ReadPlatformInstructionWord(rom, 0x9f1b);
+        AssertEqual(left, TripperKamerVisualDefinitions.FrozenMovingLeft, "native frozen-left sprite identity");
+        AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
+        for (int direction = 0; direction <= ushort.MaxValue; direction++)
+            AssertEqual(direction == 0 ? left : right,
+                TripperKamerVisualDefinitions.FrozenFrame((PlatformHorizontalMovement)direction),
+                "Tripper frozen selection preserves complete native zero/nonzero domain");
+        AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, left), "Tripper frozen-left two-piece map");
+        AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, right), "Tripper frozen-right two-piece map");
     }
     private static int ProbePlatformInstructionMechanicsAllocation()
     {

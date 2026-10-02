@@ -1504,10 +1504,7 @@ public sealed partial class RoomEnemySystem
                     {
                         // Tripper's private tail runs after common shot AI and replaces the
                         // current frame with a direction-specific two-piece frozen map.
-                        enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
-                            PlatformHorizontalMovement.Left
-                                ? TripperFrozenMovingLeftSpritemap
-                                : TripperFrozenMovingRightSpritemap;
+                        enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(enemy).XMovement);
                     }
                     if (isBeetom)
                         ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
@@ -2143,10 +2140,7 @@ public sealed partial class RoomEnemySystem
                                 selectedShotAi == TripperShotAi &&
                                 enemy.FrozenTimer != 0)
                             {
-                                enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
-                                    PlatformHorizontalMovement.Left
-                                        ? TripperFrozenMovingLeftSpritemap
-                                        : TripperFrozenMovingRightSpritemap;
+                                enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(enemy).XMovement);
                             }
                             if (isSkree && enemy.Health == 0)
                             {

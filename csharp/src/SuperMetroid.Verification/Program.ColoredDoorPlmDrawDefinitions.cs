@@ -31,25 +31,9 @@ internal static partial class Program
             "colored-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa827, 0),
             "stock colored-door visual retains native tile choice");
-        AssertEqual(48, lists.Length,
-            "three colored-door families each have four orientations and four frames");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"colored cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"colored cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"colored cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"colored cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadWord(rom, source + 10),
-                $"colored cap ${list.Pointer:X4} has a zero offset terminator");
-        }
+        VerifyColoredCapGeometry(rom);
+        VerifyColoredCapCollision(rom);
+        VerifyColoredCapVisuals(rom);
 
         // A synthetic population selects each real resident header. Only the bank-$8F
         // population is synthetic; setup and first-draw instruction bytes are copied

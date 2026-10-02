@@ -17,7 +17,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog", "plm-colored-door-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmColoredDoorVisualCatalog.cs", "57852600BDA37D9B0CADA4FE32228346A7A05AFF0ADA1636BF221831454FFE15"),
-             new("csharp/src/SuperMetroid.Core/Rooms/ColoredDoorPlmDrawDefinitions.cs", "B41D775E5EC8A09005D1E9BE42ED10C05DEC70AA609DDA8B878E472E2EBEFA9E")],
+             new("csharp/src/SuperMetroid.Core/Rooms/ColoredDoorPlmDrawDefinitions.cs", "2E52D5D348728190CC583580F9CE9E4F0FAFC24CCF6056390CB72836121992F8")],
             "The constructor requires all forty-eight unique known yellow/green/red orientation frames with exact cloned four-word payloads. GetWord guards the pointer and array bounds. Projectile filters, persistence and conversion to blue caps are unchanged."),
         new("SuperMetroid.Core.Rooms.RoomPlmGreyDoorVisualCatalog", "plm-grey-door-complete-draws", ["GetWord"],
             [SharedDrawShape,

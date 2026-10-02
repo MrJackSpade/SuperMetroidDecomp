@@ -76,6 +76,12 @@ public sealed class SamusDrainedState
     internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>
+    /// Samus command $0F ($90:F2D8) replaces the shared hack-handler word with timer
+    /// processing. The runtime owns that timer; the old drained callback must stop.
+    /// </summary>
+    internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
+
+    /// <summary>
     /// Ports Samus command five at <c>$90:F38E</c>: install the able-to-stand timer handler,
     /// then enter the shared rainbow-beam setup at <c>$90:F394</c>.
     /// </summary>

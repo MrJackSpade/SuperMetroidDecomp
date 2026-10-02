@@ -24,7 +24,7 @@ internal static class InstalledInputReplay
         Bind(game, installation);
         var audio = new CartridgeAudioRenderer(installation.LoadAudio());
         using var output = new StreamWriter(tracePath);
-        output.WriteLine("frame,room,state,input,latched,new,pose,x,y,xFixed,yFixed,base,baseSub,extra,extraSub,accel,momentum,yDirection,ySpeed,knockback,locked,health,cameraY,cooldown,fired,projectiles,plms,shotBlock");
+        output.WriteLine("frame,room,state,input,latched,new,pose,x,y,xFixed,yFixed,base,baseSub,extra,extraSub,accel,momentum,yDirection,ySpeed,knockback,locked,health,cameraY,cooldown,fired,projectiles,plms,shotBlock,animationFrame,animationTimer");
         (int X, int Y)? shotBlock = null;
         for (int frame = 0; frame <= lastFrame; frame++)
         {
@@ -37,7 +37,8 @@ internal static class InstalledInputReplay
             }
             catch (Exception error)
             {
-                throw new InvalidDataException($"Reported recording failed at input frame {frame}, room {game.GameplayActiveRoomPointer:X4}.", error);
+                var failedSamus = game.RuntimeForVerification?.Samus;
+                throw new InvalidDataException($"Reported recording failed at input frame {frame}, room {game.GameplayActiveRoomPointer:X4}, pose {failedSamus?.Pose:X2}, animation {failedSamus?.AnimationFrame}/{failedSamus?.AnimationFrameTimer}.", error);
             }
             if (frame < firstFrame || game.RuntimeForVerification is not { } runtime) continue;
             if (runtime.Samus is not { } samus) continue;
@@ -60,7 +61,7 @@ internal static class InstalledInputReplay
                 runtime.BombProjectiles.CooldownTimer, runtime.Projectiles.LastFrameResult.FiredSlot,
                 string.Join('|', runtime.Projectiles.Slots.Where(slot => slot.IsActive).Select(slot =>
                     $"{slot.SlotIndex}:{slot.Type:X4}@{slot.XPosition}/{slot.YPosition}:{slot.PreInstruction}")),
-                runtime.Plms.ActiveCount, sampledBlock));
+                runtime.Plms.ActiveCount, sampledBlock, samus.AnimationFrame, samus.AnimationFrameTimer));
         }
         Console.WriteLine($"Reported input interval {firstFrame}..{lastFrame} written to {Path.GetFullPath(tracePath)}; total inputs={recording.ControllerInputs.Length}.");
         return 0;

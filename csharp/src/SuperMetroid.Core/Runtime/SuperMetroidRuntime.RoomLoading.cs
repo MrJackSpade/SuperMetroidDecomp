@@ -1182,6 +1182,8 @@ public sealed partial class SuperMetroidRuntime
         {
             foreach (ushort definition in death.EscapePaletteFxRequests)
                 RoomPaletteFx.SpawnDefinition(_addressSpace, definition, Samus!.EquippedItems);
+            if (death.TimerHandlingEnableRequested)
+                Samus!.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)
                 EscapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainBossBitRequested)

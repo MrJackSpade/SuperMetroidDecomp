@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--escape-running-footsteps"])
+{
+    VerifyEscapeRunningFootsteps();
+    return 0;
+}
 if (args is ["--tourian-elevator-doors"])
 {
     VerifyTourianElevatorDoors();

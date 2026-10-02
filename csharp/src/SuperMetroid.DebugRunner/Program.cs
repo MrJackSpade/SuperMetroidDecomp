@@ -22,6 +22,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--reported-running-footsteps", var runningRecording, var runningInstallation, var runningTrace])
+    {
+        var recordedInputs = ControllerInputRecording.Read(runningRecording);
+        int last = recordedInputs.ControllerInputs.Length - 1;
+        return InstalledInputReplay.Run(runningRecording, runningInstallation, Math.Max(0, last - 300), last, runningTrace);
+    }
     if (args is ["--confirm-reported-morph-block", var morphRecording, var morphInstallation, var morphTrace])
         return ReportedMorphBlockConfirmation.Run(morphRecording, morphInstallation, morphTrace);
     if (args is ["--confirm-reported-shaft-door", var doorRecording, var doorInstallation, var doorTrace])

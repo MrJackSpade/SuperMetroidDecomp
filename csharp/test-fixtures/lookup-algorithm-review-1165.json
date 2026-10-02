@@ -3437,4 +3437,14 @@
     "confirmation": "Verification and ResourceAudit builds pass. --lookup-botwoon-projectile-programs confirms production program frame order/timing/sleep plus all 5069 shared selectors against ROM with sorted enumeration and missing-key behavior.",
     "scope": "Body/tail/hidden/spit sprite-pointer mappings only. Artwork fields and export metadata remain independent review work; no retention exception claimed."
   }
+,
+  "botwoonPathDescriptorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 B3:E150-E24F BotwoonMovementTable, stream separators in B3:A058-E14F and native consumer E250 onward; pinned bank_B3.asm",
+    "destination": {"algorithm": "Visible groups enumerate the three other holes in ascending order, then the source hole. Hidden groups enumerate the other holes and duplicate the final destination instead of a self path.", "proof": "VerifyBotwoonPathDestinationMapping checks all 32 native destination fields."},
+    "direction": {"algorithm": "Visible paths always run forwards. Hidden paths store each unordered pair once and run backwards when the source hole index exceeds the destination.", "proof": "VerifyBotwoonPathDirectionMapping checks all 32 native signed direction words."},
+    "pointer": {"algorithm": "Removed all 32 stored pointers. Visible stream ordinal is the choice ordinal. Hidden stream ordinal is sixteen plus the lexicographic rank of its unordered pair among four holes. Scan the existing movement corpus for (-128,0) separators; forward descriptors point just after the opening separator and reverse descriptors at the closing separator. The early (-128,-16) terminal and padding within the second visible stream do not start another stream. No generated boundary cache.", "proof": "VerifyBotwoonPathPointerMapping checks all 32 original descriptor pointers, 23 native/compiled separators and the distinct early terminal."},
+    "confirmation": "Verification build and --lookup-botwoon-path-descriptors pass separate pointer/direction/destination proofs, all 32 production installations with native descriptor reads forbidden, the existing reverse four-byte rewind and handoff, and every invalid ushort choice offset.",
+    "scope": "Descriptor fields only. The movement sample corpus and hole geometry still require independent review; relying on existing samples to find boundaries does not justify retaining the sample lookup table."
+  }
 }

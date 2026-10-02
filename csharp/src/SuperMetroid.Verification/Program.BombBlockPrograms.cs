@@ -59,45 +59,84 @@ internal static partial class Program
         }
     }
 
+    private static (ushort Collision, ushort Reaction, ushort Tail, int Frames, ushort End)[] BombBlockNativeLayouts() =>
+        [(0xcc35,0xcc3c,0xcc3f,7,0xcc5f), (0xcc5f,0xcc66,0xcc69,8,0xcc8b),
+         (0xcc8b,0xcc92,0xcc95,8,0xccb7), (0xccb7,0xccbe,0xccc1,8,0xcce3),
+         (0xcce3,0xccea,0xcced,4,0xccff), (0xccff,0xcd06,0xcd09,4,0xcd1b),
+         (0xcd1b,0xcd22,0xcd25,4,0xcd37), (0xcd37,0xcd3e,0xcd41,4,0xcd53)];
+
+    private static void VerifyBombBlockControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort>();
+        foreach (var layout in BombBlockNativeLayouts())
+        {
+            addresses.Add(layout.Collision);
+            addresses.Add((ushort)(layout.Collision + 3));
+            addresses.Add((ushort)(layout.Collision + 5));
+            addresses.Add(layout.Reaction);
+            int cursor = layout.Tail;
+            for (int frame = 0; frame < layout.Frames; frame++, cursor += 4)
+                addresses.Add((ushort)cursor);
+            for (; cursor < layout.End; cursor += 2)
+                addresses.Add((ushort)cursor);
+        }
+        AssertEqual(88, addresses.Count, "bomb native control extent");
+        AssertTrue(addresses.SequenceEqual(RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses()), "bomb complete native control enumeration");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(known.Contains((ushort)address), found, "bomb full control address domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "bomb native queue, goto, timing, restoration and deletion controls");
+        }
+    }
+
+    private static void VerifyBombBlockDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new HashSet<ushort>();
+        foreach (var layout in BombBlockNativeLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Tail + 2 + frame * 4));
+        AssertEqual(47, addresses.Count, "bomb native draw operand extent");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            AssertEqual(addresses.Contains((ushort)address), found, "bomb full draw address domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "bomb native forward/reverse breakup and restoration draws");
+        }
+    }
+
+    private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,
+            0xcce5,0xccec,0xcd01,0xcd08,0xcd1d,0xcd24,0xcd39,0xcd40];
+        AssertTrue(addresses.SequenceEqual(RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses()), "bomb native packed sound enumeration");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            AssertEqual(known.Contains((ushort)address), found, "bomb full packed byte address domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0, value, "bomb native collision/projectile sound bytes");
+        }
+    }
+
     private static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifyBombBlockControlMapping(rom);
+        VerifyBombBlockDrawMapping(rom);
+        VerifyBombBlockSoundMapping(rom);
         var forbidden = new HashSet<int>();
-        int wordCount = 0;
         foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses())
         {
-            AssertTrue(RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort compiled), $"bomb-block control ${address:X4} exists");
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled, $"bomb-block control ${address:X4} matches ROM");
             forbidden.Add(0x840000 | address);
             forbidden.Add(0x840000 | (address + 1));
-            wordCount++;
         }
-
-        int byteCount = 0;
         foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses())
-        {
-            AssertTrue(RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(
-                address, out byte compiled), $"bomb-block sound ${address:X4} exists");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"bomb-block sound ${address:X4} matches ROM");
             forbidden.Add(0x840000 | address);
-            byteCount++;
-        }
-
-        AssertEqual(88, wordCount, "sixteen bomb-block entries and eight tails have complete control words");
-        AssertEqual(16, byteCount, "both sounds for each bomb-block variant are compiled");
-        ConfirmCompiledPlmDrawOperands(RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses(),
-            RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord,
-            RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord,
-            address => ReadImportedPlmWord(rom, address),
-            47, "bomb-block");
-        AssertTrue(!RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(
-                RoomPlmInstructionLists.ReactionBombBlock1x1Respawning + 5, out _),
-            "interleaved draw pointer is not misclassified as control");
 
         VerifyBombBlockRestorationMapping(rom);
         for (int address = 0xa4c7; address < 0xa4e7; address++)
@@ -154,7 +193,7 @@ internal static partial class Program
         VerifyLinkedRestoreVisualInstallation(rom);
         VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true);
 
-        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
+        Console.WriteLine($"Bomb-block PLMs: 88 control words, 16 sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
     private static void VerifyBombBlockVisualSeparation(

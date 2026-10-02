@@ -3575,7 +3575,7 @@
     "proof": "VerifyBombBlockRestorationMapping consolidates the previous native restoration comparison. It independently identifies the three native pointers, parses every native count, word and continuation offset, compares direct calculation and exported DTOs, checks all ushort accepted/rejected pointers and cleared outputs, and confirms run/block bounds.",
     "consumers": "RoomPlmSystem draws directly from the calculated descriptor, retaining visual override coordinates. Import/export and the linked artwork interface receive temporary calculated DTOs without a persistent draw cache. Updated the normalized PlmActor source pin.",
     "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including the native restoration proof, all 24 collision/bomb/power-bomb timelines with source reads forbidden and existing visual override separation checks.",
-    "scope": "Physical bomb restoration draws only. The separate stock visual mapping is now converted under linkedRestorationStockVisualReview; bomb program descriptors remain independent required work. No retention exception claimed."
+    "scope": "Physical bomb restoration draws only. The separate stock visual mapping is now converted under linkedRestorationStockVisualReview; bomb program descriptors are now converted under bombBlockProgramDescriptorReview. No retention exception claimed."
   }
 ,
   "linkedRestorationStockVisualReview": {
@@ -3587,5 +3587,16 @@
     "dataBoundary": "Remaining arrays represent selected external changed artwork only, not fixed stock lookup content. Temporary draw DTOs used during import and hash enumeration are not cached.",
     "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including complete native/hash proof, existing installation/override checks, bomb/crumble visual separation, and all existing block behavior fixtures.",
     "scope": "Linked restoration stock visual selection and content identity only. Other program mappings and the broader independent inventory remain required work; no retention exception claimed."
+  }
+,
+  "bombBlockProgramDescriptorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:CC35..CD52; pinned bank_84.asm collision/projectile bomb-block lists",
+    "descriptor": "Remove eight stored CollisionHead/ReactionHead/Respawns/Dimension records. Reuse independently proved named entry selectors; BTS low bits select size and bit two selects permanent versus respawning. All consumers calculate value descriptors in the original order without caching.",
+    "controls": {"algorithm": "Independently review and reuse the native decoder: collision sound plus goto and projectile sound enter the same animation tail. Four forward frames for permanent blocks; seven forward/reverse frames for respawning blocks, then original-word or linked-shape restoration and deletion. Preserve four-tick transitions, 384-tick respawn hold and one-tick permanent final/linked restoration frames.", "proof": "VerifyBombBlockControlMapping independently specifies collision/reaction/tail addresses, native timed-record counts and end boundaries, compares all 88 native controls and enumeration order, and checks full ushort address acceptance/rejection and cleared missing outputs."},
+    "drawOperands": {"algorithm": "Reuse shape base/stride with forward/reverse frame selection; linked respawning shapes select their named terminal restoration draw.", "proof": "VerifyBombBlockDrawMapping independently identifies all 47 native operands from explicit original layouts, compares native values and checks every ushort non-operand and missing output."},
+    "packedSound": {"algorithm": "Collision heads expose byte 06 and projectile heads expose byte 0A at their packed +2 operand, with queue policy in the control mapping.", "proof": "VerifyBombBlockSoundMapping independently lists sixteen original byte addresses, checks native values and enumeration order, and verifies every other ushort address rejects with zero output."},
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass all three complete address-domain proofs, all 24 collision/bomb/power-bomb production timelines with source reads forbidden, and existing linked-visual and crumble checks.",
+    "scope": "Bomb program descriptors and control/draw/sound readers only. Existing partial native assertions were consolidated into three complete independent logical proofs; no retention exception claimed."
   }
 }

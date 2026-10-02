@@ -1715,7 +1715,7 @@
     "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-mother-brain-visual-catalogs",
     "owner":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyVisualDefinitions.cs",
     "reviewedEvidence":  "Pinned bank_A9.asm body extended records 9FA0-A462, count-dependent record sizes, current OAM/BG2 catalog construction and all consumers; SHA-verified NTSC J/U v1.0 ROM. Published keys preserved in independent expected-output fixtures.",
-    "relatedAuditScope":  "BackgroundTransferClosedContractDefinitions fingerprints several visual owners and the shared loader changed during #1165. Its existing fail-closed source reviews require separate revalidation; this catalog conversion does not refresh or certify them.",
+    "relatedAuditScope":  "The four BG2 contracts are separately revalidated in generatedBg2AuditIntegration below; other source-fingerprint contracts remain outside this confirmation.",
     "tables":  [
                    {
                        "id":  "mother-brain-oam-named-frame-catalog",
@@ -1738,5 +1738,17 @@
                        "proofTest":  "VerifyMotherBrainGeneratedBg2Catalog"
                    }
                ]
-}
+},
+    "generatedBg2AuditIntegration": {
+        "status": "confirmed integration; not an additional table conversion",
+        "implementationCommit": {
+            "subject": "Revalidate generated BG2 catalog audit contracts for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Revalidate generated BG2 catalog audit contracts for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.ResourceAudit/BackgroundTransferClosedContractDefinitions.cs",
+        "scope": "Phantoon, Draygon, Crocomire and Mother Brain BG2 complete-membership contracts only.",
+        "reviewedEvidence": "Reviewed private catalog construction, exact named-set admission, copied and bounded tile writes, computed frame identities and names, and shared sequence indexing/enumeration. Refreshed changed loader/definition fingerprints and pinned EnemyBg2FrameDefinitionSequence as a dependency of all four contracts.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.ResourceAudit --no-build -- --bg2-catalog-contract-check",
+        "confirmation": "ResourceAudit builds with zero errors. Reused BackgroundTransferPresentationContractChecks with a four-call fixture: four unresolved without adapters, four classified with current reviewed sources, and all four revoked independently by a changed shared admission guard or changed generator index. No full audit or gameplay exploration performed."
+    }
 }

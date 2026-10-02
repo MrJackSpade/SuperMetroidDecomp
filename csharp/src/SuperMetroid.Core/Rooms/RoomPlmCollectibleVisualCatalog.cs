@@ -12,15 +12,28 @@ public sealed record RoomPlmCollectibleVisualEntry(string Id, ushort VisualWord)
 public sealed class RoomPlmCollectibleVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmCollectibleVisualCatalog), words);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmCollectibleVisualCatalog), content =>
+    {
+        Span<ushort> buffer = stackalloc ushort[1];
+        foreach (var frame in RoomPlmCollectibleDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        {
+            content.Append("frame", frame.Pointer);
+            content.Append("runs", 1);
+            buffer[0] = GetWord(frame.Pointer);
+            content.AppendWords("words", buffer);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort> words;
+    private readonly Dictionary<ushort, ushort>? customWords;
+
+    private RoomPlmCollectibleVisualCatalog() { }
 
     public RoomPlmCollectibleVisualCatalog(
         IEnumerable<RoomPlmCollectibleVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmCollectibleVisualEntry entry in entries)
         {
             if (entry is null ||
@@ -28,21 +41,24 @@ public sealed class RoomPlmCollectibleVisualCatalog
                 !RoomLevelWord.IsValidVisualWord(entry.VisualWord))
                 throw new InvalidDataException(
                     "Collectible visuals changed a compiled frame identity or contain an invalid word.");
-            if (!selected.TryAdd(frame.Pointer, entry.VisualWord))
+            if (!seen.Add(frame.Pointer))
                 throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
+            if (entry.VisualWord != new RoomLevelWord(frame.LevelWord).VisualWord)
+                selected.Add(frame.Pointer, entry.VisualWord);
         }
-        if (selected.Count != RoomPlmCollectibleDrawDefinitions.All.Count())
+        if (seen.Count != RoomPlmCollectibleDrawDefinitions.All.Count())
             throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
-        words = selected;
+        if (selected.Count != 0) customWords = selected;
     }
 
-    public static RoomPlmCollectibleVisualCatalog Stock() => new(
-        RoomPlmCollectibleDrawDefinitions.All.ToArray().Select(frame =>
-            new RoomPlmCollectibleVisualEntry(frame.Id,
-                new RoomLevelWord(frame.LevelWord).VisualWord)));
+    /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
+    public static RoomPlmCollectibleVisualCatalog Stock() => new();
 
-    public ushort GetWord(ushort pointer) => words.TryGetValue(pointer, out ushort word)
-        ? word
-        : throw new InvalidDataException(
-            $"Collectible visuals lack frame ${pointer:X4}.");
+    public ushort GetWord(ushort pointer)
+    {
+        if (!RoomPlmCollectibleDrawDefinitions.TryGetWord(pointer, out ushort physical))
+            throw new InvalidDataException($"Collectible visuals lack frame ${pointer:X4}.");
+        return customWords is not null && customWords.TryGetValue(pointer, out ushort word)
+            ? word : new RoomLevelWord(physical).VisualWord;
+    }
 }

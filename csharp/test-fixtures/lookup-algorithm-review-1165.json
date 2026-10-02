@@ -4496,7 +4496,7 @@
     "visuals":{"disposition":"converted","algorithm":"Upper edge tile 85 advances one per frame. Lower tile pair starts at 88 and advances two per frame. Right edge and right half of the lower row mirror horizontally, with lower tile index reflected around the centre.","proof":"VerifyElevatorPlatformLayoutVisuals compares all eighteen native low-twelve-bit fields through calculated and DTO/export/reverse-ID views."},
     "consumers":"Runtime calculates cells directly. Temporary artwork DTOs retain import/export shape without persistent physical storage. Stock visual cache is resolved under elevatorPlatformStockVisualReview.",
     "confirmation":"Verification and ResourceAudit builds plus --elevator-platform-visuals pass three field proofs, three production draw paths, existing program proofs and stock/custom/installed artwork checks. Old combined physical comparison consolidated and presentation source pin updated.",
-    "scope":"Complete owned physical geometry, collision and visual mappings. No retention exception; stock visual mapping and wider maintained-source audit remain active."
+    "scope":"Complete owned physical geometry, collision and visual mappings. No retention exception; stock visual mapping is resolved under collectibleStockVisualReview; wider maintained-source audit remains active."
   }
 ,
   "elevatorPlatformStockVisualReview": {
@@ -4572,6 +4572,16 @@
     "identities":{"disposition":"converted","algorithm":"Named empty/burst cases, numbered orb/reveal frames, tank-kind/two-frame cases and dynamic slot/frame division. Preserve original ordinal names and reverse rejection.","proof":"VerifyCollectibleDrawIdentity compares the independent original twenty-four pointer/name pairs, original export order, forward/reverse values and case/spacing/null/unsupported-phase rejection."},
     "consumers":"Renderer uses a word-only projection of the same calculation without constructing artwork-ID strings. Other consumers enumerate calculated immutable values; no physical record array or generated cache remains. Catalog completeness uses enumeration count.",
     "confirmation":"Verification and ResourceAudit builds and --collectible-visuals pass four proofs plus existing guarded drawing/pickup/persistence, dynamic selectors, twenty-one item-kind, orb/reveal, live artwork and installation checks. Old combined physical comparison consolidated; focused command moved ahead of unrelated suites and pins ROM SHA256; presentation source pins updated.",
-    "scope":"Complete owned physical records and exported names. No retention exception. Existing OrbFrame/ShotRevealFrame/VisibleFrame algorithms require separate independent dispositions; stock visual mapping and wider maintained-source audit remain active."
+    "scope":"Complete owned physical records and exported names. No retention exception. Existing OrbFrame/ShotRevealFrame/VisibleFrame algorithms require separate independent dispositions; stock visual mapping is resolved under collectibleStockVisualReview; wider maintained-source audit remains active."
+  },
+  "collectibleStockVisualReview": {
+    "status":"converted: duplicate twenty-four-frame stock visual dictionary removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 collectible draw records at A2B5, A2C7..A339 and A3DD..A3E9. Physical words independently established under collectiblePhysicalDrawReview. Read stock factory, constructor, getter, content hashing, renderer and installed artwork consumers.",
+    "algorithm":"Stock creates an empty catalog. GetWord validates ownership through the calculated physical-word reader and returns its low twelve visual bits unless that frame has imported edits. The constructor continues requiring all unique known frame IDs and valid visual words; only changed values are retained. No generated stock cache remains.",
+    "identity":"Preserve ascending-pointer hash order, one run and one word per frame, using a temporary single-word buffer. Imported order remains irrelevant.",
+    "domain":"All twenty-four owned pointers; every other ushort still throws InvalidDataException. Null imports, missing/duplicate/unknown/wrong-case IDs, null entries and collision-bearing visual words remain rejected. Input entry replacement cannot alter selected stock or edited values.",
+    "proof":"VerifyCollectibleStockMapping reads all twenty-four original ROM words using the independent baseline pointer/name contract; compares stock, reversed import and installed catalogs and original dictionary-based hash framing. Covers full ushort rejection, mixed custom/stock values and hashes, input isolation and constructor failures. Previous isolated constructor and single installed-stock assertions consolidated into this proof.",
+    "confirmation":"Verification and ResourceAudit builds and --collectible-visuals pass the stock proof, four physical-record proofs and existing pickup/persistence, immediate/streamed artwork, all twenty-one item kinds, orb/reveal, source guards and installation fixtures. Presentation source pin and contract text updated.",
+    "scope":"Complete collectible stock appearance and content identity mapping. No retention exception. Existing selector algorithms and wider maintained-source audit remain active."
   }
 }

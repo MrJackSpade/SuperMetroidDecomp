@@ -116,19 +116,6 @@ internal static partial class Program
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries.Skip(1)),
-            "collectible visuals reject a missing frame");
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0xf053 };
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries),
-            "collectible visuals reject collision-bit edits");
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0053 };
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries.Select(entry =>
-                entry.Id == "energy-tank-0" ? entry with { Id = "unknown" } : entry)),
-            "collectible visuals reject unknown frame identities");
-
         VerifyCollectibleVisualInstallation(rom);
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
@@ -154,9 +141,7 @@ internal static partial class Program
             RoomPlmCollectibleVisualFiles.ValidateStock(
                 installation.RoomPlmCollectibleVisualDirectory);
             ushort pointer = RoomPlmCollectibleDrawDefinitions.TankFirst;
-            AssertEqual((ushort)0x004a,
-                installation.LoadRoomPlmCollectibleVisuals().GetWord(pointer),
-                "installed stock energy-tank art matches the cartridge");
+            VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
                 RoomPlmCollectibleVisualFiles.VisualFileName);

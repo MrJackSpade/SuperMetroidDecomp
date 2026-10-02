@@ -52,15 +52,12 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !TourianAccessPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+            !TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int rows, out _))
             throw new InvalidDataException(
                 $"Tourian access visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= (uint)rows ||
+            (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        int flatIndex = blockIndex;
-        for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
-        return words[flatIndex];
+        return words[runIndex * 4 + blockIndex];
     }
 }

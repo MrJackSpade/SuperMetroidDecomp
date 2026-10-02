@@ -3810,4 +3810,14 @@
     "confirmation": "Verification build and --spore-spawn-ceiling-plms pass the three complete field proofs, physical draw proof and both existing production timelines.",
     "scope": "Spore Spawn ceiling control/draw/sound program mappings and crumble frame selector only. This is a verified existing implementation, not a retention exception. The wider audit remains unfinished."
   }
+,
+  "tourianAccessPhysicalDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:9297..930E; pinned bank_84.asm DrawInst_CrumbleAccessToTourianElevator_0..3 and DrawInst_ClearAccessToTourianElevator",
+    "algorithm": "Remove five stored draw layouts. Empty row and six-row clear use blank FF; three aligned crumble records select successive 53..55 tiles using twelve-byte stride. Each row has four identical air words; clear continues at origin-relative Y offsets one through five, then terminates. No persistent generated cache remains.",
+    "proof": "VerifyTourianAccessPhysicalDrawMapping consolidates the previous native draw comparison. Five independent native pointers verify all forty cells, complete row counts and signed offsets, direct descriptors/DTOs and ordered export. Full ushort ownership checks reject interior and adjacent records with zero rows/word and default DTO outputs.",
+    "consumers": "RoomPlmSystem draws calculated rows directly. Existing artwork interfaces materialize temporary DTOs, while the visual getter uses descriptor row bounds and four-column indexing without allocating a layout. Normalized PlmProgression draw/visual pins updated.",
+    "confirmation": "Verification and ResourceAudit builds, --tourian-access-plms and --tourian-access-visuals pass native draw checks, complete clear/crumble sequences without source reads, custom artwork and physical/timing isolation. Focused flags now run before unrelated verification suites.",
+    "scope": "Tourian access physical draw records only. Program selectors, header descriptors and the stock visual dictionary remain independently reviewable; no retention exception claimed."
+  }
 }

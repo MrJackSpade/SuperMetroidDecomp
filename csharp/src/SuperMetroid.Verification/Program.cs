@@ -26,6 +26,18 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--tourian-access-plms"])
+{
+    VerifyCompiledTourianAccessPlmPrograms();
+    return 0;
+}
+
+if (args is ["--tourian-access-visuals"])
+{
+    VerifyTourianAccessVisuals();
+    return 0;
+}
+
 if (args is ["--spore-spawn-ceiling-visuals"])
 {
     VerifySporeSpawnCeilingVisuals();
@@ -2345,16 +2357,6 @@ if (args is ["--speed-booster-block-plms"])
 if (args is ["--maridia-elevatube-plm"])
 {
     VerifyMaridiaElevatubePlm();
-    return 0;
-}
-if (args is ["--tourian-access-plms"])
-{
-    VerifyCompiledTourianAccessPlmPrograms();
-    return 0;
-}
-if (args is ["--tourian-access-visuals"])
-{
-    VerifyTourianAccessVisuals();
     return 0;
 }
 if (args is ["--speed-booster-visuals"])

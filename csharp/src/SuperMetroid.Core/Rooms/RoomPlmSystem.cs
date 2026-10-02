@@ -1939,14 +1939,13 @@ public sealed partial class RoomPlmSystem
                 motherBrainFakeDeathVisuals: motherBrainFakeDeathVisuals);
             return;
         }
-        if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
-                out var accessFloor))
+        if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, accessFloor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                tourianAccessVisuals: tourianAccessVisuals);
+            for (int row = 0; row < tourianRows; row++)
+            for (int column = 0; column < 4; column++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
+                    tourianWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                    tourianAccessVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))

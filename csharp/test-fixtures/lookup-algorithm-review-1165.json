@@ -3555,4 +3555,15 @@
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass the three complete address-domain proofs and existing eight contact-crumble production timelines with source reads forbidden, plus the selector and bomb fixtures.",
     "scope": "Contact-crumble descriptors and program control/draw/sound mappings only. The existing proof was consolidated into three independent logical mapping proofs; restoration draw payloads and unrelated program families remain separate work. No retention exception claimed."
   }
+,
+  "contactCrumbleRestorationDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A4A1..A4C0; pinned bank_84.asm DrawInst_2x1/1x2/2x2RespawningCrumbleBlock",
+    "identityAndGeometry": "Named horizontal, vertical and square cases replace the generated dictionary. All runs contain two words; vertical has one column run, horizontal one row, square two rows with (0,+1) continuation. Preserve all other pointer rejection and zero/default missing outputs.",
+    "words": "Each cell uses the named ContactCrumbleParent visual tile BC. Compute type-B top-left parent, type-5 children on its row and type-D children below from row/column coordinates; no stored repeated word arrays remain in the draw catalog.",
+    "proof": "VerifyContactCrumbleRestorationMapping consolidates the previous native restoration comparison, independently enumerates all three native identities, parses every original run/count/word/offset, compares direct calculated words and exported DTOs, confirms export order and full ushort pointer membership/default outputs, and checks run/block bounds.",
+    "consumers": "RoomPlmSystem draws directly from the calculated descriptor with unchanged visual override coordinates. Existing import/export and linked visual interfaces receive temporary calculated DTOs. No persistent draw cache. Updated the normalized PlmActor source pin.",
+    "confirmation": "Verification and ResourceAudit builds plus --lookup-block-reaction-selectors pass, including all eight crumble timelines, direct native draw comparison and existing custom-art physical/visual separation checks.",
+    "scope": "Physical contact-crumble restoration draws only. The separate linked-restoration stock visual catalog still needs independent conversion/review; its stored stock words are not justified by this disposition. Bomb restoration definitions remain separate work. No retention exception claimed."
+  }
 }

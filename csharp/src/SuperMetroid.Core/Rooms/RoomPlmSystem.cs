@@ -1988,13 +1988,16 @@ public sealed partial class RoomPlmSystem
                 linkedRestoreVisuals: linkedRestoreVisuals);
             return;
         }
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet(drawPointer, out var crumbleRestore))
+        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, crumbleRestore, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                linkedRestoreVisuals: linkedRestoreVisuals);
+            for (int run = 0; run < crumbleRestore.RunCount; run++)
+            for (int block = 0; block < 2; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (crumbleRestore.Vertical ? 0 : block),
+                    originY + (crumbleRestore.Vertical ? block : run),
+                    crumbleRestore.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (BlueDoorPlmDrawDefinitions.TryGet(drawPointer, out var blueDoor))

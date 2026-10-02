@@ -64,6 +64,61 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
+        AssertTrue(pointers.SequenceEqual(RoomPlmContactCrumbleRestoreDrawDefinitions.All.Select(draw => draw.Pointer)),
+            "contact restoration export order matches native layouts");
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool expected = pointers.Contains((ushort)pointer);
+            bool found = RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe((ushort)pointer, out var draw);
+            bool exported = RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet((ushort)pointer, out var list);
+            AssertEqual(expected, found, "contact restoration full native pointer domain");
+            AssertEqual(expected, exported, "contact restoration export pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmContactCrumbleRestoreDrawDefinitions.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
+                continue;
+            }
+            int cursor = pointer;
+            int run = 0;
+            while (true)
+            {
+                ushort nativeCount = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                int count = nativeCount & 0x7fff;
+                AssertEqual(2, count, "contact restoration two words per native run");
+                AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "contact restoration native orientation");
+                var exportedRun = list.Runs.Span[run];
+                AssertEqual(nativeCount, exportedRun.DirectionAndCount, "contact restoration exported direction/count");
+                AssertEqual(count, exportedRun.LevelWords.Length, "contact restoration exported word count");
+                for (int block = 0; block < count; block++)
+                {
+                    ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (cursor + 2 + 2 * block));
+                    AssertEqual(native, draw.WordAt(run, block), "contact restoration calculated parent/child word");
+                    AssertEqual(native, exportedRun.LevelWords.Span[block], "contact restoration exported word");
+                }
+                cursor += 2 + 2 * count;
+                byte x = rom.ReadByte(0x840000 | cursor);
+                byte y = rom.ReadByte(0x840000 | (cursor + 1));
+                AssertEqual(unchecked((sbyte)x), exportedRun.NextX, "contact restoration next X");
+                AssertEqual(unchecked((sbyte)y), exportedRun.NextY, "contact restoration next Y");
+                AssertEqual((byte)0, x, "contact restoration calculated next row X");
+                AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "contact restoration calculated next row Y");
+                run++;
+                cursor += 2;
+                if (x == 0 && y == 0) break;
+            }
+            AssertEqual(run, draw.RunCount, "contact restoration complete calculated runs");
+            AssertEqual(run, list.Runs.Length, "contact restoration complete exported runs");
+            foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
+                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "contact restoration run bounds");
+            foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
+                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(0, invalid), "contact restoration block bounds");
+        }
+    }
+
     private static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -80,43 +135,10 @@ internal static partial class Program
         foreach (ushort address in RoomPlmContactCrumbleProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
-        int restoreCount = 0;
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmContactCrumbleRestoreDrawDefinitions.All)
-        {
-            int cursor = list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                AssertEqual(run.DirectionAndCount,
-                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
-                    $"contact restoration ${list.Pointer:X4} direction/count");
-                forbidden.Add(0x840000 | cursor++);
-                forbidden.Add(0x840000 | cursor++);
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(word,
-                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                            rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
-                        $"contact restoration ${list.Pointer:X4} level word");
-                    forbidden.Add(0x840000 | cursor++);
-                    forbidden.Add(0x840000 | cursor++);
-                }
-
-                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor),
-                    $"contact restoration ${list.Pointer:X4} next X");
-                forbidden.Add(0x840000 | cursor++);
-                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
-                    $"contact restoration ${list.Pointer:X4} next Y");
-                forbidden.Add(0x840000 | cursor++);
-            }
-
-            restoreCount++;
-        }
-
-        AssertEqual(3, restoreCount, "all linked contact-crumble restoration lists are compiled");
-        AssertTrue(!RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet(0xa4a0, out _),
-            "an unknown nearby contact restoration pointer does not alias a compiled list");
+        VerifyContactCrumbleRestorationMapping(rom);
+        // Guard the independently identified native restoration byte regions.
+        for (int address = 0xa4a1; address < 0xa4c1; address++)
+            forbidden.Add(0x840000 | address);
 
         // The four shape-specific breakup animations are shared with shot and bomb
         // blocks. They must remain compiled even when a contact-crumble list selects them.
@@ -166,7 +188,7 @@ internal static partial class Program
         VerifyContactCrumbleVisualSeparation(rom, forbidden);
         VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false);
 
-        Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
+        Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and 3 restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
     private static void VerifyContactCrumbleVisualSeparation(

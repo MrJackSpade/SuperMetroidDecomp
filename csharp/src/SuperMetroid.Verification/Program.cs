@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crocomire-cutscene-camera"])
+{
+    VerifyCrocomireCutsceneCamera();
+    return 0;
+}
+if (args is ["--crocomire-corpse-collision"])
+{
+    VerifyCrocomireCorpseCollision();
+    return 0;
+}
 if (args is ["--ridley-flight-tail"])
 {
     VerifyRidleyFlightTail();

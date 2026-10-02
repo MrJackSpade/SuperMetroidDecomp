@@ -20,13 +20,8 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
     /// <summary>Number of authored fragment programs selected by even parameters $00-$1E.</summary>
     internal const int ProgramCount = 16;
 
-    private static readonly ushort[] InitialDurations =
-    [
-        0x0080, 0x0078, 0x0070, 0x0068,
-        0x0060, 0x0058, 0x0050, 0x0048,
-        0x0040, 0x0040, 0x0040, 0x0040,
-        0x0040, 0x0040, 0x0040, 0x0040,
-    ];
+    // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
+    private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
 
     internal static int MechanicsWordCount => ProgramCount * 6;
     internal static int PresentationWordCount => ProgramCount * 2;
@@ -47,7 +42,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         return (index % 6) switch
         {
             0 => new BombTorizoStatueInstructionMechanicsWord(
-                program, InitialDurations[programIndex]),
+                program, InitialDuration(programIndex)),
             1 => new BombTorizoStatueInstructionMechanicsWord(
                 unchecked((ushort)(program + 4)),
                 EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
@@ -83,7 +78,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
 
         return offset switch
         {
-            0 => InitialDurations[programIndex],
+            0 => InitialDuration(programIndex),
             4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6,
             7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
             9 => EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling,

@@ -3323,4 +3323,13 @@
     "confirmation": "Verification and ResourceAudit builds; --lookup-torizo-dormant-and-drool checks all eight production delay paths, exact installed operands, falling/impact behavior and the full 5069-entry shared selector contract.",
     "scope": "Drool sprite-pointer mapping only. Projectile ownership, export metadata, artwork and remaining Torizo families still require their own review; no retention exception claimed."
   }
+,
+  "bombTorizoStatueInitialDurationReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:A4C3-A5D2 sixteen fragment programs; pinned bank_86.asm",
+    "disposition": "Removed the sixteen-entry initial-duration table. Compute max(64,128-8*programIndex), preserving the eight-tick stagger followed by the sixty-four-tick floor. Existing guarded direct and enumerated program readers both use the same calculation; no cache introduced.",
+    "proof": "VerifyBombTorizoStatueInitialDurations independently lists all sixteen native program starts and compares direct/enumerated duration words against ROM; checks program and mechanics ordinal domains.",
+    "confirmation": "Verification build and --lookup-torizo-statue-programs exercise all sixteen production-spawned fragments. The integration fixture now derives expected wait lengths from the original ROM words and checks the exact presentation operand on every waiting/falling tick, callback installation, 112-tick falling duration and deletion. Updated the stale expected-selector-ROM-read assertion to the installed-presentation contract.",
+    "scope": "Initial duration field only. Remaining preexisting program structure, packed sound data, visual-pointer mappings, movement and artwork require independent review; no retention exception claimed."
+  }
 }

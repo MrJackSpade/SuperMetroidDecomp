@@ -12,6 +12,7 @@ internal static partial class Program
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyBombTorizoStatueInitialDurations(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount;
@@ -48,7 +49,7 @@ internal static partial class Program
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
             ushort program = BombTorizoStatueInstructionProgramDefinitions.Program(index);
             ushort initialDuration =
-                BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index * 6).Value;
+                (ushort)(rom.ReadByte(0x860000 | program) | rom.ReadByte(0x860000 | (program + 1)) << 8);
             AssertEqual(program, fragment.InstructionPointer,
                 $"Bomb Torizo statue fragment {index} uses compiled program");
 
@@ -56,6 +57,8 @@ internal static partial class Program
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
                 process.Invoke(enemies, [fragment, null, (ushort)0, (ushort)0]);
+                AssertEqual((ushort)(program + (frame <= initialDuration ? 2 : 13)), fragment.PresentationOperandAddress,
+                    "statue fragment presents the native operand on the exact delay/falling tick" );
                 AssertTrue(fragment.IsActive,
                     $"Bomb Torizo statue fragment {index} remains active through frame {frame}");
                 if (frame == initialDuration + 1)
@@ -75,9 +78,9 @@ internal static partial class Program
                 $"Bomb Torizo statue fragment {index} deletes after {visibleFrames} visible frames");
         }
 
-        AssertEqual(BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Bomb Torizo statue-fragment spritemaps remain cartridge reads");
+            "Bomb Torizo statue fragments use installed presentation operands without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Bomb Torizo statue mechanics byte");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -109,6 +112,26 @@ internal static partial class Program
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    private static void VerifyBombTorizoStatueInitialDurations(SuperMetroidAddressSpace rom)
+    {
+        ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
+            0xa54b,0xa55c,0xa56d,0xa57e,0xa58f,0xa5a0,0xa5b1,0xa5c2];
+        AssertEqual(starts.Length, BombTorizoStatueInstructionProgramDefinitions.ProgramCount, "statue native program count");
+        for (int i = 0; i < starts.Length; i++)
+        {
+            int address = 0x860000 | starts[i];
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(starts[i], BombTorizoStatueInstructionProgramDefinitions.Program(i), "statue native start position");
+            var enumerated = BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(i * 6);
+            AssertEqual(starts[i], enumerated.Address, "statue delay word position");
+            AssertEqual(native, enumerated.Value, "statue enumerated native initial duration");
+            AssertEqual(native, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(starts[i]), "statue direct native initial duration");
+        }
+        foreach (int index in new[] {int.MinValue,-1,16,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.Program(index), "statue initial duration program domain");
+        foreach (int index in new[] {int.MinValue,-1,96,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index), "statue initial duration enumeration domain");
+    }
     private static int ProbeBombTorizoStatueInstructionMechanicsAllocation()
     {
         int checksum = 0;

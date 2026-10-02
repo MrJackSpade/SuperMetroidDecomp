@@ -3414,4 +3414,14 @@
     "confirmation": "Verification build and --lookup-botwoon-program-selection pass.",
     "scope": "Head movement/spit, hidden-head and body/tail program selection only. Body/projectile program contents, radius behavior and artwork still require their own review; no retention exception claimed."
   }
+,
+  "botwoonProjectileProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 86:E80F-E8F8 body/tail/hidden programs and 86:EBAE-EBC5 spit program; pinned bank_86.asm",
+    "mechanics": {"algorithm": "Removed the generated 73-word cache. Decode eight twenty-byte body loops (four eight-tick frames, goto and target), nine six-byte sleeping programs (one-tick frame and sleep), and the spit loop (five three-tick frames, goto and target). Preserve the unused fourth physical body slot as outside ownership.", "proof": "VerifyBotwoonProjectileControlMapping independently enumerates native command positions and compares every direct/enumerated value to ROM. Checks all byte ownership including high-bit aliases and other-bank rejection, all local non-control starts/unused gap/adjacent programs, distant invalid addresses and ordinal exceptions."},
+    "presentationAddresses": {"algorithm": "Removed the generated 46-address cache. Derive four operands per body loop, one per tail/hidden program and five for spit.", "proof": "VerifyBotwoonProjectileOperandMapping independently lists all 46 native addresses, checks ordering, full ushort membership and invalid ordinals."},
+    "programEnumeration": {"algorithm": "Removed both stored program arrays. Enumerate twenty-byte body slots while skipping the unused fourth, then nine six-byte tail/hidden programs.", "proof": "VerifyBotwoonProjectileProgramEnumeration checks all seventeen native starts and invalid ordinal extremes."},
+    "confirmation": "Verification build and --lookup-botwoon-projectile-programs pass. Real body/spit producers and all seventeen body/tail programs confirm exact presentation order, loop restart, frame durations and sleep timers with original controls forbidden. Corrected obsolete expectations of cartridge sprite-selector reads; installed definitions produce zero such reads.",
+    "scope": "Projectile program controls, operand positions and enumeration only. Visual pointer values, artwork and other Botwoon data remain independent review work; no retention exception claimed."
+  }
 }

@@ -3202,4 +3202,14 @@
     "confirmation": "Verification build and --lookup-platform-programs pass. Both existing combat call sites use the shared selector; surrounding combat state/order is unchanged.",
     "scope": "Frozen-frame identity selection only. This does not claim full freeze gameplay validation or disposition of other platform movement, export metadata or artwork mappings."
   }
+,
+  "platformProgramSelectionReview": {
+    "status": "reviewed-existing-algorithm",
+    "source": "NTSC J/U v1.0 A3:9C9F-9CCB initializers, 9E47-9EBA program installers, 9ECB/9EF1 direction branches; pinned bank_A3.asm",
+    "disposition": "Consolidated three repeated selectors into PlatformInstructionProgramDefinitions.SelectProgram. Eight named cases express species, vertically moving/still state and zero/nonzero horizontal direction. This is native control-flow selection, not arbitrary numeric table recitation. Initialization reuses the still cases; no lookup cache exists.",
+    "initialMapping": "VerifyPlatformInitialProgramSelection independently reads the four initializer immediate operands and checks every 16-bit direction for both species.",
+    "animationMapping": "VerifyPlatformAnimationProgramSelection independently reads all eight installer immediate operands and checks every 16-bit direction for both species and both motion states. Preserves Tripper's reversed still-art labels by using mechanics-facing catalog names.",
+    "confirmation": "Verification build and --lookup-platform-programs confirm the independent mappings and existing eight real initialization/installation/animation-loop cases with original mechanics reads forbidden.",
+    "scope": "Initial and later animation-program choice only. Movement speeds/dispatch, export metadata and artwork are separate review items; no retention exception claimed."
+  }
 }

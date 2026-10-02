@@ -37,6 +37,20 @@ internal static class PlatformInstructionProgramDefinitions
     /// <summary>The first callback implementation immediately after the programs.</summary>
     internal const ushort FirstAdjacentCallback = 0x9c6b;
 
+    /// <summary>Program choice at $A3:9E47-9EBA, called by the zero/nonzero
+    /// direction branches at $A3:9ECB and $A3:9EF1. Initialization uses the still cases.</summary>
+    internal static ushort SelectProgram(bool isKamer, bool verticallyMoving, PlatformHorizontalMovement direction) =>
+        (isKamer, verticallyMoving, direction == PlatformHorizontalMovement.Left) switch
+        {
+            (true, true, true) => KamerMovingLeft,
+            (true, true, false) => KamerMovingRight,
+            (true, false, true) => KamerStillLeft,
+            (true, false, false) => KamerStillRight,
+            (false, true, true) => TripperMovingLeft,
+            (false, true, false) => TripperMovingRight,
+            (false, false, true) => TripperStillMovingLeft,
+            (false, false, false) => TripperStillMovingRight,
+        };
     internal static int MechanicsWordCount => 56;
     internal static int PresentationWordCount => 32;
     internal static PlatformInstructionMechanicsWord MechanicsWord(int index)

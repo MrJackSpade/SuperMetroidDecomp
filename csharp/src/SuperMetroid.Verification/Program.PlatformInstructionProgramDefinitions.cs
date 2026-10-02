@@ -20,6 +20,8 @@ internal static partial class Program
         VerifyPlatformMechanicsMapping(rom);
         VerifyPlatformPresentationMapping();
         VerifyTripperFrozenFrameSelection(rom);
+        VerifyPlatformInitialProgramSelection(rom);
+        VerifyPlatformAnimationProgramSelection(rom);
 
         var guard = new PlatformInstructionProgramReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
@@ -199,6 +201,40 @@ internal static partial class Program
             }
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt(address), "platform distant invalid visual operand");
+    }
+    private static void VerifyPlatformInitialProgramSelection(SuperMetroidAddressSpace rom)
+    {
+        // LDY immediate operands in the two native initializers.
+        foreach (bool isKamer in new[] { false, true })
+        {
+            ushort left = ReadPlatformInstructionWord(rom, isKamer ? (ushort)0x9caa : (ushort)0x9cbe);
+            ushort right = ReadPlatformInstructionWord(rom, isKamer ? (ushort)0x9cb6 : (ushort)0x9cca);
+            for (int direction = 0; direction <= ushort.MaxValue; direction++)
+                AssertEqual(direction == 0 ? left : right,
+                    PlatformInstructionProgramDefinitions.SelectProgram(isKamer, false, (PlatformHorizontalMovement)direction),
+                    "platform initial program uses full-word zero/nonzero direction");
+        }
+    }
+
+    private static void VerifyPlatformAnimationProgramSelection(SuperMetroidAddressSpace rom)
+    {
+        // Each native helper first loads Tripper's list, then substitutes Kamer's list.
+        foreach (bool moving in new[] { false, true })
+        foreach (bool isKamer in new[] { false, true })
+        {
+            ushort leftOperand = moving
+                ? (isKamer ? (ushort)0x9e54 : (ushort)0x9e4b)
+                : (isKamer ? (ushort)0x9e8e : (ushort)0x9e85);
+            ushort rightOperand = moving
+                ? (isKamer ? (ushort)0x9e71 : (ushort)0x9e68)
+                : (isKamer ? (ushort)0x9eab : (ushort)0x9ea2);
+            ushort left = ReadPlatformInstructionWord(rom, leftOperand);
+            ushort right = ReadPlatformInstructionWord(rom, rightOperand);
+            for (int direction = 0; direction <= ushort.MaxValue; direction++)
+                AssertEqual(direction == 0 ? left : right,
+                    PlatformInstructionProgramDefinitions.SelectProgram(isKamer, moving, (PlatformHorizontalMovement)direction),
+                    "platform animation program uses species, motion and full-word direction");
+        }
     }
     private static void VerifyTripperFrozenFrameSelection(SuperMetroidAddressSpace rom)
     {

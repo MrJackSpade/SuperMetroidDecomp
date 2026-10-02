@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -99,6 +99,12 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa20000 | operand, EnemySpritemapDefinitions.KamerPlatformFrameAt(operand));
         }
         index -= kamerCount;
+        if (index < ElevatorInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = ElevatorInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0xa30000 | operand, EnemySpritemapDefinitions.ElevatorFrameAt(operand));
+        }
+        index -= ElevatorInstructionProgramDefinitions.PresentationWordCount;
         if (index < BoulderInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = BoulderInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -137,6 +143,7 @@ internal static partial class CompiledEnemyVisualSelectors
     {
         0x86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
+        0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -157,6 +164,7 @@ internal static partial class CompiledEnemyVisualSelectors
                 0xa2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
                     : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
+                0xa3 => EnemySpritemapDefinitions.ElevatorFrameAt(operandAddress),
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),

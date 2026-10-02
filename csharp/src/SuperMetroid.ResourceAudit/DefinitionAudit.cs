@@ -76,7 +76,7 @@ internal static class DefinitionAudit
         bool shutter = calculated && bank == 0xa2 && ShutterVisualDefinitions.IsPresentationWord((ushort)address);
         string calculatedMethod = shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : bank == 0xa2 ? VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address) ? "KamerPlatformFrameAt" : "BoyonFrameAt"
-            : boulder ? "BoulderFrameAt"
+            : bank == 0xa3 ? "ElevatorFrameAt" : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
         string relative = calculated

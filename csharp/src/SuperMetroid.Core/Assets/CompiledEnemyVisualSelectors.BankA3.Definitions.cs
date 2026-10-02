@@ -89,8 +89,6 @@ internal static partial class CompiledEnemyVisualSelectors
         new(0xA39088, 0x945E),
         new(0xA3908C, 0x9474),
         new(0xA39090, 0x948F),
-        new(0xA394D8, 0x962F),
-        new(0xA394DC, 0x9645),
         new(0xA39681, 0x9745),
         new(0xA39685, 0x975B),
         new(0xA39689, 0x9771),

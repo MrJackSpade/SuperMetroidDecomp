@@ -3140,4 +3140,23 @@
     "integration": "Verification build and --lookup-growing-shutter-definitions run the existing focused 24576-initializer proof for all supported selectors/speeds/high bytes and wrapped stage origins without a bus. Production unchanged.",
     "scope": "Initial function and two speed fields only. Other stage dispatch, palettes and artwork still require independent review; no table-retention exception claimed."
   }
+,
+  "elevatorProgramAndVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A3:94D6-94E1 program, 962F-965A maps; pinned bank_A3.asm",
+    "mechanics": {
+      "disposition": "Removed four stored control words. Two two-tick frames precede goto/start; enumerate their native positions from this layout.",
+      "proof": "VerifyElevatorMechanicsMapping checks all four native words, direct/enumerated lookup, full byte ownership, aliases, local invalid pointers and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed two stored operand positions; derive from first frame plus four-byte stride.",
+      "proof": "VerifyElevatorPresentationMapping checks independent native positions, full ushort membership and ordinal bounds."
+    },
+    "visualPointers": {
+      "disposition": "Removed two shared literal pointers. Each consecutive map has four five-byte OAM entries plus a two-byte count, giving a twenty-two-byte stride.",
+      "proof": "VerifyElevatorVisualPointers checks original pointer words, map counts, shared dispatch/generator exclusion and rejected holes."
+    },
+    "integration": "Verification and ResourceAudit build; --lookup-elevator-programs confirms real initializer and complete animation loop with no original program/selector reads, plus the full 5069-entry shared selector contract.",
+    "scope": "Elevator instruction and visual-selector mappings only. Input selection, movement, artwork and other elevator families remain separately reviewable; no retention exception claimed."
+  }
 }

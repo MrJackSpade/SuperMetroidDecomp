@@ -955,17 +955,16 @@ internal static class EnemySpritemapDefinitions
         int frame = (operandAddress - (VerticalShutterInstructionProgramDefinitions.KamerPlatform + 2)) / 4;
         return (ushort)(0xf468 + 12 * frame);
     }
-    /// <summary>The two visual operands in the native $A3:94D6 elevator loop.</summary>
+    /// <summary>Two elevator maps in forward animation order. Each native map
+    /// contains four five-byte OAM entries after its two-byte count.</summary>
     internal static ushort ElevatorFrameAt(ushort operandAddress)
     {
-        if (operandAddress is (0x94d8 or 0x94dc) &&
-            CompiledEnemyVisualSelectors.TryGet(ElevatorBank,
-                operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
+        if (!ElevatorInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
+        int frame = (operandAddress - (ElevatorInstructionProgramDefinitions.Loop + 2)) / 4;
+        return (ushort)(0x962f + 22 * frame);
     }
-
     /// <summary>
     /// Rio's twenty-four fixed presentation operands at $A2:BB4D..BBB5 select
     /// eight distinct extracted OAM compositions. The instruction timing, swoop

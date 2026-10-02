@@ -1674,5 +1674,37 @@
     "proofTest":  "VerifyCrocomireBg2GeneratedCatalog",
     "confirmation":  "All forty-two native pointer/name pairs, generated sequence materialization and bounds; exact JSON extraction comparison between independent ROM-derived definitions and generated catalog; load every extracted frame through production Crocomire catalog.",
     "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-bg2-catalog"
+},
+    "phantoonDraygonBg2CatalogReview": {
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Generate Phantoon and Draygon BG2 catalogs from native frame layouts for #1165\"",
+                                 "subject":  "Generate Phantoon and Draygon BG2 catalogs from native frame layouts for #1165"
+                             },
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-phantoon-draygon-bg2-catalogs",
+    "reviewedEvidence":  "Pinned bank_A7 and bank_A5 complete selected extended-frame record layouts and BG2 stream markers; current catalog arrays and every extraction/loading/identity consumer; SHA-verified NTSC J/U v1.0 ROM. Published names captured as independent expected-output fixtures before removing production storage.",
+    "tables":  [
+                   {
+                       "domain":  "Indices 0..21; IsFrame accepts exactly 22 ushort identities. IndexOutOfRangeException outside index domain.",
+                       "id":  "phantoon-bg2-named-frame-catalog",
+                       "proofTest":  "VerifyPhantoonGeneratedBg2Catalog",
+                       "confirmation":  "All 22 original names/identities, native component counts and stream markers, full pointer membership domain, invalid indices, exact extraction JSON and real catalog load.",
+                       "state":  "converted",
+                       "disposition":  "Calculate sixteen ten-byte body/eye roots, three eighteen-byte tentacle roots and three ten-byte mouth roots. Named pose cases preserve published artwork names. Remove stored definition array and linear membership scan.",
+                       "rationale":  "Native count word plus eight bytes per component determines stride; body/eye directions, tentacle poses and mouth poses determine semantic published keys.",
+                       "owner":  "csharp/src/SuperMetroid.Core/Assets/PhantoonBg2FrameDefinitions.cs",
+                       "nativeIdentity":  "A7:DEDD-DF73 body/eye, DFB3-DFD7 tentacles, DFE9-DFFD mouth"
+                   },
+                   {
+                       "domain":  "Indices 0..33; IsFrame accepts exactly 34 ushort identities. IndexOutOfRangeException outside index domain.",
+                       "id":  "draygon-bg2-named-frame-catalog",
+                       "proofTest":  "VerifyDraygonGeneratedBg2Catalog",
+                       "confirmation":  "All 34 original names/identities, native one-component records and stream markers, full pointer membership domain, invalid indices, exact extraction JSON and real catalog load.",
+                       "state":  "converted",
+                       "disposition":  "Calculate two seventeen-frame runs with ten-byte stride and format draygon_bg2_XXXX names. Remove stored definitions and linear membership scan.",
+                       "rationale":  "Both facing groups use a two-byte count and one eight-byte component per frame. Published names directly encode their native identity.",
+                       "owner":  "csharp/src/SuperMetroid.Core/Assets/DraygonBg2FrameDefinitions.cs",
+                       "nativeIdentity":  "A5:A31B-A3BB and A643-A6E3 selected body roots"
+                   }
+               ]
 }
 }

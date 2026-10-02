@@ -14,53 +14,29 @@ internal static class DraygonBg2FrameDefinitions
     /// <summary>Each selected Draygon BG2 frame has one zero-offset stream.</summary>
     internal const int MaximumComponents = 1;
 
-    private static readonly EnemyBg2FrameDefinition[] FrameDefinitions =
-    [
-        new(0xa31b, "draygon_bg2_A31B"),
-        new(0xa325, "draygon_bg2_A325"),
-        new(0xa32f, "draygon_bg2_A32F"),
-        new(0xa339, "draygon_bg2_A339"),
-        new(0xa343, "draygon_bg2_A343"),
-        new(0xa34d, "draygon_bg2_A34D"),
-        new(0xa357, "draygon_bg2_A357"),
-        new(0xa361, "draygon_bg2_A361"),
-        new(0xa36b, "draygon_bg2_A36B"),
-        new(0xa375, "draygon_bg2_A375"),
-        new(0xa37f, "draygon_bg2_A37F"),
-        new(0xa389, "draygon_bg2_A389"),
-        new(0xa393, "draygon_bg2_A393"),
-        new(0xa39d, "draygon_bg2_A39D"),
-        new(0xa3a7, "draygon_bg2_A3A7"),
-        new(0xa3b1, "draygon_bg2_A3B1"),
-        new(0xa3bb, "draygon_bg2_A3BB"),
-        new(0xa643, "draygon_bg2_A643"),
-        new(0xa64d, "draygon_bg2_A64D"),
-        new(0xa657, "draygon_bg2_A657"),
-        new(0xa661, "draygon_bg2_A661"),
-        new(0xa66b, "draygon_bg2_A66B"),
-        new(0xa675, "draygon_bg2_A675"),
-        new(0xa67f, "draygon_bg2_A67F"),
-        new(0xa689, "draygon_bg2_A689"),
-        new(0xa693, "draygon_bg2_A693"),
-        new(0xa69d, "draygon_bg2_A69D"),
-        new(0xa6a7, "draygon_bg2_A6A7"),
-        new(0xa6b1, "draygon_bg2_A6B1"),
-        new(0xa6bb, "draygon_bg2_A6BB"),
-        new(0xa6c5, "draygon_bg2_A6C5"),
-        new(0xa6cf, "draygon_bg2_A6CF"),
-        new(0xa6d9, "draygon_bg2_A6D9"),
-        new(0xa6e3, "draygon_bg2_A6E3"),
-    ];
+    /// <summary>$A5:A31B, first left-facing one-component BG2 body frame.</summary>
+    private const ushort FacingLeftStart = 0xa31b;
+    /// <summary>$A5:A643, first right-facing one-component BG2 body frame.</summary>
+    private const ushort FacingRightStart = 0xa643;
+    internal const int FrameCount = 34;
 
-    internal static ReadOnlySpan<EnemyBg2FrameDefinition> Frames => FrameDefinitions;
+    internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
 
-    internal static bool IsFrame(ushort pointer)
+    /// <summary>Each facing has seventeen ten-byte extended frames: a two-byte
+    /// count and one eight-byte component. Preserve the published pointer-based key.</summary>
+    internal static EnemyBg2FrameDefinition Frame(int index)
     {
-        foreach (EnemyBg2FrameDefinition frame in FrameDefinitions)
-        {
-            if (frame.Pointer == pointer)
-                return true;
-        }
-        return false;
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        ushort pointer = (ushort)(index < 17 ? FacingLeftStart + 10 * index
+            : FacingRightStart + 10 * (index - 17));
+        return new(pointer, $"draygon_bg2_{pointer:X4}");
+    }
+
+    internal static bool IsFrame(ushort pointer) => InFacing(pointer, FacingLeftStart) || InFacing(pointer, FacingRightStart);
+
+    private static bool InFacing(ushort pointer, ushort start)
+    {
+        int offset = pointer - start;
+        return offset >= 0 && offset < 170 && offset % 10 == 0;
     }
 }

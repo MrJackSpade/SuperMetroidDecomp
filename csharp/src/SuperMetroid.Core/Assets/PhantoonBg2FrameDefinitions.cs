@@ -30,39 +30,58 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
     internal const ushort Tentacles2 = 0xdfd7;
 
-    private static readonly EnemyBg2FrameDefinition[] FrameDefinitions =
-    [
-        new(0xdedd, "body_invulnerable"),
-        new(BodyFullHitbox, "body_full_hitbox"),
-        new(BodyEyeHitboxOnly, "body_eye_hitbox_only"),
-        new(0xdefb, "eye_closed"),
-        new(0xdf05, "eye_open_0"),
-        new(0xdf0f, "eye_open_1"),
-        new(0xdf19, "eye_open_2"),
-        new(0xdf23, "eyeball_center"),
-        new(0xdf2d, "eyeball_up"),
-        new(0xdf37, "eyeball_down"),
-        new(0xdf41, "eyeball_left"),
-        new(0xdf4b, "eyeball_right"),
-        new(0xdf55, "eyeball_down_left"),
-        new(0xdf5f, "eyeball_down_right"),
-        new(0xdf69, "eyeball_up_left"),
-        new(0xdf73, "eyeball_up_right"),
-        new(Tentacles0, "tentacles_0"),
-        new(Tentacles1, "tentacles_1"),
-        new(Tentacles2, "tentacles_2"),
-        new(0xdfe9, "mouth_0"),
-        new(0xdff3, "mouth_1"),
-        new(0xdffd, "mouth_2"),
-    ];
+    /// <summary>$A7:DEDD, first one-component body/eye frame; sixteen selected roots.</summary>
+    private const ushort BodyEyeStart = 0xdedd;
+    /// <summary>$A7:DFE9, first one-component mouth frame; three selected roots.</summary>
+    private const ushort MouthStart = 0xdfe9;
+    internal const int FrameCount = 22;
 
-    internal static ReadOnlySpan<EnemyBg2FrameDefinition> Frames => FrameDefinitions;
+    internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
 
-    internal static bool IsFrame(ushort pointer)
+    /// <summary>Sixteen body/eye frames at ten-byte stride, three tentacle frames
+    /// at eighteen-byte stride, then three mouth frames at ten-byte stride. The
+    /// count word plus eight bytes per component explains both record sizes.</summary>
+    internal static EnemyBg2FrameDefinition Frame(int index)
     {
-        foreach (EnemyBg2FrameDefinition frame in FrameDefinitions)
-            if (frame.Pointer == pointer)
-                return true;
-        return false;
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        ushort pointer = (ushort)(index < 16 ? BodyEyeStart + 10 * index
+            : index < 19 ? Tentacles0 + 18 * (index - 16)
+            : MouthStart + 10 * (index - 19));
+        string name = index switch
+        {
+            0 => "body_invulnerable",
+            1 => "body_full_hitbox",
+            2 => "body_eye_hitbox_only",
+            3 => "eye_closed",
+            4 => "eye_open_0",
+            5 => "eye_open_1",
+            6 => "eye_open_2",
+            7 => "eyeball_center",
+            8 => "eyeball_up",
+            9 => "eyeball_down",
+            10 => "eyeball_left",
+            11 => "eyeball_right",
+            12 => "eyeball_down_left",
+            13 => "eyeball_down_right",
+            14 => "eyeball_up_left",
+            15 => "eyeball_up_right",
+            16 => "tentacles_0",
+            17 => "tentacles_1",
+            18 => "tentacles_2",
+            19 => "mouth_0",
+            20 => "mouth_1",
+            21 => "mouth_2",
+            _ => throw new IndexOutOfRangeException(),
+        };
+        return new(pointer, name);
+    }
+
+    internal static bool IsFrame(ushort pointer) => InRun(pointer, BodyEyeStart, 16, 10) ||
+        InRun(pointer, Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
+
+    private static bool InRun(ushort pointer, ushort start, int count, int stride)
+    {
+        int offset = pointer - start;
+        return offset >= 0 && offset < count * stride && offset % stride == 0;
     }
 }

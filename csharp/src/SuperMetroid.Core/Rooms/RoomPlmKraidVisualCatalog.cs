@@ -67,8 +67,7 @@ public sealed class RoomPlmKraidVisualCatalog
             if (entry is null || entry.Blocks is null ||
                 !KraidRoomPlmDrawDefinitions.TryGetByVisualId(
                     entry.Id, out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
-                    run.LevelWords.Length) ||
+                entry.Blocks.Length != draw.BlockCount ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Kraid room visuals changed a frame identity, draw shape, or visual word.");
@@ -79,7 +78,7 @@ public sealed class RoomPlmKraidVisualCatalog
             frame = entry.Blocks.ToArray();
             count++;
         }
-        if (count != KraidRoomPlmDrawDefinitions.All.Count())
+        if (count != KraidRoomPlmDrawDefinitions.DrawCount)
             throw new InvalidDataException(
                 "Kraid room visuals do not cover all ten compiled draws.");
     }
@@ -98,12 +97,9 @@ public sealed class RoomPlmKraidVisualCatalog
         if (!KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Kraid room visuals lack draw ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if (runIndex != 0 ||
+            (uint)blockIndex >= (uint)draw.BlockCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        int flatIndex = blockIndex;
-        for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
-        return words[flatIndex];
+        return words[blockIndex];
     }
 }

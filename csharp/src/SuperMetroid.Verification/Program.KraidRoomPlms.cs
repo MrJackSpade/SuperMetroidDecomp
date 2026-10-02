@@ -9,37 +9,10 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         VerifyKraidRoomProgramMapping(rom);
 
-        RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            KraidRoomPlmDrawDefinitions.All.ToArray();
-        AssertEqual(10, draws.Length,
-            "Kraid room owns ten reachable physical draw lists");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
-        {
-            int cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertWord(run.DirectionAndCount);
-                foreach (ushort word in run.LevelWords.Span)
-                    AssertWord(word);
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
-                    $"Kraid draw ${draw.Pointer:X4} signed X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
-                    $"Kraid draw ${draw.Pointer:X4} signed Y offset");
-            }
-            AssertTrue(cursor <= KraidRoomPlmDrawDefinitions.EndExclusive,
-                $"Kraid draw ${draw.Pointer:X4} remains in its bounded region");
-
-            void AssertWord(ushort expected)
-            {
-                AssertEqual((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8),
-                    expected,
-                    $"Kraid draw ${draw.Pointer:X4} word +{cursor - draw.Pointer}");
-                cursor += 2;
-            }
-        }
+        VerifyKraidDrawAddresses();
+        VerifyKraidDrawShapes(rom);
+        VerifyKraidDrawWords(rom);
+        VerifyKraidDrawVisualIds();
 
         VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
             12, 0x013c, 1);

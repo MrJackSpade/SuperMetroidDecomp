@@ -1895,10 +1895,10 @@ public sealed partial class RoomPlmSystem
         {
             // $9367 is shared with Maridia's elevatube. Select its appearance
             // from the active PLM header, never from the pointer alone.
-            DrawCompiledBlockInstruction(
+            DrawKraidBlockInstruction(
                 level, streamer, ownedKraidDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, kraidVisuals: kraidVisuals);
+                kraidVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
@@ -1912,10 +1912,10 @@ public sealed partial class RoomPlmSystem
         }
         if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))
         {
-            DrawCompiledBlockInstruction(
+            DrawKraidBlockInstruction(
                 level, streamer, kraidDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                null);
             return;
         }
         if (CrocomireArenaPlmDrawDefinitions.TryGet(drawPointer,
@@ -2195,7 +2195,6 @@ public sealed partial class RoomPlmSystem
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
         RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null,
         RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
-        RoomPlmKraidVisualCatalog? kraidVisuals = null,
         RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
         RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null)
     {
@@ -2237,7 +2236,6 @@ public sealed partial class RoomPlmSystem
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? samusEaterVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? motherBrainFakeDeathVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;

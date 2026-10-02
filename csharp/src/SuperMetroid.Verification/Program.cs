@@ -26,6 +26,20 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-draws"])
+{
+    var drawOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(drawOracle.Rom)),
+        "Kraid draw oracle is NTSC J/U v1.0");
+    VerifyKraidDrawAddresses();
+    VerifyKraidDrawShapes(drawOracle);
+    VerifyKraidDrawWords(drawOracle);
+    VerifyKraidDrawVisualIds();
+    VerifyKraidRoomVisualSelection();
+    Console.WriteLine("Kraid draw definitions: ten identities, native shapes, all 45 words, visual IDs and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-kraid-room-programs"])
 {
     var roomProgramOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

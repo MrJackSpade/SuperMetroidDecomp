@@ -38,15 +38,32 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     /// <summary>Finite glass-sparkle animation at $86:CDB3.</summary>
     internal const ushort Sparkle = 0xcdb3;
 
-    private static readonly MotherBrainGlassInstructionMechanicsWord[] Words = BuildWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
+    internal static int MechanicsWordCount => 85;
+    internal static int PresentationWordCount => 68;
     internal static int ShardProgramCount => 8;
-    internal static MotherBrainGlassInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>Enumerate ten mechanics words per shard loop, then five sparkle words.</summary>
+    internal static MotherBrainGlassInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int address;
+        if (index < 80)
+        {
+            int local = index % 10;
+            address = ShardProgram(index / 10) + (local < 8 ? local * 4 : 32 + (local - 8) * 2);
+        }
+        else address = Sparkle + (index - 80) * 4;
+        return new((ushort)address, ReadMechanicsWord((ushort)address));
+    }
+
+    /// <summary>Sixty-four shard and four sparkle art operands, each two bytes after its duration.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 64 ? ShardProgram(index / 8) + (index % 8) * 4 + 2 :
+            Sparkle + (index - 64) * 4 + 2);
+    }
+
     /// <summary>Eight 36-byte loops at $86:CC93..CDB2, each eight timed frames plus goto/self.</summary>
     internal static ushort ShardProgram(int index)
     {
@@ -82,90 +99,43 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
         RoomEnemyProjectileKind.MotherBrainGlassShard or
         RoomEnemyProjectileKind.MotherBrainGlassSparkle;
 
+    /// <summary>
+    /// Exact aligned mechanics words only. Shard frame holds repeat the symmetric
+    /// 4/3/2/3 cadence twice, followed by goto/self; sparkle alternates 6/8 then deletes.
+    /// Interleaved artwork operands and interior-byte word starts remain rejected.
+    /// </summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - ShardGroup0;
+        if (offset >= 0 && offset < 8 * 36)
         {
-            int middle = low + ((high - low) >> 1);
-            MotherBrainGlassInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int local = offset % 36;
+            if (local < 32 && local % 4 == 0)
+            {
+                int phase = local / 4 % 4;
+                return (ushort)(4 - Math.Min(phase, 4 - phase));
+            }
+            if (local == 32) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            if (local == 34) return ShardProgram(offset / 36);
         }
-
+        int sparkleOffset = address - Sparkle;
+        if (sparkleOffset >= 0 && sparkleOffset < 16 && sparkleOffset % 4 == 0)
+            return (ushort)(6 + 2 * ((sparkleOffset / 4) & 1));
+        if (sparkleOffset == 16) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
         throw new InvalidDataException(
             $"Mother Brain glass-projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (ushort)address - ShardGroup0;
+        if (offset >= 0 && offset < 8 * 36)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            int local = offset % 36;
+            return local >= 32 || local % 4 < 2;
         }
-
-        return false;
+        int sparkleOffset = (ushort)address - Sparkle;
+        return sparkleOffset >= 0 && sparkleOffset < 18 && sparkleOffset % 4 < 2;
     }
-
-    private static MotherBrainGlassInstructionMechanicsWord[] BuildWords()
-    {
-        var words = new List<MotherBrainGlassInstructionMechanicsWord>(85);
-        ushort[] shardDurations = [4, 3, 2, 3, 4, 3, 2, 3];
-        for (int group = 0; group < ShardProgramCount; group++)
-        {
-            ushort program = ShardProgram(group);
-            AddTimedFrames(words, program, shardDurations);
-            Add(words, program + 0x20,
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
-            Add(words, program + 0x22, program);
-        }
-
-        AddTimedFrames(words, Sparkle, [6, 8, 6, 8]);
-        Add(words, Sparkle + 0x10,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(68);
-        for (int group = 0; group < ShardProgramCount; group++)
-            AddPresentationFrames(words, ShardProgram(group), 8);
-        AddPresentationFrames(words, Sparkle, 4);
-        return words.ToArray();
-    }
-
-    private static void AddTimedFrames(
-        List<MotherBrainGlassInstructionMechanicsWord> words,
-        ushort start,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int index = 0; index < durations.Length; index++)
-            Add(words, start + index * 4, durations[index]);
-    }
-
-    private static void AddPresentationFrames(List<ushort> words, ushort start, int count)
-    {
-        for (int index = 0; index < count; index++)
-            words.Add(unchecked((ushort)(start + index * 4 + 2)));
-    }
-
-    private static void Add(
-        List<MotherBrainGlassInstructionMechanicsWord> words,
-        int address,
-        ushort value) => words.Add(new(unchecked((ushort)address), value));
 }

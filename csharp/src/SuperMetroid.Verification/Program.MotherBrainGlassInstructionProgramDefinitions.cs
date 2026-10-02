@@ -12,22 +12,12 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual(85,
-            MotherBrainGlassInstructionProgramDefinitions.MechanicsWordCount,
-            "Mother Brain glass catalog contains every mechanics word");
-        for (int index = 0;
-             index < MotherBrainGlassInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            MotherBrainGlassInstructionMechanicsWord definition =
-                MotherBrainGlassInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
-            AssertEqual(definition.Value, native,
-                $"Mother Brain glass mechanics word $86:{definition.Address:X4}");
-        }
+        VerifyGlassMechanicsAddresses(rom);
+        VerifyGlassPresentationAddresses(rom);
+        VerifyGlassShardCadence(rom);
+        VerifyGlassSparkleCadence(rom);
+        VerifyGlassProjectileControls(rom);
+        VerifyGlassProjectileLoopTargets(rom);
 
         var guard = new MotherBrainGlassInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -124,9 +114,9 @@ internal static partial class Program
         AssertEqual(68,
             MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
             "Mother Brain glass catalog retains all presentation operands");
-        AssertEqual(MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Mother Brain glass spritemap operands remain cartridge reads");
+            "Mother Brain glass artwork operands no longer read the cartridge");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Mother Brain glass mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -145,7 +135,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Mother Brain glass instruction mechanics: 85 compiled words, all eight real " +
-            "shard loops, real sparkle lifetime, shared deletion, and 68 live spritemap " +
+            "shard loops, real sparkle lifetime, shared deletion, and 68 calculated spritemap operand addresses with zero cartridge " +
             "reads pass.");
 
         RoomEnemySystem NewSystem(Queue<ushort> random)

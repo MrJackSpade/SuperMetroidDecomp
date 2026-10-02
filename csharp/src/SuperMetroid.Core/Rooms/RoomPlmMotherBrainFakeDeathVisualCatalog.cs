@@ -86,16 +86,16 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
                 ? selected[(runIndex == 0 ? 0 : regular.Count(0)) + blockIndex]
                 : new RoomLevelWord(regular.WordAt(runIndex, blockIndex)).VisualWord;
         }
-        if (!MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+        if (!MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(drawPointer, out var draw))
             throw new InvalidDataException(
                 $"Mother Brain fake-death visuals lack draw ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= 2 ||
+            (uint)blockIndex >= (uint)draw.Count(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
+            flatIndex += draw.Count(run);
         return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
-            ? words[flatIndex] : new RoomLevelWord(draw.Runs.Span[runIndex].LevelWords.Span[blockIndex]).VisualWord;
+            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

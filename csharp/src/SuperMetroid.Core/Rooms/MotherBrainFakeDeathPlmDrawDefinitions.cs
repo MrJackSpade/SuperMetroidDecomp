@@ -50,15 +50,12 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        Lists.Values.Concat(BackgroundDraws()).Concat(RegularDraws());
+        BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        TryGetBackground(pointer, out draw) || TryGetRegular(pointer, out draw) || Lists.TryGetValue(pointer, out draw);
+        TryGetBackground(pointer, out draw) || TryGetRegular(pointer, out draw) || TryGetBoundary(pointer, out draw);
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -235,33 +232,70 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        // Keep the complete native level words here. The draw consumer writes
-        // their collision nibble even when a later visual override changes the
-        // tile appearance; offsets are signed relative to the PLM origin.
-        var lists = new Dictionary<ushort,
-            RoomPlmShotBlockDrawDefinitions.DrawList>();
-        Add(FillWall,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8002,
-                new ushort[] { 0x8340, 0x830f }, 0, -1),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8001,
-                new ushort[] { 0x8b0f }, 0, 0));
-        Add(EscapeDoor,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x9222, 0xd1af, 0xd1d0, 0xd220 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x0223, 0x01eb, 0x01d0, 0x0221 }, 0, 0));
-        return lists;
+    // Escape-door visual cells remain pending independent artwork review under #1165.
+    private static readonly ushort[] EscapeDoorVisuals = [0x222,0x1af,0x1d0,0x220,0x223,0x1eb,0x1d0,0x221];
 
-        void Add(ushort pointer,
-            params RoomPlmShotBlockDrawDefinitions.Run[] runs)
+    /// <summary>
+    /// 84:94A3/94B1: a three-cell wall centered on the origin, or a two-column
+    /// four-cell door. Both use vertical runs. Wall caps mirror tile 30F around
+    /// center tile 340 and are solid. The door's first column has a door parent
+    /// above three vertical extensions; its second column is air.
+    /// </summary>
+    internal readonly record struct BoundaryDraw(ushort Pointer)
+    {
+        internal int Count(int run)
         {
-            if (!lists.TryAdd(pointer,
-                    new RoomPlmShotBlockDrawDefinitions.DrawList(pointer, runs)))
-                throw new InvalidDataException(
-                    $"Duplicate Mother Brain fake-death draw ${pointer:X4}.");
+            if ((uint)run >= 2) throw new IndexOutOfRangeException();
+            return Pointer == EscapeDoor ? 4 : 2 - run;
         }
+        internal sbyte NextX(int run)
+        {
+            Count(run);
+            return Pointer == EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            Count(run);
+            return Pointer == FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int block)
+        {
+            if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
+            if (Pointer == FillWall)
+                return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
+            RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :
+                block == 0 ? RoomCollisionType.DoorBlock : RoomCollisionType.VerticalExtension;
+            return (ushort)(((int)collision << 12) | EscapeDoorVisuals[run * 4 + block]);
+        }
+    }
+
+    internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
+    {
+        bool owned = pointer is FillWall or EscapeDoor;
+        draw = owned ? new(pointer) : default;
+        return owned;
+    }
+
+    private static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeBoundary(pointer, out var shape)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[2];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.Count(run)];
+            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
+            runs[run] = new((ushort)(0x8000 | words.Length), words, shape.NextX(run), shape.NextY(run));
+        }
+        draw = new(pointer, runs);
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
+    {
+        TryGetBoundary(FillWall, out var wall);
+        yield return wall;
+        TryGetBoundary(EscapeDoor, out var door);
+        yield return door;
     }
 }

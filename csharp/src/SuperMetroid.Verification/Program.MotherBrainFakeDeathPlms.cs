@@ -14,6 +14,9 @@ internal static partial class Program
         VerifyMotherBrainRegularDrawMapping(rom);
         VerifyMotherBrainBackgroundGeometry(rom);
         VerifyMotherBrainBackgroundCollision(rom);
+        VerifyMotherBrainBoundaryGeometry(rom);
+        VerifyMotherBrainBoundaryCollision(rom);
+        VerifyMotherBrainWallVisuals(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
@@ -31,33 +34,6 @@ internal static partial class Program
                 MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out _),
                 $"Mother Brain program ${pointer - 2:X4} selects a compiled draw");
         }
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
-        {
-            if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw.Pointer, out _) ||
-                MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(draw.Pointer, out _)) continue;
-            int cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertEqual(ReadWord(rom, cursor), run.DirectionAndCount,
-                    $"Mother Brain draw ${draw.Pointer:X4} direction/count at ${cursor:X4}");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(ReadWord(rom, cursor), word,
-                        $"Mother Brain draw ${draw.Pointer:X4} block at ${cursor:X4}");
-                    cursor += 2;
-                }
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
-                    $"Mother Brain draw ${draw.Pointer:X4} X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
-                    $"Mother Brain draw ${draw.Pointer:X4} Y offset");
-            }
-            AssertTrue(cursor <= MotherBrainFakeDeathPlmDrawDefinitions.EndExclusive,
-                $"Mother Brain draw ${draw.Pointer:X4} remains in its bounded region");
-        }
-
         (ushort Header, ushort Program)[] reachable =
         [
             (RoomPlmHeaders.FillMotherBrainsWall, RoomPlmInstructionLists.FillMotherBrainsWall),
@@ -87,9 +63,6 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(0x840000 | address) |
-                bus.ReadByte(0x840000 | (address + 1)) << 8);
     }
 
     private static void VerifyMotherBrainFakeDeathMutation(

@@ -1954,14 +1954,15 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer,
-                out var fakeDeathDraw))
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(drawPointer, out var boundaryFakeDeath))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, fakeDeathDraw, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                motherBrainFakeDeathVisuals: motherBrainFakeDeathVisuals);
+            for (int run = 0; run < 2; run++)
+            for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (run == 0 ? 0 : boundaryFakeDeath.NextX(0)),
+                    originY + (run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block,
+                    boundaryFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))

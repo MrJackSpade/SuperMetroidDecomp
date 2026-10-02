@@ -3014,4 +3014,13 @@
     "confirmation": "Verification and ResourceAudit build; --lookup-fune-namihe-programs confirms all eight production programs plus the complete 5069-entry shared enumeration, ordering, native values, direct lookup and bounds contract.",
     "scope": "Visual pointer selection only. Artwork payloads and other Fune/Namihe mappings remain separately reviewable; no retention exception claimed."
   }
+,
+  "funeNamiheProgramSelectionReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A8:96D3-96E2; pinned bank_A8.asm InstListPointers_Fune_Namihe and initializer/activity cursor changes",
+    "disposition": "Removed the eight-entry instruction-list pointer span. Decode species, idle/active and left/right cursor dimensions, then dispatch eight named program cases. This is state selection, not a numeric sequence encoded as cases.",
+    "proof": "VerifyFuneNamiheProgramSelection checks all eight native ROM pointer words and rejects every odd/adjacent cursor plus distant and wrapped inputs. Existing production initialization/activity checks cover both species and facings with source-table reads forbidden.",
+    "confirmation": "Verification build and --lookup-fune-namihe-programs; no retained-table exception claimed.",
+    "scope": "Instruction-list selection only; does not classify unreviewed artwork or unrelated mappings."
+  }
 }

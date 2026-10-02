@@ -32,6 +32,7 @@ if (args is ["--lookup-fune-namihe-programs"])
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
         "Fune/Namihe actor oracle is NTSC J/U v1.0");
+    VerifyFuneNamiheDefinitions(oracle);
     VerifyFuneNamiheInstructionProgramDefinitions(oracle);
     VerifyCompiledEnemyVisualSelectors();
     return 0;

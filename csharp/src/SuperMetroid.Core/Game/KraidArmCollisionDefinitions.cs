@@ -9,40 +9,36 @@ internal static class KraidArmCollisionDefinitions
 {
     internal const byte Bank = 0xa7;
 
-    private static readonly KraidArmCollisionComponent[] Phase0 =
-        [new(-36, -33, 0x92d1), new(-28, -24, 0x93f7), new(0, 0, 0x9439),
-         new(-36, -40, 0x92d1), new(-28, -31, 0x93f7)];
-    private static readonly KraidArmCollisionComponent[] Phase1 =
-        [new(-38, -33, 0x92eb), new(-30, -26, 0x93f7), new(0, 0, 0x9439),
-         new(-36, -40, 0x92d1), new(-28, -31, 0x93f7)];
-    private static readonly KraidArmCollisionComponent[] Phase2 =
-        [new(-48, -13, 0x92f9), new(-38, -13, 0x9371), new(0, 0, 0x941f),
-         new(-45, -27, 0x92eb), new(-37, -19, 0x93f7)];
-    private static readonly KraidArmCollisionComponent[] Phase3 =
-        [new(-46, -13, 0x9313), new(-37, -13, 0x9371), new(0, 0, 0x941f),
-         new(-45, -19, 0x92f9), new(-36, -18, 0x9371)];
-    private static readonly KraidArmCollisionComponent[] Phase4 =
-        [new(-45, 8, 0x9321), new(-38, 2, 0x937f), new(0, 0, 0x9411),
-         new(-46, 3, 0x9313), new(-39, -3, 0x937f)];
-    private static readonly KraidArmCollisionComponent[] Phase5 =
-        [new(-44, 8, 0x9321), new(-37, 2, 0x937f), new(0, 0, 0x9411),
-         new(-46, 4, 0x9321), new(-39, -2, 0x937f)];
-    private static readonly KraidArmCollisionComponent[] Phase6 =
-        [new(-39, 10, 0x933b), new(-38, 0, 0x9399), new(0, 0, 0x9411),
-         new(-43, 10, 0x933b), new(-41, -2, 0x9399)];
-    private static readonly KraidArmCollisionComponent[] Phase7 =
-        [new(-39, 10, 0x933b), new(-38, 0, 0x9399), new(0, 0, 0x9411),
-         new(-43, 9, 0x933b), new(-41, -2, 0x9399)];
-    private static readonly KraidArmCollisionComponent[] Phase8 =
-        [new(-39, 10, 0x9349), new(-38, 0, 0x9399), new(0, 0, 0x9411),
-         new(-43, 9, 0x933b), new(-41, -2, 0x9399)];
-    private static readonly KraidArmCollisionComponent[] Phase9 =
-        [new(-39, 10, 0x9349), new(-38, 0, 0x9399), new(0, 0, 0x9411),
-         new(-42, 9, 0x9349), new(-42, -2, 0x9399)];
-    private static readonly KraidArmCollisionComponent[] Lunge =
-        [new(0, 0, 0x946f)];
-    private static readonly KraidArmCollisionComponent[] Dying =
-        [new(0, 0, 0x947d)];
+    private static readonly KraidArmComponentPosition[] Phase0 =
+        [new(-36, -33), new(-28, -24), new(0, 0),
+         new(-36, -40), new(-28, -31)];
+    private static readonly KraidArmComponentPosition[] Phase1 =
+        [new(-38, -33), new(-30, -26), new(0, 0),
+         new(-36, -40), new(-28, -31)];
+    private static readonly KraidArmComponentPosition[] Phase2 =
+        [new(-48, -13), new(-38, -13), new(0, 0),
+         new(-45, -27), new(-37, -19)];
+    private static readonly KraidArmComponentPosition[] Phase3 =
+        [new(-46, -13), new(-37, -13), new(0, 0),
+         new(-45, -19), new(-36, -18)];
+    private static readonly KraidArmComponentPosition[] Phase4 =
+        [new(-45, 8), new(-38, 2), new(0, 0),
+         new(-46, 3), new(-39, -3)];
+    private static readonly KraidArmComponentPosition[] Phase5 =
+        [new(-44, 8), new(-37, 2), new(0, 0),
+         new(-46, 4), new(-39, -2)];
+    private static readonly KraidArmComponentPosition[] Phase6 =
+        [new(-39, 10), new(-38, 0), new(0, 0),
+         new(-43, 10), new(-41, -2)];
+    private static readonly KraidArmComponentPosition[] Phase7 =
+        [new(-39, 10), new(-38, 0), new(0, 0),
+         new(-43, 9), new(-41, -2)];
+    private static readonly KraidArmComponentPosition[] Phase8 =
+        [new(-39, 10), new(-38, 0), new(0, 0),
+         new(-43, 9), new(-41, -2)];
+    private static readonly KraidArmComponentPosition[] Phase9 =
+        [new(-39, 10), new(-38, 0), new(0, 0),
+         new(-42, 9), new(-42, -2)];
 
     /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
     private const ushort FirstGeneralFrame = 0x8f59;
@@ -122,32 +118,75 @@ internal static class KraidArmCollisionDefinitions
         return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
             TouchCallback(index), ShotCallback(index));
     }
+    /// <summary>$A7:92D1, Hitbox_KraidArm_0; shapes0..6 alternate two/one rectangles.</summary>
+    private const ushort FirstArticulatedShape = 0x92d1;
+    /// <summary>$A7:93F7, Hitbox_KraidArm_F, connecting component's initial shape.</summary>
+    private const ushort ConnectorInitialShape = 0x93f7;
+    /// <summary>$A7:9371, Hitbox_KraidArm_8, connecting component's second shape.</summary>
+    private const ushort ConnectorSecondShape = 0x9371;
+    /// <summary>$A7:937F, Hitbox_KraidArm_9, connecting component's third shape.</summary>
+    private const ushort ConnectorThirdShape = 0x937f;
+    /// <summary>$A7:9399, Hitbox_KraidArm_A, connecting component's final shape.</summary>
+    private const ushort ConnectorFinalShape = 0x9399;
+    /// <summary>$A7:9439, Hitbox_KraidArm_12, body component in poses0/1.</summary>
+    private const ushort BodyInitialShape = 0x9439;
+    /// <summary>$A7:941F, Hitbox_KraidArm_11, body component in poses2/3.</summary>
+    private const ushort BodyMiddleShape = 0x941f;
+    /// <summary>$A7:9411, Hitbox_KraidArm_10, body component in poses4..9.</summary>
+    private const ushort BodyFinalShape = 0x9411;
+    /// <summary>$A7:946F, first dying/preparing-to-lunge rectangle; second list follows14 bytes later.</summary>
+    private const ushort FinalPoseShape = 0x946f;
+
+    /// <summary>Calculates the physical hitbox identity for a normalized arm pose and component.</summary>
+    /// <remarks>Independently checked for #1165 against both native ten-frame groups.
+    /// Components0/3 advance through seven articulated shapes with different timing;
+    /// their lists alternate two and one twelve-byte rectangles plus a count word.
+    /// Components1/4 choose connecting shapes and component2 chooses body shapes.
+    /// Poses10/11 are the single-component dying/lunge frames. Coordinates are separate.</remarks>
+    internal static ushort ComponentHitbox(int pose, int component)
+    {
+        if ((uint)pose >= 12 || (uint)component >= (pose < 10 ? 5u : 1u))
+            throw new IndexOutOfRangeException();
+        if (pose >= 10) return (ushort)(FinalPoseShape + 14 * (pose - 10));
+        if (component == 2)
+            return pose < 2 ? BodyInitialShape : pose < 4 ? BodyMiddleShape : BodyFinalShape;
+        if (component is 1 or 4)
+        {
+            int initialPoses = component == 1 ? 2 : 3;
+            return pose < initialPoses ? ConnectorInitialShape : pose < 4 ? ConnectorSecondShape
+                : pose < 6 ? ConnectorThirdShape : ConnectorFinalShape;
+        }
+        int shape = component == 0 ? (pose < 4 ? pose : 4 + (pose - 4) / 2)
+            : pose < 2 ? 0 : pose < 6 ? pose - 1 : pose < 9 ? 5 : 6;
+        return (ushort)(FirstArticulatedShape + 40 * (shape / 2) + 26 * (shape % 2));
+    }
+
+    internal static KraidArmCollisionComponent Component(int pose, int component)
+    {
+        ushort hitbox = ComponentHitbox(pose, component);
+        if (pose >= 10) return new(0, 0, hitbox);
+        KraidArmComponentPosition[] positions = pose switch
+        {
+            0 => Phase0, 1 => Phase1, 2 => Phase2, 3 => Phase3, 4 => Phase4,
+            5 => Phase5, 6 => Phase6, 7 => Phase7, 8 => Phase8, _ => Phase9,
+        };
+        KraidArmComponentPosition position = positions[component];
+        return new(position.X, position.Y, hitbox);
+    }
     internal static bool TryGetComponents(ushort pointer,
-        out ReadOnlyMemory<KraidArmCollisionComponent> components)
+        out KraidArmComponentSequence components)
     {
         // Both five-component groups select the same physical pose ordinal. Their
         // artwork identities differ, so this normalization applies only to collision.
         int distance = pointer - FirstGeneralFrame;
         if (distance >= 0 && distance < 20 * GeneralFrameBytes && distance % GeneralFrameBytes == 0)
         {
-            components = (distance / GeneralFrameBytes % 10) switch
-            {
-                0 => Phase0,
-                1 => Phase1,
-                2 => Phase2,
-                3 => Phase3,
-                4 => Phase4,
-                5 => Phase5,
-                6 => Phase6,
-                7 => Phase7,
-                8 => Phase8,
-                _ => Phase9,
-            };
+            components = new(distance / GeneralFrameBytes % 10, 5);
             return true;
         }
         if (pointer == FirstSingleComponentFrame || pointer == SecondSingleComponentFrame)
         {
-            components = pointer == FirstSingleComponentFrame ? Lunge : Dying;
+            components = new(pointer == FirstSingleComponentFrame ? 10 : 11, 1);
             return true;
         }
         components = default;
@@ -214,3 +253,25 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
 }
 
 internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);
+
+internal readonly record struct KraidArmComponentPosition(short X, short Y);
+
+/// <summary>Ordered physical component view with calculated hitbox selectors.</summary>
+internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
+{
+    internal KraidArmCollisionComponent this[int index]
+    {
+        get
+        {
+            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            return KraidArmCollisionDefinitions.Component(Pose, index);
+        }
+    }
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(KraidArmComponentSequence sequence)
+    {
+        private int next;
+        public bool MoveNext() => next++ < sequence.Length;
+        public KraidArmCollisionComponent Current => sequence[next - 1];
+    }
+}

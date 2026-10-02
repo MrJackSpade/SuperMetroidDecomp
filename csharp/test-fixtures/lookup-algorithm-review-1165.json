@@ -2263,5 +2263,26 @@
         ],
         "integrationConfirmation": "Existing arm physical-definition check now delegates to the two callback proofs and independently checks all96 rectangle geometry words, selected component streams and frame domain against ROM. Build passes with existing warnings. No gameplay sweep or broad collision matrix.",
         "remainingScope": "Rectangle edge storage and phase component data remain unfinished without a retention decision. Calculated callback composition does not count those fields as converted."
+    },
+    "kraidArmComponentSelectorReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid arm component hitbox selectors for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid arm component hitbox selectors for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm two ten-frame arm groups and two single-component frames, selected articulated/connecting/body hitbox families, and alternating two/one-rectangle articulated lists. SHA-verified NTSC J/U v1.0; ordinary-combat enumeration and all definition consumers. Source component order and rectangle record widths explain the selector construction.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-arm-component-selectors",
+        "tables": [
+            {
+                "id": "kraid-arm-component-hitbox-selectors", "state": "converted",
+                "domain": "Normalized poses0..9 each have five components; poses10/11 each have one. General/rising frames alias the same normalized poses. Invalid pose/component indices throw IndexOutOfRangeException.",
+                "disposition": "Remove stored hitbox pointers from every component. Calculate articulated shape progressions, connecting/body case selections, and final single-rectangle list strides; construct the resulting ordered component view on access.",
+                "rationale": "Components0/3 advance through seven shared articulated shapes with different timing. Their alternating two/one-rectangle lists have26/14-byte sizes, so each pair spans40 bytes. Components1/4 choose four named connecting shapes, with the second component group delayed initially. Component2 selects three body shapes. Final lists have one rectangle each and a14-byte stride. These rules express shared pose roles without per-frame pointer storage.",
+                "proofTest": "VerifyKraidArmComponentHitboxes",
+                "confirmation": "All102 original native references across22 frames, normalized direct selection, indexed/enumerated production views, component ordering and invalid pose/component bounds. Extracted the hitbox portion of the prior layout proof; both old physical-frame command and aggregate invoke the new proof."
+            }
+        ],
+        "integrationConfirmation": "The complete existing arm definition check passes after the view migration: original component positions, all96 rectangle edge words, both callback fields, exact frame membership and pointer bounds. Build passes with existing warnings. No gameplay/collision sweep.",
+        "remainingScope": "The ten pose coordinate arrays and rectangle edge array are still unfinished, with no retention decision. Final single-component positions are uniformly zero and now constructed directly. No whole-arm or repository completion claim."
     }
 }

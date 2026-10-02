@@ -6,6 +6,7 @@ internal static partial class Program
     private static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyKraidArmComponentHitboxes(rom);
         VerifyKraidArmTouchCallbacks(rom);
         VerifyKraidArmShotCallbacks(rom);
         VerifyKraidArmPhysicalFramePointers(rom);

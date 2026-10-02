@@ -48,7 +48,7 @@ internal static partial class Program
                     unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                     unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))),
                     ReadKraidArmInstructionWord(rom, (ushort)(record + 6)));
-                AssertEqual(expected, compiled.Span[index], "Native arm frame selects exact ordered physical layout");
+                AssertEqual((expected.X, expected.Y), (compiled[index].X, compiled[index].Y), "Native arm frame selects exact ordered physical positions");
                 hitboxPointers.Add(expected.HitboxPointer);
             }
         }

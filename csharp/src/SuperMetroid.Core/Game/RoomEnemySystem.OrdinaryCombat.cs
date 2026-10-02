@@ -3089,7 +3089,7 @@ public sealed partial class RoomEnemySystem
             // Kraid's arm art is editable, but the native extended spritemap
             // also carries a separate, ordered physical component stream.
             // Read that stream from the immutable cartridge definition catalog.
-            foreach (KraidArmCollisionComponent component in kraidComponents.Span)
+            foreach (KraidArmCollisionComponent component in kraidComponents)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));

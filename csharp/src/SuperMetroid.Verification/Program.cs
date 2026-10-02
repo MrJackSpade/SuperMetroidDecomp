@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--tourian-elevator-doors"])
+{
+    VerifyTourianElevatorDoors();
+    return 0;
+}
 if (args is ["--phantoon-flame-sound"])
 {
     VerifyPhantoonFlameSound();

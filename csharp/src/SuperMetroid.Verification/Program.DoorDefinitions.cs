@@ -33,6 +33,7 @@ internal static partial class Program
             .ToArray();
         var catalogPointers = doorPointers.ToHashSet();
         catalogPointers.Add(DoorHeaderRomData.ElevatorPseudoDoorPointer);
+        catalogPointers.Add(DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer);
         var referencedPointers = new HashSet<ushort>();
         int pseudoDoorReferenceCount = 0;
         int referenceCount = 0;
@@ -53,7 +54,8 @@ internal static partial class Program
                     DoorDefinitions.Resolve(listPointer, checked((byte)(index | 0x80))),
                     $"room $8F:{roomPointer:X4} high-bit BTS {index}");
                 referencedPointers.Add(nativePointer);
-                if (nativePointer == DoorHeaderRomData.ElevatorPseudoDoorPointer)
+                if (nativePointer is DoorHeaderRomData.ElevatorPseudoDoorPointer or
+                    DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer)
                     pseudoDoorReferenceCount++;
                 referenceCount++;
             }
@@ -72,12 +74,12 @@ internal static partial class Program
             "compiled catalog contains every retail room door list");
         AssertEqual(DoorDefinitions.RoomDoorReferenceCount, referenceCount,
             "compiled room door-reference count");
-        AssertEqual(12, pseudoDoorReferenceCount,
-            "shared elevator pseudo-door appears in every native elevator room list");
+        AssertEqual(14, pseudoDoorReferenceCount,
+            "both elevator pseudo-doors appear in their native room lists");
         AssertEqual(
-            DoorDefinitions.RoomDoorReferenceCount - pseudoDoorReferenceCount + 1,
+            DoorDefinitions.RoomDoorReferenceCount - pseudoDoorReferenceCount + 2,
             referencedPointers.Count,
-            "every physical room door is unique while elevator rooms share one pseudo-door");
+            "every physical room door is unique while elevator rooms share two pseudo-doors");
         AssertThrows<ArgumentOutOfRangeException>(
             () => DoorDefinitions.Get(0xffff),
             "compiled doors reject arbitrary pointers");
@@ -105,8 +107,8 @@ internal static partial class Program
             "production Ceres entry uses its compiled physical door");
 
         Console.WriteLine(
-            "Doors: 597 physical headers, the shared elevator pseudo-door, and 262 room " +
-            "lists/603 BTS references match; " +
+            "Doors: 597 physical headers, two shared elevator pseudo-doors, and 262 room " +
+            "lists/606 BTS references match; " +
             "production entry and collision reject native door reads.");
     }
 

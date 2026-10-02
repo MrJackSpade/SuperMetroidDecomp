@@ -22,15 +22,19 @@ public static class DoorDefinitions
         new(DoorHeaderRomData.ElevatorPseudoDoorPointer, 0x0000, 0xF8, 0x91,
             0x00, 0x03, 0x00, 0x00, 0x0004, 0x8000);
 
+    private static readonly CartridgeDoorHeader maridiaTourianElevatorPseudoDoor =
+        new(DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer, 0x0000, 0xFE, 0x93,
+            0x40, 0x05, 0x7E, 0x16, 0x0107, 0x8000);
+
     /// <summary>All physical retail bank-$83 door records, sorted by pointer.</summary>
     /// <remarks>
     /// Issue #1053: the pinned NTSC J/U v1.0 ROM has 379 twelve-byte
     /// headers starting $83:88FE..9AB6 and 218 starting $83:A18C..ABB8.
     /// Their bounded address rule is block start + 12*i; the intervening
-    /// FX data is not a door table. The separate elevator pseudo-door at
-    /// $83:88FC overlaps the first physical header and is resolved by Get
-    /// before this binary search. The independent ROM oracle compares all
-    /// 597 full records and that pseudo-door, rejects unknown pointers,
+    /// FX data is not a door table. The elevator pseudo-doors at $83:88FC
+    /// and $83:A18A overlap the first physical header of each block and
+    /// are resolved by Get before this binary search. The ROM oracle compares
+    /// physical records and elevator sentinels, rejects unknown pointers,
     /// and runs guarded production entry/collision without native reads.
     /// Destination, geometry, flags, and setup-code values are authored
     /// connections, so retain their named records rather than encoding
@@ -1242,7 +1246,7 @@ public static class DoorDefinitions
         new(0xD2A5, [0xA540, 0xA54C]),
         new(0xD2D1, [0xA558]),
         new(0xD300, [0xA564, 0xA570]),
-        new(0xD332, [0xA57C, 0xA588, 0xA594]),
+        new(0xD332, [0xA57C, 0xA588, 0xA594, DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer]),
         new(0xD367, [0xA5A0, 0xA5AC, 0xA5B8, 0xA5C4]),
         new(0xD3AE, [0xA5D0, 0xA5DC]),
         new(0xD3DD, [0xA5E8]),
@@ -1279,7 +1283,7 @@ public static class DoorDefinitions
         new(0xDA25, [0xA93C, 0xA948]),
         new(0xDA52, [0xA954, 0xA960]),
         new(0xDAA6, [0xA96C, 0xA978]),
-        new(0xDAD5, [0xA984, 0xA990]),
+        new(0xDAD5, [0xA984, 0xA990, DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer, 0xA99C]),
         new(0xDB27, [0xA9A8, 0xA9B4]),
         new(0xDB77, [0xA9C0, 0xA9CC]),
         new(0xDBC3, [0xA9D8, 0xA9E4]),
@@ -1313,7 +1317,7 @@ public static class DoorDefinitions
     public const int DoorListCount = 262;
 
     /// <summary>Number of door references addressable by retail room BTS indexes.</summary>
-    public const int RoomDoorReferenceCount = 603;
+    public const int RoomDoorReferenceCount = 606;
 
     static DoorDefinitions()
     {
@@ -1344,6 +1348,8 @@ public static class DoorDefinitions
     {
         if (doorPointer == DoorHeaderRomData.ElevatorPseudoDoorPointer)
             return elevatorPseudoDoor;
+        if (doorPointer == DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer)
+            return maridiaTourianElevatorPseudoDoor;
 
         int low = 0;
         int high = headers.Length - 1;

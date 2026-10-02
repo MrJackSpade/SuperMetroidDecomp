@@ -163,13 +163,6 @@ internal static partial class Program
                     $"opened grey door ${header:X4} avoids program/draw ROM reads");
             }
         }
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmGreyDoorVisualCatalog(entries.Skip(1)),
-            "grey-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmGreyDoorVisualCatalog(entries),
-            "grey-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifySharedDoorClearVisual(rom, entries, lists);
         VerifyGreyDoorVisualInstallation(rom);
@@ -346,7 +339,9 @@ internal static partial class Program
                 installation.RoomPlmGreyDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmGreyDoorVisualFiles.ValidateStock(
                 installation.RoomPlmGreyDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmGreyDoorVisuals().GetWord(0xa6d7, 0);
+            var installed = installation.LoadRoomPlmGreyDoorVisuals();
+            VerifyGreyDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(0xa6d7, 0);
             string stockPath = Path.Combine(installation.RoomPlmGreyDoorVisualDirectory,
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

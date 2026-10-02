@@ -4186,4 +4186,15 @@
     "confirmation": "Verification and ResourceAudit builds plus --grey-door-plm-draws confirm original stock values/hashes, guarded five-door lifecycle paths, live custom artwork and streaming, shared-clear behavior, installed overrides, stock refresh and manifest rejection. Existing focused entry point pins ROM SHA256. Presentation source pin and ownership description updated.",
     "scope": "Grey-door stock visual mapping and content identity. No retention exception; ordinary door programs and the wider source audit remain active work."
   }
+,
+  "residentDoorClosingSelectionReview": {
+    "status": "converted: eighteen-record header-to-closing-list array removed",
+    "source": "NTSC J/U v1.0 second instruction fields at bank-84 BAF4+4, C842..C89C six-byte headers +4, and C8CA+4. Pinned bank_82.asm E91C..E97B reads PLMEntries_instList2 at E973; pinned bank_84.asm names each matching header and closing program. Source revision 362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm": "Explicit named cases select Bomb Torizo grey, four ordinary grey, four yellow, four green, four red and Mother Brain escape-gate closing programs. This is semantic dispatch, not a numerical curve or arbitrary chronology. All enumerates the same named identities in original ascending header order and calls Resolve without retaining a generated record cache.",
+    "domain": "Exactly eighteen ushort header identities; all other values throw InvalidDataException with the existing error text. Blue collision PLMs remain outside this resident selector. Preserve the public Count and internal record shape; enumerable consumers replace the former ReadOnlySpan length use.",
+    "consumers": "RoomPlmSystem.DoorClosing resolves the matched resident header after the existing block-position/persistence checks, then installs the closing pointer and timer without runtime cartridge access. No caller behavior or supported domain is broadened.",
+    "proof": "Reuse VerifyResidentDoorClosingDefinitions as the single proof. Independent explicit native header keys establish the full accepted set/order; each output is compared to the original ROM header+4 word. Every other ushort input is rejected. For all eighteen entries, the existing typed-population fixture loads the actual family and confirms the real transition installs the expected pointer with the source header+4 word absent from its sparse runtime bus. Two orientations absent from retail populations remain included through import-side native setup/first-list metadata.",
+    "confirmation": "Verification build and --lookup-resident-door-closing pass the original eighteen values, complete input domain and production redirect. The focused command pins supported ROM SHA256 and runs inside the existing protected console boundary.",
+    "scope": "Resident closing-list selection only. Program byte mappings and nonresident fallback door selection remain separate owners. No retention exception; the wider source audit remains active."
+  }
 }

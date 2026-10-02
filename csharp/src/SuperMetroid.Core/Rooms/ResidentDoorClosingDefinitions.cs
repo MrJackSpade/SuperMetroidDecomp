@@ -69,42 +69,58 @@ public static class ResidentDoorClosingDefinitions
     /// <summary>$84:C427, red door facing down closing program.</summary>
     internal const ushort RedFacingDown = 0xc427;
 
-    private static readonly ResidentDoorClosingDefinition[] Definitions =
-    [
-        new(RoomPlmHeaders.BombTorizoGreyDoor, BombTorizoGreyDoor),
-        new(RoomPlmHeaders.GreyDoorFacingLeft, GreyFacingLeft),
-        new(RoomPlmHeaders.GreyDoorFacingRight, GreyFacingRight),
-        new(RoomPlmHeaders.GreyDoorFacingUp, GreyFacingUp),
-        new(RoomPlmHeaders.GreyDoorFacingDown, GreyFacingDown),
-        new(RoomPlmHeaders.YellowDoorFacingLeft, YellowFacingLeft),
-        new(RoomPlmHeaders.YellowDoorFacingRight, YellowFacingRight),
-        new(RoomPlmHeaders.YellowDoorFacingUp, YellowFacingUp),
-        new(RoomPlmHeaders.YellowDoorFacingDown, YellowFacingDown),
-        new(RoomPlmHeaders.GreenDoorFacingLeft, GreenFacingLeft),
-        new(RoomPlmHeaders.GreenDoorFacingRight, GreenFacingRight),
-        new(RoomPlmHeaders.GreenDoorFacingUp, GreenFacingUp),
-        new(RoomPlmHeaders.GreenDoorFacingDown, GreenFacingDown),
-        new(RoomPlmHeaders.RedDoorFacingLeft, RedFacingLeft),
-        new(RoomPlmHeaders.RedDoorFacingRight, RedFacingRight),
-        new(RoomPlmHeaders.RedDoorFacingUp, RedFacingUp),
-        new(RoomPlmHeaders.RedDoorFacingDown, RedFacingDown),
-        new(RoomPlmHeaders.MotherBrainEscapeRoomGate,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-    ];
-
-    /// <summary>Returns all retail resident-door closing definitions in header order.</summary>
-    internal static ReadOnlySpan<ResidentDoorClosingDefinition> All => Definitions;
-
-    /// <summary>Resolves a resident grey or coloured door header to its second list.</summary>
-    internal static ushort Resolve(ushort header)
+    /// <summary>Enumerates the eighteen supported identities in original header order without cached records.</summary>
+    internal static IEnumerable<ResidentDoorClosingDefinition> All
     {
-        foreach (ResidentDoorClosingDefinition definition in Definitions)
+        get
         {
-            if (definition.Header == header)
-                return definition.ClosingInstructionList;
+            yield return new(RoomPlmHeaders.BombTorizoGreyDoor, Resolve(RoomPlmHeaders.BombTorizoGreyDoor));
+            yield return new(RoomPlmHeaders.GreyDoorFacingLeft, Resolve(RoomPlmHeaders.GreyDoorFacingLeft));
+            yield return new(RoomPlmHeaders.GreyDoorFacingRight, Resolve(RoomPlmHeaders.GreyDoorFacingRight));
+            yield return new(RoomPlmHeaders.GreyDoorFacingUp, Resolve(RoomPlmHeaders.GreyDoorFacingUp));
+            yield return new(RoomPlmHeaders.GreyDoorFacingDown, Resolve(RoomPlmHeaders.GreyDoorFacingDown));
+            yield return new(RoomPlmHeaders.YellowDoorFacingLeft, Resolve(RoomPlmHeaders.YellowDoorFacingLeft));
+            yield return new(RoomPlmHeaders.YellowDoorFacingRight, Resolve(RoomPlmHeaders.YellowDoorFacingRight));
+            yield return new(RoomPlmHeaders.YellowDoorFacingUp, Resolve(RoomPlmHeaders.YellowDoorFacingUp));
+            yield return new(RoomPlmHeaders.YellowDoorFacingDown, Resolve(RoomPlmHeaders.YellowDoorFacingDown));
+            yield return new(RoomPlmHeaders.GreenDoorFacingLeft, Resolve(RoomPlmHeaders.GreenDoorFacingLeft));
+            yield return new(RoomPlmHeaders.GreenDoorFacingRight, Resolve(RoomPlmHeaders.GreenDoorFacingRight));
+            yield return new(RoomPlmHeaders.GreenDoorFacingUp, Resolve(RoomPlmHeaders.GreenDoorFacingUp));
+            yield return new(RoomPlmHeaders.GreenDoorFacingDown, Resolve(RoomPlmHeaders.GreenDoorFacingDown));
+            yield return new(RoomPlmHeaders.RedDoorFacingLeft, Resolve(RoomPlmHeaders.RedDoorFacingLeft));
+            yield return new(RoomPlmHeaders.RedDoorFacingRight, Resolve(RoomPlmHeaders.RedDoorFacingRight));
+            yield return new(RoomPlmHeaders.RedDoorFacingUp, Resolve(RoomPlmHeaders.RedDoorFacingUp));
+            yield return new(RoomPlmHeaders.RedDoorFacingDown, Resolve(RoomPlmHeaders.RedDoorFacingDown));
+            yield return new(RoomPlmHeaders.MotherBrainEscapeRoomGate, Resolve(RoomPlmHeaders.MotherBrainEscapeRoomGate));
         }
-
-        throw new InvalidDataException(
-            $"Resident door header $84:{header:X4} has no compiled closing definition.");
     }
+
+    /// <summary>
+    /// Semantic header cases select the original bank-84 header+4 word consumed
+    /// by bank-82 E91C. Only these eighteen resident grey/coloured/gate identities
+    /// are supported; all other ushort values throw, including blue collision PLMs.
+    /// </summary>
+    internal static ushort Resolve(ushort header) => header switch
+    {
+        RoomPlmHeaders.BombTorizoGreyDoor => BombTorizoGreyDoor,
+        RoomPlmHeaders.GreyDoorFacingLeft => GreyFacingLeft,
+        RoomPlmHeaders.GreyDoorFacingRight => GreyFacingRight,
+        RoomPlmHeaders.GreyDoorFacingUp => GreyFacingUp,
+        RoomPlmHeaders.GreyDoorFacingDown => GreyFacingDown,
+        RoomPlmHeaders.YellowDoorFacingLeft => YellowFacingLeft,
+        RoomPlmHeaders.YellowDoorFacingRight => YellowFacingRight,
+        RoomPlmHeaders.YellowDoorFacingUp => YellowFacingUp,
+        RoomPlmHeaders.YellowDoorFacingDown => YellowFacingDown,
+        RoomPlmHeaders.GreenDoorFacingLeft => GreenFacingLeft,
+        RoomPlmHeaders.GreenDoorFacingRight => GreenFacingRight,
+        RoomPlmHeaders.GreenDoorFacingUp => GreenFacingUp,
+        RoomPlmHeaders.GreenDoorFacingDown => GreenFacingDown,
+        RoomPlmHeaders.RedDoorFacingLeft => RedFacingLeft,
+        RoomPlmHeaders.RedDoorFacingRight => RedFacingRight,
+        RoomPlmHeaders.RedDoorFacingUp => RedFacingUp,
+        RoomPlmHeaders.RedDoorFacingDown => RedFacingDown,
+        RoomPlmHeaders.MotherBrainEscapeRoomGate => RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
+        _ => throw new InvalidDataException(
+            $"Resident door header $84:{header:X4} has no compiled closing definition."),
+    };
 }

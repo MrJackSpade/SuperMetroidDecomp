@@ -3628,7 +3628,7 @@
     "drawOperands": {"algorithm": "Remove the four-entry local draw span. Initial frame selects named Grapple collision; subsequent stages use named breakup-zero/one/two/blank cases, with reverse indexing for respawn reveal.", "proof": "VerifyGrappleBlockDrawOperandMapping independently lists all thirteen native operand addresses, compares original pointers and checks every ushort non-operand and zero missing output."},
     "packedSound": {"algorithm": "Each program exposes its start+6 sound byte with common sound ID 0A. Queue opcode belongs to control mapping.", "proof": "VerifyGrappleBlockSoundMapping independently checks CD70/CDAF bytes and enumeration order, plus all ushort non-operands and cleared missing outputs."},
     "confirmation": "Verification build and --lookup-grapple-blocks pass all three complete native proofs and both existing 300-frame production timelines with source reads forbidden, plus visual separation and installation checks.",
-    "scope": "Program descriptors and control/draw/sound mappings only. Physical draws are now converted under grappleBlockPhysicalDrawReview; the stock visual catalog remains independent required work. No retention exception claimed."
+    "scope": "Program descriptors and control/draw/sound mappings only. Physical draws are now converted under grappleBlockPhysicalDrawReview; the stock visual catalog is now converted under grappleBlockStockVisualReview. No retention exception claimed."
   }
 ,
   "grappleBlockPhysicalDrawReview": {
@@ -3638,6 +3638,17 @@
     "proof": "VerifyGrappleBlockPhysicalDrawMapping consolidates the previous draw comparison, independently names all five native pointers and compares complete count/word/offset records, direct/exported descriptors and export order. It checks all ushort pointer membership, unused/interior rejection and default missing outputs.",
     "consumers": "The existing runtime and artwork callers retain the same TryGet/All contracts. Updated normalized PlmDoor source pin.",
     "confirmation": "Verification and ResourceAudit builds and --lookup-grapple-blocks pass the complete draw proof, both production timelines with source reads forbidden, and existing custom-art separation/installation checks.",
-    "scope": "Five physical Grapple draws only. Separate stock visual lookup remains required work; no retention exception claimed."
+    "scope": "Five physical Grapple draws only. Stock visual lookup is now converted under grappleBlockStockVisualReview; no retention exception claimed."
+  }
+,
+  "grappleBlockStockVisualReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 visual words at 84:A4FB/A501/A507/A50D/A513; RoomPlmGrappleBlockVisualCatalog factory, constructor, getter and hash",
+    "algorithm": "Remove generated stock dictionary entries. Stock factory is empty; imported stock entries are validated but not stored. GetWord returns the calculated physical draw's visual portion unless a selected custom word differs. Constructor preserves complete unique identity coverage and visual-bit validation.",
+    "identity": "Preserve pointer-sorted frame/runs/words framing with a one-word stack buffer, reproducing the previous FromWordFrames encoding without stock lookup storage.",
+    "proof": "VerifyGrappleBlockStockVisualMapping independently reads five native draw words, compares factory/imported values and original hash, checks all unsupported ushort identities, mixed custom/stock values and hash, entry-array mutation isolation, and incomplete/duplicate/collision-bit rejection.",
+    "dataBoundary": "Remaining dictionary contains only actual selected custom artwork, not fixed stock data. Normalized PlmDoor source pin updated.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-grapple-blocks pass the complete stock/hash proof, both production timelines with source reads forbidden, custom visual separation and artwork installation checks.",
+    "scope": "Grapple stock visual mapping and content identity only. The wider inventory remains unfinished; no retention exception claimed."
   }
 }

@@ -39,7 +39,7 @@ internal static class PlmDoorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "8FE68FA48E75939845847890599136FC7CFC36B899700DDCEFBF69F72D5F21B0")],
             "The constructor requires all twenty-four unique known collectible frame identities and stores independent visual words. GetWord guards membership in that complete pointer set. Pickup effects, graphics allocation and item persistence are not certified."),
         new("SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog", "plm-grapple-block-complete-single-words", ["GetWord"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockVisualCatalog.cs", "025D3B958CCA7A328115B9D952C1A783953C2A097D1F907B768AD279C2C5AC87"),
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockVisualCatalog.cs", "928B33A7F718A82B5523D2EACADDB4417222B5F05D2D94FEB816370F40BB6499"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockDrawDefinitions.cs", "1FBE71AE2509E5F452C106E9EE7B7ADA322A61B8AE87C6E4FC32C4CE5CFD0858")],
             "The constructor requires all five unique known Grapple-block frame pointers and stores independent visual words. GetWord guards that complete set. Grapple collision, breaking and respawn mechanics remain outside this resource proof."),
     ];

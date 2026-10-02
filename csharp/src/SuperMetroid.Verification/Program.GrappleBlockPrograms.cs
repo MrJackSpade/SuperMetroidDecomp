@@ -68,10 +68,47 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
+        var native = pointers.ToDictionary(pointer => pointer, pointer =>
+            (ushort)(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)) & 0xfff));
+        var entries = native.Select(pair => new RoomPlmGrappleBlockVisualEntry(pair.Key,pair.Value)).ToArray();
+        var stock = RoomPlmGrappleBlockVisualCatalog.Stock();
+        var imported = new RoomPlmGrappleBlockVisualCatalog(entries);
+        string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog),native);
+        AssertEqual(expectedHash,stock.ContentIdentity,"Grapple calculated stock original hash");
+        AssertEqual(expectedHash,imported.ContentIdentity,"Grapple imported stock original hash");
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            if (native.TryGetValue((ushort)pointer,out ushort word))
+            {
+                AssertEqual(word,stock.GetWord((ushort)pointer),"Grapple calculated native visual word");
+                AssertEqual(word,imported.GetWord((ushort)pointer),"Grapple imported native visual word");
+            }
+            else
+                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer),"Grapple stock rejects unsupported draw identity");
+        }
+        entries[0] = new(pointers[0],0x0058);
+        entries[4] = new(pointers[4],0x0453);
+        var mixed = new RoomPlmGrappleBlockVisualCatalog(entries);
+        var expected = entries.ToDictionary(entry => entry.DrawPointer,entry => entry.VisualWord);
+        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog),expected),
+            mixed.ContentIdentity,"Grapple mixed stock/override identity");
+        entries[0] = new(pointers[0],0x0054);
+        foreach (var pair in expected)
+            AssertEqual(pair.Value,mixed.GetWord(pair.Key),"Grapple selected artwork isolated from entry-array mutation");
+        AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries[..4]),"Grapple rejects incomplete selection");
+        AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries.Append(entries[0])),"Grapple rejects duplicate selection");
+        entries[0] = new(pointers[0],0xe0b7);
+        AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries),"Grapple rejects artwork collision bits");
+    }
+
     private static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifyGrappleBlockStockVisualMapping(rom);
         VerifyGrappleBlockControlMapping(rom);
         VerifyGrappleBlockDrawOperandMapping(rom);
         VerifyGrappleBlockSoundMapping(rom);

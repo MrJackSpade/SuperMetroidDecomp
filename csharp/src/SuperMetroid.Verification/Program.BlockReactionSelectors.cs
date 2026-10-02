@@ -3,6 +3,26 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifySharedBreakAnimationSelection(SuperMetroidAddressSpace rom)
+    {
+        // Independent operands in the four original respawning bomb programs,
+        // including their reverse reveal. These are not draw-layout base pointers.
+        ushort[] firstOperands = [0xcc41,0xcc6b,0xcc97,0xccc3];
+        for (int shape = 0; shape < 4; shape++)
+        {
+            for (int frame = 0; frame < 7; frame++)
+                AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (firstOperands[shape] + 4 * frame)),
+                    RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),"shared breakup native shape/frame selection");
+            foreach (int frame in new[] {int.MinValue,-1,7,8,255,256,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),
+                    "shared breakup rejects frames outside forward/reverse sequence");
+        }
+        foreach (int shape in new[] {int.MinValue,-1,4,5,255,256,int.MaxValue})
+        for (int frame = 0; frame < 7; frame++)
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),
+                "shared breakup rejects unknown shapes");
+    }
+
     private static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];

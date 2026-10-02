@@ -3651,4 +3651,14 @@
     "confirmation": "Verification and ResourceAudit builds and --lookup-grapple-blocks pass the complete stock/hash proof, both production timelines with source reads forbidden, custom visual separation and artwork installation checks.",
     "scope": "Grapple stock visual mapping and content identity only. The wider inventory remains unfinished; no retention exception claimed."
   }
+,
+  "sharedBreakAnimationSelectionReview": {
+    "status": "existing algorithm independently verified",
+    "source": "NTSC J/U v1.0 four shape draw families at 84:A345/A35D/A37D/A39D and original bomb-program operand sequences beginning CC41/CC6B/CC97/CCC3; pinned bank_84.asm",
+    "algorithm": "Existing named shape cases choose record base and stride: six bytes for one block, eight for horizontal/vertical pairs, sixteen for square's two rows. Stages 0..3 advance through three breakup tiles and blank; stages 4..6 reverse the three breakup frames using 6 minus frame. No stored lookup or cache exists, so the correct implementation is unchanged.",
+    "proof": "VerifySharedBreakAnimationSelection compares all 28 valid shape/frame combinations with independent native bomb-program draw operands, rather than generating expected draw addresses from the replacement formula. It confirms rejection of invalid low/high/int-boundary shape and frame arguments.",
+    "consumers": "Current source inspection identifies bomb and contact-crumble program decoders as consumers; their full native operand mappings and production timelines provide separate integration confirmation. Shot programs use their own reviewed decoder over the same physical draw family.",
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass the complete shared selector proof and existing native program, behavior and artwork checks. Production implementation unchanged.",
+    "scope": "Shared shape/frame pointer selection only. This is a checked existing algorithm, not a table retention exception; the wider inventory remains unfinished."
+  }
 }

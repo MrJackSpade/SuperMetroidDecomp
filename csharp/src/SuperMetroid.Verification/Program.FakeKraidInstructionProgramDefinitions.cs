@@ -78,17 +78,7 @@ internal static partial class Program
 
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Fake Kraid programs never read installed visual selectors");
-        for (int index = 0;
-             index < FakeKraidInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                FakeKraidInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadFakeKraidInstructionWord(rom, 0xa60000 | address),
-                KraidVisualDefinitions.FrameAt(
-                    RoomEnemySystem.FakeKraidDefinition, address),
-                $"compiled Fake Kraid frame $A6:{address:X4}");
-        }
+        VerifyFakeKraidVisualSelectors(rom);
         AssertThrows<InvalidDataException>(
             () => KraidVisualDefinitions.FrameAt(
                 RoomEnemySystem.FakeKraidDefinition, 0x9a42),

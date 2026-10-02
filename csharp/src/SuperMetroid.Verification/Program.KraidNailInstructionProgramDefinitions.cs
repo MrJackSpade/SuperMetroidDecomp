@@ -73,6 +73,7 @@ internal static partial class Program
                 $"Kraid fingernail ${definitionPointer:X4} loops to its first frame");
         }
 
+        VerifyKraidNailVisualSelectors(rom);
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Kraid fingernail programs never read installed visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -83,10 +84,6 @@ internal static partial class Program
         {
             ushort address =
                 KraidNailInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadKraidNailInstructionWord(rom, address),
-                KraidVisualDefinitions.FrameAt(
-                    RoomEnemySystem.KraidGoodNailDefinition, address),
-                $"compiled Kraid fingernail frame $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => KraidNailInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid fingernail spritemap $A7:{address:X4} is rejected as mechanics");

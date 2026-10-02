@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-visual-selectors"])
+{
+    var visualOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(visualOracle.Rom)),
+        "Kraid visual oracle is NTSC J/U v1.0");
+    VerifyKraidNailVisualSelectors(visualOracle);
+    VerifyFakeKraidVisualSelectors(visualOracle);
+    Console.WriteLine("Kraid visual selectors: eight nail operands for both actors,24 Fake Kraid operands, holes and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-kraid-spit-speeds"])
 {
     var spitOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

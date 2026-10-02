@@ -2548,4 +2548,29 @@
         "confirmation": "Verification build and --lookup-kraid-spit-speeds pass. Runtime caller still reads RNG once without advancing it, uses the selected raw word and applies its independent fixed vertical velocity. Broad actor matrix not run. No remaining HorizontalVelocities consumer or generated speed cache.",
         "remainingScope": "Other Kraid and repository-wide mappings remain incomplete."
     }
+,
+    "kraidFamilyVisualSelectorReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidVisualDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs",
+        "consumers": ["EnemySpritemapDefinitions.TryResolveCompiledFrame", "FakeKraid and nail instruction verifiers", "enemy artwork verification"],
+        "reviewedEvidence": "Pinned bank_A7 nail instructions and A617..A689 spritemaps with alternating2/4 OAM entries; bank_A6 MiniKraid left/right walk/spit programs99AE..9A40 and fourteen sixteen-entry spritemaps9C64..A08E. Original NTSC J/U v1.0 instruction operands independently provide expected frame words.",
+        "tables": [
+            {
+                "id": "kraid-nail-visual-selectors",
+                "nativeIdentity": "A7:8B0C+4*i for i0..7",
+                "disposition": "Remove eight address/frame records. Compute frame index from instruction stride; spritemap=A617+34*(i/2)+12*(i%2), reflecting alternating12/22-byte records.",
+                "proof": "VerifyKraidNailVisualSelectors covers every original operand for both nail definitions plus all intervening bytes, adjacent boundaries and far invalid addresses."
+            },
+            {
+                "id": "fake-kraid-visual-selectors",
+                "nativeIdentity": "A6:99B0..99EE and99FE..9A3C visual operands",
+                "disposition": "Remove24 address/frame records. Normalize facing by4E-byte program stride. Forward walk chooses0..3, backward walk0,3,2,1, spit4,5,6,5; frame=9C64+82*(7*facing+pose). Reject nonvisual instruction bytes and unused standing programs.",
+                "proof": "VerifyFakeKraidVisualSelectors compares all24 independently listed native operand words and rejects all holes in the program envelope, adjacent boundaries, far invalid addresses and unknown enemy family."
+            }
+        ],
+        "rationale": "Native frame-record sizes, paired facing layouts and forward/reverse walk plus opening/closing mouth stages explain both mappings. No stored address/value roster, numeric fitting or generated cache remains.",
+        "confirmation": "Verification build and --lookup-kraid-visual-selectors pass. Existing program verifiers delegate their numerical selector proofs to the new focused helpers; actor execution matrices are not run.",
+        "remainingScope": "Actual OAM content, arm collision geometry and remaining FakeKraid mechanics are separate mappings awaiting their own dispositions."
+    }
 }

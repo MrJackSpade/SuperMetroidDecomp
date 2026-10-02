@@ -2814,6 +2814,28 @@
         ],
         "rationale": "The table encodes an explicit repeating instruction format. Arithmetic follows instruction sizes and named terminal control; it is not an arbitrary numerical fit or a generated cache.",
         "confirmation": "Verification build and --alcoon-fireball-instruction-mechanics pass against SHA-verified NTSC J/U v1.0. Existing focused integration covers three launch commands in each facing, exact four-frame operand order and loop restart, three-frame durations and shared deletion with all20 original program bytes forbidden. Its old expectation of four visual ROM reads failed because SetEnemyProjectileVisualOperand now selects installed artwork by operand identity; replaced that stale expectation with exact live operand/duration assertions and a stronger original-byte guard. No additional production fix was needed.",
-        "remainingScope": "Alcoon actor instruction tables, projectile artwork and the broader repository inventory remain separate unresolved work. No retention exception is inferred."
+        "remainingScope": "Alcoon actor instruction tables are subsequently converted in alcoonActorInstructionProgramReview. Projectile artwork and the broader repository inventory remain separate unresolved work. No retention exception is inferred."
+    }
+,
+    "alcoonActorInstructionProgramReview": {
+        "state": "converted",
+        "owner": "csharp/src/SuperMetroid.Core/Game/AlcoonInstructionProgramDefinitions.cs",
+        "nativeIdentity": "A8:DBE7..DCC6 ten programs; followingDCC7 begins actor constants",
+        "reviewedEvidence": "Read the complete left/right walking, fire-volley and airborne lists in pinned bank_A8.asm362be646929cf8e483f692b73a6561cfc2dc1d0d, current direct-read and ownership consumers. Each facing occupies112 bytes:28 walking,72 volley,12 airborne. Walking alternates movement callbacks and ten-frame poses, then goto; its fourth callback also decrements the step counter. Three22-byte fire stages share timing structure and select horizontal/upward/downward callbacks. First extension lasts20 instead of10, final recovery40 instead of10. StartWalking is followed by a preserved but normally skipped one-frame pose. Two airborne poses each hold7FFF then sleep. NTSC values are used, not the disassembly's optional PAL regional timing.",
+        "tables": [
+            {
+                "id": "alcoon-actor-instruction-mechanics",
+                "disposition": "Remove68 stored address/value records and binary search. Calculate ordered addresses from repeated instruction sizes. Normalize facing, decode walking/volley/airborne stages and return named control callbacks or their stage durations. Preserve all68 words, including normally skipped trailing frames. Reject misaligned and presentation addresses. Byte ownership aligns relative to odd native baseDBE7 and preserves bank/high-bit masking.",
+                "proof": "VerifyAlcoonMechanicsMapping independently lists68 native word starts and compares both enumerated and direct values with ROM. Checks every bank byte, high-bit aliases, wrong bank, every hole/misaligned address in and around the full program span, distant invalid pointers and ordinal bounds. Extracts the previous numerical comparison and reader rejection checks."
+            },
+            {
+                "id": "alcoon-actor-presentation-addresses",
+                "disposition": "Remove44 stored operand addresses. Compute four walking poses, fifteen repeated volley poses, the trailing one-frame pose and two airborne poses for each facing. IsPresentationWord classifies aligned words in the complete span that are not mechanics; no generated lookup cache.",
+                "proof": "VerifyAlcoonPresentationAddressMapping independently lists44 original operands, checks exact enumeration, every ushort membership result and invalid ordinal bounds. Includes normally unreachableDC49/DCB9 rather than narrowing to42 currently executed operands."
+            }
+        ],
+        "rationale": "These are repeated executable stage layouts and named control cases. Special durations are tied to initial windup, final recovery and walking handoff; no arbitrary curve fit or performance exception is used.",
+        "confirmation": "Verification build and --lookup-alcoon-programs pass against SHA-verified NTSC J/U v1.0. Confirmation is scoped to the converted68-word and44-address contracts; no exploratory room sweep or playthrough. Existing actor integration delegates the extracted proofs.",
+        "remainingScope": "Actor artwork, visual selectors, other Alcoon definition mappings and the broader repository review remain independent work. No retention disposition is inferred."
     }
 }

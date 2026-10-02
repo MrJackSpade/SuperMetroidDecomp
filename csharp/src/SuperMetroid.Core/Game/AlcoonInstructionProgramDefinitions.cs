@@ -31,109 +31,116 @@ internal static class AlcoonInstructionProgramDefinitions
     /// <summary><c>InstList_Alcoon_FacingRight_Airborne_LookingForward</c> at $A8:DCC1.</summary>
     internal const ushort AirborneRightLookingForward = 0xdcc1;
 
-    private static readonly AlcoonInstructionMechanicsWord[] Words =
-    [
-        new(0xdbe7, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdbe9, 10),
-        new(0xdbed, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdbef, 10),
-        new(0xdbf3, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdbf5, 10),
-        new(0xdbf9, EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally),
-        new(0xdbfb, 10),
-        new(0xdbff, CommonEnemyInstructionCodes.Goto), new(0xdc01, WalkingLeft),
+    // Each facing occupies112 bytes: walking28, three-shot volley72, two sleeping poses12.
+    internal static int MechanicsWordCount => 68;
+    internal static int PresentationWordCount => 44;
 
-        new(0xdc03, 20), new(0xdc07, 9), new(0xdc0b, 16), new(0xdc0f, 3),
-        new(0xdc13, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballHorizontally),
-        new(0xdc15, 10), new(0xdc19, 10), new(0xdc1d, 9), new(0xdc21, 16), new(0xdc25, 3),
-        new(0xdc29, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballUpward),
-        new(0xdc2b, 10), new(0xdc2f, 10), new(0xdc33, 9), new(0xdc37, 16), new(0xdc3b, 3),
-        new(0xdc3f, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballDownward),
-        new(0xdc41, 40),
-        new(0xdc45, EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking),
-        new(0xdc47, 1),
-
-        new(0xdc4b, 0x7fff), new(0xdc4f, CommonEnemyInstructionCodes.Sleep),
-        new(0xdc51, 0x7fff), new(0xdc55, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xdc57, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdc59, 10),
-        new(0xdc5d, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdc5f, 10),
-        new(0xdc63, EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision),
-        new(0xdc65, 10),
-        new(0xdc69, EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally),
-        new(0xdc6b, 10),
-        new(0xdc6f, CommonEnemyInstructionCodes.Goto), new(0xdc71, WalkingRight),
-
-        new(0xdc73, 20), new(0xdc77, 9), new(0xdc7b, 16), new(0xdc7f, 3),
-        new(0xdc83, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballHorizontally),
-        new(0xdc85, 10), new(0xdc89, 10), new(0xdc8d, 9), new(0xdc91, 16), new(0xdc95, 3),
-        new(0xdc99, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballUpward),
-        new(0xdc9b, 10), new(0xdc9f, 10), new(0xdca3, 9), new(0xdca7, 16), new(0xdcab, 3),
-        new(0xdcaf, EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballDownward),
-        new(0xdcb1, 40),
-        new(0xdcb5, EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking),
-        new(0xdcb7, 1),
-
-        new(0xdcbb, 0x7fff), new(0xdcbf, CommonEnemyInstructionCodes.Sleep),
-        new(0xdcc1, 0x7fff), new(0xdcc5, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xdbeb, 0xdbf1, 0xdbf7, 0xdbfd,
-        0xdc05, 0xdc09, 0xdc0d, 0xdc11, 0xdc17, 0xdc1b, 0xdc1f, 0xdc23,
-        0xdc27, 0xdc2d, 0xdc31, 0xdc35, 0xdc39, 0xdc3d, 0xdc43, 0xdc49,
-        0xdc4d, 0xdc53,
-        0xdc5b, 0xdc61, 0xdc67, 0xdc6d,
-        0xdc75, 0xdc79, 0xdc7d, 0xdc81, 0xdc87, 0xdc8b, 0xdc8f, 0xdc93,
-        0xdc97, 0xdc9d, 0xdca1, 0xdca5, 0xdca9, 0xdcad, 0xdcb3, 0xdcb9,
-        0xdcbd, 0xdcc3,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static AlcoonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static AlcoonInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int word = index % 34;
+        int offset;
+        if (word < 10)
+            offset = word < 8 ? 6 * (word / 2) + 2 * (word % 2) : 24 + 2 * (word - 8);
+        else if (word < 28)
         {
-            int middle = low + ((high - low) >> 1);
-            AlcoonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int volleyWord = word - 10;
+            int stage = volleyWord % 6;
+            offset = 28 + 22 * (volleyWord / 6) + (stage < 5 ? 4 * stage : 18);
         }
+        else if (word < 30) offset = 94 + 2 * (word - 28);
+        else offset = 100 + 6 * ((word - 30) / 2) + 4 * ((word - 30) % 2);
+        ushort address = (ushort)(WalkingLeft + 112 * (index / 34) + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        throw new InvalidDataException(
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        int frame = index % 22;
+        int offset;
+        if (frame < 4) offset = 4 + 6 * frame;
+        else if (frame < 19)
+        {
+            int volleyFrame = frame - 4;
+            int stage = volleyFrame % 5;
+            offset = 28 + 22 * (volleyFrame / 5) + 2 + 4 * stage + (stage == 4 ? 2 : 0);
+        }
+        else offset = frame == 19 ? 98 : 102 + 6 * (frame - 20);
+        return (ushort)(WalkingLeft + 112 * (index / 22) + offset);
+    }
+
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - WalkingLeft;
+        // Every aligned word in this complete program span is either control or visual.
+        return (uint)offset < 224 && (offset & 1) == 0 && !TryReadMechanicsWord(address, out _);
+    }
+
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        TryReadMechanicsWord(address, out ushort value) ? value : throw new InvalidDataException(
             $"Alcoon instruction mechanics pointer $A8:{address:X4} is not compiled.");
+
+    private static bool TryReadMechanicsWord(ushort address, out ushort value)
+    {
+        value = 0;
+        int offset = address - WalkingLeft;
+        if ((uint)offset >= 224 || (offset & 1) != 0) return false;
+        int local = offset % 112;
+        if (local < 24)
+        {
+            if (local % 6 == 0)
+                value = local == 18
+                    ? EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally
+                    : EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision;
+            else if (local % 6 == 2) value = 10;
+            else return false;
+            return true;
+        }
+        if (local < 28)
+        {
+            value = local == 24 ? CommonEnemyInstructionCodes.Goto
+                : offset < 112 ? WalkingLeft : WalkingRight;
+            return true;
+        }
+        if (local < 94)
+        {
+            int volley = (local - 28) / 22;
+            int stage = (local - 28) % 22;
+            // Extend wing, open mouth, aim, wind up, fire, recover; repeat for three arcs.
+            value = stage switch
+            {
+                0 => (ushort)(volley == 0 ? 20 : 10),
+                4 => 9,
+                8 => 16,
+                12 => 3,
+                16 => volley switch
+                {
+                    0 => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballHorizontally,
+                    1 => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballUpward,
+                    _ => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballDownward,
+                },
+                18 => (ushort)(volley == 2 ? 40 : 10),
+                _ => 0,
+            };
+            return value != 0;
+        }
+        value = local switch
+        {
+            94 => EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking,
+            96 => 1, // Native trailing frame is skipped by StartWalking, but remains readable.
+            100 or 106 => 0x7fff,
+            104 or 110 => CommonEnemyInstructionCodes.Sleep,
+            _ => 0,
+        };
+        return value != 0;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa80000) return false;
+        int offset = (ushort)address - WalkingLeft;
+        return (uint)offset < 224 &&
+            TryReadMechanicsWord((ushort)(WalkingLeft + (offset & ~1)), out _);
     }
 }

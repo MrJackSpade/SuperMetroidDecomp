@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-alcoon-programs"])
+{
+    var alcoonOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(alcoonOracle.Rom)),
+        "Alcoon oracle is NTSC J/U v1.0");
+    VerifyAlcoonMechanicsMapping(alcoonOracle);
+    VerifyAlcoonPresentationAddressMapping();
+    Console.WriteLine("Alcoon programs: all 68 native words, 44 visual positions, full ownership domains and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-atomic-programs"])
 {
     var atomicOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

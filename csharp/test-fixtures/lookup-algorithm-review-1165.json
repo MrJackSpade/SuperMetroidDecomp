@@ -2383,4 +2383,20 @@
         "confirmation": "Four named proofs extracted from the existing combined numerical assertion. Each compares all65536 sibling words with all four independently varied RNG choices against original indirect records. The existing broad initializer check delegates numerical assertions to these helpers; only the focused --lookup-kraid-nail-launch command is run for this review. Verification build passes.",
         "newConversions": 0
     }
+,
+    "kraidMovementChoiceReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidMovementChoices.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidMovementChoices.cs",
+        "consumer": "RoomEnemySystem.RunKraidSecondPhaseThinking",
+        "nativeIdentity": "A7:BA7D position/pointer records; BA95..BB0C target/timer pairs",
+        "reviewedEvidence": "Pinned bank_A7.asm BA2E-BA7C selects position row, falls back to row1, masks RNG with1C and caps byte offset at10. Original NTSC J/U v1.0 ROM independently supplies all six positions, pointers and thirty target/timer pairs. Caller-owned signed direction choice and timer decrement remain unchanged.",
+        "domain": "Every ushort position and RNG word. Six named positions select policies; all others share the160 policy. RNG bits2..4 yield eight equiprobable cases, last four sharing the final choice. No invalid input or native overread.",
+        "tables": [
+            { "id": "kraid-movement-targets", "disposition": "Remove all six stored target rows. Select named leftmost/left/middle/starting/right/rightmost destinations by weighted branch and current position.", "proof": "VerifyKraidMovementTargets" },
+            { "id": "kraid-movement-think-timers", "disposition": "Remove all six stored timer rows. First branch pauses256 except from left344; second344; third344 at leftmost/middle/right; otherwise44.", "proof": "VerifyKraidMovementTimers" }
+        ],
+        "rationale": "This is a finite state transition policy with explicit random weights and pause categories. Named conditional cases express destination selection and branch timing directly, not a fitted numerical trajectory or disguised arbitrary animation sequence.",
+        "confirmation": "Separate target and timer proofs reuse the existing independent original-data oracle. Each covers every RNG word at each native position plus all65536 positions across all eight choices. This exhausts the distinct input equivalence classes established by the source mask. Build and --lookup-kraid-movement pass; broad actor-transition matrix is not run. Stored rows removed; no generated cache."
+    }
 }

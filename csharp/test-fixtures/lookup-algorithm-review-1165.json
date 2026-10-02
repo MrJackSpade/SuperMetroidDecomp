@@ -2516,4 +2516,21 @@
         "confirmation": "Verification build and --lookup-kraid-color-sources pass. ResourceAudit source pin refreshed after reviewing the sole private constructor, required five Compile calls, unchanged validation and source/index rejection.",
         "remainingScope": "Palette source-address/count mappings and actual color content retain separate review scope."
     }
+,
+    "kraidPaletteDefinitionReview": {
+        "state": "existing semantic cases independently revalidated",
+        "implementationCommit": "ebd2cb8ea0be461ed9cb104451c87b44e333c5a9",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidPaletteRomData.cs",
+        "consumers": ["AssetExtraction.EnemyTileArtworkFiles", "KraidColorCatalog.Compile", "RoomEnemySystem.ReadKraidColor", "ResourceAudit specialized color domain", "installed color verifier"],
+        "domain": "Five KraidPaletteSource enum values; other int enum representations throw ArgumentOutOfRangeException.",
+        "reviewedEvidence": "Pinned bank_A7.asm A981/AA97/B3BB/B3C2/C37B indexed palette loads and complete source definitions. ROM operands supply independent source-address expectations; disassembly next-symbol boundaries supply independent size expectations.",
+        "tables": [
+            { "id": "kraid-palette-source-address", "disposition": "Existing named source cases select native addresses86C7,AAA6,B3D3,B513,B4F3 in bankA7.", "proof": "VerifyKraidPaletteSourceAddresses verifies load opcodes, reads all five native operands and checks invalid enum boundaries." },
+            { "id": "kraid-palette-source-size", "disposition": "Existing cases select16 colors for single palettes or9*16 for health/secondary including flash.", "proof": "VerifyKraidPaletteSourceLengths compares five independent next-symbol extents and rejects invalid enums." }
+        ],
+        "rationale": "These are semantic source identities and bounded storage extents. The existing cases already implement the mapping directly; no stored selector table remains.",
+        "confirmation": "Verification build and --lookup-kraid-palette-definitions pass. Installed color verifier now invokes these independent definition proofs before using production selectors for reference extraction. ResourceAudit pin updated for XML-only source clarification.",
+        "newConversions": 0,
+        "remainingScope": "Actual stock color values and their possible inter-band rules remain distinct from these source selector dispositions."
+    }
 }

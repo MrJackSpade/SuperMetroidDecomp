@@ -22,6 +22,10 @@ public static class KraidPaletteRomData
     /// <summary>Colors in one native Kraid palette band.</summary>
     public const int BandColors = 16;
 
+    /// <summary>
+    /// Selects the native palette operand for a named source. Independently checked
+    /// against A7:A981, AA97, B3BB, B3C2 and C37B; invalid source values are rejected.
+    /// </summary>
     public static int SourceAddress(KraidPaletteSource source) => source switch
     {
         KraidPaletteSource.RoomBackdrop => EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords,
@@ -32,6 +36,10 @@ public static class KraidPaletteRomData
         _ => throw new ArgumentOutOfRangeException(nameof(source)),
     };
 
+    /// <summary>
+    /// Three individual sixteen-color bands and two nine-band health sequences.
+    /// Exact native source extents are independently checked; no adjacent palette is included.
+    /// </summary>
     public static int ColorCount(KraidPaletteSource source) => source switch
     {
         KraidPaletteSource.RoomBackdrop or KraidPaletteSource.InitialTarget or

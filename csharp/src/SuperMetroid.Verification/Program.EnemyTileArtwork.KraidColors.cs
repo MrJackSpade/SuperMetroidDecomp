@@ -11,6 +11,8 @@ internal static partial class Program
     private static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
+        VerifyKraidPaletteSourceAddresses(rom);
+        VerifyKraidPaletteSourceLengths();
         KraidColorCatalog catalog = stock.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

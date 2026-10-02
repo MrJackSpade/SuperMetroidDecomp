@@ -18,6 +18,15 @@ internal static partial class Program
                 AuditContractChecks.Run();
                 return 0;
             }
+            if (args is ["--door-catalog-audit", string doorRoot, string doorReport])
+                return DoorCatalogAudit.Run(doorRoot, doorReport);
+            if (args is ["--door-catalog-manifest", string disassembly, string rom, string manifest])
+                return DoorCatalogManifest.Generate(disassembly, rom, manifest);
+            if (args is ["--door-catalog-self-check", string checkRoot])
+            {
+                DoorCatalogAudit.SelfCheck(checkRoot);
+                return 0;
+            }
             if (args is ["--enemy-visual-program-audit", string visualRoot, string visualReport])
                 return EnemyVisualProgramAudit.Run(Path.GetFullPath(visualRoot), visualReport);
             if (args is ["--enemy-visual-audit-self-check"])
@@ -99,6 +108,8 @@ internal static partial class Program
                     case "--plm-program-audit": plmPrograms = true; break;
                     case "--vram-dma-audit": vramDma = true; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
+                        "--door-catalog-audit REPOSITORY REPORT_JSON | --door-catalog-self-check REPOSITORY | " +
+                        "--door-catalog-manifest DISASSEMBLY ROM OUTPUT_JSON | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +

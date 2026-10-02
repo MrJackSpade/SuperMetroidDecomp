@@ -41,7 +41,7 @@ jobs:
       - name: Verify ROM-independent import validation
         run: dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
       - name: Reject missing program records and enemy visual resources before packaging
-        run: dotnet build csharp/src/SuperMetroid.ResourceAudit -c Release -p:RunPlmProgramAudit=true -p:RunQueuedVramDmaAudit=true -p:RunEnemyVisualProgramAudit=true
+        run: dotnet build csharp/src/SuperMetroid.ResourceAudit -c Release -p:RunPlmProgramAudit=true -p:RunQueuedVramDmaAudit=true -p:RunEnemyVisualProgramAudit=true -p:RunDoorCatalogAudit=true
       - name: Publish self-contained desktop
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.version }}

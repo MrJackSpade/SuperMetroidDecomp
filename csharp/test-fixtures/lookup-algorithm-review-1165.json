@@ -3370,4 +3370,13 @@
     "confirmation": "Verification and ResourceAudit builds; --lookup-torizo-statue-programs passes all sixteen production fragment allocations and wait/fall/delete timelines plus the complete 5069-entry shared selector contract.",
     "scope": "Statue sprite-pointer mapping only. Packed sound values/routing, export metadata and sprite artwork fields still require independent review; no retention exception claimed."
   }
+,
+  "bombTorizoStatuePackedSoundClassification": {
+    "status": "no-managed-lookup-at-this-boundary",
+    "nativeSource": "Pinned bank_86.asm sixteen fragment scripts at 86:A4C3-A5D2 contain QueueSoundInY_Lib2_Max6 followed by the immediate byte 0C at program+6. These bytes are script operands, not an indexed sound-choice table.",
+    "managedConsumer": "RoomEnemySystem.CeresRidleyFireballs.cs ProcessEnemyProjectileInstructions groups the audio opcodes and advances cursor by three. This branch does not fetch the packed ID or dispatch a sound. BombTorizoStatueInstructionProgramDefinitions excludes the packed byte from mechanics ownership and has no stored sound-ID array.",
+    "correction": "Removed the inaccurate statement that the sixteen sound IDs remain cartridge audio data in the managed program path; documented the actual interpreter boundary.",
+    "evidence": "Source inspection of the native scripts and managed audio-opcode branch. Existing VerifyStatueProgramControlLayout establishes all sixteen packed-byte exclusions; no runtime behavior was changed and no new gameplay test was needed for this comment correction.",
+    "scope": "Classification of these native immediate bytes and their current managed consumer only. This is neither an audio-playback completion claim nor a table-retention exception. Any independently stored audio mapping elsewhere still requires its own review."
+  }
 }

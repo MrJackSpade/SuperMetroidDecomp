@@ -1629,5 +1629,28 @@
                        "proofTest":  "VerifyCrocomireTongueComponentCases (extracted native component assertions from existing collision proof)"
                    }
                ]
+},
+    "crocomireBodyFrameReview": {
+    "id":  "crocomire-body-frame-roots",
+    "state":  "converted",
+    "owner":  "csharp/src/SuperMetroid.Core/Assets/CrocomireBodyVisualDefinitions.cs",
+    "implementationCommit":  {
+                                 "resolve":  "git log -1 --format=%H --fixed-strings --grep=\"Calculate Crocomire body frame roots without a startup lookup for #1165\"",
+                                 "subject":  "Calculate Crocomire body frame roots without a startup lookup for #1165"
+                             },
+    "nativeIdentity":  "Fifty selected bank-A4 extended roots BFC4-CAC4; forty-two mixed BG2 roots and eight pure-OAM transition roots",
+    "consumers":  [
+                      "EnemyExtendedFrameDefinitions",
+                      "CrocomireBg2FrameDefinitions",
+                      "body display/collision/identity verification"
+                  ],
+    "domain":  "Frame indices 0..49 with IndexOutOfRangeException outside; HasBg2 accepts exactly the forty-two selected mixed roots for all ushort pointers.",
+    "reviewedEvidence":  "Pinned bank_A4.asm selected frame runs with six/seven/one components and explicit omitted roots; complete native instruction operand selection read from SHA-verified NTSC J/U v1.0 ROM. Current startup derivation and all enumeration/membership consumers.",
+    "disposition":  "Remove BuildBodyPointers, SortedSet startup collection, stored BodyPointers and binary search. Calculate native roots by component-record stride and explicit selected-run bounds; enumerate computed values and classify BG2 membership arithmetically.",
+    "rationale":  "Each extended frame is a two-byte count plus eight bytes per component. The selected program roots form bounded runs separated by known unselected frames; no numerical fitting or cached pointer lookup is needed.",
+    "proofTest":  "VerifyCrocomireBodyFrameGeometry (extracts original frame-set assertion from installed-body visual proof)",
+    "confirmation":  "All fifty native selected roots in order, their native component counts, indexed/foreach/materialized enumeration, all 65,536 BG2-membership selectors and invalid index boundaries.",
+    "confirmationCommand":  "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-body-frames",
+    "remainingRelatedScope":  "CrocomireBg2FrameDefinitions stores a derived pointer/name catalog; that separately owned catalog and CrocomireBodyCollisionDefinitions remain unreviewed. This disposition covers the body root enumeration and its HasBg2 view only."
 }
 }

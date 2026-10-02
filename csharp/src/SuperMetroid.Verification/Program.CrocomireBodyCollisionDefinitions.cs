@@ -35,7 +35,7 @@ internal static partial class Program
         nativeSlot.XPosition = compiledSlot.XPosition = 0x1000;
         nativeSlot.YPosition = compiledSlot.YPosition = 0x1000;
 
-        ReadOnlySpan<ushort> frames = CrocomireBodyVisualDefinitions.Frames;
+        var frames = CrocomireBodyVisualDefinitions.Frames;
         AssertEqual(50, frames.Length,
             "all fifty selected Crocomire fight-body roots have collision");
         var seenLists = new HashSet<ushort>();

@@ -7,13 +7,44 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
+    {
+        var original = new SortedSet<ushort>();
+        for (int index = 0; index < CrocomireInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            int operand = CrocomireInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort frame = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
+            if (frame < 0xe1fe) original.Add(frame);
+        }
+        AssertEqual(50, original.Count, "native body frame selection count");
+        AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Length, "calculated body frame count");
+        ushort[] expected = original.ToArray();
+        for (int index = 0; index < expected.Length; index++)
+        {
+            AssertEqual(expected[index], CrocomireBodyVisualDefinitions.FramePointer(index), "body native frame address order");
+            AssertEqual(expected[index], CrocomireBodyVisualDefinitions.Frames[index], "body indexed sequence");
+            ushort count = (ushort)(rom.ReadByte(0xa40000 | expected[index]) | rom.ReadByte(0xa40000 | (expected[index] + 1)) << 8);
+            AssertEqual((ushort)(index >= 42 ? 1 : index < 12 || index is >= 18 and < 24 ? 6 : 7), count,
+                "native component count supporting each frame stride");
+        }
+        int enumerated = 0;
+        foreach (ushort frame in CrocomireBodyVisualDefinitions.Frames)
+            AssertEqual(expected[enumerated++], frame, "body frame enumeration order");
+        AssertEqual(50, enumerated, "body frame enumeration count");
+        AssertTrue(expected.SequenceEqual(CrocomireBodyVisualDefinitions.Frames.ToArray()), "body materialization matches original selection");
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(pointer < 0xca7e && original.Contains((ushort)pointer),
+                CrocomireBodyVisualDefinitions.HasBg2((ushort)pointer), "body exact mixed-frame domain");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
+    }
     private static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
         AssertTrue(stock.ExtendedFrames is not null && stock.CrocomireBg2Frames is not null,
             "installed Crocomire body has both OAM and BG2 presentations");
-        HashSet<ushort> selectedFrames = [];
+        VerifyCrocomireBodyFrameGeometry(rom);
         for (int index = 0;
              index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -26,11 +57,7 @@ internal static partial class Program
                 $"Crocomire selector $A4:{operand:X4} is compiled");
             AssertEqual(native, compiled,
                 $"Crocomire selector $A4:{operand:X4} matches the pinned cartridge");
-            if (compiled < CrocomireBodyVisualDefinitions.FirstSkeletonFrame)
-                selectedFrames.Add(compiled);
         }
-        AssertTrue(selectedFrames.SetEquals(CrocomireBodyVisualDefinitions.Frames.ToArray()),
-            "all fifty fight-body roots come from native presentation operands");
         AssertEqual(CrocomireBodyVisualDefinitions.MixedBg2FrameCount,
             CrocomireBg2FrameDefinitions.Frames.Length,
             "forty-two Crocomire body roots have a BG2 half");

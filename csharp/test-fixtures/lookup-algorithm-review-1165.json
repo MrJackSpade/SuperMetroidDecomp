@@ -1881,5 +1881,27 @@
             }
         ],
         "remainingScope": "Kraid foot instruction mechanics and other family catalogs still require their own review; no retention decision or broader completion claim is made."
+    },
+    "crocomireSkeletonVisualCatalogReview": {
+        "implementationCommit": {
+            "subject": "Calculate Crocomire skeleton catalog from component geometry for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Crocomire skeleton catalog from component geometry for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Assets/CrocomireSkeletonVisualDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A4.asm corpse instruction operands E14A-E1F6 and complete extended records E1FE-E716. Every root is selected. Native record sizes are two count bytes plus eight bytes per component. Read original operands and count words from SHA-verified NTSC J/U v1.0; inspect original sorted catalog and all enumeration/membership consumers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-crocomire-skeleton-frames",
+        "tables": [
+            {
+                "id": "crocomire-skeleton-named-frame-catalog",
+                "state": "converted",
+                "nativeIdentity": "A4:E1FE-E716, ExtendedSpritemap_CrocomireCorpse_0 through _20",
+                "domain": "Indices 0..32 with IndexOutOfRangeException outside; IsFrame accepts exactly 33 bank-A4 roots.",
+                "disposition": "Remove startup SortedSet and cached Definitions. Calculate roots from five-/thirteen-/one-component runs and named collapse boundaries derived from intervening component counts. Format existing pointer-based names on demand; membership compares calculated roots without caching.",
+                "rationale": "The catalog is a contiguous sequence of variable-size records. Thirteen five-component records precede one nine-component record; three thirteen-component records precede twelve-, ten-, six-, and three-component collapse records; twelve single-component records finish the sequence. The record format explains every address increment without fitted corrections.",
+                "proofTest": "VerifyCrocomireSkeletonFrameGeometry",
+                "confirmation": "All 33 roots independently read from native instruction operands, component counts and every adjacent stride; original names, indexed/foreach enumeration and materialization; full ushort membership domain plus wrong-bank rejection and invalid indices. Existing combined-catalog proof confirms original 588-entry names/order."
+            }
+        ],
+        "remainingScope": "This converts the visual catalog and its membership view. Corpse instruction chronology, component content and collision mappings retain their own review scope."
     }
 }

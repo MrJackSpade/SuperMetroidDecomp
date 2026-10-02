@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Game;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>OAM composition roots for Crocomire's falling, collapsing, stable and river skeleton.</summary>
@@ -14,25 +12,67 @@ internal static class CrocomireSkeletonVisualDefinitions
     /// <summary><c>ExtendedSpritemap_CrocomireCorpse_E</c>, $A4:E46A: first thirteen-component pose.</summary>
     internal const ushort FirstThirteenComponentFrame = 0xe46a;
 
-    private static readonly EnemyExtendedFrameDefinition[] Definitions = Build();
-    internal static ReadOnlySpan<EnemyExtendedFrameDefinition> Frames => Definitions;
+    /// <summary>$A4:E5A8, ExtendedSpritemap_CrocomireCorpse_11; twelve components after three thirteen-component records.</summary>
+    private const ushort TwelveComponentCollapse = FirstThirteenComponentFrame + 3 * (2 + 8 * 13);
+    /// <summary>$A4:E60A, ExtendedSpritemap_CrocomireCorpse_12; ten components.</summary>
+    private const ushort TenComponentCollapse = TwelveComponentCollapse + 2 + 8 * 12;
+    /// <summary>$A4:E65C, ExtendedSpritemap_CrocomireCorpse_13; six components.</summary>
+    private const ushort SixComponentCollapse = TenComponentCollapse + 2 + 8 * 10;
+    /// <summary>$A4:E68E, ExtendedSpritemap_CrocomireCorpse_14; three components.</summary>
+    private const ushort ThreeComponentCollapse = SixComponentCollapse + 2 + 8 * 6;
+    /// <summary>$A4:E6A8, ExtendedSpritemap_CrocomireCorpse_15; first of twelve single-component roots.</summary>
+    private const ushort SingleComponentStart = ThreeComponentCollapse + 2 + 8 * 3;
 
-    internal static bool IsFrame(byte bank, ushort pointer) => bank == Bank &&
-        Definitions.Any(frame => frame.Pointer == pointer);
+    internal static CrocomireSkeletonFrameSequence Frames => new(FrameCount);
 
-    private static EnemyExtendedFrameDefinition[] Build()
+    internal static bool IsFrame(byte bank, ushort pointer)
     {
-        var pointers = new SortedSet<ushort>();
-        for (int index = 0; index < CrocomireInstructionProgramDefinitions.PresentationWordCount; index++)
+        if (bank != Bank) return false;
+        for (int index = 0; index < FrameCount; index++)
+            if (FramePointer(index) == pointer) return true;
+        return false;
+    }
+
+    /// <summary>Roots follow their count-dependent record sizes. Thirteen
+    /// five-component records lead to the nine-component pose; three thirteen-
+    /// component records lead to the shrinking collapse poses, then twelve
+    /// single-component records. Every root is selected, in ascending order.</summary>
+    internal static ushort FramePointer(int index)
+    {
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        return index switch
         {
-            ushort operand = CrocomireInstructionProgramDefinitions.PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException($"Crocomire visual operand $A4:{operand:X4} is not compiled.");
-            if (pointer >= CrocomireBodyVisualDefinitions.FirstSkeletonFrame) pointers.Add(pointer);
-        }
-        if (pointers.Count != FrameCount)
-            throw new InvalidDataException("Crocomire skeleton visual inventory changed.");
-        return pointers.Select(pointer => new EnemyExtendedFrameDefinition(Bank, pointer,
-            $"crocomire_skeleton_oam_{pointer:X4}")).ToArray();
+            <= 13 => (ushort)(CrocomireBodyVisualDefinitions.FirstSkeletonFrame + (2 + 8 * 5) * index),
+            <= 17 => (ushort)(FirstThirteenComponentFrame + (2 + 8 * 13) * (index - 14)),
+            18 => TenComponentCollapse,
+            19 => SixComponentCollapse,
+            20 => ThreeComponentCollapse,
+            _ => (ushort)(SingleComponentStart + (2 + 8) * (index - 21)),
+        };
+    }
+
+    internal static EnemyExtendedFrameDefinition Frame(int index)
+    {
+        ushort pointer = FramePointer(index);
+        return new(Bank, pointer, $"crocomire_skeleton_oam_{pointer:X4}");
+    }
+}
+
+/// <summary>Calculated skeleton definitions without a cached lookup.</summary>
+internal readonly record struct CrocomireSkeletonFrameSequence(int Length)
+{
+    internal EnemyExtendedFrameDefinition this[int index] => CrocomireSkeletonVisualDefinitions.Frame(index);
+    internal EnemyExtendedFrameDefinition[] ToArray()
+    {
+        var result = new EnemyExtendedFrameDefinition[Length];
+        for (int index = 0; index < result.Length; index++) result[index] = this[index];
+        return result;
+    }
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(CrocomireSkeletonFrameSequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public EnemyExtendedFrameDefinition Current => sequence[index];
     }
 }

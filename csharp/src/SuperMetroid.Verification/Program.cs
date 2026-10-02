@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-crocomire-skeleton-frames"])
+{
+    var skeletonOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(skeletonOracle.Rom)),
+        "Skeleton frame oracle is NTSC J/U v1.0");
+    VerifyCrocomireSkeletonFrameGeometry(skeletonOracle);
+    VerifyExtendedFrameSequence();
+    Console.WriteLine("Crocomire skeleton catalog: 33 native roots, geometry, names, enumeration, membership and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-kraid-foot-frames"])
 {
     var footOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

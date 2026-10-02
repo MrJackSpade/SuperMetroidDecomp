@@ -2434,4 +2434,23 @@
         "rationale": "Two explicit room-restoration actions correspond directly to separate named native functions. This is semantic operation selection, not a fitted curve or arbitrary animation sequence. The stored request array is removed; each record is constructed on demand.",
         "confirmation": "Three focused independent field proofs cover both original records, ordered enumeration and invalid bounds. Verification build and --lookup-kraid-defeated-plms pass. Existing broad room-loading diagnostics remain unchanged and are not run for this definition-only conversion."
     }
+,
+    "kraidSinkMappingReview": {
+        "state": "existing cases independently revalidated; shared row/header rules simplified",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidSinkSchedule.cs; KraidPlmDefinitions.cs",
+        "implementationCommit": "Schedule originally3d0cd11449e4ab01b7a9f419f11dda63d17e9a82; current field simplification resolved with git log for KraidPlmDefinitions.cs",
+        "consumer": "RoomEnemySystem.ProcessKraidSinkTable",
+        "nativeIdentity": "A7:C5E7..C68F 28 six-byte records plus sentinel; callbacks C691..C714",
+        "reviewedEvidence": "Pinned bank_A7.asm complete shrinking table and seven callback bodies; original NTSC J/U v1.0 table, inline PLM arguments and empty RTS independently decoded. Production increments event count even for empty RTS and spawns rocks before requesting PLMs.",
+        "tables": [
+            { "id": "kraid-sink-callback-selection", "domain": "Every ushort Y", "disposition": "Existing bounded eight-pixel schedule130..208 with six named crumble cases and distinct empty RTS; outside rows returns null.", "proof": "VerifyKraidSinkCallbackSelection covers all65536 Y words against native dictionary." },
+            { "id": "kraid-sink-plm-columns", "domain": "Six named crumble callbacks; empty RTS; other ushort values rejected", "disposition": "Existing named platform-part cases select columns7/8/9 and14/15/16.", "proof": "VerifyKraidSinkPlmColumns reads each native inline X byte." },
+            { "id": "kraid-sink-plm-rows", "domain": "Same callback domain", "disposition": "Factor six repeated row18 literals into a single ceiling-row result.", "proof": "VerifyKraidSinkPlmRows reads each native inline Y byte." },
+            { "id": "kraid-sink-plm-headers", "domain": "Same callback domain", "disposition": "Replace repeated per-callback header choices with odd-column variant1/even-column variant2 background rule.", "proof": "VerifyKraidSinkPlmHeaders reads each native inline header word." }
+        ],
+        "rationale": "The schedule invokes explicit platform operations at named heights. The platform mutation is located at its named left/middle/right block, sharing the ceiling row and alternating background by column parity. Empty RTS is a legal scheduled no-op, distinct from unknown callbacks.",
+        "confirmation": "Four focused proofs reuse the existing schedule oracle. Check allY words, all18 mutation fields, native RTS-null behavior and representative invalid callback bounds. Verification build and --lookup-kraid-sink-mappings pass. Existing actor-effect checks remain available without duplicating numerical selection assertions; broad actor matrix not run.",
+        "remainingScope": "Sinking presentation tilemap offsets and callback rock-position selection retain their separate review scope.",
+        "newConversions": 0
+    }
 }

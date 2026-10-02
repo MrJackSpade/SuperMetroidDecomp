@@ -77,22 +77,24 @@ public static class KraidPlmDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static KraidPlmRequest? ForSinkCallback(ushort callback) => callback switch
+    public static KraidPlmRequest? ForSinkCallback(ushort callback)
     {
-        KraidSinkCallbacks.NoOperation => null,
-        KraidSinkCallbacks.CrumbleLeftPlatformLeft =>
-            new(0x07, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleRightPlatformMiddle =>
-            new(0x0f, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleRightPlatformLeft =>
-            new(0x0e, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        KraidSinkCallbacks.CrumbleLeftPlatformRight =>
-            new(0x09, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleLeftPlatformMiddle =>
-            new(0x08, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        KraidSinkCallbacks.CrumbleRightPlatformRight =>
-            new(0x10, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        _ => throw new InvalidDataException(
-            $"Kraid sinking callback $A7:{callback:X4} has no hardcoded PLM definition."),
-    };
+        if (callback == KraidSinkCallbacks.NoOperation) return null;
+        byte column = callback switch
+        {
+            KraidSinkCallbacks.CrumbleLeftPlatformLeft => 7,
+            KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 8,
+            KraidSinkCallbacks.CrumbleLeftPlatformRight => 9,
+            KraidSinkCallbacks.CrumbleRightPlatformLeft => 14,
+            KraidSinkCallbacks.CrumbleRightPlatformMiddle => 15,
+            KraidSinkCallbacks.CrumbleRightPlatformRight => 16,
+            _ => throw new InvalidDataException(
+                $"Kraid sinking callback $A7:{callback:X4} has no hardcoded PLM definition."),
+        };
+        // The surviving platforms share the ceiling row and alternate background
+        // blocks by column parity, as in the native C691..C714 inline arguments.
+        return new(column, 0x12, (column & 1) != 0
+            ? RoomPlmHeaders.CrumbleKraidPlatformVariant1
+            : RoomPlmHeaders.CrumbleKraidPlatformVariant2);
+    }
 }

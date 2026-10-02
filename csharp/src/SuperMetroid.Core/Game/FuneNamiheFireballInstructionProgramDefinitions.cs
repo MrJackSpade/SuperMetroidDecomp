@@ -38,6 +38,11 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
         return (ushort)(Left + 16 * (index / 3) + 4 * (index % 3) + 2);
     }
 
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Left + 2);
+        return (uint)offset < 32 && offset % 16 < 12 && offset % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Left;

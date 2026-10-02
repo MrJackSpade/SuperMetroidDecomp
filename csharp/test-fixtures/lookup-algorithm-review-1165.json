@@ -3023,4 +3023,14 @@
     "confirmation": "Verification build and --lookup-fune-namihe-programs; no retained-table exception claimed.",
     "scope": "Instruction-list selection only; does not classify unreviewed artwork or unrelated mappings."
   }
+,
+  "funeNamiheFireballVisualSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank 86 DE98/DE9C/DEA0/DEA8/DEAC/DEB0; bank 8D AAB9-AAE2; pinned bank_86.asm and bank_8D.asm",
+    "disposition": "Removed six shared literal selectors. Three frames per facing select consecutive seven-byte sprite maps: two-byte count plus one five-byte OAM entry. Right-facing maps follow the left-facing strip. Calculate facing/frame directly from the native instruction operand.",
+    "proof": "VerifyFuneNamiheFireballVisualSelectors independently compares all six native pointer words and original map counts, checks the full ushort ownership domain, shared dispatch and generator exclusion, and rejects holes and distant invalid inputs.",
+    "integration": "Existing both-species/both-direction loops confirm all six installed visual operands and five-tick timing with original program reads forbidden. Complete shared 5069-selector proof checks merged enumeration order, original ROM values, lookup and bounds after removing the literals.",
+    "audit": "ResourceAudit resolves these selectors to EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt; normalized source pin updated.",
+    "scope": "Fireball visual pointer selection only. Remaining projectile artwork/schema catalogs require separate review; no retention exception claimed."
+  }
 }

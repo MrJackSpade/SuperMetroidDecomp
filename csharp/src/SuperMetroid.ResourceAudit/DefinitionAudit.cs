@@ -73,13 +73,13 @@ internal static class DefinitionAudit
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
         bool boulder = calculated && bank == 0xa6 && BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool kraidFamily = calculated && !boulder && bank is 0xa6 or 0xa7;
-        string calculatedMethod = kraidFamily ? "FrameAt"
+        string calculatedMethod = bank == 0x86 ? "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : bank == 0xa2 ? "BoyonFrameAt"
             : boulder ? "BoulderFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "AtomicFrameAt";
         string relative = calculated
-            ? kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
+            ? bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
         int line = 0;

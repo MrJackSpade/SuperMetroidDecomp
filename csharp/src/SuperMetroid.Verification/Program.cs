@@ -44,6 +44,7 @@ if (args is ["--lookup-fune-namihe-fireball-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
         "Fune/Namihe fireball oracle is NTSC J/U v1.0");
     VerifyFuneNamiheFireballInstructionProgramDefinitions(oracle);
+    VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
 if (args is ["--lookup-enemy-fireball-launches"])

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -16,6 +17,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         VerifyFuneNamiheFireballMechanicsMapping(rom);
         VerifyFuneNamiheFireballPresentationAddresses();
+        VerifyFuneNamiheFireballVisualSelectors(rom);
 
         var guard = new FuneNamiheFireballInstructionReadGuard(rom);
         var observedVisuals = new HashSet<ushort>();
@@ -98,6 +100,39 @@ internal static partial class Program
             "with mechanics bytes forbidden.");
     }
 
+    private static void VerifyFuneNamiheFireballVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
+        foreach (ushort operand in operands)
+        {
+            ushort native = ReadFuneNamiheFireballInstructionWord(rom, operand);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand),
+                "Fune/Namihe fireball native visual pointer");
+            AssertEqual((byte)1, rom.ReadByte(0x8d0000 | native), "fireball native single-sprite map count");
+            AssertEqual((byte)0, rom.ReadByte(0x8d0000 | (native + 1)), "fireball map count high byte");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared),
+                "shared fireball selector exists");
+            AssertEqual(native, shared, "shared fireball selector matches native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0x860000 | operand),
+                "fireball selector excluded from literal regeneration");
+        }
+        var expected = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(expected.Contains((ushort)address), FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Fune/Namihe fireball full visual operand domain");
+        for (int address = 0xde94; address <= 0xdeb8; address++)
+            if (!expected.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt((ushort)address),
+                    "fireball visual resolver rejects program controls and adjacent data");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86, (ushort)address, out ushort missing),
+                    "shared fireball catalog rejects holes");
+                AssertEqual((ushort)0, missing, "missing fireball selector clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(address),
+                "fireball resolver rejects distant invalid inputs");
+    }
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];

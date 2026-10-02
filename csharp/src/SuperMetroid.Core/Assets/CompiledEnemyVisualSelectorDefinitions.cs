@@ -31,7 +31,7 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    private static int CalculatedCount => BoyonInstructionProgramDefinitions.PresentationWordCount +
+    private static int CalculatedCount => FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount +
@@ -65,6 +65,12 @@ internal static partial class CompiledEnemyVisualSelectors
 
     private static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
+        if (index < FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount)
+        {
+            ushort operand = FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index);
+            return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand));
+        }
+        index -= FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
         if (index < BoyonInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -107,6 +113,7 @@ internal static partial class CompiledEnemyVisualSelectors
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
+        0x86 => FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa2 => BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -122,6 +129,7 @@ internal static partial class CompiledEnemyVisualSelectors
         {
             pointer = bank switch
             {
+                0x86 => EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
                 0xa2 => EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)

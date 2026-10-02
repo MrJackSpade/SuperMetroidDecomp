@@ -12,6 +12,8 @@ internal static partial class Program
         VerifyMotherBrainMutationProgramControls(rom);
         VerifyMotherBrainMutationProgramDraws(rom);
         VerifyMotherBrainRegularDrawMapping(rom);
+        VerifyMotherBrainBackgroundGeometry(rom);
+        VerifyMotherBrainBackgroundCollision(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
@@ -31,7 +33,8 @@ internal static partial class Program
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
         {
-            if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw.Pointer, out _)) continue;
+            if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(draw.Pointer, out _) ||
+                MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(draw.Pointer, out _)) continue;
             int cursor = draw.Pointer;
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {

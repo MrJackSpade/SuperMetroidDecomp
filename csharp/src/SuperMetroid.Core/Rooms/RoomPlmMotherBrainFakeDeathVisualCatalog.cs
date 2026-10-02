@@ -71,6 +71,13 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var background))
+        {
+            if (runIndex != 0 || (uint)blockIndex >= 13)
+                throw new ArgumentOutOfRangeException(nameof(blockIndex));
+            return customWords is not null && customWords.TryGetValue(drawPointer, out var selectedBackground)
+                ? selectedBackground[blockIndex] : new RoomLevelWord(background.WordAt(blockIndex)).VisualWord;
+        }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regular))
         {
             if ((uint)runIndex >= regular.RunCount || (uint)blockIndex >= regular.Count(runIndex))

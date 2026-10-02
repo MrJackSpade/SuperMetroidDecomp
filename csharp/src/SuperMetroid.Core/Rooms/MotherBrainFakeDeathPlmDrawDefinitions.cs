@@ -54,11 +54,11 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        Lists.Values.Concat(RegularDraws());
+        Lists.Values.Concat(BackgroundDraws()).Concat(RegularDraws());
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        TryGetRegular(pointer, out draw) || Lists.TryGetValue(pointer, out draw);
+        TryGetBackground(pointer, out draw) || TryGetRegular(pointer, out draw) || Lists.TryGetValue(pointer, out draw);
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -177,6 +177,64 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    // Visual cells still require an independent artwork disposition under #1165.
+    private static readonly ushort[][] BackgroundVisuals =
+    [
+        [0x0241, 0x0242, 0x02fc, 0x02fc, 0x02fc, 0x0243, 0x0244, 0x02fc, 0x0245, 0x0642, 0x0241, 0x0241, 0x0246],
+        [0x09ef, 0x01b2, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x09ef, 0x09ef, 0x01b2],
+        [0x01b1, 0x01d2, 0x01c6, 0x01c7, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x09ca, 0x060c, 0x05b1, 0x0a09],
+        [0x01d1, 0x01f2, 0x01a4, 0x01e7, 0x01a4, 0x0226, 0x0227, 0x01a5, 0x01a4, 0x020d, 0x0e09, 0x01b1, 0x01ab],
+        [0x01b1, 0x0212, 0x01c4, 0x01c9, 0x01c4, 0x0206, 0x0207, 0x01c5, 0x01c4, 0x0628, 0x01ac, 0x01ec, 0x01ec],
+        [0x01b1, 0x0a0c, 0x05ca, 0x0dc7, 0x01aa, 0x01a8, 0x01a8, 0x01a8, 0x01a8, 0x0628, 0x01ab, 0x01cd, 0x01cd],
+        [0x01d1, 0x01d0, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a7, 0x0a0d, 0x0609, 0x01eb, 0x01d0],
+        [0x01eb, 0x01eb, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x00ff, 0x0a2c, 0x0609, 0x01ae],
+        [0x01ec, 0x01af, 0x05ea, 0x05c7, 0x05c6, 0x0206, 0x0207, 0x01a8, 0x01a6, 0x01a8, 0x01a8, 0x05d2, 0x01ae],
+        [0x01ac, 0x01af, 0x01b2, 0x05e7, 0x01e5, 0x0226, 0x0227, 0x01e5, 0x01a6, 0x01e6, 0x01e5, 0x05b2, 0x01cd],
+        [0x060c, 0x01ef, 0x01b2, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x01ef],
+        [0x0248, 0x0249, 0x024a, 0x024b, 0x0339, 0x024c, 0x024d, 0x0339, 0x024e, 0x0339, 0x0339, 0x024f, 0x0249],
+    ];
+
+    /// <summary>
+    /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
+    /// bytes apart. Top/bottom rows retain collision type one; interior rows
+    /// are air. Visual bits remain independent from these physical boundaries.
+    /// </summary>
+    internal readonly record struct BackgroundDraw(int Row)
+    {
+        internal ushort WordAt(int column)
+        {
+            if ((uint)column >= 13) throw new IndexOutOfRangeException();
+            return (ushort)(BackgroundVisuals[Row][column] | (Row is 0 or 11 ? 0x1000 : 0));
+        }
+    }
+
+    internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
+    {
+        int offset = pointer - BackgroundRow2;
+        bool owned = offset >= 0 && pointer <= BackgroundRowD && offset % 30 == 0;
+        draw = owned ? new(offset / 30) : default;
+        return owned;
+    }
+
+    private static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeBackground(pointer, out var row)) return false;
+        var words = new ushort[13];
+        for (int column = 0; column < words.Length; column++) words[column] = row.WordAt(column);
+        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(13, words, 0, 0) });
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
+    {
+        for (int pointer = BackgroundRow2; pointer <= BackgroundRowD; pointer += 30)
+        {
+            TryGetBackground((ushort)pointer, out var draw);
+            yield return draw;
+        }
+    }
+
     private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
@@ -195,42 +253,6 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
                 new ushort[] { 0x9222, 0xd1af, 0xd1d0, 0xd220 }, 1, 0),
             new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
                 new ushort[] { 0x0223, 0x01eb, 0x01d0, 0x0221 }, 0, 0));
-        Add(BackgroundRow2,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x1241, 0x1242, 0x12fc, 0x12fc, 0x12fc, 0x1243, 0x1244, 0x12fc, 0x1245, 0x1642, 0x1241, 0x1241, 0x1246 }, 0, 0));
-        Add(BackgroundRow3,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x09ef, 0x01b2, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x09ef, 0x09ef, 0x01b2 }, 0, 0));
-        Add(BackgroundRow4,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x01d2, 0x01c6, 0x01c7, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x09ca, 0x060c, 0x05b1, 0x0a09 }, 0, 0));
-        Add(BackgroundRow5,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01d1, 0x01f2, 0x01a4, 0x01e7, 0x01a4, 0x0226, 0x0227, 0x01a5, 0x01a4, 0x020d, 0x0e09, 0x01b1, 0x01ab }, 0, 0));
-        Add(BackgroundRow6,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x0212, 0x01c4, 0x01c9, 0x01c4, 0x0206, 0x0207, 0x01c5, 0x01c4, 0x0628, 0x01ac, 0x01ec, 0x01ec }, 0, 0));
-        Add(BackgroundRow7,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x0a0c, 0x05ca, 0x0dc7, 0x01aa, 0x01a8, 0x01a8, 0x01a8, 0x01a8, 0x0628, 0x01ab, 0x01cd, 0x01cd }, 0, 0));
-        Add(BackgroundRow8,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01d1, 0x01d0, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a7, 0x0a0d, 0x0609, 0x01eb, 0x01d0 }, 0, 0));
-        Add(BackgroundRow9,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01eb, 0x01eb, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x00ff, 0x0a2c, 0x0609, 0x01ae }, 0, 0));
-        Add(BackgroundRowA,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01ec, 0x01af, 0x05ea, 0x05c7, 0x05c6, 0x0206, 0x0207, 0x01a8, 0x01a6, 0x01a8, 0x01a8, 0x05d2, 0x01ae }, 0, 0));
-        Add(BackgroundRowB,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01ac, 0x01af, 0x01b2, 0x05e7, 0x01e5, 0x0226, 0x0227, 0x01e5, 0x01a6, 0x01e6, 0x01e5, 0x05b2, 0x01cd }, 0, 0));
-        Add(BackgroundRowC,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x060c, 0x01ef, 0x01b2, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x01ef }, 0, 0));
-        Add(BackgroundRowD,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x1248, 0x1249, 0x124a, 0x124b, 0x1339, 0x124c, 0x124d, 0x1339, 0x124e, 0x1339, 0x1339, 0x124f, 0x1249 }, 0, 0));
         return lists;
 
         void Add(ushort pointer,

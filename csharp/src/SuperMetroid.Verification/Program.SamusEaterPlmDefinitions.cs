@@ -6,7 +6,10 @@ internal static partial class Program
 {
     private static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        ReadOnlySpan<SamusEaterPlmDefinition> definitions = SamusEaterPlmDefinitions.All;
+        VerifySamusEaterHeaderInstructionMapping(rom);
+        VerifySamusEaterMountingMapping(rom);
+        SamusEaterPlmDefinition[] definitions =
+            [SamusEaterPlmDefinitions.Resolve(0xb6cb), SamusEaterPlmDefinitions.Resolve(0xb6cf)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
         AssertEqual(definitions[0].InstructionListPointer,
             SamusEaterPlmProgramDefinitions.FloorStart,
@@ -22,14 +25,6 @@ internal static partial class Program
 
         foreach (SamusEaterPlmDefinition definition in definitions)
         {
-            ushort expected = ReadSamusEaterPlmWord(
-                rom,
-                0x840000 | unchecked((ushort)(definition.HeaderPointer + 2)));
-            AssertEqual(
-                expected,
-                definition.InstructionListPointer,
-                $"Samus Eater PLM ${definition.HeaderPointer:X4} initial list matches cartridge");
-
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
@@ -72,6 +67,43 @@ internal static partial class Program
             "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
             "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
+    }
+
+    private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterHeaderField(rom, false);
+
+    private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterHeaderField(rom, true);
+
+    private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
+    {
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort header = (ushort)raw;
+            if (header is not (0xb6cb or 0xb6cf))
+            {
+                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve(header),
+                    "plant header selector rejects every unsupported identity");
+                continue;
+            }
+            var actual = SamusEaterPlmDefinitions.Resolve(header);
+            AssertEqual(header, actual.HeaderPointer, "plant selected header identity");
+            if (mounting)
+            {
+                ushort setup = ReadSamusEaterPlmWord(rom, 0x840000 | header);
+                AssertTrue(setup is 0xb0dc or 0xb113, "plant native setup belongs to floor/ceiling pair");
+                AssertEqual(setup == 0xb113, actual.Ceiling, "plant mounting follows native setup");
+                // The native ceiling subtracts radius and increments held Y; floor adds
+                // radius, decrements the edge and decrements held Y.
+                AssertEqual((byte)(actual.Ceiling ? 0xed : 0x6d),
+                    rom.ReadByte(0x840000 | (setup + 4)), "plant native edge add/subtract opcode");
+                AssertEqual((byte)(actual.Ceiling ? 0x1a : 0x3a),
+                    rom.ReadByte(actual.Ceiling ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
+            }
+            else
+                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
+                    actual.InstructionListPointer, "plant native initial instruction selection");
+        }
     }
 
     private static void VerifySamusEaterProgramControls(SuperMetroidAddressSpace rom)

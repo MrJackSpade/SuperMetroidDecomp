@@ -3763,6 +3763,17 @@
     "soundOperand": {"disposition": "converted to common chew sound scalar", "proof": "VerifySamusEaterProgramSound compares original packed operands at ACCD/AD0D."},
     "consumers": "RoomPlmProgramDefinitions retains the same byte/word API used by the instruction interpreter; no caller or supported address domain changes. The focused plant-program flag now runs before unrelated verification suites and verifies the ROM revision.",
     "confirmation": "Verification build and --samus-eater-plm-definitions pass full native control/operand/view proofs and existing real aligned floor/ceiling spawn checks.",
-    "scope": "Plant program bytes and their control/draw/sound mappings only. Separate SamusEaterPlmDefinitions header descriptors remain independently reviewable; the broader audit is unfinished. No retention exception claimed."
+    "scope": "Plant program bytes and their control/draw/sound mappings only. SamusEaterPlmDefinitions header descriptors are reviewed under samusEaterHeaderReview; the broader audit is unfinished. No retention exception claimed."
+  }
+,
+  "samusEaterHeaderReview": {
+    "status": "redundant descriptor array removed; named resolver independently verified",
+    "source": "NTSC J/U v1.0 84:B6CB/B6CF header records, B0DC/B113 setup routines and ACB8/ACF8 initial lists; pinned bank_84.asm",
+    "algorithm": "Remove the two-entry Definitions array and All span, used only by verification. Existing named Floor/Ceiling scalar identities and Resolve cases are correct and remain. Verification now supplies its independent native header domain rather than enumerating production expected inputs.",
+    "instruction": {"disposition": "existing named selection independently verified", "proof": "VerifySamusEaterHeaderInstructionMapping compares each selected initial list with the original header+2 word, preserves header identity and checks InvalidDataException for every other ushort header."},
+    "mounting": {"disposition": "existing semantic floor/ceiling selection independently verified", "proof": "VerifySamusEaterMountingMapping derives mounting from the original B0DC/B113 setup identities and checks native radius add/subtract and held-Y decrement/increment opcodes. Complete ushort rejection and identity are also confirmed."},
+    "consumers": "RoomPlmSystem.TrySpawnSamusEater uses mounting for the feet/head alignment edge and held-Y offset and uses the initial list for its allocated slot. The production resolver API and accepted domain remain unchanged; named scalar identities are not retained indexed data.",
+    "confirmation": "Verification build and --samus-eater-plm-definitions pass both header-field proofs, complete program-byte proofs and existing real aligned floor/ceiling allocation checks.",
+    "scope": "Plant header/instruction/mounting descriptor selection only; no retention exception claimed. The complete source audit remains unfinished."
   }
 }

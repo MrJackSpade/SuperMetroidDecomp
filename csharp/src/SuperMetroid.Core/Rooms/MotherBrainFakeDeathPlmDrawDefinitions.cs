@@ -174,7 +174,15 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
-    // Visual cells still require an independent artwork disposition under #1165.
+    /// <summary>
+    /// Retained picture composition, not numeric samples: 84:9505..966C places
+    /// this 13x12 Tourian pipe/panel mural at room (2,2), as shown by A9:8C87..8D10.
+    /// Tileset E (8F:E720) expands these cells into individually placed bends,
+    /// junctions, panels and gaps. Repeated pipe segments do not determine their
+    /// routing; a switch or fitted rule would merely re-encode that chosen picture.
+    /// Retain under #1165's nonsense exception. Geometry and collision are calculated
+    /// separately. Provenance and reconstruction are in motherBrainBackgroundArtworkReview.
+    /// </summary>
     private static readonly ushort[][] BackgroundVisuals =
     [
         [0x0241, 0x0242, 0x02fc, 0x02fc, 0x02fc, 0x0243, 0x0244, 0x02fc, 0x0245, 0x0642, 0x0241, 0x0241, 0x0246],

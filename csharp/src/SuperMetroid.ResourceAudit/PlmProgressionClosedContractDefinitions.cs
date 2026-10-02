@@ -55,7 +55,7 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "6A6110A2B9BCDF652B8E9BE5D14995A01BF231B2C3D5F3D7177491D4CE3C010C"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "645CE06F014E04DB4C1ACF9B37473B1B5E8AA73B767AFD973D82932DE6AC6D18")],
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "47586A54A47B0CE00DF1ABCAE2E354BFCCC6D78788A98A59B02BA187DF722D03")],
             "The constructor requires all twenty-two unique compiled background/door/tube layouts, including the two unused-but-owned rows, and clones only customized frames. Stock visual bits project directly from physical cells without a duplicate cache. GetWord guards asymmetric run shapes before flattening and preserves the existing content identity. Ownership does not claim reachability or certify battle timing."),
     ];
 }

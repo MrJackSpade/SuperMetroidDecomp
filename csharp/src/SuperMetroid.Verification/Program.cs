@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-arm-physical-frames"])
+{
+    var armFrameOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armFrameOracle.Rom)),
+        "Kraid arm physical-frame oracle is NTSC J/U v1.0");
+    VerifyKraidArmPhysicalFramePointers(armFrameOracle);
+    _ = VerifyKraidArmPhysicalLayoutSelection(armFrameOracle);
+    Console.WriteLine("Kraid arm physical frames: all 22 roots, ordered native layouts, complete pointer domain and ordinal bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-kraid-foot-coordinates"])
 {
     var footOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

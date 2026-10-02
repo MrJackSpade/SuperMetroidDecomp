@@ -2206,5 +2206,33 @@
             }
         ],
         "remainingScope": "Arm collision, launch selectors and other Kraid mappings remain independently unreviewed. Build and focused proofs pass; no broad collision matrix or exploratory gameplay was run."
+    },
+    "kraidArmPhysicalFrameReview": {
+        "implementationCommit": {
+            "subject": "Calculate Kraid arm physical frame selection for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Calculate Kraid arm physical frame selection for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm complete extended-frame boundaries8F59-92B4: general ten, rising/sinking ten, two final dying/preparing-to-lunge frames. Original NTSC J/U v1.0 ROM SHA verified. Every selected layout compared with native ordered X/Y/hitbox records; ordinary-combat caller consumes only this physical view, separately from editable artwork.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-arm-physical-frames",
+        "tables": [
+            {
+                "id": "kraid-arm-physical-frame-roots", "state": "converted",
+                "domain": "Ordinal indices0..21; IndexOutOfRangeException outside.",
+                "disposition": "Remove the stored22-pointer roster. Calculate twenty42-byte roots followed by two10-byte roots.",
+                "rationale": "Native extended frames use a two-byte count plus eight bytes per component; first20 counts are5, final2 counts are1.",
+                "proofTest": "VerifyKraidArmPhysicalFramePointers",
+                "confirmation": "Independent native record-count walk derives all22 roots and exact92B5 end; every calculated pointer and invalid ordinal bounds match."
+            },
+            {
+                "id": "kraid-arm-frame-layout-selection", "state": "converted",
+                "domain": "Exact22 native frame pointers; all other ushort values return false and empty components.",
+                "disposition": "Remove stored frame-to-array bindings. Decode aligned general/rising frame ordinals, normalize modulo10 and select the physical phase explicitly; select two final layouts by named pointer.",
+                "rationale": "General and rising/sinking poses share collision layouts despite distinct artwork. Ordinal phase selection expresses that relationship without a lookup roster.",
+                "proofTest": "VerifyKraidArmPhysicalLayoutSelection",
+                "confirmation": "Complete ushort membership domain, component counts and every ordered native X/Y/hitbox field for all22 selected layouts. Extracted old numeric comparison; existing rectangle verifier reuses the returned native hitbox set."
+            }
+        ],
+        "remainingScope": "Phase component-coordinate/hitbox arrays and hitbox rectangle content remain unfinished, without retention decisions. This converts their frame selection only. No whole-family completion or gameplay-validation claim."
     }
 }

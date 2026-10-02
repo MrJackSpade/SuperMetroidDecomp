@@ -44,20 +44,26 @@ internal static class KraidArmCollisionDefinitions
     private static readonly KraidArmCollisionComponent[] Dying =
         [new(0, 0, 0x947d)];
 
-    private static readonly (ushort Pointer, KraidArmCollisionComponent[] Components)[] Frames =
-    [
-        (0x8f59, Phase0), (0x8f83, Phase1), (0x8fad, Phase2), (0x8fd7, Phase3),
-        (0x9001, Phase4), (0x902b, Phase5), (0x9055, Phase6), (0x907f, Phase7),
-        (0x90a9, Phase8), (0x90d3, Phase9),
-        (0x90fd, Phase0), (0x9127, Phase1), (0x9151, Phase2), (0x917b, Phase3),
-        (0x91a5, Phase4), (0x91cf, Phase5), (0x91f9, Phase6), (0x9223, Phase7),
-        (0x924d, Phase8), (0x9277, Phase9),
-        (0x92a1, Lunge), (0x92ab, Dying),
-    ];
+    /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
+    private const ushort FirstGeneralFrame = 0x8f59;
+    /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
+    private const ushort FirstSingleComponentFrame = 0x92a1;
+    /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
+    private const ushort SecondSingleComponentFrame = 0x92ab;
+    internal const int FrameCount = 22;
+    private const int GeneralFrameBytes = 2 + 5 * 8;
+    private const int SingleComponentFrameBytes = 2 + 8;
 
-    internal static int FrameCount => Frames.Length;
-    internal static ushort FramePointer(int index) => Frames[index].Pointer;
-
+    /// <summary>Calculates the ordered physical frame roots from native component-record sizes.</summary>
+    /// <remarks>Independently reviewed for #1165 against bank_A7.asm and every original
+    /// frame count. General and rising/sinking groups have ten five-component frames
+    /// each; the final two frames have one component. No pointer roster is stored.</remarks>
+    internal static ushort FramePointer(int index)
+    {
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 20 ? FirstGeneralFrame + GeneralFrameBytes * index
+            : FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
+    }
     private static readonly KraidArmCollisionHitbox[] Hitboxes =
     [
         new(-13, -11, -3, -5, 0x9490, 0x94b6),
@@ -89,10 +95,29 @@ internal static class KraidArmCollisionDefinitions
     internal static bool TryGetComponents(ushort pointer,
         out ReadOnlyMemory<KraidArmCollisionComponent> components)
     {
-        foreach ((ushort frame, KraidArmCollisionComponent[] owned) in Frames)
+        // Both five-component groups select the same physical pose ordinal. Their
+        // artwork identities differ, so this normalization applies only to collision.
+        int distance = pointer - FirstGeneralFrame;
+        if (distance >= 0 && distance < 20 * GeneralFrameBytes && distance % GeneralFrameBytes == 0)
         {
-            if (frame != pointer) continue;
-            components = owned;
+            components = (distance / GeneralFrameBytes % 10) switch
+            {
+                0 => Phase0,
+                1 => Phase1,
+                2 => Phase2,
+                3 => Phase3,
+                4 => Phase4,
+                5 => Phase5,
+                6 => Phase6,
+                7 => Phase7,
+                8 => Phase8,
+                _ => Phase9,
+            };
+            return true;
+        }
+        if (pointer == FirstSingleComponentFrame || pointer == SecondSingleComponentFrame)
+        {
+            components = pointer == FirstSingleComponentFrame ? Lunge : Dying;
             return true;
         }
         components = default;

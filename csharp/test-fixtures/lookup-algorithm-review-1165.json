@@ -2364,4 +2364,23 @@
         ],
         "confirmation": "Verification build and --lookup-kraid-camera; source/type migration covers both callers without a generated cache."
     }
+,
+    "kraidNailLaunchReview": {
+        "state": "converted; independently revalidated existing implementation",
+        "implementationCommit": "52e31f3a8dd8afbfc37f6ad4b4b406c6bd6dc3d8",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidNailLaunchDefinitions.cs",
+        "consumers": ["RoomEnemySystem.InitializeKraidNailFlight", "VerifyKraidNailSibling"],
+        "nativeIdentity": "A7:BE3E/BE46 indirect pointer tables and eight records BE4E..BE8D",
+        "domain": "Every ushort sibling Y whole word, interpreted as signed16 by native CMP #0 / BPL. RNG & 6 selects offsets 0,2,4,6 independently. No invalid ushort inputs, odd pointer reads, or adjacent overreads.",
+        "reviewedEvidence": "Pinned bank_A7.asm BD60-BD98 and BE3E-BE8D plus original NTSC J/U v1.0 ROM. Native slot comparison reads the opposite nail before replacing this nail's words. Random seed is read, not advanced. Subsequent horizontal-spawn override remains caller-owned.",
+        "tables": [
+            { "id": "kraid-nail-launch-x-fraction", "disposition": "Existing constant zero replaces every record's offset0 word.", "proof": "VerifyKraidNailLaunchXFraction" },
+            { "id": "kraid-nail-launch-x-whole", "disposition": "Existing ushort FFFF encodes signed whole velocity -1 for every offset2 word.", "proof": "VerifyKraidNailLaunchXWhole" },
+            { "id": "kraid-nail-launch-y-fraction", "disposition": "Existing constant zero replaces every record's offset4 word.", "proof": "VerifyKraidNailLaunchYFraction" },
+            { "id": "kraid-nail-launch-y-whole", "disposition": "Existing sign case returns +1 for negative sibling velocity, otherwise -1, including zero.", "proof": "VerifyKraidNailLaunchYWhole" }
+        ],
+        "rationale": "All four indirect choices in each sign branch have identical records. Constant fractional fields and horizontal velocity plus opposite-sign vertical selection express the launch policy exactly. Pointer storage has no remaining runtime purpose.",
+        "confirmation": "Four named proofs extracted from the existing combined numerical assertion. Each compares all65536 sibling words with all four independently varied RNG choices against original indirect records. The existing broad initializer check delegates numerical assertions to these helpers; only the focused --lookup-kraid-nail-launch command is run for this review. Verification build passes.",
+        "newConversions": 0
+    }
 }

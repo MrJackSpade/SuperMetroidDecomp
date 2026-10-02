@@ -4,8 +4,43 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
+        VerifyKraidNailLaunchField(rom, 0, value => value.XFraction);
+
+    private static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
+        VerifyKraidNailLaunchField(rom, 2, value => value.XWhole);
+
+    private static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
+        VerifyKraidNailLaunchField(rom, 4, value => value.YFraction);
+
+    private static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
+        VerifyKraidNailLaunchField(rom, 6, value => value.YWhole);
+
+    private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
+        Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            // Native CMP #0 / BPL and RNG & 6 select independently. Cover their
+            // Cartesian product, including every duplicate indirect record.
+            int table = (raw & 0x8000) != 0 ? 0xa7be3e : 0xa7be46;
+            for (int randomOffset = 0; randomOffset <= 6; randomOffset += 2)
+            {
+                int record = 0xa70000 | Word(table + randomOffset);
+                AssertEqual(Word(record + fieldOffset),
+                    field(KraidNailLaunchDefinitions.FromSiblingVelocity((ushort)raw)),
+                    $"Kraid launch field {fieldOffset}, sibling {raw}, RNG offset {randomOffset}");
+            }
+        }
+    }
+
     private static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
+        VerifyKraidNailLaunchXFraction(rom);
+        VerifyKraidNailLaunchXWhole(rom);
+        VerifyKraidNailLaunchYFraction(rom);
+        VerifyKraidNailLaunchYWhole(rom);
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
@@ -33,8 +68,6 @@ internal static partial class Program
             bool diagonal = (random & 1) == 0 || siblingFlag == 1;
             int table = (short)sibling.VariableE < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
-            AssertEqual((Word(pointer), Word(pointer + 2), Word(pointer + 4), Word(pointer + 6)),
-                KraidNailLaunchDefinitions.FromSiblingVelocity(sibling.VariableE), "All native indirect launch records match compiled words");
             nail.VariableB = nail.VariableD = ushort.MaxValue;
             initialize(nail, part);
             AssertEqual((ushort)0, nail.VariableB, "Launch clears old X fraction");

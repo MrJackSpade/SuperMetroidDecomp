@@ -193,9 +193,8 @@ internal static class KraidHeadInstructionDefinitions
         }
 
         int boundaryIndex = pointer - 0x8000;
-        ReadOnlySpan<byte> boundary = KraidMouthHitboxes.LowHalfBoundaryBytes;
         if ((uint)boundaryIndex < 3)
-            return boundary[boundaryIndex];
+            return KraidMouthHitboxes.LowHalfBoundaryByte(boundaryIndex);
 
         throw new InvalidDataException(
             $"Kraid low-half head frame crossed into uncompiled cartridge address $A7:{pointer:X4}.");

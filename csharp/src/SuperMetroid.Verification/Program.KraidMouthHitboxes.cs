@@ -6,6 +6,8 @@ internal static partial class Program
 {
     private static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
+        VerifyKraidMouthShapeCases(rom);
+        VerifyKraidLowHalfBoundaryMapping(rom);
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         ushort PointerWord(ushort pointer) => (ushort)(
             rom.ReadByte(0xa70000 | pointer) |
@@ -38,7 +40,7 @@ internal static partial class Program
             ushort pointer = (ushort)(0x9788 + entry * 8);
             int address = 0xa70000 | pointer;
             short left = (short)Word(address), top = (short)Word(address + 2), right = (short)Word(address + 4), bottom = (short)Word(address + 6);
-            AssertEqual((left, top, right, bottom), KraidMouthHitboxes.Resolve(pointer), "All native mouth geometry words");
+
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             for (int edge = -1; edge <= 1; edge++)
             {
@@ -48,14 +50,6 @@ internal static partial class Program
                     raw + shot.YRadius >= body.YPosition + top && edge >= 0;
                 AssertEqual(expected, overlaps(body, pointer, shot), "Actual mouth collision preserves vertical bounds and inclusive left edge");
             }
-        }
-
-        for (int index = 0; index < KraidMouthHitboxes.LowHalfBoundaryBytes.Length; index++)
-        {
-            AssertEqual(
-                rom.ReadByte(0xa78000 + index),
-                KraidMouthHitboxes.LowHalfBoundaryBytes[index],
-                $"Kraid mouth low-half boundary byte {index}");
         }
 
         for (int rawPointer = 0; rawPointer < 0x8000; rawPointer++)
@@ -95,23 +89,6 @@ internal static partial class Program
                 AssertEqual(expected, actual,
                     $"Kraid live low-half mouth geometry pointer ${pointer:X4}");
             }
-        }
-
-        var boundaryBus = new KraidMouthBoundaryReadBus();
-        byte BoundaryByte(ushort pointer) => pointer < 0x8000
-            ? KraidMouthBoundaryReadBus.Value(pointer)
-            : KraidMouthHitboxes.LowHalfBoundaryBytes[pointer - 0x8000];
-        ushort BoundaryWord(ushort pointer) => (ushort)(
-            BoundaryByte(pointer) |
-            BoundaryByte(unchecked((ushort)(pointer + 1))) << 8);
-        for (ushort pointer = 0x7ff9; pointer <= 0x7fff; pointer++)
-        {
-            var expected = (
-                Left: unchecked((short)BoundaryWord(pointer)),
-                Top: unchecked((short)BoundaryWord(unchecked((ushort)(pointer + 2)))),
-                Bottom: unchecked((short)BoundaryWord(unchecked((ushort)(pointer + 6)))));
-            AssertEqual(expected, KraidMouthHitboxes.ResolveCollision(boundaryBus, pointer),
-                $"Kraid low-half crossing pointer ${pointer:X4}");
         }
 
         shot.XPosition = 260;

@@ -5,24 +5,47 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled collision geometry, independent of Kraid's editable head artwork.</summary>
 internal static class KraidMouthHitboxes
 {
+    /// <summary>$A7:9788, Hitbox_KraidMouth_0, closed-mouth vulnerable shape.</summary>
+    public const ushort ClosedVulnerable = 0x9788;
+    /// <summary>$A7:9790, Hitbox_KraidMouth_1, first opening-stage vulnerable shape.</summary>
+    public const ushort OpeningVulnerable = 0x9790;
+    /// <summary>$A7:9798, Hitbox_KraidMouth_2, second opening-stage vulnerable shape.</summary>
+    public const ushort WiderVulnerable = 0x9798;
+    /// <summary>$A7:97A0, Hitbox_KraidMouth_3, fully open vulnerable shape.</summary>
+    public const ushort OpenVulnerable = 0x97a0;
+    /// <summary>$A7:97A8, Hitbox_KraidMouth_4, unused zero rectangle.</summary>
+    public const ushort EmptyShape = 0x97a8;
+    /// <summary>$A7:97B0, Hitbox_KraidMouth_5, first opening-stage invulnerable shape.</summary>
+    public const ushort OpeningInvulnerable = 0x97b0;
+    /// <summary>$A7:97B8, Hitbox_KraidMouth_6, second opening-stage invulnerable shape.</summary>
+    public const ushort WiderInvulnerable = 0x97b8;
+    /// <summary>$A7:97C0, Hitbox_KraidMouth_7, fully open invulnerable shape.</summary>
+    public const ushort OpenInvulnerable = 0x97c0;
     /// <summary>Aligned fixed records at $A7:9788..97C7.</summary>
-    public static bool IsDefined(ushort pointer) => pointer >= 0x9788 && pointer <= 0x97c0 && ((pointer - 0x9788) & 7) == 0;
+    public static bool IsDefined(ushort pointer) => pointer >= ClosedVulnerable && pointer <= OpenInvulnerable && ((pointer - ClosedVulnerable) & 7) == 0;
 
     /// <summary>
     /// $A7:9788..97C7, Hitbox_KraidMouth_0..7. The native projectile test uses
     /// left/top/bottom only; the authored right edge is retained as definition data.
     /// Entry four is unused but remains a defined all-zero rectangle.
     /// </summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against all 32 original words and pinned
+    /// bank_A7.asm head-program selectors. These are named collision shapes selected
+    /// by mouth stage and vulnerability, not a chronological numerical curve.
+    /// The existing semantic cases preserve the otherwise unused right edge and
+    /// zero shape. Live low-half geometry remains a separate caller-owned path.
+    /// </remarks>
     public static (short Left, short Top, short Right, short Bottom) Resolve(ushort pointer) => pointer switch
     {
-        0x9788 => (16, -120, 40, -88),
-        0x9790 => (16, -120, 40, -104),
-        0x9798 => (16, -128, 40, -112),
-        0x97a0 => (16, -128, 40, -120),
-        0x97a8 => (0, 0, 0, 0),
-        0x97b0 => (6, -96, 32, -80),
-        0x97b8 => (0, -104, 32, -80),
-        0x97c0 => (0, -112, 32, -80),
+        ClosedVulnerable => (16, -120, 40, -88),
+        OpeningVulnerable => (16, -120, 40, -104),
+        WiderVulnerable => (16, -128, 40, -112),
+        OpenVulnerable => (16, -128, 40, -120),
+        EmptyShape => (0, 0, 0, 0),
+        OpeningInvulnerable => (6, -96, 32, -80),
+        WiderInvulnerable => (0, -104, 32, -80),
+        OpenInvulnerable => (0, -112, 32, -80),
         _ => throw new InvalidDataException($"Undefined Kraid mouth hitbox $A7:{pointer:X4}."),
     };
 
@@ -59,7 +82,33 @@ internal static class KraidMouthHitboxes
     /// Exact bytes at <c>$A7:8000-$8006</c>, reachable only when a mutable low-half
     /// record beginning at <c>$A7:7FF9-$7FFF</c> crosses into the LoROM window.
     /// </summary>
-    public static ReadOnlySpan<byte> LowHalfBoundaryBytes => [0x22, 0x6d, 0x9f, 0xa0, 0x6b, 0x22, 0x7d];
+    public const int LowHalfBoundaryLength = 7;
+
+    /// <summary>$A0:9F6D, GrappleAI_SwitchEnemyAIToMainAI, target of $A7:8000's JSL.</summary>
+    private const int ResumeMainAiTarget = 0xa09f6d;
+    /// <summary>$A0:9F7D, GrappleAI_SamusLatchesOnWithGrapple, target of $A7:8005's JSL.</summary>
+    private const int GrappleLatchTarget = 0xa09f7d;
+    /// <summary>65816 JSL long-address opcode at $A7:8000 and $A7:8005.</summary>
+    private const byte LongCallOpcode = 0x22;
+    /// <summary>65816 RTL opcode at $A7:8004, ending the no-interaction grapple stub.</summary>
+    private const byte LongReturnOpcode = 0x6b;
+
+    /// <summary>Returns one of the seven bounded native instruction bytes visible to low-half aliases.</summary>
+    /// <remarks>
+    /// The pinned bank_A7 stubs are JSL ResumeMainAiTarget; RTL; JSL GrappleLatchTarget.
+    /// Decode by opcode/operand role, extracting the long call target little-endian.
+    /// Only the second call's low operand byte is reachable. This models bounded
+    /// compatibility data without a stored byte lookup or runtime cartridge read.
+    /// </remarks>
+    public static byte LowHalfBoundaryByte(int index)
+    {
+        if ((uint)index >= LowHalfBoundaryLength) throw new IndexOutOfRangeException();
+        if (index == 4) return LongReturnOpcode;
+        int callOffset = index % 5;
+        if (callOffset == 0) return LongCallOpcode;
+        int target = index < 5 ? ResumeMainAiTarget : GrappleLatchTarget;
+        return (byte)(target >> (8 * (callOffset - 1)));
+    }
 
     private static ushort ReadLiveWord(ISnesAddressSpace bus, ushort pointer)
     {
@@ -91,9 +140,8 @@ internal static class KraidMouthHitboxes
         }
 
         int boundaryIndex = pointer - 0x8000;
-        ReadOnlySpan<byte> boundary = LowHalfBoundaryBytes;
-        if ((uint)boundaryIndex < (uint)boundary.Length)
-            return boundary[boundaryIndex];
+        if ((uint)boundaryIndex < LowHalfBoundaryLength)
+            return LowHalfBoundaryByte(boundaryIndex);
 
         throw new InvalidDataException(
             $"Kraid low-half mouth geometry crossed into uncompiled cartridge address $A7:{pointer:X4}.");

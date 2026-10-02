@@ -2065,5 +2065,36 @@
             }
         ],
         "remainingScope": "GrowthResume, mouth geometry and other Kraid mappings require their own dispositions. Live low-half tilemap aliases and boundary-byte handling are unchanged. No gameplay sweep or broad timer matrix was run."
+    },
+    "kraidMouthMappingReview": {
+        "implementationCommit": {
+            "subject": "Derive Kraid boundary bytes from native instruction roles for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Derive Kraid boundary bytes from native instruction roles for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidMouthHitboxes.cs",
+        "reviewedEvidence": "Pinned bank_A7.asm head selectors, 9788-97C7 shape records and 8000-8009 grapple stubs; bank_A0.asm targets9F6D/9F7D. SHA-verified NTSC J/U v1.0. Mouth collision consumes signed left/top/bottom while right remains part of Resolve. Both mouth collision and head tilemap resolvers consume bounded low-half crossings.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-mouth-mappings",
+        "tables": [
+            {
+                "id": "kraid-mouth-shape-selection",
+                "state": "converted",
+                "originalImplementationCommit": "fdc5a9ffe2d20f56530a6cfd5f173a11dce9fa06",
+                "domain": "Eight aligned native shape pointers9788..97C0; four signed16 edges, including unused zero shape and right edge. Other pointers reject in Resolve; live low-half reads remain separate in ResolveCollision.",
+                "disposition": "Independently confirm existing semantic cases, naming their closed/opening/wider/open vulnerable and invulnerable roles. No new conversion counted.",
+                "rationale": "Head instruction records select collision shapes by mouth stage and vulnerability. Explicit named shape selection expresses that contract; the existing code already removed indexed rectangle storage.",
+                "proofTest": "VerifyKraidMouthShapeCases",
+                "confirmation": "Extracted original32-word comparison, all eight definitions and collision projections, alignment and adjacent rejection. No broad collision matrix rerun."
+            },
+            {
+                "id": "kraid-low-half-boundary-instruction-bytes",
+                "state": "converted",
+                "domain": "Byte indices0..6 at A7:8000..8006; out-of-range indices throw IndexOutOfRangeException. Mouth aliases may use all seven bytes, head tilemap aliases only the first three.",
+                "disposition": "Remove stored seven-byte span and migrate all consumers to bounded instruction-field calculation.",
+                "rationale": "Native bytes are JSL A09F6D; RTL; the beginning of JSL A09F7D. Named opcode roles and little-endian target-byte extraction reproduce the mapping without a literal byte lookup or cache.",
+                "proofTest": "VerifyKraidLowHalfBoundaryMapping",
+                "confirmation": "All seven original ROM bytes, bounds, seven mouth crossing starts and three head crossing starts pass with a guarded live-memory fixture. Expected boundary bytes come independently from ROM; the old circular boundary expectation is removed."
+            }
+        ],
+        "remainingScope": "GrowthResume and other Kraid mappings retain their separate review scope. Verification build passes with existing warnings; no exploratory gameplay or broad address-space/collision matrix was run."
     }
 }

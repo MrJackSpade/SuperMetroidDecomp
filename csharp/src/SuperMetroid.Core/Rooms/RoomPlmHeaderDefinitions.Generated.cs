@@ -1,79 +1,158 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Pinned setup/initial-list pairs selected by retail PLM populations.</summary>
+/// <summary>Named retail header dispatch; regenerate with tools/generate-room-plm-population-definitions.ps1 -HeadersOnly.</summary>
 internal static partial class RoomPlmHeaderDefinitions
 {
-    private static readonly RoomPlmHeaderDefinition[] Sources =
-    [
-        new(0xB63B, 0xB33A, 0xAFA4),
-        new(0xB63F, 0xB345, 0xAF9E),
-        new(0xB643, 0xB350, 0xAFB0),
-        new(0xB647, 0xB35B, 0xAFAA),
-        new(0xB6D3, 0xB18B, 0xAD62),
-        new(0xB6DF, 0xB21D, 0xADC2),
-        new(0xB6EB, 0xB245, 0xAE4C),
-        new(0xB703, 0xB371, 0xAF86),
-        new(0xB70B, 0xB3C1, 0xAFB6),
-        new(0xB76F, 0xB5EE, 0xAFE8),
-        new(0xB8AC, 0xB89C, 0xB88A),
-        new(0xBAF4, 0xC794, 0xBA7F),
-        new(0xBB05, 0xBAFA, 0xBAFF),
-        new(0xC82A, 0xC6BE, 0xBC3A),
-        new(0xC836, 0xC6E0, 0xBCAF),
-        new(0xC842, 0xC794, 0xBE70),
-        new(0xC848, 0xC794, 0xBED9),
-        new(0xC84E, 0xC794, 0xBF42),
-        new(0xC854, 0xC794, 0xBFAB),
-        new(0xC85A, 0xC7B1, 0xC014),
-        new(0xC860, 0xC7B1, 0xC077),
-        new(0xC866, 0xC7B1, 0xC0DA),
-        new(0xC86C, 0xC7B1, 0xC139),
-        new(0xC872, 0xC7B1, 0xC19C),
-        new(0xC878, 0xC7B1, 0xC1FB),
-        new(0xC87E, 0xC7B1, 0xC25A),
-        new(0xC884, 0xC7B1, 0xC2B9),
-        new(0xC88A, 0xC7B1, 0xC318),
-        new(0xC890, 0xC7B1, 0xC37A),
-        new(0xC8CA, 0xB3C1, 0xBB34),
-        new(0xD6DE, 0xD5F6, 0xD202),
-        new(0xD6EA, 0xD606, 0xD368),
-        new(0xD70C, 0xD6CC, 0xD4D4),
-        new(0xDB44, 0xDB1E, 0xDB42),
-        new(0xDB48, 0xDA8C, 0xD955),
-        new(0xDB4C, 0xDAB9, 0xDA20),
-        new(0xDB52, 0xDAB9, 0xDA56),
-        new(0xDB56, 0xDA8C, 0xD81E),
-        new(0xDB5A, 0xDAB9, 0xD8E9),
-        new(0xDB60, 0xDAB9, 0xD91F),
-        new(0xDF59, 0xDE94, 0xDCDE),
-        new(0xDF65, 0xDF4C, 0xDD11),
-        new(0xDF71, 0xDEF0, 0xDDB9),
-        new(0xEED7, 0xEE4D, 0xE099),
-        new(0xEEDB, 0xEE52, 0xE0BE),
-        new(0xEEDF, 0xEE57, 0xE0E3),
-        new(0xEEE3, 0xEE5C, 0xE108),
-        new(0xEF23, 0xEE64, 0xE3EF),
-        new(0xEF2F, 0xEE52, 0xE47C),
-        new(0xEF33, 0xEE57, 0xE4AE),
-        new(0xEF37, 0xEE5C, 0xE4E0),
-        new(0xEF3B, 0xEE64, 0xE512),
-        new(0xEF3F, 0xEE64, 0xE54D),
-        new(0xEF43, 0xEE64, 0xE588),
-        new(0xEF47, 0xEE64, 0xE5C3),
-        new(0xEF4B, 0xEE64, 0xE5FE),
-        new(0xEF4F, 0xEE64, 0xE642),
-        new(0xEF53, 0xEE64, 0xE67D),
-        new(0xEF57, 0xEE64, 0xE6B8),
-        new(0xEF5B, 0xEE64, 0xE6F3),
-        new(0xEF5F, 0xEE64, 0xE735),
-        new(0xEF63, 0xEE64, 0xE777),
-        new(0xEF67, 0xEE64, 0xE7B1),
-        new(0xEF6B, 0xEE64, 0xE7EC),
-        new(0xEF6F, 0xEE64, 0xE826),
-        new(0xEF73, 0xEE64, 0xE861),
-        new(0xEF7B, 0xEE64, 0xE8D7),
-        new(0xEF7F, 0xEE77, 0xE911),
-        new(0xEF83, 0xEE7C, 0xE949),
-        new(0xEF87, 0xEE81, 0xE981),
-    ];
+    private static bool TrySelect(ushort header, out RoomPlmHeaderDefinition value)
+    {
+        value = header switch
+        {
+            RoomPlmHeaders.RightwardsScrollExtension => new(header, 0xB33A, 0xAFA4),
+            RoomPlmHeaders.LeftwardsScrollExtension => new(header, 0xB345, 0xAF9E),
+            RoomPlmHeaders.DownwardsScrollExtension => new(header, 0xB350, 0xAFB0),
+            RoomPlmHeaders.UpwardsScrollExtension => new(header, 0xB35B, 0xAFAA),
+            RoomPlmHeaders.MapStation => new(header, 0xB18B, 0xAD62),
+            RoomPlmHeaders.EnergyStation => new(header, 0xB21D, 0xADC2),
+            RoomPlmHeaders.MissileStation => new(header, 0xB245, 0xAE4C),
+            RoomPlmHeaders.ScrollTrigger => new(header, 0xB371, 0xAF86),
+            RoomPlmHeaders.ElevatorPlatform => new(header, 0xB3C1, 0xAFB6),
+            RoomPlmHeaders.SaveStation => new(header, 0xB5EE, 0xAFE8),
+            RoomPlmHeaders.SpeedBoosterEscape => new(header, 0xB89C, 0xB88A),
+            RoomPlmHeaders.BombTorizoGreyDoor => new(header, 0xC794, 0xBA7F),
+            RoomPlmHeaders.WreckedShipAttic => new(header, 0xBAFA, 0xBAFF),
+            RoomPlmHeaders.DownwardGate => new(header, 0xC6BE, 0xBC3A),
+            RoomPlmHeaders.DownwardGateShotBlock => new(header, 0xC6E0, 0xBCAF),
+            RoomPlmHeaders.GreyDoorFacingLeft => new(header, 0xC794, 0xBE70),
+            RoomPlmHeaders.GreyDoorFacingRight => new(header, 0xC794, 0xBED9),
+            RoomPlmHeaders.GreyDoorFacingUp => new(header, 0xC794, 0xBF42),
+            RoomPlmHeaders.GreyDoorFacingDown => new(header, 0xC794, 0xBFAB),
+            RoomPlmHeaders.YellowDoorFacingLeft => new(header, 0xC7B1, 0xC014),
+            RoomPlmHeaders.YellowDoorFacingRight => new(header, 0xC7B1, 0xC077),
+            RoomPlmHeaders.YellowDoorFacingUp => new(header, 0xC7B1, 0xC0DA),
+            RoomPlmHeaders.YellowDoorFacingDown => new(header, 0xC7B1, 0xC139),
+            RoomPlmHeaders.GreenDoorFacingLeft => new(header, 0xC7B1, 0xC19C),
+            RoomPlmHeaders.GreenDoorFacingRight => new(header, 0xC7B1, 0xC1FB),
+            RoomPlmHeaders.GreenDoorFacingUp => new(header, 0xC7B1, 0xC25A),
+            RoomPlmHeaders.GreenDoorFacingDown => new(header, 0xC7B1, 0xC2B9),
+            RoomPlmHeaders.RedDoorFacingLeft => new(header, 0xC7B1, 0xC318),
+            RoomPlmHeaders.RedDoorFacingRight => new(header, 0xC7B1, 0xC37A),
+            RoomPlmHeaders.MotherBrainEscapeRoomGate => new(header, 0xB3C1, 0xBB34),
+            RoomPlmHeaders.MotherBrainGlass => new(header, 0xD5F6, 0xD202),
+            RoomPlmHeaders.BombTorizoHand => new(header, 0xD606, 0xD368),
+            RoomPlmHeaders.NoobTube => new(header, 0xD6CC, 0xD4D4),
+            RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired => new(header, 0xDB1E, 0xDB42),
+            RoomPlmHeaders.EyeDoorEyeFacingRight => new(header, 0xDA8C, 0xD955),
+            RoomPlmHeaders.EyeDoorFacingRight => new(header, 0xDAB9, 0xDA20),
+            RoomPlmHeaders.EyeDoorBottomFacingRight => new(header, 0xDAB9, 0xDA56),
+            RoomPlmHeaders.EyeDoorEyeFacingLeft => new(header, 0xDA8C, 0xD81E),
+            RoomPlmHeaders.EyeDoorFacingLeft => new(header, 0xDAB9, 0xD8E9),
+            RoomPlmHeaders.EyeDoorBottomFacingLeft => new(header, 0xDAB9, 0xD91F),
+            RoomPlmHeaders.DraygonCannonFacingRight => new(header, 0xDE94, 0xDCDE),
+            RoomPlmHeaders.DraygonCannonFacingRightDestroyed => new(header, 0xDF4C, 0xDD11),
+            RoomPlmHeaders.DraygonCannonFacingLeft => new(header, 0xDEF0, 0xDDB9),
+            RoomPlmHeaders.ExposedEnergyTank => new(header, 0xEE4D, 0xE099),
+            RoomPlmHeaders.ExposedMissileTank => new(header, 0xEE52, 0xE0BE),
+            RoomPlmHeaders.ExposedSuperMissileTank => new(header, 0xEE57, 0xE0E3),
+            RoomPlmHeaders.ExposedPowerBombTank => new(header, 0xEE5C, 0xE108),
+            RoomPlmHeaders.ExposedMorphBall => new(header, 0xEE64, 0xE3EF),
+            RoomPlmHeaders.ChozoMissileTank => new(header, 0xEE52, 0xE47C),
+            RoomPlmHeaders.ChozoSuperMissileTank => new(header, 0xEE57, 0xE4AE),
+            RoomPlmHeaders.ChozoPowerBombTank => new(header, 0xEE5C, 0xE4E0),
+            RoomPlmHeaders.ChozoBombs => new(header, 0xEE64, 0xE512),
+            RoomPlmHeaders.ChozoChargeBeam => new(header, 0xEE64, 0xE54D),
+            RoomPlmHeaders.ChozoIceBeam => new(header, 0xEE64, 0xE588),
+            RoomPlmHeaders.ChozoHiJumpBoots => new(header, 0xEE64, 0xE5C3),
+            RoomPlmHeaders.ChozoSpeedBooster => new(header, 0xEE64, 0xE5FE),
+            RoomPlmHeaders.ChozoWaveBeam => new(header, 0xEE64, 0xE642),
+            RoomPlmHeaders.ChozoSpazerBeam => new(header, 0xEE64, 0xE67D),
+            RoomPlmHeaders.ChozoSpringBall => new(header, 0xEE64, 0xE6B8),
+            RoomPlmHeaders.ChozoVariaSuit => new(header, 0xEE64, 0xE6F3),
+            RoomPlmHeaders.ChozoGravitySuit => new(header, 0xEE64, 0xE735),
+            RoomPlmHeaders.ChozoXrayScope => new(header, 0xEE64, 0xE777),
+            RoomPlmHeaders.ChozoPlasmaBeam => new(header, 0xEE64, 0xE7B1),
+            RoomPlmHeaders.ChozoGrappleBeam => new(header, 0xEE64, 0xE7EC),
+            RoomPlmHeaders.ChozoSpaceJump => new(header, 0xEE64, 0xE826),
+            RoomPlmHeaders.ChozoScrewAttack => new(header, 0xEE64, 0xE861),
+            RoomPlmHeaders.ChozoReserveTank => new(header, 0xEE64, 0xE8D7),
+            RoomPlmHeaders.ShotBlockEnergyTank => new(header, 0xEE77, 0xE911),
+            RoomPlmHeaders.ShotBlockMissileTank => new(header, 0xEE7C, 0xE949),
+            RoomPlmHeaders.ShotBlockSuperMissileTank => new(header, 0xEE81, 0xE981),
+            _ => default,
+        };
+        return value.Header != 0;
+    }
+
+    private static IEnumerable<RoomPlmHeaderDefinition> Enumerate()
+    {
+        yield return Get(RoomPlmHeaders.RightwardsScrollExtension);
+        yield return Get(RoomPlmHeaders.LeftwardsScrollExtension);
+        yield return Get(RoomPlmHeaders.DownwardsScrollExtension);
+        yield return Get(RoomPlmHeaders.UpwardsScrollExtension);
+        yield return Get(RoomPlmHeaders.MapStation);
+        yield return Get(RoomPlmHeaders.EnergyStation);
+        yield return Get(RoomPlmHeaders.MissileStation);
+        yield return Get(RoomPlmHeaders.ScrollTrigger);
+        yield return Get(RoomPlmHeaders.ElevatorPlatform);
+        yield return Get(RoomPlmHeaders.SaveStation);
+        yield return Get(RoomPlmHeaders.SpeedBoosterEscape);
+        yield return Get(RoomPlmHeaders.BombTorizoGreyDoor);
+        yield return Get(RoomPlmHeaders.WreckedShipAttic);
+        yield return Get(RoomPlmHeaders.DownwardGate);
+        yield return Get(RoomPlmHeaders.DownwardGateShotBlock);
+        yield return Get(RoomPlmHeaders.GreyDoorFacingLeft);
+        yield return Get(RoomPlmHeaders.GreyDoorFacingRight);
+        yield return Get(RoomPlmHeaders.GreyDoorFacingUp);
+        yield return Get(RoomPlmHeaders.GreyDoorFacingDown);
+        yield return Get(RoomPlmHeaders.YellowDoorFacingLeft);
+        yield return Get(RoomPlmHeaders.YellowDoorFacingRight);
+        yield return Get(RoomPlmHeaders.YellowDoorFacingUp);
+        yield return Get(RoomPlmHeaders.YellowDoorFacingDown);
+        yield return Get(RoomPlmHeaders.GreenDoorFacingLeft);
+        yield return Get(RoomPlmHeaders.GreenDoorFacingRight);
+        yield return Get(RoomPlmHeaders.GreenDoorFacingUp);
+        yield return Get(RoomPlmHeaders.GreenDoorFacingDown);
+        yield return Get(RoomPlmHeaders.RedDoorFacingLeft);
+        yield return Get(RoomPlmHeaders.RedDoorFacingRight);
+        yield return Get(RoomPlmHeaders.MotherBrainEscapeRoomGate);
+        yield return Get(RoomPlmHeaders.MotherBrainGlass);
+        yield return Get(RoomPlmHeaders.BombTorizoHand);
+        yield return Get(RoomPlmHeaders.NoobTube);
+        yield return Get(RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired);
+        yield return Get(RoomPlmHeaders.EyeDoorEyeFacingRight);
+        yield return Get(RoomPlmHeaders.EyeDoorFacingRight);
+        yield return Get(RoomPlmHeaders.EyeDoorBottomFacingRight);
+        yield return Get(RoomPlmHeaders.EyeDoorEyeFacingLeft);
+        yield return Get(RoomPlmHeaders.EyeDoorFacingLeft);
+        yield return Get(RoomPlmHeaders.EyeDoorBottomFacingLeft);
+        yield return Get(RoomPlmHeaders.DraygonCannonFacingRight);
+        yield return Get(RoomPlmHeaders.DraygonCannonFacingRightDestroyed);
+        yield return Get(RoomPlmHeaders.DraygonCannonFacingLeft);
+        yield return Get(RoomPlmHeaders.ExposedEnergyTank);
+        yield return Get(RoomPlmHeaders.ExposedMissileTank);
+        yield return Get(RoomPlmHeaders.ExposedSuperMissileTank);
+        yield return Get(RoomPlmHeaders.ExposedPowerBombTank);
+        yield return Get(RoomPlmHeaders.ExposedMorphBall);
+        yield return Get(RoomPlmHeaders.ChozoMissileTank);
+        yield return Get(RoomPlmHeaders.ChozoSuperMissileTank);
+        yield return Get(RoomPlmHeaders.ChozoPowerBombTank);
+        yield return Get(RoomPlmHeaders.ChozoBombs);
+        yield return Get(RoomPlmHeaders.ChozoChargeBeam);
+        yield return Get(RoomPlmHeaders.ChozoIceBeam);
+        yield return Get(RoomPlmHeaders.ChozoHiJumpBoots);
+        yield return Get(RoomPlmHeaders.ChozoSpeedBooster);
+        yield return Get(RoomPlmHeaders.ChozoWaveBeam);
+        yield return Get(RoomPlmHeaders.ChozoSpazerBeam);
+        yield return Get(RoomPlmHeaders.ChozoSpringBall);
+        yield return Get(RoomPlmHeaders.ChozoVariaSuit);
+        yield return Get(RoomPlmHeaders.ChozoGravitySuit);
+        yield return Get(RoomPlmHeaders.ChozoXrayScope);
+        yield return Get(RoomPlmHeaders.ChozoPlasmaBeam);
+        yield return Get(RoomPlmHeaders.ChozoGrappleBeam);
+        yield return Get(RoomPlmHeaders.ChozoSpaceJump);
+        yield return Get(RoomPlmHeaders.ChozoScrewAttack);
+        yield return Get(RoomPlmHeaders.ChozoReserveTank);
+        yield return Get(RoomPlmHeaders.ShotBlockEnergyTank);
+        yield return Get(RoomPlmHeaders.ShotBlockMissileTank);
+        yield return Get(RoomPlmHeaders.ShotBlockSuperMissileTank);
+    }
 }

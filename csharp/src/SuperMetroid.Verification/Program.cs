@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-retail-plm-headers"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail header oracle revision");
+    VerifyRetailPlmHeaderSetups(rom);
+    VerifyRetailPlmHeaderInstructions(rom);
+    VerifyCompiledRoomPlmHeaderLoad(rom);
+    Console.WriteLine("Retail PLM headers: all seventy setup/list cases and full input domain match ROM; guarded population load passes.");
+    return 0;
+}
 if (args is ["--downward-gate-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

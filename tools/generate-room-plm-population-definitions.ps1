@@ -1,9 +1,19 @@
 param(
-    [string] $RomPath = 'Super Metroid.smc'
+    [string] $RomPath = 'Super Metroid.smc',
+    [switch] $HeadersOnly
 )
 
 $ErrorActionPreference = 'Stop'
 try {
+    if ($IsWindows) {
+        Add-Type -TypeDefinition @"
+using System.Runtime.InteropServices;
+public static class PlmHeaderGenerationProcessPolicy {
+    [DllImport("kernel32.dll")] public static extern uint SetErrorMode(uint mode);
+}
+"@
+        [void][PlmHeaderGenerationProcessPolicy]::SetErrorMode(0x8003)
+    }
     $repoRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
     $romFile = [IO.Path]::GetFullPath((Join-Path $repoRoot $RomPath))
     $stateFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs'
@@ -11,7 +21,7 @@ try {
     $headerOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaderDefinitions.Generated.cs'
     $scrollOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmScrollProgramDefinitions.Generated.cs'
     $expectedHash = '12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72'
-    $actualHash = (Get-FileHash -LiteralPath $romFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    $actualHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([IO.File]::ReadAllBytes($romFile))).ToLowerInvariant()
     if ($actualHash -cne $expectedHash) {
         throw "PLM-population generation requires unheadered Japan/USA NTSC v1.0 ($expectedHash), got $actualHash."
     }
@@ -76,29 +86,48 @@ try {
     }
     $lines.Add('    ];')
     $lines.Add('}')
-    [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false))
+    if (-not $HeadersOnly) { [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false)) }
 
     $orderedHeaders = @($headers | Sort-Object)
     if ($orderedHeaders.Count -ne 70) {
         throw "Expected 70 distinct retail PLM headers, found $($orderedHeaders.Count)."
     }
+    $headerNames = @{}
+    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs'))
+    foreach ($match in [regex]::Matches($headerCatalog, 'const ushort (\w+) = 0x([0-9a-fA-F]+);')) {
+        $headerNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
+    }
     $headerLines = [Collections.Generic.List[string]]::new()
     $headerLines.Add('namespace SuperMetroid.Core.Rooms;')
     $headerLines.Add('')
-    $headerLines.Add('/// <summary>Pinned setup/initial-list pairs selected by retail PLM populations.</summary>')
+    $headerLines.Add('/// <summary>Named retail header dispatch; regenerate with tools/generate-room-plm-population-definitions.ps1 -HeadersOnly.</summary>')
     $headerLines.Add('internal static partial class RoomPlmHeaderDefinitions')
     $headerLines.Add('{')
-    $headerLines.Add('    private static readonly RoomPlmHeaderDefinition[] Sources =')
-    $headerLines.Add('    [')
+    $headerLines.Add('    private static bool TrySelect(ushort header, out RoomPlmHeaderDefinition value)')
+    $headerLines.Add('    {')
+    $headerLines.Add('        value = header switch')
+    $headerLines.Add('        {')
     foreach ($header in $orderedHeaders) {
+        if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
         $headerOffset = 0x20000 + ($header - 0x8000)
         $setup = [int]$rom[$headerOffset] -bor ([int]$rom[$headerOffset + 1] -shl 8)
         $initial = [int]$rom[$headerOffset + 2] -bor ([int]$rom[$headerOffset + 3] -shl 8)
-        $headerLines.Add(('        new(0x{0:X4}, 0x{1:X4}, 0x{2:X4}),' -f $header, $setup, $initial))
+        $headerLines.Add(('            RoomPlmHeaders.{0} => new(header, 0x{1:X4}, 0x{2:X4}),' -f $headerNames[$header], $setup, $initial))
     }
-    $headerLines.Add('    ];')
+    $headerLines.Add('            _ => default,')
+    $headerLines.Add('        };')
+    $headerLines.Add('        return value.Header != 0;')
+    $headerLines.Add('    }')
+    $headerLines.Add('')
+    $headerLines.Add('    private static IEnumerable<RoomPlmHeaderDefinition> Enumerate()')
+    $headerLines.Add('    {')
+    foreach ($header in $orderedHeaders) {
+        $headerLines.Add(('        yield return Get(RoomPlmHeaders.{0});' -f $headerNames[$header]))
+    }
+    $headerLines.Add('    }')
     $headerLines.Add('}')
     [IO.File]::WriteAllLines($headerOutputFile, $headerLines, [Text.UTF8Encoding]::new($false))
+    if ($HeadersOnly) { Write-Output "Generated $($orderedHeaders.Count) named retail header cases."; exit 0 }
 
     $orderedScrollPrograms = @($scrollProgramPointers | Sort-Object)
     if ($orderedScrollPrograms.Count -ne 173) {

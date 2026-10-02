@@ -3457,4 +3457,14 @@
     "leftAndTop": {"status": "unreviewed", "remainingData": "Four left/top pairs remain stored; no retention exception is claimed.", "rejectedHypothesis": "Native hidden path integration does not consistently determine hole centers. Six forward streams sum to (64,64), (96,-16), (159,48), (32,-80), (96,-32), (64,48). Left-to-right hole-center displacement is (160,32), differing from its direct stream (159,48). Stream endpoints cannot simply replace these room positions."},
     "scope": "Right/bottom bounds only. Left/top placement, existing target-offset operations and the movement corpus still require independent disposition."
   }
+,
+  "botwoonWallReview": {
+    "status": "converted-draw-and-reviewed-existing-program",
+    "source": "NTSC J/U v1.0 84:930F-9324 DrawInst_ClearBotwoonWall and 84:AB31-AB50/AB67-AB6C wall programs; pinned bank_84.asm",
+    "clearWords": {"status": "converted", "algorithm": "Remove the generated nine-word production fill array. LevelWordAt validates block indices 0..8 and returns the native air word 00FF. Runtime writes one vertical nine-block run directly through DrawPlmWordAt, preserving editable per-block appearance and physical collision ownership.", "proof": "Existing VerifyCompiledBotwoonWallPlms now compares all nine direct calculated words to native ROM, checks invalid ordinal extremes and validates the exported run including direction/count and terminal offsets. Existing production clear/crumble timelines and VerifyBotwoonWallVisualSeparation confirm resulting blocks, timing and a custom fourth visual block."},
+    "export": {"status": "converted", "algorithm": "All materializes a temporary draw DTO by calling LevelWordAt for asset export/audit consumers. No stored generated array remains and gameplay does not consume this DTO."},
+    "program": {"status": "reviewed-existing-algorithm", "algorithm": "Existing direct decoder uses named command positions and packed timer/sound bytes. Four timed crumble frames use duration four and six-byte successive shot-block draw records; the clear program draws for one frame and deletes.", "proof": "VerifyCompiledBotwoonWallPlms now uses independently listed eighteen native word positions, checks exact enumeration and original word/byte values, and verifies word/packed-byte membership and cleared missing outputs across the full ushort address domain, excluding the intervening callback machine code."},
+    "confirmation": "Verification and ResourceAudit builds and --lookup-botwoon-wall pass; native reads remain forbidden in production wall fixtures. Source consumers use the fill operation or export DTO as appropriate. Normalized draw-definition source pin updated.",
+    "scope": "Wall mechanics program and clear physical draw only. Visual-ID mapping, selected artwork and shared shot-block definitions retain their independent review obligations; no retention exception claimed."
+  }
 }

@@ -1969,11 +1969,11 @@ public sealed partial class RoomPlmSystem
         }
         if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, BotwoonWallPlmDrawDefinitions.Clear,
-                originX, originY, layer1XPosition, layer1YPosition,
-                bg1XOffset, useShotBlockVisuals: false,
-                botwoonWallVisuals: botwoonWallVisuals);
+            for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row,
+                    BotwoonWallPlmDrawDefinitions.LevelWordAt(row),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    botwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
@@ -2194,7 +2194,6 @@ public sealed partial class RoomPlmSystem
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
         RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null,
-        RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
         RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
         RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null)
     {
@@ -2235,7 +2234,6 @@ public sealed partial class RoomPlmSystem
                     ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? samusEaterVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? motherBrainFakeDeathVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;

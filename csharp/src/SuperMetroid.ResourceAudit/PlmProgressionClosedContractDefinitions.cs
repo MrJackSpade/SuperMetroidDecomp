@@ -40,7 +40,7 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog", "plm-botwoon-wall-complete-clear", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBotwoonWallVisualCatalog.cs", "CDE5B92E316AE1C5ED8F86CC6CB06490B8A6C1B3BAB93D8A240D86EE1217C992"),
-             new("csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs", "3C9BDB78174EAF1111769664FAA88DBAB204D4A5EB443F9A825AA10EC074DC17")],
+             new("csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs", "B68729863B43AE13C8E40A2C92724585A262BD0F2FF8E7254A388BAD4A6E6C0C")],
             "The constructor requires exactly one known nine-word clear frame and clones its payload. GetWord guards the sole pointer/run and array bounds. Crumble frames use the separately reviewed shot-block provider; no boss event is inferred."),
         new("SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,

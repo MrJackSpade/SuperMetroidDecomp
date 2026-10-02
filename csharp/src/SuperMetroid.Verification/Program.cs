@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--speed-booster-escape-definitions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape stage oracle revision");
+    VerifySpeedBoosterEscapeStageDefinitions(rom);
+    return 0;
+}
 if (args is ["--lookup-speed-escape-program"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2381,12 +2389,6 @@ if (args is ["--shaktool-instruction-mechanics"])
 if (args is ["--downward-gate-definitions"])
 {
     VerifyDownwardGateShotBlockDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
-if (args is ["--speed-booster-escape-definitions"])
-{
-    VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }

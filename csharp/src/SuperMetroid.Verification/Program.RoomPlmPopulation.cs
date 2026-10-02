@@ -207,40 +207,11 @@ internal static partial class Program
     private static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-
         VerifySpeedEscapeProgramControls(rom);
         VerifySpeedEscapeProgramCallbacks(rom);
-
-        for (ushort offset = 0;
-             offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;
-             offset += SpeedBoosterEscapeStageDefinitions.RecordByteCount)
-        {
-            SpeedBoosterEscapeStageDefinition definition =
-                SpeedBoosterEscapeStageDefinitions.Resolve(offset)!.Value;
-            int source = SpeedBoosterEscapeStageDefinitions.TableAddress + offset;
-            AssertEqual(ReadWord(rom, source), definition.TargetSamusX,
-                $"Speed Booster escape stage ${offset:X2} target X matches cartridge");
-            AssertEqual(ReadWord(rom, source + 2), definition.MaximumFxY,
-                $"Speed Booster escape stage ${offset:X2} maximum FX Y matches cartridge");
-            AssertEqual(ReadWord(rom, source + 4), definition.PackedYVelocity,
-                $"Speed Booster escape stage ${offset:X2} velocity matches cartridge");
-        }
-
-        AssertEqual(SpeedBoosterEscapeStageDefinitions.Terminator,
-            ReadWord(rom, SpeedBoosterEscapeStageDefinitions.TableAddress +
-                SpeedBoosterEscapeStageDefinitions.TerminatorOffset),
-            "Speed Booster escape terminal word matches cartridge");
-        AssertTrue(SpeedBoosterEscapeStageDefinitions.Resolve(
-                SpeedBoosterEscapeStageDefinitions.TerminatorOffset) is null,
-            "Speed Booster escape terminal offset resolves to event completion");
-        AssertThrows<InvalidDataException>(
-            () => SpeedBoosterEscapeStageDefinitions.Resolve(1),
-            "unaligned Speed Booster escape stage offset fails loudly");
-        AssertThrows<InvalidDataException>(
-            () => SpeedBoosterEscapeStageDefinitions.Resolve(24),
-            "out-of-range Speed Booster escape stage offset fails loudly");
+        VerifySpeedEscapeStageTargets(rom);
+        VerifySpeedEscapeStageHeights(rom);
+        VerifySpeedEscapeStageVelocities(rom);
 
         // This fresh bus contains the PLM program and FX fixture, but deliberately omits
         // $84:B876-$B889. The production controller must finish all three physical stages.

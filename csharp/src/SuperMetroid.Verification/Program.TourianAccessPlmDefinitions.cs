@@ -5,6 +5,8 @@ internal static partial class Program
 {
     private static void VerifyTourianAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyTourianAccessHeaderSelection(rom);
+        VerifyTourianAccessInstructionSelection(rom);
         VerifyDefinition(clear: false);
         VerifyDefinition(clear: true);
 
@@ -14,14 +16,6 @@ internal static partial class Program
         void VerifyDefinition(bool clear)
         {
             TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear);
-            ushort expectedInstruction = ReadTourianAccessWord(
-                rom,
-                0x840000 | unchecked((ushort)(definition.HeaderPointer + 2)));
-            AssertEqual(
-                expectedInstruction,
-                definition.InstructionListPointer,
-                $"Tourian access {(clear ? "clear" : "crumble")} initial list matches cartridge");
-
             const int width = 16;
             const int height = 16;
             int blockCount = width * height;
@@ -47,6 +41,28 @@ internal static partial class Program
                 slot.InstructionPointer,
                 "Tourian access compiled initial instruction list");
             AssertEqual(1, slot.InstructionTimer, "Tourian access starts on timer one");
+        }
+    }
+
+    private static void VerifyTourianAccessHeaderSelection(SuperMetroidAddressSpace rom) =>
+        VerifyTourianAccessSpawnField(rom, false);
+
+    private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
+        VerifyTourianAccessSpawnField(rom, true);
+
+    private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
+    {
+        // Native spawn operands: completed descent crumbles; already-unlocked room clears.
+        (bool Clear, int SpawnOperand)[] cases = [(false,0x88dc9f), (true,0x88db99)];
+        foreach (var item in cases)
+        {
+            ushort header = ReadTourianAccessWord(rom, item.SpawnOperand);
+            var actual = TourianAccessPlmDefinitions.ForState(item.Clear);
+            AssertEqual(instruction ? ReadTourianAccessWord(rom, 0x840000 | (header + 2)) : header,
+                instruction ? actual.InstructionListPointer : actual.HeaderPointer,
+                $"Tourian native spawn selection clear={item.Clear} instruction={instruction}");
+            AssertEqual((byte)6, rom.ReadByte(item.SpawnOperand - 2), "Tourian native spawn column");
+            AssertEqual((byte)12, rom.ReadByte(item.SpawnOperand - 1), "Tourian native spawn row");
         }
     }
 

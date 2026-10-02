@@ -10,6 +10,7 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian draw native oracle revision");
+        VerifyTourianAccessPlmDefinitions(rom);
         VerifyTourianAccessProgramControls(rom);
         VerifyTourianAccessProgramDraws(rom);
         VerifyTourianAccessProgramLoopCount(rom);

@@ -16,57 +16,74 @@ internal static class DraygonCannonPlmProgramDefinitions
     /// <summary>End of left-facing list, $84:DE01.</summary>
     internal const ushort LeftEnd = 0xde01;
 
-    private static readonly byte[] Right = Convert.FromHexString(
-        "248AF0DCC18664DB0800CD9FB4862487" +
-        "E6DCCD8A0311DD0300CD9F0400DD9F03" +
-        "00CD9F0400DD9F0300CD9F0400DD9F24" +
-        "87E6DC8EDB06002DA006003DA006004D" +
-        "A006005DA0248713DD");
-    private static readonly byte[] Left = Convert.FromHexString(
-        "248ACBDDC18664DB0800EDA0B4862487" +
-        "C1DDCD8A03ECDD0300EDA0040001A103" +
-        "00EDA0040001A10300EDA0040001A124" +
-        "87C1DD36DC060065A1060079A106008D" +
-        "A10600A1A12487EEDD");
-
+    /// <summary>
+    /// Two 73-byte programs share shield wait, three-hit threshold, three flashing
+    /// pairs and a four-frame damaged loop. Frame durations are eight for initial
+    /// shield, three/four while flashing and six while damaged. Packed threshold
+    /// changes word parity at offset 21; all original overlapping views are preserved.
+    /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (TryGetBytes(address, out byte[]? bytes, out int offset) && offset + 1 < bytes.Length)
-        {
-            value = (ushort)(bytes[offset] | bytes[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (!TryLocate(address, out int start, out int offset) || offset == 72) return false;
+        value = (ushort)(ByteAt(start, offset) | ByteAt(start, offset + 1) << 8);
+        return true;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        if (TryGetBytes(address, out byte[]? bytes, out int offset))
-        {
-            value = bytes[offset];
-            return true;
-        }
         value = 0;
-        return false;
+        if (!TryLocate(address, out int start, out int offset)) return false;
+        value = ByteAt(start, offset);
+        return true;
     }
 
-    private static bool TryGetBytes(ushort address, out byte[] bytes, out int offset)
+    private static bool TryLocate(ushort address, out int start, out int offset)
     {
-        if (address >= RightStart && address <= RightEnd)
+        start = address >= RightStart && address <= RightEnd ? RightStart :
+            address >= LeftStart && address <= LeftEnd ? LeftStart : 0;
+        offset = start == 0 ? 0 : address - start;
+        return start != 0;
+    }
+
+    private static byte ByteAt(int start, int offset)
+    {
+        if (offset == 20) return 3;
+        int wordOffset = offset < 20 ? offset & ~1 : 21 + ((offset - 21) & ~1);
+        return (byte)(WordAt(start, wordOffset) >> ((offset - wordOffset) * 8));
+    }
+
+    private static ushort WordAt(int start, int offset)
+    {
+        bool right = start == RightStart;
+        ushort shield = right ? DraygonCannonPlmDrawDefinitions.RightShieldA : DraygonCannonPlmDrawDefinitions.LeftShieldA;
+        if (offset is >= 23 and < 47)
         {
-            bytes = Right;
-            offset = address - RightStart;
-            return true;
+            int frame = (offset - 23) / 4;
+            if ((offset - 23) % 4 == 0) return (ushort)(3 + (frame & 1));
+            return (frame & 1) == 0 ? shield : right ? DraygonCannonPlmDrawDefinitions.RightShieldB : DraygonCannonPlmDrawDefinitions.LeftShieldB;
         }
-        if (address >= LeftStart && address <= LeftEnd)
+        if (offset is >= 53 and < 69)
         {
-            bytes = Left;
-            offset = address - LeftStart;
-            return true;
+            if ((offset - 53) % 4 == 0) return 6;
+            int frame = (offset - 53) / 4;
+            return (ushort)((right ? DraygonCannonPlmDrawDefinitions.RightDamagedA : DraygonCannonPlmDrawDefinitions.LeftDamagedA) + frame * (right ? 16 : 20));
         }
-        bytes = Array.Empty<byte>();
-        offset = 0;
-        return false;
+        return offset switch
+        {
+            0 => RoomPlmInstructionCodes.LinkInstruction,
+            2 => (ushort)(start + 18),
+            4 => RoomPlmInstructionCodes.InstallPreInstruction,
+            6 => DraygonCannonRomData.MissileHitPreInstruction,
+            8 => 8,
+            10 => shield,
+            12 => RoomPlmInstructionCodes.Sleep,
+            14 or 47 or 69 => RoomPlmInstructionCodes.Goto,
+            16 or 49 => (ushort)(start + 8),
+            18 => RoomPlmInstructionCodes.IncrementArgumentAndGotoIfGreaterOrEqual,
+            21 => (ushort)(start + 51),
+            51 => right ? RoomPlmInstructionCodes.DamageDraygonCannonFacingRight : RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft,
+            _ => (ushort)(start + 53), // Final goto operand, offset 71.
+        };
     }
 }

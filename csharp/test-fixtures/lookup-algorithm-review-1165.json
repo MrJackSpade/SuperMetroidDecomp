@@ -4397,4 +4397,17 @@
     "confirmation":"Verification and ResourceAudit builds plus --mother-brain-glass-plm-draws pass the three native-field proofs, all eleven guarded production draw paths, stock/native hash proof, custom immediate/camera artwork updates, installed overrides and existing full glass shatter sequence. Prior combined physical comparison consolidated; both presentation source hashes updated.",
     "scope":"Complete owned glass physical geometry, collision and visual mappings; no retention exception. Wider maintained-source audit remains active."
   }
+,
+  "draygonCannonPlmProgramReview": {
+    "status":"converted: right/left 73-byte program blobs removed",
+    "source":"NTSC J/U v1.0 bank 84 DCDE..DD26 and DDB9..DE01; pinned bank_84.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read RoomPlmProgramDefinitions composition and RoomPlmSystem.DraygonCannons consumers. Unused diagonal lists between/after the owned ranges remain excluded.",
+    "controls":{"disposition":"converted", "algorithm":"Shared link/callback/shield-wait/hit-threshold flow. Shield holds eight ticks before sleep; three flashing pairs alternate three/four ticks; four damaged frames each hold six ticks. Orientation chooses the named damage instruction.", "proof":"VerifyCannonControls compares all 76 original opcode/duration bytes."},
+    "draws":{"disposition":"converted", "algorithm":"Named orientation-specific shield A/B selections alternate while flashing. Damaged frames advance from the named first frame with native sixteen-byte right and twenty-byte left strides.", "proof":"VerifyCannonDraws compares all twenty-two original draw words."},
+    "targets":{"disposition":"converted", "algorithm":"Relocate hit, shield-loop, damage-entry and damaged-loop operands from each list start at offsets 18/8/51/53.", "proof":"VerifyCannonTargets compares all ten original branch/link words."},
+    "callback":{"disposition":"converted", "algorithm":"Both orientations install the named missile-hit pre-instruction DB64.", "proof":"VerifyCannonCallback compares both native callback words."},
+    "hitCount":{"disposition":"converted", "algorithm":"Both programs select the three-hit threshold at packed offset twenty; preserve the word-alignment change immediately afterward.", "proof":"VerifyCannonHitCount compares both native threshold bytes."},
+    "domain":"146 bytes and 144 overlapping word starts. Each named proof checks full ushort ownership, zero rejected outputs and native fields through direct/composed readers. Words crossing either range end remain rejected, including the right end adjacent to diagonal data. No generated cache or gameplay ROM read.",
+    "confirmation":"Verification build and --draygon-cannon-plm-program pass five independent field proofs, both guarded cannon damage loops, pre-destroyed entry, custom immediate/streamed artwork and installed artwork checks. Existing combined byte/word comparison consolidated. Focused command moved before unrelated suites and pins supported ROM SHA256.",
+    "scope":"Both retail cannon control programs and separately interpreted fields. Physical draw and stock visual owners remain separate audit work. No retention exception; wider maintained-source audit remains active."
+  }
 }

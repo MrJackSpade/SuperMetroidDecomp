@@ -51,7 +51,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.CameraDistanceIndex = KraidCameraDefinitions.CameraDistanceIndex;
-        ApplyKraidScrolls(KraidCameraDefinitions.InitialScrolls);
+        ApplyKraidScrolls(grown: false);
         state.MinimumYPositionForEjection = 324;
         ushort oneEighth = unchecked((ushort)(body.Health >> 3));
         for (int index = 0; index < state.HealthEighthThresholds.Length; index++)
@@ -86,10 +86,12 @@ public sealed partial class RoomEnemySystem
         EarthquakeType = 5;
     }
 
-    private void ApplyKraidScrolls(ReadOnlySpan<RoomScrollState> scrolls)
+    private void ApplyKraidScrolls(bool grown)
     {
-        for (int index = 0; index < scrolls.Length; index++)
-            RequireSetRoomScrollState(index, scrolls[index]);
+        for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
+            RequireSetRoomScrollState(index, grown
+                ? KraidCameraDefinitions.GrownScroll(index)
+                : KraidCameraDefinitions.InitialScroll(index));
     }
 
     private void InitializeKraidArm(RoomEnemySlot arm)

@@ -2338,4 +2338,30 @@
         "nextReview": "Assess whether native artwork/component definitions establish shared attachment pivots or another exact functional mapping. If they do not, that absence alone is still not proof of arbitrary authoring or permission to retain.",
         "scope": "Static mathematical analysis of identified lookup data only. No new conversion, runtime change, gameplay probe or test campaign. Articulated coordinate fields and rectangle edges remain unfinished."
     }
+,
+    "kraidCameraScrollReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidCameraDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidCameraDefinitions.cs",
+        "consumers": ["RoomEnemySystem.InitializeKraidBody", "RoomEnemySystem.RunKraidGrowthFunction", "RoomEnemySystem.ApplyKraidScrolls"],
+        "reviewedEvidence": "Pinned bank_A7.asm InitAI_Kraid and Function_Kraid_GetBig_ReleaseCamera: two little-endian immediate word stores each initialize Scrolls[0..3]. Independent proof reads all eight original instruction operand bytes from SHA-verified NTSC J/U v1.0 ROM.",
+        "domain": "Row-major screen index 0..3 in the two-column arena. Other indices throw IndexOutOfRangeException, preserving former span indexing. Both callers write screens in ascending order.",
+        "tables": [
+            {
+                "id": "kraid-initial-scrolls",
+                "nativeIdentity": "A7:A9EA-A9F4",
+                "disposition": "Remove four-entry array; select Blue only for lower-left screen 2, otherwise RedBoundary.",
+                "rationale": "Named spatial camera policy, not arbitrary numerical samples.",
+                "proof": "VerifyKraidInitialScrollMapping: four original operand bytes and invalid boundaries."
+            },
+            {
+                "id": "kraid-grown-scrolls",
+                "nativeIdentity": "A7:C0A7-C0B1",
+                "disposition": "Remove four-entry array; select Green for upper-row screens 0/1, Blue for lower-row screens 2/3.",
+                "rationale": "Camera release selects scrolling behavior by arena row.",
+                "proof": "VerifyKraidGrownScrollMapping: four original operand bytes and invalid boundaries."
+            }
+        ],
+        "confirmation": "Verification build and --lookup-kraid-camera; source/type migration covers both callers without a generated cache."
+    }
 }

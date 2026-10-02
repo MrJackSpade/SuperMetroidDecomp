@@ -42,7 +42,7 @@ public sealed partial class RoomEnemySystem
         switch ((KraidAiFunction)body.VariableA)
         {
             case KraidAiFunction.GrowReleaseCamera:
-                ApplyKraidScrolls(KraidCameraDefinitions.GrownScrolls);
+                ApplyKraidScrolls(grown: true);
                 body.VariableA = (ushort)KraidAiFunction.GrowBreakCeilingPlatforms;
                 state.CameraReleasedForSecondPhase = true;
                 state.MinimumYPositionForEjection = 164;

@@ -47,88 +47,104 @@ internal static class BeetomInstructionProgramDefinitions
     /// <summary>The repeating right-drain frame list at $A8:B73A.</summary>
     internal const ushort DrainingRightLoop = 0xb73a;
 
-    private static readonly BeetomInstructionMechanicsWord[] Words =
-    [
-        new(0xb696, CommonEnemyInstructionCodes.DisableOffScreenProcessing),
-        new(0xb698, 10), new(0xb69c, 10), new(0xb6a0, 10), new(0xb6a4, 10),
-        new(0xb6a8, CommonEnemyInstructionCodes.Goto), new(0xb6aa, CrawlingLeftLoop),
+    private const int FacingStride = CrawlingRight - CrawlingLeft;
+    internal static int MechanicsWordCount => 48;
+    internal static int PresentationWordCount => 32;
 
-        new(0xb6ac, CommonEnemyInstructionCodes.EnableOffScreenProcessing),
-        new(0xb6ae, 4), new(0xb6b2, 8), new(0xb6b6, 4), new(0xb6ba, 1),
-        new(0xb6be, CommonEnemyInstructionCodes.Sleep),
+    internal static BeetomInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int word = index % 24;
+        int offset;
+        if (word < 7)
+            offset = word == 0 ? 0 : word < 5 ? 2 + 4 * (word - 1) : 18 + 2 * (word - 5);
+        else if (word < 13)
+        {
+            int hopWord = word - 7;
+            offset = HopLeft - CrawlingLeft + (hopWord == 0 ? 0 : hopWord < 5 ? 2 + 4 * (hopWord - 1) : 18);
+        }
+        else
+        {
+            int drainWord = word - 13;
+            offset = DrainingLeft - CrawlingLeft + (drainWord < 4 ? 4 * drainWord : drainWord == 4 ? 16 :
+                drainWord < 9 ? 18 + 4 * (drainWord - 5) : 34 + 2 * (drainWord - 9));
+        }
+        ushort address = (ushort)(CrawlingLeft + FacingStride * (index / 24) + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        new(0xb6cc, 5), new(0xb6d0, 5), new(0xb6d4, 5), new(0xb6d8, 0x30),
-        new(0xb6dc, EnemyInstructionCodePointers.Instruction_Beetom_Nothing),
-        new(0xb6de, 5), new(0xb6e2, 5), new(0xb6e6, 5), new(0xb6ea, 5),
-        new(0xb6ee, CommonEnemyInstructionCodes.Goto), new(0xb6f0, DrainingLeftLoop),
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        int frame = index % 16;
+        int offset = frame < 4 ? 4 + 4 * frame : frame < 8 ? HopLeft - CrawlingLeft + 4 + 4 * (frame - 4) :
+            DrainingLeft - CrawlingLeft + 2 + 4 * (frame - 8) + (frame >= 12 ? 2 : 0);
+        return (ushort)(CrawlingLeft + FacingStride * (index / 16) + offset);
+    }
 
-        new(0xb6f2, CommonEnemyInstructionCodes.DisableOffScreenProcessing),
-        new(0xb6f4, 10), new(0xb6f8, 10), new(0xb6fc, 10), new(0xb700, 10),
-        new(0xb704, CommonEnemyInstructionCodes.Goto), new(0xb706, CrawlingRightLoop),
-
-        new(0xb708, CommonEnemyInstructionCodes.EnableOffScreenProcessing),
-        new(0xb70a, 4), new(0xb70e, 8), new(0xb712, 4), new(0xb716, 1),
-        new(0xb71a, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xb728, 5), new(0xb72c, 5), new(0xb730, 5), new(0xb734, 0x30),
-        new(0xb738, EnemyInstructionCodePointers.Instruction_Beetom_Nothing),
-        new(0xb73a, 5), new(0xb73e, 5), new(0xb742, 5), new(0xb746, 5),
-        new(0xb74a, CommonEnemyInstructionCodes.Goto), new(0xb74c, DrainingRightLoop),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb69a, 0xb69e, 0xb6a2, 0xb6a6,
-        0xb6b0, 0xb6b4, 0xb6b8, 0xb6bc,
-        0xb6ce, 0xb6d2, 0xb6d6, 0xb6da, 0xb6e0, 0xb6e4, 0xb6e8, 0xb6ec,
-        0xb6f6, 0xb6fa, 0xb6fe, 0xb702,
-        0xb70c, 0xb710, 0xb714, 0xb718,
-        0xb72a, 0xb72e, 0xb732, 0xb736, 0xb73c, 0xb740, 0xb744, 0xb748,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BeetomInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - CrawlingLeft;
+        if ((uint)offset >= 2 * FacingStride) return false;
+        int local = offset % FacingStride;
+        if (local < HopLeft - CrawlingLeft) return local >= 4 && local <= 16 && local % 4 == 0;
+        local -= HopLeft - CrawlingLeft;
+        if (local < DrainingLeft - HopLeft) return local >= 4 && local <= 16 && local % 4 == 0;
+        local -= DrainingLeft - HopLeft;
+        return (local <= 14 && local % 4 == 2) || (local >= 20 && local <= 32 && local % 4 == 0);
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - CrawlingLeft;
+        if ((uint)offset < 2 * FacingStride && IsMechanicsPosition(offset % FacingStride))
         {
-            int middle = low + ((high - low) >> 1);
-            BeetomInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int local = offset % FacingStride;
+            int facingOffset = offset / FacingStride * FacingStride;
+            if (local < HopLeft - CrawlingLeft)
+            {
+                if (local == 0) return CommonEnemyInstructionCodes.DisableOffScreenProcessing;
+                if (local == 18) return CommonEnemyInstructionCodes.Goto;
+                if (local == 20) return (ushort)(CrawlingLeftLoop + facingOffset);
+                return 10;
+            }
+            if (local < DrainingLeft - CrawlingLeft)
+            {
+                int hop = local - (HopLeft - CrawlingLeft);
+                if (hop == 0) return CommonEnemyInstructionCodes.EnableOffScreenProcessing;
+                if (hop == 18) return CommonEnemyInstructionCodes.Sleep;
+                // Four ticks in the repeated hop pose around the eight-tick middle pose;
+                // restore the crawl pose for one tick before sleeping.
+                return (ushort)(hop == 14 ? 1 : hop == 6 ? 8 : 4);
+            }
+            int drain = local - (DrainingLeft - CrawlingLeft);
+            if (drain == 12) return 0x30; // Hold the final approach pose before the drain loop.
+            if (drain == 16) return EnemyInstructionCodePointers.Instruction_Beetom_Nothing;
+            if (drain == 34) return CommonEnemyInstructionCodes.Goto;
+            if (drain == 36) return (ushort)(DrainingLeftLoop + facingOffset);
+            return 5;
         }
+        throw new InvalidDataException($"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
+    }
 
-        throw new InvalidDataException(
-            $"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
+    private static bool IsMechanicsPosition(int local)
+    {
+        if (local < HopLeft - CrawlingLeft)
+            return local == 0 || (local >= 2 && local <= 14 && local % 4 == 2) || local is 18 or 20;
+        if (local < DrainingLeft - CrawlingLeft)
+        {
+            int hop = local - (HopLeft - CrawlingLeft);
+            return hop == 0 || (hop >= 2 && hop <= 14 && hop % 4 == 2) || hop == 18;
+        }
+        int drain = local - (DrainingLeft - CrawlingLeft);
+        return (drain <= 16 && drain % 4 == 0) ||
+            (drain >= 18 && drain <= 30 && drain % 4 == 2) || drain is 34 or 36;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa80000) return false;
+        int offset = unchecked((ushort)address) - CrawlingLeft;
+        return (uint)offset < 2 * FacingStride && IsMechanicsPosition((offset % FacingStride) & ~1);
     }
 }

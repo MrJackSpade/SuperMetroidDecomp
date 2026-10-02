@@ -3221,4 +3221,19 @@
     "confirmation": "Verification and ResourceAudit builds pass; --lookup-platform-programs passes including export identity checks, eight production loops and the shared-selector contract.",
     "scope": "Export pointer fields only. The existing export metadata container, naming fields and broader artwork catalog remain separate review obligations; this does not claim a retention exception for them or introduce a runtime selector cache."
   }
+,
+  "beetomInstructionProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 A8:B696-B74D; pinned bank_A8.asm six used Beetom programs and two unused small-hop gaps",
+    "mechanics": {
+      "disposition": "Removed 48 stored control words. Both facings share the same 92-byte layout: disable-offscreen plus four ten-tick crawl frames and goto; enable-offscreen plus four hop poses and sleep; four drain approach frames, native no-op, four five-tick loop frames and goto. The repeated hop pose lasts four ticks, the middle pose eight, restored crawl pose one; the last drain approach pose holds 48 ticks. Decode these program phases directly without cached words.",
+      "proof": "VerifyBeetomMechanicsMapping independently lists all 48 native positions and compares direct/enumerated values to ROM. Checks full byte ownership, existing high-bit aliases, other-bank rejection, odd/presentation/unused/adjacent pointers, distant invalid pointers and ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Removed 32 stored operand addresses. Derive from each program's four-byte timed-frame stride, the initial callbacks and intervening drain no-op; preserve the unused small-hop gaps.",
+      "proof": "VerifyBeetomPresentationMapping independently checks all 32 positions, full ushort membership and ordinal bounds."
+    },
+    "confirmation": "Verification build and --lookup-beetom-programs confirm real initialization and all six production crawl/hop/drain programs, including offscreen-property changes, sleep and loop behavior with original mechanics reads forbidden.",
+    "scope": "Used instruction control and presentation operand positions only. Shared visual-pointer literals, unused program content, AI dispatch, artwork and other Beetom mappings remain separate review obligations. No retention exception claimed."
+  }
 }

@@ -56,3 +56,27 @@ build gates pass. No artwork schema changes or content re-extraction are needed.
 No exploratory gameplay, room sweep or whole-game validation was performed.
 Player validation remains pending; issue closure follows the explicit session
 instruction to close after implementation, confirmation and commit/push.
+
+## Reopened camera investigation
+
+After the initial commit, the user withdrew the suggested melting-stage answer:
+the tester did not specify the stage, and the user suspects the skeleton/wall
+sequence on the left. Issue #1173 is reopened; the melting fix must not be treated
+as confirmation that this revised interpretation is resolved.
+
+Extended the focused camera fixture to execute the production wait-for-Samus
+handoff at $A4:97D3 with the retail scroll layout, then the shared scrolling code.
+Existing code closes screen three, retains red screen one, and settles the camera
+to screen two at X=$0200. Leftward and rightward targets remain bounded there.
+The production $A4:9B65 completion phase reopens the cells and permits scrolling.
+This passes without another production change, so it does not reproduce the
+reported overrun.
+
+The port currently supplies camera-distance index zero where native Crocomire
+writes six. Both values produce the same boundary in this fixture; the pinned
+native annotation likewise says the enclosing red cells override that target.
+That difference alone is not evidence for another camera fix.
+
+The supplied ZIP contains only a log. A player state/input recording or a video
+showing the camera overrun is needed to identify the failing left-side sequence.
+The corpse-collision fix remains independently reproduced and verified.

@@ -3661,4 +3661,15 @@
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass the complete shared selector proof and existing native program, behavior and artwork checks. Production implementation unchanged.",
     "scope": "Shared shape/frame pointer selection only. This is a checked existing algorithm, not a table retention exception; the wider inventory remains unfinished."
   }
+,
+  "speedBlockProgramDescriptorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:C928..C92D, C951..C9B9, C9CF..C9F8; pinned bank_84.asm",
+    "descriptor": "Remove five stored program records. Named program identity determines respawn policy, two-tick Brinstar slow versus one-tick ordinary initial crumble, and the Dachora-only DrawPlmBlockClone restoration. Consumers construct values in original order, without a generated cache.",
+    "controls": {"algorithm": "Independently review existing decoder: packed sound, three initial crumble poses, 48-tick respawning blank versus one-tick permanent blank, four-tick reverse reveal, restore and deletion. Bomb reveal is a separate one-tick draw/delete list. Exclude intervening unused Screw Attack program regions.", "proof": "VerifySpeedBlockControlMapping independently specifies five native starts/frame counts/end bounds plus the reveal addresses, checks all 74 enumerated words and complete ushort ownership/default outputs, and compares native controls including both restore opcodes."},
+    "drawOperands": {"algorithm": "Reuse single-block six-byte draw stride, ascending breakup and descending reveal indices; bomb reveal uses its named physical draw.", "proof": "VerifySpeedBlockDrawOperandMapping checks all thirty original draw operand words from independent native program layouts. Full shared word ownership is checked by the control proof."},
+    "packedSound": {"algorithm": "Expose each contact program's start+2 byte as the common sound ID 06; queue policy belongs to the control mapping.", "proof": "VerifySpeedBlockSoundMapping independently lists all five native operand addresses, compares bytes and enumeration and checks the full ushort non-operand domain with zero missing outputs."},
+    "confirmation": "Verification and ResourceAudit builds and --lookup-speed-blocks pass all native proofs, the five existing boosted-contact fixtures and bomb reveal with source reads forbidden. Normalized PlmProgression program source pin updated.",
+    "scope": "Speed-block program descriptors and control/draw/sound mappings only. Physical reveal, stock visuals and collision selectors remain separately reviewable. No retention exception claimed."
+  }
 }

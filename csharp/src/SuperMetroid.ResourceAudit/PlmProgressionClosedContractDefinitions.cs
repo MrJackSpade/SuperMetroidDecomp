@@ -21,7 +21,7 @@ internal static class PlmProgressionClosedContractDefinitions
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "CC1CED1AA9404BD570E700E43D0426C8E17F3EC2D4482459E1487981E25DB8A7"),
              new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "F6CC4B512BDB0BFF9CBBE7676463DF7E42423C515EDE1559C37C0BDEA351E914"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "416F8D4F0326A568372AB243E1B80E31D99CD0FE38390EFD0F30976A3DC5FE1B")],
+             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "4ABFB82191103F503067AC5469BB5DF8A36CAA68A8E594F881CCE61FB04DC32C")],
             "The constructor accepts exactly one known one-word reveal and stores its value independently of the input array. GetWord accepts only that pointer, run zero and word zero. The source owning the reveal pointer is guarded; speed-block mechanics are unchanged."),
         new("SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog", "plm-maridia-elevatube-complete-draw", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,

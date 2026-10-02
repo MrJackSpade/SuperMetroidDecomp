@@ -22,19 +22,26 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         internal ushort Terminal => checked((ushort)(Start + 3 + FrameCount * 4));
     }
 
-    private static readonly Program[] Programs =
-    [
-        new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
-            Respawns: true, InitialCrumbleDelay: 2, UseDrawBlockClone: false),
-        new(RoomPlmInstructionLists.SpeedBlockRespawning,
-            Respawns: true, InitialCrumbleDelay: 1, UseDrawBlockClone: false),
-        new(RoomPlmInstructionLists.SpeedBlockDachoraRespawning,
-            Respawns: true, InitialCrumbleDelay: 1, UseDrawBlockClone: true),
-        new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent,
-            Respawns: false, InitialCrumbleDelay: 2, UseDrawBlockClone: false),
-        new(RoomPlmInstructionLists.SpeedBlockPermanent,
-            Respawns: false, InitialCrumbleDelay: 1, UseDrawBlockClone: false),
-    ];
+    private const int ProgramCount = 5;
+
+    private static Program ProgramAt(int index)
+    {
+        ushort start = index switch
+        {
+            0 => RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
+            1 => RoomPlmInstructionLists.SpeedBlockRespawning,
+            2 => RoomPlmInstructionLists.SpeedBlockDachoraRespawning,
+            3 => RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent,
+            4 => RoomPlmInstructionLists.SpeedBlockPermanent,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        bool slow = start is RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning
+            or RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent;
+        bool respawns = start is not (RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent
+            or RoomPlmInstructionLists.SpeedBlockPermanent);
+        return new(start, respawns, slow ? (ushort)2 : (ushort)1,
+            start == RoomPlmInstructionLists.SpeedBlockDachoraRespawning);
+    }
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
@@ -54,8 +61,9 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
             return true;
         }
 
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start)
             {
                 value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct;
@@ -105,8 +113,9 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
                 value = BreakSoundId;
@@ -122,8 +131,9 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         yield return BombReveal;
         yield return checked((ushort)(BombReveal + 2));
         yield return checked((ushort)(BombReveal + 4));
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return program.Start;
             for (int frame = 0; frame < program.FrameCount; frame++)
             {
@@ -138,7 +148,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsByteAddresses()
     {
-        foreach (Program program in Programs)
-            yield return checked((ushort)(program.Start + 2));
+        for (int index = 0; index < ProgramCount; index++)
+            yield return checked((ushort)(ProgramAt(index).Start + 2));
     }
 }

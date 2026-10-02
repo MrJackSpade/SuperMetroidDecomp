@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-foot-programs"])
+{
+    var programOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
+        "Kraid foot program oracle is NTSC J/U v1.0");
+    VerifyKraidFootGeneratedMechanics(programOracle);
+    VerifyKraidFootGeneratedPresentation(programOracle);
+    Console.WriteLine("Kraid foot programs: 193 mechanics words, 106 presentation positions, native domains and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-crocomire-skeleton-frames"])
 {
     var skeletonOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

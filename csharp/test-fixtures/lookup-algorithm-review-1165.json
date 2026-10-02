@@ -1880,7 +1880,7 @@
                 "confirmation": "All 35 roots read independently from native instruction operands, native two-component counts, published names, indexed and foreach enumeration, materialization and invalid bounds. Reused combined-catalog proof confirms the complete original 588-entry ordering and key association."
             }
         ],
-        "remainingScope": "Kraid foot instruction mechanics and other family catalogs still require their own review; no retention decision or broader completion claim is made."
+        "remainingScope": "Kraid foot mechanics and presentation-position caches are separately converted in kraidFootGeneratedProgramReview. Other family catalogs still require their own review; no retention decision or broader completion claim is made."
     },
     "crocomireSkeletonVisualCatalogReview": {
         "implementationCommit": {
@@ -1903,5 +1903,35 @@
             }
         ],
         "remainingScope": "This converts the visual catalog and its membership view. Corpse instruction chronology, component content and collision mappings retain their own review scope."
+    },
+    "kraidFootGeneratedProgramReview": {
+        "implementationCommit": {
+            "subject": "Evaluate Kraid foot instruction mappings without cached tables for #1165",
+            "resolve": "git log -1 --format=%H --fixed-strings --grep=\"Evaluate Kraid foot instruction mappings without cached tables for #1165\""
+        },
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidFootInstructionProgramDefinitions.cs",
+        "reviewedEvidence": "Current semantic program construction and its callers; pinned bank_A7.asm initial, neutral, walking-forward, lunge and backward instruction lists at 86E7-893C. Independent decoder reads original SHA-verified NTSC J/U v1.0 words as duration/frame pairs, zero-operand callbacks and terminal goto with one operand. Existing numerical proof is reused through the two focused helpers.",
+        "confirmationCommand": "dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-kraid-foot-programs",
+        "tables": [
+            {
+                "id": "kraid-foot-instruction-mechanics-map",
+                "state": "converted",
+                "domain": "193 ordinal mechanics words and their sparse A7 addresses; both bytes classify as mechanics, but word reads accept only exact starts. Adjacent unused fast-backward program excluded.",
+                "disposition": "Remove generated Words array and constructor cache. Evaluate existing named instruction/program loops with a value-type selector that retains only the requested entry or membership result.",
+                "rationale": "Initial/neutral sleepers, two related forward programs and a backward loop already have explicit control semantics. Direct evaluation preserves timing, movement/sound callbacks, Sleep and Goto words without materializing a lookup. Count follows bounded byte extent minus presentation operands.",
+                "proofTest": "VerifyKraidFootGeneratedMechanics",
+                "confirmation": "Every original address/value and indexed read; full 65536-byte bank ownership domain; odd word rejection, wrong bank, adjacent program and index bounds."
+            },
+            {
+                "id": "kraid-foot-presentation-position-map",
+                "state": "converted",
+                "domain": "106 ordinal presentation-word positions; IndexOutOfRangeException outside 0..105.",
+                "disposition": "Remove generated PresentationWords array. Select offsets during the same direct native-program construction, retaining only the requested position.",
+                "rationale": "Each duration frame emits its presentation operand at cursor+2 and advances four bytes; callbacks advance two. Two initial frames, two 36-frame forward programs and 32 backward frames explain the count.",
+                "proofTest": "VerifyKraidFootGeneratedPresentation",
+                "confirmation": "All 106 positions independently decoded from the original byte stream, rejection as mechanics and index bounds."
+            }
+        ],
+        "remainingScope": "Native visual selectors, foot collision and other Kraid definition mappings retain their separate review scope. No broad gameplay or allocation benchmark campaign was run."
     }
 }

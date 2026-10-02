@@ -14,20 +14,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         VerifyKraidFootCollisionDefinitions();
-        AssertEqual(193, KraidFootInstructionProgramDefinitions.MechanicsWordCount,
-            "Kraid foot compiled mechanics word count");
-        AssertEqual(106, KraidFootInstructionProgramDefinitions.PresentationWordCount,
-            "Kraid foot live presentation word count");
-        for (int index = 0;
-             index < KraidFootInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidFootInstructionMechanicsWord definition =
-                KraidFootInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadKraidFootInstructionWord(rom, definition.Address),
-                $"Kraid foot mechanics word $A7:{definition.Address:X4}");
-        }
+        VerifyKraidFootGeneratedMechanics(rom);
+        VerifyKraidFootGeneratedPresentation(rom);
 
         var guard = new KraidFootInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateKraidFootInstructionSystem(guard);

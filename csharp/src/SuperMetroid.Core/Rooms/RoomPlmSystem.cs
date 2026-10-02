@@ -755,7 +755,7 @@ public sealed partial class RoomPlmSystem
             // add type-$5/$D extension words around this type-$F parent.
             slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockIndexes.CollisionBombParent)
                 .WithCollisionType(block.CollisionType).Raw;
-            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex[bts.NormalReactionIndex];
+            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex(bts.NormalReactionIndex);
             slot.InstructionTimer = 1;
             level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
             return true;
@@ -805,7 +805,7 @@ public sealed partial class RoomPlmSystem
                 .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);
             slot.RestoreLevelWord = restoreWord.Raw;
             slot.InstructionPointer =
-                RoomPlmInstructionLists.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+                RoomPlmInstructionLists.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.InstructionTimer = 4;
             level.SetForegroundEntry(
                 blockIndex,
@@ -964,7 +964,7 @@ public sealed partial class RoomPlmSystem
             // visible tile number. Dimension-specific final draw lists reconstruct linked
             // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex[bts.NormalReactionIndex];
+            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex(bts.NormalReactionIndex);
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
             // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
@@ -1344,11 +1344,11 @@ public sealed partial class RoomPlmSystem
         ushort instructionPointer;
         if (!bts.UsesAreaReactionTable)
         {
-            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.InstructionLists.Length))
+            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
                 throw new ArgumentOutOfRangeException(nameof(bts),
                     "Area-independent special-block BTS is outside the cartridge reaction table.");
 
-            instructionPointer = BombSpecialBlockReactions.InstructionLists[bts.NormalReactionIndex];
+            instructionPointer = BombSpecialBlockReactions.InstructionListAt(bts.NormalReactionIndex);
         }
         else
         {

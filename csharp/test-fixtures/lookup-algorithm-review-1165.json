@@ -3521,4 +3521,17 @@
     "confirmation": "Verification build and --lookup-shot-block-draws pass the two selector proofs and existing all-eight ordinary shot-block production paths, native program/draw checks and visual separation.",
     "scope": "The two shot-block size-to-program selectors only. Other instruction-list arrays remain separate review work; no retention exception claimed."
   }
+,
+  "blockReactionInstructionSelectorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank-94 header selectors 936B, A012, 9139 and 9DA4..9E43, dereferencing each bank-84 PLM instruction field; pinned bank_94.asm and bank_84.asm",
+    "collisionBomb": {"algorithm": "Eight named cases select size (1x1, 2x1, 1x2, 2x2) and respawning/permanent collision programs, removing CollisionBombLists.", "proof": "VerifyCollisionBombInstructionSelection compares all eight results through independent native header indirection and confirms invalid byte/int indices retain IndexOutOfRangeException."},
+    "reactionBomb": {"algorithm": "Eight named cases select the corresponding bomb-reaction entries, removing ReactionBombLists.", "proof": "VerifyReactionBombInstructionSelection independently checks all eight native header instruction fields and invalid byte/int bounds."},
+    "crumbleReveal": {"algorithm": "Four named size cases replace CrumbleRevealLists.", "proof": "VerifyCrumbleRevealInstructionSelection independently checks the four native header instruction fields and invalid byte/int bounds."},
+    "contactCrumble": {"algorithm": "Eight named size/respawn cases replace ContactCrumbleLists.", "proof": "VerifyContactCrumbleInstructionSelection independently checks all eight native header instruction fields and invalid byte/int bounds."},
+    "bombSpecial": {"algorithm": "Remove the generated eighty-entry array. First eight entries reveal crumble shape using the low two bits; normal speed cases 0E/0F and adjacent Brinstar aliases 1A..1D reveal speed blocks; remaining supported entries select the no-op PLM deletion list. Preserve all eighty entries, including the adjacent area-table view, and reject unsupported indices.", "proof": "VerifyBombSpecialInstructionSelection independently follows all eighty original bank-94 header pointers to bank-84 instruction fields, checks the public extent and every unsupported byte plus int boundaries."},
+    "consumers": "All production span/index references migrated to direct selectors; normal BTS validation uses the explicit eighty-entry compatibility extent. Removed obsolete span-length checks. No generated replacement cache.",
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass: five complete independent mappings, existing 24 bomb collision/bomb/power-bomb timelines, and all eight contact-crumble programs with source reads forbidden.",
+    "scope": "Five instruction-selection mappings only; no retention exception claimed. Separate header mappings and program/draw data remain independently reviewable."
+  }
 }

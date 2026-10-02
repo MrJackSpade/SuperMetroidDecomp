@@ -239,52 +239,62 @@ public static class RoomPlmInstructionLists
     /// </summary>
     public const ushort SetMetroidsClearedStatesWhenRequired = 0xdb42;
 
-    private static readonly ushort[] CollisionBombLists =
-    [
-        CollisionBombBlock1x1Respawning,
-        CollisionBombBlock2x1Respawning,
-        CollisionBombBlock1x2Respawning,
-        CollisionBombBlock2x2Respawning,
-        CollisionBombBlock1x1Permanent,
-        CollisionBombBlock2x1Permanent,
-        CollisionBombBlock1x2Permanent,
-        CollisionBombBlock2x2Permanent,
-    ];
+    /// <summary>Selects the named collision bomb program from native $94:936B PLM headers.
+    /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
+    public static ushort CollisionBombByReactionIndex(int index) => index switch
+    {
+        0 => CollisionBombBlock1x1Respawning,
+        1 => CollisionBombBlock2x1Respawning,
+        2 => CollisionBombBlock1x2Respawning,
+        3 => CollisionBombBlock2x2Respawning,
+        4 => CollisionBombBlock1x1Permanent,
+        5 => CollisionBombBlock2x1Permanent,
+        6 => CollisionBombBlock1x2Permanent,
+        7 => CollisionBombBlock2x2Permanent,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
-    private static readonly ushort[] ReactionBombLists =
-    [
-        ReactionBombBlock1x1Respawning,
-        ReactionBombBlock2x1Respawning,
-        ReactionBombBlock1x2Respawning,
-        ReactionBombBlock2x2Respawning,
-        ReactionBombBlock1x1Permanent,
-        ReactionBombBlock2x1Permanent,
-        ReactionBombBlock1x2Permanent,
-        ReactionBombBlock2x2Permanent,
-    ];
+    /// <summary>Selects the named bomb reaction program from native $94:A012 PLM headers.
+    /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
+    public static ushort ReactionBombByReactionIndex(int index) => index switch
+    {
+        0 => ReactionBombBlock1x1Respawning,
+        1 => ReactionBombBlock2x1Respawning,
+        2 => ReactionBombBlock1x2Respawning,
+        3 => ReactionBombBlock2x2Respawning,
+        4 => ReactionBombBlock1x1Permanent,
+        5 => ReactionBombBlock2x1Permanent,
+        6 => ReactionBombBlock1x2Permanent,
+        7 => ReactionBombBlock2x2Permanent,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
-    private static readonly ushort[] CrumbleRevealLists =
-    [
-        CrumbleReveal1x1,
-        CrumbleReveal2x1,
-        CrumbleReveal1x2,
-        CrumbleReveal2x2,
-    ];
+    /// <summary>Selects the named crumble reveal program from native $94:9DA4 PLM headers.
+    /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
+    public static ushort CrumbleRevealBySize(int index) => index switch
+    {
+        0 => CrumbleReveal1x1,
+        1 => CrumbleReveal2x1,
+        2 => CrumbleReveal1x2,
+        3 => CrumbleReveal2x2,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
-    private static readonly ushort[] ContactCrumbleLists =
-    [
-        ContactCrumble1x1Respawning,
-        ContactCrumble2x1Respawning,
-        ContactCrumble1x2Respawning,
-        ContactCrumble2x2Respawning,
-        ContactCrumble1x1Permanent,
-        ContactCrumble2x1Permanent,
-        ContactCrumble1x2Permanent,
-        ContactCrumble2x2Permanent,
-    ];
+    /// <summary>Selects the named contact crumble program from native $94:9139 PLM headers.
+    /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
+    public static ushort ContactCrumbleByReactionIndex(int index) => index switch
+    {
+        0 => ContactCrumble1x1Respawning,
+        1 => ContactCrumble2x1Respawning,
+        2 => ContactCrumble1x2Respawning,
+        3 => ContactCrumble2x2Respawning,
+        4 => ContactCrumble1x1Permanent,
+        5 => ContactCrumble2x1Permanent,
+        6 => ContactCrumble1x2Permanent,
+        7 => ContactCrumble2x2Permanent,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
-    public static ReadOnlySpan<ushort> CollisionBombByReactionIndex => CollisionBombLists;
-    public static ReadOnlySpan<ushort> ReactionBombByReactionIndex => ReactionBombLists;
     /// <summary>Selects the native respawning-shot program for size 0=1x1,
     /// 1=2x1, 2=1x2, 3=2x2, from PLM instruction fields $84:D066/D06A/D06E/D072.</summary>
     public static ushort RespawningShotBySize(int sizeIndex) => sizeIndex switch
@@ -305,6 +315,4 @@ public static class RoomPlmInstructionLists
         3 => PermanentShotBlock2x2,
         _ => throw new IndexOutOfRangeException(),
     };
-    public static ReadOnlySpan<ushort> CrumbleRevealBySize => CrumbleRevealLists;
-    public static ReadOnlySpan<ushort> ContactCrumbleByReactionIndex => ContactCrumbleLists;
 }

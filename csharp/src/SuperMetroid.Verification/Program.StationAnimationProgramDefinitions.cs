@@ -12,35 +12,9 @@ internal static partial class Program
         VerifyStationAnimationDurations(rom);
         VerifyStationAnimationDraws(rom);
 
-        int drawCount = 0;
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmStationDrawDefinitions.All)
-        {
-            int cursor = list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                AssertEqual(run.DirectionAndCount,
-                    ReadStationRomWord(rom, cursor),
-                    $"station draw ${list.Pointer:X4} direction/count");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(word, ReadStationRomWord(rom, cursor),
-                        $"station draw ${list.Pointer:X4} physical level word");
-                    cursor += 2;
-                }
-
-                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor++),
-                    $"station draw ${list.Pointer:X4} next X");
-                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor++),
-                    $"station draw ${list.Pointer:X4} next Y");
-            }
-
-            drawCount++;
-        }
-        AssertEqual(20, drawCount, "every station animation and access draw list is compiled");
-        AssertTrue(!RoomPlmStationDrawDefinitions.TryGet(0x9a40, out _),
-            "adjacent ROM bytes cannot alias a complete station draw list");
+        VerifyStationLayoutGeometry(rom);
+        VerifyStationLayoutCollision(rom);
+        VerifyStationLayoutVisuals(rom);
 
         VerifyStationAccessRetractedDraws(rom);
         VerifyStationAccessExtendedDraws(rom);

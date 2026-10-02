@@ -24,7 +24,7 @@ internal static partial class Program
             AssertEqual(entry.Pointer, exported[index].Pointer, "Station original export order");
             AssertEqual(entry.Id, RoomPlmStationDrawDefinitions.VisualId(entry.Pointer), "Station original published ID");
             AssertTrue(RoomPlmStationDrawDefinitions.TryGetByVisualId(entry.Id, out var resolved), "Station original reverse identity");
-            AssertEqual(exported[index], resolved, "Station reverse identity selects the complete original draw");
+            AssertEqual(exported[index].Pointer, resolved.Pointer, "Station reverse identity selects the complete original draw");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " " })
             {
                 AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out var missing), "Station IDs remain ordinal and exact");

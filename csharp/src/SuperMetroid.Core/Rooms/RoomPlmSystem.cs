@@ -2108,12 +2108,22 @@ public sealed partial class RoomPlmSystem
             }
             return;
         }
-        if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
+        if (RoomPlmStationDrawDefinitions.TryDescribe(drawPointer, out var station))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, station, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, customVisuals: stationVisuals);
+            int stationX = originX, stationY = originY;
+            for (int run = 0; run < station.RunCount; run++)
+            {
+                for (int cell = 0; cell < station.WordCount(run); cell++)
+                {
+                    ushort physical = station.WordAt(run, cell);
+                    ushort visual = stationVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, stationX + cell, stationY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                stationX = originX + station.NextX(run);
+                stationY = originY + station.NextY(run);
+            }
             return;
         }
         if (ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var elevator))

@@ -16,7 +16,7 @@ internal static class PlmClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog", "plm-station-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationVisualCatalog.cs", "AA88367B7690491545A539165C933B561E1E02698391F9EC57259ACF6395EB99"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "19FEC98C49B79BBE4E306222884AC8FDDBFDA63045569798E2651785EBD9C983")],
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "E03643585C6FAA35322C92DD4E0D44BF1181D55DCDA050042B96775B70704126")],
             "The constructor maps only compiled station visual IDs, requires each exact run/word shape, rejects duplicates and requires every station list before cloning it. GetWord has pointer/run/word guards; the provider cannot publish partial valid station art."),
         new("SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog", "plm-torizo-hand-complete-draws", ["GetWord"],
             [SharedDrawShape,

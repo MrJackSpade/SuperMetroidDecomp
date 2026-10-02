@@ -10,22 +10,48 @@ public sealed class KraidColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
-            foreach ((KraidPaletteSource source, ushort[] row) in colors.OrderBy(pair => pair.Key))
+            Append(KraidPaletteSource.RoomBackdrop, roomBackdrop);
+            Append(KraidPaletteSource.InitialTarget, initialTarget);
+            Append(KraidPaletteSource.Health, health);
+            Append(KraidPaletteSource.Secondary, secondary);
+            Append(KraidPaletteSource.DeathArm, deathArm);
+            void Append(KraidPaletteSource source, ushort[] row)
             {
                 content.Append("source", (int)source);
                 content.AppendWords("colors", row);
             }
         });
 
-    private readonly Dictionary<KraidPaletteSource, ushort[]> colors;
+    private readonly ushort[] roomBackdrop;
+    private readonly ushort[] initialTarget;
+    private readonly ushort[] health;
+    private readonly ushort[] secondary;
+    private readonly ushort[] deathArm;
 
-    private KraidColorCatalog(Dictionary<KraidPaletteSource, ushort[]> colors) =>
-        this.colors = colors;
+    private KraidColorCatalog(KraidColorDocument document)
+    {
+        roomBackdrop = Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop);
+        initialTarget = Compile(document.InitialTarget, KraidPaletteSource.InitialTarget);
+        health = Compile(document.Health, KraidPaletteSource.Health);
+        secondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
+        deathArm = Compile(document.DeathArm, KraidPaletteSource.DeathArm);
+    }
 
+    /// <summary>
+    /// Selects one of five named editable sources directly. Each source keeps its
+    /// own loaded color bounds; unknown sources and out-of-range indices are rejected.
+    /// </summary>
     public ushort Resolve(KraidPaletteSource source, int index)
     {
-        if (!colors.TryGetValue(source, out ushort[]? band))
-            throw new ArgumentOutOfRangeException(nameof(source));
+        ushort[] band = source switch
+        {
+            KraidPaletteSource.RoomBackdrop => roomBackdrop,
+            KraidPaletteSource.InitialTarget => initialTarget,
+            KraidPaletteSource.Health => health,
+            KraidPaletteSource.Secondary => secondary,
+            KraidPaletteSource.DeathArm => deathArm,
+            _ => throw new ArgumentOutOfRangeException(nameof(source)),
+        };
         if ((uint)index >= band.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
         return band[index];
@@ -48,19 +74,7 @@ public sealed class KraidColorCatalog
         }
         if (document.Version != KraidColorFormat.Version)
             throw new InvalidDataException("Kraid colors require the supported version.");
-        return new(new Dictionary<KraidPaletteSource, ushort[]>
-        {
-            [KraidPaletteSource.RoomBackdrop] = Compile(document.RoomBackdrop,
-                KraidPaletteSource.RoomBackdrop),
-            [KraidPaletteSource.InitialTarget] = Compile(document.InitialTarget,
-                KraidPaletteSource.InitialTarget),
-            [KraidPaletteSource.Health] = Compile(document.Health,
-                KraidPaletteSource.Health),
-            [KraidPaletteSource.Secondary] = Compile(document.Secondary,
-                KraidPaletteSource.Secondary),
-            [KraidPaletteSource.DeathArm] = Compile(document.DeathArm,
-                KraidPaletteSource.DeathArm),
-        });
+        return new(document);
     }
 
     public static byte[] Write(KraidColorDocument document)

@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-kraid-color-sources"])
+{
+    VerifyKraidColorSourceSelection();
+    return 0;
+}
 if (args is ["--lookup-kraid-health-thresholds"])
 {
     var healthOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

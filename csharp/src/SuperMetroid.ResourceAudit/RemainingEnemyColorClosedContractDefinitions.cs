@@ -22,7 +22,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs", "BC86BF385470ADA3AB9E8C98DB8520E402EA457F3357082F1636A42EF41FF6B5")],
             "The private-constructor loader requires all four named auxiliary palettes and each definition's exact frame/color counts, compiled into independent arrays. Resolve guards membership and selected frame/color bounds. Known short palettes cannot borrow another palette's dimensions; enemy cadence is not certified."),
         new("SuperMetroid.Core.Assets.KraidColorCatalog", "kraid-complete-color-sources", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs", "457C283E6823382D5B0F8ECFD9C7BC411502B595FB669DFF8FB705D5F158BC34"),
+            [new("csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs", "AB53FB20F5083622185CE264E462C3F4FD30ECCAF23E4572024A9E89A85A24CF"),
              new("csharp/src/SuperMetroid.Core/Game/KraidPaletteRomData.cs", "563DFBD7AF03CBB41501AAD1D804E72E1BF7EFE3ADF26F60423CFBE6D9B6B6DA")],
             "Private construction requires all five sources with their exact sixteen- or one-hundred-forty-four-color lengths and compiles independent words. Resolve guards source membership and selected array bounds. Known short sources cannot borrow health/secondary capacity. Fade arithmetic and battle phases are not executed."),
         new("SuperMetroid.Core.Assets.ZebetiteColorCatalog", "zebetite-complete-pulse-colors", ["Apply"],

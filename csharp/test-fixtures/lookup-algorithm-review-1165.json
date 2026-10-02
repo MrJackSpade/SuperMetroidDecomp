@@ -2501,4 +2501,19 @@
         "fixtureChanges": "Growth fixture now sets initial health1000 for threshold875. Arm fixture uses initial health104 and below-half51 for native half52, replacing an impossible manually assigned half50. Debug audit enumerates calculated results against its independent retail arrays.",
         "remainingScope": "Other generated caches and remaining lookup mappings still require their own reviews."
     }
+,
+    "kraidColorSourceSelectionReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidColorCatalog.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
+        "nativeIdentity": "Port-owned five-source selector for editable Kraid color document",
+        "consumers": ["RoomEnemySystem.ReadKraidColor", "KraidColorCatalog.ContentIdentity", "installed-color verifiers"],
+        "domain": "Five KraidPaletteSource values; indices0..15 for RoomBackdrop/InitialTarget/DeathArm and0..143 for Health/Secondary. Unknown source or invalid selected index throws ArgumentOutOfRangeException.",
+        "reviewedEvidence": "Original private dictionary constructor and Load compilation order; enum definition; all Resolve and identity consumers. Original dictionary mapping is captured independently by a five-source fixture with distinct RGB5 values at every index.",
+        "disposition": "Remove dictionary lookup and its generated key roster. Compile editable rows into five named private fields; Resolve selects the field through named enum cases. Content identity appends fields explicitly in original enum order.",
+        "rationale": "Fixed semantic source dispatch does not need a dictionary. Editable color content remains user-supplied data; this disposition covers source selection only and does not claim the color values have been algorithmically converted or independently retained.",
+        "proof": "VerifyKraidColorSourceSelection: all336 constructed colors across five independently populated source rows, each row boundary, invalid enums, and identity equivalence to the original sorted-dictionary contract.",
+        "confirmation": "Verification build and --lookup-kraid-color-sources pass. ResourceAudit source pin refreshed after reviewing the sole private constructor, required five Compile calls, unchanged validation and source/index rejection.",
+        "remainingScope": "Palette source-address/count mappings and actual color content retain separate review scope."
+    }
 }

@@ -26,9 +26,6 @@ internal static partial class Program
             StationAnimationProgramDefinitions.MapIdle, 0).DrawPointer;
         AssertEqual((ushort)0x0053, edited.GetWord(pointer, 0, 0),
             "station visual catalog copies author data");
-        AssertEqual((ushort)0x010c, stock.GetWord(pointer, 0, 0),
-            "stock station visual retains map frame zero");
-
         (ushort physical, ushort immediate, ushort streamed) Render(
             RoomPlmStationVisualCatalog visuals)
         {
@@ -75,19 +72,6 @@ internal static partial class Program
         AssertEqual((ushort)0x0053, changed.streamed,
             "edited station visual survives later camera streaming");
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmStationVisualCatalog(entries.Skip(1)),
-            "station visual catalog rejects missing frames");
-        first.Runs[0][0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmStationVisualCatalog(entries),
-            "station visual catalog rejects collision bits");
-        first.Runs[0][0] = 0x0053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmStationVisualCatalog(entries.Select(entry =>
-                entry.Id == "map-frame-0" ? entry with { Id = "missing-frame" } : entry)),
-            "station visual catalog rejects unknown frame IDs");
-
         var gameplayBus = new TestAddressSpace();
         SeedRoomPlmPopulationRom(gameplayBus);
         VerifyOtherStationFamilies(gameplayBus, edited);
@@ -111,9 +95,7 @@ internal static partial class Program
                 installation.RoomPlmStationVisualDirectory);
             ushort pointer = StationAnimationProgramDefinitions.Resolve(
                 StationAnimationProgramDefinitions.MapIdle, 0).DrawPointer;
-            AssertEqual((ushort)0x010c,
-                installation.LoadRoomPlmStationVisuals().GetWord(pointer, 0, 0),
-                "installed station stock matches native map art");
+            VerifyStationStockMapping(rom, installation.LoadRoomPlmStationVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmStationVisualDirectory,
                 RoomPlmStationVisualFiles.VisualFileName);

@@ -4538,7 +4538,7 @@
     "domain":"Exactly twenty original pointers and names, original enumeration order preserved. All other ushort pointers throw InvalidDataException. Unknown, null, case-changed, padded and unsupported numbered IDs remain rejected with a default draw output.",
     "proof":"VerifyStationVisualIds uses an independent literal copy of the original exported pointer/name contract, checks all twenty forward/reverse mappings and exact draw selections, all unsupported ushort pointers, ordinal and malformed-name rejection, null behavior and export order.",
     "confirmation":"Verification and ResourceAudit builds plus --station-animation-programs pass the ID proof, existing native program/layout/access checks and production station/save/custom/installed-artwork fixtures. Presentation source pin updated.",
-    "scope":"Complete exported station artwork identity mapping. No retention exception. Physical layouts are resolved under stationPhysicalDrawReview; stock artwork remains audit work; wider maintained-source audit remains active."
+    "scope":"Complete exported station artwork identity mapping. No retention exception. Physical layouts are resolved under stationPhysicalDrawReview; stock artwork is resolved under stationStockVisualReview; wider maintained-source audit remains active."
   }
 ,
   "stationPhysicalDrawReview": {
@@ -4549,6 +4549,17 @@
     "visuals":{"disposition":"converted","algorithm":"Map display tiles advance 32 per frame with adjacent left tile; resource tiles advance one per frame and upper partner is 32 earlier. Save floor/cap use tile 59 and shaft 5B, active-A adds one, right cells reflect horizontally and floor cells vertically. Map access chooses 128/129 by extension and reflects side/opposite cell. Resource access chooses C3/C1 by extension with right-side horizontal reflection.","proof":"VerifyStationLayoutVisuals compares all 64 original low-twelve-bit fields through calculated and DTO/export/reverse-ID views."},
     "consumers":"Runtime drawing directly calculates words and absolute signed positions. Temporary DTOs remain for artwork interfaces; no stored physical layout or generated physical cache remains. Existing ID proof now checks selected pointer rather than array-reference identity, while the three field proofs cover complete reverse-ID data.",
     "confirmation":"Verification and ResourceAudit builds and --station-animation-programs pass all three field proofs, twenty production draws, existing animation/access/ID proofs and station/save/custom/installed artwork fixtures. Old combined physical comparison consolidated and presentation source pin updated.",
-    "scope":"Complete owned station physical geometry, collision and visual mappings. No retention exception. Stock artwork and wider maintained-source audit remain active."
+    "scope":"Complete owned station physical geometry, collision and visual mappings. No retention exception. Stock artwork is resolved under stationStockVisualReview; wider maintained-source audit remains active."
+  }
+,
+  "stationStockVisualReview": {
+    "status":"converted: duplicate twenty-frame stock artwork dictionary removed",
+    "source":"Supported NTSC J/U v1.0 bank 84 original save/map/resource/access draw records. Physical mapping independently established under stationPhysicalDrawReview. Read stock factory, constructor, getter, content hashing, live renderer and installed artwork consumers.",
+    "algorithm":"Stock creates an empty catalog; getter validates calculated pointer/run/cell shapes and projects the visual bits of calculated physical words. Constructor still requires every unique known ID and exact valid run shape, cloning only changed frames. No stock or generated cache remains.",
+    "identity":"Preserve ascending pointer order and original per-run hash framing, including run counts and lengths, with a temporary two-word buffer. Imported entry order is irrelevant.",
+    "domain":"Twenty frame pointers and all 64 cells. Unknown pointers remain InvalidDataException; invalid run/cell integers remain ArgumentOutOfRangeException. Incomplete, duplicate, wrong-case, wrong-shape and collision-bearing imports remain rejected. Later mutation of imported changed or unchanged arrays cannot alter selected artwork.",
+    "proof":"VerifyStationStockMapping independently parses original native draw words/run boundaries and compares all 64 visual words and original hashes through stock, reverse-order import and installed catalogs; covers full ushort rejection, extreme/boundary indexes, mixed custom/stock reads/hash, input isolation and constructor failures. Previous isolated stock/constructor checks consolidated.",
+    "confirmation":"Verification and ResourceAudit builds and --station-animation-programs pass the stock proof, native physical/program/access/ID proofs, twenty production draw paths and existing station/save/immediate/streamed/installed artwork fixtures. Presentation source pin and contract text updated.",
+    "scope":"Complete station stock appearance and content-identity mapping. No retention exception; wider maintained-source audit remains active."
   }
 }

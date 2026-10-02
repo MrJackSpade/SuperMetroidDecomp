@@ -3345,4 +3345,19 @@
     "confirmation": "Verification build and --lookup-torizo-statue-programs check the five separately named mappings, every odd in-range parameter and representative high/maximum invalid values, all sixteen real projectile allocations with all five original tables forbidden, and existing fragment timelines.",
     "scope": "Compound spawn table's five fields only. Remaining program structure, packed sound bytes, visual pointers and artwork still require review; no retention exception claimed."
   }
+,
+  "bombTorizoStatueProgramLayoutReview": {
+    "status": "reviewed-existing-algorithm",
+    "source": "NTSC J/U v1.0 86:A4C3-A5D2 sixteen seventeen-byte programs; pinned bank_86.asm",
+    "mechanics": {
+      "disposition": "Existing named command decoder and program-stride calculation already avoid stored control tables. Removed duplicated command values from MechanicsWord: it now derives positions from the first timed frame, three-byte sound instruction, callback/argument, second timed frame and delete, then reuses ReadMechanicsWord.",
+      "proof": "VerifyStatueProgramControlLayout independently lists sixteen native starts and six command positions, checks all 96 direct/enumerated values against ROM and full byte ownership including high-bit aliases/other-bank rejection. Rejects every non-control start in and adjacent to the range, including the packed sound byte, visuals and second bytes, plus distant invalid inputs. Existing initial-duration proof covers ordinal bounds."
+    },
+    "presentationAddresses": {
+      "disposition": "Existing two-per-program calculation selects the initial and falling frame operands across seventeen-byte strides; no stored position table remains.",
+      "proof": "VerifyStatueProgramPresentationLayout independently lists all 32 native operand addresses and checks count, ordering and ordinal exceptions."
+    },
+    "confirmation": "Verification build and --lookup-torizo-statue-programs pass all sixteen production fragment allocations and exact wait/fall/delete timelines with control reads forbidden.",
+    "scope": "Program control and sprite-operand positions only. Packed sound values/routing, sprite-pointer values and artwork still require independent review; excluding sound bytes from word ownership is not a retention exception."
+  }
 }

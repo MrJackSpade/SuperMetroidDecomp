@@ -39,27 +39,19 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int programIndex = index / 6;
         ushort program = Program(programIndex);
-        return (index % 6) switch
+        int word = index % 6;
+        // First timed frame, three-byte sound command, callback plus argument,
+        // second timed frame, then delete. Reuse the direct reader for values.
+        int offset = word switch
         {
-            0 => new BombTorizoStatueInstructionMechanicsWord(
-                program, InitialDuration(programIndex)),
-            1 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 4)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-            2 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 7)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            3 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 9)),
-                EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling),
-            4 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 11)), 0x0070),
-            _ => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 15)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            0 => 0,
+            1 => 4,
+            2 or 3 or 4 => 7 + 2 * (word - 2),
+            _ => 15,
         };
+        ushort address = (ushort)(program + offset);
+        return new(address, ReadMechanicsWord(address));
     }
-
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

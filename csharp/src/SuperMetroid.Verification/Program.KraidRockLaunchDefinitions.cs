@@ -4,8 +4,25 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
     {
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            int address = 0xa7bc65 + (raw & 14);
+            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom((ushort)raw),
+                "Every native Kraid rock velocity selection");
+        }
+    }
+
+    private static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    {
+        VerifyKraidRockLaunchSpeedSelection(rom);
+        if (definitionsOnly)
+        {
+            Console.WriteLine("Kraid spit speeds: all65536 RNG words match the eight native signed8.8 choices.");
+            return;
+        }
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -21,7 +38,6 @@ internal static partial class Program
         {
             random = (ushort)raw;
             ushort expected = Word(EnemyRomTablePointers.Kraid.RockXVelocityWords + (raw & 14));
-            AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom(random), "Every native Kraid rock velocity selection");
             rock.Clear();
             rock.XSubposition = rock.YSubposition = 0xffff;
             body.XPosition = (ushort)raw;

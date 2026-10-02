@@ -2533,4 +2533,19 @@
         "newConversions": 0,
         "remainingScope": "Actual stock color values and their possible inter-band rules remain distinct from these source selector dispositions."
     }
+,
+    "kraidSpitSpeedSelectionReview": {
+        "state": "converted",
+        "implementationCommit": "Resolve with git log for KraidRockLaunchDefinitions.cs",
+        "owner": "csharp/src/SuperMetroid.Core/Game/KraidRockLaunchDefinitions.cs",
+        "consumer": "RoomEnemySystem.SpawnKraidSpitRock",
+        "nativeIdentity": "A7:BC65 eight signed8.8 launch words; BC0D-BC17 random selector and spawn",
+        "domain": "Every ushort RNG word. Mask000E selects one of eight even offsets; no invalid word inputs, interpolation, odd reads or adjacent aliases.",
+        "reviewedEvidence": "Pinned bank_A7.asm current-seed read, mask, table and spawn; upstream-sm sm_a7.c g_word_A7BC65 usage; all managed selector consumers. Original NTSC J/U v1.0 eight words independently checked across full RNG input domain.",
+        "disposition": "Remove stored velocity span. Four explicit launch-speed cases preserve exact random branch assignments: offsets0/10 select-4,2/14 select-3.75,4/8 select-4.75,6/12 select-4.5 pixels/frame. Encode signed8.8 from integral quarter-pixel units.",
+        "rationale": "Existing random input chooses one of four physical launch categories, each with two slots and one-quarter weight. This is semantic randomized action selection, not a sampled trajectory or a table generating an arbitrary chronological RNG sequence. Cases preserve original branch identities rather than replacing them with a statistically equivalent distribution or fitted numeric expression.",
+        "proof": "VerifyKraidRockLaunchSpeedSelection extracted from the existing original-ROM proof, covers all65536 random words against the eight original words. Existing actor verifier delegates this numerical proof and retains its separate spawn/RNG-side-effect assertions.",
+        "confirmation": "Verification build and --lookup-kraid-spit-speeds pass. Runtime caller still reads RNG once without advancing it, uses the selected raw word and applies its independent fixed vertical velocity. Broad actor matrix not run. No remaining HorizontalVelocities consumer or generated speed cache.",
+        "remainingScope": "Other Kraid and repository-wide mappings remain incomplete."
+    }
 }

@@ -3607,6 +3607,16 @@
     "controls": {"algorithm": "Each supported record draws for one tick and then deletes; calculate field offset within its bounded region.", "proof": "VerifyBombedRevealControlMapping independently lists twelve original controls and six operands, checks the full ushort accepted/rejected word domain and cleared missing outputs, then compares every native control and its shared RoomPlmProgramDefinitions consumer result."},
     "drawOperands": {"algorithm": "Named program cases select single/horizontal/vertical/square crumble or the Power Bomb/Super Missile reveal draw. No array or generated cache remains.", "proof": "VerifyBombedRevealDrawMapping independently lists all six original operand addresses and compares native values through both direct and shared program readers. The shared address-ownership contract is covered by the control proof."},
     "confirmation": "Verification build and --lookup-block-reaction-selectors pass both reveal proofs through direct/shared readers and the existing bomb/crumble/linked-visual fixtures.",
-    "scope": "Six reveal programs and their controls/draw selection only. Separate reveal draw definitions and other program families still require independent review; no retention exception claimed."
+    "scope": "Six reveal programs and their controls/draw selection only. The three reveal draw definitions are independently confirmed under bombedRevealPhysicalDrawReview; other program families still require review; no retention exception claimed."
+  }
+,
+  "bombedRevealPhysicalDrawReview": {
+    "status": "existing named cases independently verified",
+    "source": "NTSC J/U v1.0 84:A49B..A4A0, A4E7..A4EC, A4ED..A4F2; pinned bank_84.asm",
+    "algorithm": "Existing TryGet selects the semantic CrumbleSingle, PowerBomb or SuperMissile draw identity. Each constructs one horizontal single-block record with a terminating zero offset; the named cases select intact type-B crumble or type-C weapon-gated parent and its corresponding tile. The owner has no stored lookup or generated cache, so no production rewrite is warranted.",
+    "proof": "VerifyBombedRevealPhysicalDrawMapping independently identifies the three native pointers, compares every record's count, level word and terminating offsets with ROM, and checks the full ushort accepted/rejected pointer domain and cleared missing output.",
+    "consumer": "The sole RoomPlmSystem consumer passes the constructed one-block record to the existing compiled draw interpreter without changing visual/collision separation.",
+    "confirmation": "Verification build and --lookup-block-reaction-selectors pass the complete reveal draw proof and existing block/visual checks. Production code unchanged.",
+    "scope": "Three physical reveal-draw cases only. This is a checked existing implementation, not a retention exception based on table size or complexity. Temporary return DTOs are not stored lookup tables."
   }
 }

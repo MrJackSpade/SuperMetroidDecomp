@@ -3,6 +3,31 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool found = RoomPlmBombedRevealDrawDefinitions.TryGet((ushort)pointer, out var draw);
+            AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), draw, "bombed reveal missing draw cleared");
+                continue;
+            }
+            AssertEqual((ushort)pointer, draw.Pointer, "bombed reveal draw identity");
+            AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
+            var run = draw.Runs.Span[0];
+            ushort count = ReadBotwoonInstructionWord(rom,0x840000 | pointer);
+            AssertEqual(count,run.DirectionAndCount,"bombed reveal native direction/count");
+            AssertEqual(count & 0x7fff,run.LevelWords.Length,"bombed reveal native word count");
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
+                "bombed reveal native physical parent and visual tile");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.NextX,"bombed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.NextY,"bombed reveal native terminal Y");
+        }
+    }
+
     private static void VerifyBombedRevealControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] controls = [0xc8ec,0xc8f0,0xc8f2,0xc8f6,0xc8f8,0xc8fc,0xc8fe,0xc902,0xc91c,0xc920,0xc922,0xc926];

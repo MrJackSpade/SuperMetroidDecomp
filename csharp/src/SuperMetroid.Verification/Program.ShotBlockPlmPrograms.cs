@@ -52,6 +52,9 @@ internal static partial class Program
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         VerifyShotBlockStockVisualMapping(rom);
+        VerifyShotBlockProgramControlMapping(rom);
+        VerifyShotBlockProgramDrawMapping(rom);
+        VerifyShotBlockProgramSoundMapping(rom);
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
@@ -182,6 +185,61 @@ internal static partial class Program
         VerifyShotBlockVisualInstallation(rom);
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
+    }
+
+    private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>
+        [(0xcadf,7,true),(0xcb02,8,false),(0xcb27,8,false),(0xcb4c,8,false),
+         (0xcbb7,4,false),(0xcbcc,4,false),(0xcbe1,4,false),(0xcbf6,4,false),
+         (0xcb71,7,true),(0xcb94,7,true),(0xcc0b,4,false),(0xcc20,4,false),(0xcd53,4,false)];
+
+    private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        {
+            addresses.Add(layout.Start);
+            for (int frame = 0; frame <= layout.Frames; frame++)
+                addresses.Add((ushort)(layout.Start + 3 + 4 * frame));
+            if (layout.RestoreWord) addresses.Add((ushort)(layout.Start + 5 + 4 * layout.Frames));
+        }
+        AssertTrue(addresses.SequenceEqual(RoomPlmShotBlockProgramDefinitions.MechanicsWordAddresses()), "shot-block native control enumeration order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full control-word domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native control value including respawn hold and Power Bomb cadence");
+        }
+    }
+
+    private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new HashSet<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Start + 5 + 4 * frame));
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            AssertEqual(addresses.Contains((ushort)address), found, "shot-block full draw-operand domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native shape, reverse breakup and restoration draw selection");
+        }
+    }
+
+    private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
+            0xcb73,0xcb96,0xcc0d,0xcc22,0xcd55];
+        AssertTrue(addresses.SequenceEqual(RoomPlmShotBlockProgramDefinitions.MechanicsByteAddresses()), "shot-block native sound operand order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full packed sound domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0, value, "shot-block native packed sound IDs");
+        }
     }
 
     private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)

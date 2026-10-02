@@ -3500,4 +3500,15 @@
     "dataBoundary": "The remaining dictionary contains only selected external custom artwork, not the fixed stock mapping. This is not a retention exception for any fixed numerical or control table.",
     "scope": "Stock shot-block presentation lookup and identity preservation only. Other program mappings and the broader inventory remain independent work."
   }
+,
+  "shotBlockProgramDescriptorReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:CADF-CC34 and 84:CD53-CD67; pinned bank_84.asm",
+    "descriptor": "Removed thirteen stored program records. Named program roles determine shape/draw stride, respawn policy, single-block word restoration versus multi-block restoration draw, and sound queue (Super Missile maximum six, enemy-breakable maximum three, otherwise maximum one). Preserve original enumeration order with named start identities and allocation-free value descriptors.",
+    "controls": {"algorithm": "Reuse existing packed-opcode/timed-record decoder: four breakup frames, reversed three-frame respawn reveal, optional final shape restoration or original-word restore, then deletion. Four-tick transitions, 384-tick respawn hold, one-tick terminal frame, and permanent Power Bomb 3/2/1/1 timing remain exact.", "proof": "VerifyShotBlockProgramControlMapping independently specifies thirteen native starts/layouts and checks complete control enumeration, all 102 native control words and the entire ushort accepted/rejected address domain with missing outputs cleared."},
+    "drawOperands": {"algorithm": "Reuse shape base plus native record stride and forward/reverse breakup stage selection; multi-block respawn selects its named final restoration draw.", "proof": "VerifyShotBlockProgramDrawMapping checks every native draw operand and all ushort non-operands independently, including packed alignment and restoration."},
+    "packedSound": {"algorithm": "Each named program exposes only its byte at start+2, with the common native sound ID 0A. Sound opcode policy belongs to the control mapping.", "proof": "VerifyShotBlockProgramSoundMapping independently lists all thirteen packed byte addresses, checks enumeration and native bytes, and rejects every other ushort address with zero output."},
+    "confirmation": "Verification build and --lookup-shot-block-draws pass the separate proofs, existing eight ordinary shot-block production paths, visual override checks and Botwoon shared draw behavior.",
+    "scope": "Thirteen program descriptors and their control/draw/sound readers only. Other selectors and unrelated program families remain independent review work; no retention exception claimed."
+  }
 }

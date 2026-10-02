@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Rooms;
 /// enemy-breakable shot-block PLM programs.
 /// Draw-list operands name compiled terrain mutations, not editable artwork bytes.
 /// Their payloads remain in the separate draw-list domain.
+/// Native programs at $84:CADF-$CC34 and $84:CD53-$CD67 use a packed sound byte,
+/// four-byte timed draw records, and named restore/delete commands. Program roles
+/// select shape, respawn policy and sound queue; no descriptor table is stored.
 /// </summary>
 internal static class RoomPlmShotBlockProgramDefinitions
 {
@@ -19,38 +22,52 @@ internal static class RoomPlmShotBlockProgramDefinitions
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    private static readonly Program[] Programs =
-    [
-        new(RoomPlmInstructionLists.RespawningShotBlock1x1, true, true,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-        new(RoomPlmInstructionLists.RespawningShotBlock2x1, true, false,
-            RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreHorizontal),
-        new(RoomPlmInstructionLists.RespawningShotBlock1x2, true, false,
-            RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreVertical),
-        new(RoomPlmInstructionLists.RespawningShotBlock2x2, true, false,
-            RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, RoomPlmShotBlockDrawDefinitions.RestoreSquare),
-        new(RoomPlmInstructionLists.PermanentShotBlock1x1, false, false,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-        new(RoomPlmInstructionLists.PermanentShotBlock2x1, false, false,
-            RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8),
-        new(RoomPlmInstructionLists.PermanentShotBlock1x2, false, false,
-            RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8),
-        new(RoomPlmInstructionLists.PermanentShotBlock2x2, false, false,
-            RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16),
-        new(RoomPlmInstructionLists.RespawningSuperMissileBlock, true, true,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
-            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6),
-        new(RoomPlmInstructionLists.RespawningPowerBombBlock, true, true,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-        new(RoomPlmInstructionLists.PermanentSuperMissileBlock, false, false,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
-            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6),
-        new(RoomPlmInstructionLists.PermanentPowerBombBlock, false, false,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-        new(EnemyBreakableTerrainDefinitions.InstructionList, false, false,
-            RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6,
-            SoundOpcode: RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3),
-    ];
+    private const int ProgramCount = 13;
+
+    // Enumeration preserves the public control-address order; named program roles
+    // determine shape, restoration and sound routing instead of stored records.
+    private static Program ProgramAt(int index)
+    {
+        ushort start = index switch
+        {
+            0 => RoomPlmInstructionLists.RespawningShotBlock1x1,
+            1 => RoomPlmInstructionLists.RespawningShotBlock2x1,
+            2 => RoomPlmInstructionLists.RespawningShotBlock1x2,
+            3 => RoomPlmInstructionLists.RespawningShotBlock2x2,
+            4 => RoomPlmInstructionLists.PermanentShotBlock1x1,
+            5 => RoomPlmInstructionLists.PermanentShotBlock2x1,
+            6 => RoomPlmInstructionLists.PermanentShotBlock1x2,
+            7 => RoomPlmInstructionLists.PermanentShotBlock2x2,
+            8 => RoomPlmInstructionLists.RespawningSuperMissileBlock,
+            9 => RoomPlmInstructionLists.RespawningPowerBombBlock,
+            10 => RoomPlmInstructionLists.PermanentSuperMissileBlock,
+            11 => RoomPlmInstructionLists.PermanentPowerBombBlock,
+            12 => EnemyBreakableTerrainDefinitions.InstructionList,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        bool respawns = start is RoomPlmInstructionLists.RespawningShotBlock1x1 or
+            RoomPlmInstructionLists.RespawningShotBlock2x1 or RoomPlmInstructionLists.RespawningShotBlock1x2 or
+            RoomPlmInstructionLists.RespawningShotBlock2x2 or RoomPlmInstructionLists.RespawningSuperMissileBlock or
+            RoomPlmInstructionLists.RespawningPowerBombBlock;
+        (ushort first, int stride, ushort restore) = start switch
+        {
+            RoomPlmInstructionLists.RespawningShotBlock2x1 or RoomPlmInstructionLists.PermanentShotBlock2x1 =>
+                (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreHorizontal),
+            RoomPlmInstructionLists.RespawningShotBlock1x2 or RoomPlmInstructionLists.PermanentShotBlock1x2 =>
+                (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreVertical),
+            RoomPlmInstructionLists.RespawningShotBlock2x2 or RoomPlmInstructionLists.PermanentShotBlock2x2 =>
+                (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, RoomPlmShotBlockDrawDefinitions.RestoreSquare),
+            _ => (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, (ushort)0),
+        };
+        ushort sound = start switch
+        {
+            RoomPlmInstructionLists.RespawningSuperMissileBlock or RoomPlmInstructionLists.PermanentSuperMissileBlock =>
+                RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+            EnemyBreakableTerrainDefinitions.InstructionList => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3,
+            _ => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct,
+        };
+        return new(start, respawns, respawns && restore == 0, first, stride, respawns ? restore : (ushort)0, sound);
+    }
 
     /// <summary>
     /// Resolves the second word of each native timer/draw record, including $84:CBBC.
@@ -59,8 +76,9 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// </summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             int offset = address - program.Start - 5;
             if (offset < 0 || offset % 4 != 0 || offset / 4 >= program.FrameCount)
                 continue;
@@ -79,8 +97,9 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start)
             {
                 value = program.SoundOpcode;
@@ -128,8 +147,9 @@ internal static class RoomPlmShotBlockProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
                 value = BreakSoundId;
@@ -144,8 +164,9 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
     internal static IEnumerable<ushort> MechanicsWordAddresses()
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return program.Start;
             for (int frame = 0; frame < program.FrameCount; frame++)
                 yield return checked((ushort)(program.Start + 3 + 4 * frame));
@@ -157,7 +178,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsByteAddresses()
     {
-        foreach (Program program in Programs)
-            yield return checked((ushort)(program.Start + 2));
+        for (int index = 0; index < ProgramCount; index++)
+            yield return checked((ushort)(ProgramAt(index).Start + 2));
     }
 }

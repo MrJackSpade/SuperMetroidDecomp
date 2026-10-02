@@ -4,6 +4,61 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
+        AssertTrue(pointers.SequenceEqual(RoomPlmBombBlockRestoreDrawDefinitions.All.Select(draw => draw.Pointer)),
+            "bomb restoration export order matches native layouts");
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool expected = pointers.Contains((ushort)pointer);
+            bool found = RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe((ushort)pointer, out var draw);
+            bool exported = RoomPlmBombBlockRestoreDrawDefinitions.TryGet((ushort)pointer, out var list);
+            AssertEqual(expected, found, "bomb restoration full native pointer domain");
+            AssertEqual(expected, exported, "bomb restoration export pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmBombBlockRestoreDrawDefinitions.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
+                continue;
+            }
+            int cursor = pointer;
+            int run = 0;
+            while (true)
+            {
+                ushort nativeCount = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                int count = nativeCount & 0x7fff;
+                AssertEqual(2, count, "bomb restoration two words per native run");
+                AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "bomb restoration native orientation");
+                var exportedRun = list.Runs.Span[run];
+                AssertEqual(nativeCount, exportedRun.DirectionAndCount, "bomb restoration exported direction/count");
+                AssertEqual(count, exportedRun.LevelWords.Length, "bomb restoration exported word count");
+                for (int block = 0; block < count; block++)
+                {
+                    ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (cursor + 2 + 2 * block));
+                    AssertEqual(native, draw.WordAt(run, block), "bomb restoration calculated parent/child word");
+                    AssertEqual(native, exportedRun.LevelWords.Span[block], "bomb restoration exported word");
+                }
+                cursor += 2 + 2 * count;
+                byte x = rom.ReadByte(0x840000 | cursor);
+                byte y = rom.ReadByte(0x840000 | (cursor + 1));
+                AssertEqual(unchecked((sbyte)x), exportedRun.NextX, "bomb restoration next X");
+                AssertEqual(unchecked((sbyte)y), exportedRun.NextY, "bomb restoration next Y");
+                AssertEqual((byte)0, x, "bomb restoration calculated next row X");
+                AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "bomb restoration calculated next row Y");
+                run++;
+                cursor += 2;
+                if (x == 0 && y == 0) break;
+            }
+            AssertEqual(run, draw.RunCount, "bomb restoration complete calculated runs");
+            AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
+            foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
+                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "bomb restoration run bounds");
+            foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
+                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(0, invalid), "bomb restoration block bounds");
+        }
+    }
+
     private static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -44,43 +99,9 @@ internal static partial class Program
                 RoomPlmInstructionLists.ReactionBombBlock1x1Respawning + 5, out _),
             "interleaved draw pointer is not misclassified as control");
 
-        int restoreCount = 0;
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmBombBlockRestoreDrawDefinitions.All)
-        {
-            int cursor = list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                AssertEqual(run.DirectionAndCount,
-                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
-                    $"bomb restoration ${list.Pointer:X4} direction/count");
-                forbidden.Add(0x840000 | cursor++);
-                forbidden.Add(0x840000 | cursor++);
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(word,
-                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                            rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
-                        $"bomb restoration ${list.Pointer:X4} level word");
-                    forbidden.Add(0x840000 | cursor++);
-                    forbidden.Add(0x840000 | cursor++);
-                }
-
-                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor),
-                    $"bomb restoration ${list.Pointer:X4} next X");
-                forbidden.Add(0x840000 | cursor++);
-                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
-                    $"bomb restoration ${list.Pointer:X4} next Y");
-                forbidden.Add(0x840000 | cursor++);
-            }
-
-            restoreCount++;
-        }
-
-        AssertEqual(3, restoreCount, "all linked bomb-block restoration lists are compiled");
-        AssertTrue(!RoomPlmBombBlockRestoreDrawDefinitions.TryGet(0xa4c6, out _),
-            "an unknown nearby bomb restoration pointer does not alias a compiled list");
+        VerifyBombBlockRestorationMapping(rom);
+        for (int address = 0xa4c7; address < 0xa4e7; address++)
+            forbidden.Add(0x840000 | address);
 
         // All sixteen breakup frames are shared with the already compiled shot-block
         // family. Forbid their source bytes as well, so this production check covers
@@ -133,7 +154,7 @@ internal static partial class Program
         VerifyLinkedRestoreVisualInstallation(rom);
         VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true);
 
-        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, {restoreCount} restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
+        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
     private static void VerifyBombBlockVisualSeparation(

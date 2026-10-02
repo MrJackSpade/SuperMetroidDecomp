@@ -1979,13 +1979,16 @@ public sealed partial class RoomPlmSystem
                     botwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
+        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, bombRestore, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                linkedRestoreVisuals: linkedRestoreVisuals);
+            for (int run = 0; run < bombRestore.RunCount; run++)
+            for (int block = 0; block < 2; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (bombRestore.Vertical ? 0 : block),
+                    originY + (bombRestore.Vertical ? block : run),
+                    bombRestore.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))

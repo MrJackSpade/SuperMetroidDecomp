@@ -3566,4 +3566,15 @@
     "confirmation": "Verification and ResourceAudit builds plus --lookup-block-reaction-selectors pass, including all eight crumble timelines, direct native draw comparison and existing custom-art physical/visual separation checks.",
     "scope": "Physical contact-crumble restoration draws only. The separate linked-restoration stock visual catalog still needs independent conversion/review; its stored stock words are not justified by this disposition. Bomb restoration definitions remain separate work. No retention exception claimed."
   }
+,
+  "bombBlockRestorationDrawReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 84:A4C7..A4E6; pinned bank_84.asm DrawInst_2x1/1x2/2x2RespawningBombBlock",
+    "identityAndGeometry": "Replace the generated dictionary with named horizontal, vertical and square descriptor cases. Every run has two words; square adds a second row with (0,+1) continuation. Preserve native pointer rejection, cleared missing outputs and export order.",
+    "words": "Compute the type-F top-left parent, type-5 first-row children and type-D lower-row children from coordinates, combined with the named CollisionBombParent visual tile 58. Remove stored repeated word arrays from the physical draw catalog.",
+    "proof": "VerifyBombBlockRestorationMapping consolidates the previous native restoration comparison. It independently identifies the three native pointers, parses every native count, word and continuation offset, compares direct calculation and exported DTOs, checks all ushort accepted/rejected pointers and cleared outputs, and confirms run/block bounds.",
+    "consumers": "RoomPlmSystem draws directly from the calculated descriptor, retaining visual override coordinates. Import/export and the linked artwork interface receive temporary calculated DTOs without a persistent draw cache. Updated the normalized PlmActor source pin.",
+    "confirmation": "Verification and ResourceAudit builds and --lookup-block-reaction-selectors pass, including the native restoration proof, all 24 collision/bomb/power-bomb timelines with source reads forbidden and existing visual override separation checks.",
+    "scope": "Physical bomb restoration draws only. The separate linked-restoration stock visual mapping and bomb program descriptors remain independent required work. No retention exception claimed."
+  }
 }

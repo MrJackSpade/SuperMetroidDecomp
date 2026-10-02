@@ -60,6 +60,7 @@ public enum RidleyAiFunction : ushort
     NorfairCarryMoveToAnchor = 0xbbc4,
     NorfairCarryRise = 0xbbf1,
     NorfairCarryRelease = 0xbc2e,
+    /// <summary>$A6:BD4E, Function_Ridley_DodgingPowerBomb: recover from a lunge while a bomb is armed.</summary>
     NorfairReturnToArena = 0xbd4e,
 
     // The following functions are shared with Ceres's Baby retrieval route but are only
@@ -125,6 +126,8 @@ public sealed class RidleyEnemyState
     public ushort MaximumY { get; internal set; }
     public ushort MinimumX { get; internal set; }
     public ushort MaximumX { get; internal set; }
+    /// <summary>Nonzero predicate of $A6:D86B's hitARoomBoundary, consumed by $A6:BABC.</summary>
+    public bool HitRoomBoundary { get; internal set; }
     public ushort HorizontalVelocity { get; internal set; }
     public ushort VerticalVelocity { get; internal set; }
     public ushort WingFrame { get; internal set; }

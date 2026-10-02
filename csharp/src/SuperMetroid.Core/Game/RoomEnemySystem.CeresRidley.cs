@@ -834,6 +834,11 @@ public sealed partial class RoomEnemySystem
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
         var proposedX = IntegrateUnclampedAxis(slot.XPosition, slot.XSubposition, state.HorizontalVelocity);
+        var proposedY = IntegrateUnclampedAxis(slot.YPosition, slot.YSubposition, state.VerticalVelocity);
+        state.HitRoomBoundary = unchecked((short)(proposedX.Position - state.MinimumX)) < 0 ||
+            unchecked((short)(proposedX.Position - state.MaximumX)) >= 0 ||
+            unchecked((short)(proposedY.Position - state.MinimumY)) < 0 ||
+            unchecked((short)(proposedY.Position - state.MaximumY)) >= 0;
         if (ceresWallImpact && unchecked((short)(proposedX.Position - state.MinimumX)) < 0 &&
             Math.Max(Math.Abs((int)unchecked((short)state.HorizontalVelocity)),
                 Math.Abs((int)unchecked((short)state.VerticalVelocity))) >= RidleyWallImpactDefinitions.MinimumSpeed)

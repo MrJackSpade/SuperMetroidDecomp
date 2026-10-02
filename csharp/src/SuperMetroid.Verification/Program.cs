@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ridley-missed-lunge"])
+{
+    VerifyRidleyMissedLunge();
+    return 0;
+}
 if (args is ["--crocomire-cutscene-camera"])
 {
     VerifyCrocomireCutsceneCamera();

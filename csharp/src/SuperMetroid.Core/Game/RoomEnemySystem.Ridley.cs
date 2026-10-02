@@ -316,6 +316,10 @@ public sealed partial class RoomEnemySystem
                 TickNorfairRidleyGrabApproach(slot, state, samus);
                 return;
 
+            case RidleyAiFunction.NorfairReturnToArena:
+                TickNorfairRidleyPowerBombDodge(slot, state);
+                return;
+
             case RidleyAiFunction.NorfairCarrySetup:
                 BeginNorfairRidleyCarry(slot, state);
                 return;
@@ -710,7 +714,19 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null || !SamusMovementUsesRidleyGrab(samus))
         {
-            state.Function = RidleyAiFunction.NorfairHoverSetup;
+            HandleNorfairRidleyMissedLunge(slot, state);
+            return;
+        }
+
+        // The native lunge is a passing attack, not indefinite pursuit. Test the
+        // previous movement's boundary result before applying another acceleration.
+        short deltaX = unchecked((short)(slot.XPosition - samus.XPosition));
+        bool passedSamus = state.FacingDirection == 2 ? deltaX >= 0 : deltaX < 0;
+        if (state.HitRoomBoundary ||
+            (passedSamus && unchecked((short)(Math.Abs((int)deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
+            unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.YPosition)) >= 0)
+        {
+            HandleNorfairRidleyMissedLunge(slot, state);
             return;
         }
 

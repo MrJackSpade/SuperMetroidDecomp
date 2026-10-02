@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled sound selections owned by Phantoon's bank-$A7 instruction callbacks.</summary>
 internal static class PhantoonSoundDefinitions
 {
+    /// <summary>$A7:CF68, SpawnCasualFlame: blue flame launch sound in library three.</summary>
+    internal static SoundEffectId CasualFlame => SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d);
+
+    /// <summary>$A7:CF6B, SpawnCasualFlame: QueueSound_Lib3_Max6 request capacity.</summary>
+    internal const byte CasualFlameQueueCapacity = 6;
+
     /// <summary>
     /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>, queued from
     /// sound library two in a repeating three-callback cycle.

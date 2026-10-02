@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--phantoon-flame-sound"])
+{
+    VerifyPhantoonFlameSound();
+    return 0;
+}
 if (args is ["--evir-death-frame"])
 {
     VerifyEvirDeathFrame();

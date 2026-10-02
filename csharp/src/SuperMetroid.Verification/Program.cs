@@ -46,6 +46,7 @@ if (args is ["--lookup-atomic-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(atomicOracle.Rom)),
         "Atomic oracle is NTSC J/U v1.0");
     VerifyAtomicMovementDefinitions(atomicOracle);
+    VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
 if (args is ["--lookup-draygon-intro-commands"])

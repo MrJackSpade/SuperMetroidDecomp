@@ -79,6 +79,10 @@ internal static partial class Program
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
                 "Atomic native presentation operand position");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Atomic full presentation membership domain");
         foreach (int index in new[] { int.MinValue, -1, 24, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
                 "Atomic presentation ordinal bounds");
@@ -88,14 +92,24 @@ internal static partial class Program
     {
         ushort[] addresses = AtomicPresentationAddressOracle();
         foreach (ushort address in addresses)
+        {
             AssertEqual(ReadAtomicProgramWord(rom, address),
                 EnemySpritemapDefinitions.AtomicFrameAt(address),
                 "Atomic native visual operand value");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared),
+                "Atomic shared calculated visual selection");
+            AssertEqual(ReadAtomicProgramWord(rom, address), shared, "Atomic shared native visual value");
+        }
         var valid = addresses.ToHashSet();
         for (int address = 0xe30e; address <= 0xe382; address++)
             if (!valid.Contains((ushort)address))
+            {
                 AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AtomicFrameAt((ushort)address),
                     "Atomic mechanics words, odd bytes and boundaries reject visual selection");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing),
+                    "Atomic shared selection rejects holes");
+                AssertEqual((ushort)0, missing, "Atomic missing shared result clears output");
+            }
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AtomicFrameAt(address),
                 "Atomic distant invalid visual operand");

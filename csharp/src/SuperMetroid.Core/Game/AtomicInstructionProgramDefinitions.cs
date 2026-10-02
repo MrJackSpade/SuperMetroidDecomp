@@ -42,6 +42,12 @@ internal static class AtomicInstructionProgramDefinitions
         return (ushort)(UpRight + 28 * (index / 6) + 4 * (index % 6) + 2);
     }
 
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (UpRight + 2);
+        return (uint)offset < 4 * 28 && offset % 28 <= 20 && offset % 4 == 0;
+    }
+
     /// <summary>Evaluates the six eight-frame durations, goto and loop target at
     /// $A8:E310..E37F. Interleaved visual operands remain outside this decoder.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

@@ -1336,7 +1336,7 @@ internal static class EnemySpritemapDefinitions
     internal static ushort AtomicFrameAt(ushort operandAddress)
     {
         int offset = operandAddress - 0xe312;
-        if ((uint)offset < 4 * 28 && offset % 28 <= 20 && offset % 4 == 0)
+        if (AtomicInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
             int direction = offset / 28;
             int frame = offset % 28 / 4;

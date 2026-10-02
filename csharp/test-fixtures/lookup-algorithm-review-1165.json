@@ -2851,4 +2851,16 @@
         "confirmation": "Verification and ResourceAudit builds and --lookup-alcoon-programs pass. The broader shared enumeration check is scoped to the catalog merge changed by this conversion, not a search for gameplay defects.",
         "remainingScope": "The shared catalog still contains other literal families that require independent conversion or acceptable justification, including duplicate records for earlier separately calculated actor selectors. Actor artwork/catalog identities, SPC pan and the wider source inventory remain open. No generated lookup cache is accepted as a substitute for conversion."
     }
+,
+    "atomicSharedVisualSelectorReview": {
+        "state": "converted",
+        "owners": ["csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs", "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA8.Definitions.cs", "csharp/src/SuperMetroid.Core/Game/AtomicInstructionProgramDefinitions.cs:IsPresentationWord"],
+        "nativeIdentity": "24 Atomic visual operands A8:E312..E37A; same frame mapping independently established in atomicVisualSelectorReview",
+        "reviewedEvidence": "Inspected all24 remaining shared catalog records and the sorted neighboring records. Alcoon and Atomic are consecutive catalog families: there are no intervening selector entries, although their instruction spans are separated. Read current shared TryGet/At, generator filter and audit attribution consumers.",
+        "disposition": "Remove24 literal Atomic records from BankA8. Shared TryGet delegates to AtomicFrameAt. At merges both calculated families into the preserved sorted5069-entry domain without an array of calculated entries. Add exact Atomic visual-operand membership to the instruction definition and share it with the direct selector. Generator exclusion now covers Atomic automatically through IsCalculatedSelector; audit source attribution selects AtomicFrameAt.",
+        "rationale": "The previously verified record-layout calculation is the same mapping used by shared consumers; keeping duplicate literal records would leave the lookup conversion incomplete. Membership follows four28-byte loops containing six four-byte duration/visual pairs, with goto/target holes excluded.",
+        "proof": "Extended existing VerifyAtomicPresentationAddresses to verify every ushort membership result. Extended VerifyAtomicVisualSelectors to compare all24 shared results with original ROM and reject every control/misaligned/adjacent key with zero output on misses. Existing VerifyCompiledEnemyVisualSelectors confirms all5069 merged records remain sorted, unique, native-valued and retrievable. No duplicate Atomic field proof added.",
+        "confirmation": "Verification and ResourceAudit builds and --lookup-atomic-programs pass against SHA-verified NTSC J/U v1.0, including existing focused actor initialization/program execution and complete shared-catalog comparison. Updated normalized-LF source pin.",
+        "remainingScope": "Other shared literal families and the artwork catalog remain independently unresolved, including duplicate selectors for some earlier actor-specific algorithms. This removes Atomic's shared copies only; it does not justify retaining other lookup data."
+    }
 }

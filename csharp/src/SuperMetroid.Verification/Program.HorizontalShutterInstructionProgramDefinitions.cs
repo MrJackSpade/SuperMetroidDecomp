@@ -14,18 +14,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < HorizontalShutterInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            HorizontalShutterInstructionMechanicsWord definition =
-                HorizontalShutterInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadHorizontalShutterInstructionWord(
-                    rom,
-                    0xa20000 | definition.Address),
-                $"horizontal-shutter instruction mechanics word $A2:{definition.Address:X4}");
-        }
+        VerifyHorizontalShutterMechanicsMapping(rom);
+        VerifyHorizontalShutterPresentationMapping();
 
         var guard = new HorizontalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
@@ -86,6 +76,48 @@ internal static partial class Program
             "bytes forbidden.");
     }
 
+    private static void VerifyHorizontalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xe9d4, 0xe9d8];
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitions.MechanicsWordCount, "Horizontal shutter native mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort native = ReadHorizontalShutterInstructionWord(rom, 0xa20000 | address);
+            var word = HorizontalShutterInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, word.Address, "Horizontal shutter native word address");
+            AssertEqual(native, word.Value, "Horizontal shutter enumerated native word");
+            AssertEqual(native, HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address), "Horizontal shutter direct native word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "Horizontal shutter full byte ownership");
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address), "Horizontal shutter bank mask aliases");
+            AssertTrue(!HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "Horizontal shutter rejects other bank");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = addresses[0] - 2; address <= addresses[^1] + 4; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Horizontal shutter rejects visual words, odd addresses and adjacent programs");
+        foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitions.MechanicsWord(index), "Horizontal shutter mechanics bounds");
+    }
+
+    private static void VerifyHorizontalShutterPresentationMapping()
+    {
+        ushort[] addresses = [0xe9d6];
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitions.PresentationWordCount, "Horizontal shutter visual count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Horizontal shutter native visual position");
+        var expected = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(expected.Contains((ushort)address), HorizontalShutterInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Horizontal shutter full visual membership domain");
+        foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Horizontal shutter visual bounds");
+    }
     private static int ProbeHorizontalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;

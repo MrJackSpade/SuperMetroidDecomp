@@ -13,18 +13,16 @@ internal static class HorizontalShutterInstructionProgramDefinitions
     /// <summary><c>InstList_ShutterHorizontal</c> at $A2:E9D4.</summary>
     internal const ushort Stationary = 0xe9d4;
 
-    private static readonly HorizontalShutterInstructionMechanicsWord[] Words =
-    [
-        new(0xe9d4, 1),
-        new(0xe9d8, CommonEnemyInstructionCodes.Sleep),
-    ];
-
     private const ushort PresentationWord = 0xe9d6;
 
-    internal static int MechanicsWordCount => Words.Length;
+    internal static int MechanicsWordCount => 2;
     internal static int PresentationWordCount => 1;
-    internal static HorizontalShutterInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
+    internal static HorizontalShutterInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(Stationary + 4 * index);
+        return new(address, ReadMechanicsWord(address));
+    }
     internal static ushort PresentationWordAddress(int index) => index == 0
         ? PresentationWord
         : throw new ArgumentOutOfRangeException(nameof(index));
@@ -34,32 +32,16 @@ internal static class HorizontalShutterInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
-
+        if (address == Stationary) return 1;
+        if (address == Stationary + 4) return CommonEnemyInstructionCodes.Sleep;
         throw new InvalidDataException(
             $"Horizontal-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        if ((address & 0xff0000) != 0xa20000) return false;
+        int offset = unchecked((ushort)address) - Stationary;
+        return (uint)offset < 6 && (offset < 2 || offset >= 4);
     }
 }

@@ -3078,4 +3078,31 @@
     "confirmation": "Verification build and --lookup-shutter-initial-functions. Production behavior unchanged; this adds independent evidence for two existing conversions.",
     "scope": "Initial function selection only; remaining shutter movement and artwork mappings require separate review."
   }
+,
+  "growingAndHorizontalShutterPoseProgramReview": {
+    "status": "converted",
+    "source": "NTSC J/U v1.0 bank A2 E998-E9AF growing poses and E9D4-E9D9 horizontal pose; pinned bank_A2.asm",
+    "growingMechanics": {
+      "disposition": "Removed eight stored words; four six-byte programs each contain duration one, visual operand and sleep.",
+      "proof": "VerifyGrowingShutterMechanicsMapping checks all native words, direct/enumerated lookup, full byte ownership, aliases, holes and ordinal bounds."
+    },
+    "growingPresentation": {
+      "disposition": "Removed four stored visual positions; calculate stage stride six plus visual offset two.",
+      "proof": "VerifyGrowingShutterPresentationMapping checks independent positions, full membership domain and bounds."
+    },
+    "growingEntrySelection": {
+      "disposition": "Replaced four entry-address cases with the same six-byte program stride.",
+      "proof": "VerifyGrowingShutterProgramEntries independently checks all four native entries and preserves ArgumentOutOfRangeException for invalid stages."
+    },
+    "horizontalMechanics": {
+      "disposition": "Removed two stored words; named stationary duration/sleep positions replace lookup.",
+      "proof": "VerifyHorizontalShutterMechanicsMapping checks native words, direct/enumerated lookup, full byte ownership, aliases, holes and bounds."
+    },
+    "horizontalPresentation": {
+      "disposition": "Existing single named visual identity independently reviewed; no lookup storage is necessary.",
+      "proof": "VerifyHorizontalShutterPresentationMapping checks its exact native position, full membership domain and existing ArgumentOutOfRangeException contract."
+    },
+    "integration": "Verification build and --lookup-shutter-pose-programs confirm all four real growth-stage transitions and the horizontal initializer, one-tick duration and terminal sleep, with mechanics reads forbidden and zero visual-selector cartridge reads.",
+    "scope": "Pose instruction/control mappings only. Visual pointer selection, artwork and remaining movement mappings need separate review; no retention exception claimed."
+  }
 }

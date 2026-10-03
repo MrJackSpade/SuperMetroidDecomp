@@ -74,7 +74,13 @@ public static partial class RoomFxRecordDefinitions
     public static RoomFxRecordDefinition Get(ushort pointer) => SelectRecord(pointer) ??
         throw new InvalidDataException($"No compiled room-FX record at $83:{pointer:X4}.");
 
-    /// <summary>Replays the native first-default-or-matching-door walk over typed records.</summary>
+    /// <summary>Selects the first default or matching-door record in a bounded FX suffix.</summary>
+    /// <remarks>Native $89:AB99..ABB7 treats door FFFF as an unconditional terminator,
+    /// before comparing the requested door. Zero selects a default; other mismatches
+    /// advance sixteen bytes with ushort wrap. Null roots return zero; unsupported
+    /// record identities reject. All 295 supported suffixes and every ushort door
+    /// are independently verified against original bank83 words. No stored selector
+    /// mapping is required, and the 256-record safety bound is preserved.</remarks>
     public static ushort Select(ushort fxPointer, ushort doorPointer)
     {
         if (fxPointer == 0) return 0;
@@ -82,8 +88,8 @@ public static partial class RoomFxRecordDefinitions
         for (int guard = 0; guard < 256; guard++)
         {
             ushort candidate = Get(pointer).DoorPointer;
-            if (candidate == 0 || candidate == doorPointer) return pointer;
             if (candidate == RoomFxRomData.Record.TerminatorDoorPointer) return 0;
+            if (candidate == 0 || candidate == doorPointer) return pointer;
             pointer = unchecked((ushort)(pointer + RoomFxRomData.Record.ByteCount));
         }
         throw new InvalidDataException(

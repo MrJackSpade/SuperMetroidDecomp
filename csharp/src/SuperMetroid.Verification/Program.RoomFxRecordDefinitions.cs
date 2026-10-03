@@ -30,23 +30,11 @@ internal static partial class Program
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
         VerifyRoomFxFields(bus, records);
-        ushort[] doors = RetailDoorHeaderCatalog.EnumeratePointers().ToArray();
-        foreach (ushort fxPointer in RoomStateDefinitions.All.Select(state => state.FxPointer)
-                     .Where(pointer => pointer != 0).Distinct())
-        {
-            AssertEqual(SelectFxRecordIndependently(bus, fxPointer, 0),
-                RoomFxRecordDefinitions.Select(fxPointer, 0),
-                $"compiled room-FX list $83:{fxPointer:X4} default selection");
-            foreach (ushort door in doors)
-                AssertEqual(SelectFxRecordIndependently(bus, fxPointer, door),
-                    RoomFxRecordDefinitions.Select(fxPointer, door),
-                    $"compiled room-FX list $83:{fxPointer:X4} door $83:{door:X4} selection");
-        }
+        VerifyRoomFxListSelection(bus);
         string generated = RenderRoomFxDefinitions(records.Values).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxGeneratedPath).Replace("\r\n", "\n");
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
-        VerifyRoomFxRecordSelection();
         VerifyCompiledCeresRoomFxConsumers(bus);
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }

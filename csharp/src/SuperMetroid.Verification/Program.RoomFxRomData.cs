@@ -35,7 +35,6 @@ internal static partial class Program
         foreach ((RoomFxType type, ushort nativeValue) in representativeTypes)
             AssertEqual(nativeValue, (ushort)type, $"{type} native room-FX value");
 
-        VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
         VerifyAreaAnimatedTileObjectDefinitions();
         VerifyRoomFxAnimatedTileMechanicsDefinitions();
@@ -60,27 +59,6 @@ internal static partial class Program
         Console.WriteLine(
             "  Room FX: shared record/table catalog, typed blending, liquid rise " +
             "sound/shake, sky, haze, Ceres, rain, and fog states agree.");
-    }
-
-    private static void VerifyRoomFxRecordSelection()
-    {
-        RoomFxRecordDefinition[] records = RoomFxRecordDefinitions.All.ToArray();
-        var pair = records.Zip(records.Skip(1))
-            .First(pair => pair.First.DoorPointer is not (0 or RoomFxRomData.Record.TerminatorDoorPointer) &&
-                pair.Second.Pointer == pair.First.Pointer + RoomFxRomData.Record.ByteCount &&
-                pair.Second.DoorPointer == 0);
-        ushort list = pair.First.Pointer;
-        ushort matchingDoor = pair.First.DoorPointer;
-        AssertEqual(list, RoomFxRecordDefinitions.Select(list, matchingDoor),
-            "door-specific FX record wins");
-        AssertEqual(pair.Second.Pointer,
-            RoomFxRecordDefinitions.Select(list, 0),
-            "default FX record follows nonmatching door record");
-
-        ushort terminatedList = records.First(record =>
-            record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer).Pointer;
-        AssertEqual(0, RoomFxRecordDefinitions.Select(terminatedList, matchingDoor),
-            "FX terminator declines selection");
     }
 
     private static void VerifyRoomLayer3FxTypes()

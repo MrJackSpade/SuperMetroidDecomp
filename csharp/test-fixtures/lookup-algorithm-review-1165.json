@@ -6685,4 +6685,14 @@
     "editableContract":"Import captures only independently differing target channels, including source endpoint edits, same-phase highlight changes and separately edited red/blue shares. Arbitrary valid custom palettes reproduce their supplied words exactly. Original JSON identity, full16-word CGRAM write and loader validation remain intact.",
     "proof":"Reuse the consolidated VerifyGameOverBabyColors original64-word/CGRAM oracle, original JSON hash, selector bounds and all6144 single-component edits across all64 outputs. No retention-only test or duplicate palette proof added. Verification build and isolated flag pass; ResourceAudit owner pin/build and maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "fileSelectHelmetAnimationReview": {
+    "status":"independently reviewed and consolidated existing arithmetic mapping",
+    "owners":["csharp/src/SuperMetroid.Core/Frontend/FileSelectHelmetAnimation.cs","csharp/src/SuperMetroid.Core/Frontend/FileSelectMenuState.cs","csharp/src/SuperMetroid.AssetExtraction/FileSelectPresentationExtractor.cs"],
+    "source":"Supported SHA-pinned ROM81:9E2C..9E3D contains nine sprite words; pinned bank_81.asm Draw_FileSelect_Slot_SamusHelmet81:9DE4 confirms timer reload8, increment compare8 and terminal clamp7.",
+    "algorithm":"Native samples0..8 map to2C+min(frame,7). Eight unique images are imported; ninth native sample is the repeated terminal image. Shared FrameCount8 and FrameDuration8 replace runtime/extractor literals, and both use one SpritemapId calculation. Runtime keeps its existing pre-clamp and tick/phase ordering; editable asset duration remains authoritative when installed.",
+    "domain":"New bounded helper accepts0..8 and rejects other int values before arithmetic. Native active animation clamps to0..7; no claim that sample8 is normally reached. Existing runtime and extractor formulas were already arithmetic; this review independently proves and consolidates them rather than declaring an unreviewed prior formula complete.",
+    "proof":"VerifyFileSelectHelmetAnimation compares all nine original ROM words, native LDA/CMP operands and opcodes for duration/count/clamp, and invalid int boundaries. Early SHA-pinned --lookup-file-select-helmet passes. Existing --lookup-file-select-geometry passes real extraction/loading and helmet anchors after caller migration.",
+    "confirmation":"Verification build passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry. Other file-select presentation-name lists and layout families remain separate review obligations."
+  }
 }

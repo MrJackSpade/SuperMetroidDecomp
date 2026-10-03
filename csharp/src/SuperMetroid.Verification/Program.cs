@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-helmet"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Helmet animation oracle revision");
+    VerifyFileSelectHelmetAnimation(rom);
+    Console.WriteLine("File-select helmet: all nine original sprite IDs, native cadence/clamp and bounded selectors pass.");
+    return 0;
+}
 if (args is ["--lookup-game-over-baby-animation"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -105,9 +105,9 @@ public static class FileSelectPresentationExtractor
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.CursorFrameName(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
-        for (int frame = 0; frame < 8; frame++)
+        for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.HelmetFrameName(frame),
-                MenuSpriteExtractor.Read(bus, unchecked((ushort)(0x2c + frame))));
+                MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
 
         using var output = new MemoryStream();
         FileSelectPresentation.Write(output, new()
@@ -166,7 +166,7 @@ public static class FileSelectPresentationExtractor
             },
             ObjectPalette = MenuPpuState.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
-            HelmetFrameDuration = 8,
+            HelmetFrameDuration = FileSelectHelmetAnimation.FrameDuration,
         });
         return output.ToArray();
 

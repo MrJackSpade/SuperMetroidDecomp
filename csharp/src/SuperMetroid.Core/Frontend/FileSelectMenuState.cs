@@ -136,9 +136,9 @@ public sealed partial class FileSelectMenuState
             case FileSelectPhase.TurnSelectedHelmet:
                 if (--helmetAnimationTimer <= 0)
                 {
-                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? 8;
+                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
                     helmetAnimationFrame++;
-                    if (helmetAnimationFrame >= 7)
+                    if (helmetAnimationFrame >= FileSelectHelmetAnimation.FrameCount - 1)
                         Phase = FileSelectPhase.FadeOutToOptions;
                 }
                 // The native routine also permits Start/A to end the turn early.
@@ -209,7 +209,7 @@ public sealed partial class FileSelectMenuState
                         FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                     ? helmetAnimationFrame
                     : 0;
-                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, 7), slot);
+                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
             }
             oam.FinalizeFrame();
             return;
@@ -239,7 +239,7 @@ public sealed partial class FileSelectMenuState
                 ? helmetAnimationFrame
                 : 0;
             DrawMenuSpritemap(
-                (ushort)(0x2c + Math.Min(frame, 7)),
+                FileSelectHelmetAnimation.SpritemapId(Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1)),
                 100,
                 FileSelectLayout.HelmetY(slot));
         }

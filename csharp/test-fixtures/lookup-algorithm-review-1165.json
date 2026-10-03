@@ -5662,4 +5662,15 @@
     "scope":"Remaining53 inputs, including the two brightest Varia exceptions and other shade/channel relationships, still require disposition. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed source dependency pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingDimEndpointReview": {
+    "status":"converted fourteen brighter loading colors from their dim endpoints",
+    "owners":"LoadingPaletteColorDefinitions.TryCalculatedColor/BrightenDimColor",
+    "source":"Original bright/middle/dim colors in8D:DB62/DCC8/DE2E, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Seven tracks: Power1/2/10/11/12, Varia12, Gravity2.",
+    "algorithm":"Preserve dim red. Power1/12 and Gravity2 add green15/5 and blue10/10 to obtain bright/middle, saturating at31. Power2/10/11 and Varia12 add blue10/5; only Power10/11 additionally add green5/0. These are additive shade transformations from actual endpoint colors, with no stored generated rows or corrective lookup. Fourteen more words disappear;39 loading inputs remain.",
+    "ownership":"Seven dim endpoints remain independent inputs pending their own channel/source review. Explicit brighter edits take precedence, and equality-gated compilation retains supplied brighter colors when endpoint edits change the calculated result. Endpoint access terminates at dim inputs; it cannot recurse into its own brightening mapping.",
+    "proof":"Extend the existing loading-color proof with fourteen native addresses. All432 original values,57 calculated roots and complete ushort ownership/value domains remain checked. Every32768 RGB5 endpoint is checked at both brighter shades for allthree native channel rules against an independent addition/saturation oracle; invalid shade/green-peak bounds reject. Existing independent custom edits and guarded native/installed loading executions are reused; changed endpoint-only edit ownership is explicitly confirmed. Shared heat checks cover the affected common resolver.",
+    "scope":"Remaining39 inputs and their channel relationships still require disposition; no new retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

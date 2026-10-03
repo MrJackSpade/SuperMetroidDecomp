@@ -393,6 +393,9 @@ internal static partial class Program
             foreach (int rowIndex in new[] { 1, 5, 7 })
             foreach (int slot in rowIndex == 1 ? new[] { 1, 2 } : new[] { 1, 2, 10, 11 })
                 tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
+            foreach (int rowIndex in new[] { 1, 5 })
+            foreach (int slot in start == 0xdb62 ? new[] { 1, 2, 10, 11, 12 } : start == 0xdcc8 ? new[] { 12 } : new[] { 2 })
+                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
             foreach (var row in rows)
             {
                 var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
@@ -410,8 +413,8 @@ internal static partial class Program
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(43, tinted.Count, "Shared and Varia tint words");
-        AssertEqual(53, aliases.Keys.Count(stored.ContainsKey), "Both tint conversions remove43 stored words");
+        AssertEqual(57, tinted.Count, "Base tints and dim-endpoint brightening words");
+        AssertEqual(39, aliases.Keys.Count(stored.ContainsKey), "Tint conversions remove57 stored words");
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 3; shade++)
         {
@@ -430,6 +433,20 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.TintColor(0, invalid), "Tint shade rejects outside domain");
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.VariaTintColor(0, invalid), "Varia tint shade rejects outside domain");
+        foreach (var (peak, plateau, brightGreen, middleGreen, brightBlue, middleBlue) in
+            new[] { (15, true, 15, 5, 10, 10), (0, false, 0, 0, 10, 5), (5, false, 5, 0, 10, 5) })
+        for (int rgb = 0; rgb < 32768; rgb++)
+        for (int shade = 0; shade < 2; shade++)
+        {
+            int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + (shade == 0 ? brightGreen : middleGreen), 0, 31) * 32 +
+                Math.Clamp((rgb >> 10 & 31) + (shade == 0 ? brightBlue : middleBlue), 0, 31) * 1024;
+            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.BrightenDimColor((ushort)rgb, shade, peak, plateau),
+                "Every RGB5 dim endpoint across each original brightening rule");
+        }
+        foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(0, invalid, 0, false), "Dim brightening rejects invalid shade");
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(0, 0, invalid, false), "Dim brightening rejects invalid green peak");
         AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {

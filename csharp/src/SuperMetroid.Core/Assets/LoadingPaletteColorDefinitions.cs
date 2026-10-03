@@ -44,13 +44,40 @@ public static class LoadingPaletteColorDefinitions
         int within = offset % 79 - 36;
         if (group == 1 || (uint)within >= 32 || (within & 1) != 0) return false;
         int slot = within / 2;
+        int shade = group == 0 ? 0 : group - 1;
+        // These tracks brighten an independently chosen dim tint, rather than
+        // the normal suit color. The dim endpoint remains an editable input.
+        if (group != 3 && (first == 0xdb6b ? slot is 1 or 2 or 10 or 11 or 12 :
+            first == 0xdcd1 ? slot == 12 : slot == 2))
+        {
+            if (!TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * slot), colors, out ushort dim)) return false;
+            bool plateau = first == 0xde37 || (first == 0xdb6b && slot is 1 or 12);
+            int greenPeak = plateau ? 15 : first == 0xdb6b && slot is 10 or 11 ? 5 : 0;
+            value = BrightenDimColor(dim, shade, greenPeak, plateau);
+            return true;
+        }
         bool varia = first == 0xdcd1;
         if (!(first == 0xdb6b ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
             varia ? slot is 1 or 2 || (group != 0 && slot is 10 or 11) : slot is 10 or 11)) return false;
         if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort original)) return false;
-        int shade = group == 0 ? 0 : group - 1;
         value = varia ? VariaTintColor(original, shade) : TintColor(original, shade);
         return true;
+    }
+
+    /// <summary>Brightens an independently chosen dim loading tint.</summary>
+    /// <remarks>Original Power slots1/12 and Gravity slot2 add green15/5 and
+    /// blue10/10 for bright/middle. Power slots2/10/11 and Varia slot12 add
+    /// blue10/5; only Power slots10/11 also add green5/0. Red is unchanged,
+    /// sums saturate at31. These14 words derive from seven editable dim
+    /// endpoints; this does not exempt those endpoints from further review.
+    /// Shade0/1 is bright/middle; greenPeak is an RGB5 additive amount.</remarks>
+    internal static ushort BrightenDimColor(ushort dim, int shade, int greenPeak, bool bluePlateau)
+    {
+        if ((uint)shade >= 2) throw new ArgumentOutOfRangeException(nameof(shade));
+        if ((uint)greenPeak > 31) throw new ArgumentOutOfRangeException(nameof(greenPeak));
+        int green = Math.Min(31, (dim >> 5 & 31) + Math.Max(0, greenPeak - 10 * shade));
+        int blue = Math.Min(31, (dim >> 10 & 31) + (bluePlateau ? 10 : 10 - 5 * shade));
+        return (ushort)((dim & 31) | green << 5 | blue << 10);
     }
 
     /// <summary>Applies Varia's blue-dominant loading tint to one RGB5 input.</summary>

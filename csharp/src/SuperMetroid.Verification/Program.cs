@@ -117,14 +117,14 @@ if (args is ["--lookup-loading-colors"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading colors oracle revision");
     byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
     VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json)));
-    foreach (bool baseOnly in new[] { false, true })
+    foreach (int editMode in new[] { 0, 1, 2 })
     {
         var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
         int ordinal = 1000;
         foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
         for (int frame = 0; frame < 9; frame++)
         for (int color = 0; color < 16; color++, ordinal++)
-            if (!baseOnly || frame == 0 || frame == 1)
+            if (editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7))
                 frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
         var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         ordinal = 1000;
@@ -134,11 +134,11 @@ if (args is ["--lookup-loading-colors"])
         {
             ushort pointer = program.ColorPointer(frame, color);
             AssertTrue(edited.TryReadColor(pointer, out ushort actual), "Edited loading color remains owned");
-            ushort expected = !baseOnly || frame == 0 || frame == 1 ? (ushort)ordinal : ReadVerificationWord(rom, 0x8d0000 | pointer);
+            ushort expected = editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7) ? (ushort)ordinal : ReadVerificationWord(rom, 0x8d0000 | pointer);
             AssertEqual(expected, actual, "Independent loading row edits survive alias compilation");
         }
     }
-    Console.WriteLine("Loading colors: all432 native colors, full pointer domain,53 stored inputs, independent edits and guarded consumers pass.");
+    Console.WriteLine("Loading colors: all432 native colors, full pointer domain,39 stored inputs, independent edits and guarded consumers pass.");
     return 0;
 }
 if (args is ["--lookup-heat-colors"])

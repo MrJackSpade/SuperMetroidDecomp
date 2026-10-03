@@ -6,6 +6,20 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable Samus body colors during beam charge, pseudo-Screw, and Hyper-shot glow.</summary>
+/// <remarks>Charge base rows9B9820/9920/9A20 exactly alias full-body bases
+/// 9B9B20/9D20/9F20. After suit sharing their25 inputs are21 painted opaque
+/// inks (Power1..15,Varia2/10/11,Gravity2/10/11),Gravity inks1/12 using the
+/// already reviewed Power dim tint RG targets,and two unused slot-zero payloads.
+/// Native91DD5B and the installed ApplyCharge copy these categorical sprite
+/// inks to fixed OBJ slots. Ink index is not a lighting or brightness parameter;
+/// a formula reciting these color choices would re-encode the painting. The
+/// renderer skips index-zero pixels before RGB lookup,so the two transparent
+/// payloads also have no rendering-derived numerical meaning. This is the
+/// concrete1165 nonsense exception already established for the identical
+/// full-body inputs,not a new exemption for all charge-related data. The fade
+/// and repeated/suit views are calculated; separate assets keep independent
+/// edits. Pseudo-Screw color generation and Hyper Beam remaining inputs have
+/// their own dispositions and are not exempted here.</remarks>
 public sealed class SamusChargeColorCatalog
 {
     private readonly ChargeInputs chargedBeam;

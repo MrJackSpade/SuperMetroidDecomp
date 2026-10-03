@@ -3,7 +3,17 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable suit, suitless, and whiteout colors for Samus's death sequence.</summary>
-/// <remarks>Palette choices are visual; the fatal-damage phases and frame durations remain compiled.</remarks>
+/// <remarks>The suited base rows9B9820/9920/9A20 are the same logical
+/// artwork as the independently reviewed full-body bases9B9B20/9D20/9F20.
+/// Their25 shared inputs comprise21 painted inks,Gravity1/12 using existing
+/// Power dim tint RG targets,and two unused transparent payloads. These are
+/// categorical pixel colors,not samples indexed by a quantitative lighting
+/// input. Fitting or reciting ink-to-RGB choices would encode the artwork;
+/// index-zero RGB is ignored by OBJ rendering. This is the specific1165
+/// nonsense disposition of those aliased base inputs. Shared suits and fade
+/// shades are calculated; independent asset edits stay local. It does not
+/// settle suitless base colors,flash/final root channels,whiteout intensity
+/// choices,explosion timing or any other separately indexed field.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
     public const int SuitCount = 3;

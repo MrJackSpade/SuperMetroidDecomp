@@ -6181,4 +6181,23 @@
     "scope":"Remaining independent component derivations/dispositions and the two blue endpoint words remain pending. No new retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed all LoadingPaletteInputView source pins including interface/full-body/shared Hyper Beam dependencies,projectile owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileRemainingInputDisposition": {
+    "status":"projectile color-payload review resolved: calculated relationships plus34 independent art components retained under the nonsense exception",
+    "owners":"HyperBeamFxColorCatalog,HyperBeamFxColorFormat,HyperBeamFxColorExtractor,HyperBeamPaletteFxState.Step,BeamTileCatalog.HyperBeamFxColors,SuperMetroidRuntime palette-FX binding",
+    "source":"Original80 RGB5 words at8D:D906+20*frame. Native8D:D900 sets palette-buffer byte index01C2,selecting CGRAM225..232: OBJ palette6 ink indices1..8. Native timed records supply literal ink colors. The renderer uses the tile's categorical pixel index to choose the corresponding CGRAM color. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "retainedFields":{
+      "neutral":"frame0 ink0 intensity (1 component)",
+      "paired":"0/3/G;4/4/R;4/6/R;8/3/R;8/4/G;8/6/G;8/7/R (7 components)",
+      "middleShade":"2/2/RG;4/2/GB;6/2/B;6/5/G (6 components)",
+      "endpoint":"0/1/GB;2/1/RG;2/3/RG;4/1/B;4/3/GB;6/1/G;6/3/GB;6/4/RG (14 components)",
+      "wholeColors":"frame6 inks6/7,allRGB (6 components)"
+    },
+    "converted":"All35 nonwhite odd-frame words are calculated RGB midpoints; repeated whites share one neutral intensity. Yellow/green/magenta channel transforms,red fifth-step highlights,within-hue middle shades,paired channels and shared extrema calculate the supported relationships. All80 original colors resolve from the34 listed input components. No generated palette cache and no unexplained numeric correction constants.",
+    "rationale":"The remaining fields specify desired visible colors for categorical sprite inks and hue stops. Neither palette-FX playback nor rendering supplies a measured lighting,hue-angle,material or other quantitative input that determines these RGB choices. In particular,the remaining blue endpoint shades specify independent tint/brightness targets,while the retained middle components specify local ink emphasis. A replacement that embeds their chosen RGB values as named numeric cases,fitted coefficients or correction blobs would only re-encode the artwork. The useful functional operations are the converted interpolations/channel transforms; their independent color-design parameters remain data. This is the concrete semantic nonsense reason,not a claim that failure to fit proves mathematical impossibility.",
+    "generationReview":"Review distinguished evenly sampled temporal interpolation from categorical ink selection. Nearest fifth-step red highlights and upward half-step temporal/within-hue interpolation were identified and implemented. Remaining blue highlight RGB spacings are not a common uniform RGB ramp,and the even hue stops do not preserve one common HSV hue/lightness change across inks. Those observations limit those hypotheses; they are not the retention proof. The proof is the remaining fields' role as independent chosen ink/tint inputs rather than samples of a defined physical/numerical mapping.",
+    "ownership":"Retained values remain asset-owned imports,not new compiled RGB literals. Distinct supplied edits remain exact even when they break stock sharing. All color words are masked RGB5 at validated import; Apply accepts frame0..9 and copies exactly eight colors at caller-supplied placement. No runtime cartridge dependency restored.",
+    "proof":"No new retention-only test. Existing single VerifyHyperBeamFxColorArtwork covers all80 original words,stock per-component ownership,complete shared arithmetic domains,all source/independent edits,invalid bounds,strict JSON and a guarded timed loop with untouched CGRAM. Most recent conversion confirmation is380e938358a822459b8a6c97dfb9a5dde22c19ef. This change adds the owner/inventory disposition and refreshes source pins/index.",
+    "scope":"Supersedes pending projectile endpoint/component statements in earlier hyperBeamProjectile review entries only. Separate full-body/Hyper-shot opaque inputs and the rest of1165 remain pending. Palette-program controls and other projectile assets are not disposed by this entry."
+  }
 }

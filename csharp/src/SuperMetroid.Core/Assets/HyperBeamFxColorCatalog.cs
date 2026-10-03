@@ -6,6 +6,22 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable Hyper Beam projectile hues with shared white and calculated intermediate frames.</summary>
+/// <remarks>The remaining34 independent RGB5 components are color-design
+/// inputs under1165's nonsense exception,not an unresolved numeric lookup.
+/// Native8D:D900 selects OBJ palette6 colors1..8; the handler copies the eight
+/// chosen ink colors. The pixel index selects a painted ink,not a measured
+/// light level,hue angle or material parameter. The remaining inputs choose
+/// the endpoint tints and local shade emphasis. Replacing them with fitted
+/// coefficients or per-ink RGB cases would merely encode the same artwork.
+///
+/// The retained inputs are: one neutral intensity; paired components
+/// (frame,ink,channel)0/3/G,4/4/R,4/6/R,8/3/R,8/4/G,8/6/G,8/7/R;
+/// middle-shade components2/2/RG,4/2/GB,6/2/B,6/5/G; endpoint components
+/// 0/1/GB,2/1/RG,2/3/RG,4/1/B,4/3/GB,6/1/G,6/3/GB,6/4/RG;
+/// and all channels of blue-frame inks6/7. All other original components
+/// derive through the documented hue,shade,neutral and shared-channel rules.
+/// Asset edits remain independent; this disposition does not cover the
+/// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -60,7 +76,7 @@ public sealed class HyperBeamFxColorCatalog
     /// differing supplied values as explicit inputs, never generated colors.
     /// Frame2 highlight inks4..7 at8D:D936..D93C preserve frame4 green/blue
     /// and raise red to green: the same green-to-yellow transform used by the
-    /// body cycle. Other even-frame endpoint relationships remain under review.</remarks>
+    /// body cycle. Remaining independent inputs have the class-level art disposition.</remarks>
     private ushort Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
@@ -93,7 +109,7 @@ public sealed class HyperBeamFxColorCatalog
     /// <remarks>Original red frame0 inks3..7 have blue=green; green frame4
     /// inks4..7 and magenta frame8 inks1..7 have blue=red. Frame addresses
     /// start8D:D906 and advance20 bytes. These are hue-channel equalities;
-    /// their remaining independent intensities still require review.</remarks>
+    /// their independent shade intensities have the class-level art disposition.</remarks>
     private static bool HasPairedChannels(int frame, int color) =>
         frame == 0 && color >= 3 || frame == 4 && color >= 4 || frame == 8 && color != 0;
 
@@ -102,7 +118,7 @@ public sealed class HyperBeamFxColorCatalog
     /// highlights use that red maximum as green. Magenta highlight inks use
     /// it as red, while shadow inks3/7 use the red endpoint's green minimum.
     /// All relationships are between supplied RGB5 inputs; differing edits
-    /// stay explicit. Remaining shade intensities still require review.</remarks>
+    /// stay explicit. Independent shade intensities have the class-level art disposition.</remarks>
     private static (int? Red, int? Green) SharedEndpointChannels(int frame, int color, ushort white, ushort red) =>
         frame == 0 ? (white & 31, null) :
         frame == 4 ? (null, red & 31) :
@@ -264,7 +280,7 @@ public static class HyperBeamFxColorFormat
     /// interpolate inks4/6. Each RGB5 channel rounds its midpoint upward.
     /// Other even-frame ink2 shades and frame6 ink5 also share matching
     /// midpoint channels; six differing components remain independent inputs
-    /// under review. A channel mismatch is not a retention justification.</remarks>
+    /// covered by the class-level ink-color disposition. Mismatch alone is not its rationale.</remarks>
     internal static bool IsShadeMidpoint(int frame, int ink) =>
         ink == 2 && frame is 0 or 2 or 4 or 6 or 8 || ink == 5 && frame is 4 or 6 or 8;
     /// <summary>Blends red and white into the four red-frame highlight inks.</summary>

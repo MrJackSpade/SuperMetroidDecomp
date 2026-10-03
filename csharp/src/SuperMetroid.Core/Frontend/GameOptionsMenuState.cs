@@ -45,19 +45,13 @@ public sealed class GameOptionsMenuState
             mapPresentation.WorldArtwork, mapPresentation.Sprites, loadInitialBackground: false);
         mapPresentation.GameOptions.LoadBackground(ppu.Vram);
 
-        // `$82:EC77-$ECA3` expands these five consecutive one-screen resources. Keeping
-        // each decompressed page independent mirrors their WRAM allocation and prevents a
-        // language toggle from mutating the other language's source page.
-        primaryTilemap = Page(GameOptionsPresentationDefinitions.PrimaryPage,
-            GameOptionsRomData.Pages.Primary);
-        controllerEnglishTilemap = Page(GameOptionsPresentationDefinitions.ControllerEnglishPage,
-            GameOptionsRomData.Pages.ControllerEnglish);
-        controllerJapaneseTilemap = Page(GameOptionsPresentationDefinitions.ControllerJapanesePage,
-            GameOptionsRomData.Pages.ControllerJapanese);
-        specialEnglishTilemap = Page(GameOptionsPresentationDefinitions.SpecialEnglishPage,
-            GameOptionsRomData.Pages.SpecialEnglish);
-        specialJapaneseTilemap = Page(GameOptionsPresentationDefinitions.SpecialJapanesePage,
-            GameOptionsRomData.Pages.SpecialJapanese);
+        // Separate installed page copies prevent a language toggle from mutating
+        // the other language's source page.
+        primaryTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+        controllerEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
+        controllerJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage);
+        specialEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+        specialJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
@@ -68,9 +62,6 @@ public sealed class GameOptionsMenuState
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
         Phase = GameOptionsPhase.FadeIn;
-
-        byte[] Page(string name, GameOptionsPageResource resource) =>
-            mapPresentation.GameOptions.CreatePage(name);
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>

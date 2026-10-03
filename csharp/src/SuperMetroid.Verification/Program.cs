@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-options-pages"])
+{
+    VerifyGameOptionsPageCases();
+    Console.WriteLine("Options pages: all five native source pairs, named imported page bytes, descriptions and rejected selectors pass.");
+    return 0;
+}
 if (args is ["--lookup-file-select-slot-fields"])
 {
     VerifyFileSelectSlotDestinations();

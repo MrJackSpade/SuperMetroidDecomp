@@ -20,11 +20,11 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsPresentationDefinitions.BackgroundPage] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
                     GameOptionsRomData.TilemapByteCount)),
-            [GameOptionsPresentationDefinitions.PrimaryPage] = Page(GameOptionsRomData.Pages.Primary),
-            [GameOptionsPresentationDefinitions.ControllerEnglishPage] = Page(GameOptionsRomData.Pages.ControllerEnglish),
-            [GameOptionsPresentationDefinitions.ControllerJapanesePage] = Page(GameOptionsRomData.Pages.ControllerJapanese),
-            [GameOptionsPresentationDefinitions.SpecialEnglishPage] = Page(GameOptionsRomData.Pages.SpecialEnglish),
-            [GameOptionsPresentationDefinitions.SpecialJapanesePage] = Page(GameOptionsRomData.Pages.SpecialJapanese),
+            [GameOptionsPresentationDefinitions.PrimaryPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary)),
+            [GameOptionsPresentationDefinitions.ControllerEnglishPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish)),
+            [GameOptionsPresentationDefinitions.ControllerJapanesePage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerJapanese)),
+            [GameOptionsPresentationDefinitions.SpecialEnglishPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialEnglish)),
+            [GameOptionsPresentationDefinitions.SpecialJapanesePage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese)),
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);

@@ -19,31 +19,24 @@ public static class GameOptionsRomData
     public const int MenuTilemapHeight = 32;
     public const int MaximumQueuedMenuSounds = 6;
 
-    /// <summary>The five consecutive compressed options pages loaded from $82:EC66 onward.</summary>
+    /// <summary>Named import sources loaded by native $82:EC66..ECB8.</summary>
     /// <remarks>
-    /// Issues #625 and #956: pinned NTSC J/U v1.0 ROM source-load instructions at
-    /// $82:EC66, EC77, EC88, EC99, and ECAA select these five bank-$97 streams in
-    /// primary, controller English/Japanese, special English/Japanese order.
-    /// bank_94..99.asm places them at $97:8DF4, 8FCD, 91C4, 938D, and 953A with
-    /// compressed lengths $1D9, $1F7, $1C9, $1AD, and $1BA, respectively; the
-    /// final stream ends at $97:96F4. All five ROM immediate pairs and consecutive
-    /// source spans match. GameOptionsMenuState and extraction select the five
-    /// named resources, each expanding to one $800-byte tilemap. Their offsets are
-    /// authored compression boundaries; a prefix sum would just hide the lengths.
-    /// Retain this explicit page-to-resource mapping.
+    /// Each mutually exclusive page/language identity selects its compressed resource.
+    /// These are semantic cases, independently checked against the five native source
+    /// operand pairs; no compression-boundary retention exception is asserted. Runtime
+    /// presentation uses installed named pages and does not require these ROM identities.
     /// </remarks>
     public static class Pages
     {
-        public static readonly GameOptionsPageResource Primary =
-            new(0x978df4, "primary");
-        public static readonly GameOptionsPageResource ControllerEnglish =
-            new(0x978fcd, "English controller");
-        public static readonly GameOptionsPageResource ControllerJapanese =
-            new(0x9791c4, "Japanese controller");
-        public static readonly GameOptionsPageResource SpecialEnglish =
-            new(0x97938d, "English special-settings");
-        public static readonly GameOptionsPageResource SpecialJapanese =
-            new(0x97953a, "Japanese special-settings");
+        public static GameOptionsPageResource Get(GameOptionsTilemap page) => page switch
+        {
+            GameOptionsTilemap.Primary => new(0x978df4, "primary"),
+            GameOptionsTilemap.ControllerEnglish => new(0x978fcd, "English controller"),
+            GameOptionsTilemap.ControllerJapanese => new(0x9791c4, "Japanese controller"),
+            GameOptionsTilemap.SpecialEnglish => new(0x97938d, "English special-settings"),
+            GameOptionsTilemap.SpecialJapanese => new(0x97953a, "Japanese special-settings"),
+            _ => throw new ArgumentOutOfRangeException(nameof(page)),
+        };
     }
 
     /// <summary>Fixed row identities and scroll boundaries for each menu page.</summary>
@@ -269,6 +262,21 @@ public static class GameOptionsRomData
         /// <summary>$82:F35B, special-heading border setup X position.</summary>
         public const ushort SpecialModeBorderX = 0x80;
     }
+}
+
+/// <summary>Mutually exclusive options tilemaps imported by native initialization.</summary>
+public enum GameOptionsTilemap
+{
+    /// <summary>$82:EC66 selects $97:8DF4, the primary options page.</summary>
+    Primary,
+    /// <summary>$82:EC77 selects $97:8FCD, English controller settings.</summary>
+    ControllerEnglish,
+    /// <summary>$82:EC88 selects $97:91C4, Japanese controller settings.</summary>
+    ControllerJapanese,
+    /// <summary>$82:EC99 selects $97:938D, English special settings.</summary>
+    SpecialEnglish,
+    /// <summary>$82:ECAA selects $97:953A, Japanese special settings.</summary>
+    SpecialJapanese,
 }
 
 /// <summary>One compressed options-page resource and its diagnostic name.</summary>

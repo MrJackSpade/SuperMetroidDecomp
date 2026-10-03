@@ -145,6 +145,11 @@ if (args is ["--lookup-quake-suppression"])
     Console.WriteLine("Quake suppression: native branches, all 65536 room identities and sound consumer pass.");
     return 0;
 }
+if (args is ["--lookup-fx-tilemap-sources"])
+{
+    VerifyRoomFxLayer3Tilemaps();
+    return 0;
+}
 if (args is ["--lookup-quake-sound-selection"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

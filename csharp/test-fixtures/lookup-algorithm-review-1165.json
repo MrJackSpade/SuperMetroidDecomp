@@ -5142,4 +5142,16 @@
     "confirmation":"Verification and ResourceAudit builds plus --room-fx-record-definitions with the supported ROM, covering the existing full identity/field/selector proofs, exact generated source and guarded compiled Ceres integration.",
     "scope":"The direct-record roster left pending after roomFxRecordReview is resolved without retention. Full maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "fxLayer3PageIdentityReview": {
+    "status":"converted: six stored type identities, array wrapper and linear lookup removed",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/RoomFxLayer3TilemapCatalog.cs: RoomFxLayer3TilemapFormat.Types, SourceAddress",
+    "source":"Supported NTSC J/U v1.0 six pointers83:ABF2..ABFC and contiguous8A:8000..B17F page data. Pinned bank_83.asm and bank_8A.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identify Lava/Acid/Water/Spores/Rain/Fog types02/04/06/08/0A/0C and their32x33 word pages.",
+    "typeEnumeration":{"disposition":"converted","algorithm":"For index0..5 return type2*(index+1). Calculated IReadOnlyList preserves count6, index/enumeration order and ArgumentOutOfRangeException for invalid indices without materializing a roster.","proof":"VerifyFxTilemapTypeEnumeration uses the independently preserved original named type sequence to check indexed/enumerated values, exact count and signed/adjacent rejection boundaries."},
+    "sourceAddresses":{"disposition":"converted inverse type indexing; existing page-stride arithmetic independently verified","algorithm":"Validate even ushort type02..0C, then return8A8000+(type/2-1)*840h. Reject all other typed values with InvalidDataException. Do not silently admit the native26h statue/water alias, which was outside this six-page API before conversion.","proof":"VerifyFxTilemapSourceAddresses reads all six original bank83 pointers and compares production SourceAddress over the complete65536-value enum domain, including every unsupported odd, neighboring and alias value. Consolidates the old per-page pointer equality into this one proof."},
+    "evidence":"The native type IDs are consecutive even dispatcher offsets; the six equal-sized pages are contiguous. Both arithmetic mappings follow this layout exactly. No sampled curve, fitted corrections or generated lookup cache is involved.",
+    "consumers":"RoomFxLayer3TilemapCatalog loading, RoomFxLayer3TilemapExtractor, ResourceAudit identity enumeration and JSON contract fixtures retain Count/index/enumeration contracts. Source search confirms the old AuthoredTypes array is gone. Updated BackgroundTransferClosedContractDefinitions source pin.",
+    "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-fx-tilemap-sources run both named proofs and the existing six complete page comparisons/five guarded installed loads. Missing ROM no longer silently skips this verifier. No gameplay traversal or unrelated tests.",
+    "scope":"Only type identities and source-page addressing are resolved here, without retention. Editable tile cells, catalog storage and other FX mappings remain separate owners for the maintained-source audit. Implementation record is this entry's commit."
+  }
 }

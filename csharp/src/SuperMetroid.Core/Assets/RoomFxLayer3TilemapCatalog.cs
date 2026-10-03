@@ -97,24 +97,37 @@ public static class RoomFxLayer3TilemapFormat
     /// <summary>$8A:8000, first room-FX BG3 page; the six pages end at $8A:B17F.</summary>
     public const int FirstSourceAddress = 0x8a8000;
 
-    private static readonly RoomFxType[] AuthoredTypes =
-    [
-        RoomFxType.Lava,
-        RoomFxType.Acid,
-        RoomFxType.Water,
-        RoomFxType.Spores,
-        RoomFxType.Rain,
-        RoomFxType.Fog,
-    ];
+    /// <summary>
+    /// The six even type identities $02..0C at $83:ABF2..ABFC, in page order.
+    /// Index0..5 maps to 2*(index+1); enumeration computes values without a roster.
+    /// </summary>
+    public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
-    public static IReadOnlyList<RoomFxType> Types { get; } = Array.AsReadOnly(AuthoredTypes);
+    private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
+    {
+        public int Count => 6;
+        public RoomFxType this[int index] => (uint)index < Count
+            ? (RoomFxType)(2 * (index + 1))
+            : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>Returns the cartridge art source corresponding to a named effect page.</summary>
+        public IEnumerator<RoomFxType> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// Returns $8A:8000 + (type/2-1)*$840 for the six even types $02..0C.
+    /// The original pointers at $83:ABF2..ABFC select consecutive 32x33 word pages.
+    /// Every other ushort type remains unsupported, including the separate statue alias.
+    /// </summary>
     public static int SourceAddress(RoomFxType type)
     {
-        int index = Array.IndexOf(AuthoredTypes, type);
-        if (index < 0)
+        int value = (ushort)type;
+        if (value is < 2 or > 12 || (value & 1) != 0)
             throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");
-        return FirstSourceAddress + index * PageByteCount;
+        return FirstSourceAddress + (value / 2 - 1) * PageByteCount;
     }
 }

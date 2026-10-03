@@ -6082,4 +6082,15 @@
     "scope":"The even projectile endpoint hue/shade relationships remain pending. This is distinct from the full-body/Hyper-shot logical palette,which shares only the RGB5 arithmetic operation. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileYellowHighlightReview": {
+    "status":"converted four yellow projectile highlight colors to a green-channel transformation",
+    "owners":"HyperBeamFxColorCatalog constructor/Resolve; shared SamusHyperBeamColorFormat.YellowFromGreen",
+    "source":"Frame2 inks4..7 at8D:D936..D93C equal corresponding frame4 inks with red replaced by green and green/blue unchanged. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Reuse the existing exact RGB5 green-to-yellow transform at resolution. Omit only supplied targets matching supplied sources; keep independent differences explicit. No rounding,overflow,saturation or generated cache. Stock36 to32 whole inputs.",
+    "ownership":"Add green-frame-only edit coverage so separately supplied yellow and interpolated hues remain unchanged. All-color/even-endpoint edits and the repeated-white ownership remain intact.",
+    "proof":"Extend the single projectile color proof with all four original source/target pairs,32-input ownership and green-source-only edits. Reuse the already complete RGB5 transform proof,all80 original words,timed guarded loop,untouched CGRAM,frame bounds and JSON checks.",
+    "scope":"Other projectile endpoint relationships and the remaining full-body opaque inputs still require review. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

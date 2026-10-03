@@ -19,7 +19,11 @@ internal static partial class Program
 
         var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(36, stored.Count, "Only even hue endpoints and one white input remain");
+        AssertEqual(32, stored.Count, "Shared yellow highlights remove four further whole inputs");
+        for (int color = 4; color < 8; color++)
+            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 40 + color * 2),
+                SamusHyperBeamColorFormat.YellowFromGreen(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)),
+                "Every original yellow highlight derives from its green hue");
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();
         var extractedCgram = new SnesCgram();
@@ -64,13 +68,13 @@ internal static partial class Program
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SnesCgram(), invalidFrame, 225), "FX frame bounds");
-        foreach (bool endpointsOnly in new[] { false, true })
+        foreach (string editScope in new[] { "all", "even", "green" })
         {
             var document = JsonSerializer.Deserialize<HyperBeamFxColorDocument>(json, MapPresentationFormat.JsonOptions)!;
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 8; color++)
             {
-                if (endpointsOnly && (frame & 1) != 0) continue;
+                if (editScope == "even" && (frame & 1) != 0 || editScope == "green" && frame != 4) continue;
                 int value = 1000 + frame * 8 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
             }
@@ -81,10 +85,11 @@ internal static partial class Program
                 modified.Apply(result, frame, 225);
                 for (int color = 0; color < 8; color++)
                 {
-                    ushort expected = !endpointsOnly || (frame & 1) == 0 ? (ushort)(1000 + frame * 8 + color) :
+                    bool changed = editScope == "all" || editScope == "even" && (frame & 1) == 0 || editScope == "green" && frame == 4;
+                    ushort expected = changed ? (ushort)(1000 + frame * 8 + color) :
                         ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
                     AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
-                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0), stored.ContainsKey(frame * 8 + color),
+                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4), stored.ContainsKey(frame * 8 + color),
                         "Original FX input ownership");
                 }
             }

@@ -19,6 +19,7 @@ public sealed class HyperBeamFxColorCatalog
             if (color == 0 && frame != 0 && value == frames[0][0]) continue;
             if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
+            if (frame == 2 && color >= 4 && value == SamusHyperBeamColorFormat.YellowFromGreen(frames[4][color])) continue;
             colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
         }
     }
@@ -29,11 +30,14 @@ public sealed class HyperBeamFxColorCatalog
     /// upward-rounded midpoint of the adjacent even frames, wrapping9 to0.
     /// Reuse the independently proved RGB5 midpoint operation. Import stores
     /// differing supplied values as explicit inputs, never generated colors.
-    /// Even-frame endpoint relationships remain under review in1165.</remarks>
+    /// Frame2 highlight inks4..7 at8D:D936..D93C preserve frame4 green/blue
+    /// and raise red to green: the same green-to-yellow transform used by the
+    /// body cycle. Other even-frame endpoint relationships remain under review.</remarks>
     private ushort Resolve(int frame, int color)
     {
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
         if (color == 0) return colors[0];
+        if (frame == 2) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(4, color));
         return SamusHyperBeamColorFormat.HueMidpoint(
             Resolve(frame - 1, color), Resolve((frame + 1) % HyperBeamFxColorFormat.FrameCount, color));
     }

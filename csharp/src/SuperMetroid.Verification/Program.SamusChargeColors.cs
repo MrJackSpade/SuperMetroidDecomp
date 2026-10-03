@@ -217,11 +217,45 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 8), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 5), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
+        }
+        var deathTintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
+            .GetField("tintShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        AssertEqual(3, deathTintInputs.Count, "Three middle tint intensities remain independently supplied");
+        foreach (var entry in deathTintInputs)
+        {
+            AssertTrue(entry.Key is >= 7 and <= 9, "Only native middle tint inks have intensity inputs");
+            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only blue intensity stored for each native middle tint");
+        }
+        foreach (int ink in new[] { 6, 7, 8, 9, 10 })
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var editedTint = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedTint.SuitlessColor(palette, color), "Each endpoint/intensity/channel edit preserves independently supplied tint and fade rows");
+        }
+        foreach (int ink in new[] { 7, 8, 9 })
+        {
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0x001f, 0x001f, 31, ink, out _), "Tint red overflow remains explicit input");
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0x7c00, 0x7c00, 0, ink, out _), "Tint red/green underflow remains explicit input");
+        }
+        foreach (int invalid in new[] { -1, 6, 10, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, 0, 0, invalid, out _), "Invalid tint ink");
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, 0, invalid, 7, out _), "Invalid tint blue");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(invalid, 0, 0, 7, out _), "Invalid tint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, invalid, 0, 7, out _), "Invalid tint last endpoint");
         }
         var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;

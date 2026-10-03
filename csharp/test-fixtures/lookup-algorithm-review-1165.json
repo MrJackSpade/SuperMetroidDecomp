@@ -6325,4 +6325,15 @@
     "scope":"The middle warm samples are converted. Their endpoint choices,other chromatic/unused base inputs and white/gray/final/whiteout intensities still require independent dispositions. This entry is not a retention justification for those inputs or a claim that the entire death palette review is complete.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessTintBalanceReview": {
+    "status":"converted shared RGB balance of three middle suitless tint shades",
+    "owner":"SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade/SuitlessColor/tintShadeInputs",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Original five ordered inks6..10 at9BA12C..A135 have green-blue difference6 and red-blue differences17,15,13,11,9. Those are the quarter-step endpoint color balances. The middle blue intensities10,7,4 are separately indexed inputs,not silently treated as derived by this conversion.",
+    "algorithm":"Interpolate each endpoint RGB5 channel by (ink-6)/4 with downward rounding. Shift all three channels equally until blue matches its supplied middle intensity. Calculate the resulting red/green; retain only differing edited channels. Original middle red/green match exactly. Numerators<=124 and shifts-31..31; if edited endpoints/intensity would put red or green outside0..31,return false and preserve the supplied whole color. No saturation,wrap,extrapolation or fixed numerical correction blob.",
+    "storage":"Whole suitless inputs8 to5,plus three scalar blue intensity inputs for inks7..9. Stock entries have no red/green overrides. Root endpoints remain supplied; temporal fades and base aliases resolve actual selected colors. No calculated palette cache.",
+    "proof":"Extend the existing charge/death proof with original RGB values and exact three-blue-only ownership. Exercise every single-channel0..31 edit to endpoints6/10 and middle inks7..9;compare all suitless outputs to supplied rows,including unchanged temporal fades. Confirm explicit overflow/underflow fallback and invalid RGB5,blue and ink domains. Existing complete native palette/edit/identity checks remain in the consolidated proof.",
+    "scope":"Only the shared color-balance relationship is resolved. Middle intensity choices and remaining chromatic/neutral/unused roots still need their own dispositions. No retention exception or completion claim for those inputs or the broader1165 inventory.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

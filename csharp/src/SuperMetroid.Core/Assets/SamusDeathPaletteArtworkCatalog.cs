@@ -25,6 +25,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
     private readonly WhiteoutInputs whiteout;
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
@@ -71,6 +72,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
+            if (palette == 0 && color is >= 7 and <= 9)
+            {
+                if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value >> 10, color, out ushort expected))
+                    tintShadeInputs.Add(key, new(value, expected, independentMask: 4));
+                else this.suitless.Add(key, value);
+                continue;
+            }
             if (palette == 0 && color is 2 or 3)
             {
                 ushort expected = SuitlessWarmShade(suitless[0][1], suitless[0][4], color);
@@ -156,6 +164,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (tintShadeInputs.TryGetValue(key, out var tint))
+        {
+            if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(0) >> 10, color, out ushort expectedTint))
+                throw new InvalidOperationException("Validated suitless tint exceeds RGB5.");
+            return tint.Apply(expectedTint);
+        }
         if (palette == 0 && color is 2 or 3)
         {
             ushort warm = SuitlessWarmShade(SuitlessColor(0, 1), SuitlessColor(0, 4), color);
@@ -172,6 +186,30 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if (palette == 1) return SuitlessColor(0, color);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
+    }
+    /// <summary>Interpolates tint balance while preserving a supplied middle-shade intensity.</summary>
+    /// <remarks>Original suitless inks6..10 at9BA12C..A135 have middle
+    /// RGB offsets matching a quarter-step endpoint gradient. Interpolate each
+    /// endpoint channel downward,then shift RGB equally so blue equals the
+    /// independently supplied middle blue. Thus green-blue remains6 and
+    /// red-blue descends17,15,13,11,9. The middle blue choices themselves
+    /// remain under review; this does not substitute fixed correction values.
+    /// Edited endpoints/intensities may place calculated red/green outside RGB5.
+    /// Return false so import preserves that supplied whole color,without
+    /// clamping or wrapping. Inputs outside RGB5 or inks7..9 are rejected.</remarks>
+    internal static bool TrySuitlessTintShade(ushort first, ushort last, int blue, int color, out ushort value)
+    {
+        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
+        if ((uint)blue > 31) throw new ArgumentOutOfRangeException(nameof(blue));
+        if (color is < 7 or > 9) throw new ArgumentOutOfRangeException(nameof(color));
+        int weight = color - 6;
+        int interpolatedBlue = ((first >> 10) * (4 - weight) + (last >> 10) * weight) / 4;
+        int shift = blue - interpolatedBlue;
+        int red = ((first & 31) * (4 - weight) + (last & 31) * weight) / 4 + shift;
+        int green = ((first >> 5 & 31) * (4 - weight) + (last >> 5 & 31) * weight) / 4 + shift;
+        if ((uint)red > 31 || (uint)green > 31) { value = 0; return false; }
+        value = (ushort)(red | green << 5 | blue << 10);
+        return true;
     }
     /// <summary>Interpolates the two middle warm inks between their supplied endpoints.</summary>
     /// <remarks>Original9BA122..A129 contains four ordered warm shades.

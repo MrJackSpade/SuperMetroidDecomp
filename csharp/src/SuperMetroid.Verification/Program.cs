@@ -151,7 +151,8 @@ if (args is ["--lookup-liquid-wave"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Liquid wave oracle revision");
     VerifyMirroredLiquidWave(rom);
-    Console.WriteLine("Mirrored liquid wave: both original copies, bounds, all phases and projection consumers pass.");
+    VerifyHorizontalHeatWave(rom);
+    Console.WriteLine("Liquid waves: original mirrored and horizontal pulse samples, bounds, all phases and projection consumers pass.");
     return 0;
 }
 if (args is ["--lookup-rain-velocity"])

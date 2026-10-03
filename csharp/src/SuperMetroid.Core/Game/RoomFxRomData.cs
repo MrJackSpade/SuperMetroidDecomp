@@ -238,9 +238,20 @@ public static class RoomFxRomData
         /// liquid-options bit one selects this BG2VOFS waveform.</remarks>
         public static short VerticalWaveDisplacement(int index) => Water.WaveDisplacement(index);
 
-        /// <summary>Signed BG2HOFS offsets read from <c>$88:B589</c>.</summary>
-        public static ReadOnlySpan<short> HorizontalWaveDisplacements =>
-            [0, 0, 1, 1, 1, 1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0];
+        /// <summary>
+        /// Signed BG2HOFS displacement for index 0..15, matching $88:B589.
+        /// This pulse pair subtracts a four-sample unit pulse starting at eight
+        /// from the same pulse starting at two. The native $88:B53B consumer
+        /// rotates all sixteen samples; its two unequal zero gaps are preserved.
+        /// No sinusoidal interpolation or extrapolation is implied.
+        /// </summary>
+        public static short HorizontalWaveDisplacement(int index)
+        {
+            if ((uint)index >= WaveDisplacementCount) throw new IndexOutOfRangeException();
+            int positivePulse = (uint)(index - 2) < 4 ? 1 : 0;
+            int negativePulse = (uint)(index - 8) < 4 ? 1 : 0;
+            return (short)(positivePulse - negativePulse);
+        }
     }
 
     /// <summary>Shared water/lava/acid tide encoding consumed by <c>FxHandleTide</c>.</summary>

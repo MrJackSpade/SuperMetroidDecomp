@@ -5095,4 +5095,17 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-tourian-program, which runs spawn-order and existing statue program/descriptor/artwork proofs. No room loading or exploratory gameplay.",
     "scope":"This resolves TourianStatueRomData's remaining roster without retention. Other statue palette/projectile owners and the full maintained-source inventory retain their separate review scope. Implementation record is this entry's commit."
   }
+,
+  "horizontalHeatWaveReview": {
+    "status":"converted: sixteen stored signed wave samples removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs: LavaAcid.HorizontalWaveDisplacement",
+    "source":"Supported NTSC J/U v1.0 sixteen words at88:B589..B5A8; consumer88:B53B..B588. Pinned bank_88.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d establishes horizontal BG2 displacement,16-word circular indexing and six-frame phase rotation.",
+    "algorithm":"Difference of two equal four-sample unit rectangular pulses: positive pulse starts at2, negative pulse at8. For validated index0..15, subtract the two bounded interval indicators. This preserves both asymmetric zero gaps, including the cycle boundary, without a table, generated cache, per-sample cases or fitted correction data.",
+    "domain":"Index0..15 returns signed short displacement. All other int indices retain IndexOutOfRangeException from the former span. The renderer performs the existing camera-low-nibble plus line plus phase mask15 before selection; the function itself does not mask or extrapolate invalid inputs.",
+    "evidence":"Full data has exactly two equal-width, opposite-sign plateaus and zero elsewhere. A pair of delayed rectangular pulses expresses that regular structure directly. The asymmetric zero gaps distinguish it from the already reviewed symmetric water/vertical waveform; no sinusoidal generator, historical floating-point convention or interpolation is asserted. The scalar pulse origins and common width describe the signal shape rather than reciting sixteen unrelated choices.",
+    "proof":"VerifyHorizontalHeatWave reads all16 original signed words, compares every production output and boundary rejection, then extends the same proof through BuildLavaAcidBg2HorizontalScrolls for all16 phases and16 camera nibbles, every output line and both ushort scroll boundaries. Expected displacement always comes from ROM. This confirms the existing managed projection contract; it does not newly claim exact native HDMA register behavior outside that contract.",
+    "consumers":"The sole maintained stored-sample consumer in SnesGameplayFrameRenderer.BuildLavaAcidBg2Wave now calls the bounded function. No HorizontalWaveDisplacements references remain. Refreshed the three RoomFxRomData source pins.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-liquid-wave run the new horizontal proof and existing mirrored-water/vertical proof. No gameplay sweep or unrelated defect search.",
+    "scope":"This resolves the separate horizontal waveform left pending by mirroredLiquidWaveReview without retention. The remaining maintained-source audit stays active under1165. Implementation record is this entry's commit."
+  }
 }

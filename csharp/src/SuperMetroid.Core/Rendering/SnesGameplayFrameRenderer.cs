@@ -1190,7 +1190,7 @@ public static partial class SnesGameplayFrameRenderer
                 (RoomFxRomData.LavaAcid.WaveDisplacementCount - 1);
             short displacement = verticalWave
                 ? RoomFxRomData.LavaAcid.VerticalWaveDisplacement(waveIndex)
-                : RoomFxRomData.LavaAcid.HorizontalWaveDisplacements[waveIndex];
+                : RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(waveIndex);
             result[line] = unchecked((ushort)(baseScroll + displacement));
         }
         return result;

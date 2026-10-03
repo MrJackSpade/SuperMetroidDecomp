@@ -29,7 +29,7 @@ internal static class BackgroundTransferClosedContractDefinitions
             "Private Load requires every one of the six named 32x33 effect pages and independently compiles each cell. Only those six effect types select a resource. Liquid height, timing, HDMA, source selection, VRAM upload and pixels are not certified."),
         new("SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog", "room-fx-complete-eight-blends-and-zero-clear", ["Apply", "Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "E03F9349FFD1A46E2BD1664874B9BB4DF9D7F758305C923679B7AC2B58AC94AD"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "5852418EFBFAA78860273FC4C1DE69146BE6E871C114D4FAD382EAC188AD90E6")],
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "E04010F5F2F1BB7CD1E42584C39692CBAAC8FB597DB1E6054D77B892AE6389A5")],
             "Private Load requires all eight sparse three-color blend selections and independently validates/compiles their colors. Apply(0) is a compiled clear of color 27, not a ninth resource; Resolve(0) remains invalid. This does not certify the caller's chosen FX, color math or haze appearance."),
         new("SuperMetroid.Core.Assets.EndingObjectArtworkCatalog", "ending-complete-four-fragments", ["Fragment"],
             [new("csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs", "D94FD0E6CF4AAA49FB58B35E2E1BC9C6AF2798A290550961F0913A06B80862D6")],

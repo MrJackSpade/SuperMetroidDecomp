@@ -5,8 +5,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Loading tint inputs with derived endpoint channels removed.</summary>
 /// <remarks>Original $8D:DB62/DCC8/DE2E endpoint words preserve channels of
 /// normal suit colors and the reviewed additive tint rules. Only differing
-/// components are stored. These component inputs remain pending their own
-/// #1165 disposition; this decomposition is not an artwork exemption.
+/// components are stored. The nine independent choices are Power dim1 red14/
+/// green6, dim2 blue13, bright9 blue21, dim12 red22/green16; Varia bright10
+/// blue29 and dim12 red13; Gravity dim2 blue27. These specify the chosen tint
+/// of categorical sprite inks. Native $91:DD5B copies the corresponding bank9B
+/// colors into fixed OBJ slots, while the loading program repeats the same art;
+/// neither supplies illumination, temperature or another quantity deriving these
+/// tint targets. Temporal shade and shared-channel relationships are calculated
+/// separately. An index fit for these remaining choices would only encode the
+/// painting, the #1165 nonsense exception. This narrow disposition does not
+/// exempt other normal/speed-boost palettes or their unreviewed relationships.
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
 internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, ushort>
 {

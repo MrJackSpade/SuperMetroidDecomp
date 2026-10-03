@@ -426,7 +426,7 @@ internal static partial class Program
                 tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
             if (start == 0xdb62)
             {
-                foreach (int slot in new[] { 9, 10, 11 }) tinted.Add((ushort)(rows[7].Pointer + 2 * slot));
+                foreach (int slot in new[] { 0, 9, 10, 11 }) tinted.Add((ushort)(rows[7].Pointer + 2 * slot));
                 tinted.Add((ushort)(rows[5].Pointer + 2 * 9));
             }
             foreach (var row in rows)
@@ -438,6 +438,11 @@ internal static partial class Program
                     ushort canonical = (ushort)(original.Pointer + 2 * color);
                     var power = powerRows![rows.IndexOf(original)];
                     if (power.Colors[color] == row.Colors[color]) canonical = (ushort)(power.Pointer + 2 * color);
+                    if (start == 0xdcc8 && color == 0 && rows.IndexOf(original) == 0)
+                    {
+                        AssertEqual(row.Colors[0], powerRows![1].Colors[0], "Varia normal and Power bright transparent words match natively");
+                        canonical = (ushort)powerRows[1].Pointer;
+                    }
                     aliases.Add(pointer, canonical);
                     AssertTrue(presentation.TryReadColor(pointer, out ushort actual), "All native loading colors remain installed");
                     AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
@@ -446,8 +451,8 @@ internal static partial class Program
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(61, tinted.Count, "Base tints, endpoint brightening and shared channels");
-        AssertEqual(27, aliases.Keys.Count(stored.ContainsKey), "Eight endpoints are split into components");
+        AssertEqual(62, tinted.Count, "Base tints, endpoint brightening and shared channels");
+        AssertEqual(25, aliases.Keys.Count(stored.ContainsKey), "Endpoint splitting and transparent sharing remove whole words");
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 3; shade++)
         {
@@ -497,7 +502,7 @@ internal static partial class Program
             int expected = (normal & 31) + Math.Min(31, (normal >> 5 & 31) + 5) * 32 + blue * 1024;
             AssertEqual((ushort)expected, middle, "Middle tint preserves independently selected bright blue");
         }
-        AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
+        AssertEqual(95, aliases.Count(item => item.Key == item.Value), "Shared suit and transparent colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);

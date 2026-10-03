@@ -138,7 +138,7 @@ if (args is ["--lookup-loading-colors"])
             AssertEqual(expected, actual, "Independent loading row edits survive alias compilation");
         }
     }
-    Console.WriteLine("Loading colors: all432 native colors, full pointer domain,27 stored words plus9 endpoint components, independent edits and guarded consumers pass.");
+    Console.WriteLine("Loading colors: all432 native colors, full pointer domain,25 stored words plus9 endpoint components, independent edits and guarded consumers pass.");
     return 0;
 }
 if (args is ["--lookup-heat-colors"])

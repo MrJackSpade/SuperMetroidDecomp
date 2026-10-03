@@ -35,8 +35,8 @@ public static class LoadingPaletteColorDefinitions
     /// Original Power dim slots10/11 preserve normal red/green and share dim
     /// slot2's blue13. Slot9's dim follows the ordinary blue+10 tint; its middle
     /// preserves brightest blue21 while applying normal green+5. These four
-    /// additional words use shared channels; the blue source inputs remain
-    /// editable and pending their own disposition.
+    /// additional words use shared channels. Dim slot0 shares middle slot0.
+    /// Independent endpoint components are documented by LoadingPaletteInputView.
     /// Other slots have separate pending
     /// artwork/channel reviews and are not silently forced into this rule.</remarks>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
@@ -50,6 +50,8 @@ public static class LoadingPaletteColorDefinitions
         if (group == 1 || (uint)within >= 32 || (within & 1) != 0) return false;
         int slot = within / 2;
         int shade = group == 0 ? 0 : group - 1;
+        if (first == 0xdb6b && group == 3 && slot == 0)
+            return TryReadColor((ushort)(first + 2 * 79 + 36), colors, out value);
         if (first == 0xdb6b && group == 3 && slot is 10 or 11)
         {
             if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort normal) ||
@@ -134,10 +136,15 @@ public static class LoadingPaletteColorDefinitions
     /// normal row differs at0/2/10/11 and bright rows at1/2/10/11/12. Gravity's
     /// normal row differs at2/10/11/12 and bright rows at2/10/11. All other slots
     /// share the Power input, including transparent entries where equal.
+    /// Varia normal slot0 also shares Power bright slot0 (both black); the
+    /// differing Power normal slot0 payload remains separate.
     /// Differing custom colors remain explicit overrides before this mapping.</remarks>
     private static ushort ShareSuit(int first, int rowOffset, int colorOffset)
     {
         int slot = colorOffset / 2;
+        // The Varia normal transparent entry and Power bright transparent entry
+        // are the same black input; the Power normal entry has a different payload.
+        if (first == 0xdcd1 && rowOffset == 0 && slot == 0) return 0xdb8f;
         bool distinct = first == 0xdb6b || (first == 0xdcd1
             ? (rowOffset == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
             : (rowOffset == 0 ? slot is 2 or 10 or 11 or 12 : slot is 2 or 10 or 11));

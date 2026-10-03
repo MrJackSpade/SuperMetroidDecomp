@@ -6314,4 +6314,15 @@
     "scope":"Resolves the four derived neutral shade intensities. The chosen peak,white/final intensity and remaining chromatic/unused inputs still require separate dispositions. No retention exception is inferred from the ramp fit or its size; full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessWarmRampReview": {
+    "status":"converted the two middle suitless warm shades",
+    "owner":"SamusDeathPaletteArtworkCatalog.SuitlessWarmShade/SuitlessColor/warmShadeInputs",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Original four consecutive warm inks at9BA122..A129 are an ordered RGB shade run. Endpoints at inks1/4 have RG31/23 and9/4; middle inks2/3 have RG23/16 and16/10,with blue0 throughout. All native output words remain independently checked from the supported ROM.",
+    "algorithm":"For middle ink c2/3,use weight=c-1 and floor((firstChannel*(3-weight)+lastChannel*weight)/3) independently for RGB5. This is the equal-step endpoint gradient with downward rounding. Numerators0..93; arbitrary edited endpoints remain convex and bounded,including descending or nonzero-blue colors. Reject unsupported ink/high-bit inputs; do not extrapolate or retain a generated palette.",
+    "storage":"Remaining whole suitless inputs10 to8; warmShadeInputs is empty for stock. Independently differing middle channels override the calculated result. Existing base aliases and temporal death whitening resolve the actual supplied middle colors rather than coupling edits.",
+    "proof":"Extend the existing charge/death proof with original middle words,zero stock corrections,all32x32 channel endpoint pairs and both positions using independent RGB packing,invalid domains,and all32 single-channel edits to either endpoint. Compare every suitless palette output against supplied rows to confirm middle and temporal fade independence. Existing arbitrary middle edits,identity and runtime charge checks remain in the consolidated proof.",
+    "scope":"The middle warm samples are converted. Their endpoint choices,other chromatic/unused base inputs and white/gray/final/whiteout intensities still require independent dispositions. This entry is not a retention justification for those inputs or a claim that the entire death palette review is complete.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

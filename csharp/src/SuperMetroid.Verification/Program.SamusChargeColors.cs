@@ -211,13 +211,13 @@ internal static partial class Program
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
             .Select(index => (ushort)rom.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, whiteout, selectors);
-        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
+        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs", "warmShadeInputs" })
         {
             var inputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 10), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 8), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -249,6 +249,39 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(invalid, 11), "Invalid gray peak");
         foreach (int invalid in new[] { -1, 0, 10, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(19, invalid), "Invalid gray ink");
+        for (int first = 0; first < 32; first++)
+        for (int last = 0; last < 32; last++)
+        for (int color = 2; color <= 3; color++)
+        {
+            // Complemented/swapped channel pairs exercise independent RGB packing.
+            ushort a = (ushort)(first | (31 - first) << 5 | last << 10);
+            ushort b = (ushort)(last | (31 - last) << 5 | first << 10);
+            ushort actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(a, b, color);
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int start = a >> (5 * channel) & 31, end = b >> (5 * channel) & 31;
+                int expectedChannel = (int)decimal.Floor(((decimal)start * (4 - color) + (decimal)end * (color - 1)) / 3);
+                AssertEqual(expectedChannel, actual >> (5 * channel) & 31, "All suitless warm-ramp channel endpoints");
+            }
+        }
+        foreach (int invalid in new[] { -1, 0, 1, 4, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(0, 0, invalid), "Invalid warm shade ink");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(invalid, 0, 2), "Invalid warm start");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(0, invalid, 2), "Invalid warm end");
+        }
+        foreach (int endpoint in new[] { 1, 4 })
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][endpoint] = (ushort)((rows[0][endpoint] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var editedWarm = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedWarm.SuitlessColor(palette, color), "Warm endpoint-only edits preserve supplied middle inks and fades");
+        }
         object whiteoutInput = typeof(SamusDeathPaletteArtworkCatalog).GetField("whiteout",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
         var whiteoutOverrides = (Dictionary<int, LoadingPaletteInputView.Channels>)whiteoutInput.GetType().GetField("inputs",

@@ -24,6 +24,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly Dictionary<int, ushort> suitless = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
     private readonly WhiteoutInputs whiteout;
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
@@ -70,6 +71,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
+            if (palette == 0 && color is 2 or 3)
+            {
+                ushort expected = SuitlessWarmShade(suitless[0][1], suitless[0][4], color);
+                if (value != expected) warmShadeInputs.Add(key, new(value, expected));
+                continue;
+            }
             if (palette == 0 && color is >= 12 and <= 15)
             {
                 ushort expected = NeutralFromRed((ushort)SuitlessGrayIntensity(suitless[0][11] & 31, color));
@@ -149,6 +156,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color is 2 or 3)
+        {
+            ushort warm = SuitlessWarmShade(SuitlessColor(0, 1), SuitlessColor(0, 4), color);
+            return warmShadeInputs.TryGetValue(key, out var warmInput) ? warmInput.Apply(warm) : warm;
+        }
         if (palette == 0 && color is >= 12 and <= 15)
         {
             ushort gray = NeutralFromRed((ushort)SuitlessGrayIntensity(SuitlessColor(0, 11) & 31, color));
@@ -160,6 +172,23 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if (palette == 1) return SuitlessColor(0, color);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
+    }
+    /// <summary>Interpolates the two middle warm inks between their supplied endpoints.</summary>
+    /// <remarks>Original9BA122..A129 contains four ordered warm shades.
+    /// Ink1 and4 are endpoints; ink2/3 select one-third/two-thirds toward4,
+    /// flooring each RGB5 channel independently. Thus red31..9 gives23/16,
+    /// green23..4 gives16/10,and blue stays zero. Independent edits may set
+    /// any RGB5 endpoints; convex interpolation stays bounded without clamping.
+    /// Numerator is at most93. Invalid colors and high-bit words are rejected.</remarks>
+    internal static ushort SuitlessWarmShade(ushort first, ushort last, int color)
+    {
+        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
+        if (color is not (2 or 3)) throw new ArgumentOutOfRangeException(nameof(color));
+        int weight = color - 1;
+        int red = ((first & 31) * (3 - weight) + (last & 31) * weight) / 3;
+        int green = ((first >> 5 & 31) * (3 - weight) + (last >> 5 & 31) * weight) / 3;
+        int blue = ((first >> 10) * (3 - weight) + (last >> 10) * weight) / 3;
+        return (ushort)(red | green << 5 | blue << 10);
     }
     /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>
     /// <remarks>Original9BA136..A13F contains five descending neutral shades.

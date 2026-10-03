@@ -1,5 +1,22 @@
 # Project Working Instructions
 
+## Future Godot migration only
+
+- Only when explicitly working on the future, currently unstarted Godot
+  migration, read
+  [the architectural plan](docs/godot-architecture.md). It records conditional
+  design guidance for phase dispatch, entities, services, shared state, scene
+  authoring, and behavior preservation.
+- This plan does not apply to existing C# development or current tickets. It adds
+  no requirements, acceptance gates, or refactoring obligations to that work;
+  examples of existing code are migration evidence, not a cleanup queue.
+- For migration work, establish the applicable source constraints before choosing
+  a preferred pattern; illustrative phase and interface names are not a completed
+  design. Record the execution, state-ownership, and lifetime contracts for the
+  affected slice.
+- This guidance does not change active-ticket ownership or authorize migration
+  implementation merely because the plan exists.
+
 ## Discord version updates
 
 - Use `pwsh -File tools/discord-updates.ps1 next` to obtain the single next

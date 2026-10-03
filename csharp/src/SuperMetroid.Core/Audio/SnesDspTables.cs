@@ -31,46 +31,37 @@ internal static class SnesDspTables
     /// A Blackman-windowed sinc is normalized over each four-tap phase, then
     /// rounded to the nearest integer at scale 2048. Independently checked
     /// against every gaussValues coefficient in pinned upstream-sm/src/snes/dsp.c.</summary>
-    /// <remarks>Uses deterministic decimal evaluation without stored samples or
-    /// a generated cache. Invalid indices preserve the former array exception.</remarks>
+    /// <remarks>Uses double precision without stored samples or a generated cache.
+    /// Every rounded coefficient is checked against the independent native table.
+    /// Invalid indices preserve the former array exception.</remarks>
     internal static ushort GaussianCoefficient(int index)
     {
         if ((uint)index >= 512) throw new IndexOutOfRangeException();
-        int phase = index & 255;
-        decimal sum = GaussianRaw(phase) + GaussianRaw(255 - phase)
-            + GaussianRaw(256 + phase) + GaussianRaw(511 - phase);
-        return (ushort)(2048 * GaussianRaw(index) / sum + .5m);
+        var taps = GaussianCoefficients(index & 255);
+        return index < 256 ? taps.Tap3 : taps.Tap2;
     }
 
-    private static decimal GaussianRaw(int index)
+    /// <summary>Calculates the four S-DSP interpolation taps for one 8-bit sample phase.</summary>
+    /// <remarks>The native order is indices 255-phase, 511-phase, 256+phase, phase.
+    /// Share the four raw values and their normalization across the sample. Rebuilding
+    /// them separately with decimal Taylor series dominated real-time frame processing.</remarks>
+    internal static (ushort Tap0, ushort Tap1, ushort Tap2, ushort Tap3) GaussianCoefficients(int phase)
     {
-        const decimal pi = 3.1415926535897932384626433833m;
-        decimal k = 511.5m - index;
-        decimal window = .42m + .50m * Cosine(2 * pi * k / 1023)
-            + .08m * Cosine(4 * pi * k / 1023);
-        return Sine(pi * k / 800) * window / k;
+        if ((uint)phase >= 256) throw new IndexOutOfRangeException();
+        double tap0 = GaussianRaw(255 - phase);
+        double tap1 = GaussianRaw(511 - phase);
+        double tap2 = GaussianRaw(256 + phase);
+        double tap3 = GaussianRaw(phase);
+        double scale = 2048 / (tap0 + tap1 + tap2 + tap3);
+        return ((ushort)(tap0 * scale + .5), (ushort)(tap1 * scale + .5),
+            (ushort)(tap2 * scale + .5), (ushort)(tap3 * scale + .5));
     }
 
-    private static decimal Cosine(decimal angle)
+    private static double GaussianRaw(int index)
     {
-        const decimal pi = 3.1415926535897932384626433833m;
-        if (angle > pi) angle = 2 * pi - angle;
-        if (angle == 0) return 1;
-        if (angle == pi) return -1;
-        return angle <= pi / 2 ? Sine(pi / 2 - angle) : -Sine(angle - pi / 2);
-    }
-
-    // All callers supply angles in [0,2*pi]. Twenty-four terms leave less than
-    // 8e-24 omitted remainder; the independent proof bounds propagated rounding.
-    private static decimal Sine(decimal angle)
-    {
-        decimal squared = angle * angle;
-        decimal term = angle, sum = angle;
-        for (int k = 1; k < 24; k++)
-        {
-            term = -term * squared / ((2 * k) * (2 * k + 1));
-            sum += term;
-        }
-        return sum;
+        double k = 511.5 - index;
+        double window = .42 + .50 * Math.Cos(2 * Math.PI * k / 1023)
+            + .08 * Math.Cos(4 * Math.PI * k / 1023);
+        return Math.Sin(Math.PI * k / 800) * window / k;
     }
 }

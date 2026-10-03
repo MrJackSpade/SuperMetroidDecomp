@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--torizo-palette-shake"]) return VerifyTorizoPaletteShake();
 if (args is ["--gunship-escape-timer"]) return VerifyGunshipEscapeTimer();
 if (args is ["--baby-metroid-theme"]) return VerifyBabyMetroidTheme();
 if (args is ["--baby-metroid-death-cry"]) return VerifyBabyMetroidDeathCry();

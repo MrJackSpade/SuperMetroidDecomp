@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(TorizoEnemyState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<PaletteTransition>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older Torizo state lacks fade targets/progress; retaining current colors until the next palette target instruction. The old snapshot cannot recover an already-running fade.");
+            return current.Where(field => field.Name != "<PaletteTransition>k__BackingField").ToArray();
+        }
         if (type.FullName == "SuperMetroid.Core.Frontend.EndingCreditsState" && count == current.Length - 1 &&
             current.Any(field => field.Name == "shootingStars"))
         {

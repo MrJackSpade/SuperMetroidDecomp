@@ -59,6 +59,7 @@ if (args is ["--lookup-tourian-program"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Statue program oracle revision");
     VerifyTourianStatueProgramMappings(rom);
+    VerifyTourianStatueSpawnOrder(rom);
     VerifyTourianStatueDescriptorFields(rom);
     VerifyTourianStatueArtworkSources(rom);
     Console.WriteLine("Tourian statue programs: all 36 operand positions, 184 mechanics words and full pointer domains pass.");

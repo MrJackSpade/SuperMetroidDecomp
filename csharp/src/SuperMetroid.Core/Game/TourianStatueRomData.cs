@@ -5,8 +5,6 @@ public static class TourianStatueRomData
 {
     /// <summary>Bank $86 owns the statue unlock projectiles and their instruction operands.</summary>
     public const int ProjectileBank = 0x860000;
-    /// <summary>$8F:91D7 spawn order; native allocation/iteration preserves this order.</summary>
-    public static ReadOnlySpan<ushort> AnimatedObjects => [0x8558, 0x854c, 0x855e, 0x8552];
     /// <summary>$87:833E serializes the four lock-release animations with bit 15.</summary>
     public const ushort Busy = 0x8000;
     /// <summary>$88:DBD7 latches bit 4 once all four grey-statue events exist.</summary>

@@ -5082,4 +5082,17 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-tourian-program run all operand/control/domain, descriptor and artwork proofs. No room loading, playthrough, or unrelated bug search.",
     "scope":"TourianStatueAnimatedTileMechanicsDefinitions and TourianStatueAnimatedTileArtworkDefinitions now have independently reviewed mappings with no production lookup arrays. This does not cover separate TourianStatueRomData or other owners. No retention exception claimed. Wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "tourianStatueSpawnOrderReview": {
+    "status":"converted: four-object stored spawn roster removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/TourianStatueSequence.cs: SpawnAnimatedObjects; removed TourianStatueRomData.AnimatedObjects",
+    "source":"Supported NTSC J/U v1.0 setup8F:91D7..91F3. Pinned bank_8F.asm and bank_87.asm at362be646929cf8e483f692b73a6561cfc2dc1d0d show four LDY/JSL calls, descending allocation at87:8027 and descending handler traversal at87:8064.",
+    "algorithm":"Direct named calls spawn Kraid, Phantoon, Draygon and Ridley in native order. The existing per-object initialization is shared by a local Spawn function. No array, generated cache or ordinal lookup remains.",
+    "domain":"Fixed no-input setup sequence, called only after Load enables the Tourian room sequence. Existing object clearing, disabled-room return, descent state and room setup remain unchanged. Native allocation and iteration both descend, so insertion order preserves handler order and busy-bit acquisition priority.",
+    "evidence":"The original source is executable spawn calls rather than arbitrary numeric chronology. Directly translating those calls expresses their functional meaning; preserving a lookup roster or fitting the identity values would be unnecessary.",
+    "proof":"VerifyTourianStatueSpawnOrder decodes the original LDY immediates and validates every JSL target through the terminating RTS. Invoke the exact private helper called by production Load, then compare all four resulting object identities/order and initial program words against ROM and their instruction timers against the native initialization constant1. One focused proof covers this fixed sequence; no separate index domain exists.",
+    "consumers":"Source search confirms Load was the only AnimatedObjects consumer and now invokes direct spawning. TourianStatueRomData contains no remaining stored indexed mapping after removal; its scalar identities remain constants, not a retention exception.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-tourian-program, which runs spawn-order and existing statue program/descriptor/artwork proofs. No room loading or exploratory gameplay.",
+    "scope":"This resolves TourianStatueRomData's remaining roster without retention. Other statue palette/projectile owners and the full maintained-source inventory retain their separate review scope. Implementation record is this entry's commit."
+  }
 }

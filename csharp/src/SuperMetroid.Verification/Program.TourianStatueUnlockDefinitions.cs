@@ -69,6 +69,7 @@ internal static partial class Program
         VerifyTourianStatueArtworkSources(rom);
         VerifyTourianStatueDescriptorFields(rom);
         VerifyTourianStatueProgramMappings(rom);
+        VerifyTourianStatueSpawnOrder(rom);
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(

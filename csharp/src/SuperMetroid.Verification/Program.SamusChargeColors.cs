@@ -147,7 +147,7 @@ internal static partial class Program
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
             var stored = (Dictionary<int, ushort>)input.GetType().GetField("colors",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
-            AssertEqual(family == 0 ? 192 : 96, stored.Count, "Charge catalog stores each native phase input once");
+            AssertEqual(family == 0 ? 48 : 96, stored.Count, "Charge catalog stores each native phase input once");
             for (int suit = 0; suit < 3; suit++)
             {
                 int table = family == 0 ? SamusProjectileRomData.Palettes.BeamChargePointers : SamusProjectileRomData.Palettes.PseudoScrewPointers;
@@ -170,13 +170,105 @@ internal static partial class Program
                         ushort native = Word(0x9b0000 | (pointer + color * 2));
                         expected[family, suit, phase, color] = native;
                         AssertEqual(native, catalog.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
-                        AssertEqual(phase == firstPhase, stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
+                        AssertEqual(family == 0 ? phase == 0 : phase == firstPhase, stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
                     }
                     for (int index = 0; index < 256; index++)
                         AssertEqual(index is >= 192 and < 208 ? expected[family, suit, phase, index - 192] : (ushort)0x1234,
                             cgram.Colors[index], "Charge copy changes exactly its sixteen native colors");
                 }
             }
+        }
+        var deathSuited = new ushort[3][][];
+        var deathSuitless = new ushort[10][];
+        for (int suit = 0; suit < 3; suit++)
+        {
+            deathSuited[suit] = new ushort[10][];
+            for (int palette = 0; palette < 10; palette++)
+            {
+                ushort pointer = Word(SamusPaletteRomData.Death.SuitPointers + (suit * 10 + palette) * 2);
+                deathSuited[suit][palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
+            }
+        }
+        for (int palette = 0; palette < 10; palette++)
+        {
+            ushort pointer = Word(SamusPaletteRomData.Death.SuitlessPointers + palette * 2);
+            deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
+        }
+        var whiteout = Enumerable.Range(0, SamusPaletteRomData.Death.WhiteoutShadeCount)
+            .Select(index => Word(SamusPaletteRomData.Death.WhiteoutShades + index * 2)).ToArray();
+        var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
+            .Select(index => (ushort)rom.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
+        var death = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, whiteout, selectors);
+        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
+        {
+            var inputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
+                .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+            AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
+        }
+        foreach (var (fieldName, count) in new[] { ("suited", 144), ("suitless", 32) })
+        {
+            var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
+                .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+            AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
+        }
+        for (int scope = 0; scope < 3; scope++)
+        {
+            ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+            ushort[][] suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            for (int family = 0; family < 4; family++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+            {
+                ushort[][] rows = family < 3 ? suited[family] : suitless;
+                if (scope == 0 || scope == 1 && palette != 0 || scope == 2 && palette == 0) continue;
+                rows[palette][color] = (ushort)((rows[palette][color] + 37 * (1 + family + palette + color)) & 0x7fff);
+            }
+            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, whiteout, selectors);
+            for (int family = 0; family < 4; family++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual((family < 3 ? suited[family] : suitless)[palette][color],
+                    family < 3 ? editedDeath.SuitedColor(family, palette, color) : editedDeath.SuitlessColor(palette, color),
+                    "Original death palette view and independent edits");
+            string originalIdentity = SelectedPresentationHash.Create(nameof(SamusDeathPaletteArtworkCatalog), content =>
+            {
+                foreach (ushort[][] rows in suited)
+                foreach (ushort[] row in rows) content.AppendWords("suited row", row);
+                foreach (ushort[] row in suitless) content.AppendWords("suitless row", row);
+                content.AppendWords("whiteout", whiteout);
+                content.AppendWords("explosion palette indices", selectors);
+            });
+            AssertEqual(originalIdentity, editedDeath.ContentIdentity, "Death color identity preserves original row serialization");
+            ushort before = editedDeath.SuitedColor(0, 0, 0);
+            suited[0][0][0] ^= 1;
+            AssertEqual(before, editedDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
+        }
+        for (int rgb = 0; rgb <= 0x7fff; rgb++)
+        for (int shade = 0; shade < 8; shade++)
+        {
+            ushort actual = SamusPaletteFade.EighthTowardWhite((ushort)rgb, shade);
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int basis = rgb >> (channel * 5) & 31;
+                int interpolated = (int)decimal.Floor(basis + (31 - basis) * (shade / 8m));
+                AssertEqual(interpolated, actual >> (channel * 5) & 31, "Complete RGB5 eighth whitening arithmetic");
+            }
+        }
+        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(0, invalid), "Invalid fade shade");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(invalid, 0), "Invalid fade RGB5");
+        foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(invalid, 0, 0), "Invalid death suit");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
         // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
         for (int editScope = 0; editScope < 3; editScope++)
@@ -239,7 +331,7 @@ internal static partial class Program
         }
         AssertEqual(0, projectiles.SamusChargePaletteIndex, "Charge phase wraps after six calls");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
-        Console.WriteLine("Charge phases: all576 native colors, first-pointer ownership, independent edits, bounds and36 guarded calls pass.");
+        Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, edits, identity, bounds and36 guarded charge calls pass.");
         return forbidden;
 
         ushort Word(int address)

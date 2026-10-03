@@ -5,7 +5,7 @@ internal static class SamusColorClosedContractDefinitions
 {
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
-        "5094274A1BA6593E9EC95B419DC07461ECB3464DC739E7E872695E2E41E4C54E");
+        "98F19995937C3AC7B199CE7E89111DBD754551C86797AA38DC9976BCF02E7887");
 
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -21,7 +21,8 @@ internal static class SamusColorClosedContractDefinitions
             "The sole private-constructor loader requires three sixteen-color RGB5 suit inputs, stores the Power colors and only differing Varia/Gravity slots, preserving independent edits through explicit overrides. Apply/Resolve accept only even suit offsets zero/two/four and bounded color indices. Equipment priority and suit selection remain gameplay responsibilities."),
         new("SuperMetroid.Core.Assets.SamusChargeColorCatalog", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveCharge", "ResolveHyper"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "1DB91A0C354705AA19959581EF4846E48D556016B438D57CF5AC67FFC5CF29AA"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "D34964681B1E9166B5FB3754961A6FF0E204BB57D8D66552A0EF3F518CBBA291"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "4CBE656DC00C6CF33257B12449042328AB3C97DA6DD1901816F82B138BBC7C23"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "BDC26DD20D599391AF76A2DFBF81310E273AA8995826918A453F40E130C2CCBC"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9")],
             "Private construction requires charged and pseudo-Screw families with three suits/six phases each plus ten Hyper-shot frames, all sixteen colors. Charge-family selectors guard the complete independent arrays. Hyper-shot rows use an independently loaded shared Hyper Beam calculation with reversed frame indices; the common loader validates all rows and channels. Both boolean branches are covered; charging and shot timing are not executed."),

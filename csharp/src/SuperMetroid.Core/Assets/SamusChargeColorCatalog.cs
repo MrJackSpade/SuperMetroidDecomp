@@ -80,11 +80,13 @@ public sealed class SamusChargeColorCatalog
     /// <remarks>Bank91 lists D7DB/D7E7/D7F3 select charge shades0,1,2,3,2,1;
     /// D805/D811/D81D select the same pseudo-Screw row for phases0..2 and
     /// the normal row for3..5. Each differing supplied color remains independent.
-    /// This only removes temporal duplicates; the distinct RGB inputs still require review.</remarks>
+    /// Charge shades1..3 use the shared eighth-step whitening calculation; differing
+    /// channels remain editable inputs. Pseudo-Screw color generation remains under review.</remarks>
     private sealed class ChargeInputs
     {
         private readonly bool pseudo;
         private readonly Dictionary<int, ushort> colors = new();
+        private readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
         internal ChargeInputs(ushort[][][] source, bool pseudo)
         {
@@ -95,8 +97,14 @@ public sealed class SamusChargeColorCatalog
             {
                 int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
                 ushort value = source[suit][phase][color];
-                if (phase == canonical || value != source[suit][canonical][color])
-                    colors.Add((suit * 6 + phase) * 16 + color, value);
+                if (phase != canonical && value == source[suit][canonical][color]) continue;
+                int key = (suit * 6 + phase) * 16 + color;
+                if (!pseudo && phase == canonical && phase != 0)
+                {
+                    ushort expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
+                    if (value != expected) fadeInputs.Add(key, new(value, expected));
+                }
+                else colors.Add(key, value);
             }
         }
 
@@ -105,8 +113,11 @@ public sealed class SamusChargeColorCatalog
             if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
             int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
             if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
-            return colors.TryGetValue((suit * 6 + phase) * 16 + color, out ushort value)
-                ? value : colors[(suit * 6 + canonical) * 16 + color];
+            int key = (suit * 6 + phase) * 16 + color;
+            if (colors.TryGetValue(key, out ushort value)) return value;
+            if (phase != canonical) return Resolve(suit, canonical, color);
+            ushort expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
+            return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
         }
     }
 

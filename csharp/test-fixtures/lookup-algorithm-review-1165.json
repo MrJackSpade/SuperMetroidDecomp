@@ -6200,4 +6200,15 @@
     "proof":"No new retention-only test. Existing single VerifyHyperBeamFxColorArtwork covers all80 original words,stock per-component ownership,complete shared arithmetic domains,all source/independent edits,invalid bounds,strict JSON and a guarded timed loop with untouched CGRAM. Most recent conversion confirmation is380e938358a822459b8a6c97dfb9a5dde22c19ef. This change adds the owner/inventory disposition and refreshes source pins/index.",
     "scope":"Supersedes pending projectile endpoint/component statements in earlier hyperBeamProjectile review entries only. Separate full-body/Hyper-shot opaque inputs and the rest of1165 remain pending. Palette-program controls and other projectile assets are not disposed by this entry."
   }
+,
+  "hyperBeamBodyMagentaShadeChannelReview": {
+    "status":"converted duplicated blue in the remaining magenta shade input",
+    "owners":"SamusHyperBeamColorCatalog shadeInputs; shared SamusHyperBeamColorFormat.MagentaFromRed; HyperBeamFxColorCatalog shared caller",
+    "source":"Every original opaque body frame1 color at9B:A340 has blue=red,including ink7 whose red differs from the base-ink brightness calculation. Its red/blue values were previously both captured as shade inputs. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Capture magenta blue relative to supplied red,then resolve blue from the resolved shade-red channel before applying any explicit blue override. This also handles edited base colors with unequal red/blue. Move the identical projectile red-to-magenta operation into the shared body format and migrate its caller/proof instead of duplicating the operation. Stock body shade components drop4 to3; other counts remain7 whole words/12 endpoint/8 intermediate components.",
+    "ownership":"Apply red/green overrides before deriving magenta blue; an independent blue edit still wins. Overflowing shade sources retain explicit whole targets as before. Full-body and Hyper-shot assets remain independently supplied.",
+    "proof":"Extend existing body proof's original per-channel ownership and three-component count. Reuse all160 original words in both native playback views,all independent/source edits,bounds and guarded cycles. The existing projectile proof continues to cover the shared transform's complete32768 RGB5 domain; run both focused proofs for the shared operation move.",
+    "scope":"Remaining body opaque input dispositions still require review. Projectile color-payload disposition remains resolved. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors and --hyper-beam-fx-colors; refreshed both owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

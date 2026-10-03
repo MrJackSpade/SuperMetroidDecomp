@@ -45,7 +45,7 @@ internal static partial class Program
         foreach (var entry in shadeInputs.Values)
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) shadeComponentCount++;
-        AssertEqual(4, shadeComponentCount, "Only four differing shade components remain");
+        AssertEqual(3, shadeComponentCount, "Magenta blue shares its red shade input");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -84,7 +84,7 @@ internal static partial class Program
                     string[] names = ["red", "green", "blue"];
                     for (int channel = 0; channel < 3; channel++)
                     {
-                        int shift = 5 * channel, expectedChannel = (shadow >> shift & 31) + shade.Brightness;
+                        int shift = 5 * channel, expectedChannel = frame == 1 && channel == 2 ? native & 31 : (shadow >> shift & 31) + shade.Brightness;
                         int? differing = (native >> shift & 31) == expectedChannel ? null : native >> shift & 31;
                         differs |= differing.HasValue;
                         object? actual = shadeInputs.TryGetValue(frame * 16 + index, out var shadeInput) ?

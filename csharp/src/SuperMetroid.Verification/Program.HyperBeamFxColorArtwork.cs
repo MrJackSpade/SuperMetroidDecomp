@@ -148,12 +148,12 @@ internal static partial class Program
                 "Every original within-hue shade midpoint");
         ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
         AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(nativeRedEndpoint), "Original saturated green endpoint");
-        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), HyperBeamFxColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), SamusHyperBeamColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
             AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed((ushort)rgb), "Complete RGB5 red-to-green domain");
-            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamFxColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
+            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), SamusHyperBeamColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
         }
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();

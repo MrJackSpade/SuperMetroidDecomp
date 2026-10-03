@@ -52,7 +52,7 @@ public sealed class HyperBeamFxColorCatalog
                 continue;
             }
             if (frame == 4 && color == 7 && value == HyperBeamFxColorFormat.GreenFromRed(frames[0][3])) continue;
-            if (frame == 8 && color == 1 && value == HyperBeamFxColorFormat.MagentaFromRed(frames[0][3])) continue;
+            if (frame == 8 && color == 1 && value == SamusHyperBeamColorFormat.MagentaFromRed(frames[0][3])) continue;
             if (HasPairedChannels(frame, color))
             {
                 var shared = SharedEndpointChannels(frame, color, frames[0][0], frames[0][3]);
@@ -93,7 +93,7 @@ public sealed class HyperBeamFxColorCatalog
         }
         if (color == 0) return Resolve(0, 0);
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
-        if (frame == 8 && color == 1) return HyperBeamFxColorFormat.MagentaFromRed(Resolve(0, 3));
+        if (frame == 8 && color == 1) return SamusHyperBeamColorFormat.MagentaFromRed(Resolve(0, 3));
         if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
         {
             ushort expected = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
@@ -268,12 +268,6 @@ public static class HyperBeamFxColorFormat
     internal static ushort GreenFromRed(ushort red) =>
         (ushort)((red & 0x7c00) | (red & 31) << 5 | (red >> 5 & 31));
 
-    /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
-    /// <remarks>Original projectile frame8 ink1 ($8D:D9A8) derives from
-    /// frame0 ink3 ($D90C). Red/green stay fixed; copying red into blue
-    /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
-    internal static ushort MagentaFromRed(ushort red) =>
-        (ushort)((red & 0x03ff) | (red & 31) << 10);
     /// <summary>Selects middle projectile shades calculated from their adjacent inks.</summary>
     /// <remarks>In the original rows8D:D906+20*frame, red frame0 and magenta
     /// frame8 ink2 interpolate inks1/3; green frame4 and magenta frame8 ink5

@@ -32,7 +32,9 @@ public sealed class SamusHyperBeamColorCatalog
             {
                 if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out ushort brighter))
                 {
-                    if (frames[frame][color] != brighter) shadeInputs.Add(index, new(frames[frame][color], brighter));
+                    // Magenta blue follows the supplied red channel, including a red override.
+                    ushort expected = frame == 1 ? (ushort)((brighter & 0x03ff) | (frames[frame][color] & 31) << 10) : brighter;
+                    if (frames[frame][color] != expected) shadeInputs.Add(index, new(frames[frame][color], expected));
                     continue;
                 }
                 colors.Add(index, frames[frame][color]);
@@ -127,7 +129,11 @@ public sealed class SamusHyperBeamColorCatalog
         if (shade.Ink != color)
         {
             if (SamusHyperBeamColorFormat.TryBrighten(Resolve(frame, shade.Ink), shade.Brightness, out ushort brighter))
-                return shadeInputs.TryGetValue(frame * 16 + color, out var shadeInput) ? shadeInput.Apply(brighter) : brighter;
+            {
+                shadeInputs.TryGetValue(frame * 16 + color, out var shadeInput);
+                ushort result = shadeInput.Apply(brighter);
+                return frame == 1 ? shadeInput.Apply(SamusHyperBeamColorFormat.MagentaFromRed(result)) : result;
+            }
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
         }
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
@@ -228,6 +234,13 @@ public static class SamusHyperBeamColorFormat
         value = (ushort)(red | green << 5 | blue << 10);
         return true;
     }
+    /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
+    /// <remarks>Original projectile frame8 ink1 ($8D:D9A8) derives from
+    /// frame0 ink3 ($D90C). Body-cycle frame1 also has blue=red,including
+    /// its independently edited shade-red channels. Red/green stay fixed; copying red into blue
+    /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
+    internal static ushort MagentaFromRed(ushort red) =>
+        (ushort)((red & 0x03ff) | (red & 31) << 10);
     /// <summary>Interpolates two RGB5 hue endpoints by half, rounding each channel upward.</summary>
     /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
     /// frame0 wrapping between9/1. Frame6 uses the green-to-yellow red ramp.

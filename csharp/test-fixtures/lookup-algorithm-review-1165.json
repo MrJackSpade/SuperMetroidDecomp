@@ -4885,5 +4885,17 @@
     "consumers":"Room layer3 FX, palette FX, sand and treadmill animation consumers continue calling Select. No runtime cartridge capability or stored selector table is added. Field mapping proofs remain separate, and existing guarded Ceres integration still passes.",
     "confirmation":"Captured failing exact sentinel assertion, then corrected ordering. SHA-pinned --room-fx-record-definitions now passes the complete selector domain plus field proofs and guarded consumer checks. Verification and ResourceAudit builds pass. No exploratory gameplay or test-driven defect search; discrepancy was identified from required source review.",
     "scope":"This resolves the separate selector review left open by roomFxRecordReview/11e2013648667cf4920ef37e0c5fe682f50faa55. Sentinel behavior is independently confirmed at production API; player-facing whole-game validation remains the user's responsibility. Wider maintained-source inventory remains active. Implementation record is this entry's commit."
+  },
+  "rainHorizontalVelocityReview": {
+    "status":"converted: four stored signed8.8 velocity words removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs: Rain.HorizontalVelocity",
+    "source":"Supported NTSC J/U v1.0 $88:D981 Instruction_HDMAObjectBG3XVelocity and four words atD992. Pinned bank_88.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d explicitly identifies random +/-400h/600h selection and unit1/100h pixels/frame.",
+    "algorithm":"For selector0..3, magnitude=(6-(selector&2))*256; bit0 chooses positive instead of negative. Return the signed result's ushort bit pattern without saturation. RoomLayer3FxState selects using RNG bits two/three, equivalent to native LSR then AND6 byte offset.",
+    "domain":"Four valid word indices. Invalid int selectors preserve IndexOutOfRangeException from the former span indexing. Caller RNG domain is every ushort; all other bits are irrelevant under the original mask.",
+    "evidence":"The two selector bits have distinct documented direction/magnitude roles. Exact signed fixed-point arithmetic explains all original outputs; no fitted coefficients, correction values, stored cache or retention is used.",
+    "proof":"VerifyRainHorizontalVelocity is the one independent mapping proof. It reads all four native words directly, then checks all65536 RNG inputs using the native byte-offset expression against production word indexing. It checks invalid int endpoints and adjacent bounds. The early --lookup-rain-velocity command pins the original ROM SHA.",
+    "consumers":"Removed the span and migrated its sole production consumer in RoomLayer3FxState.Load. Corrected that consumer's native instruction reference fromC4B9 toD981. Source search confirms no former HorizontalVelocities references. Updated the three ResourceAudit source-ownership hashes for the edited catalog.",
+    "confirmation":"Verification and ResourceAudit builds and --lookup-rain-velocity pass. This is exact mapping confirmation chosen by static source review, without exploratory gameplay.",
+    "scope":"Rain horizontal velocity mapping fully resolved without retention. Remaining liquid waveforms and other maintained mappings remain within1165. Implementation record is this entry's commit."
   }
 }

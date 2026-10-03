@@ -197,11 +197,10 @@ public sealed class RoomLayer3FxState
         }
         else if (Type == RoomFxType.Rain)
         {
-            ReadOnlySpan<ushort> velocities = RoomFxRomData.Rain.HorizontalVelocities;
-            // `$88:C4B9` masks the random word with six *after* shifting it once,
+            // `$88:D981` masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
-            horizontalVelocity = velocities[(randomNumber >> 2) & 3];
+            horizontalVelocity = RoomFxRomData.Rain.HorizontalVelocity((randomNumber >> 2) & 3);
         }
     }
 

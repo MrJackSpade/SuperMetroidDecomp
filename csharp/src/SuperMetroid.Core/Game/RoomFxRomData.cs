@@ -146,11 +146,21 @@ public static class RoomFxRomData
     {
         public const ushort VerticalVelocity = 0x0600;
 
-        /// <summary>
-        /// Signed 8.8 BG3 horizontal velocities selected from bits two and three of RNG.
-        /// </summary>
-        public static ReadOnlySpan<ushort> HorizontalVelocities =>
-            [0xfa00, 0x0600, 0xfc00, 0x0400];
+        /// <summary>Calculates rain's signed 8.8 horizontal velocity for selector 0..3.</summary>
+        /// <remarks>Native $88:D981 selects a word at $88:D992 using RNG bits two/three.
+        /// Selector bit one reduces the speed from six to four pixels/frame; bit zero
+        /// selects positive rather than negative motion. Multiply by256, then preserve
+        /// the two's-complement ushort representation. The four original values and
+        /// all ushort RNG inputs are independently verified against NTSC J/U v1.0 and
+        /// pinned bank_88.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Invalid selectors retain the former indexed span's rejection.</remarks>
+        public static ushort HorizontalVelocity(int selection)
+        {
+            if ((uint)selection >= 4)
+                throw new IndexOutOfRangeException();
+            int speed = (6 - (selection & 2)) << 8;
+            return unchecked((ushort)((selection & 1) == 0 ? -speed : speed));
+        }
     }
 
     /// <summary>FX type $08's literal scroll and source-blending operands.</summary>

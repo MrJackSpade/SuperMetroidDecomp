@@ -18,6 +18,8 @@ public sealed class SamusHyperBeamColorCatalog
             if (source != index && frames[frame][color] == frames[source / 16][source % 16]) continue;
             if (source == index && frame == 7 && color != 0 &&
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
+            if (source == index && frame == 6 && color != 0 && color is not (1 or 8 or 11) &&
+                frames[frame][color] == SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color])) continue;
             colors.Add(index, frames[frame][color]);
         }
     }
@@ -79,7 +81,8 @@ public sealed class SamusHyperBeamColorCatalog
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
         if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
-        return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
+        return frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
+            SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
     }
 
     private static void RejectDuplicates(JsonElement value)
@@ -111,6 +114,15 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
+    /// <remarks>Original frame6 ($9B:A2A0) preserves frame5 green/blue;
+    /// nine canonical opaque inks also have red=ceil((red5+green5)/2).
+    /// Slots1/8/11 differ in red and remain outside this whole-word conversion
+    /// pending component review. The numerator is at most63; no saturation or
+    /// overflow is needed. This reuses the green-frame input, not a generated cache.</remarks>
+    internal static ushort GreenYellowMidpoint(ushort green) =>
+        (ushort)((green & 0x7fe0) | ((green & 31) + (green >> 5 & 31) + 1) / 2);
 
     /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
     /// <remarks>Every opaque original frame7 word ($9B:A280) equals frame5

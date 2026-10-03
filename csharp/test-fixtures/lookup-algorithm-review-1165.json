@@ -5952,4 +5952,15 @@
     "scope":"Other Hyper Beam hue/shade/component relationships and all remaining input dispositions are still pending. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamGreenYellowMidpointReview": {
+    "status":"converted nine canonical Hyper Beam intermediate hue words to rounded red interpolation",
+    "owners":"SamusHyperBeamColorCatalog; SamusHyperBeamColorFormat.GreenYellowMidpoint",
+    "source":"Original frame6 at9B:A2A0 and green frame5 at9B:A2C0 selected by91D99E. All opaque green/blue channels match; nine canonical inks also have red=ceil((red5+green5)/2). Slots1/8/11 differ in red and remain pending. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Keep green/blue; interpolate red halfway toward yellow's red=green and round upward. Integer numerator<=63, no overflow or saturation. Exclude transparent and the three differing inks. Stock112 to103 words; no generated hue cache.",
+    "ownership":"Compare supplied source and target values before removing matching canonical words. Differing edits stay explicit. Existing green-frame-only edits confirm the separately supplied midpoint/yellow frames remain unchanged.",
+    "proof":"Extend existing Hyper Beam proof with original midpoint/source pairs and storage ownership,all32768 RGB5 inputs against real-valued midpoint rounding. Reuse all160 native outputs,all/source-only/green-only edits,bounds and22-call guarded runtime palette cycle.",
+    "scope":"Three differing red components and all other remaining hue/shade inputs still require review. No retained-input disposition inferred from these differences. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

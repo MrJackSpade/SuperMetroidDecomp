@@ -21,7 +21,7 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(112, stored.Count, "Hyper Beam aliases and yellow-hue conversion remove48 words");
+        AssertEqual(103, stored.Count, "Hyper Beam aliases and hue interpolation remove57 words");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -57,7 +57,14 @@ internal static partial class Program
                     AssertEqual(native, SamusHyperBeamColorFormat.YellowFromGreen(ReadVerificationWord(rom,
                         0x9b0000 | (greenPointer + 2 * index))), "Every original green-to-yellow hue word");
                 }
-                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                bool midpoint = frame == 6 && index is not (0 or 1 or 8 or 11);
+                if (midpoint)
+                {
+                    ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
+                    AssertEqual(native, SamusHyperBeamColorFormat.GreenYellowMidpoint(ReadVerificationWord(rom,
+                        0x9b0000 | (greenPointer + 2 * index))), "Every original regular midpoint color");
+                }
+                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
@@ -72,6 +79,8 @@ internal static partial class Program
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
             AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen((ushort)rgb), "Complete RGB5 green-to-yellow domain");
+            int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
+            AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint((ushort)rgb), "Complete RGB5 hue midpoint domain");
         }
         foreach (bool sourcesOnly in new[] { false, true })
         {

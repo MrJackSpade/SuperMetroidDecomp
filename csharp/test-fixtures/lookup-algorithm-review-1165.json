@@ -5894,4 +5894,15 @@
     "scope":"Four remaining active blue inputs still require explicit disposition,as do other pending full-body inputs. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyScrewEndpointComponentsReview": {
+    "status":"converted final eight complete Screw shade words to channel calculations and five endpoint components",
+    "owners":"SamusFullBodyCycleColorCatalog Screw endpoint capture/ResolveIndex; SamusFullBodyCycleColorFormat.TryScrewAttackTint/TryVariaScrewInk",
+    "source":"Original Power slot4 words9CC8/9CE8/9D08;Power final10/15 at9D14/9D1E;Varia slot2 at9EC4/9EE4/9F04. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Extend standard tint operations to unchanged channels. Power dim/middle4 retain only blue16/19;final10 only red16;final15 only green31. Varia slot2 uses base green+5 saturated31 and base blue; red is base at dim,independent bright endpoint20,and upward-rounded midpoint26. Capture only differing components. Stock33 to25 whole base/transparent words; endpoint components13 to18. No generated shade cache.",
+    "ownership":"Compare complete supplied shades before collapsing. Independent base/endpoint edits preserve supplied midpoint and other shades as overrides. New bright-only Varia edit covers the midpoint dependency; existing all-color and Screw-base-only fixtures cover the rest.",
+    "proof":"Extend existing full-body proof with60 standard-tint member identities,original unchanged channels,five explicit endpoint addresses,and original three Varia red values. Check fullRGB5 basis crossed with32 bright-red values across three shades,rounding/saturation and invalid bounds. Shared Channels full-domain coverage is reused via --lookup-loading-colors. All768 native outputs,CGRAM and independent edits remain checked.",
+    "scope":"Five new endpoint components and prior components still require explicit dispositions. Twenty-five whole base/transparent inputs also remain under review. No new retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

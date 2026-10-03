@@ -22,6 +22,8 @@ public sealed class SamusFullBodyCycleColorCatalog
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
     /// <summary>Active-shinespark blue inputs at9C64/9C84/9E84 and9C50; all other channels derive from base ramps.</summary>
     private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activeVariaBright2, activePowerDim8;
+    /// <summary>Screw Attack endpoint components at9CC8/9CE8/9D14/9D1E/9F04.</summary>
+    private readonly LoadingPaletteInputView.Channels screwPowerDim4, screwPowerMiddle4, screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
     private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
     {
@@ -50,6 +52,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[palette / 16 * 16 + 12][color], out ushort screw) && value == screw) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
                 palettes[12][color], palettes[1][12], out ushort ink) && value == ink) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color,
+                palettes[28][color], palettes[31][color], out ushort variaInk) && value == variaInk) continue;
             if (palette == 32 && color is 1 or 12 && value ==
                 SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
             colors.Add(index, value);
@@ -65,6 +69,21 @@ public sealed class SamusFullBodyCycleColorCatalog
         activePowerBright2 = CaptureActive(11, 2);
         activeVariaBright2 = CaptureActive(27, 2);
         activePowerDim8 = CaptureActive(9, 8);
+        screwPowerDim4 = CaptureScrew(13, 4);
+        screwPowerMiddle4 = CaptureScrew(14, 4);
+        screwPowerBright10 = CaptureScrew(15, 10);
+        screwPowerBright15 = CaptureScrew(15, 15);
+        screwVariaBright2 = CaptureScrew(31, 2);
+
+        LoadingPaletteInputView.Channels CaptureScrew(int palette, int color)
+        {
+            ushort basis = palettes[palette / 16 * 16 + 12][color];
+            ushort expected;
+            if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out expected);
+            else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out expected);
+            colors.Remove(palette * 16 + color);
+            return new(palettes[palette][color], expected);
+        }
 
         LoadingPaletteInputView.Channels CaptureActive(int palette, int color)
         {
@@ -118,6 +137,11 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 178: return activePowerBright2.Apply(ActiveGoldExpected(11));
             case 434: return activeVariaBright2.Apply(ActiveGoldExpected(27));
             case 152: return activePowerDim8.Apply(SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex(136), 1));
+            case 212: return screwPowerDim4.Apply(ScrewExpected(13, 4));
+            case 228: return screwPowerMiddle4.Apply(ScrewExpected(14, 4));
+            case 250: return screwPowerBright10.Apply(ScrewExpected(15, 10));
+            case 255: return screwPowerBright15.Apply(ScrewExpected(15, 15));
+            case 498: return screwVariaBright2.Apply(ScrewExpected(31, 2));
         }
         if (colors.TryGetValue(index, out ushort value)) return value;
         if (index is 513 or 524)
@@ -125,6 +149,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (palette is 29 or 30 && SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color,
+            ResolveIndex(28 * 16 + color), ResolveIndex(498), out ushort variaInk)) return variaInk;
         if (palette is >= 13 and <= 15 && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
             ResolveIndex(12 * 16 + color), ResolveIndex(16 + 12), out ushort ink)) return ink;
         if (palette % 16 >= 13 && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
@@ -148,6 +174,15 @@ public sealed class SamusFullBodyCycleColorCatalog
     {
         _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
             ResolveIndex((palette / 16 * 16 + 8) * 16 + 2), out ushort value);
+        return value;
+    }
+
+    private ushort ScrewExpected(int palette, int color)
+    {
+        ushort basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
+        ushort value;
+        if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out value);
+        else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out value);
         return value;
     }
 
@@ -272,6 +307,20 @@ public static class SamusFullBodyCycleColorFormat
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
 
+    /// <summary>Varia Screw slot2 interpolates red across dim/middle/bright, keeping raised green and base blue.</summary>
+    /// <remarks>Original9EC4/9EE4/9F04 have red31/26/20: endpoints
+    ///31/20 and their midpoint rounded upward. Green is base+5 saturated31,
+    /// blue is base blue. Bright red remains an independent input; midpoint
+    /// arithmetic uses nonnegative RGB5 values and numerator at most63.</remarks>
+    internal static bool TryVariaScrewInk(int palette, int color, ushort basis, ushort bright, out ushort value)
+    {
+        value = 0;
+        if (palette is < 29 or > 31 || color != 2) return false;
+        int red = palette == 29 ? basis & 31 : palette == 31 ? bright & 31 : ((basis & 31) + (bright & 31) + 1) / 2;
+        value = (ushort)(red | Math.Min(31, (basis >> 5 & 31) + 5) << 5 | (basis & 0x7c00));
+        return true;
+    }
+
     /// <summary>Combines Power's base blue with its dim Speed Booster red/green for Gravity base slots1/12.</summary>
     /// <remarks>Original $9B:9F22/9F38 share red/green with9B42/9B58
     /// and blue with9B22/9B38. These are repeated channels of the same suit
@@ -299,11 +348,11 @@ public static class SamusFullBodyCycleColorFormat
         return true;
     }
 
-    /// <summary>Calculates55 canonical Screw Attack colors with shared green/blue ramps.</summary>
-    /// <remarks>Power3/5..9/13..15 and Gravity1/2/10/11 add green10 per
-    /// shade and blue10 only at shade3; Power15 shade3 is excluded for its
+    /// <summary>Calculates Screw Attack green/blue ramps before explicit endpoint channel overrides.</summary>
+    /// <remarks>Power3..9/13..15 and Gravity1/2/10/11 add green10 per
+    /// shade and blue10 only at shade3; Power15 shade3 retains its
     /// differing green. Power1/11 and Varia10/11/12 add green5 per shade
-    /// with unchanged blue. Power10 uses that slower ramp only at shades1/2.
+    /// with unchanged blue. Power10 uses that slower ramp, with its final red stored independently.
     /// Red stays unchanged and channel additions saturate at31. Original rows
     ///9CC0/9CE0/9D00 and suit offsets512/1024 establish these shared operations.
     /// Other slots/components remain outside this mapping for independent review.</remarks>
@@ -312,9 +361,9 @@ public static class SamusFullBodyCycleColorFormat
         value = 0;
         if ((uint)palette >= PaletteCount || palette % 16 < 13) return false;
         int suit = palette / 16, shade = palette % 4;
-        bool fast = suit == 0 ? color is 3 or >= 5 and <= 9 or 13 or 14 || (color == 15 && shade < 3) :
+        bool fast = suit == 0 ? color is >= 3 and <= 9 or >= 13 and <= 15 :
             suit == 2 && color is 1 or 2 or 10 or 11;
-        bool slow = suit == 0 ? color is 1 or 11 || (color == 10 && shade < 3) :
+        bool slow = suit == 0 ? color is 1 or 10 or 11 :
             suit == 1 && color is 10 or 11 or 12;
         if (!fast && !slow) return false;
         int green = Math.Min(31, (basis >> 5 & 31) + (fast ? 10 : 5) * shade);

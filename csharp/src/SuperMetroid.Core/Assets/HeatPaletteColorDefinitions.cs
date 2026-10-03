@@ -39,7 +39,7 @@ internal static class HeatPaletteColorDefinitions
 
     }
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
-        TryBaseColor(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
+        TryBaseColor(pointer, colors, out value) || TryHighlightEndpoint(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
         TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
 
     /// <summary>Maps heat row-zero colors to the corresponding normal suit-loading colors.</summary>
@@ -69,7 +69,29 @@ internal static class HeatPaletteColorDefinitions
     }
 
     private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
-        colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value);
+        colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value) ||
+        TryHighlightEndpoint(pointer, colors, out value);
+
+    /// <summary>Bright red highlights move halfway toward saturated red, rounding upward.</summary>
+    /// <remarks>Original Power slots1/8 rise from29/27 to30/29; Varia slot9 rises
+    /// from30 to31. Each endpoint is ceil((baseRed+31)/2), preserving green/blue.
+    /// Sources: $8D:E558/E566/E794 and their corresponding row-zero colors. This
+    /// shared highlight rule uses no stored endpoint or fitted per-slot coefficients.
+    /// Player endpoints differing from the result remain explicit installed overrides.</remarks>
+    internal static bool TryHighlightEndpoint(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    {
+        ushort source = pointer switch
+        {
+            0xe558 => 0xe46a,
+            0xe566 => 0xe478,
+            0xe794 => 0xe6a6,
+            _ => 0,
+        };
+        value = 0;
+        if (source == 0 || !(colors.TryGetValue(source, out ushort start) || TryBaseColor(source, colors, out start))) return false;
+        value = (ushort)((start & 0x7fe0) | (((start & 31) + 32) / 2));
+        return true;
+    }
 
     /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
@@ -103,7 +125,7 @@ internal static class HeatPaletteColorDefinitions
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
         if (!TryInputColor((ushort)first, colors, out ushort start) ||
-            !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
+            !TryInputColor((ushort)(first + 7 * 34), colors, out ushort end)) return false;
         int row = (offset / 34 + 1) / 2;
         int red = ((start & 31) * (4 - row) + (end & 31) * row + roundingBias) / 4;
         value = (ushort)((start & 0x7fe0) | red);
@@ -125,7 +147,7 @@ internal static class HeatPaletteColorDefinitions
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
         if (!TryInputColor((ushort)first, colors, out ushort start) ||
-            !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
+            !TryInputColor((ushort)(first + 7 * 34), colors, out ushort end)) return false;
         int row = (offset / 34 + 1) / 2;
         int red = ((start & 31) * (4 - row) + (end & 31) * row + 3) / 4;
         int initialGreen = start >> 5 & 31;

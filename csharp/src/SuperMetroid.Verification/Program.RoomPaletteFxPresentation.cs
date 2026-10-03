@@ -411,7 +411,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(5, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly five heat-specific endpoint words remain");
+        AssertEqual(2, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly two heat-specific endpoint words remain");
         var baseSources = new Dictionary<ushort, ushort>();
         foreach (var (heat, loading, normal) in new (int, int, int)[]
             { (0xe468, 0xdb6d, 0x9b9402), (0xe694, 0xdcd3, 0x9b9522), (0xe8c0, 0xde39, 0x9b9802) })
@@ -511,6 +511,14 @@ internal static partial class Program
                 AssertEqual(accepted ? (ushort)(green << 5 | blue << 10) : (ushort)0, actual,
                     "Nearest-even green and shared blue delta match independent oracle");
             }
+        }
+        foreach (var (endpoint, source) in new (ushort, ushort)[] { (0xe558, 0xe46a), (0xe566, 0xe478), (0xe794, 0xe6a6) })
+        for (int rgb = 0; rgb < 32768; rgb++)
+        {
+            var supplied = new Dictionary<ushort, ushort> { [source] = (ushort)rgb };
+            AssertTrue(HeatPaletteColorDefinitions.TryHighlightEndpoint(endpoint, supplied, out ushort actual), "Highlight endpoint identity");
+            int red = (int)Math.Ceiling(((rgb & 31) + 31) / 2.0);
+            AssertEqual((ushort)((rgb & 0x7fe0) | red), actual, "Every edited RGB5 base preserves halfway red highlight and other channels");
         }
         foreach (bool overflow in new[] { false, true })
         {

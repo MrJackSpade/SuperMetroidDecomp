@@ -5559,4 +5559,15 @@
     "scope":"The five heat-specific endpoints still need component dispositions. Normal suit/loading palette data now supplies shared artwork but remains subject to its own full-source audit; this entry does not declare that owner reviewed or retained. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteHighlightEndpointsReview": {
+    "status":"converted three bright red highlight endpoint words",
+    "owners":"HeatPaletteColorDefinitions.TryHighlightEndpoint/TryInputColor/TryCalculatedColor",
+    "source":"Original Power slot1 base/end reds29/30 at8D:E46A/E558; Power slot8 reds27/29 atE478/E566; Varia slot9 reds30/31 atE6A6/E794. Green/blue remain29/0,5/0,13/0 respectively. Supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. These are the three separately identified bright red tracks with sub-full-range heating, all under the same native color program.",
+    "algorithm":"Move base red halfway to RGB5 saturation31 and round upward: ceil((baseRed+31)/2). Preserve base green/blue. One shared highlight operation explains all three endpoint pairs without per-slot coefficients or exceptions; the intermediate gradient rounding remains independently specified by the preceding review.",
+    "implementation":"Direct endpoint-to-base semantic cases replace the three stored default colors. Input reads honor any installed override before calculating a highlight, and normal suit-source aliases remain available when the base copy was removed. Loader removes only values equal to the result; different player endpoints remain explicit. No endpoint cache or runtime ROM read. Two independently stored stock heat endpoint words remain.",
+    "proof":"Extend the same heat-color proof. Each calculated endpoint matches its original ROM word and is absent from storage; all720 native outputs and existing independent edits/guarded consumers still pass. Every32768 RGB5 base word for all three endpoint identities compares with a separate floating-point halfway/ceiling oracle, including saturation and preservation of green/blue. Stored stock heat count is two.",
+    "scope":"Remaining two endpoint words and their independently indexed components still require disposition. No new retention exception. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

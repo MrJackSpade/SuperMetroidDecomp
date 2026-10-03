@@ -10,7 +10,7 @@ internal static class InterfacePresentationContractDefinitions
         new("SuperMetroid.Core.Assets.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
             [Source("IPaletteFxColorSource", "DE4F1FA88F356190D7E6689581A21DFC5A7B578D2FEE2BAB5EB3DDCDEED65839"),
              Source("RoomPaletteFxPresentation", "252D07266853CCEC540D3B005FEE73556D093EE4A4A3B650A35F2C38D6EAB513"),
-             Source("HeatPaletteColorDefinitions", "D0FA578A9F24EED61162E61CEE8F128082C3D230DB1FAD07ABBD4C9139C5DFF1"),
+             Source("HeatPaletteColorDefinitions", "24558A789ECE466B32325400B9A5322BF88CC23989A23DFCAD1806F3FEF3363E"),
              Source("PaletteFxHeatInstructionListDefinitions", "145331301C26464315BA0D09B133766757220E35C717862574CC791DD7EC6411"),
              Source("TitlePalettePresentation", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A")],
             "The only two source-owned implementations query private installed colors, including calculated heat-row aliases, and return false for unowned addresses; neither demands artwork or throws for a missing key. The separate palette definition inventory checks every recognized bounded program color against actual importer/loader keys. This query proof does not certify the downstream caller's selected program, correct room/title provider binding, installation, clocks, or arbitrary externally injected implementations. New Core implementations or altered reviewed sources revoke it."),

@@ -65,7 +65,8 @@ public sealed class RoomFxLayer3TilemapCatalog
     }
 
     /// <summary>Returns the full 33-row native transfer for one room-FX type.</summary>
-    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => pages.TryGetValue(type, out byte[]? bytes)
+    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => pages.TryGetValue(
+        RoomFxTypes.UsesWater(type) ? RoomFxType.Water : type, out byte[]? bytes)
         ? bytes
         : throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page.");
 
@@ -112,6 +113,7 @@ public static class RoomFxLayer3TilemapFormat
     /// <summary>Returns the cartridge art source corresponding to a named effect page.</summary>
     public static int SourceAddress(RoomFxType type)
     {
+        if (RoomFxTypes.UsesWater(type)) type = RoomFxType.Water;
         int index = Array.IndexOf(AuthoredTypes, type);
         if (index < 0)
             throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");

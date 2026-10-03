@@ -95,7 +95,8 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
     public bool IsRenderable => Type is
-        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
+        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
+        RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
     /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
     public ushort CurrentYPosition { get; private set; } = ushort.MaxValue;
@@ -178,7 +179,7 @@ public sealed class RoomLayer3FxState
                 "Renderable room FX requires installed layer-3 tilemaps."))
             .Resolve(Type).Span, RoomFxRomData.Layer3.TilemapDestinationWord);
 
-        if (Type == RoomFxType.Water)
+        if (RoomFxTypes.UsesWater(Type))
         {
             // Both spawned HDMA objects execute their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
@@ -266,7 +267,7 @@ public sealed class RoomLayer3FxState
             return;
         }
 
-        if (Type == RoomFxType.Water)
+        if (RoomFxTypes.UsesWater(Type))
         {
             StepWater(bus, cameraX, cameraY, randomNumber);
             return;
@@ -313,7 +314,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public void PrimeViewport(ushort cameraX, ushort cameraY)
     {
-        if (Type is not (RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid))
+        if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
             return;
         CurrentYPosition = BaseYPosition;
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
@@ -349,7 +350,8 @@ public sealed class RoomLayer3FxState
         switch (Type)
         {
             case RoomFxType.Water:
-                liquid.ConfigureWater(CurrentYPosition, LiquidOptions);
+            case RoomFxType.TourianEntranceStatue:
+                liquid.ConfigureWater(CurrentYPosition, LiquidOptions, Type);
                 return;
             case RoomFxType.Lava:
                 liquid.ConfigureLavaAcid(CurrentYPosition);
@@ -456,7 +458,9 @@ public sealed class RoomLayer3FxState
                 waterHorizontalSubscroll + RoomFxRomData.Water.HorizontalSubscrollVelocity));
         }
 
-        if ((LiquidOptions & 2) == 0)
+        // FX $26 spawns only the BG3 water object. Its second HDMA object moves
+        // the statue vertically instead of installing the ordinary BG2 X wave.
+        if (Type != RoomFxType.Water || (LiquidOptions & 2) == 0)
             return;
         waterBg2WaveTimer = unchecked((ushort)(waterBg2WaveTimer - 1));
         if (waterBg2WaveTimer == 0)
@@ -553,6 +557,10 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private void PublishRisingLiquidFeedback(ushort randomNumber)
     {
+        // Water's $88:C44C/$C458 callbacks only wait/move. Lava and acid's
+        // parallel callbacks additionally request sound and a global earthquake.
+        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+            return;
         HandleEarthquakeSoundEffect(randomNumber);
         EarthquakeRequest = new RoomFxEarthquakeRequest(
             RoomFxRomData.Earthquake.RisingLiquidType,

@@ -1579,7 +1579,7 @@ public sealed partial class SuperMetroidRuntime
                     Enemies.EarthquakeTimer | roomFxEarthquake.TimerBits));
             }
             if (Samus is not null && RoomLayer3Fx.Type is
-                    RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+                    RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
                 RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
         }
 

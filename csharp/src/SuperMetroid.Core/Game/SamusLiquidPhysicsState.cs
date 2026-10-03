@@ -113,10 +113,12 @@ public sealed partial class SamusLiquidPhysicsState
     /// <summary>Nonzero boss ID suppresses ordinary footstep audio.</summary>
     public ushort BossId { get; set; }
 
-    /// <summary>Configures the exact room-FX words for an ordinary water surface.</summary>
-    public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0)
+    /// <summary>Configures water words while preserving the ordinary or statue room's native FX identity.</summary>
+    public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0, RoomFxType type = RoomFxType.Water)
     {
-        FxType = RoomFxType.Water;
+        if (!RoomFxTypes.UsesWater(type))
+            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water FX dispatcher.");
+        FxType = type;
         FxYPosition = surfaceY;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = liquidOptions;
@@ -138,7 +140,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public void ConfigureNonLiquidRoomFx(RoomFxType type)
     {
-        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+        if (type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
             throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
         Clear();
         FxType = type;
@@ -171,7 +173,7 @@ public sealed partial class SamusLiquidPhysicsState
         {
             RoomFxType.Lava or RoomFxType.Acid
                 when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
-            RoomFxType.Water when WaterAffectsBoundary(bottom) => Water,
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue when WaterAffectsBoundary(bottom) => Water,
             _ => Air,
         };
     }
@@ -290,7 +292,7 @@ public sealed partial class SamusLiquidPhysicsState
         RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
-        if (fxKind == RoomFxType.Water && WaterAffectsBoundary(bottom))
+        if (RoomFxTypes.UsesWater(fxKind) && WaterAffectsBoundary(bottom))
         {
             // `$90:80B8` publishes delay three before testing the remembered medium. A
             // transition into water queues sound $0D and creates either a diving splash or

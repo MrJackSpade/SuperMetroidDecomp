@@ -7,6 +7,14 @@ namespace SuperMetroid.Core.Game;
 public static class RoomFxTypes
 {
     /// <summary>
+    /// $83:ABF6/$AC16 select the same water page; $88:DBB6 installs ordinary BG3
+    /// water motion for the statue effect. Samus dispatches both through the low
+    /// nibble ($90:800A/$8E1C), while statue BG2 motion remains independently owned.
+    /// </summary>
+    public static bool UsesWater(RoomFxType type) =>
+        type is RoomFxType.Water or RoomFxType.TourianEntranceStatue;
+
+    /// <summary>
     /// Converts a cartridge byte into its named dispatcher identity. Null table entries
     /// and values outside the retail even-word table fail at the owning record.
     /// </summary>

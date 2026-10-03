@@ -994,13 +994,13 @@ public static partial class SnesGameplayFrameRenderer
         LayerBlendingConfiguration expectedConfiguration = fx.Type switch
         {
             RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
-            RoomFxType.Water => fx.LayerBlendConfiguration,
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             _ => throw new NotSupportedException(
                 $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
         };
-        if (fx.Type == RoomFxType.Water && fx.LayerBlendConfiguration is not (
+        if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not (
                 LayerBlendingConfiguration.WaterSubtractive or
                 LayerBlendingConfiguration.WaterfallSubtractive or
                 LayerBlendingConfiguration.LiquidOrFogAdditive))
@@ -1021,7 +1021,7 @@ public static partial class SnesGameplayFrameRenderer
         // Many heated Norfair rooms deliberately retain type $02, its palette objects,
         // and BG2 shimmer while using $FFFF to mean that no liquid surface exists. A
         // signed -1 must therefore suppress BG3 rather than compare as a line above zero.
-        if (fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid &&
+        if (fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid &&
             unchecked((short)fx.CurrentYPosition) < 0)
         {
             return;
@@ -1032,7 +1032,7 @@ public static partial class SnesGameplayFrameRenderer
         // subtractive routes ($14/$16). Compositing the already-resolved scene with the
         // nontransparent BG3 pixel reproduces that final PPU equation without flattening
         // the cartridge's animated surface into a host-authored rectangle.
-        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
+        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         bool fullScreenAtmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog;
         ushort tilemapBaseWord = fullScreenAtmosphere
             ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord
@@ -1054,7 +1054,7 @@ public static partial class SnesGameplayFrameRenderer
             int scrolledY = unchecked(verticalScroll + screenY) & verticalCoordinateMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
-            int waveDisplacement = fx.Type == RoomFxType.Water &&
+            int waveDisplacement = RoomFxTypes.UsesWater(fx.Type) &&
                 screenY > fx.WaterSurfaceScreenY
                 ? RoomFxRomData.Water.WaveDisplacements[
                     (screenY - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
@@ -1083,7 +1083,7 @@ public static partial class SnesGameplayFrameRenderer
                 Rgba32 overlay = cgram.GetRgba(entry.PaletteIndex * 4 + color);
                 int destination = screenY * Width + screenX;
                 Rgba32 source = frame[destination];
-                bool subtract = fx.Type == RoomFxType.Water &&
+                bool subtract = RoomFxTypes.UsesWater(fx.Type) &&
                     fx.LayerBlendConfiguration is
                         LayerBlendingConfiguration.WaterSubtractive or
                         LayerBlendingConfiguration.WaterfallSubtractive;

@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--tourian-statue-water"]) return VerifyTourianStatueWater();
 if (args is ["--crocomire-spike-animation"]) return VerifyCrocomirePresentation(true);
 if (args is ["--crocomire-comeback-rumble"]) return VerifyCrocomirePresentation(false);
 if (args is ["--kraid-super-missile-damage"])

@@ -101,6 +101,34 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--lookup-heat-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat color oracle revision");
+    byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+    var presentation = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+    VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation);
+    var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
+        MapPresentationFormat.JsonOptions)!;
+    int ordinal = 1000;
+    foreach (var frames in new[] { document.SamusHeatPowerSuit!, document.SamusHeatVariaSuit!, document.SamusHeatGravitySuit! })
+    foreach (var row in frames)
+    for (int color = 0; color < row.Length; color++, ordinal++)
+        row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+    var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+        MapPresentationFormat.JsonOptions)));
+    ordinal = 1000;
+    foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
+    for (int phase = 0; phase < 16; phase++)
+    for (int color = 0; color < 15; color++, ordinal++)
+    {
+        AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out ushort actual), "Edited heat color owned");
+        AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
+    }
+    Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage, edited frames and guarded consumers pass.");
+    return 0;
+}
 if (args is ["--lookup-heat-selectors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

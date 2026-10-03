@@ -9,9 +9,11 @@ internal static class InterfacePresentationContractDefinitions
     [
         new("SuperMetroid.Core.Assets.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
             [Source("IPaletteFxColorSource", "DE4F1FA88F356190D7E6689581A21DFC5A7B578D2FEE2BAB5EB3DDCDEED65839"),
-             Source("RoomPaletteFxPresentation", "865095CCA2D32C5B9726052BB65418631A3153F48B28E9A32450F9C491FF0F4C"),
+             Source("RoomPaletteFxPresentation", "5F3C8D36443500916AD39E98F22149C2B8AC02EF37E72BAE3E27C3A60386DB93"),
+             Source("HeatPaletteColorDefinitions", "A2B748F616CE29AB5DF405DBA1E416842A83756A0E2EE71515D105033A0C9B45"),
+             Source("PaletteFxHeatInstructionListDefinitions", "145331301C26464315BA0D09B133766757220E35C717862574CC791DD7EC6411"),
              Source("TitlePalettePresentation", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A")],
-            "The only two source-owned implementations query private installed dictionaries and return false for unowned addresses; neither demands artwork or throws for a missing key. The separate palette definition inventory checks every recognized bounded program color against actual importer/loader keys. This query proof does not certify the downstream caller's selected program, correct room/title provider binding, installation, clocks, or arbitrary externally injected implementations. New Core implementations or altered reviewed sources revoke it."),
+            "The only two source-owned implementations query private installed colors, including calculated heat-row aliases, and return false for unowned addresses; neither demands artwork or throws for a missing key. The separate palette definition inventory checks every recognized bounded program color against actual importer/loader keys. This query proof does not certify the downstream caller's selected program, correct room/title provider binding, installation, clocks, or arbitrary externally injected implementations. New Core implementations or altered reviewed sources revoke it."),
         new("SuperMetroid.Core.Assets.IIntroCinematicSpritePresentation", "cinematic-interface-complete-owned-frame-domains", ["Draw"],
             [Source("IIntroCinematicSpritePresentation", "B53C0DC30B4B57E3F0CEF08518C7F44BCD37D3F7E5280E54A844D2D3C1080774"),
              Source("IntroDiscoveryActorSpritePresentation", "1C8DC743598FBB33AB793E2F6EE333ABBC4110DA0D5580C57DAEF3A1010B654D"),

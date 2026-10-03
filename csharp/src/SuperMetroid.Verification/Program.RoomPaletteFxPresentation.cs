@@ -369,6 +369,41 @@ internal static partial class Program
     private static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
+        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(presentation)!;
+        var expectedAliases = new Dictionary<ushort, ushort>();
+        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
+        for (int phase = 0; phase < 16; phase++)
+        {
+            // Independently discover the first identical original row, not the
+            // mirrored formula under test. This reads only the identified native data.
+            int earliest = 0;
+            for (; earliest < phase; earliest++)
+            {
+                bool same = true;
+                for (int color = 0; color < 15; color++)
+                    same &= ReadVerificationWord(bus, 0x8d0000 | (first + phase * 34 + color * 2)) ==
+                        ReadVerificationWord(bus, 0x8d0000 | (first + earliest * 34 + color * 2));
+                if (same) break;
+            }
+            for (int color = 0; color < 15; color++)
+            {
+                ushort pointer = (ushort)(first + phase * 34 + color * 2);
+                ushort canonical = (ushort)(first + earliest * 34 + color * 2);
+                expectedAliases.Add(pointer, canonical);
+                AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only first occurrence rows");
+            }
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool owned = expectedAliases.TryGetValue((ushort)pointer, out ushort expected);
+            AssertEqual(owned, HeatPaletteColorDefinitions.TryCanonicalPointer((ushort)pointer, out ushort actual),
+                "Every native color pointer/odd/control exclusion");
+            AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
+        }
+        AssertEqual(225, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly225 distinct-row stock colors stored");
+        AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {

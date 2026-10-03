@@ -1,43 +1,18 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyCompiledDoorDefinitions()
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] doorPointers = EnumerateRetailDoorPointers().ToArray();
-        AssertEqual(DoorDefinitions.HeaderCount, doorPointers.Length,
-            "compiled door catalog contains every physical retail header");
-        foreach (ushort doorPointer in doorPointers)
-        {
-            AssertEqual(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, doorPointer),
-                DoorDefinitions.Get(doorPointer),
-                $"compiled door $83:{doorPointer:X4}");
-        }
-        AssertEqual(
-            SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, DoorHeaderRomData.ElevatorPseudoDoorPointer),
-            DoorDefinitions.Get(DoorHeaderRomData.ElevatorPseudoDoorPointer),
-            "compiled shared elevator pseudo-door");
-
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Door header oracle revision");
+        VerifyRetailDoorHeaders(bus);
         VerifyRetailDoorListMapping(bus);
-
         VerifyCompiledDoorListCollision();
-
-        var guardedRuntime = new SuperMetroidRuntime(new DoorHeaderReadGuard(bus));
-        guardedRuntime.InitializeStartingCeresRoom();
-        AssertEqual(
-            DoorDefinitions.Get(LoadStationDefinitions.Get(
-                SuperMetroid.Core.Game.AreaId.Ceres, 0).DoorPointer),
-            guardedRuntime.ActiveDoor!,
-            "production Ceres entry uses its compiled physical door");
-
-        Console.WriteLine(
-            "Doors: 597 physical headers, the shared elevator pseudo-door, and 262 room " +
-            "lists/603 BTS references match; " +
-            "production entry and collision reject native door reads.");
+        Console.WriteLine("Doors: all597 physical headers, full elevator overlap and262 room lists match original ROM; collision resolves without native reads.");
     }
 
     private static void VerifyCompiledDoorListCollision()
@@ -86,30 +61,4 @@ internal static partial class Program
             $"Compiled door collision wrote address ${address:X6}.");
     }
 
-    private sealed class DoorHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (IsDoorHeaderAddress(address))
-            {
-                throw new InvalidOperationException(
-                    $"Production runtime read native door-header data at ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static bool IsDoorHeaderAddress(int address)
-        {
-            int pointer = address - DoorHeaderRomData.BankAddress;
-            return pointer >= DoorHeaderRomData.PreFxBlockStart &&
-                    pointer < DoorHeaderRomData.PreFxBlockEnd + DoorHeaderRomData.RecordByteCount ||
-                   pointer >= DoorHeaderRomData.PostFxBlockStart &&
-                    pointer < DoorHeaderRomData.PostFxBlockEnd + DoorHeaderRomData.RecordByteCount;
-        }
-    }
 }

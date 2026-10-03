@@ -53,6 +53,12 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--door-definitions"])
+{
+    VerifyCompiledDoorDefinitions();
+    return 0;
+}
+
 if (args is ["--lookup-retail-door-lists"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3509,11 +3515,6 @@ if (args is ["--room-sky-tilemaps"])
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();
-    return 0;
-}
-if (args is ["--door-definitions"])
-{
-    VerifyCompiledDoorDefinitions();
     return 0;
 }
 if (args is ["--enemy-definitions"])

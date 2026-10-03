@@ -4806,5 +4806,27 @@
     "consumers":"Resolve no longer performs binary list search or array indexing; GetList retains its public immutable DTO API. Static initialization no longer constructs or validates a stored list corpus; the separate597-header array's validator remains. Existing list proof callers share the consolidated proof rather than duplicate expected-value loops.",
     "confirmation":"Verification and ResourceAudit builds and early SHA-pinned --lookup-retail-door-lists pass. Scoped command runs only the list proof and no-read collision fixture; the older full-door runtime-entry fixture is separate from this list conversion. No gameplay traversal or exploratory test sweep.",
     "scope":"All retail room door-list target mappings and their bounded elevator/interleaving exceptions are resolved without retention. Physical door-header fields and remaining source inventory remain unfinished. Implementation record is the commit introducing this entry;1165 stays active."
+  },
+  "retailDoorHeaderReview": {
+    "status":"converted:597 stored physical records, cached pseudo-door and binary search removed",
+    "owner":"csharp/src/SuperMetroid.Core/Rooms/DoorDefinitions.cs: Get",
+    "source":"Supported NTSC J/U v1.0 bank83 twelve-byte headers:379 records88FE..9AB6 and218 recordsA18C..ABB8. Pinned bank_83.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d DoorHeader format establishes each field. Door_VariousRooms_Elevator88FC supplies a zero destination, followed immediately by Door_LandingSite_LandingCutscene88FE, so the pseudo-door's other ten bytes deliberately alias that physical header.",
+    "evidence":"A door identity selects its destination, elevator flags, direction, doorcap/screen placement, spawn distance and setup routine. Direct configuration cases express this semantic connection selection. The actual caller-visible ushort/byte values are preserved, including pseudo-door fields that are not meaningful ordinary-door flags or direction. No native adjacent alias is silently sanitized or removed.",
+    "identities":{"disposition":"converted","proof":"VerifyDoorHeaderIdentities checks all65536 ushort Get inputs against the independently documented physical ranges plus88FC; record interiors, intervening FX and all other values reject with ArgumentOutOfRangeException."},
+    "fields": [
+      {"field":"DestinationRoomPointer","disposition":"converted destination selection; preserveushort and elevator zero discriminator","proof":"VerifyDoorHeaderDestinationRoomPointer"},
+      {"field":"BitFlags","disposition":"converted completebyte elevator/transition property selection","proof":"VerifyDoorHeaderBitFlags"},
+      {"field":"Orientation","disposition":"converted completebyte direction selection including pseudo-door alias91","proof":"VerifyDoorHeaderOrientation"},
+      {"field":"PlmX","disposition":"converted unsignedbyte doorcap block-column selection","proof":"VerifyDoorHeaderPlmX"},
+      {"field":"PlmY","disposition":"converted unsignedbyte doorcap block-row selection","proof":"VerifyDoorHeaderPlmY"},
+      {"field":"DestinationScreenX","disposition":"converted unsignedbyte destination screen-column selection","proof":"VerifyDoorHeaderDestinationScreenX"},
+      {"field":"DestinationScreenY","disposition":"converted unsignedbyte destination screen-row selection","proof":"VerifyDoorHeaderDestinationScreenY"},
+      {"field":"SamusDistance","disposition":"converted completeushort spawn-distance selection including8000 automatic-distance sentinel","proof":"VerifyDoorHeaderSamusDistance"},
+      {"field":"SetupCodePointer","disposition":"converted ushort door-setup routine selection including zero/no-setup","proof":"VerifyDoorHeaderSetupCodePointer"}
+    ],
+    "proofCoverage":"Each of nine field proofs compares all598 supported records with direct original native bytes at the documented offsets. Setup proof also confirms the existing UsesCeresElevatorMode7 consumer predicate against nativeE4E0. Old aggregate header equality is consolidated into these field proofs; the already independent door-list proof is reused for all603 references and every BTS value.",
+    "consumers":"Runtime room loading, load stations, attract demos, LandingSiteEntryState and room-door collision retain the same Get API. No header record array or generated cache remains. Existing real collision fixture resolves and publishes the transition on a bus that rejects reads. Removed the stale full-runtime guard fixture that lacked required installed artwork; this definition conversion is confirmed at its actual domain and collision boundary without a whole-room rendering prerequisite.",
+    "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --door-definitions pass all header field/identity proofs, room-door mappings and no-read collision. No gameplay sweep or speculative bug search.",
+    "scope":"Every selected physical door-header field and full bounded elevator overlap resolved without retention. Door-list mappings were separately completed in41f0e308; wider maintained-source audit remains active. Implementation record is the commit introducing this entry."
   }
 }

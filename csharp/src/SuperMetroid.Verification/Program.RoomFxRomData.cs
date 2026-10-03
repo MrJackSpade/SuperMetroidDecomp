@@ -19,8 +19,6 @@ internal static partial class Program
             "room FX palette-blend field");
         AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
             "scrolling-sky section count");
-        AssertEqual(6, RoomFxRomData.ScrollingSky.LandChunkOffsets.Length,
-            "scrolling-sky native land/ocean fall-through count");
 
         (RoomFxType Type, ushort NativeValue)[] representativeTypes =
         [

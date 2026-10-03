@@ -327,12 +327,6 @@ public static class RoomFxRomData
         public const ushort TilemapPositionMask = 0x01f8;
         public const ushort SourcePositionMask = 0x07f8;
 
-        /// <summary>
-        /// Five declared land chunks followed by the adjacent ocean table's first word.
-        /// The sixth entry is a deliberate native fall-through used near the room bottom.
-        /// </summary>
-        public static ReadOnlySpan<ushort> LandChunkOffsets =>
-            ScrollingSkyChunkPointerDefinitions.Land[..6];
 
     }
 

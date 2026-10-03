@@ -53,6 +53,8 @@ internal static partial class Program
 
     private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
+        AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
+            "Original Mother Brain direct-record subset and order");
         AssertEqual(295, OriginalFxRecordPointers.Length, "Original FX identity count");
         AssertTrue(OriginalFxRecordPointers.SequenceEqual(originals.Keys), "Native FX record membership");
         AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxRecordDefinitions.All.Select(x => x.Pointer)),

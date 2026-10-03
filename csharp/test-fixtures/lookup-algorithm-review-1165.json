@@ -5130,4 +5130,16 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-quake-sound-selection. No whole-room, gameplay or unrelated audio test campaign.",
     "scope":"Both independently indexed fields and the sentinel at88:B256 resolved with distinct dispositions. Delay retention does not exempt any other sound, motion or timing table. Wider maintained-source audit remains active under1165. Review record is this entry's commit."
   }
+,
+  "motherBrainDirectFxRosterReview": {
+    "status":"converted: two stored direct-record pointers removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/MotherBrainFxRecordPointers.cs: DirectRecords",
+    "source":"Supported NTSC J/U v1.0 default FX header83:A0A4 followed by direct recordsA0B4/A0C4. Pinned bank_A9.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d selects indices1/2 at86EB/888C; bank_89.asm Load_FX_Entry atAB02 masks index7 and shifts left four times before adding FXPointer.",
+    "algorithm":"Lazily enumerate Initial through FakeDeath inclusive with the native sixteen-byte record stride. The exact two-pointer view is calculated without an array or cache. The view exposes no external index and does not broaden the two known Mother Brain selections to all native masked indices.",
+    "evidence":"These are physically consecutive fixed-size records, independently corroborated by the two native immediate indices and FX loader address arithmetic. This is record layout, not arbitrary numerical content.",
+    "proof":"Extend the existing VerifyRoomFxIdentities with the independent original two-pointer subset and order; this is the same logical FX identity mapping already proven across all295 records. The existing full native capture, identity/field proofs and deterministic generator comparison include both direct records. No duplicate per-alias test added.",
+    "consumers":"Only CaptureRetailRoomFxRecords consumes DirectRecords. That routine feeds both verification and the maintained definition generator, so this is not classified as an excluded isolated test fixture. Both consumers now enumerate calculated pointers; no stored roster remains in Core.",
+    "confirmation":"Verification and ResourceAudit builds plus --room-fx-record-definitions with the supported ROM, covering the existing full identity/field/selector proofs, exact generated source and guarded compiled Ceres integration.",
+    "scope":"The direct-record roster left pending after roomFxRecordReview is resolved without retention. Full maintained-source audit remains active under1165. Implementation record is this entry's commit."
+  }
 }

@@ -5974,4 +5974,15 @@
     "scope":"Differing slot7 blue and other remaining hue/shade inputs still require independent review; no retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamYellowRedMidpointReview": {
+    "status":"converted eight canonical yellow-red intermediate hue words",
+    "owners":"SamusHyperBeamColorCatalog; SamusHyperBeamColorFormat.HueMidpoint",
+    "source":"Original frame8 at9B:A260 between frame7 atA280 andframe9 atA240,selected by native91D99E operands. Eight canonical opaque inks equal upward-rounded RGB5 midpoints. Slots1/7/8/11 have differing channels and remain pending. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Reuse per-channel(first+second+1)/2,including unchanged red. Exclude transparent and four differing inks. Stock92 to84 words; no generated hue cache or duplicate arithmetic implementation.",
+    "ownership":"Compare complete supplied source/target colors before collapsing. Differing edits remain explicit; supplied intermediate colors remain independent when either yellow or red source frame changes.",
+    "proof":"Extend existing Hyper Beam proof with every original yellow/red endpoint pair and target,84-word ownership. Reuse complete channel midpoint proof; expand source-only fixture to frames7 and9 in addition to3/5. All160 original values,all-color edits,bounds and guarded runtime cycle remain checked.",
+    "scope":"Four differing channel cases and all remaining hue/shade inputs require further review; no retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

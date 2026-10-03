@@ -21,7 +21,7 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(92, stored.Count, "Hyper Beam aliases and hue interpolation remove68 words");
+        AssertEqual(84, stored.Count, "Hyper Beam aliases and hue interpolation remove76 words");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -72,7 +72,15 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (cyanPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index))), "Every original cyan-green midpoint word");
                 }
-                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint && !cyanGreen, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                bool yellowRed = frame == 8 && index is not (0 or 1 or 7 or 8 or 11);
+                if (yellowRed)
+                {
+                    ushort yellowPointer = ReadVerificationWord(rom, 0x91d9ac), redPointer = ReadVerificationWord(rom, 0x91d9b0);
+                    AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
+                        ReadVerificationWord(rom, 0x9b0000 | (yellowPointer + 2 * index)),
+                        ReadVerificationWord(rom, 0x9b0000 | (redPointer + 2 * index))), "Every original yellow-red midpoint word");
+                }
+                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint && !cyanGreen && !yellowRed, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
@@ -117,7 +125,7 @@ internal static partial class Program
             }
         }
 
-        foreach (int sourceFrame in new[] { 3, 5 })
+        foreach (int sourceFrame in new[] { 3, 5, 7, 9 })
         {
         var greenEdit = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
         for (int color = 0; color < 16; color++) greenEdit.Frames[sourceFrame][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };

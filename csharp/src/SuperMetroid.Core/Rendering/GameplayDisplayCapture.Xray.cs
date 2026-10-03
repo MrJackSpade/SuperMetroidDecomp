@@ -50,6 +50,19 @@ public static partial class GameplayDisplayCapture
             : new OrdinaryGameplayRenderLayer(registers, ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && runtime.DisplayedRoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx) : null;
+        if (mode != XrayRoomBlendMode.Fireflea && sub is null)
+        {
+            // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
+            // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
+            // capture its real pixels rather than substituting transparent backdrop.
+            sub = new Bg2BppColorMathRenderLayer(
+                RoomFxRomData.Layer3.LiquidTilemapBaseWord,
+                runtime.GameplayHudCharacterBaseWord,
+                (RoomFxRomData.Layer3.LiquidVerticalCoordinateMask + 1) / SnesPpuLayout.BackgroundTileSizePixels,
+                SnesPpuLayout.GameplayHudHeightPixels,
+                ExpandedColorMathOperation.Add,
+                new BackgroundLineScroll[SnesPpuLayout.ScreenHeightPixels]);
+        }
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
         bool subtract = runtime.RoomLayer3Fx.LayerBlendConfiguration is

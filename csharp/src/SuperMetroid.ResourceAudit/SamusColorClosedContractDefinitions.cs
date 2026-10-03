@@ -47,7 +47,8 @@ internal static class SamusColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs", "B9FE2A0BCC2ED71399E0F7E4C41C599BFF089DDC7459BDCF65930673D8772892")],
             "Private construction requires sixteen pre-explosion and thirty-two explosion RGB5 triplets and compiles independent arrays. Resolve guards the exact sequence enum and that sequence's index. Known pre-explosion selectors cannot borrow explosion capacity. HDMA radius and phase timing are not certified."),
         new("SuperMetroid.Core.Assets.HyperBeamFxColorCatalog", "hyper-beam-fx-complete-color-frames", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/HyperBeamFxColorCatalog.cs", "4A1E4425A87B558DA8D9EEB36F8B0089BE63464A905ED9AC12631DDCFCF5D903")],
-            "The sole private-constructor loader requires ten eight-color frames and compiles independent arrays. Apply guards frame bounds. The CGRAM destination is placement, not a resource identity; palette-FX instructions and timing remain outside this proof."),
+            [new("csharp/src/SuperMetroid.Core/Assets/HyperBeamFxColorCatalog.cs", "0871187766A78BF392484FC787D811A8D9A99C0A3E4CE2C349F72A98D92D77D0"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "A8597FDA10B6AEAADE5D8C125364F855A825585099BBC9B365638144F629BD78")],
+            "The sole private-constructor loader requires ten eight-color frames and stores even hue endpoints, a shared first-color input and differing supplied overrides. Odd hues calculate the upward-rounded RGB5 midpoint, including the cycle wrap. Apply guards frame bounds. The CGRAM destination is placement, not a resource identity; palette-FX instructions and timing remain outside this proof."),
     ];
 }

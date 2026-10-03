@@ -5,12 +5,38 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Authored colors for the ten Hyper Beam projectile-palette frames, not their timing or control program.</summary>
+/// <summary>Editable Hyper Beam projectile hues with shared white and calculated intermediate frames.</summary>
 public sealed class HyperBeamFxColorCatalog
 {
-    private readonly ushort[][] frames;
+    private readonly Dictionary<int, ushort> colors = new();
 
-    private HyperBeamFxColorCatalog(ushort[][] frames) => this.frames = frames;
+    private HyperBeamFxColorCatalog(ushort[][] frames)
+    {
+        for (int frame = 0; frame < HyperBeamFxColorFormat.FrameCount; frame++)
+        for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
+        {
+            ushort value = frames[frame][color];
+            if (color == 0 && frame != 0 && value == frames[0][0]) continue;
+            if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
+                frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
+            colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
+        }
+    }
+
+    /// <summary>Resolves one validated hue input, repeated white, or adjacent-endpoint midpoint.</summary>
+    /// <remarks>Original8D:D906+20*frame contains eight RGB5 words. Color0
+    /// repeats frame0 in all ten rows; every other odd-frame color is the
+    /// upward-rounded midpoint of the adjacent even frames, wrapping9 to0.
+    /// Reuse the independently proved RGB5 midpoint operation. Import stores
+    /// differing supplied values as explicit inputs, never generated colors.
+    /// Even-frame endpoint relationships remain under review in1165.</remarks>
+    private ushort Resolve(int frame, int color)
+    {
+        if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
+        if (color == 0) return colors[0];
+        return SamusHyperBeamColorFormat.HueMidpoint(
+            Resolve(frame - 1, color), Resolve((frame + 1) % HyperBeamFxColorFormat.FrameCount, color));
+    }
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -59,9 +85,9 @@ public sealed class HyperBeamFxColorCatalog
     public void Apply(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= frames.Length) throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)frame >= HyperBeamFxColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
-            cgram.SetColor(destination + color, frames[frame][color]);
+            cgram.SetColor(destination + color, Resolve(frame, color));
     }
 
     public static byte[] Write(HyperBeamFxColorDocument document)

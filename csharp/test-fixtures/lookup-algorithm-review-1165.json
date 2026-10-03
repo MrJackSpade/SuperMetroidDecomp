@@ -6071,4 +6071,15 @@
     "proof":"No new retention-only test. Existing consolidated proof already compares every original copied word,all independent edits and both guarded native-order CGRAM cycles.",
     "scope":"Only transparent payloads receive this disposition. Remaining opaque hue/shade components stay pending. Full1165 remains active."
   }
+,
+  "hyperBeamProjectileMidpointReview": {
+    "status":"converted all odd projectile hue frames and repeated white inputs",
+    "owners":"HyperBeamFxColorCatalog constructor/Resolve/Apply; HyperBeamPaletteFxState.Step; shared SamusHyperBeamColorFormat.HueMidpoint",
+    "source":"Original80 words at8D:D906+20*frame,color0..7. Color0 is identical in all ten rows. Each of35 other odd-frame words equals the upward-rounded per-channel midpoint of adjacent even frames,including frame9 between8/0. Native8D:D904+20*frame timers are2. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Replace the complete80-word production array with36 canonical source inputs: five even frames times seven inks plus one white input. Derive odd frames with the existing exact RGB5 midpoint operation. No generated cache. Input overrides preserve arbitrary supplied colors.",
+    "ownership":"Validate all ten complete rows before omitting matching targets. All-color edits and even-endpoint-only edits preserve every supplied target. White source edits cannot change independently supplied later whites. Apply keeps its bounded frame selector and existing destination placement behavior.",
+    "proof":"Extend and repair the single existing VerifyHyperBeamFxColorArtwork. Pin original ROM SHA in an early --hyper-beam-fx-colors command. Replace its stale native.Step without installed colors with original ROM words and timers as the oracle. The real guarded palette-FX consumer completes all ten frames and wrap,compared across all256 CGRAM entries. Add36-input ownership,invalid frame bounds,all80 independent edits and endpoint-only edits. Preserve isolated edit and strict JSON checks. Reuse the shared midpoint arithmetic proof rather than duplicate it. Remove the stale broad room-runtime fixture; the actual scoped palette consumer is exercised directly without room dependencies.",
+    "scope":"The even projectile endpoint hue/shade relationships remain pending. This is distinct from the full-body/Hyper-shot logical palette,which shares only the RGB5 arithmetic operation. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

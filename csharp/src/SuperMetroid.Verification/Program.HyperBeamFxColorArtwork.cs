@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -16,7 +17,9 @@ internal static partial class Program
         AssertEqual(HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame,
             HyperBeamFxColorFormat.ColorsPerFrame, "Extracted Hyper Beam color count matches compiled control");
 
-        var native = new HyperBeamPaletteFxState();
+        var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(36, stored.Count, "Only even hue endpoints and one white input remain");
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();
         var extractedCgram = new SnesCgram();
@@ -25,16 +28,21 @@ internal static partial class Program
             nativeCgram.SetColor(color, (ushort)(color * 31));
             extractedCgram.SetColor(color, (ushort)(color * 31));
         }
-        native.Spawn();
+
         extracted.Spawn();
         for (int call = 0; call < HyperBeamFxColorFormat.FrameCount *
             HyperBeamPaletteFxProgramDefinitions.FrameDuration + 1; call++)
         {
-            HyperBeamPaletteFxStepResult nativeStep = native.Step(bus, nativeCgram);
+            int expectedFrame = call / 2 % 10;
+            ushort originalDuration = ReadVerificationWord(bus, 0x8dd904 + 20 * expectedFrame);
+            AssertEqual((ushort)2, originalDuration, "Native Hyper Beam FX duration");
+            for (int color = 0; color < 8; color++)
+                nativeCgram.SetColor(225 + color, ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color));
             HyperBeamPaletteFxStepResult extractedStep = extracted.Step(
                 new ProjectileCompositionForbiddenBus(), extractedCgram, catalog);
-            AssertEqual(nativeStep, extractedStep,
-                "Extracted Hyper Beam color frames preserve native frame order and timing");
+            AssertEqual(expectedFrame, extractedStep.FrameIndex, "Native FX frame order including loop");
+            AssertEqual((call & 1) == 0, extractedStep.PaletteWritten, "Native FX paint/hold cadence");
+            AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extractedStep.InstructionTimer, "Native FX timer");
             AssertTrue(nativeCgram.Colors.SequenceEqual(extractedCgram.Colors),
                 "Extracted Hyper Beam frame matches full CGRAM including untouched colors");
         }
@@ -54,19 +62,33 @@ internal static partial class Program
                 extractedCgram.Colors[color],
                 "Hyper Beam FX edit changes only the selected visual color channel");
 
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.BeamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus),
-            hyperBeamFxColors: edited);
-        runtime.Samus!.Drained.HyperBeamPaletteFx.Spawn();
-        for (int call = 0; call < 7; call++) runtime.StepFrame(0);
-        AssertEqual(3, runtime.LastHyperBeamPaletteFxStep!.Value.FrameIndex,
-            "Gameplay runtime reaches edited Hyper Beam FX frame at compiled cadence");
-        AssertEqual(extractedCgram.Colors[227], runtime.Cgram.Colors[227],
-            "Installed Hyper Beam FX color reaches gameplay CGRAM");
-
+        foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SnesCgram(), invalidFrame, 225), "FX frame bounds");
+        foreach (bool endpointsOnly in new[] { false, true })
+        {
+            var document = JsonSerializer.Deserialize<HyperBeamFxColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            for (int frame = 0; frame < 10; frame++)
+            for (int color = 0; color < 8; color++)
+            {
+                if (endpointsOnly && (frame & 1) != 0) continue;
+                int value = 1000 + frame * 8 + color;
+                document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
+            }
+            var modified = HyperBeamFxColorCatalog.Load(new MemoryStream(HyperBeamFxColorCatalog.Write(document)));
+            var result = new SnesCgram();
+            for (int frame = 0; frame < 10; frame++)
+            {
+                modified.Apply(result, frame, 225);
+                for (int color = 0; color < 8; color++)
+                {
+                    ushort expected = !endpointsOnly || (frame & 1) == 0 ? (ushort)(1000 + frame * 8 + color) :
+                        ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
+                    AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
+                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0), stored.ContainsKey(frame * 8 + color),
+                        "Original FX input ownership");
+                }
+            }
+        }
         string source = Encoding.UTF8.GetString(json);
         AssertThrows<InvalidDataException>(() => HyperBeamFxColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(source.Insert(1, "\"version\":1,")))),

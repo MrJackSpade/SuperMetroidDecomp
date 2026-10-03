@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--hyper-beam-fx-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam FX oracle revision");
+    VerifyHyperBeamFxColorArtwork(rom);
+    return 0;
+}
 if (args is ["--lookup-fallback-door-closing"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1901,12 +1909,7 @@ if (args is ["--enemy-gameplay-acceptance"])
     VerifyEnemyGameplayAcceptance();
     return 0;
 }
-if (args is ["--hyper-beam-fx-colors"])
-{
-    VerifyHyperBeamFxColorArtwork(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-    return 0;
-}
+
 if (args is ["--beam-palette-artwork"])
 {
     var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

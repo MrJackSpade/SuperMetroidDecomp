@@ -7,6 +7,51 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
+    {
+        var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
+        var originalPointers = new SortedSet<ushort>();
+        foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
+        for (int suit = 0; suit < 3; suit++)
+        {
+            ushort list = ReadVerificationWord(rom, header + 2 * suit);
+            for (int phase = 0; phase < phases; phase++)
+                originalPointers.Add(ReadVerificationWord(rom, 0x910000 | (list + 2 * phase)));
+        }
+        AssertEqual(48, originalPointers.Count, "Original dispatcher lists select48 distinct color rows");
+        int ordinal = 0;
+        foreach (ushort pointer in originalPointers)
+        {
+            AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
+            var cgram = new SnesCgram();
+            native.Apply(cgram, pointer);
+            for (int color = 0; color < 16; color++)
+            {
+                ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+                AssertEqual(expected, native.Resolve(pointer, color), "Every original full-body palette word");
+                AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
+            }
+            foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => native.Resolve(pointer, invalid), "Full-body color bounds");
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            if (!originalPointers.Contains((ushort)pointer))
+                AssertThrows<ArgumentOutOfRangeException>(() => native.Resolve((ushort)pointer, 0), "Complete original palette identity domain rejects gaps and outside addresses");
+        var document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        ordinal = 0;
+        foreach (var family in new[] { document.SpeedBooster, document.ScrewAttack, document.StoredShine, document.ActiveShinespark })
+        foreach (var suit in family)
+        foreach (var row in suit)
+        for (int color = 0; color < 16; color++, ordinal++)
+            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+        var edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        ordinal = 0;
+        foreach (int first in new[] { 0x9b20, 0x9ca0, 0x9ba0, 0x9c20 })
+        for (int suit = 0; suit < 3; suit++)
+        for (int shade = 0; shade < 4; shade++)
+        for (int color = 0; color < 16; color++, ordinal++)
+            AssertEqual((ushort)ordinal, edited.Resolve((ushort)(first + suit * 0x200 + shade * 32), color), "Every independent full-body color edit survives calculated placement");
+    }
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,
@@ -14,19 +59,7 @@ internal static partial class Program
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom);
-        var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted, writable: false));
-        SamusFullBodyCycleFamily[] families = Enum.GetValues<SamusFullBodyCycleFamily>();
-        foreach (SamusFullBodyCycleFamily family in families)
-        for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
-        for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
-        {
-            ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
-            for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                        SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
-                    native.Resolve(pointer, color),
-                    $"{family} suit {suit}, shade {shade}, color {color} agrees with cartridge");
-        }
+        VerifyFullBodyPaletteColorData(rom, extracted);
 
         SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),

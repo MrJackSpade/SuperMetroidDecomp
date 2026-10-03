@@ -5,14 +5,14 @@ internal static class SamusColorClosedContractDefinitions
 {
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
-        "8063D11FFF1947241535DB52D3372C904AB7FE5BFD291B4EDECC1D567C7BAE1C");
+        "14630DCAAE73E472CCA4518AD4A16E27CCF3BC2EA40A718D40CBE98DC7560F18");
 
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.SamusFullBodyCycleColorCatalog", "samus-body-cycle-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusFullBodyCycleColorCatalog.cs", "532C6A8B89094D982E3B4A9AE845BCE5E92FDE35FFA30432E2136379075AA15C")],
-            "Private construction follows validation of all four families, each with three suits and four sixteen-color shades. The loader compiles independent arrays at every guarded native selector pointer and rejects collisions. Apply/Resolve guard that complete sparse pointer set and color bounds; palette clocks and restored caller state are not certified."),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusFullBodyCycleColorCatalog.cs", "3A1A757F299F87C03BE0C5488692653BC02E1D3B504DCEEA1169B6298DDC960C")],
+            "Private construction follows validation of all four families, each with three suits and four sixteen-color shades. The loader places independent color rows at calculated contiguous allocation indices and rejects collisions. Apply/Resolve require one of48 aligned native palette identities and bounded color indices; palette clocks and restored caller state are not certified."),
         new("SuperMetroid.Core.Assets.SamusSuitColorCatalog", "samus-suit-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions,
              new("csharp/src/SuperMetroid.Core/Assets/SamusSuitColorCatalog.cs", "A1E47A88B24A4E21282174E417E5C0C1A5CBF36FBB58F46F6891C8FC0C5D7DD4")],

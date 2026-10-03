@@ -161,37 +161,15 @@ public static class SamusPaletteRomData
         /// remains a live authored sixteen-color palette; this formula
         /// describes only the bounded pointer matrix.
         ///
-        /// Issue #871 / #625: all 64 Power Suit BGR555 target words at
-        /// <c>$9B:9CA0..9D1F</c> match the pinned ROM/native listing.
-        /// Shade zero is exactly the normal Power palette at <c>$9B:9400</c>.
-        /// A per-slot, per-channel clipped linear step from shade zero
-        /// reproduces 34 of 48 four-shade component sequences; fourteen
-        /// require authored exceptions, mostly a blue-channel jump in the
-        /// final shade. The four distinct rows remain live authored colors
-        /// for shade 0..3, color 0..15, then the six-phase pointer matrix
-        /// reuses shades 2 and 1. Encoding slopes and exceptions would
-        /// obscure these deliberately chosen colors.
-        ///
-        /// Issue #872 / #625: all 64 Varia Suit BGR555 target words at
-        /// <c>$9B:9EA0..9F1F</c> match the pinned ROM/native listing.
-        /// Shade zero matches normal Varia <c>$9B:9520</c> at fifteen
-        /// colors; color zero is deliberately <c>$3800</c> here instead of
-        /// <c>$0000</c>. A per-slot, per-channel clipped linear step fits
-        /// 35 of 48 four-shade component sequences, leaving thirteen
-        /// authored exceptions. Retain the four live color rows for shade
-        /// 0..3, color 0..15, with shades 2 and 1 reused by the pointer
-        /// matrix's six-phase cycle.
-        ///
-        /// Issue #873 / #625: all 64 Gravity Suit BGR555 target words at
-        /// <c>$9B:A0A0..A11F</c> match the pinned ROM/native listing.
-        /// Shade zero differs from normal Gravity <c>$9B:9800</c> at
-        /// color one (<c>$00CE</c> versus <c>$0108</c>) and color twelve
-        /// (<c>$0216</c> versus <c>$0274</c>). A per-slot, per-channel
-        /// clipped linear step fits only 32 of 48 four-shade component
-        /// sequences; sixteen need authored exceptions, mostly a
-        /// blue-channel jump at the final shade. Retain the four live
-        /// color rows for shade 0..3, color 0..15; the pointer matrix
-        /// reuses shades 2 and 1 in its six-phase cycle.
+        /// Issue #871 / #625: Power Screw Attack colors at $9B:9CA0..9D1F; shade zero matches normal Power $9B:9400.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #872 / #625: Varia Screw Attack colors at $9B:9EA0..9F1F; shade zero differs from normal Varia only at transparent index zero.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #873 / #625: Gravity Screw Attack colors at $9B:A0A0..A11F; shade zero differs from normal Gravity at color slots1/12.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary>First contiguous Screw Attack suit list at $91:DA50.</summary>
@@ -239,39 +217,15 @@ public static class SamusPaletteRomData
         /// each target is a complete sixteen-color bank-$9B palette.
         /// The formula describes target addresses, not target colors.
         ///
-        /// Issue #876 / #625: all 64 Power Suit BGR555 target words at
-        /// <c>$9B:9B20..9B9F</c> match the pinned ROM/native listing.
-        /// Phase zero matches normal Power <c>$9B:9400</c> at fifteen
-        /// colors; color zero is <c>$0000</c> here instead of
-        /// <c>$3800</c>. The complete first row also matches the first
-        /// stored-shine row at <c>$9B:9BA0</c>; across all four rows only
-        /// 17 of 64 words match the corresponding stored-shine positions.
-        /// A per-slot, per-channel clipped first-step rule fits only
-        /// 20 of 48 four-phase component sequences. Retain the four
-        /// authored sixteen-color rows, including the final row that
-        /// remains selected during sustained Speed Booster running.
-        ///
-        /// Issue #877 / #625: all 64 Varia Suit BGR555 target words at
-        /// <c>$9B:9D20..9D9F</c> match the pinned ROM/native listing.
-        /// Phase zero exactly equals normal Varia <c>$9B:9520</c> and
-        /// the first stored-shine row at <c>$9B:9DA0</c>; across all
-        /// four rows, only 17 of 64 positions match stored shine.
-        /// A per-slot, per-channel clipped first-step rule fits only
-        /// 23 of 48 four-phase component sequences. Retain all four
-        /// authored sixteen-color rows, with the final row selected
-        /// continuously after the active Speed Booster ramp.
-        ///
-        /// Issue #878 / #625: all 64 Gravity Suit BGR555 target words at
-        /// <c>$9B:9F20..9F9F</c> match the pinned ROM/native listing and
-        /// exactly duplicate the earlier ROM block at
-        /// <c>$9B:9540..95BF</c>, word for word. The active pointer
-        /// matrix still targets <c>$9F20..9F9F</c>. Phase zero differs
-        /// from normal Gravity <c>$9B:9800</c> at colors zero, one,
-        /// and twelve. Only 16 of 64 corresponding words match the
-        /// stored-shine rows, and a per-slot, per-channel clipped
-        /// first-step rule fits 24 of 48 four-phase sequences. Retain
-        /// the four live authored rows; phase three stays selected
-        /// during sustained Speed Booster running.
+        /// Issue #876 / #625: Power Speed Booster colors at $9B:9B20..9B9F; the three bright rows also supply the loading palette.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #877 / #625: Varia Speed Booster colors at $9B:9D20..9D9F; the three bright rows also supply the loading palette.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #878 / #625: Gravity Speed Booster colors at $9B:9F20..9F9F; these duplicate the earlier $9B:9540..95BF allocation.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary>First contiguous active Speed Booster suit list at $91:DAAF.</summary>
@@ -361,41 +315,15 @@ public static class SamusPaletteRomData
         /// target supplies sixteen bank-$9B colors. The formula
         /// describes target addresses, not their authored colors.
         ///
-        /// Issue #884 / #625: all 64 Power Suit active-shinespark
-        /// BGR555 words at <c>$9B:9C20..9C9F</c> match the pinned ROM
-        /// and native bank-$9B listing. Phase zero exactly duplicates
-        /// normal Power <c>$9B:9400</c> and Screw Attack shade zero
-        /// <c>$9B:9CA0</c>; the other three rows have no exact
-        /// sixteen-color duplicate among the nearby Samus palettes.
-        /// Only 21 of 64 corresponding words equal the Screw Attack
-        /// rows. A per-slot, per-channel clipped first-step rule fits
-        /// 24 of 48 four-phase component sequences. Retain these four
-        /// live authored rows; palette handler six repeats them in
-        /// order while the shinespark palette is active.
-        ///
-        /// Issue #885 / #625: all 64 Varia Suit active-shinespark
-        /// BGR555 words at <c>$9B:9E20..9E9F</c> match the pinned ROM
-        /// and native bank-$9B listing. Phase zero exactly duplicates
-        /// Screw Attack shade zero <c>$9B:9EA0</c> and differs from
-        /// normal Varia <c>$9B:9520</c> only at color zero
-        /// (<c>$3800</c> versus <c>$0000</c>). The remaining three
-        /// rows have no exact sixteen-color duplicate among nearby
-        /// Samus palettes. Only 25 of 64 corresponding words equal
-        /// Screw Attack; a clipped first-step channel rule fits 25 of
-        /// 48 four-phase sequences. Retain the four live authored rows,
-        /// which palette handler six repeats while active.
-        ///
-        /// Issue #886 / #625: all 64 Gravity Suit active-shinespark
-        /// BGR555 words at <c>$9B:A020..A09F</c> match the pinned ROM
-        /// and native bank-$9B listing and exactly duplicate the
-        /// earlier block at <c>$9B:95C0..963F</c>, word for word.
-        /// The active pointer matrix still targets <c>$A020..A09F</c>.
-        /// Phase zero differs from normal Gravity <c>$9B:9800</c> at
-        /// colors one and twelve. Only 23 of 64 corresponding words
-        /// equal the Screw Attack rows, while a clipped first-step
-        /// channel rule fits 16 of 48 four-phase sequences. Retain
-        /// these four live authored rows; palette handler six repeats
-        /// them while active.
+        /// Issue #884 / #625: Power active-shinespark colors at $9B:9C20..9C9F; shade zero equals normal Power and Screw Attack shade zero.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #885 / #625: Varia active-shinespark colors at $9B:9E20..9E9F; shade zero equals Screw Attack shade zero.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
+        /// Issue #886 / #625: Gravity active-shinespark colors at $9B:A020..A09F; these duplicate the earlier $9B:95C0..963F allocation.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary>
@@ -528,20 +456,9 @@ public static class SamusPaletteRomData
         public const ushort InitialList = 0xd900;
         /// <summary>First timed color record after the destination-selection command.</summary>
         /// <remarks>
-        /// Issue #888 / #625: all 80 BGR555 color words in ten records
-        /// at <c>$8D:D904+20*i</c>, <c>i=0..9</c>, match the pinned ROM
-        /// and native bank-$8D listing. Each record's eight colors
-        /// begin at byte offset two. Color zero is always
-        /// <c>$7FFF</c>; the other seventy words are all distinct.
-        /// Only eleven of these eighty words appear anywhere in the
-        /// separate full-body Hyper Beam cycle at
-        /// <c>$9B:A240..A37F</c>. Per-channel midpoint interpolation
-        /// of colors one through three fits only 19 of 30 components
-        /// with nearest rounding; endpoint interpolation of colors
-        /// four through seven fits only 27 of 60 interior components.
-        /// Retain the ten live authored eight-color rows. The caller
-        /// copies each row into OBJ palette six, colors one through
-        /// eight, for two handler calls before advancing.
+        /// Issue #888 / #625: Hyper Beam projectile colors at $8D:D906+20*i for i=0..9, eight words per record.
+        /// Color relationships require independent review under #1165; this
+        /// pointer catalog makes no retention decision for the target colors.
         /// </remarks>
         public const ushort FirstFrame = 0xd904;
         /// <summary>Palette-buffer byte index selecting OBJ palette six, color one.</summary>
@@ -831,7 +748,7 @@ public static class SamusPaletteRomData
         /// the pinned NTSC J/U v1.0 ROM and native listing. The caller
         /// indexes by <c>(radius &gt;&gt; 11) &amp; $0F</c>, then reads R/G/B
         /// in order; the following <c>$88:90A9</c> bytes form another table.
-        /// Retain live ROM-backed colors. Investigation: #625 / #904.
+        /// Target-color ownership and conversion are reviewed separately from this address. Investigation: #625 / #904.
         /// </remarks>
         public const int PreExplosionColors = 0x889079;
         /// <summary><c>$88:8D85</c>, radius-indexed RGB triplets for the explosion.</summary>

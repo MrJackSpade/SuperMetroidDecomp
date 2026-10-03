@@ -11,10 +11,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class SamusFullBodyCycleColorCatalog
 {
-    private readonly Dictionary<ushort, ushort[]> colorsByPointer;
+    private readonly ushort[][] palettes;
 
-    private SamusFullBodyCycleColorCatalog(Dictionary<ushort, ushort[]> colorsByPointer) =>
-        this.colorsByPointer = colorsByPointer;
+    private SamusFullBodyCycleColorCatalog(ushort[][] palettes) => this.palettes = palettes;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -26,12 +25,10 @@ public sealed class SamusFullBodyCycleColorCatalog
     /// <summary>Returns one BGR555 color at a compiled bank-$9B palette pointer.</summary>
     public ushort Resolve(ushort pointer, int colorIndex)
     {
-        if (!colorsByPointer.TryGetValue(pointer, out ushort[]? palette))
-            throw new ArgumentOutOfRangeException(nameof(pointer),
-                $"Uncatalogued full-body palette pointer ${pointer:X4}.");
+        int palette = SamusFullBodyCycleColorFormat.PaletteIndex(pointer);
         if ((uint)colorIndex >= SamusFullBodyCycleColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return palette[colorIndex];
+        return palettes[palette][colorIndex];
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
@@ -61,7 +58,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         if (document.Version != SamusFullBodyCycleColorFormat.Version)
             throw new InvalidDataException("Samus full-body cycle colors require the supported version.");
 
-        var palettes = new Dictionary<ushort, ushort[]>();
+        var palettes = new ushort[SamusFullBodyCycleColorFormat.PaletteCount][];
         AddFamily(palettes, SamusFullBodyCycleFamily.SpeedBooster, document.SpeedBooster);
         AddFamily(palettes, SamusFullBodyCycleFamily.ScrewAttack, document.ScrewAttack);
         AddFamily(palettes, SamusFullBodyCycleFamily.StoredShine, document.StoredShine);
@@ -76,7 +73,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return bytes;
     }
 
-    private static void AddFamily(Dictionary<ushort, ushort[]> destination,
+    private static void AddFamily(ushort[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
         if (source is null || source.Length != SamusFullBodyCycleColorFormat.SuitCount)
@@ -102,8 +99,10 @@ public sealed class SamusFullBodyCycleColorCatalog
                     words[index] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                 }
                 ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
-                if (!destination.TryAdd(pointer, words))
+                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(pointer);
+                if (destination[paletteIndex] is not null)
                     throw new InvalidDataException($"Duplicate full-body palette pointer ${pointer:X4}.");
+                destination[paletteIndex] = words;
             }
         }
     }
@@ -150,6 +149,23 @@ public static class SamusFullBodyCycleColorFormat
     public const int SuitCount = 3;
     public const int ShadesPerSuit = 4;
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
+    /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
+    public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Maps an original full-body palette identity to its contiguous artwork row.</summary>
+    /// <remarks>Native bank91 lists select all48 aligned32-byte records in
+    /// $9B:9B20..A11F: speed boost, stored shine, active shine and Screw Attack
+    /// occupy consecutive128-byte families, repeated every512 bytes per suit.
+    /// Index=(pointer-$9B20)/32, requiring exact alignment and index0..47.
+    /// This replaces generated pointer dictionary entries, not color artwork.</remarks>
+    internal static int PaletteIndex(ushort pointer)
+    {
+        int offset = pointer - SamusPaletteRomData.FullBodyCycles.SpeedBoosterFirstPalette;
+        if ((uint)offset >= PaletteCount * ColorsPerPalette * sizeof(ushort) ||
+            offset % (ColorsPerPalette * sizeof(ushort)) != 0)
+            throw new ArgumentOutOfRangeException(nameof(pointer), $"Uncatalogued full-body palette pointer ${pointer:X4}.");
+        return offset / (ColorsPerPalette * sizeof(ushort));
+    }
 
     /// <summary>Uses the cartridge-verified, bounded selector for each distinct shade.</summary>
     public static ushort Pointer(SamusFullBodyCycleFamily family, int suit, int shade)

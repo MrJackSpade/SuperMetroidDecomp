@@ -101,6 +101,15 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--lookup-full-body-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Full-body color oracle revision");
+    VerifyFullBodyPaletteColorData(rom, SamusFullBodyCycleColorExtractor.Extract(rom));
+    Console.WriteLine("Full-body palettes:48 native identities, all768 colors, complete pointer domain, edits and CGRAM copies pass.");
+    return 0;
+}
 if (args is ["--normal-suit-catalog-boundary"])
 {
     VerifyNormalSuitCatalogBoundary();

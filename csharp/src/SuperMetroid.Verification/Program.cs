@@ -26,6 +26,19 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-options-geometry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options geometry oracle revision");
+    VerifyOptionsPrimaryCursorY(rom);
+    VerifyOptionsControllerCursorY(rom);
+    VerifyOptionsSpecialCursorY(rom);
+    VerifyOptionsLabelDestinations(rom);
+    VerifyOptionsLabelSources(rom);
+    Console.WriteLine("Options geometry: all 31 native words across five logical mappings and their bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-controller-buttons"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

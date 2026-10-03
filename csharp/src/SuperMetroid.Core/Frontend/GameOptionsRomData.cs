@@ -89,11 +89,6 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Cursors
     {
-        private static readonly ushort[] PrimaryRows = [0x38, 0x58, 0x70, 0x90, 0xb0];
-        private static readonly ushort[] ControllerRows =
-            [0x30, 0x48, 0x60, 0x78, 0x90, 0xa8, 0xc0, 0xb8, 0xd0];
-        private static readonly ushort[] SpecialRows = [0x40, 0x70, 0xa0];
-
         public const ushort PrimaryX = 0x18;
         public const ushort ControllerX = 0x28;
         /// <summary>$82:F2E0: selector X when the active page phase has no cursor table (including scroll phases).</summary>
@@ -103,69 +98,84 @@ public static class GameOptionsRomData
         public const ushort SpecialX = 0x10;
         /// <summary>Primary options cursor Y for selected row 0..4.</summary>
         /// <remarks>
-        /// Issues #625 and #957: PreInstruction_MenuSelectionMissile selects five
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects five
         /// interleaved X/Y records at $82:F307, with Y every four bytes from $82:F309.
         /// For row i=0..4, X=$0018 and Y=$0038+$0020*i-(i&gt;=2 ? 8 : 0).
         /// The eight-pixel shift after row 1 matches the authored layout gap.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all five records;
-        /// GameOptionsMenuState wraps PrimaryCount at five before indexing.
+        /// PrimaryCount bounds the five rows; unsupported indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> PrimaryY => PrimaryRows;
+        public static ushort PrimaryY(int row)
+        {
+            if ((uint)row >= Rows.PrimaryCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x38 + 0x20 * row - (row >= 2 ? 8 : 0));
+        }
         /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
         /// <remarks>
-        /// Issues #625 and #958: PreInstruction_MenuSelectionMissile selects nine
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects nine
         /// interleaved X/Y records from $82:F31B; Y is at $82:F31D+4*i for row
         /// i=0..8. X=$0028 throughout, and Y=$0030+$0018*i-(i&gt;=7 ? $20 : 0).
         /// The final two rows are Exit and Reset, shifted upward by $20 to account
         /// for the controller-page scroll. Pinned NTSC J/U v1.0 ROM and bank_82.asm
         /// match all nine records; GameOptionsMenuState keeps the selected row in
-        /// 0..8 across the controller scroll transitions.
+        /// 0..8 across the controller scroll transitions. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> ControllerY => ControllerRows;
+        public static ushort ControllerY(int row)
+        {
+            if ((uint)row >= Rows.ControllerCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x30 + 0x18 * row - (row >= Rows.ControllerExit ? ControllerScrollLimit : 0));
+        }
         /// <summary>Special-settings cursor Y for selected row 0..2.</summary>
         /// <remarks>
-        /// Issues #625 and #959: PreInstruction_MenuSelectionMissile selects three
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects three
         /// interleaved X/Y records from $82:F33F; Y at $82:F341+4*i is exactly
         /// $0040+$0030*i for i=0..2, while X stays $0010. Pinned NTSC J/U v1.0
         /// ROM and bank_82.asm match all three records. GameOptionsMenuState
         /// wraps SpecialCount at three before indexing, and extraction uses the
-        /// same three anchors.
+        /// same three anchors. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> SpecialY => SpecialRows;
+        public static ushort SpecialY(int row)
+        {
+            if ((uint)row >= Rows.SpecialCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x40 + 0x30 * row);
+        }
     }
 
     /// <summary>Controller-label source pointers and destination boxes from $82:F639.</summary>
     public static class ControllerLabels
     {
-        private static readonly ushort[] DestinationOffsets =
-            [0x016e, 0x022e, 0x02ee, 0x03ae, 0x046e, 0x052e, 0x05ee];
-        private static readonly ushort[] SourcePointers =
-            [0xf659, 0xf665, 0xf671, 0xf67d, 0xf689, 0xf695, 0xf6a1];
-
         public const int WidthInTiles = 3;
         public const int HeightInTiles = 2;
         /// <summary>BG1 byte destination for each controller-action label, row 0..6.</summary>
         /// <remarks>
-        /// Issues #625 and #960: GameOptionsMenu_TilemapOffsets at $82:F639 contains
+        /// Independently reviewed and converted for #1165: GameOptionsMenu_TilemapOffsets at $82:F639 contains
         /// seven little-endian words exactly $016E+$00C0*i for action row i=0..6.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all seven. Native uses
         /// twice the row index to read the word; managed label drawing and asset
         /// extraction use the same seven-row domain. The $C0-byte step places each
         /// 3x2 label box three 32-word tilemap rows below the previous one.
-        /// The adjacent source-pointer region has its own rule.
+        /// The adjacent source-pointer region has its own rule. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> Destinations => DestinationOffsets;
+        public static ushort Destination(int action)
+        {
+            if ((uint)action >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x16e + MenuTilemapWidth * sizeof(ushort) * 3 * action);
+        }
         /// <summary>Bank-$82 source pointer for each assignable controller-button label.</summary>
         /// <remarks>
-        /// Issues #625 and #961: ControllerButton_TilemapPointers at $82:F647
+        /// Independently reviewed and converted for #1165: ControllerButton_TilemapPointers at $82:F647
         /// contains nine words. Selectors i=0..6 point to X, A, B, Select, Y, L,
         /// and R label records at $F659+$000C*i. Each record is a 3x2 tilemap
         /// of six words. Adjacent selectors 7 and 8 both point to the distinct
         /// OFF record at $F6AD; the managed assignable-button view stops at 6.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all nine pointer words.
-        /// Managed label drawing and extraction use the seven-entry domain.
+        /// Extraction uses the seven-entry domain; invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> Sources => SourcePointers;
+        public static ushort Source(int button)
+        {
+            if ((uint)button >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            return (ushort)(0xf659 + WidthInTiles * HeightInTiles * sizeof(ushort) * button);
+        }
     }
 
     /// <summary>Language-dependent palette regions in the primary-page tilemap.</summary>

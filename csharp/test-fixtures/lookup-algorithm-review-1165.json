@@ -6517,4 +6517,18 @@
     "confirmation":"--lookup-controller-buttons runs only these two logical-table proofs under the existing guarded process entry point and asserts the supported ROM hash. Verification build confirms every migrated consumer. Maintained-source index refreshed; implementation commit is the commit adding this record.",
     "remainingScope":"Does not classify other controller/menu presentation, instruction or timing mappings. Full1165 inventory remains in progress."
   }
+,
+  "optionsGeometryConversionReview": {
+    "status":"converted five separately indexed logical mappings",
+    "owners":["csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs","csharp/src/SuperMetroid.AssetExtraction/GameOptionsPresentationExtractor.cs"],
+    "evidence":"Supported ROM hash recorded above; pinned bank_82.asm PreInstruction_MenuSelectionMissile cursor records82:F307..F34A, GameOptionsMenu_TilemapOffsets82:F639..F646, ControllerButton_TilemapPointers82:F647..F658 and six-word labels82:F659 onward. Independent original-word assertions do not generate expected values from the proposed formulas.",
+    "primaryCursorY":{"disposition":"converted","source":"82:F309+4*i, i0..4","algorithm":"0x38+0x20*i minus8 from row2 onward; four-tile line spacing with the one-tile layout adjustment after the first two options.","proof":"VerifyOptionsPrimaryCursorY: all5 original Y words and invalid int boundaries."},
+    "controllerCursorY":{"disposition":"converted","source":"82:F31D+4*i, i0..8","algorithm":"0x30+0x18*i minus ControllerScrollLimit32 for Exit/Reset rows7/8; three-tile spacing and native scrolled screen coordinates.","proof":"VerifyOptionsControllerCursorY: all9 original Y words, including the nonmonotonic Exit transition, and invalid int boundaries."},
+    "specialCursorY":{"disposition":"converted","source":"82:F341+4*i, i0..2","algorithm":"0x40+0x30*i: six-tile row spacing.","proof":"VerifyOptionsSpecialCursorY: all3 original Y words and invalid int boundaries."},
+    "labelDestinations":{"disposition":"converted","source":"82:F639+2*i, i0..6","algorithm":"0x16e plus three tilemap rows per action; each32-word row occupies64bytes, giving192-byte stride.","proof":"VerifyOptionsLabelDestinations: all7 original offsets and invalid int boundaries."},
+    "labelSources":{"disposition":"converted","source":"82:F647+2*i, i0..6","algorithm":"0xf659 plus i times the3x2-word label size12. Adjacent native7/8 OFF pointers are outside the prior managed seven-label domain and remain rejected.","proof":"VerifyOptionsLabelSources: all7 supported original pointers and invalid int boundaries, explicitly including7/8."},
+    "domainAndOwnership":"Integer bounds checked before multiplication, preserving prior span IndexOutOfRangeException without overflow, clamping or extrapolation. Removed all five stored arrays/spans. Extraction calls the bounded functions directly, then writes user-editable label/cursor assets as before; these imported asset documents are presentation ownership, not a new hidden algorithm cache. Runtime custom presentation remains editable and its loaded geometry is unchanged.",
+    "confirmation":"Verification build; --lookup-options-geometry SHA-pinned31-word proof; ResourceAudit build and affected owner hash refreshed. Removed obsolete length-only assertions from the old catalog smoke check instead of duplicating proofs. Maintained-source index refreshed. Implementation commit is the commit adding this record.",
+    "remainingScope":"Cursor X, phase dispatch, language/toggle layouts, page resources, spritemap identities and other options mappings retain their separate review obligations. This entry only resolves the five identified fields."
+  }
 }

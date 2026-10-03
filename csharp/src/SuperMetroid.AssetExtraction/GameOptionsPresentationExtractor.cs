@@ -28,16 +28,16 @@ public static class GameOptionsPresentationExtractor
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        ReadOnlySpan<ushort> sources = GameOptionsRomData.ControllerLabels.Sources;
-        for (int index = 0; index < sources.Length; index++)
+        for (int index = 0; index < GameOptionsRomData.Rows.ControllerActionCount; index++)
         {
             labels.Add(GameOptionsPresentationDefinitions.ControllerLabelName(index), Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), GameOptionsRomData.MenuBank | sources[index],
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    GameOptionsRomData.MenuBank | GameOptionsRomData.ControllerLabels.Source(index),
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        MapLabelPoint[] controllerAnchors = GameOptionsRomData.ControllerLabels.Destinations
-            .ToArray()
+        MapLabelPoint[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
+            .Select(GameOptionsRomData.ControllerLabels.Destination)
             .Select(ByteOffsetPoint)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
@@ -84,11 +84,11 @@ public static class GameOptionsPresentationExtractor
         var cursors = new Dictionary<string, MapLabelPoint[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = Points(
-                GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Cursors.PrimaryY),
+                GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Rows.PrimaryCount, GameOptionsRomData.Cursors.PrimaryY),
             [GameOptionsPresentationDefinitions.ControllerMenu] = Points(
-                GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Cursors.ControllerY),
+                GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Rows.ControllerCount, GameOptionsRomData.Cursors.ControllerY),
             [GameOptionsPresentationDefinitions.SpecialMenu] = Points(
-                GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Cursors.SpecialY),
+                GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Rows.SpecialCount, GameOptionsRomData.Cursors.SpecialY),
         };
 
         using var output = new MemoryStream();
@@ -147,11 +147,11 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
-    private static MapLabelPoint[] Points(ushort x, ReadOnlySpan<ushort> rows)
+    private static MapLabelPoint[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
-        var result = new MapLabelPoint[rows.Length];
+        var result = new MapLabelPoint[count];
         for (int index = 0; index < result.Length; index++)
-            result[index] = new(x, rows[index]);
+            result[index] = new(x, rowY(index));
         return result;
     }
 

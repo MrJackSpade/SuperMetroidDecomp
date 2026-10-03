@@ -30,22 +30,6 @@ static void VerifyGameOptionsRomDataCatalog()
             $"options resource ${page.Address:X6} has a diagnostic name");
     }
 
-    AssertEqual(GameOptionsRomData.Rows.PrimaryCount,
-        GameOptionsRomData.Cursors.PrimaryY.Length,
-        "primary cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.ControllerCount,
-        GameOptionsRomData.Cursors.ControllerY.Length,
-        "controller cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.SpecialCount,
-        GameOptionsRomData.Cursors.SpecialY.Length,
-        "special cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
-        GameOptionsRomData.ControllerLabels.Sources.Length,
-        "controller label source count matches assignable actions");
-    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
-        GameOptionsRomData.ControllerLabels.Destinations.Length,
-        "controller label destination count matches assignable actions");
-
     const ushort packedTile = 0xe155;
     SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
         .WithPaletteIndex(GameOptionsRomData.TilePalettes.Selected);

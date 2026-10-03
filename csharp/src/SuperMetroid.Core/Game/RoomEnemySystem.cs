@@ -2338,6 +2338,7 @@ public sealed partial class RoomEnemySystem
             pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
+            QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -8,7 +9,7 @@ internal static partial class Program
     /// special station-eighteen initializer through descent, bounce, pad animation waits,
     /// Samus lift, and the final ordinary-control handoff.
     /// </summary>
-    static void VerifyPostCeresGunshipLanding()
+    static void VerifyPostCeresGunshipLanding(bool entrySoundOnly = false)
     {
         const ushort topDefinition = GunshipEnemyDefinitions.Top;
         const ushort bottomDefinition = GunshipEnemyDefinitions.BottomEntrance;
@@ -88,6 +89,8 @@ internal static partial class Program
             InputLocked = true,
         };
         var enemies = new RoomEnemySystem();
+        samus.TileTransfers.BindArtwork(
+            new GameInstallation(GameAssetInstaller.DesktopRoot).LoadSamusBodyArt());
         enemies.Load(
             new GunshipMotionDefinitionReadGuard(bus),
             populationPointer,
@@ -176,6 +179,19 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.YPosition, "gunship raises Samus to deck standing Y");
 
+        var openingSound = new EnemySoundRequest(
+            SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
+        enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus);
+        AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+            "idle ship does not publish an entrance sound without Down");
+        ushort deckX = samus.XPosition;
+        samus.XPosition = unchecked((ushort)(top.XPosition + 16));
+        enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus,
+            newlyPressedControllerInput: 0x0400);
+        AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+            "Down outside entrance does not publish an opening sound");
+        samus.XPosition = deckX;
+
         // Re-entering after Mother Brain's event takes the native function-17 branch at
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
         zebesTimebombSet = true;
@@ -189,6 +205,17 @@ internal static partial class Program
             vramWriteQueue: takeoffWrites);
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastGunshipEvent,
             "endgame Down input begins ordinary gunship entry");
+        AssertEqual(1, enemies.SoundRequests.Count(request => request == openingSound),
+            "entry frame publishes exactly one library-three $14 Max6 sound");
+        if (entrySoundOnly)
+        {
+            enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus,
+                newlyPressedControllerInput: 0x0400);
+            AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+                "opening animation does not republish the entry sound");
+            Console.WriteLine("Gunship entry sound: exact entry edge, input/position guards and no repeat verified.");
+            return;
+        }
 
         int takeoffFrames = 0;
         bool observedTakeoffStart = false;

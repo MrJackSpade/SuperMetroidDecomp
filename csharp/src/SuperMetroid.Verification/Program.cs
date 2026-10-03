@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--gunship-entry-sound"])
+{
+    VerifyPostCeresGunshipLanding(entrySoundOnly: true);
+    return 0;
+}
 if (args is ["--speed-booster-pickup"])
 {
     VerifySpeedBoosterPickupContinuation();

@@ -161,7 +161,7 @@ public static class SoundEffectLibrary3Sounds
     public static readonly SoundEffectId EnemyFreeze = new(SoundEffectLibrary.Library3, 0x0a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$90:85A6 queues library-three $03 when Speed Booster reaches stage four.</summary>
     public static readonly SoundEffectId SpeedBoosterEcho = new(SoundEffectLibrary.Library3, 0x03); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
-    /// <summary>$A2:AB58 queues library-three $14 as the ship's entrance pad opens.</summary>
+    /// <summary>$A2:AA47/AB58 queue library-three $14 as the ship's pad opens for entry/exit.</summary>
     public static readonly SoundEffectId GunshipEntrancePad = new(SoundEffectLibrary.Library3, 0x14); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$A2:AB9D queues library-three $15 as the ship's entrance pad closes after exit.</summary>
     public static readonly SoundEffectId GunshipEntrancePadClosing = new(SoundEffectLibrary.Library3, 0x15); // magic-number-audit: allow(AudioId) - named cartridge SFX identity

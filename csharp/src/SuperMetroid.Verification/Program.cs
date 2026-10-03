@@ -101,6 +101,15 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--lookup-loading-layout"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading layout oracle revision");
+    VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(rom);
+    Console.WriteLine("Suit loading: original decoded group/frame layout, complete pointer ownership and guarded programs pass.");
+    return 0;
+}
 if (args is ["--lookup-heat-colors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

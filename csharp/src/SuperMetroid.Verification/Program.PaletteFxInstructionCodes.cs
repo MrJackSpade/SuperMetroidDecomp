@@ -444,6 +444,64 @@ internal static partial class Program
         foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
                  SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
         {
+            ushort header = definition.Owner switch
+            {
+                SamusLoadingSuitPaletteFxProgramOwner.PowerSuit => 0xe1f4,
+                SamusLoadingSuitPaletteFxProgramOwner.VariaSuit => 0xe1f8,
+                SamusLoadingSuitPaletteFxProgramOwner.GravitySuit => 0xe1fc,
+                _ => throw new InvalidOperationException(),
+            };
+            int start = ReadVerificationWord(bus, 0x8d0000 | (header + 2));
+            AssertEqual((ushort)start, definition.ProgramStart, "Independent native loading entry");
+            var original = new Dictionary<ushort, ushort>();
+            var originalBytes = new Dictionary<ushort, byte>();
+            int cursor = start;
+            ushort Word()
+            {
+                ushort value = ReadVerificationWord(bus, 0x8d0000 | cursor);
+                original.Add((ushort)cursor, value);
+                cursor += 2;
+                return value;
+            }
+            AssertEqual((ushort)0xc655, Word(), "Native loading color-index instruction");
+            AssertEqual((ushort)0x0180, Word(), "Native loading CGRAM origin");
+            void Frame(int frame)
+            {
+                AssertEqual((ushort)cursor, definition.FramePointer(frame), "Calculated native loading frame cursor");
+                AssertEqual(frame == 8 ? (ushort)1 : (ushort)3, Word(), "Original native loading frame duration");
+                for (int color = 0; color < 16; color++, cursor += 2)
+                    AssertEqual((ushort)cursor, definition.ColorPointer(frame, color), "Every calculated native color address");
+                AssertEqual((ushort)0xc595, Word(), "Native loading wait instruction");
+            }
+            for (int group = 0; group < 4; group++)
+            {
+                AssertEqual((ushort)0xc648, Word(), "Native timer command starts each counted group");
+                originalBytes.Add((ushort)cursor, bus.ReadByte(0x8d0000 | cursor));
+                AssertEqual((ushort)cursor, definition.GroupTimerBytePointer(group), "Calculated timer byte pointer");
+                cursor++;
+                int groupStart = cursor;
+                AssertEqual((ushort)(cursor - start), SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupStartOffset(group),
+                    "Calculated group stride matches independently decoded command stream");
+                Frame(group * 2);
+                Frame(group * 2 + 1);
+                AssertEqual((ushort)0xc639, Word(), "Original group replay instruction");
+                AssertEqual((ushort)groupStart, Word(), "Original replay target");
+            }
+            Frame(8);
+            AssertEqual((ushort)cursor, definition.DeleteInstructionPointer, "Calculated final deletion pointer");
+            AssertEqual((ushort)0xc5cf, Word(), "Original final delete instruction");
+            for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            {
+                bool wordOwned = original.TryGetValue((ushort)pointer, out ushort expectedWord);
+                AssertEqual(wordOwned, definition.TryReadMechanicsWord((ushort)pointer, out ushort actualWord), "Complete loading word ownership");
+                AssertEqual(expectedWord, actualWord, "Original word or unowned zero");
+                bool byteOwned = originalBytes.TryGetValue((ushort)pointer, out byte expectedByte);
+                AssertEqual(byteOwned, definition.TryReadMechanicsByte((ushort)pointer, out byte actualByte), "Complete loading timer-byte ownership");
+                AssertEqual(expectedByte, actualByte, "Original timer byte or unowned zero");
+            }
+            foreach (int invalid in new[] { -1, 4, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupStartOffset(invalid),
+                    "Group offset retains strict bounds");
             int actualWords = 0;
             for (ushort pointer = definition.ProgramStart;
                  pointer <= definition.DeleteInstructionPointer;

@@ -87,7 +87,6 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>Every suit-loading program lasts 265 frames.</summary>
     public const int CycleFrames = 265;
 
-    private static readonly ushort[] GroupStartOffsets = [0x0007, 0x0056, 0x00a5, 0x00f4];
     private static readonly byte[] GroupTimerValues = [0x24, 0x03, 0x03, 0x02];
     private static readonly SamusLoadingSuitPaletteFxProgramDefinition[] Definitions =
     [
@@ -103,11 +102,17 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
         ReadOnlyDefinitions;
 
     /// <summary>Returns the bank-local offset of one counted group.</summary>
+    /// <remarks>Native $8D:DB62/DCC8/DE2E programs have a four-byte color-index
+    /// setup and three-byte initial timer command, so the first record starts at7.
+    /// Each next group is two36-byte color records, four-byte loop command/target,
+    /// and three-byte timer command later: offset=7+79*group for group0..3.
+    /// Independently decoded from supported NTSC J/U v1.0 and pinned bank_8D.asm
+    /// for #1165. No stored group-offset array remains.</remarks>
     public static ushort GroupStartOffset(int group)
     {
         if ((uint)group >= GroupCount)
             throw new ArgumentOutOfRangeException(nameof(group));
-        return GroupStartOffsets[group];
+        return (ushort)(7 + group * (FramesPerGroup * FrameByteCount + 4 + 3));
     }
 
     /// <summary>Returns the cartridge-authored replay count of one group.</summary>

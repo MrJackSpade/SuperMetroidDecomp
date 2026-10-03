@@ -5583,4 +5583,16 @@
     "reconciliation":"Resolves the heat-specific pending endpoints from heatPaletteHighlightEndpointsReview and previous heat-color entries. Independent normal/loading suit artwork and the other palette families remain in the wider source audit; sharing their existing inputs is not a disposition for those owners. The full1165 objective remains incomplete.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, updated interface source dependency pins and refreshed maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingGroupLayoutReview": {
+    "status":"converted stored group-offset array; existing frame/color/control layout independently reviewed",
+    "owners":"SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupStartOffset; SamusLoadingSuitPaletteFxProgramDefinition cursor/ownership methods",
+    "source":"Original native programs8D:DB62/DCC8/DE2E selected by headersE1F4/E1F8/E1FC, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Each begins with four-byte color-index setup, then a three-byte timer command. Each counted group has two36-byte duration/color/wait records and a four-byte decrement/goto, followed by the next three-byte timer command. Final duration/color/wait and delete follow the fourth group.",
+    "groupOffsets":{"disposition":"converted fixed-layout stride","algorithm":"7 + group*(2*36+4+3), group0..3. Remove GroupStartOffsets array; preserve ArgumentOutOfRangeException for invalid int indices."},
+    "frameAndColorPointers":{"disposition":"existing exact layout algorithms independently confirmed","algorithm":"Two records per counted group, final record at program+140, delete at+164; color words start two bytes after each duration. Byte timer operands coexist with word commands, so odd addresses cannot be rejected globally."},
+    "ownership":{"disposition":"existing semantic command/field cases independently confirmed","proof":"Native decoder captures original command words and timer bytes while skipping presentation payloads. Every ushort byte address compares exact word and byte ownership/value, including odd command starts, color exclusions and unowned zero results."},
+    "proof":"Extend VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions with an independent original-stream decoder whose starts come from the original header operands. It consumes native setup, four counted two-record groups and final frame/delete, comparing all group/frame/color cursor aliases and bounds. Existing99-word/12-byte comparisons and three guarded265-frame interpreter loops are reused. Early --lookup-loading-layout pins the supported ROM SHA and runs only this identified layout confirmation.",
+    "scope":"Program roster storage and replay-count sequence still require their separate conversion/disposition. Shared normal/speed-boost artwork also remains pending. This entry does not declare the entire owner finished or retain its timing/art arrays. Full1165 audit remains active.",
+    "confirmation":"Verification build and --lookup-loading-layout, refreshed maintained-source index. Implementation record is this entry's commit."
+  }
 }

@@ -8,12 +8,28 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
 public sealed class RoomFxPaletteBlendCatalog
 {
-    private readonly Dictionary<byte, ushort[]> blends;
+    private readonly ushort[] lava;
+    private readonly ushort[] landingSiteRain;
+    private readonly ushort[] maridiaWaterA;
+    private readonly ushort[] waterAndAcid;
+    private readonly ushort[] fog;
+    private readonly ushort[] maridiaWaterB;
+    private readonly ushort[] maridiaWaterC;
+    private readonly ushort[] maridiaWaterD;
 
-    private RoomFxPaletteBlendCatalog(Dictionary<byte, ushort[]> blends,
+    private RoomFxPaletteBlendCatalog(ushort[] lava, ushort[] landingSiteRain,
+        ushort[] maridiaWaterA, ushort[] waterAndAcid, ushort[] fog,
+        ushort[] maridiaWaterB, ushort[] maridiaWaterC, ushort[] maridiaWaterD,
         PaletteRgb5 ceresHazeBlue, PaletteRgb5 ceresHazeRed)
     {
-        this.blends = blends;
+        this.lava = lava;
+        this.landingSiteRain = landingSiteRain;
+        this.maridiaWaterA = maridiaWaterA;
+        this.waterAndAcid = waterAndAcid;
+        this.fog = fog;
+        this.maridiaWaterB = maridiaWaterB;
+        this.maridiaWaterC = maridiaWaterC;
+        this.maridiaWaterD = maridiaWaterD;
         CeresHazeBlue = ceresHazeBlue;
         CeresHazeRed = ceresHazeRed;
     }
@@ -47,11 +63,23 @@ public sealed class RoomFxPaletteBlendCatalog
             throw new InvalidDataException("Invalid room-FX blend palette JSON.", error);
         }
         if (document.Version != RoomFxPaletteBlendDefinitions.Version ||
-            document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDefinitions.Ids.Count)
+            document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDefinitions.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        var blends = new Dictionary<byte, ushort[]>();
-        foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
+        return new(Compile(RoomFxPaletteBlendDefinitions.Lava),
+            Compile(RoomFxPaletteBlendDefinitions.LandingSiteRain),
+            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterA),
+            Compile(RoomFxPaletteBlendDefinitions.WaterAndAcid),
+            Compile(RoomFxPaletteBlendDefinitions.Fog),
+            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterB),
+            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterC),
+            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterD),
+            ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
+                nameof(document.CeresHazeBlue)),
+            ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
+                nameof(document.CeresHazeRed)));
+
+        ushort[] Compile(byte id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxRomData.Layer3.PaletteBlendColorCount)
@@ -65,13 +93,8 @@ public sealed class RoomFxPaletteBlendCatalog
                     throw new InvalidDataException($"Room-FX blend {id:X2} color {index} requires RGB components from zero through 31.");
                 words[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             }
-            blends.Add(id, words);
+            return words;
         }
-        return new(blends,
-            ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
-                nameof(document.CeresHazeBlue)),
-            ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
-                nameof(document.CeresHazeRed)));
     }
 
     public static byte[] Write(RoomFxPaletteBlendDocument document)
@@ -90,15 +113,23 @@ public sealed class RoomFxPaletteBlendCatalog
             cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
             return;
         }
-        if (!blends.TryGetValue(selection, out ushort[]? colors))
-            throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection.");
+        ReadOnlySpan<ushort> colors = Resolve(selection);
         for (int index = 0; index < colors.Length; index++)
             cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index, colors[index]);
     }
 
-    public ReadOnlySpan<ushort> Resolve(byte selection) => blends.TryGetValue(selection, out ushort[]? colors)
-        ? colors : throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection.");
-
+    public ReadOnlySpan<ushort> Resolve(byte selection) => selection switch
+    {
+        RoomFxPaletteBlendDefinitions.Lava => lava,
+        RoomFxPaletteBlendDefinitions.LandingSiteRain => landingSiteRain,
+        RoomFxPaletteBlendDefinitions.MaridiaWaterA => maridiaWaterA,
+        RoomFxPaletteBlendDefinitions.WaterAndAcid => waterAndAcid,
+        RoomFxPaletteBlendDefinitions.Fog => fog,
+        RoomFxPaletteBlendDefinitions.MaridiaWaterB => maridiaWaterB,
+        RoomFxPaletteBlendDefinitions.MaridiaWaterC => maridiaWaterC,
+        RoomFxPaletteBlendDefinitions.MaridiaWaterD => maridiaWaterD,
+        _ => throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection."),
+    };
     private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
     {
         if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -161,16 +192,25 @@ public static class RoomFxPaletteBlendDefinitions
     /// <summary>FX-record selector $EE, used by eastern Maridia water rooms.</summary>
     public const byte MaridiaWaterD = 0xee;
 
-    private static readonly byte[] AuthoredIds =
-    [
-        Lava, LandingSiteRain, MaridiaWaterA, WaterAndAcid,
-        Fog, MaridiaWaterB, MaridiaWaterC, MaridiaWaterD,
-    ];
-    public static IReadOnlyList<byte> Ids { get; } = Array.AsReadOnly(AuthoredIds);
+    /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
+    public static IEnumerable<byte> Ids
+    {
+        get
+        {
+            yield return Lava;
+            yield return LandingSiteRain;
+            yield return MaridiaWaterA;
+            yield return WaterAndAcid;
+            yield return Fog;
+            yield return MaridiaWaterB;
+            yield return MaridiaWaterC;
+            yield return MaridiaWaterD;
+        }
+    }
 
     public static string Key(byte id)
     {
-        if (!AuthoredIds.Contains(id))
+        if (id is not (Lava or LandingSiteRain or MaridiaWaterA or WaterAndAcid or Fog or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD))
             throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued.");
         return $"blend-{id:X2}";
     }

@@ -96,6 +96,11 @@ if (args is ["--lookup-treadmill-mechanics"])
     Console.WriteLine("Treadmill: native header/control fields, calculated cursors, full ushort domains and both guarded loops pass.");
     return 0;
 }
+if (args is ["--lookup-fx-blends"] )
+{
+    VerifyRoomFxPaletteBlends();
+    return 0;
+}
 if (args is ["--lookup-animated-frames"])
 {
     VerifyRoomFxAnimatedTileMechanicsDefinitions();

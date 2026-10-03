@@ -11,25 +11,19 @@ internal static partial class Program
 {
     private static void VerifyRoomFxPaletteBlends()
     {
-        if (!File.Exists("Super Metroid.smc"))
-        {
-            Console.WriteLine("  Room-FX blend palettes: cartridge comparison skipped (private ROM absent).");
-            return;
-        }
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX blend oracle revision");
+        VerifyFxBlendSelectorIdentities();
+        VerifyFxBlendSourceAddresses(rom);
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
+        VerifyFxBlendPageDispatch(rom, catalog);
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
         {
-            byte[] source = RomDataReader.ReadFixedBank(rom,
-                RoomFxPaletteBlendDefinitions.SourceAddress(id),
-                RoomFxRomData.Layer3.PaletteBlendColorCount * sizeof(ushort));
             ReadOnlySpan<ushort> compiled = catalog.Resolve(id);
-            for (int index = 0; index < compiled.Length; index++)
-                AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort))),
-                    compiled[index], $"room-FX blend {id:X2} native color {index}");
 
             (RoomLayer3FxState state, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) =
                 ConstructBlendLoad(catalog, tilemaps, id);

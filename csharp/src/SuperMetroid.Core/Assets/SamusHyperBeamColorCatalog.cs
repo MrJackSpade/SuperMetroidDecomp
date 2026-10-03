@@ -11,8 +11,19 @@ namespace SuperMetroid.Core.Assets;
 /// SnesObjRenderer discards index-zero pixels before reading CGRAM, so their
 /// RGB bits have no visible color meaning. A phase-to-RGB formula or reciting
 /// switch would only re-encode arbitrary unused payloads. Repeated zero rows
-/// already share one input; independent edits remain exact. This disposition
-/// covers only transparent payloads, not remaining opaque-channel work.</remarks>
+/// already share one input; independent edits remain exact.
+///
+/// Fourteen opaque endpoint components are retained as chosen artwork colors:
+/// cyan frame3 shadow3/11 RGB; magenta frame1 shadow3/11 red; green frame5
+/// shadow3/11 red/green; red frame9 shadow3/11 green. They specify the tint
+/// and contrast of the two source shadow inks in each named hue. Native91D96F
+/// selects a complete palette,91DD64 copies it,and the renderer uses the
+/// painted pixel's ink index. No measured lighting/material quantity supplies
+/// those endpoint colors. Shared hue channels,middle shadows,brighter inks and
+/// temporal blends are calculated separately. A fitted endpoint-index curve
+/// or RGB-reciting cases would only encode the artist's color choices,the
+/// specific1165 nonsense exception. This does not dispose of the remaining
+/// eight intermediate adjustments or three local highlight components.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -175,8 +186,8 @@ public sealed class SamusHyperBeamColorCatalog
     /// green. Frame1 green equals frame5 red: the two hues share their minimum.
     /// EndpointSourceChannels also derives middle-shadow inputs. Keep only
     /// independently differing channels; channel copying itself needs no rounding
-    /// or saturation. Derivation of
-    /// the remaining endpoint shade inputs is still under review in1165.</remarks>
+    /// or saturation. The remaining endpoint shade inputs have the specific
+    /// class-level artwork disposition; intermediate/highlight work is separate.</remarks>
     internal readonly struct EndpointChannels
     {
         private readonly int? red;

@@ -5041,4 +5041,29 @@
     "confirmation":"SHA-pinned --lookup-tourian-artwork plus Verification and ResourceAudit builds. Original ROM remains local; no artwork payload is published.",
     "scope":"All36 artwork-address mappings resolved without retention. Statue header descriptors, operand-offset storage and existing mechanics dispatch remain separate review work, not exempted or declared complete. Wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "tourianStatueDescriptorReview": {
+    "status":"converted: four stored descriptors and their read-only roster removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs: SelectObject, All, TryResolveObjectHeader",
+    "source":"Supported NTSC J/U v1.0 headers87:854C..8563 and programs83AC/8414/847C/84E4. Pinned bank_87.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identifies the four boss objects and every control operand.",
+    "evidence":"These descriptors dispatch boss identity to its program, transfer geometry and semantic event/effect/palette destinations. Named boss cases directly construct the selected descriptor. All lazily enumerates the four original identities in header order; no stored or generated descriptor roster remains. Per-boss first-frame wait is a configuration selection, not a chronological curve.",
+    "identity":{"disposition":"converted named boss dispatch","proof":"VerifyTourianStatueObjectDomain checks original enumeration order and all65536 ushort identities, including false/null for unsupported addresses."},
+    "fields":[
+      {"field":"ProgramStart","disposition":"converted semantic program selection","proof":"VerifyTourianStatueProgramStarts"},
+      {"field":"TransferByteCount","disposition":"converted boss artwork transfer width","proof":"VerifyTourianStatueTransferSizes"},
+      {"field":"EncodedVramDestination","disposition":"converted boss upload destination","proof":"VerifyTourianStatueVramDestinations"},
+      {"field":"StatueStateBit","disposition":"converted boss state selection","proof":"VerifyTourianStatueStateBits"},
+      {"field":"GreyEventNumber","disposition":"converted boss event selection","proof":"VerifyTourianStatueGreyEvents"},
+      {"field":"FirstFrameDuration","disposition":"converted boss initial wait selection","proof":"VerifyTourianStatueInitialDurations"},
+      {"field":"PackedBossTest","disposition":"converted boss area/mask selection","proof":"VerifyTourianStatueBossTests"},
+      {"field":"ClearPaletteByteIndex","disposition":"converted palette clear destination","proof":"VerifyTourianStatuePaletteClears"},
+      {"field":"UnlockEffectParameter","disposition":"converted eye/soul effect selection","proof":"VerifyTourianStatueEffectParameters"},
+      {"field":"PaletteFxDefinition","disposition":"converted grey-out effect selection","proof":"VerifyTourianStatuePaletteFx"},
+      {"field":"TargetPaletteByteIndex","disposition":"converted grey target palette destination","proof":"VerifyTourianStatueTargetPalettes"}
+    ],
+    "proofCoverage":"Each of eleven named field proofs compares all four selected and enumerated values to original ROM words. The same proofs cover every mechanics-word alias of those fields, including repeated events/effect parameters and state-reset words combined with the busy bit. Original program origins are read from native headers, never from the replacement. Removed duplicate old aggregate field assertions; separate instruction graph checks remain.",
+    "consumers":"TourianStatueSequence keeps the TryResolveObjectHeader contract. Artwork/import, ResourceAudit and render fixtures enumerate All lazily. The sole remaining Count-property consumer now calls Count(). Refreshed mechanics source hash in VramDmaSourceContracts.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-tourian-descriptors, including the existing complete artwork-source proof. No exploratory room/gameplay run.",
+    "scope":"Four descriptor identities and eleven fields resolved without retention. Operand-offset storage and existing instruction dispatch still require their independent dispositions. Wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
+  }
 }

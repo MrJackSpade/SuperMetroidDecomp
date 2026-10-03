@@ -67,6 +67,7 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         VerifyTourianStatueArtworkSources(rom);
+        VerifyTourianStatueDescriptorFields(rom);
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
@@ -74,12 +75,7 @@ internal static partial class Program
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
         {
-            for (int headerOffset = 0; headerOffset < 6; headerOffset += 2)
-            {
-                ushort pointer = unchecked((ushort)(definition.ObjectPointer + headerOffset));
-                VerifyTourianStatueMechanicsWord(definition, rom, pointer);
-                mechanicsWordCount++;
-            }
+            mechanicsWordCount += 3; // Header fields are covered by the named descriptor proofs.
 
             for (int programOffset = 0; programOffset <= 0x66; programOffset += 2)
             {
@@ -101,12 +97,14 @@ internal static partial class Program
                     continue;
                 }
 
-                VerifyTourianStatueMechanicsWord(definition, rom, pointer);
+                if (programOffset is not (0x02 or 0x26 or 0x5a or 0x60 or 0x06 or 0x56 or
+                    0x0a or 0x20 or 0x36 or 0x42 or 0x4a or 0x4e or 0x64))
+                    VerifyTourianStatueMechanicsWord(definition, rom, pointer);
                 mechanicsWordCount++;
             }
         }
 
-        AssertEqual(4, TourianStatueAnimatedTileMechanicsDefinitions.All.Count,
+        AssertEqual(4, TourianStatueAnimatedTileMechanicsDefinitions.All.Count(),
             "Tourian statue animated-tile object count");
         AssertEqual(184, mechanicsWordCount,
             "Tourian statue compiled mechanics word count");

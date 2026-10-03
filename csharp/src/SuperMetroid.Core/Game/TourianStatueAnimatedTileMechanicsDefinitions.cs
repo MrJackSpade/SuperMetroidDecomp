@@ -12,10 +12,17 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
-    private static readonly TourianStatueAnimatedTileProgramDefinition[] Definitions =
-    [
-        new(
-            objectPointer: 0x854c,
+    /// <summary>
+    /// Native boss identity selects its animation program, transfer geometry, event,
+    /// boss test and palette/effect destinations. These are semantic object cases,
+    /// not sampled numeric curves. The six-byte headers are $87:854C..8563 and their
+    /// 104-byte programs are $87:83AC..854B; unsupported ushort identities return null.
+    /// </summary>
+    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(ushort objectPointer) =>
+        objectPointer switch
+    {
+        AnimatedTileObjectPointers.TourianStatuePhantoon => new(
+            objectPointer: AnimatedTileObjectPointers.TourianStatuePhantoon,
             programStart: 0x83ac,
             transferByteCount: 0x0080,
             encodedVramDestination: 0x7800,
@@ -27,8 +34,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0000,
             paletteFxDefinition: 0xf755,
             targetPaletteByteIndex: 0x0140),
-        new(
-            objectPointer: 0x8552,
+        AnimatedTileObjectPointers.TourianStatueRidley => new(
+            objectPointer: AnimatedTileObjectPointers.TourianStatueRidley,
             programStart: 0x8414,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x7220,
@@ -40,8 +47,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0002,
             paletteFxDefinition: 0xf751,
             targetPaletteByteIndex: 0x0120),
-        new(
-            objectPointer: 0x8558,
+        AnimatedTileObjectPointers.TourianStatueKraid => new(
+            objectPointer: AnimatedTileObjectPointers.TourianStatueKraid,
             programStart: 0x847c,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x0b40,
@@ -53,8 +60,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0006,
             paletteFxDefinition: 0xf74d,
             targetPaletteByteIndex: 0x00e0),
-        new(
-            objectPointer: 0x855e,
+        AnimatedTileObjectPointers.TourianStatueDraygon => new(
+            objectPointer: AnimatedTileObjectPointers.TourianStatueDraygon,
             programStart: 0x84e4,
             transferByteCount: 0x0080,
             encodedVramDestination: 0x0ca0,
@@ -66,30 +73,28 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0004,
             paletteFxDefinition: 0xf749,
             targetPaletteByteIndex: 0x00c0),
-    ];
-    private static readonly IReadOnlyList<TourianStatueAnimatedTileProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+        _ => null,
+    };
 
-    /// <summary>The four boss-statue programs in cartridge header order.</summary>
-    public static IReadOnlyList<TourianStatueAnimatedTileProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    /// <summary>The four boss-statue programs in cartridge header order, without a stored roster.</summary>
+    public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
+    {
+        get
+        {
+            yield return SelectObject(AnimatedTileObjectPointers.TourianStatuePhantoon)!;
+            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueRidley)!;
+            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueKraid)!;
+            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueDraygon)!;
+        }
+    }
 
     /// <summary>Resolves one stock bank-$87 statue animated-tile object header.</summary>
     public static bool TryResolveObjectHeader(
         ushort objectPointer,
         out TourianStatueAnimatedTileProgramDefinition definition)
     {
-        foreach (TourianStatueAnimatedTileProgramDefinition candidate in Definitions)
-        {
-            if (candidate.ObjectPointer != objectPointer)
-                continue;
-
-            definition = candidate;
-            return true;
-        }
-
-        definition = null!;
-        return false;
+        definition = SelectObject(objectPointer)!;
+        return definition is not null;
     }
 }
 

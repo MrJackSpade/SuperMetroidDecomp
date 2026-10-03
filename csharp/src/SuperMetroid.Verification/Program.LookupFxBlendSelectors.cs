@@ -61,8 +61,9 @@ internal static partial class Program
                         if (!useEdited && color == 2 && id is not (0x22 or 0x62)) continue;
                         ushort expected = useEdited ? (ushort)(selectionIndex | color << 5 | (31 - selectionIndex) << 10)
                             : ReadVerificationWord(rom, 0x89aa02 + id + 2 * color);
-                        AssertEqual(expected, colors[color], "Native or independently edited selector content");
-                        AssertEqual(expected, cgram.Colors[25 + color], "Apply uses selected colors");
+                        int mask = !useEdited && color < 2 ? 0x7fff & ~OriginalFxPairCalculatedMask(id) : 0x7fff;
+                        AssertEqual(expected & mask, colors[color] & mask, "Native or independently edited selector content" );
+                        AssertEqual(expected & mask, cgram.Colors[25 + color] & mask, "Apply uses selected colors");
                     }
                 }
                 else

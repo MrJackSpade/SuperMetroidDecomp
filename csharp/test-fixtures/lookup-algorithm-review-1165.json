@@ -5320,4 +5320,20 @@
     "pending":"The sixteen primary/secondary colors, two weather third colors and Ceres tint triples still require their own field dispositions. No arbitrary-art exemption or performance argument is applied to them.",
     "scope":"Resolves18 regular RGB components without retention. Broader palette and maintained-source review remain active under1165. Implementation record is this entry's commit."
   }
+,
+  "roomFxPairedTintReview": {
+    "status":"converted14 shared components in the first two colors of four palettes",
+    "owners":"RoomFxPaletteBlendDefinitions.CalculatedPairRed/Green/Blue; RoomFxPairColor; RoomFxPaletteBlendExtractor",
+    "source":"Complete RGB5 decomposition of the24 supported native blend words, supported NTSC J/U v1.0 bank89AA02+selector. Pinned bank_89.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Original first pairs: lava(31,17,3)/(31,11,3), rain(10,10,12)/(6,6,8), fog(5,5,8)/(4,4,7), MaridiaA(0,0,1)/(3,3,7).",
+    "red":{"disposition":"converted uniform full-red lava pair","algorithm":"Both first lava colors calculate red31; other red intensities remain separate inputs.","proof":"VerifyFxPairRed"},
+    "green":{"disposition":"converted shared intensity for rain, fog and MaridiaA pairs","algorithm":"Their first two colors use green=red, expressing the common red/green intensity directly rather than retaining duplicate channel values.","proof":"VerifyFxPairGreen"},
+    "blue":{"disposition":"converted constant lava blue and additive weather tint","algorithm":"Lava pair uses blue3. Rain pair uses red+2; fog pair uses red+3. Saturate to31 for the RGB5 extension to custom intensities. Native intensities never saturate. MaridiaA blue remains independent.","proof":"VerifyFxPairBlue"},
+    "evidence":"These are repeated constant channels and shared-channel tint relationships across each complete two-color pair. They derive one component from another component of the same color, not from polynomial interpolation over palette indices or a list of numeric exceptions. This does not claim historical generation tooling or derive the independently chosen brightness/intensity inputs.",
+    "storage":"RoomFxPairColor stores only seed components and components differing from a calculated rule. Stock matching channels have null overrides before/after output. A new output word is composed when requested; there is no generated stock color cache. The already-converted six black third colors stay separate.",
+    "import":"For each first/second color, extraction obtains independent components from the source word and calculates reviewed components. DerivedBlendSourceGuard clears exactly the14 converted native component fields before extraction; the independently read original ROM still supplies expected colors. BlackBlendSourceGuard simultaneously rejects all six converted third-word reads.",
+    "proofCoverage":"One named native proof per component compares calculation, installed Resolve and actual CGRAM Apply for every converted field. VerifyFxPairStorageAndEdits checks absent stored components and round-trips all32768 RGB5 words for each of eight palette identities, confirming arbitrary edits including high/saturated intensities remain exact. Invalid selector bytes and signed/adjacent RGB5 input bounds reject. Earlier aggregate native checks now mask these independently proven components; custom palette checks still cover full words.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-blends, including guarded extraction, component proofs, full RGB5 edit preservation and existing installed load/reload/haze checks. Updated source pin and maintained-source index.",
+    "pending":"The remaining independent intensity/color components and Ceres tint defaults still require their own dispositions. This conversion grants no retention exemption for them.",
+    "scope":"Fourteen additional native components calculated without retained duplicates. Full maintained-source audit remains active under1165. Implementation record is this entry's commit."
+  }
 }

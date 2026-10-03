@@ -17,11 +17,15 @@ internal static partial class Program
         VerifyFxBlendSelectorIdentities();
         VerifyFxBlendSourceAddresses(rom);
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
-            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(new BlackBlendSourceGuard(rom))));
+            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(new BlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
         VerifyFxBlendBlackRed(rom, catalog);
         VerifyFxBlendBlackGreen(rom, catalog);
         VerifyFxBlendBlackBlue(rom, catalog);
         VerifyFxBlendBlackStorageAndEdits(catalog);
+        VerifyFxPairRed(rom, catalog);
+        VerifyFxPairGreen(rom, catalog);
+        VerifyFxPairBlue(rom, catalog);
+        VerifyFxPairStorageAndEdits(rom);
         VerifyFxBlendPageDispatch(rom, catalog);
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));

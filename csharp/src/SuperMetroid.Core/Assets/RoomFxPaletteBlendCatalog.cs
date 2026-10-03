@@ -157,19 +157,44 @@ public sealed class RoomFxPaletteBlendCatalog
 /// <summary>Loaded colors with calculated stock black separated from arbitrary edits.</summary>
 internal sealed class RoomFxBlendColors
 {
-    private readonly ushort primary;
-    private readonly ushort secondary;
+    private readonly RoomFxPairColor primary;
+    private readonly RoomFxPairColor secondary;
     private readonly ushort? thirdOverride;
 
     public RoomFxBlendColors(byte selection, ushort primary, ushort secondary, ushort third)
     {
-        this.primary = primary;
-        this.secondary = secondary;
+        this.primary = new(selection, primary);
+        this.secondary = new(selection, secondary);
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : third;
     }
 
     // The generated array is the requested output, never a retained stock-color cache.
-    public ushort[] CreateColors() => [primary, secondary, thirdOverride ?? 0];
+    public ushort[] CreateColors() => [primary.CreateColor(), secondary.CreateColor(), thirdOverride ?? 0];
+}
+/// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
+internal sealed class RoomFxPairColor
+{
+    private readonly byte selection;
+    private readonly int? redOverride;
+    private readonly int? greenOverride;
+    private readonly int? blueOverride;
+
+    public RoomFxPairColor(byte selection, ushort color)
+    {
+        this.selection = selection;
+        int red = color & 31, green = (color >> 5) & 31, blue = (color >> 10) & 31;
+        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection) == red ? null : red;
+        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red) == green ? null : green;
+        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red) == blue ? null : blue;
+    }
+
+    public ushort CreateColor()
+    {
+        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection)!.Value;
+        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red)!.Value;
+        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red)!.Value;
+        return (ushort)(red | green << 5 | blue << 10);
+    }
 }
 public sealed record RoomFxPaletteBlendDocument
 {
@@ -242,6 +267,38 @@ public static class RoomFxPaletteBlendDefinitions
         LandingSiteRain or Fog => null,
         _ => throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued."),
     };
+    /// <summary>The first two lava colors share full red; other red intensities are independent.</summary>
+    public static int? CalculatedPairRed(byte id)
+    {
+        _ = Key(id);
+        return id == Lava ? 31 : null;
+    }
+
+    /// <summary>Rain, fog and Maridia A use equal red/green in their first two colors.</summary>
+    public static int? CalculatedPairGreen(byte id, int red)
+    {
+        _ = Key(id);
+        if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
+        return id is LandingSiteRain or Fog or MaridiaWaterA ? red : null;
+    }
+
+    /// <summary>
+    /// Lava's first two colors share blue3. Rain and fog tint their red/green intensity
+    /// with blue+2/+3. Saturation defines the RGB5 extension for custom intensities;
+    /// stock intensities do not saturate, and differing user components remain overrides.
+    /// </summary>
+    public static int? CalculatedPairBlue(byte id, int red)
+    {
+        _ = Key(id);
+        if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
+        return id switch
+        {
+            Lava => 3,
+            LandingSiteRain => Math.Min(31, red + 2),
+            Fog => Math.Min(31, red + 3),
+            _ => null,
+        };
+    }
     /// <summary>Native byte address for the first of three adjacent BGR555 colors.</summary>
     public static int SourceAddress(byte id)
     {

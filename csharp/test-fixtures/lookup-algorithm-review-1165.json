@@ -5839,4 +5839,15 @@
     "scope":"Remaining active exceptional channels,Speed Booster endpoint components,Screw Attack shades and transparent payloads still need dispositions. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyScrewAttackTintReview": {
+    "status":"converted55 canonical Screw Attack shade words to shared green/blue ramps",
+    "owners":"SamusFullBodyCycleColorFormat.TryScrewAttackTint; SamusFullBodyCycleColorCatalog",
+    "source":"Original9CC0/9CE0/9D00 Power1/3/5..11/13..15 excluding last-shade10/15;9EC0/9EE0/9F00 Varia10/11/12;A0C0/A0E0/A100 Gravity1/2/10/11. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Fast ramp adds green10 per shade and blue10 only at shade3. Slow ramp adds green5 per shade with unchanged blue. Red is unchanged; channel additions saturate31. Named suit/ink cases select the shared operation. Exclude differing Power last-shade10/15 for independent review. Stock110 to55 words, no computed cache.",
+    "ownership":"Use independently supplied Screw Attack bases, not another family's edited base. Only formula-equal canonical words collapse; differing aliases and edits remain explicit. Base-only edits preserve all separately supplied shades.",
+    "proof":"Extend the existing full-body proof with independent55-word native address domain and every original result; all48-by16 members and invalid palette/color bounds;32768 RGB5 inputs at each shade for both operations. Reuse all768 original colors,CGRAM,pointer acceptance and independent edit fixtures; add Screw-base-only edits across all768 outputs.",
+    "scope":"Remaining exceptional channels,endpoints and transparent/base inputs still require dispositions. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

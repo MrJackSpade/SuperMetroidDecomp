@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(110, stored.Count, "Full-body sharing and calculated shades remove658 stored words");
+        AssertEqual(55, stored.Count, "Full-body sharing and calculated shades remove713 stored words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -53,6 +53,15 @@ internal static partial class Program
         foreach (int pointer in new[] { 0x9e40, 0x9e60, 0x9e80 })
         foreach (int color in new[] { 1, 10, 11, 12 }) activeGoldWords.Add(pointer + 2 * color);
         AssertEqual(27, activeGoldWords.Count, "Original active gold-ramp domain");
+        var screwTintWords = new HashSet<int>();
+        foreach (int pointer in new[] { 0x9cc0, 0x9ce0, 0x9d00 })
+        foreach (int color in new[] { 1, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15 })
+            if (pointer != 0x9d00 || color is not (10 or 15)) screwTintWords.Add(pointer + 2 * color);
+        foreach (int pointer in new[] { 0x9ec0, 0x9ee0, 0x9f00 })
+        foreach (int color in new[] { 10, 11, 12 }) screwTintWords.Add(pointer + 2 * color);
+        foreach (int pointer in new[] { 0xa0c0, 0xa0e0, 0xa100 })
+        foreach (int color in new[] { 1, 2, 10, 11 }) screwTintWords.Add(pointer + 2 * color);
+        AssertEqual(55, screwTintWords.Count, "Original Screw Attack tint domain");
         int ordinal = 0;
         foreach (ushort pointer in originalPointers)
         {
@@ -114,7 +123,11 @@ internal static partial class Program
                 ushort goldBase = ReadVerificationWord(rom, 0x9b0000 | (0x9c20 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(activeGold, SamusFullBodyCycleColorFormat.TryActiveGoldRamp(paletteIndex, color, goldBase, out ushort gold), "Every active gold-ramp domain member");
                 if (activeGold) AssertEqual(expected, gold, "Every original active gold-ramp color");
-                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold,
+                bool screwTint = screwTintWords.Contains(pointer + 2 * color);
+                ushort screwBase = ReadVerificationWord(rom, 0x9b0000 | (0x9ca0 + paletteIndex / 16 * 512 + 2 * color));
+                AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, screwBase, out ushort screw), "Every Screw Attack tint domain member");
+                if (screwTint) AssertEqual(expected, screw, "Every original Screw Attack tint word");
+                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint,
                     stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
@@ -132,6 +145,7 @@ internal static partial class Program
             AssertEqual(-1, SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(invalid, 9), "Shared-channel palette bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.IsActiveShineTint(invalid, 3), "Active tint palette bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryActiveGoldRamp(invalid, 1, 0, out rejected) && rejected == 0, "Gold-ramp palette bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewAttackTint(invalid, 1, 0, out rejected) && rejected == 0, "Screw tint palette bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
@@ -141,6 +155,7 @@ internal static partial class Program
             AssertEqual(-1, SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(1, invalid), "Shared-channel color bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.IsActiveShineTint(9, invalid), "Active tint color bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryActiveGoldRamp(9, invalid, 0, out rejected) && rejected == 0, "Gold-ramp color bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewAttackTint(13, invalid, 0, out rejected) && rejected == 0, "Screw tint color bounds");
         }
         for (int basis = 0; basis < 32768; basis++)
         for (int shade = 0; shade < 4; shade++)
@@ -160,6 +175,13 @@ internal static partial class Program
             AssertEqual((ushort)activeExpected, SamusFullBodyCycleColorFormat.ActiveShineTint((ushort)basis, shade), "Complete RGB5 active warm tint domain");
             if (shade > 0)
             {
+                foreach (int slot in new[] { 1, 3 })
+                {
+                    int green = Math.Clamp((basis >> 5 & 31) + (slot == 3 ? 10 : 5) * shade, 0, 31);
+                    int blueChannel = Math.Clamp((basis >> 10) + (slot == 3 && shade == 3 ? 10 : 0), 0, 31);
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewAttackTint(12 + shade, slot, (ushort)basis, out ushort screw), "Screw tint operation selected");
+                    AssertEqual((ushort)((basis & 31) + 32 * green + 1024 * blueChannel), screw, "Complete RGB5 Screw tint/saturation domain");
+                }
                 AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(8 + shade, 1, (ushort)basis, out ushort quarter), "Quarter gold-ramp selected");
                 AssertEqual((ushort)((expected & 1023) | (basis & 31744)), quarter, "Gold quarter ramp preserves blue over RGB5 domain");
                 foreach (var (palette, slot, step) in new[] { (8 + shade, 10, 3), (24 + shade, 1, 5), (24 + shade, 10, 5) })
@@ -287,6 +309,22 @@ internal static partial class Program
             ushort expected = pointer == 0x9c20 + suit * 0x200 ? (ushort)(6000 + suit * 16 + color) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
             AssertEqual(expected, edited.Resolve(pointer, color), "Active base-only edits preserve supplied tinted shades");
+        }
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        for (int suit = 0; suit < 3; suit++)
+        for (int color = 0; color < 16; color++)
+        {
+            int word = 7000 + suit * 16 + color;
+            document.ScrewAttack[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            int suit = (pointer - 0x9b20) / 0x200;
+            ushort expected = pointer == 0x9ca0 + suit * 0x200 ? (ushort)(7000 + suit * 16 + color) :
+                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+            AssertEqual(expected, edited.Resolve(pointer, color), "Screw base-only edits preserve supplied tinted shades");
         }
     }
     private static void VerifySamusFullBodyCycleColorOverride(

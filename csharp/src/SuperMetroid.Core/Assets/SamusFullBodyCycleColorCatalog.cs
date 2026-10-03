@@ -36,6 +36,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 value == SamusFullBodyCycleColorFormat.ActiveShineTint(palettes[palette / 16 * 16 + 8][color], palette % 4)) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
                 palettes[palette / 16 * 16 + 8][color], out ushort gold) && value == gold) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
+                palettes[palette / 16 * 16 + 12][color], out ushort screw) && value == screw) continue;
             colors.Add(index, value);
         }
     }
@@ -63,6 +65,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (palette % 16 >= 13 && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
+            ResolveIndex((palette / 16 * 16 + 12) * 16 + color), out ushort screw)) return screw;
         if (SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color))
             return SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex((palette / 16 * 16 + 8) * 16 + color), palette % 4);
         if (palette % 16 is >= 9 and <= 11 && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
@@ -198,6 +202,30 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Calculates55 canonical Screw Attack colors with shared green/blue ramps.</summary>
+    /// <remarks>Power3/5..9/13..15 and Gravity1/2/10/11 add green10 per
+    /// shade and blue10 only at shade3; Power15 shade3 is excluded for its
+    /// differing green. Power1/11 and Varia10/11/12 add green5 per shade
+    /// with unchanged blue. Power10 uses that slower ramp only at shades1/2.
+    /// Red stays unchanged and channel additions saturate at31. Original rows
+    ///9CC0/9CE0/9D00 and suit offsets512/1024 establish these shared operations.
+    /// Other slots/components remain outside this mapping for independent review.</remarks>
+    internal static bool TryScrewAttackTint(int palette, int color, ushort basis, out ushort value)
+    {
+        value = 0;
+        if ((uint)palette >= PaletteCount || palette % 16 < 13) return false;
+        int suit = palette / 16, shade = palette % 4;
+        bool fast = suit == 0 ? color is 3 or >= 5 and <= 9 or 13 or 14 || (color == 15 && shade < 3) :
+            suit == 2 && color is 1 or 2 or 10 or 11;
+        bool slow = suit == 0 ? color is 1 or 11 || (color == 10 && shade < 3) :
+            suit == 1 && color is 10 or 11 or 12;
+        if (!fast && !slow) return false;
+        int green = Math.Min(31, (basis >> 5 & 31) + (fast ? 10 : 5) * shade);
+        int blue = Math.Min(31, (basis >> 10 & 31) + (fast && shade == 3 ? 10 : 0));
+        value = (ushort)((basis & 31) | green << 5 | blue << 10);
+        return true;
+    }
 
     /// <summary>Calculates27 active-shinespark gold-ramp words while preserving base blue.</summary>
     /// <remarks>Power slots1/9/11/12 use the stored-shine quarter-white

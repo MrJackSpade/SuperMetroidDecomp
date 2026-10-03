@@ -21,6 +21,7 @@ internal static partial class Program
         VerifySimpleAnimationVramDestinations(bus);
         VerifySimpleAnimationFrameCursors(bus);
         VerifySimpleAnimationFrameDurations(bus);
+        VerifySimpleAnimationArtworkSources(bus);
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in
@@ -34,12 +35,6 @@ internal static partial class Program
                         frame.SourceOperandPointer, out _),
                     $"object $87:{definition.ObjectPointer:X4} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
-                int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
-                    definition, frame.InstructionPointer);
-                AssertEqual((ushort)sourceAddress,
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer),
-                    $"object $87:{definition.ObjectPointer:X4} compiled artwork-source identity");
                 mechanicsWordCount++;
                 frameCount++;
             }

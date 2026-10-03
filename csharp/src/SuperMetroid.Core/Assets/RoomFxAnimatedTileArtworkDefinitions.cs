@@ -24,6 +24,14 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     public const int SporesFirstSource = 0x87a7e4;
 
     /// <summary>Returns the native source identity for one compiled frame cursor.</summary>
+    /// <remarks>Each supported object selects its named first source; subsequent frames
+    /// advance by the object's native transfer byte count. Accept only its timed frame
+    /// cursors, rejecting source operands, odd addresses, goto words and other identities.
+    /// All26 native operands and every ushort cursor for all six compiled objects are
+    /// independently verified against NTSC J/U v1.0 and pinned bank_87.asm
+    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This existing exact arithmetic
+    /// mapping requires no stored pointer table or generated cache. Pixel artwork is
+    /// owned separately by installed assets.</remarks>
     public static int SourceAddress(RoomFxAnimatedTileObjectDefinition definition,
         ushort instructionPointer)
     {

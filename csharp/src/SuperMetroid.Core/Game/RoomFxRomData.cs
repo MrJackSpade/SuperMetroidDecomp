@@ -194,12 +194,24 @@ public static class RoomFxRomData
         /// <summary>Number of signed words in the circular water displacement table.</summary>
         public const int WaveDisplacementCount = 16;
 
-        /// <summary>
-        /// Signed per-scanline offsets from <c>WaveDisplacementTable_Water</c> at
-        /// <c>$88:C46E</c>. The repeated eight-value waveform is intentional.
-        /// </summary>
-        public static ReadOnlySpan<short> WaveDisplacements =>
-            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+        /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
+        /// <remarks>The original $88:C46E waveform consists of two identical eight-sample
+        /// periods. Within each four-sample half-wave, reflect the integer ramp around
+        /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.
+        /// This is an exact integer triangular waveform, without a floating-point
+        /// generation claim. Water BG2/BG3 and the identical vertical lava/acid wave
+        /// share this mapping. All original words at C46E and B60A are independently
+        /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm
+        /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Reject outside the original sixteen-word span before periodic folding.</remarks>
+        public static short WaveDisplacement(int index)
+        {
+            if ((uint)index >= WaveDisplacementCount)
+                throw new IndexOutOfRangeException();
+            int position = index & 3;
+            int magnitude = Math.Min(position, 3 - position);
+            return (short)((index & 4) == 0 ? magnitude : -magnitude);
+        }
     }
 
     /// <summary>Bank-$88 lava/acid BG2 distortion data at <c>$88:B4D5-$B628</c>.</summary>
@@ -220,12 +232,11 @@ public static class RoomFxRomData
         /// <summary>Number of one-scanline entries in either circular HDMA waveform.</summary>
         public const int WaveDisplacementCount = 16;
 
-        /// <summary>
-        /// Signed BG2VOFS offsets read from <c>$88:B60A</c>. Ordinary Norfair records set
-        /// liquid-options bit one and therefore use this waveform as the visible heat haze.
-        /// </summary>
-        public static ReadOnlySpan<short> VerticalWaveDisplacements =>
-            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+        /// <summary>Calculates the vertical heat-haze displacement for index 0..15.</summary>
+        /// <remarks>Native $88:B60A is independently verified as the same mirrored,
+        /// sign-alternating integer wave as $88:C46E. Reuse that exact bounded mapping;
+        /// liquid-options bit one selects this BG2VOFS waveform.</remarks>
+        public static short VerticalWaveDisplacement(int index) => Water.WaveDisplacement(index);
 
         /// <summary>Signed BG2HOFS offsets read from <c>$88:B589</c>.</summary>
         public static ReadOnlySpan<short> HorizontalWaveDisplacements =>

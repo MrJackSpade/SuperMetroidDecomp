@@ -5167,4 +5167,21 @@
     "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-tilemap-sources cover the new dispatch proof, existing type/source proofs and five guarded installed loads. Updated the BackgroundTransferClosedContractDefinitions source hash. No unrelated JSON suite or gameplay sweep.",
     "scope":"The remaining fixed page-dispatch mapping is resolved without retention. Stock tile-cell structure and other maintained mappings remain separate audit work under1165. Implementation record is this entry's commit."
   }
+,
+  "liquidStockTilemapReview": {
+    "status":"converted: three stock1056-cell tilemap pages now calculated, with no retained stock-page cache",
+    "owners":"RoomFxLiquidTilemapDefinitions; RoomFxLayer3TilemapCatalog liquid fields/Resolve; RoomFxLayer3TilemapExtractor",
+    "source":"Supported NTSC J/U v1.0 lava8A:8000, acid8840, water9080, each840h bytes. Pinned bank_8A.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d and direct SHA-pinned ROM inspection establish all3168 original words, including the complete33rd row.",
+    "character":{"disposition":"converted","algorithm":"Lava row0 repeats50/51/52 using column modulo3; rows1..32 use53. Acid row0 uses blank4E, row1 repeats the same three surface tiles, remaining31 rows use53. Water row0 uses4E; rows1..4 use90+4*(row-1)+column%4; rows5..32 repeat a4x4 body A0+4*((row-5)%4)+column%4.","proof":"VerifyLiquidTileCharacters"},
+    "palette":{"disposition":"converted","algorithm":"Blank top rows use palette3. Lava and nonblank water use6; nonblank acid uses0.","proof":"VerifyLiquidTilePalettes"},
+    "priority":{"disposition":"converted","algorithm":"Set only for nonblank water cells; lava, acid and blank rows clear.","proof":"VerifyLiquidTilePriority"},
+    "horizontalFlip":{"disposition":"converted constant clear for all3168 cells","proof":"VerifyLiquidTileHorizontalFlip"},
+    "verticalFlip":{"disposition":"converted constant clear for all3168 cells","proof":"VerifyLiquidTileVerticalFlip"},
+    "proofCoverage":"Each field has one named proof comparing the actual Cell result, generated transfer and installed stock Resolve view against original ROM words across all3168 cells. Consolidated these liquid-byte comparisons out of the earlier page-dispatch proof; edited-page dispatch checks remain there. Domain/storage proof checks all65536 type identities, cell bounds, exact stock recognition, an edit at every cell preventing stock substitution, truncated-page rejection and null stored fields before/after transfer.",
+    "evidence":"The full data has exact surface repetition, constant liquid body tiles and a periodic4x4 water body. These are spatial tiling rules with separate palette/priority/flip semantics, not arbitrary fitted data or a recited list of words.",
+    "implementation":"Extractor generates these stock pages from the definitions rather than importing their payload words. Catalog validates the editable document as before, recognizes exact stock liquid pages and discards their redundant bytes. Resolve calculates a fresh output transfer when needed and never stores that generated buffer. A differing page retains its supplied custom bytes; no edit is silently normalized to stock. The required returned transfer buffer is output, not a hidden lookup cache.",
+    "editableData":"Arbitrary custom tile cells remain external presentation input under the existing JSON contract. Their values cannot be inferred from type/coordinates alone, so preserving that supplied input is necessary to preserve user edits. This is not a blanket exemption for any stock page: spores/rain/fog remain individually unreviewed.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-fx-tilemap-sources. Extraction runs with all three original payload ranges forbidden; independent proofs read the original ROM separately. Existing six-page dispatch/custom-edit proof and five guarded installed loads also pass. Added the new definition source to the ResourceAudit closed contract pins.",
+    "scope":"All five independent fields of the three stock liquid pages resolved without stock lookup retention. Remaining atmosphere pages and broader maintained-source audit stay active under1165. Implementation record is this entry's commit."
+  }
 }

@@ -21,8 +21,10 @@ public static class RoomFxLayer3TilemapExtractor
             if ((RoomFxRomData.Banks.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");
-            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
-                RoomFxLayer3TilemapFormat.PageByteCount);
+            byte[] native = type is RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water
+                ? RoomFxLiquidTilemapDefinitions.CreateTransfer(type)
+                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
+                    RoomFxLayer3TilemapFormat.PageByteCount);
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)
             {

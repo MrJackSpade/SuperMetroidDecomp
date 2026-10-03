@@ -14,8 +14,9 @@ internal static partial class Program
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX tilemap oracle revision");
         VerifyFxTilemapTypeEnumeration();
         VerifyFxTilemapSourceAddresses(rom);
-        byte[] json = RoomFxLayer3TilemapExtractor.Extract(rom);
+        byte[] json = RoomFxLayer3TilemapExtractor.Extract(new LiquidTilemapSourceGuard(rom));
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
+        VerifyLiquidTilemaps(rom, catalog);
         VerifyFxTilemapPageDispatch(rom, catalog);
         RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));

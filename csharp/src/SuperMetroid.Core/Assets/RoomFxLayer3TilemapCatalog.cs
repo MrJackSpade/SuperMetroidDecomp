@@ -9,12 +9,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
-    private readonly byte[] lava, acid, water, spores, rain, fog;
+    private readonly byte[]? lava, acid, water;
+    private readonly byte[] spores, rain, fog;
 
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
-        byte[] spores, byte[] rain, byte[] fog) =>
-        (this.lava, this.acid, this.water, this.spores, this.rain, this.fog) =
-        (lava, acid, water, spores, rain, fog);
+        byte[] spores, byte[] rain, byte[] fog)
+    {
+        this.lava = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Lava, lava) ? null : lava;
+        this.acid = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Acid, acid) ? null : acid;
+        this.water = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Water, water) ? null : water;
+        (this.spores, this.rain, this.fog) = (spores, rain, fog);
+    }
 
     /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
@@ -71,14 +76,15 @@ public sealed class RoomFxLayer3TilemapCatalog
     /// <summary>
     /// Selects one of the six named editable 33-row resources directly. The six
     /// even identities $02..0C match the original $83:ABF2..ABFC page dispatch;
-    /// their payload is compiled from the supplied document, not stock-only data.
+    /// Arbitrary edited payloads are compiled from the supplied document. Exact
+    /// stock liquid pages use their layout formulas and retain no generated cache.
     /// Other ushort type identities throw InvalidDataException.
     /// </summary>
     public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
     {
-        RoomFxType.Lava => lava,
-        RoomFxType.Acid => acid,
-        RoomFxType.Water => water,
+        RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+        RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+        RoomFxType.Water => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
         RoomFxType.Spores => spores,
         RoomFxType.Rain => rain,
         RoomFxType.Fog => fog,

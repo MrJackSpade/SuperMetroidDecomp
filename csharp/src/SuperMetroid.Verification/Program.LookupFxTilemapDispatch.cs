@@ -30,7 +30,8 @@ internal static partial class Program
             var type = (RoomFxType)value;
             if (native.TryGetValue(type, out byte[]? expected))
             {
-                AssertTrue(expected.AsSpan().SequenceEqual(stock.Resolve(type).Span), "Every original page byte selects correctly");
+                if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))
+                    AssertTrue(expected.AsSpan().SequenceEqual(stock.Resolve(type).Span), "Every original non-liquid page byte selects correctly");
                 ReadOnlySpan<byte> actual = edited.Resolve(type).Span;
                 AssertEqual(expected.Length, actual.Length, "Edited page retains full transfer length");
                 for (int offset = 0; offset < actual.Length; offset += 2)

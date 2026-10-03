@@ -38,21 +38,29 @@ public static class PlmHeaderGenerationProcessPolicy {
         throw "Expected 284 distinct retail PLM populations, found $($ordered.Count)."
     }
 
+    $headerNames = @{}
+    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs'))
+    foreach ($match in [regex]::Matches($headerCatalog, 'const ushort (\w+) = 0x([0-9a-fA-F]+);')) {
+        $headerNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
+    }
     $rom = [IO.File]::ReadAllBytes($romFile)
     $lines = [Collections.Generic.List[string]]::new()
+    $lines.Add('#nullable enable')
     $lines.Add('namespace SuperMetroid.Core.Rooms;')
     $lines.Add('')
-    $lines.Add('/// <summary>Pinned cartridge placement records; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
+    $lines.Add('/// <summary>Ordered named room setup cases; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
     $lines.Add('internal static partial class RoomPlmPopulationDefinitions')
     $lines.Add('{')
-    $lines.Add('    private static readonly (ushort Pointer, string Hex)[] Sources =')
-    $lines.Add('    [')
+    $lines.Add('    internal static bool TryPlace(ushort pointer, Action<ushort, byte, byte, ushort>? place)')
+    $lines.Add('    {')
+    $lines.Add('        switch (pointer)')
+    $lines.Add('        {')
     $recordTotal = 0
     $headers = [Collections.Generic.HashSet[int]]::new()
     $scrollProgramPointers = [Collections.Generic.HashSet[int]]::new()
     foreach ($pointer in $ordered) {
         $offset = 0x78000 + ($pointer - 0x8000)
-        $bytes = [Collections.Generic.List[byte]]::new()
+        $lines.Add(('            case 0x{0:X4}:' -f $pointer))
         $count = 0
         while ($true) {
             if ($offset -ge $rom.Length - 1) {
@@ -60,8 +68,6 @@ public static class PlmHeaderGenerationProcessPolicy {
             }
             $header = [int]$rom[$offset] -bor ([int]$rom[$offset + 1] -shl 8)
             if ($header -eq 0) {
-                $bytes.Add(0)
-                $bytes.Add(0)
                 break
             }
             if (++$count -gt 256 || $offset -ge $rom.Length - 5) {
@@ -72,30 +78,26 @@ public static class PlmHeaderGenerationProcessPolicy {
                 $scrollProgramPointer = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
                 [void] $scrollProgramPointers.Add($scrollProgramPointer)
             }
-            for ($index = 0; $index -lt 6; $index++) {
-                $bytes.Add($rom[$offset + $index])
-            }
+            if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
+            $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
+            $lines.Add(('                place?.Invoke(RoomPlmHeaders.{0}, {1}, {2}, 0x{3:X4});' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
             $offset += 6
         }
         $recordTotal += $count
-        $hex = [Convert]::ToHexString($bytes.ToArray())
-        $lines.Add(('        (0x{0:X4}, "{1}"),' -f $pointer, $hex))
+        $lines.Add('                return true;')
     }
     if ($recordTotal -ne 941) {
         throw "Expected 941 retail PLM records, found $recordTotal."
     }
-    $lines.Add('    ];')
+    $lines.Add('            default: return false;')
+    $lines.Add('        }')
+    $lines.Add('    }')
     $lines.Add('}')
     if (-not $HeadersOnly) { [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false)) }
 
     $orderedHeaders = @($headers | Sort-Object)
     if ($orderedHeaders.Count -ne 70) {
         throw "Expected 70 distinct retail PLM headers, found $($orderedHeaders.Count)."
-    }
-    $headerNames = @{}
-    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs'))
-    foreach ($match in [regex]::Matches($headerCatalog, 'const ushort (\w+) = 0x([0-9a-fA-F]+);')) {
-        $headerNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
     }
     $headerLines = [Collections.Generic.List[string]]::new()
     $headerLines.Add('namespace SuperMetroid.Core.Rooms;')

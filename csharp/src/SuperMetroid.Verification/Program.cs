@@ -53,6 +53,17 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--room-plm-populations"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail population oracle revision");
+    VerifyRetailPopulationMappings(rom);
+    VerifyCompiledRoomPlmHeaderLoad(rom);
+    VerifyPlmPopulationInputBoundary();
+    Console.WriteLine("Retail populations: all 284 identities, 941 ordered placements and native terminators, sequential setup and historical state schemas pass.");
+    return 0;
+}
 if (args is ["--lookup-scroll-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2726,14 +2737,6 @@ if (args is ["--kraid-head-instruction-definitions"])
 if (args is ["--magic-number-audit"])
 {
     VerifyProductionMagicNumberAudit();
-    return 0;
-}
-if (args is ["--room-plm-populations"])
-{
-    SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-        Path.GetFullPath("Super Metroid.smc"));
-    VerifyCompiledRoomPlmPopulationDefinitions(rom);
-    VerifyElevatorPlatformPlmDefinitions(rom);
     return 0;
 }
 if (args is ["--explored-map-packing-definitions"])

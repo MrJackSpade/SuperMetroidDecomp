@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
@@ -44,16 +43,13 @@ public sealed class RoomPlmPopulationDefinition
     /// <summary>Resolves the complete fixed placement list before allocation begins.</summary>
     public static RoomPlmPopulationDefinition FromCompiled(ushort pointer)
     {
-        ReadOnlySpan<byte> source = RoomPlmPopulationDefinitions.Get(pointer).Span;
-        var records = new List<RoomPlmPlacement>((source.Length - 2) / RoomPlmPopulationFormat.RecordByteCount);
-        for (int offset = 0; offset < source.Length - 2; offset += RoomPlmPopulationFormat.RecordByteCount)
+        var records = new List<RoomPlmPlacement>();
+        RoomPlmPopulationDefinitions.Place(pointer, (header, x, y, argument) =>
         {
-            ushort header = BinaryPrimitives.ReadUInt16LittleEndian(source[offset..]);
-            ushort argument = BinaryPrimitives.ReadUInt16LittleEndian(source[(offset + 4)..]);
             records.Add(new RoomPlmPlacement(
-                RoomPlmHeaderDefinitions.Get(header), source[offset + 2], source[offset + 3], argument)
+                RoomPlmHeaderDefinitions.Get(header), x, y, argument)
                 { CompiledScrollSource = header == RoomPlmHeaders.ScrollTrigger ? argument : null });
-        }
+        });
         return new RoomPlmPopulationDefinition(pointer, records);
     }
 

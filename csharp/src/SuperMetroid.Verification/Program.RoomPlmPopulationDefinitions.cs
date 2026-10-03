@@ -8,30 +8,7 @@ internal static partial class Program
     private static void VerifyCompiledRoomPlmPopulationDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        ushort[] expectedPointers = RoomStateDefinitions.All
-            .Select(state => state.PlmPointer).Distinct().Order().ToArray();
-        ushort[] actualPointers = RoomPlmPopulationDefinitions.Pointers
-            .Order().ToArray();
-        AssertEqual(RoomPlmPopulationDefinitions.RetailPopulationCount,
-            actualPointers.Length, "compiled PLM population count");
-        AssertTrue(expectedPointers.SequenceEqual(actualPointers),
-            "compiled PLM populations cover precisely the retail room states");
-
-        int recordCount = 0;
-        foreach (ushort pointer in actualPointers)
-        {
-            ReadOnlySpan<byte> bytes = RoomPlmPopulationDefinitions.Get(pointer).Span;
-            for (int offset = 0; offset < bytes.Length; offset++)
-                AssertEqual(rom.ReadByte(0x8f0000 | (pointer + offset)),
-                    bytes[offset],
-                    $"PLM population $8F:{pointer:X4} byte {offset} matches ROM");
-            recordCount += (bytes.Length - 2) / 6;
-        }
-        AssertEqual(RoomPlmPopulationDefinitions.RetailRecordCount,
-            recordCount, "compiled PLM record count");
-        AssertThrows<InvalidDataException>(
-            () => RoomPlmPopulationDefinitions.Get(0xffff),
-            "unknown PLM population fails loudly");
+        VerifyRetailPopulationMappings(rom);
 
         VerifyRetailPlmHeaderSetups(rom);
         VerifyRetailPlmHeaderInstructions(rom);
@@ -44,7 +21,7 @@ internal static partial class Program
     private static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
-        int sourceLength = RoomPlmPopulationDefinitions.Get(populatedPointer).Length;
+        int sourceLength = RoomPlmPopulationDefinition.FromCompiled(populatedPointer).Placements.Length * 6 + 2;
         var guarded = new RoomPlmPopulationReadGuard(rom, populatedPointer,
             sourceLength, forbidHeaders: true);
         (int compiledCount, RoomPlmSlotSnapshot[] compiledSlots) = Load(guarded,

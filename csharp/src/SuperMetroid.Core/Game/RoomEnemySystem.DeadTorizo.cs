@@ -9,7 +9,6 @@ public sealed partial class RoomEnemySystem
 {
     public const ushort DeadTorizoDefinition = 0xed3f;
 
-    private const ushort DeadTorizoSolidProperty = 0x8000;
     private const ushort DeadTorizoWaitFunction = 0xd3ad;
     private const ushort DeadTorizoPreRotFunction = 0xd3c8;
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
@@ -115,9 +114,9 @@ public sealed partial class RoomEnemySystem
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
 
-        // This authored multi-rectangle detector is enabled only while property `$8000` is
-        // clear. It writes external Samus displacement before selecting immediate rotting.
-        if ((slot.Properties & DeadTorizoSolidProperty) == 0 &&
+        // The custom detector remains enabled while the intact corpse is solid. Rotting
+        // disables interaction separately, after publishing Samus's external displacement.
+        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
             samus is not null &&
             DeadTorizoCustomHitboxOverlaps(slot, samus))
         {
@@ -135,8 +134,7 @@ public sealed partial class RoomEnemySystem
                 state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
                 if (state.PreRotDelayCounter >= 0x10)
                 {
-                    slot.Properties = unchecked((ushort)(
-                        slot.Properties | DeadTorizoSolidProperty));
+                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                     slot.VariableA = DeadTorizoRottingFunction;
                     RunDeadTorizoRotting(slot, state);
                 }
@@ -191,7 +189,7 @@ public sealed partial class RoomEnemySystem
     private void TriggerDeadTorizoRotting(RoomEnemySlot slot)
     {
         RequireDeadTorizoState(slot);
-        slot.Properties = unchecked((ushort)(slot.Properties | DeadTorizoSolidProperty));
+        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.VariableA = DeadTorizoRottingFunction;
     }
 
@@ -199,7 +197,7 @@ public sealed partial class RoomEnemySystem
     private void TriggerDeadTorizoPowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTorizoState(slot);
-        if ((slot.Properties & DeadTorizoSolidProperty) == 0)
+        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
             TriggerDeadTorizoRotting(slot);
     }
 

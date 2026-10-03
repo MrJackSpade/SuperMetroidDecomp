@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--dead-torizo-collision"]) return VerifyDeadTorizoCollision();
 if (args is ["--frozen-metroid-shell"]) return VerifyFrozenMetroidShell();
 if (args is ["--tourian-statue-water"]) return VerifyTourianStatueWater();
 if (args is ["--crocomire-spike-animation"]) return VerifyCrocomirePresentation(true);

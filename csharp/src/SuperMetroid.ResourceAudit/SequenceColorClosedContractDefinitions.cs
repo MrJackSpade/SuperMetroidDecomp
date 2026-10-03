@@ -32,11 +32,11 @@ internal static class SequenceColorClosedContractDefinitions
             "Load compiles the full 256-color initial image and sixteen common sprite colors before private construction. Projectile colors are the installed initial-image slice 208..223. Destination arguments select CGRAM placement, never another resource identity."),
         new("SuperMetroid.Core.Assets.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "8351DF91CD91A668EA5F6FD24701134E95F6FCFF4CC910F990C7EBA475D077EE"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "DF8BA28C27F0938CBB1AC04FC9A54E6A7EA96CA99571A7D35005E7CC8ED23720"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "4CBE656DC00C6CF33257B12449042328AB3C97DA6DD1901816F82B138BBC7C23"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "98F19995937C3AC7B199CE7E89111DBD754551C86797AA38DC9976BCF02E7887"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "8CDA69E0630B7D021334750B8735DD18EE309008DD0982365D5A924F0E226EDC"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "23A3E27001C5B6A284DD0B4CD1152C0329634713075698820367010D64FC99C8")],
-            "The public constructor validates all three ten-row suited families, ten suitless rows, 22 whiteout shades and nine explosion palette indices. Suited and suitless fades calculate RGB5 eighth steps with independently copied inputs and channel overrides. Resolvers preserve complete valid domains and bounds rejection; this rule does not prove callers keep dynamic indices in range."),
+            "The public constructor validates all three ten-row suited families, ten suitless rows, 22 whiteout shades and nine explosion palette indices. Suited and suitless fades calculate RGB5 eighth steps with independently copied inputs and channel overrides; uniform flash/final rows share color inputs and explosion selectors skip the flash-only row with explicit edited overrides. Resolvers preserve complete valid domains and bounds rejection; this rule does not prove callers keep dynamic indices in range."),
     ];
 }

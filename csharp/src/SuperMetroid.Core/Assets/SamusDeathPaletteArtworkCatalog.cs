@@ -14,7 +14,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly Dictionary<int, ushort> suitless = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     private readonly ushort[] whiteout;
-    private readonly ushort[] explosionPaletteIndices;
+    private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     public SamusDeathPaletteArtworkCatalog(ushort[][][] suited, ushort[][] suitless,
         ushort[] whiteout, ushort[] explosionPaletteIndices)
@@ -42,6 +42,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
         {
             int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
             ushort value = suited[suit][palette][color];
+            if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
+            if (palette == 9 && value == suitless[9][0]) continue;
             if (palette is >= 2 and <= 8)
             {
                 ushort expected = SamusPaletteFade.EighthTowardWhite(suited[suit][0][color], palette - 1);
@@ -54,6 +56,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         {
             int key = palette * ColorCount + color;
             ushort value = suitless[palette][color];
+            if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
             if (palette is >= 2 and <= 8)
             {
@@ -63,7 +66,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
             else this.suitless.Add(key, value);
         }
         this.whiteout = (ushort[])whiteout.Clone();
-        this.explosionPaletteIndices = (ushort[])explosionPaletteIndices.Clone();
+        for (int frame = 0; frame < explosionPaletteIndices.Length; frame++)
+            if (explosionPaletteIndices[frame] != DefaultExplosionPaletteIndex(frame))
+                this.explosionPaletteIndices.Add(frame, explosionPaletteIndices[frame]);
     }
 
     /// <summary>SHA-256 of selected suited/suitless colors, whiteout shades and explosion selectors.</summary>
@@ -82,13 +87,18 @@ public sealed class SamusDeathPaletteArtworkCatalog
             content.AppendWords("suitless row", suitedRow);
         }
         content.AppendWords("whiteout", this.whiteout);
-        content.AppendWords("explosion palette indices", this.explosionPaletteIndices);
+        Span<ushort> selectors = stackalloc ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
+        for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = ExplosionPaletteIndex(frame);
+        content.AppendWords("explosion palette indices", selectors);
     });
 
     /// <summary>Resolves the native suited palette view, calculating its seven whitening steps.</summary>
     /// <remarks>Native9B:B7D3..B80D selects base at0, yellow flash at1,
     /// eighth-step shades1..7 at indices2..8 and the final shared row at9.
-    /// Flash/final/base inputs remain separate; differing edited fade channels
+    /// Original flash9B9420 repeats one yellow color across all sixteen inks
+    /// and suits; final9BA220 repeats one gray color shared with suitless.
+    /// They each use one editable color input, with independent edits overriding
+    /// sharing. Base inputs remain separate; differing edited fade channels
     /// override shared arithmetic. Preserve the former array bounds exception.</remarks>
     public ushort SuitedColor(int suit, int palette, int color)
     {
@@ -96,6 +106,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
         if (suited.TryGetValue(key, out ushort value)) return value;
+        if (palette == 1) return SuitedColor(0, 1, 0);
+        if (palette == 9) return SuitlessColor(9, 0);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitedColor(suit, 0, color), palette - 1);
         return suitedFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
@@ -109,10 +121,27 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 9) return SuitlessColor(9, 0);
         if (palette == 1) return SuitlessColor(0, color);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
     public ushort WhiteoutColor(int index) => whiteout[index];
-    public ushort ExplosionPaletteIndex(int frame) => explosionPaletteIndices[frame];
+    /// <summary>Advances through death palettes while skipping the flash-only row.</summary>
+    /// <remarks>Original odd bytes9BB824..B834 select0,2..9 for frame0..8.
+    /// Index1 belongs to the preceding yellow-flash stage, not the explosion.
+    /// The native caller advances the explosion frame before selecting its
+    /// next palette and terminates at9 without another lookup. Edited asset
+    /// selectors remain independent. Preserve the original array bounds exception.</remarks>
+    public ushort ExplosionPaletteIndex(int frame)
+    {
+        ushort expected = DefaultExplosionPaletteIndex(frame);
+        return explosionPaletteIndices.TryGetValue(frame, out ushort value) ? value : expected;
+    }
+
+    private static ushort DefaultExplosionPaletteIndex(int frame)
+    {
+        if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new IndexOutOfRangeException();
+        return (ushort)(frame == 0 ? 0 : frame + 1);
+    }
 }

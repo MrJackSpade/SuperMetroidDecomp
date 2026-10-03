@@ -205,13 +205,13 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 144), ("suitless", 32) })
+        foreach (var (fieldName, count) in new[] { ("suited", 49), ("suitless", 17), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
         }
-        for (int scope = 0; scope < 3; scope++)
+        for (int scope = 0; scope < 4; scope++)
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
             ushort[][] suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
@@ -223,7 +223,21 @@ internal static partial class Program
                 if (scope == 0 || scope == 1 && palette != 0 || scope == 2 && palette == 0) continue;
                 rows[palette][color] = (ushort)((rows[palette][color] + 37 * (1 + family + palette + color)) & 0x7fff);
             }
-            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, whiteout, selectors);
+            if (scope == 3)
+            {
+                // Only shared color roots change: all other supplied words stay original.
+                suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+                suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+                suited[0][1][0] ^= 0x421;
+                suitless[9][0] ^= 0x421;
+            }
+            ushort[] editedSelectors = (ushort[])selectors.Clone();
+            if (scope != 0)
+                for (int frame = 0; frame < editedSelectors.Length; frame++)
+                    editedSelectors[frame] = (ushort)((editedSelectors[frame] + scope) % 10);
+            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, whiteout, editedSelectors);
+            for (int frame = 0; frame < editedSelectors.Length; frame++)
+                AssertEqual(editedSelectors[frame], editedDeath.ExplosionPaletteIndex(frame), "Original and independently edited death selectors");
             for (int family = 0; family < 4; family++)
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
@@ -236,7 +250,7 @@ internal static partial class Program
                 foreach (ushort[] row in rows) content.AppendWords("suited row", row);
                 foreach (ushort[] row in suitless) content.AppendWords("suitless row", row);
                 content.AppendWords("whiteout", whiteout);
-                content.AppendWords("explosion palette indices", selectors);
+                content.AppendWords("explosion palette indices", editedSelectors);
             });
             AssertEqual(originalIdentity, editedDeath.ContentIdentity, "Death color identity preserves original row serialization");
             ushort before = editedDeath.SuitedColor(0, 0, 0);
@@ -258,6 +272,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(0, invalid), "Invalid fade shade");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(invalid, 0), "Invalid fade RGB5");
+        foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");

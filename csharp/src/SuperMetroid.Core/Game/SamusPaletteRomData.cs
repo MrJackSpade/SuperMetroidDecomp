@@ -585,7 +585,8 @@ public static class SamusPaletteRomData
         /// the active timer before advancing, loads the next duration
         /// only for indices below nine, and terminates without a tenth
         /// explosion frame. Odd-offset palette-selector bytes are a
-        /// separate logical table and remain live ROM data.
+        /// separate mapping, calculated by the death artwork catalog under1165
+        /// with independently supplied asset overrides.
         ///
         /// Issue #892 / #625: the nine odd-offset selector bytes
         /// match the pinned ROM/native listing and are exactly

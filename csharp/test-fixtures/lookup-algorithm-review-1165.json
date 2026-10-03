@@ -6233,4 +6233,15 @@
     "scope":"Resolves the numerical fade covered by prior894..897 and its charge aliases. Base-color sharing/dispositions,death flash/final rows,whiteout/selector fields and pseudo-Screw distinct color views still require separate review. No blanket authored-data retention claim. Remaining body Hyper Beam opaque inputs and the full maintained-source inventory remain pending.",
     "confirmation":"Verification and ResourceAudit builds passed; --samus-charge-phases and --samus-hyper-beam-colors passed. Shared source dependencies and hashes added to both closed contracts; maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "samusDeathSharedRowsAndSelectorsReview": {
+    "status":"converted uniform shared death colors and explosion palette progression",
+    "owner":"SamusDeathPaletteArtworkCatalog.SuitedColor/SuitlessColor/ExplosionPaletteIndex/ContentIdentity",
+    "source":"Supported NTSC J/U v1.0; disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. All three native suited pointer lists select9B9420 for flash index1 and9BA220 for final index9; the suitless list also selectsA220 at9. Original sixteen-word flash and final rows are each uniform. Odd bytes9BB824..B834 select0,2..9; timers in adjacent even bytes are separate.",
+    "algorithm":"Flash entries share Power flash color0; all final entries share suitless final color0. A differing supplied ink or suit retains its own value. Explosion frame0..8 selects frame==0?0:frame+1, deliberately skipping palette1, which belongs to the earlier yellow-flash stage. Native and compiled consumers advance the explosion frame before selection and terminate at9. Invalid resolver inputs retain IndexOutOfRangeException instead of masking/extrapolating.",
+    "storage":"Stock suited inputs144 to49,suitless32 to17,explosion selector inputs9 to0. Color parameters remain asset-owned,not compiled literal row payloads. Sparse differences preserve edits to roots,nonroot inks,suits and selectors. ContentIdentity serializes resolved selectors and colors in the identical original order without retaining generated caches.",
+    "proof":"Extend the existing shared charge/death proof: all640 native death colors and9 original selectors,stock input counts,independent edited rows and selectors,isolated shared-root edits,invalid indices and identical content hashes. Existing all576 charge colors and36 guarded charge calls remain in the consolidated proof. No new exploratory replay or retain-only test.",
+    "scope":"Resolves row repetition and selector progression,including prior898/899/892 relationships. Independent root RGB channels,base-color sharing/dispositions,whiteout values and the separately indexed explosion durations still require review. No retention exception is claimed by this entry.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed owner/source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

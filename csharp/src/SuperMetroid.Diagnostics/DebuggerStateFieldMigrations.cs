@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type.FullName == "SuperMetroid.Core.Frontend.EndingCreditsState" && count == current.Length - 1 &&
+            current.Any(field => field.Name == "shootingStars"))
+        {
+            Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
+            return current.Where(field => field.Name != "shootingStars").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "_roomSpikes"))
         {

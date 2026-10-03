@@ -66,12 +66,14 @@ internal sealed class EndingRewardJump
         body.Step(bus, Instruction, instructionWord);
     }
 
-    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null)
+    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
-        var oam = new OamBuffer(); oam.BeginFrame();
+        var oam = destination ?? new OamBuffer();
+        if (destination is null) oam.BeginFrame();
         head?.Draw(bus, oam, installedArt: installedArt);
         body.Draw(bus, oam, installedArt: installedArt);
-        oam.FinalizeFrame(); return oam;
+        if (destination is null) oam.FinalizeFrame();
+        return oam;
     }
 
     private void Move(IntroDiscoverySprite actor)

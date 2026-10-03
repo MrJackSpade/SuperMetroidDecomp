@@ -5,6 +5,16 @@ using SuperMetroid.Rendering.Direct3D11;
 try
 {
     NativeConsoleErrors.DisableDialogs();
+    if (args is ["--ending-shooting-stars"])
+    {
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            EndingShootingStarsTests.Run(device, renderer);
+        }
+        return;
+    }
     if (args is ["--ending-wavy-samus"])
     {
         foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

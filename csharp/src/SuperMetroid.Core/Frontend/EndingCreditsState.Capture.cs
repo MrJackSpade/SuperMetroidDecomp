@@ -17,11 +17,11 @@ internal sealed partial class EndingCreditsState
             if (endingLogo.CrossfadeStarted)
                 layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
                     0, 0, 32, 32, null));
-            if (!endingLogo.Completed) layers.Add(new ObjRenderLayer(endingLogo.CrossfadeStarted));
+            layers.Add(new ObjRenderLayer(endingLogo.CrossfadeStarted));
             layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
                 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
             return new(PpuMemorySnapshot.Capture(vram, cgram,
-                endingLogo.Draw(objectArtwork?.LogoSprites)), layers.ToArray(), 3, brightness);
+                PrepareSprites()), layers.ToArray(), 3, brightness);
         }
         if (postShot is not null)
         {
@@ -47,6 +47,8 @@ internal sealed partial class EndingCreditsState
             if (Phase >= EndingCreditsPhase.PostCreditsBlank)
             {
                 objectSelection = CurrentRewardObjectSelection;
+                if (Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
+                    layers.Add(new ObjPriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled)
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
                         CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
@@ -78,6 +80,14 @@ internal sealed partial class EndingCreditsState
                     layers.Add(new ObjPriorityRenderLayer(1, FlyawayFixedColor));
                     layers.Add(new ObjPriorityRenderLayer(2, FlyawayFixedColor));
                     layers.Add(new ObjPriorityRenderLayer(3, FlyawayFixedColor));
+                }
+                else if (Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
+                {
+                    // Star priority zero sits behind BG2. Other cinematic OBJ remain
+                    // above it; the BG3 wave applies only to the background plane.
+                    layers.Add(new ObjPriorityRenderLayer(1));
+                    layers.Add(new ObjPriorityRenderLayer(2));
+                    layers.Add(new ObjPriorityRenderLayer(3));
                 }
                 else layers.Add(new ObjRenderLayer(RewardSubscreenAddition, FlyawayFixedColor));
             }

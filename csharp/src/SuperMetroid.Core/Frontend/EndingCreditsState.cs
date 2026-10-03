@@ -30,6 +30,7 @@ internal sealed partial class EndingCreditsState
         new ushort[EndingCreditsRomData.Rendering.TilemapWords];
 
     private CreditsObjectState? credits;
+    private EndingShootingStars? shootingStars;
     private EndingBackgroundTextState? postCreditsText;
     private ushort cinematicFrame;
     private int phaseTimer;
@@ -411,6 +412,10 @@ internal sealed partial class EndingCreditsState
                 "Ending palette FX requires installed palette colors."), 0, 0, false, false);
         if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
+        // $8B:D46B follows cinematic actors even while a text-only TM masks OBJ.
+        // F734 enables the already-initialized records when the credits finish.
+        if (Phase >= EndingCreditsPhase.PostCreditsBlank)
+            (shootingStars ??= new EndingShootingStars()).Step();
         cinematicFrame++;
     }
 
@@ -501,6 +506,7 @@ internal sealed partial class EndingCreditsState
 
     private void SetupCredits()
     {
+        shootingStars = new EndingShootingStars();
         // Func126 clears palette objects before installing credits/reward palettes.
         ResetPaletteFx();
         LoadCreditsAndPostCreditsAssets();

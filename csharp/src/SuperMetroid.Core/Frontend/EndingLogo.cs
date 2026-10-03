@@ -89,13 +89,15 @@ internal sealed class EndingLogo
         return cursor;
     }
 
-    public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null)
+    public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
-        var oam = new OamBuffer(); oam.BeginFrame();
+        var oam = destination ?? new OamBuffer();
+        if (destination is null) oam.BeginFrame();
         if (!Completed)
             foreach (var actor in actors)
                 actor.Draw(bus, oam, EndingLogoDefinitions.Camera,
                     EndingLogoDefinitions.Camera, installedArt);
-        oam.FinalizeFrame(); return oam;
+        if (destination is null) oam.FinalizeFrame();
+        return oam;
     }
 }

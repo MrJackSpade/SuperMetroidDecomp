@@ -40,7 +40,7 @@ internal static class HeatPaletteColorDefinitions
     }
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
         TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
-        TrySharedRed(pointer, colors, out value);
+        TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
 
     /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
@@ -78,6 +78,35 @@ internal static class HeatPaletteColorDefinitions
         int row = (offset / 34 + 1) / 2;
         int red = ((start & 31) * (4 - row) + (end & 31) * row + roundingBias) / 4;
         value = (ushort)((start & 0x7fe0) | red);
+        return true;
+    }
+
+    /// <summary>Calculates the shared slot4 gradient's interior RGB colors.</summary>
+    /// <remarks>Original rows at $8D:E470 plus phases0,1,3,5,7 have red8,10,12,14,15;
+    /// green13,14,14,15,16; blue8,9,9,10,11. Red is upward-rounded endpoint
+    /// interpolation. Green is nearest-even endpoint interpolation; blue shares its
+    /// change, preserving the initial green/blue difference. Each rule matches the
+    /// complete original channel independently. This exact bounded representation
+    /// does not assert historical tooling. Edited blue results outside RGB5 decline
+    /// calculation so their explicit supplied values survive; no clamping is added.</remarks>
+    internal static bool TryMixedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    {
+        value = 0;
+        int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 10;
+        int offset = pointer - first;
+        if (offset is not (34 or 102 or 170)) return false;
+        if (!colors.TryGetValue((ushort)first, out ushort start) ||
+            !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
+        int row = (offset / 34 + 1) / 2;
+        int red = ((start & 31) * (4 - row) + (end & 31) * row + 3) / 4;
+        int initialGreen = start >> 5 & 31;
+        int greenSum = initialGreen * (4 - row) + (end >> 5 & 31) * row;
+        int green = greenSum / 4;
+        int remainder = greenSum % 4;
+        if (remainder > 2 || (remainder == 2 && (green & 1) != 0)) green++;
+        int blue = (start >> 10 & 31) + green - initialGreen;
+        if ((uint)blue > 31) return false;
+        value = (ushort)(red | green << 5 | blue << 10);
         return true;
     }
 

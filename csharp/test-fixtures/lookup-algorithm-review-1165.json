@@ -5534,4 +5534,18 @@
     "scope":"The30 remaining words include base/endpoint inputs and the multi-channel slot4 track; all still require independent component dispositions. No retention decision is made here. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, updated source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteMixedGradientReview": {
+    "status":"converted three intermediate colors of the shared multi-channel heat gradient",
+    "owners":"HeatPaletteColorDefinitions.TryMixedRamp/TryCalculatedColor; existing palette loader/query",
+    "source":"Complete original slot4 RGB rows at8D:E470/E492/E4D6/E51A/E55E: red8,10,12,14,15; green13,14,14,15,16; blue8,9,9,10,11. Supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Varia/Gravity use these same colors through the separately proven shared-suit mapping.",
+    "red":{"disposition":"converted upward-rounded linear endpoint interpolation","algorithm":"Quarter-step weighted endpoint sum rounded upward, implemented by adding3 before division by4. Full original channel matches without a corrected endpoint or per-row exceptions."},
+    "green":{"disposition":"converted nearest-even linear endpoint interpolation","algorithm":"Quarter-step weighted endpoint sum; integer quotient/remainder rounds to nearest and makes exact half ties even. This yields the original repeated14 at rows1/2."},
+    "blue":{"disposition":"converted shared green change with preserved initial channel difference","algorithm":"Initial blue plus interpolatedGreen minus initialGreen. All five original rows preserve blue=green-5. Edited inputs outside RGB5 range decline calculation and keep explicit supplied colors; no clamping/wrapping."},
+    "rationale":"The earlier whole-palette floor interpolation failure mixed separately varying channels and did not justify retention. Each channel here has a complete exact conventional arithmetic rule under the independently reviewed five-level phase domain. No fitted coefficients or correction table are used. This specifies the exact port representation without asserting which historical software generated the samples.",
+    "implementation":"Existing equal-value compilation removes the three calculated interior words, leaving27 independent base/endpoint stock words. Custom intermediate colors retain priority. Endpoints remain separate inputs; no generated color cache or runtime ROM read.",
+    "proof":"Extend the same focused heat-color proof: all original calculated roots and720 outputs match ROM, and exactly27 heat words remain stored. Every red endpoint pair compares with floating-point Math.Ceiling. Every green endpoint pair and initial blue value at all three interiors compares with floating-point nearest-even rounding, shared delta and exact RGB5 acceptance/rejection. Existing independent edits, every-ushort pointer mapping and three guarded palette interpreter loops remain consolidated under --lookup-heat-colors.",
+    "scope":"All intermediate heat gradient words now calculate from shared base/endpoint inputs. The27 independent words still require their own component/source dispositions; no retention decision is made. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

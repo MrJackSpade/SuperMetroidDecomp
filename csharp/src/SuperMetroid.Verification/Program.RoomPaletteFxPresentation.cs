@@ -411,7 +411,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(30, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly30 independent heat words remain after secondary-ramp conversion");
+        AssertEqual(27, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly27 base/endpoint heat words remain");
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
             if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, stored, out ushort calculated))
@@ -456,6 +456,42 @@ internal static partial class Program
                 double interpolated = startRed * (1.0 - row / 4.0) + endRed * row / 4.0;
                 int red = (int)(first == 0xe6a6 ? Math.Floor(interpolated) : Math.Round(interpolated, MidpointRounding.AwayFromZero));
                 AssertEqual((ushort)(0x3fe0 | red), actual, "All endpoint pairs preserve each gradient's original rounding convention");
+            }
+        }
+        for (int startRed = 0; startRed < 32; startRed++)
+        for (int endRed = 0; endRed < 32; endRed++)
+        {
+            var endpoints = new Dictionary<ushort, ushort>
+            {
+                [0xe470] = (ushort)(startRed | 13 << 5 | 8 << 10),
+                [0xe55e] = (ushort)(endRed | 16 << 5 | 11 << 10),
+            };
+            for (int row = 1; row < 4; row++)
+            {
+                AssertTrue(HeatPaletteColorDefinitions.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), endpoints, out ushort actual),
+                    "Mixed red interpolation owned");
+                int expected = (int)Math.Ceiling(startRed * (1.0 - row / 4.0) + endRed * row / 4.0);
+                AssertEqual(expected, actual & 31, "Every red endpoint pair uses upward rounding");
+            }
+        }
+        for (int startGreen = 0; startGreen < 32; startGreen++)
+        for (int endGreen = 0; endGreen < 32; endGreen++)
+        for (int startBlue = 0; startBlue < 32; startBlue++)
+        {
+            var endpoints = new Dictionary<ushort, ushort>
+            {
+                [0xe470] = (ushort)(startGreen << 5 | startBlue << 10),
+                [0xe55e] = (ushort)(endGreen << 5),
+            };
+            for (int row = 1; row < 4; row++)
+            {
+                int green = (int)Math.Round(startGreen * (1.0 - row / 4.0) + endGreen * row / 4.0, MidpointRounding.ToEven);
+                int blue = startBlue + green - startGreen;
+                bool accepted = blue >= 0 && blue < 32;
+                AssertEqual(accepted, HeatPaletteColorDefinitions.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), endpoints, out ushort actual),
+                    "Edited green/blue relation has exact RGB5 representability boundary");
+                AssertEqual(accepted ? (ushort)(green << 5 | blue << 10) : (ushort)0, actual,
+                    "Nearest-even green and shared blue delta match independent oracle");
             }
         }
         foreach (bool overflow in new[] { false, true })

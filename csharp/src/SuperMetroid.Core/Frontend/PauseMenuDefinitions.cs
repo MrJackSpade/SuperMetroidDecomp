@@ -100,13 +100,18 @@ internal static class PauseEquipmentCategories
     public const int BeamRightSuitItem = 2;
     /// <summary>$82:B568 target offsets are relative to EquipmentScreenBG1Tilemap at $7E:3800.</summary>
     public const int TilemapWramBase = 0x3800;
-    public static readonly PauseEquipmentCategoryDefinition[] Definitions =
-    [
-        // Category zero is reserve tanks. Its special controls are unavailable until Samus
-        // owns reserve capacity, so the native equipment tables are intentionally null.
-        new(Reserves, 0, 0, 0, 0, 0),
-        new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
-        new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
-        new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
-    ];
+    /// <summary>Selects the native data contract for a named equipment category.</summary>
+    /// <remarks>The category dispatcher at $82:AC58 selects distinct controls, not
+    /// a numeric sequence. Pointer fields correspond to $82:C02C/C034/C044;
+    /// item counts follow $82:ABCC/ABEB/AC05 and copy lengths $82:AFCE/B0C8/B156.
+    /// Reserves use separate controls and retain the managed zero-data contract.
+    /// Invalid categories preserve the former array's IndexOutOfRangeException.</remarks>
+    public static PauseEquipmentCategoryDefinition Get(int category) => category switch
+    {
+        Reserves => new(Reserves, 0, 0, 0, 0, 0),
+        Beams => new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
+        Suits => new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
+        Boots => new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
+        _ => throw new IndexOutOfRangeException(),
+    };
 }

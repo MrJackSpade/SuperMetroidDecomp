@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pause-categories"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause category oracle revision");
+    VerifyPauseCategoryCases(rom);
+    Console.WriteLine("Pause categories: all native pointer fields, item counts, dispatched copy lengths, reserve contract and invalid bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-map-indicator"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

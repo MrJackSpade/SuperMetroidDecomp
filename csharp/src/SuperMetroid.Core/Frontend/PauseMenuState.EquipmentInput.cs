@@ -28,7 +28,7 @@ internal sealed partial class PauseMenuState
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
         // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
         ushort previousBeams = samus.EquippedBeams;
-        var target = PauseEquipmentCategories.Definitions[selectedCategory];
+        var target = PauseEquipmentCategories.Get(selectedCategory);
         ushort mask = ReadCategoryMask(target, selectedItem);
         bool wasEquipped = (GetEquippedBits(selectedCategory) & mask) != 0;
         if (selectedCategory == PauseEquipmentCategories.Beams)
@@ -38,7 +38,7 @@ internal sealed partial class PauseMenuState
 
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         UpdateEquipmentLabel(selectedCategory, selectedItem,
-            PauseEquipmentCategories.Definitions[dispatchedCategory].LabelWordCount, wasEquipped);
+            PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategories.Beams)
         {
             ushort added = (ushort)(samus.EquippedBeams & ~previousBeams);
@@ -47,14 +47,14 @@ internal sealed partial class PauseMenuState
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
                 UpdateEquipmentLabel(PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Beams].LabelWordCount, true);
+                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Beams).LabelWordCount, true);
             }
             else if ((added & (ushort)SamusBeamFlags.Plasma) != 0 &&
                 (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
                 UpdateEquipmentLabel(PauseEquipmentCategories.Beams, PauseEquipmentCategories.SpazerItem,
-                    PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Beams].LabelWordCount, true);
+                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Beams).LabelWordCount, true);
             }
         }
         // Native patches only the chosen label, then refreshes the wireframe. Rebuilding
@@ -65,7 +65,7 @@ internal sealed partial class PauseMenuState
 
     private void UpdateEquipmentLabel(int categoryIndex, int item, int wordCount, bool disabled)
     {
-        var category = PauseEquipmentCategories.Definitions[categoryIndex];
+        var category = PauseEquipmentCategories.Get(categoryIndex);
         if (categoryIndex == PauseEquipmentCategories.Beams &&
             item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
             plasmaLabelOverrunActive = true;
@@ -79,7 +79,7 @@ internal sealed partial class PauseMenuState
     {
         if (categoryIndex == PauseEquipmentCategories.Beams && samus.HyperBeam != 0)
             return false;
-        var category = PauseEquipmentCategories.Definitions[categoryIndex];
+        var category = PauseEquipmentCategories.Get(categoryIndex);
         for (int item = start; item >= 0 && item < category.ItemCount; item += step)
         {
             if ((GetCollectedBits(categoryIndex) & ReadCategoryMask(category, item)) == 0)
@@ -140,7 +140,7 @@ internal sealed partial class PauseMenuState
                 }
                 else if (down) TrySelectEquipment(boots, selectedItem + 1, 1);
                 else if (up && !TrySelectEquipment(boots, selectedItem - 1, -1))
-                    TrySelectEquipment(suits, PauseEquipmentCategories.Definitions[suits].ItemCount - 1, -1);
+                    TrySelectEquipment(suits, PauseEquipmentCategories.Get(suits).ItemCount - 1, -1);
                 break;
             case PauseEquipmentCategories.Reserves:
                 if (right)

@@ -6829,4 +6829,19 @@
     "consumers":"PauseMenuState and FileSelectStationMarker use direct functions and the shared four-phase count. Advance-before-load, same-tick decrement, initial phase and backing parity remain unchanged. The actual marker proof forbids cartridge reads and covers first-tick advancement plus two loop transitions.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-map-indicator passes. Static reference review finds no old array consumers or source-owner hash pins. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "pauseEquipmentCategoryCaseReview": {
+    "status":"converted four-record category lookup to named semantic cases",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs PauseEquipmentCategories",
+    "source":"SHA-pinned supported ROM and pinned bank_82.asm. Category dispatcher82:AC58 selects separate reserve, beam, suit/misc and boot controls. Native pointer columns82:C02C/C034/C044; initial category scan bounds82:ABCC/ABEB/AC05; dispatched copy-size operands82:AFCE/B0C8/B156.",
+    "disposition":"Get selects Reserves, Beams, Suits or Boots directly. Remove the persistent four-record array and migrate all runtime, extraction and verification consumers. These are named control/data contracts rather than ordinal curve samples; explicit cases implement the ticket's semantic-selector allowance. No retention exception or generated cache.",
+    "offsetPointers":{"state":"converted","proof":"VerifyPauseCategoryOffsets independently reads the three original native pointer words and restores the fixed82 bank."},
+    "tilemapListPointers":{"state":"converted","proof":"VerifyPauseCategoryTilemapPointers independently reads the three original native pointer words."},
+    "maskListPointers":{"state":"converted","proof":"VerifyPauseCategoryMaskPointers independently reads the three original native pointer words."},
+    "itemCounts":{"state":"converted","proof":"VerifyPauseCategoryItemCounts confirms each original CPX opcode and divides its native byte-offset bound by two."},
+    "labelWordCounts":{"state":"converted","proof":"VerifyPauseCategoryCopyLengths confirms each original LDA opcode and divides its dispatched byte-copy size by two."},
+    "domain":"Category IDs0..3 retain their identity; reserves retain the preconversion managed all-zero metadata record because their controls use separate logic. This does not assert that every native reserve pointer is zero. Unsupported int categories preserve IndexOutOfRangeException. No signed narrowing or arithmetic overflow is introduced.",
+    "consumerContract":"Initial selection, movement, extraction and label updates use Get. The original dispatched category still owns the copy length even if movement changes the selected category on the same frame, preserving the Boots-to-Plasma overrun contract. Verification-only address guard lazily enumerates the four identities rather than storing another table.",
+    "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-pause-categories passes five separate field proofs, reserve contract, all four identities and invalid boundaries. Static reference review finds no former Definitions consumers or source-owner hash pins. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

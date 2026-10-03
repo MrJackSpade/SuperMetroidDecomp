@@ -465,7 +465,7 @@ internal sealed partial class PauseMenuState
     {
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
-            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
+            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
             ushort collected = GetCollectedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
             {

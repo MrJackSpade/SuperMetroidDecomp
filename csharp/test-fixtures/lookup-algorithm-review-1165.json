@@ -6627,4 +6627,14 @@
     "remainingInputs":"Stock19 whole words and five differing components. Supersedes the31-word input count in the preceding review. ClosedCry ink9 red4 versus calculated5 remains pending, along with the four earlier cry differences and19 base words. These are explicitly unresolved, not retained exceptions; uniform-tint mismatch is not itself a qualifying justification.",
     "confirmation":"Verification and ResourceAudit builds, isolated --lookup-game-over-baby-colors, source dependency pin and maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "gameOverBabyMiddleShadeReview": {
+    "status":"converted idle middle shade; remaining inputs still pending",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
+    "source":"Original Idle shade words82:BDAB/BDAD/BDAF, palette inks10/11/12; same SHA-pinned64-word original oracle as preceding Baby color reviews.",
+    "algorithm":"Idle ink11 is the floor midpoint of inks10 and12 separately in RGB5: (brightChannel+darkChannel)/2. The maximum sum62 fits int; no cross-channel carry, signed arithmetic or byte-order ambiguity. Later warm/bright cry calculations read the reconstructed shade. Import preserves independent middle and endpoint edits through channel differences.",
+    "storage":"Stock18 base words plus five differing components remain unresolved. This supersedes the19-word count in gameOverBabyBaseShadeReview, not its other evidence. No exception has been accepted for those remaining inputs.",
+    "proof":"The existing consolidated VerifyGameOverBabyColors proof checks all64 original colors, actual CGRAM, JSON hash and selector bounds, plus every independently edited channel intensity. Reused without another per-palette proof.",
+    "confirmation":"Verification and ResourceAudit builds, isolated --lookup-game-over-baby-colors, source dependency pin and maintained-source index. Implementation commit is the commit adding this entry."
+  }
 }

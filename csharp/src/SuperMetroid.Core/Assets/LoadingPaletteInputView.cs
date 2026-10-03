@@ -75,7 +75,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
         _ => throw new ArgumentOutOfRangeException(nameof(pointer)),
     };
 
-    private readonly struct Channels
+    internal readonly struct Channels
     {
         private readonly int? red;
         private readonly int? green;

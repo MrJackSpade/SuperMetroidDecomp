@@ -9,9 +9,17 @@ namespace SuperMetroid.Core.Assets;
 /// Authored Samus full-body colors keyed by the already-compiled native palette pointers.
 /// The catalog never chooses a suit, cycle phase, or animation delay.
 /// </summary>
+/// <remarks>Speed Booster endpoints $9B:9B42/9B44/9B92/9B58/9D94/9D58/9F44
+/// reconstruct normal-derived channels with the reviewed tint arithmetic and
+/// store only differing components. Their native channel values match the
+/// independently owned loading endpoints. Stock retains nine component inputs;
+/// their full-body disposition remains part of the ongoing color review.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
     private readonly Dictionary<int, ushort> colors;
+    // Independent channel inputs for the seven remaining Speed Booster endpoints.
+    private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
+    private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
 
     private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
     {
@@ -42,6 +50,22 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[12][color], palettes[1][12], out ushort ink) && value == ink) continue;
             colors.Add(index, value);
         }
+        powerDim1 = Capture(1, 1, false, 2);
+        powerDim2 = Capture(1, 2, false, 2);
+        powerBright9 = Capture(3, 9, false, 0);
+        powerDim12 = Capture(1, 12, false, 2);
+        variaBright10 = Capture(19, 10, true, 0);
+        variaDim12 = Capture(17, 12, true, 2);
+        gravityDim2 = Capture(33, 2, false, 2);
+
+        LoadingPaletteInputView.Channels Capture(int palette, int color, bool varia, int shade)
+        {
+            ushort basis = palettes[palette / 16 * 16][color];
+            ushort expected = varia ? LoadingPaletteColorDefinitions.VariaTintColor(basis, shade) :
+                LoadingPaletteColorDefinitions.TintColor(basis, shade);
+            colors.Remove(palette * 16 + color);
+            return new(palettes[palette][color], expected);
+        }
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -63,6 +87,16 @@ public sealed class SamusFullBodyCycleColorCatalog
 
     private ushort ResolveIndex(int index)
     {
+        switch (index)
+        {
+            case 17: return powerDim1.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(1), 2));
+            case 18: return powerDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(2), 2));
+            case 57: return powerBright9.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(9), 0));
+            case 28: return powerDim12.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(12), 2));
+            case 314: return variaBright10.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(266), 0));
+            case 284: return variaDim12.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(268), 2));
+            case 530: return gravityDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(514), 2));
+        }
         if (colors.TryGetValue(index, out ushort value)) return value;
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);

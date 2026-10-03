@@ -5861,4 +5861,15 @@
     "scope":"Remaining endpoint channels,base/transparent inputs and exceptional shades still require dispositions. No new retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodySpeedEndpointComponentsReview": {
+    "status":"split seven Speed Booster endpoint words into nine independent channels plus calculated channels",
+    "owners":"SamusFullBodyCycleColorCatalog constructor/ResolveIndex; shared LoadingPaletteInputView.Channels",
+    "source":"Original9B42/9B44/9B92/9B58/9D94/9D58/9F44 compared with corresponding normal suit colors and established tint arithmetic. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Capture only channels differing from standard/Varia base tint expectations. Reconstruct each endpoint on demand with nullable per-channel overrides, reusing the loading endpoint channel type. Remove seven complete words:49 to42 plus nine component inputs. No generated colors or pointer maps cached.",
+    "ownership":"Capture against complete supplied base/endpoint values before removing whole words. Independent edits to base channels become explicit endpoint overrides where needed; existing all-color,base-only,dim-only and shared-source-only fixtures exercise this. Loading and full-body instances own separate channel values.",
+    "proof":"Extend existing full-body proof with42-word count,nine-component count and original seven endpoint addresses absent from whole-word storage. All768 original colors,CGRAM,alias/mapping domains and independently edited outputs remain checked. Reuse --lookup-loading-colors for existing complete RGB5 channel-override reconstruction coverage of the shared type.",
+    "scope":"Nine full-body component dispositions and remaining full-body inputs still need explicit review. Existing loading-input disposition is evidence, not a blanket exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed both resource-contract source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

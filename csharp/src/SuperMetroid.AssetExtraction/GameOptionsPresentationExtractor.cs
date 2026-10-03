@@ -41,7 +41,8 @@ public static class GameOptionsPresentationExtractor
             .Select(ByteOffsetPoint)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            GameOptionsRomData.LanguagePaletteRegions.ToArray()
+            Enumerable.Range(0, GameOptionsRomData.LanguagePaletteRegionCount)
+                .Select(GameOptionsRomData.LanguagePaletteRegion)
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),

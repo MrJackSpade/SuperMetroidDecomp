@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-options-toggle-geometry"])
+{
+    VerifyGameOptionsToggleGeometry();
+    return 0;
+}
+if (args is ["--game-options-language-palettes"])
+{
+    VerifyGameOptionsLanguagePalettes();
+    return 0;
+}
 if (args is ["--lookup-menu-missile"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2077,11 +2087,8 @@ if (args is ["--samus-hurt-colors"])
     return 0;
 }
 
-if (args is ["--game-options-language-palettes"])
-{
-    VerifyGameOptionsLanguagePalettes();
-    return 0;
-}
+
+
 if (args is ["--game-options-cursor-phases"])
 {
     VerifyGameOptionsCursorPhases();

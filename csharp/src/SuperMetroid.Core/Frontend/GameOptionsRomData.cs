@@ -180,7 +180,7 @@ public static class GameOptionsRomData
 
     /// <summary>Language-dependent palette regions in the primary-page tilemap.</summary>
     /// <remarks>
-    /// Issues #625 and #962: pinned NTSC J/U v1.0 ROM and bank_82.asm match all
+    /// Independently reviewed and converted for #1165: NTSC J/U v1.0 ROM and bank_82.asm match all
     /// eight offset/count/palette calls in Set_Language_Text_Option_Highlight.
     /// For region i=0..3, byte offset is $0288+$0040*(i%2)+$00C0*(i/2);
     /// byte count is $18 for i&lt;2 and $32 otherwise. Native AltText=0 selects
@@ -189,20 +189,21 @@ public static class GameOptionsRomData
     /// HighlightWhenJapanese flags are false,false,true,true. Both ROM-page
     /// and editable-presentation rendering consume this same polarity.
     /// </remarks>
-    public static ReadOnlySpan<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions =>
-        LanguagePaletteRegionData;
+    public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(int index)
+    {
+        if ((uint)index >= LanguagePaletteRegionCount) throw new IndexOutOfRangeException();
+        int language = index / 2;
+        int row = index % 2;
+        return new(0x288 + MenuTilemapWidth * sizeof(ushort) * (row + 3 * language),
+            language == 0 ? 0x18 : 0x32, HighlightWhenJapanese: language != 0);
+    }
 
-    private static readonly GameOptionsLanguagePaletteRegion[] LanguagePaletteRegionData =
-    [
-        new(0x0288, 0x18, HighlightWhenJapanese: false),
-        new(0x02c8, 0x18, HighlightWhenJapanese: false),
-        new(0x0348, 0x32, HighlightWhenJapanese: true),
-        new(0x0388, 0x32, HighlightWhenJapanese: true),
-    ];
+    /// <summary>Two tilemap rows for each of the two language labels at $82:EDF2..EE51.</summary>
+    public const int LanguagePaletteRegionCount = 4;
 
     /// <summary>Palette boxes for the Icon Cancel and Moonwalk toggles.</summary>
     /// <remarks>
-    /// Issues #625 and #964: the eight native words at $82:F149..F158 are one
+    /// Independently reviewed and converted for #1165: the eight native words at $82:F149..F158 are one
     /// interleaved block used by Set_SpecialSetting_Highlights. For toggle
     /// t=0 (Icon Cancel) or 1 (Moonwalk), row r=0..1, and disabled choice
     /// d=0..1, the byte offset is $01E0+$0180*t+$0040*r+$000E*d.
@@ -215,11 +216,24 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class SpecialToggles
     {
-        public static readonly GameOptionsToggleLayout IconCancel =
-            new(0x01e0, 0x0220, 0x01ee, 0x022e);
-        public static readonly GameOptionsToggleLayout Moonwalk =
-            new(0x0360, 0x03a0, 0x036e, 0x03ae);
+        public static GameOptionsToggleLayout IconCancel => Layout(Rows.SpecialIconCancel);
+        public static GameOptionsToggleLayout Moonwalk => Layout(Rows.SpecialMoonwalk);
         public const int PaletteRegionByteCount = 0x0c;
+
+        /// <summary>
+        /// Calculates two-row choice boxes for Icon Cancel (0) or Moonwalk (1).
+        /// Settings are six tilemap rows apart; choices are seven words apart.
+        /// Exit has no setting boxes and unsupported selectors are rejected.
+        /// </summary>
+        public static GameOptionsToggleLayout Layout(int setting)
+        {
+            if ((uint)setting >= Rows.SpecialExit) throw new IndexOutOfRangeException();
+            int rowStride = MenuTilemapWidth * sizeof(ushort);
+            int origin = 0x1e0 + 6 * rowStride * setting;
+            int choiceStride = 7 * sizeof(ushort);
+            return new(origin, origin + rowStride, origin + choiceStride,
+                origin + rowStride + choiceStride);
+        }
     }
 
     /// <summary>Typed palette indices used to select and dim menu text.</summary>

@@ -5640,4 +5640,15 @@
     "scope":"Further channel/shade relationships among the96 remaining roots and shared normal/speed-boost art remain pending. No new retention decision. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingSharedTintReview": {
+    "status":"converted33 loading shade words to a saturating channel transformation",
+    "owners":"LoadingPaletteColorDefinitions.TryCalculatedColor/TintColor; RoomPaletteFxPresentation",
+    "source":"Original normal/bright/middle/dim rows in8D:DB62/DCC8/DE2E, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. The eleven independently confirmed tracks are Power slots3..8/13..15 and Gravity slots10/11; other slots are explicitly excluded.",
+    "algorithm":"For shade0..2 from bright to dim, preserve red; add max(0,15-10*shade) to green and min(20,30-10*shade) to blue, saturating at31. This is a common additive blue/green tint, not a polynomial fit to palette indices. Resolve normal colors through existing suit aliases and explicit edits. Stock removes33 whole derived words, leaving63 loading inputs.",
+    "ownership":"Explicit frame edits still override calculation. Compilation removes a canonical word only when the supplied value exactly equals the transformation of its installed base. Changing only base rows therefore preserves supplied old bright colors as overrides. No generated palette cache or cartridge access is introduced; the formula runs at color resolution.",
+    "proof":"Extend the single existing loading-color proof: all432 original words still match; independently decoded rows identify exactly33 tint addresses and all65536 addresses verify ownership/value or false/zero. Every32768 RGB5 input at allthree shades compares with a separate channel-addition/saturation oracle, including invalid shade bounds. Existing full-color edits, base-only edits and three guarded loading executions are reused. Shared heat-color proof confirms the directly affected base-reader path.",
+    "scope":"The63 remaining inputs and other channel/shade relationships remain pending; no new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, updated closed-interface source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

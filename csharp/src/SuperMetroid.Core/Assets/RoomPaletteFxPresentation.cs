@@ -21,9 +21,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
-        colors.TryGetValue(pointer, out color) ||
-        (LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort loading) &&
-         colors.TryGetValue(loading, out color)) ||
+        LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out color) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
@@ -505,6 +503,15 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ushort pointer = program.ColorPointer(frame, index);
             if (LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
                 canonical != pointer && colors[pointer] == colors[canonical]) colors.Remove(pointer);
+        }
+        foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < 9; frame++)
+        for (int index = 0; index < 16; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            if (colors.TryGetValue(pointer, out ushort supplied) &&
+                LoadingPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) && supplied == calculated)
+                colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);
     }

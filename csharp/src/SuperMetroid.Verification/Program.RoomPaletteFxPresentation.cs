@@ -365,6 +365,7 @@ internal static partial class Program
             .GetValue(presentation)!;
         var aliases = new Dictionary<ushort, ushort>();
         List<(int Pointer, ushort[] Colors)>? powerRows = null;
+        var tinted = new HashSet<ushort>();
         foreach (int start in new[] { 0xdb62, 0xdcc8, 0xde2e })
         {
             var rows = new List<(int Pointer, ushort[] Colors)>();
@@ -385,6 +386,9 @@ internal static partial class Program
             cursor += 2;
             rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
             if (start == 0xdb62) powerRows = rows;
+            foreach (int rowIndex in new[] { 1, 5, 7 })
+            foreach (int slot in start == 0xdb62 ? new[] { 3, 4, 5, 6, 7, 8, 13, 14, 15 } : start == 0xde2e ? new[] { 10, 11 } : Array.Empty<int>())
+                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
             foreach (var row in rows)
             {
                 var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
@@ -397,17 +401,33 @@ internal static partial class Program
                     aliases.Add(pointer, canonical);
                     AssertTrue(presentation.TryReadColor(pointer, out ushort actual), "All native loading colors remain installed");
                     AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
-                    AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only distinct suit/shade colors");
+                    AssertEqual(pointer == canonical && !tinted.Contains(pointer), stored.ContainsKey(pointer), "Stock stores only independent suit/shade inputs");
                 }
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
+        AssertEqual(33, tinted.Count, "Eleven calculated tint tracks across three shades");
+        AssertEqual(63, aliases.Keys.Count(stored.ContainsKey), "Tint conversion removes33 more stored words");
+        for (int rgb = 0; rgb < 32768; rgb++)
+        for (int shade = 0; shade < 3; shade++)
+        {
+            int greenAdd = new[] { 15, 5, 0 }[shade];
+            int blueAdd = new[] { 20, 20, 10 }[shade];
+            int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + greenAdd, 0, 31) * 32 +
+                Math.Clamp((rgb >> 10 & 31) + blueAdd, 0, 31) * 1024;
+            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.TintColor((ushort)rgb, shade), "Every RGB5 tint input and saturation boundary");
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.TintColor(0, invalid), "Tint shade rejects outside domain");
         AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
             AssertEqual(expected, LoadingPaletteColorDefinitions.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
             AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
+            bool calculated = LoadingPaletteColorDefinitions.TryCalculatedColor((ushort)address, stored, out ushort tint);
+            AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");
+            AssertEqual(calculated ? ReadVerificationWord(bus, 0x8d0000 | address) : (ushort)0, tint, "Original tint word or unowned zero");
         }
         AssertTrue(aliases.Keys.All(presentation.ColorPointers.Contains), "Auditor includes calculated loading aliases");
         foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in

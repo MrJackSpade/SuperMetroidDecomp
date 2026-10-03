@@ -50,7 +50,7 @@ internal static partial class Program
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
         VerifyRoomFxRecordSelection();
         VerifyCompiledCeresRoomFxConsumers(bus);
-        Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count} room states match every native field.");
+        Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)

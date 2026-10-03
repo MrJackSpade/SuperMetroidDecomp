@@ -53,6 +53,11 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--lookup-room-state-settings"])
+{
+    VerifyCompiledRoomStateDefinitions();
+    return 0;
+}
 if (args is ["--lookup-kraid-arm-hitbox-lists"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

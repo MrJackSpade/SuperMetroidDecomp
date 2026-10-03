@@ -4719,5 +4719,34 @@
     "proof":"VerifyKraidArmHitboxListSelection consolidates the prior aggregate list/count/geometry comparison into one named independent proof. Sixteen original keys are transcribed from native source, counts and all96 selected rectangle-edge values come from the SHA-pinned ROM. It checks cumulative selected-record starts, native ordering/materialization, all65536 pointer identities, integer slice bounds and empty default behavior. Checking selected geometry confirms this selector; it does not establish a generation rule or retain decision for those edge values.",
     "confirmation":"Early --lookup-kraid-arm-hitbox-lists pins the supported ROM revision and runs only the selected mapping proof. Verification and ResourceAudit builds pass.",
     "scope":"The list-to-ordered-slice mapping is resolved as an independently reviewed existing implementation, not a new conversion or a retention exemption. Articulated component positions and rectangle edges remain pending. Implementation record is the commit introducing this inventory entry."
+  },
+  "retailRoomStateSettingsReview": {
+    "status":"converted: 323-record stored array and binary search removed; direct state dispatch and lazy ascending enumeration",
+    "owner":"csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs",
+    "source":"Supported NTSC J/U v1.0 bank-8F 26-byte state records; pinned bank_8F.asm StateHeader declarations at 362be646929cf8e483f692b73a6561cfc2dc1d0d; native LoadStateHeader $82:DEF2 field contract. Original 323 identities independently captured from f2e63273eef07b384814af455e129d560fb8e109. Field oracle is the existing import-only reader of original ROM bytes, with supported SHA enforced.",
+    "evidence":"A state identity selects room assets, actor populations, callbacks and initialization settings. Native StateHeader macros identify the functional meaning of every field. Direct cases express this configuration selection without a sampled-curve interpretation or arbitrary fit. Unknown/interior pointers retain ArgumentOutOfRangeException. All now lazily constructs records in ascending identity order; no persistent regenerated record cache is introduced.",
+    "identities":{"disposition":"converted","proof":"VerifyRoomStateIdentities checks all65536 ushort inputs against the original323-key roster and exact ascending All enumeration."},
+    "fields": [
+      {"field":"CompressedLevelDataAddress","disposition":"converted semantic level-source selection; preserve24-bit address","proof":"VerifyRoomStateCompressedLevelDataAddress"},
+      {"field":"GraphicsSet","disposition":"converted tileset selection; preservebyte identity","proof":"VerifyRoomStateGraphicsSet"},
+      {"field":"MusicDataIndex","disposition":"converted music-data command selection; preservebyte including zero","proof":"VerifyRoomStateMusicDataIndex"},
+      {"field":"MusicTrackIndex","disposition":"converted music-track command selection; preservebyte including special commands","proof":"VerifyRoomStateMusicTrackIndex"},
+      {"field":"FxPointer","disposition":"converted room-FX source selection; preserveushort","proof":"VerifyRoomStateFxPointer"},
+      {"field":"EnemyPopulationPointer","disposition":"converted enemy population selection; preserveushort","proof":"VerifyRoomStateEnemyPopulationPointer"},
+      {"field":"EnemyTilesetPointer","disposition":"converted enemy graphics selection; preserveushort","proof":"VerifyRoomStateEnemyTilesetPointer"},
+      {"field":"Layer2ScrollX","disposition":"converted horizontal scroll-mode initialization selection; preserve completebyte including mode bits","proof":"VerifyRoomStateLayer2ScrollX"},
+      {"field":"Layer2ScrollY","disposition":"converted vertical scroll-mode initialization selection; preserve completebyte including mode bits","proof":"VerifyRoomStateLayer2ScrollY"},
+      {"field":"ScrollPointer","disposition":"converted scroll-grid source/default-mode selection; preserveushort including zero/one sentinels","proof":"VerifyRoomStateScrollPointer"},
+      {"field":"XrayPointer","disposition":"converted special-Xray source selection; preserveushort including absent-source zero","proof":"VerifyRoomStateXrayPointer"},
+      {"field":"MainCodePointer","disposition":"converted room-main callback selection; preserveushort and existing typed callback resolver","proof":"VerifyRoomStateMainCodePointer"},
+      {"field":"PlmPointer","disposition":"converted room setup population selection; preserveushort","proof":"VerifyRoomStatePlmPointer"},
+      {"field":"BackgroundDataPointer","disposition":"converted library-background program selection; preserveushort including no-program zero","proof":"VerifyRoomStateBackgroundDataPointer"},
+      {"field":"SetupCodePointer","disposition":"converted room-setup callback selection; preserveushort and existing typed callback resolver","proof":"VerifyRoomStateSetupCodePointer"}
+    ],
+    "proofCoverage":"Each named payload-field proof compares all323 Get results and all323 ordered enumeration results with that field from the independent original ROM records. The prior aggregate state equality loop is consolidated into these15 field proofs and the identity proof. The obsolete full-runtime fixture lacked required installed palettes and failed before room loading. Replace it with direct production CartridgeRoomHeader.LoadUsingCompiledSelection for the native Ceres state, whose API accepts no cartridge-reader capability; runtime room loading calls this same boundary.",
+    "consumers":"All runtime Get consumers keep the typed CartridgeRoomState contract. Static search found All consumers using enumeration/LINQ; the one verification Count property consumer now calls Count(). Compiler boundaries verify all projects. Room-layout/Xray derived source catalogs are distinct owners. Reviewed source hashes updated for room-layout, Xray and VRAM source contracts.",
+    "tooling":"The PLM population, room-scroll and library-background generators parse new(...) source lines. The explicit cases preserve exactly the323 original sixteen-field constructor lines and order, independently compared against the baseline, so those parsers keep their existing inputs.",
+    "confirmation":"Verification and ResourceAudit builds and SHA-pinned --lookup-room-state-settings pass. No gameplay sweep or exploratory test campaign. Implementation record is the commit introducing this review entry.",
+    "scope":"All15 selected room-state payload fields and the state-identity mapping are resolved without a retention exception. Room-header/state-condition selection and referenced assets/programs remain separate inventory owners; wider maintained-source audit stays active."
   }
 }

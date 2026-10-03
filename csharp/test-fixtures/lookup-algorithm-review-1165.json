@@ -6115,4 +6115,15 @@
     "scope":"Other endpoint shades and intensities remain pending; no new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileShadeMidpointReview": {
+    "status":"converted four within-hue middle shades",
+    "owners":"HyperBeamFxColorFormat.IsShadeMidpoint; HyperBeamFxColorCatalog constructor/Resolve",
+    "source":"Original red frame0 and magenta frame8 ink2 interpolate inks1/3; green frame4 and magenta frame8 ink5 interpolate inks4/6. All three channels match upward-rounded midpoints in rows8D:D906+20*frame. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Reuse the existing exact RGB5 midpoint operation for the named middle shade positions. Remove one whole-word input and three paired inputs: stock15 whole words plus18 independent components remain. No generated color cache.",
+    "ownership":"Compare supplied targets with supplied neighboring inks before omission. Source-ink-only edits preserve separately supplied middle shades through explicit overrides,alongside existing all/even/green/red/white edit coverage.",
+    "proof":"Extend the single projectile proof with all four original target/source triplets,input ownership and source-ink-only edits. Reuse the complete RGB5 midpoint arithmetic proof,all80 original words,timed guarded palette loop,untouched CGRAM,bounds and JSON validation.",
+    "scope":"Remaining endpoint intensity and shade relationships are still pending. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

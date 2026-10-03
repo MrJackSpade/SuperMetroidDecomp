@@ -22,6 +22,8 @@ public sealed class HyperBeamFxColorCatalog
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
             if (frame == 2 && color >= 4 && value == SamusHyperBeamColorFormat.YellowFromGreen(frames[4][color])) continue;
             if (frame == 0 && color >= 4 && value == HyperBeamFxColorFormat.RedHighlight(frames[0][3], frames[0][0], color)) continue;
+            if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color) && value == SamusHyperBeamColorFormat.HueMidpoint(
+                frames[frame][color - 1], frames[frame][color + 1])) continue;
             if (HasPairedChannels(frame, color))
             {
                 pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0));
@@ -45,6 +47,8 @@ public sealed class HyperBeamFxColorCatalog
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired)) return paired.Resolve(frame == 0);
         if (color == 0) return colors[0];
+        if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
+            return SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
         if (frame == 0) return HyperBeamFxColorFormat.RedHighlight(Resolve(0, 3), Resolve(0, 0), color);
         if (frame == 2) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(4, color));
         return SamusHyperBeamColorFormat.HueMidpoint(
@@ -161,6 +165,13 @@ public sealed record HyperBeamFxColorDocument
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
 public static class HyperBeamFxColorFormat
 {
+    /// <summary>Selects middle projectile shades calculated from their adjacent inks.</summary>
+    /// <remarks>In the original rows8D:D906+20*frame, red frame0 and magenta
+    /// frame8 ink2 interpolate inks1/3; green frame4 and magenta frame8 ink5
+    /// interpolate inks4/6. Each RGB5 channel rounds its midpoint upward.
+    /// Other shade relationships remain under independent review.</remarks>
+    internal static bool IsShadeMidpoint(int frame, int ink) =>
+        ink == 2 && frame is 0 or 8 || ink == 5 && frame is 4 or 8;
     /// <summary>Blends red and white into the four red-frame highlight inks.</summary>
     /// <remarks>Original8D:D90E..D914 (frame0 inks4..7) are4/5,3/5,2/5,1/5
     /// white from ink0 toward red ink3. Round each RGB5 channel to nearest:

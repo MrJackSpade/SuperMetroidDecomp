@@ -68,6 +68,7 @@ internal static partial class Program
     {
         VerifyTourianStatueArtworkSources(rom);
         VerifyTourianStatueDescriptorFields(rom);
+        VerifyTourianStatueProgramMappings(rom);
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
@@ -97,9 +98,6 @@ internal static partial class Program
                     continue;
                 }
 
-                if (programOffset is not (0x02 or 0x26 or 0x5a or 0x60 or 0x06 or 0x56 or
-                    0x0a or 0x20 or 0x36 or 0x42 or 0x4a or 0x4e or 0x64))
-                    VerifyTourianStatueMechanicsWord(definition, rom, pointer);
                 mechanicsWordCount++;
             }
         }
@@ -149,20 +147,6 @@ internal static partial class Program
         runtime.System.HasEventRaw(0x0007) &&
         runtime.System.HasEventRaw(0x0008) &&
         runtime.System.HasEventRaw(0x0009);
-
-    private static void VerifyTourianStatueMechanicsWord(
-        TourianStatueAnimatedTileProgramDefinition definition,
-        ISnesAddressSpace rom,
-        ushort pointer)
-    {
-        AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort compiled),
-            $"statue $87:{definition.ObjectPointer:X4} catalogs $87:{pointer:X4}");
-        AssertEqual(
-            RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(rom), RoomFxRomData.Banks.AnimatedTiles | pointer),
-            compiled,
-            $"statue $87:{definition.ObjectPointer:X4} cartridge $87:{pointer:X4}");
-    }
 
     private static ushort ReadTourianEyeWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);

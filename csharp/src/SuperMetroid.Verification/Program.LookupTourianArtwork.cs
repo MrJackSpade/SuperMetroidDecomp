@@ -9,6 +9,15 @@ internal static partial class Program
     private static IEnumerable<(ushort Operand, int Source)> OriginalTourianFrames(
         ISnesAddressSpace rom, ushort header)
     {
+        foreach (var instruction in OriginalTourianInstructions(rom, header))
+            if (instruction.Code < 0x8000)
+                yield return ((ushort)(instruction.Cursor + 2),
+                    0x870000 | ReadVerificationWord(rom, 0x870000 | (instruction.Cursor + 2)));
+    }
+
+    private static IEnumerable<(ushort Cursor, ushort Code, int Width)> OriginalTourianInstructions(
+        ISnesAddressSpace rom, ushort header)
+    {
         int cursor = ReadVerificationWord(rom, 0x870000 | header);
         int deletes = 0;
         for (int count = 0; deletes < 2; count++)
@@ -17,13 +26,12 @@ internal static partial class Program
             ushort code = ReadVerificationWord(rom, 0x870000 | cursor);
             if (code < 0x8000)
             {
-                yield return ((ushort)(cursor + 2),
-                    0x870000 | ReadVerificationWord(rom, 0x870000 | (cursor + 2)));
+                yield return ((ushort)cursor, code, 4);
                 cursor += 4;
                 continue;
             }
             if (code == 0x80b2) deletes++;
-            cursor += code switch
+            int width = code switch
             {
                 0x80b2 => 2,
                 0x813f or 0x8303 => 6,
@@ -31,6 +39,8 @@ internal static partial class Program
                     0x8349 or 0x8352 or 0x835b or 0x8372 or 0x837f => 4,
                 _ => throw new InvalidDataException($"Unexpected native statue instruction {code:X4}."),
             };
+            yield return ((ushort)cursor, code, width);
+            cursor += width;
         }
     }
 
@@ -43,8 +53,6 @@ internal static partial class Program
                 out var definition), "Original statue object resolves");
             var expected = OriginalTourianFrames(rom, header).ToDictionary(x => x.Operand, x => x.Source);
             AssertEqual(9, expected.Count, "Nine original timed statue frames");
-            AssertTrue(expected.Keys.SequenceEqual(definition.SourceOperandPointers),
-                "Runtime and installed-art operand views match native instruction decoding");
             for (int value = 0; value <= ushort.MaxValue; value++)
             {
                 ushort operand = (ushort)value;

@@ -12,6 +12,14 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
+    /// <summary>First timed source operand, $87:83B8 relative to Phantoon's $83AC entry.</summary>
+    internal const int FirstOscillatingSource = 0x0c;
+    /// <summary>First post-palette-clear source operand, $87:83E6 relative to $83AC.</summary>
+    internal const int FirstReleaseSource = 0x3a;
+    /// <summary>Source operand for the eye-glow wait, $87:83F2 relative to $83AC.</summary>
+    internal const int EyeGlowSource = 0x46;
+    /// <summary>Source operand for the soul/palette-FX wait, $87:83FE relative to $83AC.</summary>
+    internal const int SoulSource = 0x52;
     /// <summary>
     /// Native boss identity selects its animation program, transfer geometry, event,
     /// boss test and palette/effect destinations. These are semantic object cases,
@@ -101,10 +109,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
-    private static readonly ushort[] SourceOperandOffsets =
-        [0x0c, 0x10, 0x14, 0x18, 0x1c, 0x3a, 0x3e, 0x46, 0x52];
-    private readonly ushort[] sourceOperandPointers;
-    private readonly IReadOnlyList<ushort> readOnlySourceOperandPointers;
+    private readonly IReadOnlyList<ushort> sourceOperandPointers;
 
     internal TourianStatueAnimatedTileProgramDefinition(
         ushort objectPointer,
@@ -132,10 +137,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
         UnlockEffectParameter = unlockEffectParameter;
         PaletteFxDefinition = paletteFxDefinition;
         TargetPaletteByteIndex = targetPaletteByteIndex;
-        sourceOperandPointers = SourceOperandOffsets
-            .Select(offset => unchecked((ushort)(programStart + offset)))
-            .ToArray();
-        readOnlySourceOperandPointers = Array.AsReadOnly(sourceOperandPointers);
+        sourceOperandPointers = new CalculatedSourceOperands(programStart);
     }
 
     /// <summary>The animated-tile object header address in bank $87.</summary>
@@ -162,10 +164,48 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public ushort PaletteFxDefinition { get; }
     /// <summary>The byte offset receiving the eight common grey target colors.</summary>
     public ushort TargetPaletteByteIndex { get; }
-    /// <summary>The nine artwork-pointer operands excluded from mechanics ownership.</summary>
-    public IReadOnlyList<ushort> SourceOperandPointers => readOnlySourceOperandPointers;
+    /// <summary>
+    /// The nine artwork operands: five four-byte oscillation frames, two four-byte
+    /// release frames, then the eye-glow and soul waits. Positions are calculated
+    /// from the shared instruction layout, with ushort wrapping and list bounds.
+    /// </summary>
+    public IReadOnlyList<ushort> SourceOperandPointers => sourceOperandPointers;
 
-    /// <summary>Reads one immutable mechanics word, excluding frame source operands.</summary>
+    private sealed class CalculatedSourceOperands(ushort programStart) : IReadOnlyList<ushort>
+    {
+        public int Count => 9;
+        public ushort this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                int offset = index switch
+                {
+                    <= 4 => TourianStatueAnimatedTileMechanicsDefinitions.FirstOscillatingSource + 4 * index,
+                    <= 6 => TourianStatueAnimatedTileMechanicsDefinitions.FirstReleaseSource + 4 * (index - 5),
+                    7 => TourianStatueAnimatedTileMechanicsDefinitions.EyeGlowSource,
+                    _ => TourianStatueAnimatedTileMechanicsDefinitions.SoulSource,
+                };
+                return unchecked((ushort)(programStart + offset));
+            }
+        }
+
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// Reads the three header words and the shared native instruction layout at
+    /// $87:83AC/8414/847C/84E4. Named opcode cases preserve program order; branch
+    /// destinations add their relative byte offsets with ushort wrapping. Timed
+    /// waits select idle, release, eye-glow and soul phases, and reset masks combine
+    /// the statue bit with Busy. Artwork operands, odd and unrelated addresses
+    /// return false/zero. Original cartridge words independently verify each mapping.
+    /// </summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         if (pointer == ObjectPointer)
@@ -222,7 +262,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
                 0x66 => AnimatedTileInstructionCodes.Delete,
                 _ => null,
             };
-            if (offset is < 0 or > 0x66 || SourceOperandOffsets.Contains((ushort)offset))
+            if (offset is < 0 or > 0x66)
             {
                 value = 0;
                 return false;

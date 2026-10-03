@@ -12,49 +12,15 @@ internal static partial class Program
     private static void VerifyAreaAnimatedTileObjectDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        if (!File.Exists(romPath))
-        {
-            Console.WriteLine(
-                "  Area animated-tile definitions: cartridge comparison skipped " +
-                "(private ROM absent).");
-            return;
-        }
-
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        for (int areaIndex = 0;
-             areaIndex < AreaAnimatedTileObjectDefinitions.NativeAreaCount;
-             areaIndex++)
-        {
-            ushort expectedList = AreaAnimatedTileObjectDefinitions.NativeListPointer(areaIndex);
-            ushort actualList = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(rom),
-                AreaAnimatedTileObjectDefinitions.NativeListPointerTable +
-                    areaIndex * sizeof(ushort));
-            AssertEqual(expectedList, actualList,
-                $"area animated-tile list pointer {areaIndex}");
-
-            for (int bit = 0;
-                 bit < AreaAnimatedTileObjectDefinitions.ObjectsPerArea;
-                 bit++)
-            {
-                ushort expectedObject =
-                    AreaAnimatedTileObjectDefinitions.NativeObjectPointer(areaIndex, bit);
-                ushort actualObject = RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(rom),
-                    RoomFxRomData.Banks.RoomDefinitions |
-                        unchecked((ushort)(actualList + bit * sizeof(ushort))));
-                AssertEqual(expectedObject, actualObject,
-                    $"area animated-tile object {areaIndex}/{bit}");
-            }
-        }
-
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animated area oracle revision");
+        VerifyAnimatedAreaListPointers(rom);
+        VerifyAnimatedAreaObjectSelection(rom);
         VerifyCompiledAreaSelection(rom, AreaId.Maridia, 0x0c, expectedSand: 2,
             expectedTreadmills: 0);
         VerifyCompiledAreaSelection(rom, AreaId.WreckedShip, 0x0c, expectedSand: 0,
             expectedTreadmills: 2);
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => AreaAnimatedTileObjectDefinitions.Read(AreaId.Crateria, 8),
-            "animated-tile bit outside the native bitset fails loudly");
 
         Console.WriteLine(
             "  Area animated-tile definitions: 8 list pointers and 64 object " +
@@ -68,18 +34,10 @@ internal static partial class Program
         int expectedSand,
         int expectedTreadmills)
     {
-        const ushort fxRecord = 0x9000;
-        var fixture = new TestAddressSpace();
-        fixture.WriteBytes(
-            RoomFxRomData.Banks.RoomDefinitions | fxRecord,
-            new byte[RoomFxRomData.Record.ByteCount]);
-        fixture.WriteByte(
-            RoomFxRomData.Banks.RoomDefinitions |
-                unchecked((ushort)(fxRecord +
-                    RoomFxRomData.Record.AnimatedTileBitsetOffset)),
-            animatedTileBits);
-
-        var guarded = new AreaAnimatedTileSelectionForbiddenBus(fixture, rom);
+        // Original compiled default-door FX record with both sand/treadmill bits.
+        const ushort fxRecord = 0x9e44;
+        AssertEqual(animatedTileBits, rom.ReadByte(0x839e52), "Native fixture animation bitset");
+        var guarded = new AreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState();
         var treadmills = new RoomTreadmillAnimatedTilesState();
         sand.LoadRoom(guarded, fxRecord, doorPointer: 0, area);
@@ -93,11 +51,9 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Serves the constructed FX record from a mutable fixture, delegates all other reads
-    /// to the retail cartridge, and rejects exactly the compiled pointer/list bytes.
+    /// Delegates allowed reads to the cartridge and rejects the compiled pointer/list bytes.
     /// </summary>
     private sealed class AreaAnimatedTileSelectionForbiddenBus(
-        ISnesAddressSpace fixture,
         ISnesAddressSpace rom) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
@@ -114,18 +70,10 @@ internal static partial class Program
                     $"{SnesAddress.FromBusAddress(address)}.");
             }
 
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.Bank == (byte)(RoomFxRomData.Banks.RoomDefinitions >> 16) &&
-                source.Offset >= 0x9000 &&
-                source.Offset < 0x9000 + RoomFxRomData.Record.ByteCount)
-            {
-                return fixture.ReadByte(address);
-            }
-
             return rom.ReadByte(address);
         }
 
-        public void WriteByte(int address, byte value) => fixture.WriteByte(address, value);
+        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Read-only verification bus.");
 
         private static bool IsCompiledSource(int address)
         {

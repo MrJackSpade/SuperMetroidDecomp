@@ -53,6 +53,11 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--area-animated-tile-definitions"])
+{
+    VerifyAreaAnimatedTileObjectDefinitions();
+    return 0;
+}
 if (args is ["--lookup-palette-fx-areas"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1785,11 +1790,6 @@ if (args is ["--samus-grounded-reversal"])
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();
-    return 0;
-}
-if (args is ["--area-animated-tile-definitions"])
-{
-    VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
 

@@ -36,6 +36,20 @@ public static class AnimatedTileInstructionCodes
 /// <summary>Bank-$87 object headers selected directly by translated room setup code.</summary>
 public static class AnimatedTileObjectPointers
 {
+    /// <summary>$87:824B AnimatedTilesObjects_FX_nothing, the unused area-bit object.</summary>
+    public const ushort Empty = 0x824b;
+    /// <summary>$87:8257 AnimatedTilesObjects_FX_horizontalSpikes, common area bit0.</summary>
+    public const ushort HorizontalSpikes = 0x8257;
+    /// <summary>$87:8251 AnimatedTilesObjects_FX_verticalSpikes, common area bit1.</summary>
+    public const ushort VerticalSpikes = 0x8251;
+    /// <summary>$87:825D AnimatedTilesObjects_FX_crateriaLake, Crateria bit2.</summary>
+    public const ushort CrateriaLake = 0x825d;
+    /// <summary>$87:8263 unused Crateria lava object, preserved for area bit3.</summary>
+    public const ushort UnusedCrateriaLava = 0x8263;
+    /// <summary>$87:8281 AnimatedTilesObjects_FX_brinstarPlant, Brinstar bit2.</summary>
+    public const ushort BrinstarPlant = 0x8281;
+    /// <summary>$87:826F AnimatedTilesObjects_FX_wreckedShipScreen, Wrecked Ship bit4.</summary>
+    public const ushort WreckedShipScreen = 0x826f;
     /// <summary>kAnimtiles_MaridiaSandCeiling, $87:8287, selected by room FX animation bits.</summary>
     public const ushort MaridiaSandCeiling = 0x8287;
     /// <summary>kAnimtiles_MaridiaSandFalling, $87:828D, selected by room FX animation bits.</summary>

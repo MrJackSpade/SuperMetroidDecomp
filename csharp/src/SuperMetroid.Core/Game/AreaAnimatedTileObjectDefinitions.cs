@@ -27,45 +27,26 @@ internal static class AreaAnimatedTileObjectDefinitions
     /// </summary>
     public const int NativeAreaCount = 8;
 
-    private static readonly ushort[] NativeListPointers =
-    [
-        0xac76, 0xac96, 0xacb6, 0xacd6,
-        0xacf6, 0xad16, 0xad36, 0xad56,
-    ];
-
-    private static readonly ushort[][] Objects =
-    [
-        // Crateria: two common entries, two area-specific entries, then the shared header.
-        [0x8257, 0x8251, 0x825d, 0x8263, 0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Brinstar.
-        [0x8257, 0x8251, 0x8281, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Norfair.
-        [0x8257, 0x8251, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Wrecked Ship: bits two and three select the two treadmill directions.
-        [0x8257, 0x8251,
-            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
-            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
-            0x826f, 0x824b, 0x824b, 0x824b],
-
-        // Maridia: bits two and three select ceiling and falling sand respectively.
-        [0x8257, 0x8251,
-            AnimatedTileObjectPointers.MaridiaSandCeiling,
-            AnimatedTileObjectPointers.MaridiaSandFalling,
-            0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Tourian.
-        [0x8257, 0x8251, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Ceres.
-        [0x8257, 0x8251, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b],
-
-        // Native eighth row, unreachable through the seven-value retail AreaId domain.
-        [0x8257, 0x8251, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b, 0x824b],
-    ];
-
+    /// <summary>Direct area/bit behavior selection, shared by retail and native audit views.</summary>
+    /// <remarks>All eight original lists at $83:AC76..AD65 share spike objects for
+    /// bits0/1. Later bits select named area effects or the empty object. This dispatch
+    /// is independently verified against NTSC J/U v1.0 and pinned bank_83.asm
+    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
+    /// Callers retain their distinct area bounds and validation order.</remarks>
+    private static ushort SelectObject(int area, int bit) => ((AreaId)area, bit) switch
+    {
+        (_, 0) => AnimatedTileObjectPointers.HorizontalSpikes,
+        (_, 1) => AnimatedTileObjectPointers.VerticalSpikes,
+        (AreaId.Crateria, 2) => AnimatedTileObjectPointers.CrateriaLake,
+        (AreaId.Crateria, 3) => AnimatedTileObjectPointers.UnusedCrateriaLava,
+        (AreaId.Brinstar, 2) => AnimatedTileObjectPointers.BrinstarPlant,
+        (AreaId.WreckedShip, 2) => AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
+        (AreaId.WreckedShip, 3) => AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
+        (AreaId.WreckedShip, 4) => AnimatedTileObjectPointers.WreckedShipScreen,
+        (AreaId.Maridia, 2) => AnimatedTileObjectPointers.MaridiaSandCeiling,
+        (AreaId.Maridia, 3) => AnimatedTileObjectPointers.MaridiaSandFalling,
+        _ => AnimatedTileObjectPointers.Empty,
+    };
     /// <summary>Returns the bank-$87 object header selected by one retail area/bit pair.</summary>
     public static ushort Read(AreaId area, int bit)
     {
@@ -75,14 +56,17 @@ internal static class AreaAnimatedTileObjectDefinitions
                 nameof(bit), bit, $"Animated-tile bit must be 0..{ObjectsPerArea - 1}.");
         }
 
-        return Objects[AreaIds.ToIndex(area)][bit];
+        return SelectObject(AreaIds.ToIndex(area), bit);
     }
 
-    /// <summary>Returns one native list pointer for exhaustive cartridge comparison.</summary>
+    /// <summary>Calculates a native list identity as AC76+20h*area, for indices0..7.</summary>
+    /// <remarks>Each eight-word animation list follows an eight-word palette list,
+    /// producing the native32-byte area stride. All eight original pointer words
+    /// are independently verified; invalid indices reject before arithmetic.</remarks>
     internal static ushort NativeListPointer(int nativeAreaIndex)
     {
         ValidateNativeAreaIndex(nativeAreaIndex);
-        return NativeListPointers[nativeAreaIndex];
+        return (ushort)(0xac76 + 0x20 * nativeAreaIndex);
     }
 
     /// <summary>
@@ -98,7 +82,7 @@ internal static class AreaAnimatedTileObjectDefinitions
                 nameof(bit), bit, $"Animated-tile bit must be 0..{ObjectsPerArea - 1}.");
         }
 
-        return Objects[nativeAreaIndex][bit];
+        return SelectObject(nativeAreaIndex, bit);
     }
 
     private static void ValidateNativeAreaIndex(int nativeAreaIndex)

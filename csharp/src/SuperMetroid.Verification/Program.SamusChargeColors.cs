@@ -217,7 +217,7 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 3), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 25), ("suitless", 3), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -309,10 +309,10 @@ internal static partial class Program
         }
         var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-        AssertEqual(3, neutralInputs.Count, "Only white, gray peak and final neutral intensities remain");
+        AssertEqual(2, neutralInputs.Count, "Only gray peak and final neutral intensities remain");
         foreach (var entry in neutralInputs)
         {
-            AssertTrue(entry.Key is 5 or 11 or 144, "Only native neutral ink roots use shared channels");
+            AssertTrue(entry.Key is 11 or 144, "Only native gray roots store shared intensity inputs");
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
         }
@@ -395,6 +395,17 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, invalid, steps), "Invalid interpolation position");
         foreach (int invalid in new[] { -1, 0, 7, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, 0, invalid), "Unsupported whiteout span");
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuited.Select(suit => suit.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+            rows[0][1][0] = (ushort)((rows[0][1][0] & ~(31 << (channel * 5))) | intensity << (channel * 5));
+            var editedFlash = new SamusDeathPaletteArtworkCatalog(rows, deathSuitless, whiteout, selectors);
+            for (int suit = 0; suit < 3; suit++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[suit][palette][color], editedFlash.SuitedColor(suit, palette, color), "Each flash-root channel edit preserves independently supplied colors");
+        }
         for (int scope = 0; scope < 5; scope++)
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();

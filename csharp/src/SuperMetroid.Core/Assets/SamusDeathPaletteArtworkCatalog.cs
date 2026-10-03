@@ -20,12 +20,17 @@ namespace SuperMetroid.Core.Assets;
 /// word but do not make it visible. A numeric case or fitted expression for
 /// that arbitrary unused payload would only recite the data; retain this one
 /// word under the same specific nonsense exception. This does not settle
-/// visible suitless roots,flash/final channels or whiteout intensity choices.
+/// visible suitless shade roots,final intensity or whiteout intensity choices.
 /// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
     public const int SuitCount = 3;
     public const int ColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Native9B9420 yellow flash: full red and green,zero blue in RGB5.</summary>
+    private const ushort YellowFlashColor = 31 | 31 << 5;
+    /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
+    private const ushort WhiteInkColor = 31 | 31 << 5 | 31 << 10;
 
     private readonly Dictionary<int, ushort> suited = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
@@ -65,6 +70,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suited[suit][palette][color];
             if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
+            if (suit == 0 && palette == 1 && color == 0 && value == YellowFlashColor) continue;
             if (palette == 9 && value == suitless[9][0]) continue;
             if (palette is >= 2 and <= 8)
             {
@@ -118,7 +124,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
                 if (value != expected) neutralInputs.Add(key, new(value, expected));
                 continue;
             }
-            if (palette == 0 && color is 5 or 11 || palette == 9 && color == 0)
+            if (palette == 0 && color == 5)
+            {
+                if (value != WhiteInkColor) neutralInputs.Add(key, new(value, WhiteInkColor));
+                continue;
+            }
+            if (palette == 0 && color == 11 || palette == 9 && color == 0)
             {
                 neutralInputs.Add(key, new(value, NeutralFromRed(value), independentMask: 1));
                 continue;
@@ -164,8 +175,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// eighth-step shades1..7 at indices2..8 and the final shared row at9.
     /// Original flash9B9420 repeats one yellow color across all sixteen inks
     /// and suits; final9BA220 repeats one gray color shared with suitless.
-    /// They each use one editable color input, with independent edits overriding
-    /// sharing. Base rows9820/9920/9A20 share the common Power Suit inks;
+    /// Yellow is the named RGB5 primary mixture R=G=31,B=0,not an indexed
+    /// intensity sequence. Stock needs no flash input; custom values override
+    /// that color and sharing. The final gray still has its own intensity input.
+    /// Base rows9820/9920/9A20 share the common Power Suit inks;
     /// Varia differs at2/10/11,Gravity at0/1/2/10/11/12. Independently supplied
     /// differences remain inputs,including source-only edits. Differing fade channels
     /// override shared arithmetic. Preserve the former array bounds exception.</remarks>
@@ -176,7 +189,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
         if (suited.TryGetValue(key, out ushort value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
-        if (palette == 1) return SuitedColor(0, 1, 0);
+        if (palette == 1) return suit == 0 && color == 0 ? YellowFlashColor : SuitedColor(0, 1, 0);
         if (palette == 9) return SuitlessColor(9, 0);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitedColor(suit, 0, color), palette - 1);
         return suitedFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
@@ -184,13 +197,18 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Resolves the same eighth-step whitening for suitless Samus.</summary>
     /// <remarks>Original9B:B80F..B822 repeats the base at indices0/1,
     /// selects shade1..7 at2..8 and a distinct final row at9. Independent
-    /// edits, including the repeated base row, retain their supplied values.</remarks>
+    /// edits, including the repeated base row, retain their supplied values.
+    /// Base ink5 is full RGB5 white; resolve that named color directly and
+    /// retain only independently edited channels. White stays white throughout
+    /// the seven computed fade steps. No generated color cache is stored.</remarks>
     public ushort SuitlessColor(int palette, int color)
     {
         if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color == 5)
+            return neutralInputs.TryGetValue(key, out var whiteInput) ? whiteInput.Apply(WhiteInkColor) : WhiteInkColor;
         if (palette == 0 && color == 4)
         {
             var endpoint = warmShadeInputs[key];
@@ -328,7 +346,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
     }
     /// <summary>Shares the intensity across neutral RGB5 channels.</summary>
     /// <remarks>Original suitless base9BA120 inks5/11..15 and final9BA220
-    /// all have red=green=blue. White/gray-peak/final intensities remain inputs;
+    /// all have red=green=blue. Gray-peak/final intensities remain inputs;
+    /// full white resolves directly through WhiteInkColor.
     /// green/blue edits override the shared value. The supplied red channel
     /// is bounded0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication,not the separate intensity choices.</remarks>

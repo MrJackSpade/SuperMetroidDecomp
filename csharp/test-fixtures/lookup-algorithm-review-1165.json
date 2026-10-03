@@ -6382,4 +6382,16 @@
     "scope":"Resolves the repeated warm blue endpoint and unused suitless base payload. Visible endpoint/intensity choices,flash/final roots,whiteout choices and the wider1165 inventory remain pending. No performance,size,complexity or missing-provenance retention rationale.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source hash and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusDeathNamedColorsReview": {
+    "status":"converted yellow flash and full-white ink to named RGB5 colors",
+    "owner":"SamusDeathPaletteArtworkCatalog.YellowFlashColor/WhiteInkColor/SuitedColor/SuitlessColor",
+    "source":"Supported NTSC J/U v1.0,pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. SamusPalettes_DeathSequence_YellowFlash at9B9420 is sixteen copies of full red/green with zero blue. Suitless base ink5 at9BA12A is full RGB5 white.9BB7D3..B80D selects the yellow flash row for all suits;9BB80F..B822 selects suitless base/fades. These are named color roles,not unknown sampled intensity curves.",
+    "algorithm":"Resolve flash root as RGB5 yellow:R=G=31,B=0. Resolve suitless base ink5 as RGB5 white:R=G=B=31. Pack the channel extrema directly in domain-named catalog constants. Existing aliases and eighth-step fades remain calculated; white is invariant under those fades. Store only custom flash values or changed white channels. This is semantic color selection,not a switch or fitted formula reciting arbitrary numerical samples.",
+    "storage":"Stock suited whole inputs26 to25,removing the yellow flash root. Stock neutral intensity inputs3 to2,removing full white; only gray peak11 and final144 remain. No generated palette cache or runtime ROM dependency.",
+    "domain":"Public suited/suitless bounds and import RGB5 validation are unchanged. Named colors have no sampled index,rounding,saturation or arithmetic overflow. Custom roots and independently edited aliases retain their supplied words,including changes back to the named defaults.",
+    "proof":"Extend the same charge/death proof's independent1216 original-word comparison and storage ownership. Every0..31 edit to each flash-root channel is checked against every supplied suited output. Existing every-channel white edits,all fade outputs,alias isolation,serialization identity and invalid-input checks cover the full-white conversion. No second per-table proof or gameplay sweep.",
+    "scope":"Resolves the pending flash and white-base roots. Visible shade endpoints,gray peak/final intensity,whiteout choices and broader1165 owners remain under review. No new retention exception is claimed.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

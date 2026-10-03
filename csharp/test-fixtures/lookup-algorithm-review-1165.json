@@ -6170,4 +6170,15 @@
     "scope":"Remaining independent intensities and middle-shade differences still require review. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileEndpointComponentReview": {
+    "status":"converted repeated extrema in eight remaining whole endpoint colors",
+    "owners":"HyperBeamFxColorFormat.TrySharedEndpoint; HyperBeamFxColorCatalog endpointInputs; LoadingPaletteInputView.Channels independentMask",
+    "source":"Original red frame0 ink1 shares white red. Yellow frame2 inks1/3 share red minimum as blue. Green frame4 inks1/3 share red minimum as red,ink1 also shares red maximum as green. Blue frame6 inks1/3 share red minimum as red;inks1/4 share white blue. Rows8D:D906+20*frame, supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Resolve shared channel values from white/red inputs; store only differing shared channels plus every independent channel. Extend the existing Channels constructor with an optional independent-component mask; default0 preserves all existing callers. Independent zero values remain actual inputs instead of accidental aliases. Eight whole colors become14 components,removing10 duplicates. Stock2 whole words plus1 neutral/7 paired/6 middle/14 endpoint components remain.",
+    "ownership":"Source dependencies remain white-to-red-to-other endpoints. Existing all/even/green/red/white/source-ink edits retain exact separately supplied targets,including free channels edited to zero. No generated color cache.",
+    "proof":"Extend the single projectile proof with all original shared-endpoint words,per-channel ownership,eight inputs/fourteen components and complete RGB5 capture for all independent-mask combinations. Explicitly confirm independent zero-field ownership. Reuse all80 original colors,timed guarded loop,untouched CGRAM,all edit scopes,bounds and JSON checks.",
+    "scope":"Remaining independent component derivations/dispositions and the two blue endpoint words remain pending. No new retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed all LoadingPaletteInputView source pins including interface/full-body/shared Hyper Beam dependencies,projectile owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

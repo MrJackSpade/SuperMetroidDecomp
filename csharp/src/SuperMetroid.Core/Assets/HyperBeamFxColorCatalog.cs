@@ -12,6 +12,7 @@ public sealed class HyperBeamFxColorCatalog
     private readonly int neutralIntensity;
     private readonly LoadingPaletteInputView.Channels neutralOverrides;
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private HyperBeamFxColorCatalog(ushort[][] frames)
@@ -42,6 +43,11 @@ public sealed class HyperBeamFxColorCatalog
                 pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0, shared.Red, shared.Green));
                 continue;
             }
+            if (HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, frames[0][0], frames[0][3], out ushort basis, out int independentMask))
+            {
+                endpointInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, basis, independentMask));
+                continue;
+            }
             colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
         }
     }
@@ -63,6 +69,11 @@ public sealed class HyperBeamFxColorCatalog
         {
             var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? (ushort)0 : Resolve(0, 3));
             return paired.Resolve(frame == 0, shared.Red ?? 0, shared.Green ?? 0);
+        }
+        if (endpointInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var endpoint))
+        {
+            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Resolve(0, 0), Resolve(0, 3), out ushort basis, out _);
+            return endpoint.Apply(basis);
         }
         if (color == 0) return Resolve(0, 0);
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
@@ -202,6 +213,29 @@ public sealed record HyperBeamFxColorDocument
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
 public static class HyperBeamFxColorFormat
 {
+    /// <summary>Supplies shared extrema for the remaining red,yellow,green and blue endpoint inks.</summary>
+    /// <remarks>Original8D:D906+20*frame: red ink1 shares white red;
+    /// yellow inks1/3 share red's minimum as blue; green inks1/3 share that
+    /// minimum as red,with ink1 also sharing the red maximum as green.
+    /// Blue inks1/3 share the red minimum as red; inks1/4 share white blue.
+    /// Other components remain independent inputs,including zero-valued edits.</remarks>
+    internal static bool TrySharedEndpoint(int frame, int ink, ushort white, ushort red, out ushort basis, out int independentMask)
+    {
+        int minimum = red >> 5 & 31, maximum = red & 31;
+        (int Value, int Mask) selected = (frame, ink) switch
+        {
+            (0, 1) => (white & 31, 6),
+            (2, 1 or 3) => (minimum << 10, 3),
+            (4, 1) => (minimum | maximum << 5, 4),
+            (4, 3) or (6, 3) => (minimum, 6),
+            (6, 1) => (minimum | (white & 0x7c00), 2),
+            (6, 4) => (white & 0x7c00, 3),
+            _ => (0, 7),
+        };
+        basis = (ushort)selected.Value;
+        independentMask = selected.Mask;
+        return selected.Mask != 7;
+    }
     /// <summary>Builds a neutral RGB5 highlight from its single intensity.</summary>
     /// <remarks>The repeated white at8D:D906 has equal red,green,blue.
     /// Expand one0..31 intensity into all three channels. Edited unequal

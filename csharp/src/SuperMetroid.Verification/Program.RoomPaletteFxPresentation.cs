@@ -363,6 +363,34 @@ internal static partial class Program
         var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(presentation)!;
+        var inputView = (LoadingPaletteInputView)typeof(RoomPaletteFxPresentation)
+            .GetField("loadingInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(presentation)!;
+        ushort[] splitEndpoints = [0xdc7e, 0xdc80, 0xdba1, 0xdc94, 0xdd09, 0xdd0b, 0xddfa, 0xdf4c];
+        int independentComponents = 0;
+        foreach (var field in typeof(LoadingPaletteInputView).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+        {
+            if (field.Name == "colors") continue;
+            object channels = field.GetValue(inputView)!;
+            independentComponents += channels.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Count(component => component.GetValue(channels) is not null);
+        }
+        AssertEqual(9, independentComponents, "Stock endpoint words reduce to nine independent channel inputs");
+        var endpointFixture = splitEndpoints.Concat(new ushort[] { 0xdb6d, 0xdb6f, 0xdb7d, 0xdb83, 0xdce5, 0xdce7, 0xdce9, 0xde3b })
+            .ToDictionary(pointer => pointer, pointer => ReadVerificationWord(bus, 0x8d0000 | pointer));
+        foreach (ushort endpoint in splitEndpoints)
+        for (int rgb = 0; rgb < 32768; rgb++)
+        {
+            var supplied = new Dictionary<ushort, ushort>(endpointFixture) { [endpoint] = (ushort)rgb };
+            var view = new LoadingPaletteInputView(supplied);
+            foreach (ushort selected in splitEndpoints)
+            {
+                AssertTrue(view.TryGetValue(selected, out ushort actual), "Split endpoint remains owned");
+                AssertEqual(selected == endpoint ? (ushort)rgb : endpointFixture[selected], actual,
+                    "Every RGB5 endpoint edit preserves its value and other supplied endpoints");
+                AssertTrue(!supplied.ContainsKey(selected), "No complete split endpoint word remains stored");
+            }
+        }
         var aliases = new Dictionary<ushort, ushort>();
         List<(int Pointer, ushort[] Colors)>? powerRows = null;
         var tinted = new HashSet<ushort>();
@@ -413,13 +441,13 @@ internal static partial class Program
                     aliases.Add(pointer, canonical);
                     AssertTrue(presentation.TryReadColor(pointer, out ushort actual), "All native loading colors remain installed");
                     AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
-                    AssertEqual(pointer == canonical && !tinted.Contains(pointer), stored.ContainsKey(pointer), "Stock stores only independent suit/shade inputs");
+                    AssertEqual(pointer == canonical && !tinted.Contains(pointer) && !splitEndpoints.Contains(pointer), stored.ContainsKey(pointer), "Stock stores only independent suit/shade inputs");
                 }
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
         AssertEqual(61, tinted.Count, "Base tints, endpoint brightening and shared channels");
-        AssertEqual(35, aliases.Keys.Count(stored.ContainsKey), "Tint and channel conversions remove61 stored words");
+        AssertEqual(27, aliases.Keys.Count(stored.ContainsKey), "Eight endpoints are split into components");
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 3; shade++)
         {
@@ -475,7 +503,7 @@ internal static partial class Program
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
             AssertEqual(expected, LoadingPaletteColorDefinitions.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
             AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
-            bool calculated = LoadingPaletteColorDefinitions.TryCalculatedColor((ushort)address, stored, out ushort tint);
+            bool calculated = LoadingPaletteColorDefinitions.TryCalculatedColor((ushort)address, inputView, out ushort tint);
             AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");
             AssertEqual(calculated ? ReadVerificationWord(bus, 0x8d0000 | address) : (ushort)0, tint, "Original tint word or unowned zero");
         }

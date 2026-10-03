@@ -5684,4 +5684,16 @@
     "scope":"The35 remaining inputs and component relationships remain pending. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed dependency pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingEndpointComponentsReview": {
+    "status":"removed eight complete endpoint words; derived channels calculated and nine component inputs remain under review",
+    "owners":"LoadingPaletteInputView; RoomPaletteFxPresentation loading input resolution",
+    "source":"Original Power dim slots1/2/12 and bright9, Varia bright10/11 and dim12, Gravity dim2 in8D:DB62/DCC8/DE2E. Supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Reconstruct endpoints from reviewed normal-color tint transformations, storing only channels that differ. Power dim1 retains red14/green6; dim2 blue13; bright9 blue21; dim12 red22/green16. Varia bright10 retains blue29, bright11 shares that blue and derives its own red/green from normal tint; dim12 retains red13. Gravity dim2 retains blue27. All other endpoint channels are calculated. These nine component inputs remain pending disposition; no assertion of irreducibility is made here.",
+    "implementation":"Named endpoint owners contain nullable component overrides. The input view reconstructs full words on demand and removes all eight original words from its backing dictionary. Whole-color lookup results are not cached. Stock now has27 complete loading words plus nine endpoint components. Existing shade calculations consume the reconstructed endpoints through the same read-only input interface.",
+    "ownership":"Each endpoint channel is compared with its calculated value at load. Custom differences remain explicit overrides, including a Varia slot11 blue differing from slot10. Editing any endpoint preserves the supplied values of other endpoints. Normal sources remain separately installed and independently reviewed.",
+    "proof":"Extend the single loading-color proof. Confirm nine stock nullable component values and absence of all eight whole words. Every32768 RGB5 edit at every endpoint round-trips through the real split-input constructor while all other supplied endpoints remain unchanged. All432 original outputs, complete address/calculation domains,27-word stock count, existing full/base/dim edit fixtures and guarded native/installed loading executions remain checked. Heat-color checks confirm shared base integration.",
+    "scope":"The27 complete words and nine component inputs still require their remaining source/artwork disposition. This entry only resolves derived endpoint channels; full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, added closed-interface dependency pin and refreshed maintained-source index. Implementation record is this entry's commit."
+  }
 }

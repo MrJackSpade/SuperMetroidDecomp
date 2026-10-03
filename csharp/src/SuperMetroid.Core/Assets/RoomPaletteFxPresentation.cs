@@ -12,16 +12,18 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     private readonly Dictionary<ushort, ushort> colors;
 
     private readonly HeatPaletteInputView heatInputs;
+    private readonly LoadingPaletteInputView loadingInputs;
 
     private RoomPaletteFxPresentation(Dictionary<ushort, ushort> colors)
     {
         this.colors = colors;
         heatInputs = new HeatPaletteInputView(colors);
+        loadingInputs = new LoadingPaletteInputView(colors);
     }
 
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
-        LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out color) ||
+        LoadingPaletteColorDefinitions.TryReadColor(pointer, loadingInputs, out color) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));

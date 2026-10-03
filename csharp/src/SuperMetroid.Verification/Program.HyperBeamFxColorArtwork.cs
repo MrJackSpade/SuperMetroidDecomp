@@ -45,7 +45,7 @@ internal static partial class Program
         AssertEqual(6, shadeComponentCount, "Six differing middle-shade components remain under review");
         var pairedInputs = (Dictionary<int, HyperBeamFxColorCatalog.PairedChannels>)typeof(HyperBeamFxColorCatalog)
             .GetField("pairedInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(9, pairedInputs.Count, "Middle shades remove three further paired inputs");
+        AssertEqual(7, pairedInputs.Count, "Hue endpoint transforms remove two paired inputs");
         foreach (var entry in pairedInputs)
         {
             int frame = entry.Key / 8, color = entry.Key % 8;
@@ -86,6 +86,15 @@ internal static partial class Program
                     ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1)),
                     ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink + 1))),
                 "Every original within-hue shade midpoint");
+        ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
+        AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(nativeRedEndpoint), "Original saturated green endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), HyperBeamFxColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
+        for (int rgb = 0; rgb < 32768; rgb++)
+        {
+            int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
+            AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed((ushort)rgb), "Complete RGB5 red-to-green domain");
+            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamFxColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
+        }
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();
         var extractedCgram = new SnesCgram();
@@ -156,9 +165,10 @@ internal static partial class Program
                         ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
                     AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
                     bool middleShade = (frame & 1) == 0 && color == 2 || frame is 4 or 6 or 8 && color == 5;
-                    bool pairedOwner = !middleShade && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
+                    bool transformedEndpoint = frame == 4 && color == 7 || frame == 8 && color == 1;
+                    bool pairedOwner = !middleShade && !transformedEndpoint && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
                     AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
-                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
+                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
                         "Original FX input ownership");
                 }
             }

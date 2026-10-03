@@ -6137,4 +6137,15 @@
     "scope":"The six differences require further derivation/disposition review; mismatch with a midpoint is not a retention justification. Other endpoint intensities also remain pending. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectilePrimaryHueReview": {
+    "status":"converted saturated green and magenta endpoints from the red endpoint",
+    "owners":"HyperBeamFxColorFormat.GreenFromRed/MagentaFromRed; HyperBeamFxColorCatalog constructor/Resolve",
+    "source":"Original frame4 ink7 at8D:D964 is frame0 ink3 atD90C with red/green exchanged. Original frame8 ink1 atD9A8 is the same red endpoint with blue replaced by red. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Exchange red/green while preserving blue for the green hue; copy red into blue while preserving red/green for magenta. Exact RGB5 channel operations with no rounding,saturation or overflow. Two paired endpoint inputs disappear: stock11 whole words plus14 paired and6 middle-shade components remain.",
+    "ownership":"Compare supplied source/target endpoints before omission. Differing target colors remain explicit paired inputs. Existing red-only source edits preserve independently supplied green/magenta and all other colors.",
+    "proof":"Extend the single projectile proof with both original endpoint pairs,updated ownership and all32768 RGB5 inputs for each transform. Reuse all80 original colors,all independent edit scopes,timed guarded loop,untouched CGRAM,bounds and JSON checks.",
+    "scope":"Other endpoint intensities/shades and the six differing middle components still require review. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

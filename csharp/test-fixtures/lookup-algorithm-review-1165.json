@@ -4828,5 +4828,26 @@
     "consumers":"Runtime room loading, load stations, attract demos, LandingSiteEntryState and room-door collision retain the same Get API. No header record array or generated cache remains. Existing real collision fixture resolves and publishes the transition on a bus that rejects reads. Removed the stale full-runtime guard fixture that lacked required installed artwork; this definition conversion is confirmed at its actual domain and collision boundary without a whole-room rendering prerequisite.",
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --door-definitions pass all header field/identity proofs, room-door mappings and no-read collision. No gameplay sweep or speculative bug search.",
     "scope":"Every selected physical door-header field and full bounded elevator overlap resolved without retention. Door-list mappings were separately completed in41f0e308; wider maintained-source audit remains active. Implementation record is the commit introducing this entry."
+  },
+  "retailLoadStationReview": {
+    "status":"converted: all seven placement arrays and stored area-list pointer array removed",
+    "owner":"csharp/src/SuperMetroid.Core/Rooms/LoadStationDefinitions.cs",
+    "source":"Supported NTSC J/U v1.0 bank80 C4B5 pointer table and C4C5..CC18 placement records, pinned bank_80.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Read LoadFromLoadStation atC437, indexed fourteen-byte reads and placement arithmetic, area list declarations, unused slots and complete Ceres repetition.",
+    "evidence":"Area/station identities select room, entrance door, door BTS, camera and Samus placement. Active settings are semantic configuration cases. Valid unused indexes share the exact inert placeholder; Ceres has one constant placement with Y offset72 at station0 and64 at1..16. The lists are physically consecutive, so a prefix sum of their lengths computes their native debugger identities. No performance, size, complexity or provenance exemption is invoked.",
+    "domain":{"disposition":"converted","algorithm":"Named area cases return lengths19,19,23,18,20,18,17. Validate area and byte station before selecting a placeholder or Ceres rule. The eighth/debug area remains rejected.","proof":"VerifyLoadStationDomain derives each length from adjacent original pointer words, including the debug start boundary, verifies all134 accepted identities and all65536 byte area/station pairs, and checks Count rejection for every unknown byte area."},
+    "listPointers":{"disposition":"converted","algorithm":"C4C5 +14*sum(length of preceding retail areas), without a stored pointer roster.","proof":"VerifyLoadStationListPointers compares the calculated identity at every134 valid station against its original area-table word."},
+    "fields": [
+      {"field":"RoomPointer","disposition":"converted active/unused/Ceres room selection","proof":"VerifyLoadStationRoomPointer"},
+      {"field":"DoorPointer","disposition":"converted active/unused/Ceres entrance selection","proof":"VerifyLoadStationDoorPointer"},
+      {"field":"DoorBts","disposition":"converted completeushort entrance BTS selection","proof":"VerifyLoadStationDoorBts"},
+      {"field":"CameraX","disposition":"converted ushort horizontal camera placement selection","proof":"VerifyLoadStationCameraX"},
+      {"field":"CameraY","disposition":"converted ushort vertical camera placement selection","proof":"VerifyLoadStationCameraY"},
+      {"field":"SamusYOffset","disposition":"converted ushort vertical offset selection, including bounded Ceres first-slot exception","proof":"VerifyLoadStationSamusYOffset"},
+      {"field":"SamusXOffset","disposition":"converted completeushort horizontal offset selection, preserving negative-offset bit patterns","proof":"VerifyLoadStationSamusXOffset"}
+    ],
+    "proofCoverage":"Each of seven field proofs reads all134 original records through the import-only native word reader; expected values never come from the replacement cases or prefix sum. X/Y offset proofs include the actual LoadStationEntry world-coordinate view and16-bit wrap using original camera/offset words. The old aggregate comparison is consolidated. Native data includes debug-load slots within the seven retail areas; these remain accepted, distinct from the excluded eighth area.",
+    "consumers":"Runtime Ceres entry, save restoration and load-station room entry keep the same Count/Get API. No source pointer or placement arrays are generated at startup. Removed old suggested-formula/retention annotations. The stale uninstalled full-runtime guard fixture is replaced by complete configuration-domain proofs; Get takes no cartridge capability and the runtime calls this same API.",
+    "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --load-station-definitions pass. Static source/native inspection chose the conversion; no gameplay sweep or exploratory defect search.",
+    "scope":"All seven retail-area station domains, list identities and seven placement fields resolved without retention. Other maintained mappings remain under1165; implementation record is the commit introducing this entry."
   }
 }

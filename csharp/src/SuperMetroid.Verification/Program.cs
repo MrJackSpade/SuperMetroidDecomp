@@ -53,6 +53,12 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--load-station-definitions"])
+{
+    VerifyCompiledLoadStationDefinitions();
+    return 0;
+}
+
 if (args is ["--door-definitions"])
 {
     VerifyCompiledDoorDefinitions();
@@ -3276,11 +3282,6 @@ if (args is ["--escape-timer-pointer-definitions", var timerRom])
 {
     VerifyEscapeTimerPointerDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(timerRom)));
-    return 0;
-}
-if (args is ["--load-station-definitions"])
-{
-    VerifyCompiledLoadStationDefinitions();
     return 0;
 }
 if (args is ["--cartridge-room-state-selection"])

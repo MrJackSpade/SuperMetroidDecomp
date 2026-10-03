@@ -145,6 +145,15 @@ if (args is ["--lookup-quake-suppression"])
     Console.WriteLine("Quake suppression: native branches, all 65536 room identities and sound consumer pass.");
     return 0;
 }
+if (args is ["--lookup-quake-sound-selection"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Quake sound oracle revision");
+    VerifyQuakeSoundSelection(rom);
+    Console.WriteLine("Quake sound selection: all eight original identities, loop marker and production queue requests pass.");
+    return 0;
+}
 if (args is ["--lookup-liquid-wave"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

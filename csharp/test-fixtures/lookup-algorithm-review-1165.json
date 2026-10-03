@@ -5108,4 +5108,26 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-liquid-wave run the new horizontal proof and existing mirrored-water/vertical proof. No gameplay sweep or unrelated defect search.",
     "scope":"This resolves the separate horizontal waveform left pending by mirroredLiquidWaveReview without retention. The remaining maintained-source audit stays active under1165. Implementation record is this entry's commit."
   }
+,
+  "quakeSoundSequenceReview": {
+    "status":"independent split review: retained rhythmic delays; verified existing constant sound selection",
+    "owners":"RoomFxRomData.Earthquake.RisingLiquidSoundBaseTimers; RoomLayer3FxState.HandleEarthquakeSoundEffect",
+    "source":"Supported NTSC J/U v1.0 interleaved sound/timer words88:B256..B275, negative terminator88:B276, consumer88:B21D..B254. Pinned bank_88.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d describes lavaquake/Tourian reveal use. Direct local SHA-pinned ROM read confirms all eight pairs and8000 sentinel.",
+    "baseTimers":{
+      "disposition":"retained under arbitrary-sequence/nonsense exception",
+      "domain":"Eight chronological emission slots0..7, values1,3,2,1,1,2,2,1. Native byte index advances4 per emitted sound and restarts at the negative ninth sound word. Managed index advances1, reaches8, then resets before indexing. Negative sound timer suppresses emissions; nonnegative timer counts down. Live RNG low two bits are added separately after emission.",
+      "evidence":"Every paired sound identity is the same library-two rumble46. Slot position is only chronological; it does not denote angle, spatial position, increasing intensity, sound category or another functional independent variable. The particular delays determine an irregular repeated rhythm, independently jittered by live RNG. Equal delays have different successors, and the eight entries have no half-cycle repetition/reflection or monotone progression. A different sequence changes audible cadence even if its distribution matches.",
+      "generationAssessment":"Reviewed constant/linear or quadratic progression, geometric progression, periodic mirror/alternation and single-state recurrence interpretations against the complete sequence and consumer. None describes this chronological rhythm: finite differences vary, values rise/fall more than once with unequal peaks, halves differ, and identical current delays lead to different next delays. A hidden-state PRNG or fitted multi-term formula could encode a finite sequence but no native generation rule or functional role supports selecting one; that possibility is not claimed mathematically impossible. The retention basis is this sequence's role as specific irregular rhythmic content, not failure to identify historical tooling.",
+      "whyPortIsNonsense":"Per-slot numeric cases, a fitted polynomial or invented seed/state machine would re-encode the same arbitrary eight timing choices without expressing a new functional rule. Replacing them with a different regular rhythm or RNG sequence changes the requested behavior. This is the user's arbitrary-animation/action-sequence example applied to sound rhythm, not a performance, size or complexity exemption.",
+      "verification":"Existing VerifyRetailRisingLavaFeedback independently retains the original eight values for cadence confirmation; direct supported-ROM inspection confirms every value. No new per-table test or exploratory runtime run was added just to document retention. Existing broad runtime fixture is not newly claimed executed."
+    },
+    "soundIdentityAndLoop":{
+      "disposition":"independently verified existing exact constant selection and sentinel restart; no production lookup or algorithm churn",
+      "algorithm":"All eight original sound words select SoundEffectLibrary2Sounds.Earthquake with queue cap6. The ninth negative marker restarts selection at0; managed length bound expresses this control flow without storing sound words or a marker.",
+      "proof":"VerifyQuakeSoundSelection reads the complete original sound-word domain through its negative marker, then drives the actual production PublishStatueEarthquakeSound path at every reachable sequence index0..8. Compare emitted native sound identity, library, queue cap and next index, including marker restart. One named proof covers constant selection/control; no duplicate duration proof is introduced."
+    },
+    "consumers":"Lava/acid feedback and Tourian statue feedback share HandleEarthquakeSoundEffect. Source inspection finds only reset, increment and bound-reset writes to the private index, establishing reachable0..8. Updated owner XML and three RoomFxRomData resource source pins.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-quake-sound-selection. No whole-room, gameplay or unrelated audio test campaign.",
+    "scope":"Both independently indexed fields and the sentinel at88:B256 resolved with distinct dispositions. Delay retention does not exempt any other sound, motion or timing table. Wider maintained-source audit remains active under1165. Review record is this entry's commit."
+  }
 }

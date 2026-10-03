@@ -368,6 +368,16 @@ public static class RoomFxRomData
         /// Base delays paired with the eight <c>$46</c> entries at
         /// <c>$88:B256-$B276</c>. The live RNG low two bits are added at each emission.
         /// </summary>
+        /// <remarks>
+        /// Retained as the particular irregular rhythm of repeated identical rumble
+        /// sounds. The index advances chronologically by one emission, not by angle,
+        /// distance, intensity or a semantic sound choice. The complete cycle has
+        /// neither a ramp nor half-cycle reflection/repetition; equal delay values
+        /// have different successors. Live RNG supplies separate variation. Reciting
+        /// these eight choices in cases or fitting them would merely disguise the
+        /// same rhythmic content, while replacing the rhythm changes sound cadence.
+        /// This is the arbitrary-sequence/nonsense exception, not a cost or size exemption.
+        /// </remarks>
         public static ReadOnlySpan<ushort> RisingLiquidSoundBaseTimers =>
             [1, 3, 2, 1, 1, 2, 2, 1];
 

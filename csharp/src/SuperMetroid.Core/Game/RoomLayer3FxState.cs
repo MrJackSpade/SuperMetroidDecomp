@@ -558,7 +558,12 @@ public sealed class RoomLayer3FxState
             RoomFxRomData.Earthquake.RisingLiquidTimerBits);
     }
 
-    /// <summary>Ports the signed timer and eight-entry loop at <c>$88:B21D-$B254</c>.</summary>
+    /// <summary>
+    /// Ports the signed timer and eight-entry loop at <c>$88:B21D-$B254</c>.
+    /// All eight native sound words are library-two Earthquake; the negative ninth
+    /// word resets selection to zero. Constant sound selection and the index bound
+    /// replace those words; the independently retained rhythm supplies only delays.
+    /// </summary>
     private void HandleEarthquakeSoundEffect(ushort randomNumber)
     {
         if (unchecked((short)earthquakeSoundTimer) < 0)

@@ -6104,4 +6104,15 @@
     "scope":"Remaining endpoint intensity,shade and cross-hue relationships are pending. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileRedHighlightRampReview": {
+    "status":"converted four red highlight shades to fifth-step interpolation",
+    "owners":"HyperBeamFxColorFormat.RedHighlight; HyperBeamFxColorCatalog constructor/Resolve",
+    "source":"Original frame0 inks4..7 at8D:D90E..D914 have equal green/blue25,19,12,6. They are nearest-rounded4/5,3/5,2/5,1/5 blends from red ink3 atD90C toward white ink0 atD906; all red channels remain31. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"For each independent RGB5 channel use(red*(5-weight)+white*weight+2)/5,weight=8-ink for inks4..7. Denominator5 has no half ties; maximum numerator157. No saturation,overflow or generated cache. Remove four paired color inputs: stock16 whole words plus24 independent components remain.",
+    "ownership":"Only matching supplied targets collapse. Separately edited highlight channels remain explicit through existing paired overrides. Changing only red or only white preserves all other supplied colors,including repeated-white and midpoint targets.",
+    "proof":"Extend the single projectile proof with every original highlight/endpoints comparison. Cover all32768 first RGB5 endpoints crossed with all32 second-channel values for every highlight weight against real-valued rounding; reject unsupported ink indices. Add red-only and white-only edits to existing all/even/green edits. Reuse all80 native outputs,timed guarded loop,untouched CGRAM and JSON validation.",
+    "scope":"Other endpoint shades and intensities remain pending; no new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

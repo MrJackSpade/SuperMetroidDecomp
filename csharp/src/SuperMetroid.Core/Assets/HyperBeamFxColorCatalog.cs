@@ -21,6 +21,7 @@ public sealed class HyperBeamFxColorCatalog
             if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
             if (frame == 2 && color >= 4 && value == SamusHyperBeamColorFormat.YellowFromGreen(frames[4][color])) continue;
+            if (frame == 0 && color >= 4 && value == HyperBeamFxColorFormat.RedHighlight(frames[0][3], frames[0][0], color)) continue;
             if (HasPairedChannels(frame, color))
             {
                 pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0));
@@ -44,6 +45,7 @@ public sealed class HyperBeamFxColorCatalog
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired)) return paired.Resolve(frame == 0);
         if (color == 0) return colors[0];
+        if (frame == 0) return HyperBeamFxColorFormat.RedHighlight(Resolve(0, 3), Resolve(0, 0), color);
         if (frame == 2) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(4, color));
         return SamusHyperBeamColorFormat.HueMidpoint(
             Resolve(frame - 1, color), Resolve((frame + 1) % HyperBeamFxColorFormat.FrameCount, color));
@@ -159,6 +161,21 @@ public sealed record HyperBeamFxColorDocument
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
 public static class HyperBeamFxColorFormat
 {
+    /// <summary>Blends red and white into the four red-frame highlight inks.</summary>
+    /// <remarks>Original8D:D90E..D914 (frame0 inks4..7) are4/5,3/5,2/5,1/5
+    /// white from ink0 toward red ink3. Round each RGB5 channel to nearest:
+    /// (red*(5-weight)+white*weight+2)/5. There are no half ties; numerator
+    /// is at most157,with no saturation or overflow. Independent source edits
+    /// preserve supplied targets through input overrides,not a generated cache.</remarks>
+    internal static ushort RedHighlight(ushort red, ushort white, int ink)
+    {
+        if (ink is < 4 or > 7) throw new ArgumentOutOfRangeException(nameof(ink));
+        int whiteWeight = 8 - ink, redWeight = 5 - whiteWeight;
+        int r = ((red & 31) * redWeight + (white & 31) * whiteWeight + 2) / 5;
+        int g = ((red >> 5 & 31) * redWeight + (white >> 5 & 31) * whiteWeight + 2) / 5;
+        int b = ((red >> 10 & 31) * redWeight + (white >> 10 & 31) * whiteWeight + 2) / 5;
+        return (ushort)(r | g << 5 | b << 10);
+    }
     public const string FileName = "hyper-beam-fx-colors.json";
     public const int Version = 1;
     public const int FrameCount = 10;

@@ -22,7 +22,7 @@ public static class RoomFxAtmosphereTilemapDefinitions
     /// <summary>
     /// Cell0..1055: rain's blank first row uses palette0, its remaining32 rows use6.
     /// Fog uses palette6 and clear priority throughout. Values cover only the selected
-    /// mask; no disposition for other character, flip or rain-priority fields is implied.
+    /// mask; the independent graphical fields are described on the page owner below.
     /// </summary>
     public static ushort CalculatedFields(RoomFxType type, int index)
     {
@@ -33,7 +33,17 @@ public static class RoomFxAtmosphereTilemapDefinitions
     }
 }
 
-/// <summary>Separates calculated atmosphere fields from imported fields and arbitrary custom edits.</summary>
+/// <summary>
+/// Separates calculated attributes from the authored rain/fog image. Rain character
+/// positions draw scattered drops; fog characters and their orientations assemble
+/// irregular cloud silhouettes. Rain also carries authored per-cell layering and
+/// two horizontal/one vertical orientation bits (including a flipped blank).
+/// These describe the composition itself, not particle motion: the runtime scrolls
+/// the complete page. Replacing its drawing with coordinate exceptions or a fitted
+/// generator would merely encode the same artwork as instructions. Preserve those
+/// graphical fields and arbitrary custom edits; calculate the uniform attributes.
+/// See atmosphereGraphicalFieldsReview in the issue1165 inventory for field evidence.
+/// </summary>
 internal sealed class RoomFxAtmosphereTilemap
 {
     private readonly RoomFxType type;

@@ -26,7 +26,7 @@ internal static class BackgroundTransferClosedContractDefinitions
             "Private construction requires all sixteen declared mixed-body BG2 frames with independently compiled bounded writes. The OAM-only dummy and other unowned pointers validly return false. This is resource membership, not body composition, scroll, positioning, collision or battle parity."),
         new("SuperMetroid.Core.Assets.RoomFxLayer3TilemapCatalog", "room-fx-complete-six-pages", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomFxLayer3TilemapCatalog.cs", "5E0FFFA1390B99E878D3281598BD064CE707EDCEB11D7BD4DB38E0F4F3C26388"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomFxAtmosphereTilemap.cs", "BD66A8198AE1B034E0628479E1730C7AB71D2B02E4E705343FC888F714F06934"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomFxAtmosphereTilemap.cs", "930D05F56E1EED5EBFE39A9496CD2EF4934E9091D10852293E393FC01EE90BBA"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomFxSporeTilemap.cs", "CB16C9514BAAE6CA03515F3CFD0D18FA148132AC2FDEF2462009C10037CBBC76"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomFxLiquidTilemapDefinitions.cs", "1C54C0A3A730806D3DC500A0A4B35D217A06546BA6AC27E54396A936AC6DD3BF")],
             "Private Load requires every one of the six named 32x33 effect pages and independently compiles each cell. Only those six effect types select a resource. Liquid height, timing, HDMA, source selection, VRAM upload and pixels are not certified."),

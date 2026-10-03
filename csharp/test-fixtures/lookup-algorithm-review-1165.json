@@ -6637,4 +6637,14 @@
     "proof":"The existing consolidated VerifyGameOverBabyColors proof checks all64 original colors, actual CGRAM, JSON hash and selector bounds, plus every independently edited channel intensity. Reused without another per-palette proof.",
     "confirmation":"Verification and ResourceAudit builds, isolated --lookup-game-over-baby-colors, source dependency pin and maintained-source index. Implementation commit is the commit adding this entry."
   }
+,
+  "gameOverBabyCoolTintReview": {
+    "status":"converted cyan tint and green cry brightness; remaining input choices pending",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
+    "source":"Original four Baby palettes82:BD97..BE16. Native82:BB9F..BBB4 copies the selected16-word phase to OBJ palette4; sprite definitions82:CFF6/CFFD/D004 select the three fixed image frames. This review does not infer an exception merely from their visual use.",
+    "algorithm":"ClosedCry cyan slots1/15 add five red/green levels and subtract five blue levels, saturating independently. Slot15 red remains a differing component. ClosedCry green ramp endpoint4 adds five to Idle green; its independently supplied red/blue are retained as unresolved components. Slots2/3 then use the already converted green ramp. No cached generated colors.",
+    "remainingInputs":"Stock15 whole inputs plus eight differing components remain pending: original five differences, ClosedCry slot15 red0 and slot4 red1/blue1. Supersedes the18-word/five-component count; neither these differences nor the base words are accepted retain decisions.",
+    "proof":"Reuse VerifyGameOverBabyColors, all64 independent ROM words and actual CGRAM output, original JSON identity, bounds and6144 independently edited components across all outputs. No duplicate table proof.",
+    "confirmation":"Verification and ResourceAudit builds plus isolated --lookup-game-over-baby-colors pass. Owner dependency hash and maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

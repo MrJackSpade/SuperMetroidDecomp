@@ -21,7 +21,7 @@ internal static class MenuClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
                 "4875F1E29748B33C81352529184423EAB9DC704E2CDC10D6F4CCAA7CCFC2C7E5"),
              new("csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
-                "E5E3CFE112F9942FAB0812AFCF621A07392338C31A8EA55689CE540AFF0C3B80"),
+                "6A24CF47AB8085900071843C0FD9D190C2425CC058C3CDF44B8D5ED2883642B7"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
                 "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",

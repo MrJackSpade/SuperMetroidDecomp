@@ -8,13 +8,16 @@ namespace SuperMetroid.Core.Assets;
 /// the preceding cry phase by three independently saturated RGB5 steps. Color zero
 /// instead aliases Idle color zero. Import stores only differing target channels,
 /// so independently edited source and target colors remain exact. Stock input consists
-/// of 18 base words and five differing components, whose separate review remains open;
+/// of 15 base words and eight differing components, whose separate review remains open;
 /// this conversion does not assert that those inputs qualify for retention.
 /// Idle/ClosedCry green inks 2..4 share red/blue and have green levels spaced by five;
 /// derive inks 2/3 from darkest ink 4, saturating for independently edited assets.
 /// ClosedCry inks 5..12 preserve Idle green and shift five levels from blue to red.
 /// Ink 9 red differs by one and remains an unresolved independently stored component.
 /// Idle ink 11 is the component-wise floor midpoint between shade endpoints 10/12.
+/// ClosedCry cyan inks 1/15 add five red/green levels and subtract five blue levels;
+/// ink 15 red remains independently supplied. The green ramp also adds five green
+/// levels from Idle, with its red/blue endpoint choices still independently supplied.
 /// </remarks>
 internal sealed class GameOverBabyColorCatalog
 {
@@ -32,12 +35,18 @@ internal sealed class GameOverBabyColorCatalog
             bool greenShade = phase < 2 && color is 2 or 3;
             bool warmCry = phase == 1 && color is >= 5 and <= 12;
             bool middleShade = phase == 0 && color == 11;
-            if (!greenShade && !warmCry && !middleShade && (phase == 0 || (phase == 1 && color != 0)))
+            bool coolCry = phase == 1 && color is 1 or 15;
+            bool greenCry = phase == 1 && color == 4;
+            if (!greenShade && !warmCry && !middleShade && !coolCry && !greenCry &&
+                (phase == 0 || (phase == 1 && color != 0)))
             {
                 inputs.Add(key, supplied);
                 continue;
             }
-            ushort expected = middleShade
+            ushort expected = coolCry
+                ? CoolCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
+                : greenCry ? GreenCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
+                : middleShade
                 ? MiddleShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][10],
                     palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][12])
                 : greenShade
@@ -58,7 +67,10 @@ internal sealed class GameOverBabyColorCatalog
         int phase = (int)palette;
         int key = phase * 16 + color;
         if (inputs.TryGetValue(key, out ushort value)) return value;
-        ushort expected = phase == 0 && color == 11
+        ushort expected = phase == 1 && color is 1 or 15
+            ? CoolCry(Read(GameOverBabyPalette.Idle, color))
+            : phase == 1 && color == 4 ? GreenCry(Read(GameOverBabyPalette.Idle, color))
+            : phase == 0 && color == 11
             ? MiddleShade(Read(palette, 10), Read(palette, 12))
             : phase < 2 && color is 2 or 3
             ? GreenShade(Read(palette, 4), color)
@@ -73,6 +85,12 @@ internal sealed class GameOverBabyColorCatalog
     private static ushort WarmCry(ushort idle) =>
         (ushort)(Math.Min(31, (idle & 31) + 5) | (idle & 0x03e0) |
             Math.Max(0, (idle >> 10 & 31) - 5) << 10);
+
+    private static ushort CoolCry(ushort idle) =>
+        (ushort)((WarmCry(idle) & 0x7c1f) | Math.Min(31, (idle >> 5 & 31) + 5) << 5);
+
+    private static ushort GreenCry(ushort idle) =>
+        (ushort)((idle & 0x7c1f) | Math.Min(31, (idle >> 5 & 31) + 5) << 5);
 
     private static ushort MiddleShade(ushort bright, ushort dark) =>
         (ushort)(((bright & 31) + (dark & 31)) / 2 |

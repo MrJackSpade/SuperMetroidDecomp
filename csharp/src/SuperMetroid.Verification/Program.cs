@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pause-door-shinespark"])
+{
+    VerifyPauseDoorShinespark();
+    return 0;
+}
 if (args is ["--overlapping-enemy-shots"])
 {
     VerifyOverlappingEnemyShots();

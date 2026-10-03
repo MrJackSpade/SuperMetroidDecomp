@@ -730,10 +730,17 @@ public sealed partial class SuperMetroidGame
                 // represented as a desktop-only frozen bitmap.
                 runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
+                if (runtime.HasPendingDoorTransition)
+                    GameState = SuperMetroidGameState.HitDoorBlock;
                 AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
-                    GameState = SuperMetroidGameState.Pausing;
+                {
+                    // $82:8CEA increments the state written by gameplay, including a
+                    // door hit on this final fade frame ($09 becomes $0A).
+                    pauseFadeCounter = 0;
+                    GameState++;
+                }
                 break;
 
             case SuperMetroidGameState.Pausing:
@@ -843,10 +850,16 @@ public sealed partial class SuperMetroidGame
                 // State $12 resumes the full state-eight loop behind an INIDISP fade.
                 runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
+                if (runtime.HasPendingDoorTransition)
+                    GameState = SuperMetroidGameState.HitDoorBlock;
                 AdvancePauseFade(brightening: true);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == PauseFadeTiming.FullyLit)
+                {
+                    // $82:93BB explicitly restores state eight on the terminal frame.
+                    pauseFadeCounter = 0;
                     GameState = SuperMetroidGameState.MainGameplay;
+                }
                 break;
 
             case SuperMetroidGameState.BlackoutFromCeres:
@@ -927,6 +940,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.HitDoorBlock:
+            case SuperMetroidGameState.LoadingNextRoomA:
                 // A non-elevator type-$9 door enters `$82:E17D`, which immediately advances
                 // through state $0A into the state-$0B transition coroutine. Before that
                 // transition, $84:8250 calls Samus code $1D and queues library-two $71 so

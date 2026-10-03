@@ -101,6 +101,15 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--lookup-heat-selectors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat selector oracle revision");
+    VerifyPaletteFxHeatInstructionListDefinitions(rom);
+    Console.WriteLine("Heat selectors: all48 native words, program layout, bounds and full equipment selection pass.");
+    return 0;
+}
 if (args is ["--lookup-fx-validation"])
 {
     VerifyFxValidationBoundaries();

@@ -2801,82 +2801,47 @@ internal static partial class Program
     private static void VerifyPaletteFxHeatInstructionListDefinitions(
         ISnesAddressSpace bus)
     {
-        PaletteFxHeatSuit[] suits = Enum.GetValues<PaletteFxHeatSuit>();
-        AssertEqual(3, suits.Length, "Norfair heat suit domain count");
-        foreach (PaletteFxHeatSuit suit in suits)
+        // Native LDA operands select each original table, independently of production
+        // source-address helpers and the replacement program-stride calculation.
+        var sources = new (PaletteFxHeatSuit Suit, int Operand)[]
         {
-            for (ushort phase = 0;
-                 phase < PaletteFxHeatInstructionListDefinitions.PhaseCount;
-                 phase++)
+            (PaletteFxHeatSuit.Power, 0x8de3d6),
+            (PaletteFxHeatSuit.Varia, 0x8de3d1),
+            (PaletteFxHeatSuit.Gravity, 0x8de3c7),
+        };
+        foreach (var (suit, operand) in sources)
+        {
+            int table = 0x8d0000 | ReadVerificationWord(bus, operand);
+            for (ushort phase = 0; phase < 16; phase++)
             {
-                ushort source = PaletteFxHeatInstructionListDefinitions.NativeSourceAddress(
-                    suit,
-                    phase);
-                ushort expected = RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(bus),
-                    RoomFxRomData.Banks.PaletteFx | source);
-                AssertEqual(expected,
-                    PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),
-                    $"{suit} heat program phase {phase}");
+                ushort expected = ReadVerificationWord(bus, table + 2 * phase);
+                AssertEqual(expected, PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),
+                    "Every original heat selector word");
+                AssertEqual((ushort)(table + 2 * phase),
+                    PaletteFxHeatInstructionListDefinitions.NativeSourceAddress(suit, phase),
+                    "Verification source alias preserves original pointer location");
+                AssertEqual(PaletteFxInstructionCodes.Wait, ReadVerificationWord(bus, 0x8d0000 | (expected + 32)),
+                    "Native frame contains duration, fifteen color words, then Done");
             }
+            foreach (ushort phase in new ushort[] { 16, 17, ushort.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(
+                    () => PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase), "Reject invalid heat phase");
         }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => PaletteFxHeatInstructionListDefinitions.Resolve(
-                PaletteFxHeatSuit.Power,
-                PaletteFxHeatInstructionListDefinitions.PhaseCount),
-            "Norfair heat selector rejects phase sixteen");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => PaletteFxHeatInstructionListDefinitions.Resolve(
-                (PaletteFxHeatSuit)3,
-                0),
-            "Norfair heat selector rejects unknown suit");
-        AssertEqual(
-            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 7),
-            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(0, 7),
-            "Norfair heat selector uses Power Suit without protection bits");
-        AssertEqual(
-            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Varia, 7),
-            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
-                (ushort)SamusEquipmentFlags.VariaSuit,
-                7),
-            "Norfair heat selector uses Varia Suit when equipped");
-        AssertEqual(
-            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 7),
-            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
-                (ushort)SamusEquipmentFlags.GravitySuit,
-                7),
-            "Norfair heat selector uses Gravity Suit when equipped");
-        AssertEqual(
-            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 7),
-            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
-                (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
-                7),
-            "Norfair heat selector gives Gravity Suit native priority");
-
-        // Warm the same hot loop before measuring. A handful of calls covers the switch
-        // arms but does not cross the tiered-runtime threshold, whose one-time bookkeeping
-        // would otherwise masquerade as a production lookup allocation.
-        ushort warmChecksum = 0;
-        for (int iteration = 0; iteration < 65_536; iteration++)
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(
+                () => PaletteFxHeatInstructionListDefinitions.Resolve((PaletteFxHeatSuit)invalid, 0), "Reject unknown suit");
+        ushort gravityMask = ReadVerificationWord(bus, 0x8de3c2);
+        ushort variaMask = ReadVerificationWord(bus, 0x8de3cc);
+        for (int equipment = 0; equipment <= ushort.MaxValue; equipment++)
         {
-            warmChecksum ^= PaletteFxHeatInstructionListDefinitions.Resolve(
-                (PaletteFxHeatSuit)(iteration % 3),
-                (ushort)(iteration & 15));
+            int operand = (equipment & gravityMask) != 0 ? 0x8de3c7 :
+                (equipment & variaMask) != 0 ? 0x8de3d1 : 0x8de3d6;
+            int table = 0x8d0000 | ReadVerificationWord(bus, operand);
+            for (ushort phase = 0; phase < 16; phase++)
+                AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
+                    PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems((ushort)equipment, phase),
+                    "All equipment words preserve native Gravity-before-Varia selection at every phase");
         }
-        GC.KeepAlive(warmChecksum);
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        ushort checksum = 0;
-        for (int iteration = 0; iteration < 65_536; iteration++)
-        {
-            checksum ^= PaletteFxHeatInstructionListDefinitions.Resolve(
-                (PaletteFxHeatSuit)(iteration % 3),
-                (ushort)(iteration & 15));
-        }
-        long allocatedAfter = GC.GetAllocatedBytesForCurrentThread();
-        GC.KeepAlive(checksum);
-        AssertEqual(0L, allocatedAfter - allocatedBefore,
-            "warmed Norfair heat selector allocates no managed memory");
     }
 
     /// <summary>

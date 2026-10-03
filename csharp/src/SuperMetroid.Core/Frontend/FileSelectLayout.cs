@@ -4,10 +4,50 @@ namespace SuperMetroid.Core.Frontend;
 /// <remarks>Shared missile animation is defined by <see cref="MenuMissileAnimationDefinitions"/>.</remarks>
 internal static class FileSelectLayout
 {
-    /// <summary>Screen-space Y coordinates for slots A-C, Copy, Clear, and Exit.</summary>
-    public static readonly ushort[] MainSelectionY = [48, 88, 128, 163, 187, 211];
-    /// <summary>Screen-space Y coordinates of the three save-slot helmet actors.</summary>
-    public static readonly ushort[] HelmetY = [47, 87, 127];
+    /// <summary>Three save slots on each file-select page.</summary>
+    public const int SaveSlotCount = 3;
+    /// <summary>Slots A-C followed by Copy, Clear and Exit at $81:A312.</summary>
+    public const int MainSelectionCount = 6;
+    /// <summary>Slots A-C followed by Exit at $81:9772 and $81:9C03.</summary>
+    public const int DataSelectionCount = 4;
+
+    /// <summary>Calculates $81:A312+4*selection Y for main choices 0..5.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
+    /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
+    /// follow the native text layout. Bounds are checked before arithmetic and preserve
+    /// the former array's IndexOutOfRangeException. X is the separate constant14.
+    /// </remarks>
+    public static ushort MainSelectionY(int selection)
+    {
+        if ((uint)selection >= MainSelectionCount) throw new IndexOutOfRangeException();
+        return (ushort)(selection < SaveSlotCount ? 48 + 40 * selection
+            : 163 + 24 * (selection - SaveSlotCount));
+    }
+
+    /// <summary>Calculates copy/clear cursor Y from $81:9772 and $81:9C03, choices0..3.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165: the three save choices start at72 with four-tile
+    /// spacing. Exit shares the main-page Exit Y. Both original tables and the extractor's
+    /// former duplicate are one logical mapping; unsupported indices remain rejected.
+    /// </remarks>
+    public static ushort DataSelectionY(int selection)
+    {
+        if ((uint)selection >= DataSelectionCount) throw new IndexOutOfRangeException();
+        return selection < SaveSlotCount ? (ushort)(72 + 32 * selection)
+            : MainSelectionY(MainSelectionCount - 1);
+    }
+
+    /// <summary>Save-slot helmet Y from immediate operands $81:A028/A02E/A034.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165: slots0..2 use the main slot cursor anchor minus
+    /// one pixel, giving the same five-tile spacing. Reject unsupported slot indices.
+    /// </remarks>
+    public static ushort HelmetY(int slot)
+    {
+        if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
+        return (ushort)(MainSelectionY(slot) - 1);
+    }
 
     /// <summary>Main file-select border spritemap.</summary>
     public const ushort NormalBorderSpritemap = 0x48;

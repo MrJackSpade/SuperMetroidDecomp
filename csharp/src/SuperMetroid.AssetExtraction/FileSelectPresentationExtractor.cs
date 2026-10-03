@@ -142,13 +142,16 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationDefinitions.CopyBorder] = new(128, 16),
                 [FileSelectPresentationDefinitions.ClearBorder] = new(124, 16),
             },
-            MainCursorAnchors = FileSelectLayout.MainSelectionY
+            MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
+                .Select(FileSelectLayout.MainSelectionY)
                 .Select(y => new MapLabelPoint(14, y)).ToArray(),
-            DataCursorAnchors = new ushort[] { 72, 104, 136, 211 }
+            DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
+                .Select(FileSelectLayout.DataSelectionY)
                 .Select(y => new MapLabelPoint(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
-            HelmetAnchors = FileSelectLayout.HelmetY
+            HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
+                .Select(FileSelectLayout.HelmetY)
                 .Select(y => new MapLabelPoint(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {

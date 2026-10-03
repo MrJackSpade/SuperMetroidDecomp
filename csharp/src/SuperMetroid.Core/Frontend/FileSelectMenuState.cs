@@ -241,7 +241,7 @@ public sealed partial class FileSelectMenuState
             DrawMenuSpritemap(
                 (ushort)(0x2c + Math.Min(frame, 7)),
                 100,
-                FileSelectLayout.HelmetY[slot]);
+                FileSelectLayout.HelmetY(slot));
         }
         oam.FinalizeFrame();
 

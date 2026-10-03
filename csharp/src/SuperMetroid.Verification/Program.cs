@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-geometry"])
+{
+    VerifyFileSelectGeometryLookups();
+    return 0;
+}
 if (args is ["--lookup-options-toggle-geometry"])
 {
     VerifyGameOptionsToggleGeometry();

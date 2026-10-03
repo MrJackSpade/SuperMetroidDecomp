@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed partial class FileSelectMenuState
 {
-    private static readonly ushort[] DataManagementSelectionY = [72, 104, 136, 211];
-
     private FileSelectDataMode pendingDataMode;
     private FileSelectPhase phaseAfterFadeIn;
     private bool showDataManagementScreen;
@@ -484,10 +482,10 @@ public sealed partial class FileSelectMenuState
             return (checked((ushort)point.X), checked((ushort)point.Y));
         }
         if (!showDataManagementScreen)
-            return (14, FileSelectLayout.MainSelectionY[SelectedItem]);
+            return (14, FileSelectLayout.MainSelectionY(SelectedItem));
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
             return (94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
-        return (22, DataManagementSelectionY[submenuSelection]);
+        return (22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
     private void UploadBg1Tilemap() =>

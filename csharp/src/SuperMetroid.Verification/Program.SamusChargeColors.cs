@@ -225,13 +225,30 @@ internal static partial class Program
         }
         var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-        AssertEqual(7, neutralInputs.Count, "Six suitless base neutral inks and one final neutral root");
+        AssertEqual(3, neutralInputs.Count, "Only white, gray peak and final neutral intensities remain");
         foreach (var entry in neutralInputs)
         {
-            AssertTrue(entry.Key is 5 or >= 11 and <= 15 or 144, "Only native neutral ink roots use shared channels");
+            AssertTrue(entry.Key is 5 or 11 or 144, "Only native neutral ink roots use shared channels");
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
         }
+        for (int peak = 0; peak < 32; peak++)
+        for (int color = 11; color < 16; color++)
+            AssertEqual((int)decimal.Ceiling(peak * ((16 - color) / 5m)),
+                SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(peak, color), "Complete suitless gray intensity domain");
+        for (int peak = 0; peak < 32; peak++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][11] = (ushort)((rows[0][11] & ~31) | peak);
+            var editedPeak = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedPeak.SuitlessColor(palette, color), "Editing only gray peak keeps every supplied dependent ink independent");
+        }
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(invalid, 11), "Invalid gray peak");
+        foreach (int invalid in new[] { -1, 0, 10, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(19, invalid), "Invalid gray ink");
         object whiteoutInput = typeof(SamusDeathPaletteArtworkCatalog).GetField("whiteout",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
         var whiteoutOverrides = (Dictionary<int, LoadingPaletteInputView.Channels>)whiteoutInput.GetType().GetField("inputs",

@@ -6303,4 +6303,15 @@
     "scope":"Neutral channel duplication is resolved. Suitless root intensities/chromatic inks,flash/final root parameter dispositions,whiteout intensity choices and separately indexed explosion durations remain pending; no new retain exception. Suited charge/death and pseudo-Screw base/input dispositions remain as previously resolved.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessGrayRampReview": {
+    "status":"converted suitless gray shade intensities",
+    "owner":"SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity/SuitlessColor/neutralInputs",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Five consecutive neutral inks11..15 in original base9BA136..A13F have intensities19,16,12,8,4. They form an ordered grayscale shade run within the categorical palette,distinct from the colored ink groups and temporal death fade.",
+    "algorithm":"Treat ink11 as the supplied peak and black as zero intensity. Inks11..15 select5/5,4/5,3/5,2/5,1/5 of the peak,rounding upward: (peak*(16-color)+4)/5. This is the uniformly sampled linear gray ramp; floor and nearest rounding do not produce the native run. RGB5 bit replication produces each neutral word. Peak0..31,ink11..15,numerator<=159. Reject invalid inputs; do not extrapolate a sixth ink or store a generated ramp.",
+    "storage":"Neutral input roots seven to three: white ink5,gray peak11 and final color0. Derived gray inks12..15 store only independently differing supplied channels. Ten chromatic/unused whole suitless inputs remain unchanged. Existing temporal fade and final views use the resolved colors.",
+    "proof":"Extend the existing charge/death proof's original-word and neutral ownership checks. Confirm all32 peak values and five valid ink positions against real-valued upward rounding,invalid bounds,peak-only edits at every intensity,and existing single-channel edits across all gray inputs. Every supplied dependent ink/fade remains independent. Original ROM words are the independent conversion oracle; arithmetic checks cover the edited-input contract.",
+    "scope":"Resolves the four derived neutral shade intensities. The chosen peak,white/final intensity and remaining chromatic/unused inputs still require separate dispositions. No retention exception is inferred from the ramp fit or its size; full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

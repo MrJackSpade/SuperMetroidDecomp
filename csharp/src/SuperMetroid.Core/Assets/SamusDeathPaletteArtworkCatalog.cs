@@ -70,7 +70,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
-            if (palette == 0 && (color == 5 || color >= 11) || palette == 9 && color == 0)
+            if (palette == 0 && color is >= 12 and <= 15)
+            {
+                ushort expected = NeutralFromRed((ushort)SuitlessGrayIntensity(suitless[0][11] & 31, color));
+                if (value != expected) neutralInputs.Add(key, new(value, expected));
+                continue;
+            }
+            if (palette == 0 && color is 5 or 11 || palette == 9 && color == 0)
             {
                 neutralInputs.Add(key, new(value, NeutralFromRed(value), independentMask: 1));
                 continue;
@@ -143,6 +149,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color is >= 12 and <= 15)
+        {
+            ushort gray = NeutralFromRed((ushort)SuitlessGrayIntensity(SuitlessColor(0, 11) & 31, color));
+            return neutralInputs.TryGetValue(key, out var grayInput) ? grayInput.Apply(gray) : gray;
+        }
         if (neutralInputs.TryGetValue(key, out var neutral))
             return neutral.Apply(NeutralFromRed(neutral.Apply(0)));
         if (palette == 9) return SuitlessColor(9, 0);
@@ -150,9 +161,22 @@ public sealed class SamusDeathPaletteArtworkCatalog
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
+    /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>
+    /// <remarks>Original9BA136..A13F contains five descending neutral shades.
+    /// Ink11 supplies the peak; inks11..15 take5/5,4/5,3/5,2/5,1/5 of it,
+    /// rounding upward in RGB5. This gives the native19,16,12,8,4 intensities.
+    /// The zero-intensity endpoint is black; no extrapolated sixth ink exists.
+    /// Numerator including rounding is at most159,no saturation or wrap.
+    /// Independently edited ink channels override the calculated value.</remarks>
+    internal static int SuitlessGrayIntensity(int peak, int color)
+    {
+        if ((uint)peak > 31) throw new ArgumentOutOfRangeException(nameof(peak));
+        if (color is < 11 or > 15) throw new ArgumentOutOfRangeException(nameof(color));
+        return (peak * (16 - color) + 4) / 5;
+    }
     /// <summary>Shares the intensity across neutral RGB5 channels.</summary>
     /// <remarks>Original suitless base9BA120 inks5/11..15 and final9BA220
-    /// all have red=green=blue. Their intensity remains an independent input;
+    /// all have red=green=blue. White/gray-peak/final intensities remain inputs;
     /// green/blue edits override the shared value. The supplied red channel
     /// is bounded0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication,not the separate intensity choices.</remarks>

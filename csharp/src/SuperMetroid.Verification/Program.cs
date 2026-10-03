@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--phantoon-intro-flame-sound"])
+{
+    VerifyPhantoonIntroFlameSound();
+    return 0;
+}
+if (args is ["--phantoon-death-wave-initialization"])
+{
+    VerifyPhantoonDeathWaveInitialization();
+    return 0;
+}
 if (args is ["--speed-booster-echo-stop"])
 {
     VerifySpeedBoosterEchoStop();

@@ -14,6 +14,13 @@ public sealed class PhantoonWaveHdmaState
     public ushort[]? DisplayedScrolls { get; private set; }
     internal ReadOnlySpan<ushort> ScrollCycle => _cycle.AsSpan(0, _cycleLength);
 
+    /// <summary>
+    /// $A7:D446-D451 fills the native $200-byte WavyPhantoonBG2XScrollHDMADataTable
+    /// on a fatal hit. Initialize every modeled cycle sample, including the half
+    /// unused by the intro, without advancing setup or changing the latched display.
+    /// </summary>
+    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => Array.Fill(_cycle, bg2HorizontalScroll);
+
     /// <summary>$88:E487 schedules a new channel; its instruction setup runs at the next HDMA pass.</summary>
     public void Begin(ushort mode)
     {

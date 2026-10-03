@@ -245,7 +245,7 @@ public sealed partial class RoomEnemySystem
         state.StartingFlameRequests++;
         if (SpawnPhantoonStartingFlame(body, unchecked((byte)body.VariableA)))
             state.StartingFlamesSpawned++;
-        state.LastMaterializationSound = 0x001d;
+        QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlameQueueCapacity);
         body.VariableE = 30;
         body.VariableA = unchecked((ushort)(body.VariableA + 1));
         if (unchecked((short)(body.VariableA - 8)) < 0)

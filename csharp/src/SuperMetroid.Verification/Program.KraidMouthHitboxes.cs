@@ -44,8 +44,8 @@ internal static partial class Program
             {
                 shot.YPosition = (ushort)raw;
                 shot.XPosition = (ushort)(body.XPosition + left - shot.XRadius + edge);
-                bool expected = raw - shot.YRadius - 1 < body.YPosition + bottom &&
-                    raw + shot.YRadius >= body.YPosition + top && edge >= 0;
+                bool expected = unchecked((short)(raw - shot.YRadius - 1 - body.YPosition - bottom)) < 0 &&
+                    unchecked((short)(raw + shot.YRadius - body.YPosition - top)) >= 0 && edge >= 0;
                 AssertEqual(expected, overlaps(body, pointer, shot), "Actual mouth collision preserves vertical bounds and inclusive left edge");
             }
         }
@@ -121,8 +121,9 @@ internal static partial class Program
             short left = unchecked((short)PointerWord(pointer));
             short top = unchecked((short)PointerWord(unchecked((ushort)(pointer + 2))));
             short bottom = unchecked((short)PointerWord(unchecked((ushort)(pointer + 6))));
-            bool expected = shot.YPosition - shot.YRadius - 1 < body.YPosition + bottom &&
-                shot.YPosition + shot.YRadius >= body.YPosition + top && shot.XPosition + shot.XRadius >= body.XPosition + left;
+            bool expected = unchecked((short)(shot.YPosition - shot.YRadius - 1 - body.YPosition - bottom)) < 0 &&
+                unchecked((short)(shot.YPosition + shot.YRadius - body.YPosition - top)) >= 0 &&
+                unchecked((short)(shot.XPosition + shot.XRadius - body.XPosition - left)) >= 0;
             AssertEqual(expected, overlaps(body, pointer, shot), "Non-catalog pointers preserve address-space reads");
         }
 

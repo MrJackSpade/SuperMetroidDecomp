@@ -26,6 +26,10 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--kraid-super-missile-damage"])
+{
+    return VerifyKraidSuperMissileDamage();
+}
 if (args is ["--phantoon-intro-flame-sound"])
 {
     VerifyPhantoonIntroFlameSound();

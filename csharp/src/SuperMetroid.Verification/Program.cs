@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--mother-brain-ascent-capture"]) return VerifyMotherBrainTankBackground(ascentMaskOnly: true);
 if (args is ["--mother-brain-tube-descent"]) return VerifyMotherBrainTubeDescent();
 if (args is ["--mother-brain-tank-background"]) return VerifyMotherBrainTankBackground();
 if (args is ["--dead-torizo-collision"]) return VerifyDeadTorizoCollision();

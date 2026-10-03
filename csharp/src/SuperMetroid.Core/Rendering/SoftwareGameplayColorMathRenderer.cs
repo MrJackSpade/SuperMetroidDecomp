@@ -39,12 +39,6 @@ public static class SoftwareGameplayColorMathRenderer
     {
         var r = layer.Gameplay.Registers;
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
-        // Registers and backdrop are invariant for this immutable packet. Resolve
-        // their flags once rather than repeating Enum.HasFlag in the pixel loop;
-        // runtime optimization of that API differs between desktop JIT and Mono AOT.
-        bool showBg1 = (r.MainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
-        bool showBg2 = (r.MainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
-        bool showObjects = (r.MainScreenLayers & SnesMainScreenLayers.Obj) != 0;
         bool halfEnabled = (layer.ColorMath & SnesColorMathControl.Half) != 0;
         bool subtract = (layer.ColorMath & SnesColorMathControl.Subtract) != 0;
         Rgba32 backdrop = memory.Cgram.GetRgba(0);
@@ -68,6 +62,11 @@ public static class SoftwareGameplayColorMathRenderer
         for (int x = 0; x < width; x++)
         {
             int i = y * width + x, lineIndex = y - SnesPpuLayout.GameplayHudHeightPixels;
+            var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
+                : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[lineIndex];
+            bool showBg1 = (mainScreen & SnesMainScreenLayers.Bg1) != 0;
+            bool showBg2 = (mainScreen & SnesMainScreenLayers.Bg2) != 0;
+            bool showObjects = (mainScreen & SnesMainScreenLayers.Obj) != 0;
             XrayWindowLine window = layer.Lines[y];
             bool inside = x >= window.Left && x <= window.Right;
             var winner = backdrop;

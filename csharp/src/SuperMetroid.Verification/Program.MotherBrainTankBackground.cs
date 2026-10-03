@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
-    private static int VerifyMotherBrainTankBackground()
+    private static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         string fixtureRoot = Path.GetFullPath("out/workbook-investigation/crocomire-install");
@@ -81,6 +81,7 @@ internal static partial class Program
         LibraryBackgroundLoader.Execute(installation.OpenRuntimeAddressSpace(), expectedVram,
             0xe48a, 0, installation.LoadRoomBackgroundTilemaps());
         runtime.LoadCartridgeRoomForDebug(0xdd58);
+        if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         const int bg2ByteAddress = 0x9000;
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
             expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),

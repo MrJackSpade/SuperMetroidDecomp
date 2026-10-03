@@ -187,7 +187,9 @@ public static class SuperMetroidRuntimeFrameRenderer
                      SnesMainScreenLayers.Bg2 |
                      SnesMainScreenLayers.Obj),
                 bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
-                bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline);
+                bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline,
+                mainScreenLayersByLine: runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
+                    ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
         }
 
         bool doorIrqOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;

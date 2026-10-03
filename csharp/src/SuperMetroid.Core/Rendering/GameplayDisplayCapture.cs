@@ -137,7 +137,9 @@ public static partial class GameplayDisplayCapture
             VisibleLines(crocomireBg
                 ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                     ? melting.Bg2ScrollByScanline : null
-                : lavaY));
+                : lavaY),
+            runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
+                ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
         return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness);

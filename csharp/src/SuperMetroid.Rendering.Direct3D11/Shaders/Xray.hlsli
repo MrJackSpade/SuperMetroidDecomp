@@ -40,22 +40,23 @@ uint XrayGameplay(uint2 screen)
     else
     {
     uint4 scan = ScanlineParameters[screen.y];
+    uint mainScreen = scan.z >> 16;
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
     bool inside = screen.x >= (scan.z & 255) && screen.x <= ((scan.z >> 8) & 255);
     uint source = 32;
     int rank = -1;
-    if ((TransparentZero == 0 || inside) && (PriorityFilter & 2) != 0)
+    if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
         uint2 bg = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
-    if ((TransparentZero == 0 || !inside) && (PriorityFilter & 1) != 0)
+    if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
         uint2 bg = XrayBackground(XrayGameplayBg1MapWord, TilemapWord, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll), true, false);
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
-    if ((PriorityFilter & 16) != 0)
+    if ((mainScreen & 16) != 0)
     {
         uint palette;
         uint2 obj = ResolveObjectWithPalette(screen, palette);

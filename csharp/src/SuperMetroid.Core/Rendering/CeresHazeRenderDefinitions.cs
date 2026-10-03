@@ -29,9 +29,10 @@ internal static class CeresHazeRenderDefinitions
             : Math.Min(MaximumComponent,
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
-        PaletteRgb5 tint = ridleyIsDead
-            ? colors?.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed
-            : colors?.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue;
+        PaletteRgb5? custom = ridleyIsDead ? colors?.CeresHazeRed : colors?.CeresHazeBlue;
+        (int Red, int Green, int Blue) tint = custom is null
+            ? RoomFxPaletteBlendDefinitions.StockCeresHazeComponents(ridleyIsDead)
+            : (custom.Red, custom.Green, custom.Blue);
         static byte Scale(int component, int channel) =>
             (byte)Math.Min(31, (component * channel + MaximumComponent / 2) / MaximumComponent);
         return (Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));

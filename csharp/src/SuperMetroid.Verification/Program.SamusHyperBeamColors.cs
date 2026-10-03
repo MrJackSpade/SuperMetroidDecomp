@@ -15,9 +15,13 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam color oracle revision");
         SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorCatalog.Load(
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
+        var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(124, stored.Count, "Hyper Beam repeated inks and transparent payloads remove36 words");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -33,34 +37,71 @@ internal static partial class Program
                     rom.ReadByte(wordAddress + 1) << 8));
                 AssertEqual(native, catalog.Resolve(frame, index),
                     $"Hyper Beam frame {frame} color {index}");
+                int sourceFrame = frame, sourceColor = index;
+                if (index == 0)
+                {
+                    for (int candidate = 0; candidate < frame; candidate++)
+                    {
+                        ushort first = ReadVerificationWord(rom, 0x91d99e + candidate * 2);
+                        if (ReadVerificationWord(rom, 0x9b0000 | first) == native) { sourceFrame = candidate; break; }
+                    }
+                }
+                else
+                    for (int candidate = 1; candidate < index; candidate++)
+                        if (ReadVerificationWord(rom, paletteAddress + candidate * 2) == native) { sourceColor = candidate; break; }
+                int source = sourceFrame * 16 + sourceColor;
+                AssertEqual(source, SamusHyperBeamColorFormat.CanonicalColorIndex(frame, index), "Every native Hyper Beam alias");
+                AssertEqual(source == frame * 16 + index, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(10),
             "compiled Hyper Beam pointer table remains bounded");
+        foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(invalid, 0), "Hyper Beam frame bounds");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(0, invalid), "Hyper Beam color bounds");
+        byte[] originalJson = SamusHyperBeamColorExtractor.Extract(rom);
+        foreach (bool sourcesOnly in new[] { false, true })
+        {
+            var document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
+            for (int frame = 0; frame < 10; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                if (sourcesOnly && !(color is 2 or 3 or 10 || (frame == 2 && color == 0))) continue;
+                int word = 2000 + frame * 16 + color;
+                document.Frames[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+            }
+            var edited = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(document)));
+            for (int frame = 0; frame < 10; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
+                ushort expected = !sourcesOnly || color is 2 or 3 or 10 || (frame == 2 && color == 0) ?
+                    (ushort)(2000 + frame * 16 + color) : ReadVerificationWord(rom, 0x9b0000 | (pointer + color * 2));
+                AssertEqual(expected, edited.Resolve(frame, color), "Every independently supplied Hyper Beam color survives aliases/source edits");
+            }
+        }
 
-        var nativeSamus = new SamusState();
         var installedSamus = new SamusState();
-        nativeSamus.Drained.EnableRainbow(nativeSamus);
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog;
-        var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
         var guarded = new ForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)
         {
-            AssertEqual(nativeSamus.Drained.UpdatePalette(rom, nativeCgram, 0),
-                installedSamus.Drained.UpdatePalette(guarded, installedCgram, 0),
+            AssertTrue(installedSamus.Drained.UpdatePalette(guarded, installedCgram, 0),
                 $"Hyper Beam call {call} owns palette");
-            AssertEqual(nativeSamus.Drained.ChargePaletteIndex,
-                installedSamus.Drained.ChargePaletteIndex,
+            // Original91D96F copies the selected row before DEC; EnableRainbow's
+            // timer/reload are1, so every call advances and wraps at native limit10.
+            AssertEqual((ushort)((call + 1) % 10), installedSamus.Drained.ChargePaletteIndex,
                 $"Hyper Beam call {call} next frame");
-            AssertEqual(nativeSamus.Drained.CommonPaletteTimer,
-                installedSamus.Drained.CommonPaletteTimer,
+            AssertEqual((ushort)1, installedSamus.Drained.CommonPaletteTimer,
                 $"Hyper Beam call {call} native timer");
-            for (int color = 0; color < SamusHyperBeamColorFormat.ColorsPerFrame; color++)
-                AssertEqual(nativeCgram.Colors[192 + color], installedCgram.Colors[192 + color],
-                    $"Hyper Beam call {call} CGRAM color {color}");
+            ushort originalPointer = ReadVerificationWord(rom, 0x91d99e + 2 * (call % 10));
+            for (int color = 0; color < 16; color++)
+                AssertEqual((ushort)(ReadVerificationWord(rom, 0x9b0000 | (originalPointer + 2 * color)) & 0x7fff),
+                    installedCgram.Colors[192 + color], $"Hyper Beam call {call} original CGRAM color {color}");
         }
         AssertEqual(0, guarded.ForbiddenReads,
             "installed Hyper Beam cycle does not read pointer or palette ROM tables");

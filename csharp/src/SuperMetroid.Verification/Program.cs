@@ -101,6 +101,11 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--samus-hyper-beam-colors"])
+{
+    VerifySamusHyperBeamColors();
+    return 0;
+}
 if (args is ["--lookup-full-body-colors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2027,11 +2032,7 @@ if (args is ["--samus-hurt-colors"])
     VerifySamusHurtColors();
     return 0;
 }
-if (args is ["--samus-hyper-beam-colors"])
-{
-    VerifySamusHyperBeamColors();
-    return 0;
-}
+
 if (args is ["--game-options-language-palettes"])
 {
     VerifyGameOptionsLanguagePalettes();

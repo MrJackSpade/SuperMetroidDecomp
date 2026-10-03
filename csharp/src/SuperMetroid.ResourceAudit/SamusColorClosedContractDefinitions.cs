@@ -5,7 +5,7 @@ internal static class SamusColorClosedContractDefinitions
 {
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
-        "14630DCAAE73E472CCA4518AD4A16E27CCF3BC2EA40A718D40CBE98DC7560F18");
+        "5094274A1BA6593E9EC95B419DC07461ECB3464DC739E7E872695E2E41E4C54E");
 
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -29,8 +29,8 @@ internal static class SamusColorClosedContractDefinitions
             "Private construction requires both hurt/intro sixteen-color arrays and compiles independent words. Resolve guards the exact variant enum and color bounds. Damage counters, knockback and restoration timing are not certified."),
         new("SuperMetroid.Core.Assets.SamusHyperBeamColorCatalog", "samus-hyper-beam-complete-palettes", ["Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "76BF9ADFF6B137D5EFD7F04F6DC37C80EF109D6AB0B7D8C250659B595DE40B8A")],
-            "The private-constructor loader requires all ten sixteen-color frames and compiles independent arrays. Resolve guards frame/color bounds. Full-body cycle timing is outside this resource-domain proof."),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "4B1B731A62FF03155374E1C44BBECF7C55DCBC575674FD03565BD6B7B6554C7B")],
+            "The private-constructor loader requires all ten sixteen-color frames and stores canonical input colors plus differing overrides, calculating repeated ink and transparent aliases. Resolve guards frame/color bounds. Full-body cycle timing is outside this resource-domain proof."),
         new("SuperMetroid.Core.Assets.SamusVisorColorCatalog", "samus-visor-complete-colors", ["Resolve", "TryResolveByteOffset"],
             [PaletteDefinitions,
              new("csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs", "96F815C0A4F327203015F75D71EF176CE59331CF03B27035B72C8DE72934D307")],

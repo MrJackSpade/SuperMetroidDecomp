@@ -5929,4 +5929,16 @@
     "supersedes":"Resolves pending full-body base/transparent/endpoint color dispositions in earlier fullBody* entries and unsupported historical full-body target-color retention notes. Does not exempt selector/timing/import metadata or other palette families,Hyper Beam/projectile,Power Bomb or remaining repository owners. Full1165 is still active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamFullBodySharedInkReview": {
+    "status":"converted36 repeated full-body Hyper Beam words;remaining124 inputs under review",
+    "owners":"SamusHyperBeamColorCatalog; SamusHyperBeamColorFormat.CanonicalColorIndex; SamusPaletteRomData.FullBodyCycles.HyperBeamPointers",
+    "source":"Original91D99E pointer words select ten descending rows9B:A360..A240. In every row slots6=2,15=3,12=10;transparent frames4..9 share frame2. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Named ink cases and bounded transparent-frame alias replace repeated stored words. Sparse dictionary stores source inputs and differing independent edits,not generated colors. Stock160 to124 words; no runtime ROM read.",
+    "ownership":"Validate complete supplied frames before comparing each alias with its source. A source-only edit preserves unchanged supplied dependent colors as explicit overrides; all160 colors remain independently editable.",
+    "proof":"Extend existing VerifySamusHyperBeamColors rather than add a parallel palette proof. Pin original ROM SHA,derive every alias independently by earliest native equal ink/payload,check all160 native values,124-word storage,invalid frame/color boundaries,all independent edits and source-only edits. Update the existing22-call guarded installed cycle to compare CGRAM directly with original ROM words and native91D96F one-call cadence. The old ROM-backed runtime comparison was stale after the installed-color boundary; no production fallback was restored. It confirms original outputs,timing and no palette/pointer cartridge reads. Move its existing --samus-hyper-beam-colors entry before unrelated verification work.",
+    "historicalCorrection":"Delete #868's failed fixed-offset-fit and clarity-based retention conclusion from SamusPaletteRomData. Replace with explicit independent color review reference. Neither this removal nor the alias conversion exempts remaining hue/shade data. Hyper Beam projectile #888 is still a separate pending owner within1165.",
+    "scope":"Remaining full-body Hyper Beam hue/shade/component relationships require review. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed Samus/sequence source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

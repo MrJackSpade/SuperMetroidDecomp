@@ -7,9 +7,18 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable ten-frame full-body Hyper Beam RGB5 palette cycle.</summary>
 public sealed class SamusHyperBeamColorCatalog
 {
-    private readonly ushort[][] frames;
+    private readonly Dictionary<int, ushort> colors = new();
 
-    private SamusHyperBeamColorCatalog(ushort[][] frames) => this.frames = frames;
+    private SamusHyperBeamColorCatalog(ushort[][] frames)
+    {
+        for (int frame = 0; frame < frames.Length; frame++)
+        for (int color = 0; color < frames[frame].Length; color++)
+        {
+            int index = frame * 16 + color, source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
+            if (source == index || frames[frame][color] != frames[source / 16][source % 16])
+                colors.Add(index, frames[frame][color]);
+        }
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -65,9 +74,8 @@ public sealed class SamusHyperBeamColorCatalog
     /// <summary>Returns display color only; the frame clock remains cartridge-owned.</summary>
     public ushort Resolve(int frame, int color)
     {
-        if ((uint)frame >= frames.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= frames[frame].Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return frames[frame][color];
+        int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
+        return colors.TryGetValue(frame * 16 + color, out ushort value) ? value : colors[source];
     }
 
     private static void RejectDuplicates(JsonElement value)
@@ -99,4 +107,18 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Shares repeated Hyper Beam sprite inks and transparent payloads.</summary>
+    /// <remarks>Original ten rows selected by91D99E have slots6=2,15=3,
+    ///12=10. Transparent frames4..9 equal frame2. These cases preserve original
+    /// input ownership with differing asset values stored as overrides. All other
+    /// color/shade relationships still require independent review.</remarks>
+    internal static int CanonicalColorIndex(int frame, int color)
+    {
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)color >= ColorsPerFrame) throw new ArgumentOutOfRangeException(nameof(color));
+        if (color == 0 && frame >= 4) return 2 * 16;
+        int ink = color switch { 6 => 2, 15 => 3, 12 => 10, _ => color };
+        return frame * 16 + ink;
+    }
 }

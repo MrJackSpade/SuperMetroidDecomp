@@ -101,6 +101,12 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--lookup-fx-validation"])
+{
+    VerifyFxValidationBoundaries();
+    Console.WriteLine("FX validation: native dispatcher slots, every cartridge byte and every host blend ushort pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-haze"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

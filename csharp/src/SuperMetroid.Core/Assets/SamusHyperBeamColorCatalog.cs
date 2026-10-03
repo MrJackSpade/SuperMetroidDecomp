@@ -53,8 +53,10 @@ public sealed class SamusHyperBeamColorCatalog
             }
             if (source == index && color != 0 && frame is 1 or 5 or 9)
             {
+                var basis = SamusHyperBeamColorFormat.EndpointSourceChannels(frame, color,
+                    frames[5][color], frames[frame][3], frames[frame][11]);
                 endpointInputs.Add(index, new(frames[frame][color], frame == 9,
-                    frames[5][color] >> 5 & 31, frame == 1 ? frames[5][color] & 31 : null));
+                    basis.Red, basis.Green));
                 continue;
             }
             if (frame == 3 && color == 13)
@@ -149,8 +151,13 @@ public sealed class SamusHyperBeamColorCatalog
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
         }
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
-            return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0,
-                frame == 1 ? Resolve(5, color) & 31 : 0);
+        {
+            var basis = SamusHyperBeamColorFormat.EndpointSourceChannels(frame, color,
+                frame == 5 ? (ushort)0 : Resolve(5, color),
+                color == 13 ? Resolve(frame, 3) : (ushort)0,
+                color == 13 ? Resolve(frame, 11) : (ushort)0);
+            return endpoint.Resolve(frame == 9, basis.Red ?? 0, basis.Green ?? 0);
+        }
         if (frame == 3 && color == 13)
         {
             ushort middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
@@ -166,8 +173,9 @@ public sealed class SamusHyperBeamColorCatalog
     /// <remarks>Original rows9B:A340/A2C0 (cycle frames1/5) have blue=red
     /// for every opaque ink. RowA240 (frame9) has blue=green and red=frame5
     /// green. Frame1 green equals frame5 red: the two hues share their minimum.
-    /// Keep the distinct endpoint inputs; independent edits override
-    /// either relationship. No rounding or saturation occurs. Derivation of
+    /// EndpointSourceChannels also derives middle-shadow inputs. Keep only
+    /// independently differing channels; channel copying itself needs no rounding
+    /// or saturation. Derivation of
     /// the remaining endpoint shade inputs is still under review in1165.</remarks>
     internal readonly struct EndpointChannels
     {
@@ -175,20 +183,20 @@ public sealed class SamusHyperBeamColorCatalog
         private readonly int? green;
         private readonly int? blue;
 
-        internal EndpointChannels(ushort supplied, bool redHue, int greenHueMaximum, int? greenHueMinimum = null)
+        internal EndpointChannels(ushort supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
             int suppliedRed = supplied & 31;
             int suppliedGreen = supplied >> 5 & 31;
-            green = suppliedGreen == greenHueMinimum ? null : suppliedGreen;
-            red = redHue && suppliedRed == greenHueMaximum ? null : suppliedRed;
+            green = suppliedGreen == expectedGreen ? null : suppliedGreen;
+            red = suppliedRed == expectedRed ? null : suppliedRed;
             int expectedBlue = redHue ? suppliedGreen : suppliedRed;
             blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
         }
 
-        internal ushort Resolve(bool redHue, int greenHueMaximum, int greenHueMinimum = 0)
+        internal ushort Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
         {
-            int resolvedRed = red ?? greenHueMaximum;
-            int resolvedGreen = green ?? greenHueMinimum;
+            int resolvedRed = red ?? expectedRed;
+            int resolvedGreen = green ?? expectedGreen;
             return (ushort)(resolvedRed | resolvedGreen << 5 | (blue ?? (redHue ? resolvedGreen : resolvedRed)) << 10);
         }
     }
@@ -221,6 +229,35 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Derives shared hue channels and the middle shadow's endpoint components.</summary>
+    /// <remarks>Native endpoint frames1/5/9 are magenta,green,red at
+    /// 9BA340/A2C0/A240. Their shadow ink13 uses the midpoint of inks3/11:
+    /// magenta red18/20 gives19; green green22/23 rounds up to23;
+    /// red green4/6 gives5. Green ink13 shares ink3's red/blue minimum0.
+    /// Existing hue rules share magenta green with green-hue red,and red-hue
+    /// red with green-hue green. Blue derives from the appropriate resolved
+    /// red/green channel. Null components remain independently supplied.
+    /// Domain:frames1/5/9,shadow inks3/11/13,RGB5 inputs. The reused midpoint
+    /// is bounded,no clamping or generated color storage is needed.</remarks>
+    internal static (int? Red, int? Green) EndpointSourceChannels(int frame, int color,
+        ushort greenHue, ushort lowShadow, ushort highShadow)
+    {
+        if (frame is not (1 or 5 or 9)) throw new ArgumentOutOfRangeException(nameof(frame));
+        if (color is not (3 or 11 or 13)) throw new ArgumentOutOfRangeException(nameof(color));
+        if (greenHue > 0x7fff || lowShadow > 0x7fff || highShadow > 0x7fff)
+            throw new ArgumentOutOfRangeException(nameof(greenHue));
+        int? red = frame == 9 ? greenHue >> 5 & 31 : null;
+        int? green = frame == 1 ? greenHue & 31 : null;
+        if (color == 13)
+        {
+            ushort middle = HueMidpoint(lowShadow, highShadow);
+            if (frame == 1) red = middle & 31;
+            if (frame == 5) red = lowShadow & 31;
+            if (frame is 5 or 9) green = middle >> 5 & 31;
+        }
+        return (red, green);
+    }
 
     /// <summary>Selects the shared shadow ink and constant RGB brightening for an opaque sprite ink.</summary>
     /// <remarks>Across all ten native rows9B:A240..A37F, inks1/8 share ink11

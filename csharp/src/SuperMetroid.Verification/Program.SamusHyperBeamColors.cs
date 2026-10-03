@@ -29,7 +29,7 @@ internal static partial class Program
         foreach (var entry in endpointInputs.Values)
             foreach (var field in typeof(SamusHyperBeamColorCatalog.EndpointChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
-        AssertEqual(12, endpointComponentCount, "Only twelve independent endpoint channels remain");
+        AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(7, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
@@ -164,13 +164,10 @@ internal static partial class Program
                     object? red = type.GetField("red", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
                     object? blue = type.GetField("blue", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
                     AssertTrue(blue is null, "Original endpoint blue is shared, never stored");
-                    AssertTrue(Equals(frame == 9 ? null : (int?)(native & 31), red), "Original red endpoint inherits its maximum");
-                    ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
-                    int greenMaximum = ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index)) >> 5 & 31;
-                    int greenMinimum = ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index)) & 31;
+                    AssertTrue(Equals(frame == 9 || index == 13 ? null : (int?)(native & 31), red), "Original red endpoint is shared or a calculated middle shadow");
                     object? green = type.GetField("green", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
-                    AssertTrue(Equals(frame == 1 ? null : (int?)(native >> 5 & 31), green), "Original magenta minimum is shared");
-                    AssertEqual(native, input.Resolve(frame == 9, greenMaximum, greenMinimum), "Original endpoint native channel reconstruction");
+                    AssertTrue(Equals(frame == 1 || index == 13 ? null : (int?)(native >> 5 & 31), green), "Original green endpoint is shared or a calculated middle shadow");
+                    AssertEqual(native, input.Resolve(frame == 9, native & 31, native >> 5 & 31), "Original endpoint native channel reconstruction");
                 }
                 AssertEqual(!sharedShade && source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9) && !(frame == 3 && index == 13), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
@@ -216,21 +213,33 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 6, 9, 31, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryBrighten(0, invalid, out _), "Unsupported shade increments reject");
+        foreach (int invalid in new[] { -1, 0, 2, 3, 4, 6, 7, 8, 10, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(invalid, 3, 0, 0, 0), "Invalid endpoint hue");
+        foreach (int invalid in new[] { -1, 0, 1, 2, 4, 10, 12, 14, 15, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, invalid, 0, 0, 0), "Invalid endpoint shadow ink");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, invalid, 0, 0), "Invalid green-hue input");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, invalid, 0), "Invalid low shadow input");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, 0, invalid), "Invalid high shadow input");
+        }
+        foreach (int shadowFrame in new[] { 1, 3, 5, 9 })
         foreach (int ink in new[] { 3, 11, 13 })
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)
         {
             var document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
-            ushort original = ReadVerificationWord(rom, 0x9ba300 + 2 * ink);
+            ushort shadowPointer = ReadVerificationWord(rom, 0x91d99e + 2 * shadowFrame);
+            ushort original = ReadVerificationWord(rom, 0x9b0000 | (shadowPointer + 2 * ink));
             ushort changed = (ushort)((original & ~(31 << (channel * 5))) | intensity << (channel * 5));
-            document.Frames[3][ink] = new PaletteRgb5 { Red = changed & 31, Green = changed >> 5 & 31, Blue = changed >> 10 };
+            document.Frames[shadowFrame][ink] = new PaletteRgb5 { Red = changed & 31, Green = changed >> 5 & 31, Blue = changed >> 10 };
             var editedCyan = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(document)));
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
                 ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-                ushort expected = frame == 3 && color == ink ? changed : ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-                AssertEqual(expected, editedCyan.Resolve(frame, color), "Cyan shadow endpoint/middle edits preserve every independently supplied color");
+                ushort expected = frame == shadowFrame && color == ink ? changed : ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+                AssertEqual(expected, editedCyan.Resolve(frame, color), "Shadow endpoint/middle edits preserve every independently supplied color");
             }
         }
         foreach (string scope in new[] { "all", "aliases", "shades" })

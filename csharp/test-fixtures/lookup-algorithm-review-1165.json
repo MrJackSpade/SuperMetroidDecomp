@@ -6433,4 +6433,16 @@
     "scope":"Resolves this cyan shadow relationship; remaining29 opaque components still need their independent review/disposition. Transparent payload disposition remains separate. No new retention exception and no completion claim for the full1165 inventory.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; all three owner/dependency hashes and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamEndpointShadowComponentsReview": {
+    "status":"converted four middle-shadow endpoint components",
+    "owner":"SamusHyperBeamColorFormat.EndpointSourceChannels; SamusHyperBeamColorCatalog.EndpointChannels/Resolve; shared Hyper-shot view",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Middle shadow ink13 in magenta1,green5,red9 lies at9BA35A/A2DA/A25A. Magenta red19 is the midpoint of shadow3/11 red18/20; green green23 is their upward-rounded22/23 midpoint; red green5 is their4/6 midpoint. Green middle red0 shares shadow3 red0,and blue already shares red. Cyan middle RGB was converted separately using the same midpoint operation.",
+    "algorithm":"EndpointSourceChannels selects the existing shared hue minimum/maximum and,for middle ink13,the established per-channel midpoint or shared green-hue minimum. Keep null for components without a derived basis. EndpointChannels captures only independently differing supplied components; blue continues to derive from resolved red or green. No fixed numerical correction or generated palette word is stored.",
+    "storage":"Stock endpoint components twelve to eight. The three middle endpoint records carry no original component payload; their named hue/shadow relationships calculate the values. Six whole words,eight temporal intermediate components,and three shade components remain unchanged. Remaining opaque inputs total25 components and still require review.",
+    "domain":"Endpoint helper accepts only hue frames1/5/9 and shadow inks3/11/13 with RGB5 input words; rejects other selectors/high-bit inputs. Public ten-frame/sixteen-ink contract is unchanged. Reused upward midpoint has channel numerator<=63; shared minima/maxima are copied without rounding,saturation or wrap. Dependency order is acyclic:middle inks use same-frame shadow3/11 and green-hue source colors.",
+    "proof":"Extend the same Hyper Beam proof:all160 original ROM words in body/reversed-shot views,exact eight-component ownership,complete existing RGB5 midpoint and endpoint reconstruction checks,and every single-channel0..31 edit to shadow3/11/13 in frames1/3/5/9 while comparing all160 supplied outputs. Confirm new helper bounds and retain existing independently edited views and guarded runtime cycles. No new per-index tests or gameplay search.",
+    "scope":"Resolves these middle-shadow endpoint relationships only. Remaining opaque color choices and the wider1165 inventory remain active; no new retention exception.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; all owner/dependency hashes and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

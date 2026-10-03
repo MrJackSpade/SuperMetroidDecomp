@@ -25,6 +25,19 @@ public sealed partial class RoomPlmSystem
     private int _nextCollectibleGraphicsSlot;
     private CollectiblePickupEvent? _lastCollectiblePickup;
     private bool _collectibleFanfareRequested;
+    private bool _pendingSpeedBoosterPickupContinuation;
+
+    /// <summary>Resumes the item's synchronous bank-$85 message return continuation.</summary>
+    internal void CompleteCollectibleMessage()
+    {
+        if (!_pendingSpeedBoosterPickupContinuation)
+            return;
+        RoomLayer3FxState fx = _speedBoosterEscapeFx
+            ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
+        fx.ApplyCartridgeMotionWrites(
+            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        _pendingSpeedBoosterPickupContinuation = false;
+    }
 
     /// <summary>Pickup publications produced during the most recent PLM handler pass.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
@@ -118,6 +131,7 @@ public sealed partial class RoomPlmSystem
         _nextCollectibleGraphicsSlot = 0;
         _lastCollectiblePickup = null;
         _collectibleFanfareRequested = false;
+        _pendingSpeedBoosterPickupContinuation = false;
     }
 
     /// <summary>
@@ -534,6 +548,9 @@ public sealed partial class RoomPlmSystem
         _collectiblePickupEvents.Add(pickup);
         _lastCollectiblePickup = pickup;
         _collectibleFanfareRequested = true;
+        _pendingSpeedBoosterPickupContinuation =
+            item.Kind == InWorldCollectibleKind.SpeedBooster &&
+            item.Presentation == CollectiblePresentation.ChozoOrb;
 
         if (item.Presentation == CollectiblePresentation.ShotBlock)
         {

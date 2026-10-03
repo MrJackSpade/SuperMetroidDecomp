@@ -1506,6 +1506,8 @@ public sealed partial class SuperMetroidRuntime
                 _pendingSaveStationCompletion = null;
             }
 
+            Plms.CompleteCollectibleMessage();
+
             // The final zero-radius close NMI returns directly to the suspended item-PLM
             // instruction list. Varia/Gravity immediately call their shared setup routine;
             // all other items simply continue the rest of this gameplay pass.

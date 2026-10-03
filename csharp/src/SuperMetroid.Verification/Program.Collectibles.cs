@@ -209,7 +209,8 @@ internal static partial class Program
         ushort header,
         ushort roomArgument,
         bool precollected,
-        bool preopenedChozo = false)
+        bool preopenedChozo = false,
+        RoomLayer3FxState? roomFx = null)
     {
         const ushort population = 0x9000;
         const int width = 8;
@@ -253,7 +254,8 @@ internal static partial class Program
             system,
             areaIndex: AreaId.Crateria,
             getSamus: () => samus,
-            isAreaTorizoDefeated: () => false);
+            isAreaTorizoDefeated: () => false,
+            roomFx: roomFx);
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }

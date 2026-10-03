@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--speed-booster-pickup"])
+{
+    VerifySpeedBoosterPickupContinuation();
+    return 0;
+}
 if (args is ["--escape-running-footsteps"])
 {
     VerifyEscapeRunningFootsteps();

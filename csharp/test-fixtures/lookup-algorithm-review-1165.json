@@ -5707,4 +5707,15 @@
     "reconciliation":"Resolves the nine-component pending item in suitLoadingEndpointComponentsReview. The25 whole loading words, including the normal-suit source artwork and its broader normal/full-body catalog ownership, still require their remaining review. This does not exempt full-body palette families or declare the complete loading source artwork finished. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, updated source pins and refreshed maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "normalSuitSharedArtworkReview": {
+    "status":"converted normal suit palette roster and duplicate color storage",
+    "owner":"SamusSuitColorCatalog constructor/Resolve/Load",
+    "source":"Original16-color normal palettes9B:9400/9520/9800 and categorical equipment selector91:DEBA, direct copy91:DD5B. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Static review of the normal palette owner follows the loading palette's independently confirmed normal-source relationship.",
+    "algorithm":"Replace ushort[][] suit roster with named Power, Varia and Gravity owners and explicit selector cases0/2/4. Store the sixteen Power words and only supplied slots differing from Power for each other suit. Native Varia and Gravity each differ at exactly four slots, so24 whole duplicate words disappear. Runtime resolves explicit suit differences before the shared Power source; no generated suit palette cache remains.",
+    "domain":"All48 logical colors remain independently editable. Load validates allthree complete16-color RGB5 inputs before comparison. Changing only Power preserves the supplied secondary colors as differences; edits to every suit remain separate. Invalid ushort suit offsets and out-of-range int color indices retain their exceptions. The retained difference dictionaries contain player/authored color inputs, not derived cached rows.",
+    "proof":"Extend existing VerifyNormalSuitCatalogBoundary rather than adding a competing test. Pin ROM SHA, independently compare every original secondary slot with Power to establish exact stored ownership and values, exhaust all65536 suit offsets, check color bounds, and confirm independently edited all-suit and Power-only palettes. Reuse all48 native live-CGRAM comparisons, Power copy and missing-content boundaries, without runtime ROM access.",
+    "scope":"This resolves roster/shared-word storage only; underlying normal ink choices and broader full-body palette relationships remain pending. Loading presentation retains separate editable ownership, so this change does not silently bind those two user assets together. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --normal-suit-catalog-boundary, updated Samus closed-contract source pin and refreshed maintained-source index. Implementation record is this entry's commit."
+  }
 }

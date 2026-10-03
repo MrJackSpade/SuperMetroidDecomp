@@ -101,6 +101,11 @@ if (args is ["--lookup-fx-blends"] )
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--normal-suit-catalog-boundary"])
+{
+    VerifyNormalSuitCatalogBoundary();
+    return 0;
+}
 if (args is ["--lookup-loading-layout"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1880,11 +1885,6 @@ if (args is ["--enemy-definition-boundary", string enemyDefinitionRom])
 if (args is ["--enemy-gameplay-acceptance"])
 {
     VerifyEnemyGameplayAcceptance();
-    return 0;
-}
-if (args is ["--normal-suit-catalog-boundary"])
-{
-    VerifyNormalSuitCatalogBoundary();
     return 0;
 }
 if (args is ["--hyper-beam-fx-colors"])

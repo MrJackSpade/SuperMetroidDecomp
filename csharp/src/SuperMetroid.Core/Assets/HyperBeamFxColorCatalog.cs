@@ -33,7 +33,8 @@ public sealed class HyperBeamFxColorCatalog
             if (frame == 8 && color == 1 && value == HyperBeamFxColorFormat.MagentaFromRed(frames[0][3])) continue;
             if (HasPairedChannels(frame, color))
             {
-                pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0));
+                var shared = SharedEndpointChannels(frame, color, frames[0][0], frames[0][3]);
+                pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0, shared.Red, shared.Green));
                 continue;
             }
             colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
@@ -52,7 +53,11 @@ public sealed class HyperBeamFxColorCatalog
     private ushort Resolve(int frame, int color)
     {
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
-        if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired)) return paired.Resolve(frame == 0);
+        if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired))
+        {
+            var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? (ushort)0 : Resolve(0, 3));
+            return paired.Resolve(frame == 0, shared.Red ?? 0, shared.Green ?? 0);
+        }
         if (color == 0) return colors[0];
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
         if (frame == 8 && color == 1) return HyperBeamFxColorFormat.MagentaFromRed(Resolve(0, 3));
@@ -75,22 +80,36 @@ public sealed class HyperBeamFxColorCatalog
     private static bool HasPairedChannels(int frame, int color) =>
         frame == 0 && color >= 3 || frame == 4 && color >= 4 || frame == 8 && color != 0;
 
+    /// <summary>Shares hue extrema while leaving the varying shade channel independent.</summary>
+    /// <remarks>Original red endpoint uses white's red maximum. Green
+    /// highlights use that red maximum as green. Magenta highlight inks use
+    /// it as red, while shadow inks3/7 use the red endpoint's green minimum.
+    /// All relationships are between supplied RGB5 inputs; differing edits
+    /// stay explicit. Remaining shade intensities still require review.</remarks>
+    private static (int? Red, int? Green) SharedEndpointChannels(int frame, int color, ushort white, ushort red) =>
+        frame == 0 ? (white & 31, null) :
+        frame == 4 ? (null, red & 31) :
+        color is 3 or 7 ? (null, red >> 5 & 31) : (red & 31, null);
     internal readonly struct PairedChannels
     {
-        private readonly int red;
-        private readonly int green;
+        private readonly int? red;
+        private readonly int? green;
         private readonly int? blue;
 
-        internal PairedChannels(ushort supplied, bool redHue)
+        internal PairedChannels(ushort supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
-            red = supplied & 31;
-            green = supplied >> 5 & 31;
-            int expectedBlue = redHue ? green : red;
+            int suppliedRed = supplied & 31, suppliedGreen = supplied >> 5 & 31;
+            red = suppliedRed == sharedRed ? null : suppliedRed;
+            green = suppliedGreen == sharedGreen ? null : suppliedGreen;
+            int expectedBlue = redHue ? suppliedGreen : suppliedRed;
             blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
         }
 
-        internal ushort Resolve(bool redHue) =>
-            (ushort)(red | green << 5 | (blue ?? (redHue ? green : red)) << 10);
+        internal ushort Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
+        {
+            int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;
+            return (ushort)(resolvedRed | resolvedGreen << 5 | (blue ?? (redHue ? resolvedGreen : resolvedRed)) << 10);
+        }
     }
     private static readonly JsonSerializerOptions Options = new()
     {

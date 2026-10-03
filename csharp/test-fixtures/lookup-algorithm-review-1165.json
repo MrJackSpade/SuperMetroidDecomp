@@ -6148,4 +6148,15 @@
     "scope":"Other endpoint intensities/shades and the six differing middle components still require review. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileSharedExtremaReview": {
+    "status":"converted repeated maximum/minimum channels in paired projectile endpoints",
+    "owners":"HyperBeamFxColorCatalog.SharedEndpointChannels/PairedChannels and constructor/Resolve",
+    "source":"Original red frame0 ink3 uses white ink0 red intensity. Green highlight inks4/6 use that red endpoint maximum as green. Magenta highlight inks4/6 use it as red; magenta shadow inks3/7 use the red endpoint green minimum. Complete original rows are8D:D906+20*frame. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Capture only differing supplied extrema and resolve matching channels from the white/red inputs. Continue deriving equal blue channels from resolved red/green. The seven paired inputs now store seven varying components instead of fourteen; stock11 whole words plus7 paired/6 middle components remain. No generated cache.",
+    "ownership":"Keep source dependencies acyclic: white feeds red,red feeds other endpoint hues. Source-only white/red/green edits and independent target edits preserve every supplied value through nullable overrides.",
+    "proof":"Extend the single projectile proof with original shared-extrema reconstruction and seven-component storage. Exhaust all32768 RGB5 inputs in both pairing modes with matching and differing extrema. Reuse all80 original outputs,all source/edit scopes,timed guarded loop,untouched CGRAM,bounds and JSON checks.",
+    "scope":"The remaining varying intensities and middle-channel differences still require independent review. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

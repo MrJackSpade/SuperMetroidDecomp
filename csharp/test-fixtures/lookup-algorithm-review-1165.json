@@ -4771,5 +4771,28 @@
     "integration":"Core room loading, LandingSiteEntryState, level-stream enumeration, asset installation and ResourceAudit keep their existing Select/GetStatePointers APIs. Removed stale full-runtime fixture requiring uninstalled artwork; the production room-header boundary is exercised for every tested predicate partition and has no cartridge-reader parameter. Updated the selector source pin in VramDmaSourceContracts.",
     "confirmation":"Verification and ResourceAudit builds pass. --room-state-definitions now runs early, pins the original ROM SHA and passes the independent selector proof. The contexts confirm this identified conversion; no gameplay, room traversal or exploratory defect search runs.",
     "scope":"The complete retail condition-to-state selection mapping and its variant-enumeration view are resolved without a retention exception. Room-header metadata and other referenced definitions remain separate owners. Implementation record is the commit introducing this review entry; wider1165 remains active."
+  },
+  "retailRoomHeaderReview": {
+    "status":"converted:262-record stored header array and binary search removed",
+    "owner":"csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs",
+    "source":"Supported NTSC J/U v1.0 eleven-byte bank-8F fixed headers; pinned bank_8F.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d header format and RoomHeader macros. Independent original room identity roster comes from upstream-sm/assets/names.txt; original output fields are read directly from the SHA-pinned ROM.",
+    "evidence":"A room identity selects its fixed configuration: room/area identity, map placement, size, scroll thresholds, CRE flags and door list. Direct identity cases express that semantic configuration selection. No fitted numerical rule or arbitrary chronological sequence is claimed. All enumerates ascending identities lazily, Contains shares the same selector, and Get retains ArgumentOutOfRangeException for every other ushort including header interiors and the developer area-seven room.",
+    "identities":{"disposition":"converted","proof":"VerifyRoomHeaderIdentities checks all65536 Contains/Get inputs against the262 independent original identities, sorted enumeration and production CartridgeRoomHeader construction without a cartridge capability."},
+    "fields": [
+      {"field":"RoomIndex","disposition":"converted room-local identity selection; unsignedbyte","proof":"VerifyRoomHeaderRoomIndex"},
+      {"field":"AreaIndex","disposition":"converted named AreaId selection; unsignedbyte","proof":"VerifyRoomHeaderAreaIndex"},
+      {"field":"MapX","disposition":"converted map-column configuration selection; unsignedbyte","proof":"VerifyRoomHeaderMapX"},
+      {"field":"MapY","disposition":"converted map-row configuration selection; unsignedbyte","proof":"VerifyRoomHeaderMapY"},
+      {"field":"WidthInScreens","disposition":"converted width configuration selection in256-pixel screens; unsignedbyte","proof":"VerifyRoomHeaderWidthInScreens"},
+      {"field":"HeightInScreens","disposition":"converted height configuration selection in256-pixel screens; unsignedbyte","proof":"VerifyRoomHeaderHeightInScreens"},
+      {"field":"UpScroller","disposition":"converted upward scrolling threshold selection; preserve all byte values including zero","proof":"VerifyRoomHeaderUpScroller"},
+      {"field":"DownScroller","disposition":"converted downward scrolling threshold selection; preserve all byte values including zero","proof":"VerifyRoomHeaderDownScroller"},
+      {"field":"CreBitset","disposition":"converted CRE initialization flag selection; preserve completebyte","proof":"VerifyRoomHeaderCreBitset"},
+      {"field":"DoorListPointer","disposition":"converted door-list identity selection; preserve little-endianushort","proof":"VerifyRoomHeaderDoorListPointer"}
+    ],
+    "proofCoverage":"Each of the ten field proofs checks every262 Get and enumeration result against direct original native bytes at offsets0..8 or the word at9. Area proof also checks production ReadAreaIndex. Existing aggregate header-field comparison is consolidated into these named proofs. Replaced the stale full-runtime fixture, which lacked required installed artwork, with the actual no-cartridge-capability room-header loading boundary; no unrelated rendering/setup acceptance is imposed.",
+    "consumers":"All existing All consumers use enumeration/LINQ and compile with IEnumerable. Get/Contains callers keep the same domain and typed records, including state selection, LandingSiteEntryState, room-level source enumeration and asset tooling. Source search found no maintained source-reading generator dependent on the removed array syntax. Updated VramDmaSourceContracts source SHA.",
+    "confirmation":"Verification and ResourceAudit builds pass. Early --room-header-definitions pins the supported ROM and passes the identity and all ten field proofs. Static native/source inspection chose the work; no exploratory gameplay or room sweep ran.",
+    "scope":"Complete selected retail fixed-header configuration mapping resolved without retention. State payloads/selectors have separate completed entries; door-list contents and remaining maintained source require their own dispositions. Implementation record is the commit introducing this entry;1165 remains active."
   }
 }

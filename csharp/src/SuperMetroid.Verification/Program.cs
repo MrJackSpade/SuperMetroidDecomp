@@ -53,6 +53,12 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--room-header-definitions"])
+{
+    VerifyCompiledRoomHeaderDefinitions();
+    return 0;
+}
+
 if (args is ["--room-state-definitions"])
 {
     VerifyCompiledRoomStateSelectionDefinitions();
@@ -3260,11 +3266,6 @@ if (args is ["--escape-timer-pointer-definitions", var timerRom])
 if (args is ["--load-station-definitions"])
 {
     VerifyCompiledLoadStationDefinitions();
-    return 0;
-}
-if (args is ["--room-header-definitions"])
-{
-    VerifyCompiledRoomHeaderDefinitions();
     return 0;
 }
 if (args is ["--cartridge-room-state-selection"])

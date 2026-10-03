@@ -39,7 +39,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs", "114E620B0734F0AA25FC9DBD1B2F511FF8603C9033EE68918DAE478F02ECC002"),
         new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "0334F56DFEA1CB4A8E60D2754A66392782735CB13F64BE195DA3544D9809EE62"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "2B33D6EBBB637851A8DCB48DF7E0668FFA868B1FC50241004DBB30FAE5A25B3D"),
-        new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "0CD30E5E51334F440D1ABB4E84E93D656E181CD7DFE618638C2861214CB75C9A"),
+        new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "1257C0FAE1E000F33BEE1E8CFCC9212401AC10752FE428013585B9D4D305C8CA"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "FD0E9AA1573C75DA565AA453B3FDF3C89BE9B0E5680322A539279308467C62F3"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectionDefinitions.cs", "0DEDA3C701DFF8D19280C9EB64558D8A31C55C9CE55D40B1DF541C41005D2481"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs", "A1E977737280B7E3B4DD59F9AF02CFD3EB61FD8E973C9C125B4BB5C6CEB2E28B"),

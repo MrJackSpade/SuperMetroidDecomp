@@ -1,94 +1,79 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyCompiledRoomHeaderDefinitions()
     {
-        string symbolPath = Path.GetFullPath(
-            Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        ushort[] roomPointers = File.ReadLines(symbolPath)
-            .Select(TryParseRoomHeaderPointer)
-            .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
-            .Distinct()
-            .Order()
-            .ToArray();
-        AssertEqual(RoomHeaderDefinitions.RetailRoomCount, roomPointers.Length,
-            "compiled fixed-header catalog contains every retail room");
-
-        foreach (ushort roomPointer in roomPointers)
-        {
-            CartridgeRoomHeader native = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            RoomHeaderDefinition compiled = RoomHeaderDefinitions.Get(roomPointer);
-            AssertEqual(native.Pointer, compiled.Pointer,
-                $"room $8F:{roomPointer:X4} header pointer");
-            AssertEqual(native.RoomIndex, compiled.RoomIndex,
-                $"room $8F:{roomPointer:X4} room index");
-            AssertEqual(native.AreaIndex, compiled.AreaIndex,
-                $"room $8F:{roomPointer:X4} area");
-            AssertEqual(native.MapX, compiled.MapX,
-                $"room $8F:{roomPointer:X4} map X");
-            AssertEqual(native.MapY, compiled.MapY,
-                $"room $8F:{roomPointer:X4} map Y");
-            AssertEqual(native.WidthInScreens, compiled.WidthInScreens,
-                $"room $8F:{roomPointer:X4} width");
-            AssertEqual(native.HeightInScreens, compiled.HeightInScreens,
-                $"room $8F:{roomPointer:X4} height");
-            AssertEqual(native.UpScroller, compiled.UpScroller,
-                $"room $8F:{roomPointer:X4} up scroller");
-            AssertEqual(native.DownScroller, compiled.DownScroller,
-                $"room $8F:{roomPointer:X4} down scroller");
-            AssertEqual(native.CreBitset, compiled.CreBitset,
-                $"room $8F:{roomPointer:X4} CRE bitset");
-            AssertEqual(native.DoorListPointer, compiled.DoorListPointer,
-                $"room $8F:{roomPointer:X4} door-list pointer");
-        }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomHeaderDefinitions.Get(0xe82c),
-            "compiled headers reject the developer area-seven room");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomHeaderDefinitions.Get(0xffff),
-            "compiled headers reject arbitrary pointers");
-
-        ushort ceresPointer = LoadStationDefinitions.Get(
-            SuperMetroid.Core.Game.AreaId.Ceres, 0).RoomPointer;
-        ushort ceresDefaultState = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
-        var guardedRuntime = new SuperMetroidRuntime(new RoomHeaderReadGuard(
-            bus,
-            RoomHeaderRomData.BankAddress | ceresPointer,
-            RoomHeaderRomData.BankAddress | ceresDefaultState));
-        guardedRuntime.InitializeStartingCeresRoom();
-        AssertEqual(ceresPointer, guardedRuntime.ActiveRoom!.Pointer,
-            "production Ceres entry uses its compiled fixed header");
-
-        Console.WriteLine(
-            "Room fixed headers: 262 typed records match every cartridge field; " +
-            "production Ceres entry rejects fixed-header and selector reads.");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Room header oracle revision");
+        ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
+            .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
+            .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
+        VerifyRoomHeaderIdentities(rooms);
+        VerifyRoomHeaderRoomIndex(rom, rooms);
+        VerifyRoomHeaderAreaIndex(rom, rooms);
+        VerifyRoomHeaderMapX(rom, rooms);
+        VerifyRoomHeaderMapY(rom, rooms);
+        VerifyRoomHeaderWidthInScreens(rom, rooms);
+        VerifyRoomHeaderHeightInScreens(rom, rooms);
+        VerifyRoomHeaderUpScroller(rom, rooms);
+        VerifyRoomHeaderDownScroller(rom, rooms);
+        VerifyRoomHeaderCreBitset(rom, rooms);
+        VerifyRoomHeaderDoorListPointer(rom, rooms);
+        Console.WriteLine("Room headers: all262 identities, ten original native fields, sorted enumeration and complete ushort rejection domain pass.");
     }
 
-    private sealed class RoomHeaderReadGuard(
-        ISnesAddressSpace source,
-        int blockedStart,
-        int blockedEnd) : ISnesAddressSpace, IImportCartridgeSource
+    private static void VerifyRoomHeaderIdentities(ushort[] rooms)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        AssertEqual(262, rooms.Length, "Independent retail room roster");
+        AssertTrue(RoomHeaderDefinitions.All.Select(header => header.Pointer).SequenceEqual(rooms),
+            "Header enumeration preserves original sorted identities");
+        var known = rooms.ToHashSet();
+        for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            if (address >= blockedStart && address < blockedEnd)
+            ushort pointer = (ushort)value;
+            bool expected = known.Contains(pointer);
+            AssertEqual(expected, RoomHeaderDefinitions.Contains(pointer), $"Room membership {pointer:X4}");
+            if (expected)
             {
-                throw new InvalidOperationException(
-                    $"Production runtime read native fixed-header/selector data at ${address:X6}.");
+                AssertEqual(pointer, RoomHeaderDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
+                AssertEqual(pointer, CartridgeRoomHeader.LoadUsingCompiledSelection(pointer).Pointer,
+                    "Production header construction preserves identity without a cartridge capability");
             }
-
-            return source.ReadByte(address);
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomHeaderDefinitions.Get(pointer),
+                    "Non-header address is rejected");
         }
+    }
 
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    private static void VerifyRoomHeaderRoomIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => (int)header.RoomIndex);
+    private static void VerifyRoomHeaderAreaIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
+    private static void VerifyRoomHeaderMapX(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 2, header => (int)header.MapX);
+    private static void VerifyRoomHeaderMapY(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 3, header => (int)header.MapY);
+    private static void VerifyRoomHeaderWidthInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 4, header => (int)header.WidthInScreens);
+    private static void VerifyRoomHeaderHeightInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => (int)header.HeightInScreens);
+    private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => (int)header.UpScroller);
+    private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => (int)header.DownScroller);
+    private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
+    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => (int)header.DoorListPointer);
+
+    private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
+        int offset, Func<RoomHeaderDefinition, int> field)
+    {
+        RoomHeaderDefinition[] enumerated = RoomHeaderDefinitions.All.ToArray();
+        for (int index = 0; index < rooms.Length; index++)
+        {
+            ushort pointer = rooms[index];
+            int address = 0x8f0000 | pointer;
+            int expected = rom.ReadByte(address + offset);
+            if (offset == 9) expected |= rom.ReadByte(address + 10) << 8;
+            AssertEqual(expected, field(RoomHeaderDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
+            AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
+            if (offset == 1)
+                AssertEqual(expected, (int)CartridgeRoomHeader.ReadAreaIndex(pointer), "Production area view");
+        }
     }
 }

@@ -88,7 +88,12 @@ if (args is ["--lookup-game-over-text"])
 }
 if (args is ["--lookup-file-select-navigation"])
 {
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select navigation oracle revision");
     VerifyFileSelectMainNavigation();
+    VerifyFileSelectSourceNavigation(rom);
+    VerifyFileSelectDestinationNavigation(rom);
     return 0;
 }
 if (args is ["--lookup-map-window-motion"])

@@ -167,13 +167,11 @@ public sealed partial class FileSelectMenuState
 
     private void StepSlotSelection(SnesButton pressed, bool sourceSelection)
     {
-        int[] selectable = saveSlots
-            .Select((slot, index) => (slot, index))
-            .Where(entry => entry.slot is not null)
-            .Select(entry => entry.index)
-            .Append(3)
-            .ToArray();
-        MoveSubmenuSelection(pressed, selectable);
+        int occupiedSlots = 0;
+        for (int slot = 0; slot < FileSelectLayout.SaveSlotCount; slot++)
+            if (saveSlots[slot] is not null) occupiedSlots |= 1 << slot;
+        MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
+            submenuSelection, occupiedSlots, pressed));
 
         if ((pressed & SnesButton.B) != 0 ||
             ((pressed & (SnesButton.Start | SnesButton.A)) != 0 && submenuSelection == 3))
@@ -206,11 +204,8 @@ public sealed partial class FileSelectMenuState
 
     private void StepCopyDestination(SnesButton pressed)
     {
-        int[] selectable = Enumerable.Range(0, 3)
-            .Where(slot => slot != operationSourceSlot)
-            .Append(3)
-            .ToArray();
-        MoveSubmenuSelection(pressed, selectable);
+        MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
+            submenuSelection, operationSourceSlot, pressed));
         if ((pressed & SnesButton.B) != 0)
         {
             QueueCursorSound();
@@ -294,19 +289,11 @@ public sealed partial class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
-    private void MoveSubmenuSelection(SnesButton pressed, int[] selectable)
+    private void MoveSubmenuSelection(int next)
     {
-        int current = Array.IndexOf(selectable, submenuSelection);
-        if (current < 0)
-            throw new InvalidDataException($"Submenu item {submenuSelection} is not selectable.");
-        int next = current;
-        if ((pressed & SnesButton.Up) != 0)
-            next = Math.Max(0, current - 1);
-        else if ((pressed & SnesButton.Down) != 0)
-            next = Math.Min(selectable.Length - 1, current + 1);
-        if (next == current)
+        if (next == submenuSelection)
             return;
-        submenuSelection = selectable[next];
+        submenuSelection = next;
         QueueCursorSound();
     }
 

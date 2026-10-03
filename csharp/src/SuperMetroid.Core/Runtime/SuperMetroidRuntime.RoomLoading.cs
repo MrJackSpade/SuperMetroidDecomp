@@ -932,7 +932,13 @@ public sealed partial class SuperMetroidRuntime
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setAreaTorizoDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
+            setSamusControlsEnabled: enabled =>
+            {
+                SamusState samus = Samus ?? throw new InvalidOperationException(
+                    "Chozo control command requires an active Samus actor.");
+                samus.SetStationaryScriptControlLock(!enabled);
+                GroundedSamusMovementEnabled = enabled;
+            },
             setRoomScrollState: Camera.Scrolls.SetStorage,
             incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
             readRoomScrollState: Camera.Scrolls.ReadState,

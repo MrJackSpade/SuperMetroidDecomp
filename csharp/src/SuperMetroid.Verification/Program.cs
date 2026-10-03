@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--chozo-grab-animation"])
+{
+    VerifyChozoGrabAnimation();
+    return 0;
+}
 if (args is ["--etecoon-door-fanfare"])
 {
     VerifyEtecoonFanfareAfterDoor();

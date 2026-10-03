@@ -22,6 +22,7 @@ internal static partial class Program
         VerifySimpleAnimationFrameCursors(bus);
         VerifySimpleAnimationFrameDurations(bus);
         VerifySimpleAnimationArtworkSources(bus);
+        VerifyTreadmillArtworkSources(bus);
         VerifyRoomFxAtlasSegmentSources(bus);
         VerifyRoomFxAtlasSegmentSizes();
         VerifyRoomFxAtlasSegmentRoles();

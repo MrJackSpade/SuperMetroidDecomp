@@ -5251,4 +5251,16 @@
     "confirmation":"Verification and ResourceAudit builds; SHA-pinned --lookup-animated-frames includes the three new layout proofs and the existing animation definitions/guarded mechanics checks. Static source index refreshed and VramDmaSourceContracts source pin updated.",
     "scope":"Segment metadata and its runtime dictionary resolved without retention. The separate treadmill FrameSource numerical cases and legacy image-width choices remain named follow-up audit work, along with the full maintained-source inventory. Implementation record is this entry's commit."
   }
+,
+  "treadmillArtworkStrideReview": {
+    "status":"converted: four numeric source cases replaced by bounded stride arithmetic",
+    "owners":"WreckedShipTreadmillRomData.FrameSource and named source aliases; WreckedShipTreadmillObjectDefinition.FrameSourceAddress view",
+    "source":"Supported NTSC J/U v1.0 bank87 rightward operands81E5/81E9/81ED/81F1 and leftward81FB/81FF/8203/8207. Pinned bank_87.asm362be646929cf8e483f692b73a6561cfc2dc1d0d identifies four consecutive32-byte artwork frames8E64/8E84/8EA4/8EC4.",
+    "algorithm":"For frameIndex0..3 return878E64+20h*frameIndex. Reject all other signed indices with ArgumentOutOfRangeException(frameIndex). Existing direction view maps its four native instruction positions forward or in reverse, preserving source selection. Named Frame1/2/3Source aliases now derive from the same base and transfer stride.",
+    "evidence":"Equal-sized adjacent planar artwork frames establish physical stride, rather than an arbitrary fitted sequence. No source table or cache is generated.",
+    "proof":"VerifyTreadmillArtworkSources reads all four original rightward operands, checks the function and named aliases, signed/adjacent/extreme invalid frame indices and every ushort instruction pointer for both direction views against original operands. Replaces the previous duplicate per-frame artwork assertion in VerifyRetailTreadmillMechanics; that verifier reuses this named proof.",
+    "organization":"Moved WreckedShipTreadmillRomData unchanged apart from source arithmetic into its own domain catalog file, out of the functional animation-state file. Scalar transfer geometry remains named and documented.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-animated-frames exercise the new proof, atlas source aliases and existing animation checks. Maintained-source index refreshed.",
+    "scope":"Resolves the artwork-source follow-up from roomFxAtlasSegmentReview without retention. Treadmill object/header/frame-cursor collections remain separately identified audit work; no claim is made that their existing tables qualify for retention. Full1165 audit remains active. Implementation record is this entry's commit."
+  }
 }

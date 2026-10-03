@@ -150,6 +150,7 @@ internal static partial class Program
 
     private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
+        VerifyTreadmillArtworkSources(bus);
         int wordCount = 0;
         foreach (WreckedShipTreadmillObjectDefinition definition in
                  WreckedShipTreadmillMechanicsDefinitions.All)
@@ -189,12 +190,6 @@ internal static partial class Program
                 AssertTrue(!definition.TryReadMechanicsWord(
                         unchecked((ushort)(framePointer + 2)), out _),
                     $"{definition.Direction} leaves frame source presentation-owned");
-                AssertEqual(definition.FrameSourceAddress(framePointer),
-                    RoomFxRomData.Banks.AnimatedTiles |
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        RoomFxRomData.Banks.AnimatedTiles |
-                        unchecked((ushort)(framePointer + 2))),
-                    $"{definition.Direction} frame $87:{framePointer:X4} has exact native artwork identity");
             }
         }
 

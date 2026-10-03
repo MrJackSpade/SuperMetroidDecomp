@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--baby-metroid-theme"]) return VerifyBabyMetroidTheme();
 if (args is ["--baby-metroid-death-cry"]) return VerifyBabyMetroidDeathCry();
 if (args is ["--mother-brain-plasma-impact"]) return VerifyMotherBrainPlasmaImpact();
 if (args is ["--mother-brain-later-contact"]) return VerifyMotherBrainLaterContact();

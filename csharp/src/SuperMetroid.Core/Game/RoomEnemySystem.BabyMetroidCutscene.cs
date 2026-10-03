@@ -185,6 +185,14 @@ public sealed partial class RoomEnemySystem
         {
             QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
             SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_cgram!);
+            state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
+        }
+        if (step.SamusThemeStarted)
+        {
+            state.RequestMusic(MusicCommand.LoadData(MotherBrainBabyMetroidDefinitions.SamusThemeMusicData),
+                MusicCommandDelay.EightFrames);
+            state.RequestMusic(MusicCommand.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
+                MusicCommandDelay.EightFrames);
         }
         if (step.LatchSoundQueued)
             state.LastSoundEffectLibrary1 = 0x0040;

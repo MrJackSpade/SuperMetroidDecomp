@@ -1081,15 +1081,15 @@ public sealed partial class SuperMetroidRuntime
         LoadDebugGrapplePalette();
     }
 
-    internal void LoadDebugGrapplePalette()
+    internal void LoadDebugGrapplePalette() => LoadGrapplePalette();
+
+    private void LoadGrapplePalette()
     {
-        // Firing initialization selects beam-palette index two. Installed sessions use
-        // the same editable colors as ordinary gameplay; an unbound reference runner
-        // retains the native pointer-table lookup for cartridge comparison.
+        // Both ordinary HUD firing and debug entry select the installed native palette.
         (beamArtwork?.Palettes ?? throw new InvalidOperationException(
-            "Debug grapple palette requires installed beam artwork."))
-            .LoadTo(Cgram, 2);
-        Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex - 1, 32657);
+            "Grapple palette requires installed beam artwork."))
+            .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
+        Cgram.SetColor(SamusGrappleRomData.Palettes.FlareColorIndex, SamusGrappleRomData.Palettes.FlareColor);
     }
 
     /// <summary>
@@ -2086,6 +2086,17 @@ public sealed partial class SuperMetroidRuntime
                         CancelQueued: Samus.Grapple.Phase == GrapplePhase.CancelPending,
                         Cancelled: false,
                         OwnsMovement: false);
+                }
+
+                if (LastGrappleMovement is { Fired: true })
+                    LoadGrapplePalette();
+                else if (LastGrappleMovement is { Phase: GrapplePhase.Inactive })
+                {
+                    // Native cancellation, drop, wall-jump and swing-release tails all
+                    // reload the equipped beam palette before returning to inactive.
+                    (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+                        "Grapple cleanup requires installed beam artwork."))
+                        .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
                 }
 
                 // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.

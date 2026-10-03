@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--gameplay-grapple-palette"])
+{
+    VerifyGameplayGrapplePalette();
+    return 0;
+}
 if (args is ["--xray-no-fx-darkening"])
 {
     VerifyXrayNoFxDarkening();

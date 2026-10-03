@@ -21,6 +21,13 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusState) &&
+            current.Any(field => field.Name == "<PreviousHealthForHurtCheck>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state lacks draw-time health history; initializing it from saved health without inventing a hurt event.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<PreviousHealthForHurtCheck>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SamusPowerBombExplosionState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "_crystalFlashAfterglowStepsRemaining"))
         {
@@ -546,6 +553,8 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SamusState samus && serializedCount < GetCurrentInstanceFieldCount(typeof(SamusState)))
+            samus.PreviousHealthForHurtCheck = samus.Health;
         if (instance is SamusPowerBombExplosionState explosion && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(SamusPowerBombExplosionState)) - 1)
         {

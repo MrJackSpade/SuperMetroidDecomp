@@ -501,6 +501,7 @@ public sealed record SuperMetroidSaveSlot(
         samus.CollectedBeams = CollectedBeams;
         samus.ReserveTankMode = ReserveMode;
         samus.Health = Health;
+        samus.PreviousHealthForHurtCheck = Health;
         samus.MaxHealth = MaxHealth;
         samus.Missiles = Missiles;
         samus.MaxMissiles = MaxMissiles;

@@ -42,10 +42,11 @@ internal static partial class Program
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusState)])!;
         FieldInfo[] legacy = fields.Where(field => field.Name is not
+            "<PreviousHealthForHurtCheck>k__BackingField" and not
             "<StationaryScriptControlLocked>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta").ToArray();
         FieldInfo[] selected = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, legacy.Length);
-        AssertTrue(selected.SequenceEqual(legacy), "0.2.1 Samus layout omits only the three verified additions");
+        AssertTrue(selected.SequenceEqual(legacy), "0.2.1 Samus layout omits only the four verified additions");
         AssertTrue(selected.Any(field => field.Name == "_healthWarning") && selected.Any(field => field.Name == "_poseHistory"),
             "0.2.1 migration retains existing health and pose history rather than guessing from count");
         FieldInfo[] preBombLockFields = legacy.Where(field => field.Name is not "_healthWarning" and not "_poseHistory"
@@ -54,6 +55,7 @@ internal static partial class Program
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
             preBombLockFields.Length).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
         FieldInfo[] earlyPlayerFields = fields.Where(field => field.Name is not
+            "<PreviousHealthForHurtCheck>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta" and not
             "<BombJumpPoseInputLocked>k__BackingField" and not "_healthWarning" and not
             "<PreviousDrawNewInput>k__BackingField" and not "<AutoJumpTimer>k__BackingField" and not

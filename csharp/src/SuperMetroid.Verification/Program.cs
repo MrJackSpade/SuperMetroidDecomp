@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grapple-hurt-feedback"])
+{
+    VerifyGrappleHurtFeedback();
+    return 0;
+}
 if (args is ["--pause-door-shinespark"])
 {
     VerifyPauseDoorShinespark();

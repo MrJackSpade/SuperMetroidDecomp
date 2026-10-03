@@ -62,4 +62,12 @@ public sealed partial class SamusState
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;
     }
+
+    /// <summary>Health-feedback tail of $90:EAB3, independent of knockback admission.</summary>
+    internal void UpdateHurtFlashFromHealthLoss()
+    {
+        if (unchecked((short)(Health - PreviousHealthForHurtCheck)) < 0 && HurtFlashCounter == 0)
+            HurtFlashCounter = 1;
+        PreviousHealthForHurtCheck = Health;
+    }
 }

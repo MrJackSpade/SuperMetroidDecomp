@@ -60,6 +60,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         ApplyAttractSamusSetup(scene.SamusSetupPointer);
+        Samus.PreviousHealthForHurtCheck = Samus.Health;
         InitializeHud(new HudSnapshot(Samus.Health, Samus.MaxHealth,
             Samus.Missiles, Samus.MaxMissiles, Samus.SuperMissiles, Samus.MaxSuperMissiles,
             Samus.PowerBombs, Samus.MaxPowerBombs, Samus.EquippedItems, 0, 0, 0));

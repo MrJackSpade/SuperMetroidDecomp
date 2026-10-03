@@ -5281,4 +5281,15 @@
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-treadmill-mechanics run all named field/domain proofs and both complete boss-gated runtime loops while forbidding mechanics and artwork-operand ROM reads. Updated VramDmaSourceContracts pin and source index. No exploratory gameplay or unrelated constructed-stream suite.",
     "scope":"Resolves all stored treadmill descriptor/cursor mappings left pending in treadmillArtworkStrideReview, with no retention. Other maintained owners, including atlas legacy-width selections, remain audit work under1165. Implementation record is this entry's commit."
   }
+,
+  "roomFxLegacySheetSelectionReview": {
+    "status":"converted: temporary legacy-width lookup array removed",
+    "owner":"RoomFxAnimatedTileAtlas.Load legacy fallback",
+    "source":"Maintained compatibility contract at1fefba073743856a367318020e226071c63b5cbf: current width1616, then pre-spores1544, pre-statue776 and original712, all eight pixels high. This mapping originates in the port's editable PNG format, not cartridge lookup data.",
+    "algorithm":"After current-format decoding fails, try the named pre-spores, pre-statue and original formats directly in the existing order. A shared local decoder rewinds to the initial stream offset, imports the edited prefix and copies only the missing stock tail. Null-coalescing selects the first successful format; all failed attempts retain the existing InvalidDataException. No array, cached width roster or numeric version recitation is retained.",
+    "evidence":"These values identify three distinct historical document formats with specific compatibility behavior. Direct named format attempts express that control flow; the format geometry remains calculated from its named tile-count constants. No retention exception is used.",
+    "proof":"VerifyRoomFxLegacySheetSelection uses independently captured literal historical widths. Pixel1 stock and pixel2 edits have independent FF/00 versus00/FF planar-byte expectations; every output byte is checked for all three legacy formats and the current format. Includes nonzero initial stream offsets, unsupported neighboring dimensions, missing stock, nonseekable legacy rejection, nonseekable current acceptance and null input. The production fallback function does not supply expected widths or pixel values.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-animated-frames run the focused compatibility proof together with the existing atlas/animation checks. Updated the atlas source hash and maintained-source index.",
+    "scope":"Resolves the legacy-format roster left pending in roomFxAtlasSegmentReview and treadmillMechanicsLayoutReview. Full maintained-source review remains active under1165. Implementation record is this entry's commit."
+  }
 }

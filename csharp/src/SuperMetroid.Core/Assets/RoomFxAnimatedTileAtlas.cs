@@ -36,10 +36,12 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         {
             // Preserve previous user-edited PNGs from before the treadmill,
             // statue or spores extension; inherit only the newly introduced tail.
-            foreach (int width in new[] {
-                RoomFxAnimatedTileAtlasFormat.PreSporesWidth,
-                RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
-                RoomFxAnimatedTileAtlasFormat.LegacyWidth })
+            return TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSporesWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.LegacyWidth)
+                ?? throw new InvalidDataException("Room-FX PNG matches neither current nor supported legacy sheet geometry.");
+
+            RoomFxAnimatedTileAtlas? TryLegacy(int width)
             {
                 png.Position = start;
                 try
@@ -54,9 +56,8 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                         combined.AsSpan(legacyPlanar.Length));
                     return new(combined);
                 }
-                catch (InvalidDataException) { /* Try the older sheet geometry. */ }
+                catch (InvalidDataException) { return null; }
             }
-            throw new InvalidDataException("Room-FX PNG matches neither current nor supported legacy sheet geometry.");
         }
     }
 

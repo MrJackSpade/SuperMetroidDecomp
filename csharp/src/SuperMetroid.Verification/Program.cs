@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--overlapping-enemy-shots"])
+{
+    VerifyOverlappingEnemyShots();
+    return 0;
+}
 if (args is ["--gameplay-grapple-palette"])
 {
     VerifyGameplayGrapplePalette();

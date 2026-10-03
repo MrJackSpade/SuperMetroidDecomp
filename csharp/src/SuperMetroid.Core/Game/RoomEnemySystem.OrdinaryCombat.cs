@@ -1461,8 +1461,8 @@ public sealed partial class RoomEnemySystem
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
                     // damage the enemy again after its flash timer expires.
-                    if (projectile.PackedDirection.HasLowByteLifecycleState)
-                        continue;
+                    // $A0:A184 and $A0:9C39 do not reject the removal marker: later
+                    // overlapping enemies in this pass still receive the live payload.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||

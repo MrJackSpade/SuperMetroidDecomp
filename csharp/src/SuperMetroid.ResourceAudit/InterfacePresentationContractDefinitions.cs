@@ -10,7 +10,7 @@ internal static class InterfacePresentationContractDefinitions
         new("SuperMetroid.Core.Assets.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
             [Source("IPaletteFxColorSource", "DE4F1FA88F356190D7E6689581A21DFC5A7B578D2FEE2BAB5EB3DDCDEED65839"),
              Source("RoomPaletteFxPresentation", "3FC5DDDFA3E2C7C991C1AE54A43AE6BA8C7EF0A546770ED9500668B9BA82D758"),
-             Source("LoadingPaletteInputView", "B4E8650D59A3D50D25FD5631A14B40FD54B0EF79D665824CF960ECF9F2F44A40"),
+             Source("LoadingPaletteInputView", "FA6859028BA9EBA2CF0B7C04C30233386959FCF4A01CD5EA62C3D58B076D4155"),
              Source("LoadingPaletteColorDefinitions", "22521B690AF6FFFD1C89A4271C2F3BF97253890355253E559849B210A4D5D697"),
              Source("HeatPaletteColorDefinitions", "0EA2C18E370424905708BBB5FB1C0FD3CD84306C00989FB1C6B086F403BB0241"),
              Source("PaletteFxHeatInstructionListDefinitions", "145331301C26464315BA0D09B133766757220E35C717862574CC791DD7EC6411"),

@@ -9,6 +9,8 @@ internal static partial class Program
 {
     private static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
+        VerifyMapWindowOriginX(bus, original.Labels);
+        VerifyMapWindowOriginY(bus, original.Labels);
         var guard = new WorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapRomData.AreaCount).ToArray();
         var native = new FileSelectAreaMapGraphics(bus, 0, original.Tiles,
@@ -19,9 +21,6 @@ internal static partial class Program
         installed.BindLabels(original.Labels);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            int address = FileSelectMapRomData.LabelPositions + area * 4;
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), original.Labels.Get(area).X, "stock label X");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2), original.Labels.Get(area).Y, "stock label Y");
             native.SelectArea(area); installed.SelectArea(area);
             AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
             var nativeWindow = new FileSelectMapWindow(bus, area,

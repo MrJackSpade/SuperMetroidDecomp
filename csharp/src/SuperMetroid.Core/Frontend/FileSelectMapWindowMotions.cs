@@ -38,10 +38,18 @@ internal static class FileSelectMapWindowMotions
     }
 
     /// <summary>
-    /// Original geographic label origins at $81:AA1C..AA33, used solely as stock motion
-    /// inputs. Their coordinate disposition is separate from the derived motion review;
-    /// the mutable presentation label layout remains independently imported/editable.
+    /// Selects the original geographic label anchor at $81:AA1C..AA33 by named Zebes area.
     /// </summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 as semantic area-to-anchor cases. Native label
+    /// drawing at $81:A9EC..A9F6 first resolves the area's identity, then selects its
+    /// X/Y pair; window setup at $81:AB29..AB3B selects the same pair. Area numbers are
+    /// categorical identities, not samples of a coordinate curve. The cases express
+    /// that layout selection directly. Each coordinate field is checked against its
+    /// complete original six-word view. Ceres and other unsupported identities reject.
+    /// These stock inputs determine compiled motion; independently editable installed
+    /// label anchors determine the actual starting rectangle.
+    /// </remarks>
     internal static (int X, int Y) StockOrigin(int area) => area switch
     {
         (int)AreaId.Crateria => (91, 50),

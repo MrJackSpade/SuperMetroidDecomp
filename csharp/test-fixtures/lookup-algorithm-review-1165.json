@@ -5595,4 +5595,16 @@
     "scope":"Program roster storage and replay-count sequence still require their separate conversion/disposition. Shared normal/speed-boost artwork also remains pending. This entry does not declare the entire owner finished or retain its timing/art arrays. Full1165 audit remains active.",
     "confirmation":"Verification build and --lookup-loading-layout, refreshed maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingProgramRosterReview": {
+    "status":"converted three-program descriptor roster to named cases and a calculated list view",
+    "owners":"SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All/TryReadMechanicsWord/TryReadMechanicsByte",
+    "source":"Original definition records8D:E1F4/E1F8/E1FC select the mutually exclusive Power/Varia/Gravity programsDB62/DCC8/DE2E. Supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Parent84ab2d1be7d9cf08e7873d9fc32c832bc71bd181 preserves the original maintained collection order/API contract.",
+    "algorithm":"Use three named program owners and explicit index-to-owner cases, preserving Power/Varia/Gravity order and count3. Mechanics word/byte dispatch calls those owners directly in the same order. Remove the descriptor array and Array.AsReadOnly wrapper. The remaining list view stores no indexed mapping or generated rows; it only exposes named cases.",
+    "domain":"All retains IReadOnlyList and named object identity, with indices0..2 and ArgumentOutOfRangeException elsewhere. Descriptor header/program identities are unchanged. Existing complete ushort word/byte ownership domains remain in force; runtime dispatch adds no enumeration or allocation.",
+    "proof":"Extend the existing VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions with independent original order, count, indexed/enumerated identity and rejected index boundaries. Each named header identity is checked and its start still comes from the independent original header operand. Reuse the original-stream decoder, complete ushort ownership checks,99 control words/12 timer bytes and three guarded loading programs under --lookup-loading-layout.",
+    "documentation":"Removed old wording that could imply retaining loading palette duplicates merely because they were presentation data. Historical equality observations are explicitly research inputs; their presentation disposition remains pending.",
+    "scope":"Resolves the roster pending in suitLoadingGroupLayoutReview. Replay counts and loading artwork remain separate unfinished reviews; no retention rationale is asserted for them. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-layout, refreshed maintained-source index. Implementation record is this entry's commit."
+  }
 }

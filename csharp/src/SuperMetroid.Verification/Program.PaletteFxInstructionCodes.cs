@@ -439,6 +439,18 @@ internal static partial class Program
     private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
+        var programs = SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All;
+        AssertEqual(3, programs.Count, "Loading roster count");
+        AssertTrue(programs.Select(program => program.Owner).SequenceEqual(new[]
+        {
+            SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
+            SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
+            SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
+        }), "Original loading roster order");
+        for (int index = 0; index < 3; index++)
+            AssertTrue(ReferenceEquals(programs[index], programs.ElementAt(index)), "Indexed and enumerated named owner agree");
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = programs[invalid], "Loading roster retains index bounds");
         int mechanicsWords = 0;
         int mechanicsBytes = 0;
         foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
@@ -451,6 +463,7 @@ internal static partial class Program
                 SamusLoadingSuitPaletteFxProgramOwner.GravitySuit => 0xe1fc,
                 _ => throw new InvalidOperationException(),
             };
+            AssertEqual(header, definition.DefinitionPointer, "Native loading header identity");
             int start = ReadVerificationWord(bus, 0x8d0000 | (header + 2));
             AssertEqual((ushort)start, definition.ProgramStart, "Independent native loading entry");
             var original = new Dictionary<ushort, ushort>();

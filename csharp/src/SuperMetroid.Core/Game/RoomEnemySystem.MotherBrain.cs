@@ -117,7 +117,7 @@ public sealed partial class RoomEnemySystem
         state.BrainPaletteTimer = 0x000a;
     }
 
-    /// <summary>Ports the body main/hurt entry at <c>$A9:873E</c> for phase one.</summary>
+    /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
     private void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -130,6 +130,19 @@ public sealed partial class RoomEnemySystem
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomPalette(state);
+        RunMotherBrainBodyFunction(state, samus, nmiFrameCounter8, sharedProjectiles);
+        // Every body function returns through the common contact tail. The first-phase
+        // function also has its own authored contact call; retain both native sites.
+        if (samus is not null)
+            ResolveMotherBrainSamusCollision(state, samus);
+    }
+
+    private void RunMotherBrainBodyFunction(
+        MotherBrainEnemyState state,
+        SamusState? samus,
+        byte nmiFrameCounter8,
+        SamusBombProjectileSystem? sharedProjectiles)
+    {
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FirstPhase:

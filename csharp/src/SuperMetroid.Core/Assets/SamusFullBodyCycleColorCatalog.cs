@@ -38,6 +38,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[palette / 16 * 16 + 8][color], out ushort gold) && value == gold) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
                 palettes[palette / 16 * 16 + 12][color], out ushort screw) && value == screw) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
+                palettes[12][color], palettes[1][12], out ushort ink) && value == ink) continue;
             colors.Add(index, value);
         }
     }
@@ -65,6 +67,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (palette is >= 13 and <= 15 && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
+            ResolveIndex(12 * 16 + color), ResolveIndex(16 + 12), out ushort ink)) return ink;
         if (palette % 16 >= 13 && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
             ResolveIndex((palette / 16 * 16 + 12) * 16 + color), out ushort screw)) return screw;
         if (SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color))
@@ -202,6 +206,25 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Calculates Power Screw Attack's descending-red ink and shared gold ink.</summary>
+    /// <remarks>Original9CC4/9CE4/9D04 subtract five red and add five green
+    /// per shade from base9CA4, preserving blue. Original9CD8/9CF8/9D18 use
+    /// Speed Booster dim slot12's red/green (9B58), with green+10 per shade
+    /// and the Screw base's blue plus10 at the final shade. RGB5 additions
+    /// saturate31 and red subtraction clamps0. Independent source/shade edits
+    /// remain explicit inputs; this does not exempt endpoint components.</remarks>
+    internal static bool TryScrewPowerInk(int palette, int color, ushort basis, ushort speedDim, out ushort value)
+    {
+        value = 0;
+        if (palette is < 13 or > 15 || color is not (2 or 12)) return false;
+        int shade = palette - 12;
+        int red = color == 2 ? Math.Max(0, (basis & 31) - 5 * shade) : speedDim & 31;
+        int green = Math.Min(31, ((color == 2 ? basis : speedDim) >> 5 & 31) + (color == 2 ? 5 : 10) * shade);
+        int blue = Math.Min(31, (basis >> 10 & 31) + (color == 12 && shade == 3 ? 10 : 0));
+        value = (ushort)(red | green << 5 | blue << 10);
+        return true;
+    }
 
     /// <summary>Calculates55 canonical Screw Attack colors with shared green/blue ramps.</summary>
     /// <remarks>Power3/5..9/13..15 and Gravity1/2/10/11 add green10 per

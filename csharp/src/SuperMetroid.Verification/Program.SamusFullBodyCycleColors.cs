@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(55, stored.Count, "Full-body sharing and calculated shades remove713 stored words");
+        AssertEqual(49, stored.Count, "Full-body sharing and calculated shades remove719 stored words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -127,7 +127,11 @@ internal static partial class Program
                 ushort screwBase = ReadVerificationWord(rom, 0x9b0000 | (0x9ca0 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, screwBase, out ushort screw), "Every Screw Attack tint domain member");
                 if (screwTint) AssertEqual(expected, screw, "Every original Screw Attack tint word");
-                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint,
+                bool powerInk = pointer + 2 * color is 0x9cc4 or 0x9ce4 or 0x9d04 or 0x9cd8 or 0x9cf8 or 0x9d18;
+                AssertEqual(powerInk, SamusFullBodyCycleColorFormat.TryScrewPowerInk(paletteIndex, color,
+                    ReadVerificationWord(rom, 0x9b9ca0 + 2 * color), ReadVerificationWord(rom, 0x9b9b58), out ushort ink), "Every Power Screw ink domain member");
+                if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
+                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk,
                     stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
@@ -146,6 +150,7 @@ internal static partial class Program
             AssertTrue(!SamusFullBodyCycleColorFormat.IsActiveShineTint(invalid, 3), "Active tint palette bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryActiveGoldRamp(invalid, 1, 0, out rejected) && rejected == 0, "Gold-ramp palette bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewAttackTint(invalid, 1, 0, out rejected) && rejected == 0, "Screw tint palette bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewPowerInk(invalid, 2, 0, 0, out rejected) && rejected == 0, "Power Screw ink palette bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
@@ -156,6 +161,7 @@ internal static partial class Program
             AssertTrue(!SamusFullBodyCycleColorFormat.IsActiveShineTint(9, invalid), "Active tint color bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryActiveGoldRamp(9, invalid, 0, out rejected) && rejected == 0, "Gold-ramp color bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewAttackTint(13, invalid, 0, out rejected) && rejected == 0, "Screw tint color bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TryScrewPowerInk(13, invalid, 0, 0, out rejected) && rejected == 0, "Power Screw ink color bounds");
         }
         for (int basis = 0; basis < 32768; basis++)
         for (int shade = 0; shade < 4; shade++)
@@ -175,6 +181,17 @@ internal static partial class Program
             AssertEqual((ushort)activeExpected, SamusFullBodyCycleColorFormat.ActiveShineTint((ushort)basis, shade), "Complete RGB5 active warm tint domain");
             if (shade > 0)
             {
+                AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 2, (ushort)basis, 0, out ushort descending), "Descending-red ink selected");
+                int descendExpected = Math.Clamp((basis & 31) - 5 * shade, 0, 31) +
+                    32 * Math.Clamp((basis >> 5 & 31) + 5 * shade, 0, 31) + (basis & 31744);
+                AssertEqual((ushort)descendExpected, descending, "Full RGB5 descending red/ascending green domain");
+                for (int baseBlue = 0; baseBlue < 32; baseBlue++)
+                {
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 12, (ushort)(baseBlue << 10), (ushort)basis, out ushort sharedInk), "Shared gold ink selected");
+                    int sharedExpected = (basis & 31) + 32 * Math.Clamp((basis >> 5 & 31) + 10 * shade, 0, 31) +
+                        1024 * Math.Clamp(baseBlue + (shade == 3 ? 10 : 0), 0, 31);
+                    AssertEqual((ushort)sharedExpected, sharedInk, "Shared source RGB5 and blue saturation boundaries");
+                }
                 foreach (int slot in new[] { 1, 3 })
                 {
                     int green = Math.Clamp((basis >> 5 & 31) + (slot == 3 ? 10 : 5) * shade, 0, 31);

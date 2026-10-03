@@ -19,7 +19,23 @@ internal static partial class Program
 
         var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(32, stored.Count, "Shared yellow highlights remove four further whole inputs");
+        AssertEqual(16, stored.Count, "Paired hue channels replace sixteen whole inputs");
+        var pairedInputs = (Dictionary<int, HyperBeamFxColorCatalog.PairedChannels>)typeof(HyperBeamFxColorCatalog)
+            .GetField("pairedInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(16, pairedInputs.Count, "Sixteen endpoint inks share their blue channel");
+        foreach (var entry in pairedInputs)
+        {
+            int frame = entry.Key / 8, color = entry.Key % 8;
+            ushort original = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
+            AssertEqual(original, entry.Value.Resolve(frame == 0), "Original paired endpoint channel reconstruction");
+            AssertTrue(typeof(HyperBeamFxColorCatalog.PairedChannels).GetField("blue",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value) is null,
+                "No original duplicate blue channel is stored");
+        }
+        for (int rgb = 0; rgb < 32768; rgb++)
+        foreach (bool redHue in new[] { false, true })
+            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels((ushort)rgb, redHue).Resolve(redHue),
+                "Complete RGB5 endpoint inputs preserve equal and independently edited blue channels");
         for (int color = 4; color < 8; color++)
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 40 + color * 2),
                 SamusHyperBeamColorFormat.YellowFromGreen(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)),
@@ -89,7 +105,9 @@ internal static partial class Program
                     ushort expected = changed ? (ushort)(1000 + frame * 8 + color) :
                         ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
                     AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
-                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4), stored.ContainsKey(frame * 8 + color),
+                    bool pairedOwner = frame == 0 && color >= 3 || frame == 4 && color >= 4 || frame == 8 && color != 0;
+                    AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
+                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4) && !pairedOwner, stored.ContainsKey(frame * 8 + color),
                         "Original FX input ownership");
                 }
             }

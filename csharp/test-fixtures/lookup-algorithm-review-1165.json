@@ -6093,4 +6093,15 @@
     "scope":"Other projectile endpoint relationships and the remaining full-body opaque inputs still require review. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectilePairedChannelReview": {
+    "status":"converted equal blue channels of sixteen projectile endpoint colors",
+    "owners":"HyperBeamFxColorCatalog.HasPairedChannels/PairedChannels and constructor/Resolve",
+    "source":"Original red frame0 inks3..7 have blue=green; green frame4 inks4..7 and magenta frame8 inks1..7 have blue=red. Payloads begin8D:D906 and advance20 bytes per frame. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Store the two independent hue channels and resolve blue from green for red hues or red for green/magenta hues. Nullable blue inputs preserve independently supplied differences. Stock32 whole words becomes16 whole words plus32 independent components. No rounding,saturation,overflow or generated color cache.",
+    "ownership":"All sixteen selected colors retain independent RGB5 edits; unequal edited blue is explicit. Existing even-endpoint-only and green-source-only edits preserve separately supplied derived frames.",
+    "proof":"Extend the single projectile proof with every original paired color,exact field/owner counts and no stored original blue duplicates. Exhaust all32768 RGB5 words in both pairing modes to confirm independent edits. Reuse all80 original colors,timed guarded loop,untouched CGRAM,all/even/green edits,bounds and JSON validation.",
+    "scope":"Remaining endpoint intensity,shade and cross-hue relationships are pending. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

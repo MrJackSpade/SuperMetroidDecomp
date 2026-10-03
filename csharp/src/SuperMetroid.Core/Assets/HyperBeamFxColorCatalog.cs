@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class HyperBeamFxColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
+    private readonly Dictionary<int, PairedChannels> pairedInputs = new();
 
     private HyperBeamFxColorCatalog(ushort[][] frames)
     {
@@ -20,6 +21,11 @@ public sealed class HyperBeamFxColorCatalog
             if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
             if (frame == 2 && color >= 4 && value == SamusHyperBeamColorFormat.YellowFromGreen(frames[4][color])) continue;
+            if (HasPairedChannels(frame, color))
+            {
+                pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0));
+                continue;
+            }
             colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
         }
     }
@@ -36,12 +42,38 @@ public sealed class HyperBeamFxColorCatalog
     private ushort Resolve(int frame, int color)
     {
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
+        if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired)) return paired.Resolve(frame == 0);
         if (color == 0) return colors[0];
         if (frame == 2) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(4, color));
         return SamusHyperBeamColorFormat.HueMidpoint(
             Resolve(frame - 1, color), Resolve((frame + 1) % HyperBeamFxColorFormat.FrameCount, color));
     }
 
+    /// <summary>Selects the red, green and magenta endpoint inks with two equal channels.</summary>
+    /// <remarks>Original red frame0 inks3..7 have blue=green; green frame4
+    /// inks4..7 and magenta frame8 inks1..7 have blue=red. Frame addresses
+    /// start8D:D906 and advance20 bytes. These are hue-channel equalities;
+    /// their remaining independent intensities still require review.</remarks>
+    private static bool HasPairedChannels(int frame, int color) =>
+        frame == 0 && color >= 3 || frame == 4 && color >= 4 || frame == 8 && color != 0;
+
+    internal readonly struct PairedChannels
+    {
+        private readonly int red;
+        private readonly int green;
+        private readonly int? blue;
+
+        internal PairedChannels(ushort supplied, bool redHue)
+        {
+            red = supplied & 31;
+            green = supplied >> 5 & 31;
+            int expectedBlue = redHue ? green : red;
+            blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
+        }
+
+        internal ushort Resolve(bool redHue) =>
+            (ushort)(red | green << 5 | (blue ?? (redHue ? green : red)) << 10);
+    }
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -16,9 +16,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainHeadDefinition = 0xec3f;
     private const ushort MotherBrainFallingTubeDefinition =
         EnemyDefinitionPointers.MotherBrainFallingTube;
-    private const ushort MotherBrainBlankBg2Tile = 0x0338;
-    private const ushort MotherBrainBg2VramBase = 0x4800;
-    private const int MotherBrainBg2WordCount = 0x0800;
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
 
     private MotherBrainEnemyState? _motherBrain;
@@ -45,12 +42,11 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain's body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        // `$7E:2000-$2FFF` is the enemy BG2 staging surface; the renderer-visible mirror is
-        // VRAM word `$4800`. The native loop writes all `$800` words, including the second
-        // off-screen tilemap page, before either Mother Brain record can execute.
-        ushort[] clearedTilemap = new ushort[MotherBrainBg2WordCount];
-        Array.Fill(clearedTilemap, MotherBrainBlankBg2Tile);
-        _vram!.ExecuteWordTransfer(clearedTilemap, MotherBrainBg2VramBase, wordIncrement: 1);
+        // Prepare the future body image without replacing the visible pipe background.
+        // The phase-two transition owns the first transfer from staging into VRAM.
+        for (int index = 0; index < MotherBrainBg2Definitions.ClearWordCount; index++)
+            WriteWord(_bus!, MotherBrainBg2Definitions.WorkAddress + index * 2,
+                MotherBrainBg2Definitions.BlankTile);
 
         body.CurrentInstruction = MotherBrainBodyInstructionProgramDefinitions.InitialDummy;
         body.InstructionTimer = 1;
@@ -75,6 +71,7 @@ public sealed partial class RoomEnemySystem
             Function = MotherBrainBodyFunction.FirstPhase,
             FxEntry = 1,
             BackgroundTilemapPrepared = true,
+            EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTransferByteCount,
         };
         _motherBrain.RecordInitialTurretRequests();
         SpawnMotherBrainInitialTurrets();

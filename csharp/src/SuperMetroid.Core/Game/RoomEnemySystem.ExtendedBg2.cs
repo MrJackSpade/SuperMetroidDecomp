@@ -66,6 +66,10 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
         if (_crocomireDeath is { } death)
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
+        if (_motherBrain is not null)
+            for (int index = 0; index < words.Length; index++)
+                WriteWord(_bus!, MotherBrainBg2Definitions.WorkAddress + (destinationWord + index) * 2,
+                    words[index]);
         _vram!.ExecuteWordTransfer(words,
             unchecked((ushort)(EnemyBg2FrameLayout.VramBase + destinationWord)),
             wordIncrement: 1);

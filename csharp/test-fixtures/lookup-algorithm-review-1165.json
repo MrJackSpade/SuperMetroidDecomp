@@ -6617,4 +6617,14 @@
     "remainingScope":"Review all31 base words and four differing components. In particular, Idle/Closed green inks2/3/4 have a five-level ramp that remains to be converted. No retain decision has been made for the unresolved values.",
     "confirmation":"Menu closed-contract dependency hashes updated; maintained-source index refreshed. Implementation commit is the commit adding this entry. No exploratory gameplay or whole-game validation."
   }
+,
+  "gameOverBabyBaseShadeReview": {
+    "status":"converted green shade ramps and warm cry tint; remaining base choices pending",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
+    "source":"Same independently pinned64-word Baby palette oracle82:BD97..BE16 as gameOverBabyCryBrightnessReview. Green slots2/3/4 in both Idle and ClosedCry share red/blue and increment green by five; ClosedCry slots5..12 preserve Idle green while shifting five from blue to red, except slot9 red.",
+    "algorithm":"For Idle/ClosedCry inks2/3, preserve darkest ink4 red/blue and add5*(4-ink) to green. ClosedCry inks5..12 use Idle red+5 and blue-5 with green unchanged. Clamp RGB5 components individually for supported edited assets. Store only independent differing target components, preserving custom source and target edits.",
+    "proof":"Reuses the single consolidated VerifyGameOverBabyColors independent original64-word and CGRAM proof, with all6144 independent channel edits and original JSON identity/bounds. No duplicate palette test added.",
+    "remainingInputs":"Stock19 whole words and five differing components. Supersedes the31-word input count in the preceding review. ClosedCry ink9 red4 versus calculated5 remains pending, along with the four earlier cry differences and19 base words. These are explicitly unresolved, not retained exceptions; uniform-tint mismatch is not itself a qualifying justification.",
+    "confirmation":"Verification and ResourceAudit builds, isolated --lookup-game-over-baby-colors, source dependency pin and maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

@@ -391,8 +391,11 @@ internal static partial class Program
             {
                 ushort pointer = (ushort)(first + phase * 34 + color * 2);
                 ushort canonical = (ushort)(first + earliest * 34 + color * 2);
+                ushort power = (ushort)(0xe468 + earliest * 34 + color * 2);
+                if (first != 0xe468 && ReadVerificationWord(bus, 0x8d0000 | canonical) ==
+                    ReadVerificationWord(bus, 0x8d0000 | power)) canonical = power;
                 expectedAliases.Add(pointer, canonical);
-                AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only first occurrence rows");
+                AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only distinct row/suit colors");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -402,7 +405,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(225, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly225 distinct-row stock colors stored");
+        AssertEqual(106, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly106 distinct row/suit stock colors stored");
         AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)

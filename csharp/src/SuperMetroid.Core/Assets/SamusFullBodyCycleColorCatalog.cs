@@ -175,6 +175,11 @@ public static class SamusFullBodyCycleColorFormat
     /// share Power shade0, except Gravity Speed Booster shade0's distinct
     /// payload. All active-shine/Screw Attack entries share Power active-shine
     /// shade0. The payload values remain inputs, not encoded constants.
+    /// Opaque Varia/Gravity rows share Power's same shade except the suit ink
+    /// slots selected below: rows1..3 are Speed Booster, rows5..7 stored shine,
+    /// rows9..11 active shinespark, and rows13..15 Screw Attack. These are
+    /// categorical sprite-ink selections, established from all original rows;
+    /// they do not exempt the remaining shade/component inputs from derivation.
     /// Explicit differing asset values override this alias, including base edits.</remarks>
     internal static int CanonicalColorIndex(int palette, int color)
     {
@@ -187,7 +192,23 @@ public static class SamusFullBodyCycleColorFormat
             int transparentSource = row >= 8 ? 8 : row is 1 or 2 ? 1 : 0;
             return transparentSource * ColorsPerPalette;
         }
-        int source = palette % ShadesPerSuit == 0 && color != 0 ? palette / 16 * 16 : palette;
+        int source = palette % ShadesPerSuit == 0 ? palette / 16 * 16 : palette;
+        int suit = source / 16;
+        int familyRow = source % 16;
+        // Suit recoloring changes only these ink slots; all other inks use Power's row.
+        bool suitInk = (suit, familyRow) switch
+        {
+            (0, _) => true,
+            (1, >= 1 and <= 3) => color is 1 or 2 or 10 or 11 or 12,
+            (2, >= 1 and <= 3) => color is 2 or 10 or 11,
+            (1, 9) => color is 2 or 9 or 10 or 11 or 12,
+            (_, 10 or 11) or (2, 9) => color is 1 or 2 or 9 or 10 or 11 or 12,
+            (1, >= 13) => color is 2 or 10 or 11 or 12,
+            (2, >= 13) => color is 1 or 2 or 10 or 11,
+            (1, _) => color is 2 or 10 or 11,
+            _ => color is 1 or 2 or 10 or 11 or 12,
+        };
+        if (!suitInk) source = familyRow;
         return source * ColorsPerPalette + color;
     }
 

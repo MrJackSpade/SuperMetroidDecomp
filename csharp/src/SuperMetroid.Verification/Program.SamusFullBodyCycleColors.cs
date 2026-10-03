@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(589, stored.Count, "Full-body base and transparent sharing removes179 duplicate words");
+        AssertEqual(314, stored.Count, "Full-body base, transparent and suit sharing removes454 duplicate words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -38,6 +38,12 @@ internal static partial class Program
                 ushort sourcePointer = color != 0 && originalBases.TryGetValue(pointer, out ushort basePointer) ? basePointer : pointer;
                 if (color == 0)
                     sourcePointer = originalPointers.First(candidate => ReadVerificationWord(rom, 0x9b0000 | candidate) == expected);
+                else
+                {
+                    ushort powerPointer = originalPointers.ElementAt(originalPointers.ToList().IndexOf(sourcePointer) % 16);
+                    if (ReadVerificationWord(rom, 0x9b0000 | (powerPointer + 2 * color)) == expected)
+                        sourcePointer = powerPointer;
+                }
                 AssertEqual(expected, ReadVerificationWord(rom, 0x9b0000 | (sourcePointer + 2 * color)), "Native base-row equality is independent of the alias formula");
                 int paletteIndex = ordinal - 1;
                 int sourceIndex = originalPointers.ToList().IndexOf(sourcePointer) * 16 + color;
@@ -84,6 +90,20 @@ internal static partial class Program
             ushort expected = pointer == 0x9b20 + suit * 0x200 ? (ushort)(2000 + suit * 16 + color) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
             AssertEqual(expected, edited.Resolve(pointer, color), "Changing only a shared source row preserves all supplied family colors");
+        }
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        ordinal = 3000;
+        foreach (var family in new[] { document.SpeedBooster, document.StoredShine, document.ActiveShinespark, document.ScrewAttack })
+        foreach (var row in family[0])
+        for (int color = 0; color < 16; color++, ordinal++)
+            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            ushort expected = pointer < 0x9d20 ? (ushort)(3000 + (pointer - 0x9b20) / 2 + color) :
+                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+            AssertEqual(expected, edited.Resolve(pointer, color), "Power-only edits preserve supplied Varia and Gravity colors");
         }
     }
     private static void VerifySamusFullBodyCycleColorOverride(

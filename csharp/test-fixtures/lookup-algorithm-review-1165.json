@@ -5762,4 +5762,15 @@
     "scope":"The four distinct transparent payload inputs and remaining opaque shade/channel relationships still require their specific dispositions. No new retention exception is asserted here. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-full-body-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyCrossSuitSharingReview": {
+    "status":"converted275 duplicate opaque suit colors;314 input words remain pending further derivation",
+    "owners":"SamusFullBodyCycleColorFormat.CanonicalColorIndex; SamusFullBodyCycleColorCatalog",
+    "source":"Original48 palettes9B:9B20..A11F, independently selected through bank91 dispatcher lists in supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"After base-row sharing, map unchanged Varia/Gravity ink slots to Power's corresponding family/shade row. Named suit/row cases select only differing ink slots. All other same-slot colors resolve directly to their Power input. Combined stock storage falls589 to314 words. No generated rows or runtime ROM reads.",
+    "ownership":"Compare complete supplied rows to canonical source values before collapsing. Differing edits remain independent overrides, including unchanged secondary-suit values when only Power is edited.",
+    "proof":"Extend the existing full-body proof with independent original-ROM same-slot equality at the corresponding Power row. Confirm all768 values and aliases/storage ownership,314 stock inputs, complete ushort pointer domain and color bounds,48 CGRAM copies,all independent color edits,base-source-only edits and Power-only edits preserving original Varia/Gravity values.",
+    "scope":"No retention exemption. Remaining opaque shade/component relationships and four transparent payload dispositions still require review. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed closed-contract source hash and maintained-source index. Implementation record is this entry's commit."
+  }
 }

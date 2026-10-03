@@ -259,7 +259,8 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                blocksPlasmaBeam: head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
             return false;
 
         // The native callback tail-calls common no-death shot damage. In particular,

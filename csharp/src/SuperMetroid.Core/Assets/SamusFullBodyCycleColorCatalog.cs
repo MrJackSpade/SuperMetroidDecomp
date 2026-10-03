@@ -9,19 +9,35 @@ namespace SuperMetroid.Core.Assets;
 /// Authored Samus full-body colors keyed by the already-compiled native palette pointers.
 /// The catalog never chooses a suit, cycle phase, or animation delay.
 /// </summary>
-/// <remarks>Speed Booster endpoints $9B:9B42/9B44/9B92/9B58/9D94/9D58/9F44
-/// reconstruct normal-derived channels with the reviewed tint arithmetic and
-/// store only differing components. Their native channel values match the
-/// independently owned loading endpoints. Stock retains nine component inputs;
-/// their full-body disposition remains part of the ongoing color review.</remarks>
+/// <remarks>Stock inputs are21 opaque base inks, four transparent payloads,
+/// and15 endpoint components. The opaque inks are Power1..15,Varia2/10/11,
+/// Gravity2/10/11. Original $91:DD5B copies these categorical sprite inks
+/// into fixed OBJ slots; their indices are not brightness/time coordinates.
+/// They match normal suit artwork; Gravity1/12 instead derive from Power's
+/// dim endpoint channels. No physical lighting/material input specifies these
+/// remaining paint choices. Fitting ink index to RGB would encode the painting,
+/// the #1165 nonsense exception, not replace a functional lookup relationship.
+/// The four slot-zero payloads0000/2003/3800/14E0 are copied by the native
+/// loader but ignored by OBJ rendering, which skips pixel index0 before RGB
+/// lookup. Their distinct unused RGB values have no rendering-derived formula.
+/// Endpoint choices are Speed Power dim1 R14/G6,dim2 B13,bright9 B21,
+/// dim12 R22/G16; Varia bright10 B29,dim12 R13; Gravity dim2 B27;
+/// active Power middle2 B5,bright2 B8,dim8 B17; Screw Power bright10 R16,
+/// bright15 G31 and Varia bright2 R20. These are chosen ink tint targets,
+/// with no quantitative input deriving the targets. Shared channels and shade
+/// operations are calculated separately, including Varia active bright2's
+/// equality to Power middle2. Retaining these exact remaining components is
+/// the same painting exception, not a performance/size/complexity exemption.
+/// All supplied custom differences remain independently owned overrides.
+/// This disposition covers only these full-body inputs, not other palettes.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
     private readonly Dictionary<int, ushort> colors;
     // Independent channel inputs for the seven remaining Speed Booster endpoints.
     private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
-    /// <summary>Active-shinespark blue inputs at9C64/9C84/9E84 and9C50; all other channels derive from base ramps.</summary>
-    private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activeVariaBright2, activePowerDim8;
+    /// <summary>Active-shinespark blue inputs at9C64/9C84 and9C50; Varia9E84 shares Power9C64.</summary>
+    private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
     /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
     private readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
@@ -67,7 +83,6 @@ public sealed class SamusFullBodyCycleColorCatalog
         gravityDim2 = Capture(33, 2, false, 2);
         activePowerMiddle2 = CaptureActive(10, 2);
         activePowerBright2 = CaptureActive(11, 2);
-        activeVariaBright2 = CaptureActive(27, 2);
         activePowerDim8 = CaptureActive(9, 8);
         screwPowerBright10 = CaptureScrew(15, 10);
         screwPowerBright15 = CaptureScrew(15, 15);
@@ -133,7 +148,6 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 530: return gravityDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(514), 2));
             case 162: return activePowerMiddle2.Apply(ActiveGoldExpected(10));
             case 178: return activePowerBright2.Apply(ActiveGoldExpected(11));
-            case 434: return activeVariaBright2.Apply(ActiveGoldExpected(27));
             case 152: return activePowerDim8.Apply(SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex(136), 1));
             case 250: return screwPowerBright10.Apply(ScrewExpected(15, 10));
             case 255: return screwPowerBright15.Apply(ScrewExpected(15, 15));
@@ -331,7 +345,7 @@ public static class SamusFullBodyCycleColorFormat
     /// Speed Booster dim slot12's red/green (9B58), with green+10 per shade
     /// and the Screw base's blue plus10 at the final shade. RGB5 additions
     /// saturate31 and red subtraction clamps0. Independent source/shade edits
-    /// remain explicit inputs; this does not exempt endpoint components.</remarks>
+    /// remain explicit inputs; endpoint choices have the owning catalog disposition.</remarks>
     internal static bool TryScrewPowerInk(int palette, int color, ushort basis, ushort speedDim, out ushort value)
     {
         value = 0;
@@ -353,7 +367,7 @@ public static class SamusFullBodyCycleColorFormat
     ///9CC0/9CE0/9D00 and suit offsets512/1024 establish these shared operations.
     /// Power slot4 blue ramps through quarter/half/full of the same ten-unit increment:
     /// floor(10/2^(3-shade)), producing2/5/10 before saturation. Other
-    /// slots/components remain outside this mapping for independent review.</remarks>
+    /// slots/components use the other catalog formulas or its explicit input dispositions.</remarks>
     internal static bool TryScrewAttackTint(int palette, int color, ushort basis, out ushort value)
     {
         value = 0;
@@ -412,7 +426,7 @@ public static class SamusFullBodyCycleColorFormat
     /// share red/green offsets10/16/26 and blue offsets5/0/10. These
     /// three phase operations apply uniformly to47 opaque words selected by
     /// IsActiveShineTint. Phase0 is the unchanged supplied base. Power slot8's
-    /// first shade is outside this mapping; its blue component needs separate review.
+    /// first shade uses the same red/green operation with the catalogued blue input.
     /// Tint amounts describe shared phase operations, not per-color corrections.</remarks>
     internal static ushort ActiveShineTint(ushort basis, int shade)
     {
@@ -532,8 +546,9 @@ public static class SamusFullBodyCycleColorFormat
     /// slots selected below: rows1..3 are Speed Booster, rows5..7 stored shine,
     /// rows9..11 active shinespark, and rows13..15 Screw Attack. These are
     /// categorical sprite-ink selections, established from all original rows;
-    /// they do not exempt the remaining shade/component inputs from derivation.
-    /// Explicit differing asset values override this alias, including base edits.</remarks>
+    /// the remaining shade/component relationships use the separate calculations below.
+    /// Varia active-shine bright slot2 shares Power middle slot2 (original
+    ///9E84/9C64). Explicit differing asset values override every alias.</remarks>
     internal static int CanonicalColorIndex(int palette, int color)
     {
         if ((uint)palette >= PaletteCount) throw new ArgumentOutOfRangeException(nameof(palette));
@@ -545,6 +560,7 @@ public static class SamusFullBodyCycleColorFormat
             int transparentSource = row >= 8 ? 8 : row is 1 or 2 ? 1 : 0;
             return transparentSource * ColorsPerPalette;
         }
+        if (palette == 27 && color == 2) return 10 * 16 + 2;
         int source = palette % ShadesPerSuit == 0 ? palette / 16 * 16 : palette;
         int suit = source / 16;
         int familyRow = source % 16;

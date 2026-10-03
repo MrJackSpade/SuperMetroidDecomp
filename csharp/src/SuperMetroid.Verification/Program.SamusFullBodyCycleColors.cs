@@ -20,7 +20,7 @@ internal static partial class Program
             if (field.FieldType == typeof(LoadingPaletteInputView.Channels))
                 foreach (var channel in field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                     if (channel.GetValue(field.GetValue(native)) is not null) endpointComponents++;
-        AssertEqual(16, endpointComponents, "Full-body shade endpoints store sixteen independent channels");
+        AssertEqual(15, endpointComponents, "Full-body shade endpoints store fifteen independent channels");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -87,6 +87,7 @@ internal static partial class Program
                     if (ReadVerificationWord(rom, 0x9b0000 | (powerPointer + 2 * color)) == expected)
                         sourcePointer = powerPointer;
                 }
+                if (pointer == 0x9e80 && color == 2) sourcePointer = 0x9c60;
                 AssertEqual(expected, ReadVerificationWord(rom, 0x9b0000 | (sourcePointer + 2 * color)), "Native base-row equality is independent of the alias formula");
                 int paletteIndex = ordinal - 1;
                 int sourceIndex = originalPointers.ToList().IndexOf(sourcePointer) * 16 + color;
@@ -145,7 +146,7 @@ internal static partial class Program
                 AssertEqual(powerInk, SamusFullBodyCycleColorFormat.TryScrewPowerInk(paletteIndex, color,
                     ReadVerificationWord(rom, 0x9b9ca0 + 2 * color), ReadVerificationWord(rom, 0x9b9b58), out ushort ink), "Every Power Screw ink domain member");
                 if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
-                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9e84 or 0x9c50 or 0x9d14 or 0x9d1e or 0x9f04;
+                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9c50 or 0x9d14 or 0x9d1e or 0x9f04;
                 bool gravityShared = pointer + 2 * color is 0x9f22 or 0x9f38;
                 if (gravityShared)
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(

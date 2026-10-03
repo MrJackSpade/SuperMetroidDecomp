@@ -22,8 +22,18 @@ namespace SuperMetroid.Core.Assets;
 /// those endpoint colors. Shared hue channels,middle shadows,brighter inks and
 /// temporal blends are calculated separately. A fitted endpoint-index curve
 /// or RGB-reciting cases would only encode the artist's color choices,the
-/// specific1165 nonsense exception. This does not dispose of the remaining
-/// seven intermediate adjustments or three local highlight components.</remarks>
+/// specific1165 nonsense exception.
+///
+/// Three local highlight inputs are likewise selected artwork accents for
+/// ink7:frame1 red26 (blue shares red),frame4 blue16,and frame8 green21.
+/// These selectively raise that painted ink by8 instead of the calculated7,
+/// emphasizing magenta red/blue,cyan-green blue,and orange green respectively.
+/// A universal channel-brightness rule cannot account for blue18 becoming26
+/// in frame1 but25 in frame2. The palette chooses the accent for that hue;
+/// no runtime lighting quantity selects it. Per-phase numeric corrections or
+/// fitted coefficients would only recite those particular color-design choices.
+/// Retain these three inputs under the specific artwork/nonsense exception.
+/// This does not dispose of the remaining seven intermediate adjustments.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -190,7 +200,7 @@ public sealed class SamusHyperBeamColorCatalog
     /// EndpointSourceChannels also derives middle-shadow inputs. Keep only
     /// independently differing channels; channel copying itself needs no rounding
     /// or saturation. The remaining endpoint shade inputs have the specific
-    /// class-level artwork disposition; intermediate/highlight work is separate.</remarks>
+    /// class-level artwork disposition; intermediate work is separate.</remarks>
     internal readonly struct EndpointChannels
     {
         private readonly int? red;
@@ -278,7 +288,8 @@ public static class SamusHyperBeamColorFormat
     /// at +2/+4 in each channel; inks2/10/14 share ink3 at +8/+4/+2;
     /// inks4/5/9 share ink13 at +8/+2/+4. These are fixed shade assignments,
     /// independent of hue phase. Ink7 likewise uses ink3+7, with differing
-    /// components in frames1/4/8 kept as independent inputs pending review.
+    /// components in frames1/4/8 kept as independently selected highlight
+    /// accents under the catalog's class-level artwork disposition.
     /// Other inks keep their own input.</remarks>
     internal static (int Ink, int Brightness) ShadeSource(int ink) => ink switch
     {

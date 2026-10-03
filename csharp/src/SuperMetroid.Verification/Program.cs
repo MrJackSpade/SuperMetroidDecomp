@@ -84,6 +84,18 @@ if (args is ["--lookup-tourian-artwork"])
     Console.WriteLine("Tourian statue artwork: all 36 original sources, decoded operand views and complete ushort rejection domains pass.");
     return 0;
 }
+if (args is ["--lookup-treadmill-mechanics"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Treadmill oracle revision");
+    VerifyRetailTreadmillMechanics(rom);
+    foreach (var program in OriginalTreadmillPrograms(rom))
+        VerifyRetailTreadmillStream(rom, TreadmillDefinition(program.Header).Direction,
+            program.Frames.Select(pointer => 0x870000 | ReadVerificationWord(rom, 0x870002 + pointer)).ToArray());
+    Console.WriteLine("Treadmill: native header/control fields, calculated cursors, full ushort domains and both guarded loops pass.");
+    return 0;
+}
 if (args is ["--lookup-animated-frames"])
 {
     VerifyRoomFxAnimatedTileMechanicsDefinitions();

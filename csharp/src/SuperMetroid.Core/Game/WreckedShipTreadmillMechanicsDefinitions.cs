@@ -9,81 +9,78 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {
-    private static readonly WreckedShipTreadmillObjectDefinition[] Definitions =
-    [
-        new(
-            WreckedShipTreadmillDirection.Rightwards,
-            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsLoop,
-            [0x81e3, 0x81e7, 0x81eb, 0x81ef]),
-        new(
-            WreckedShipTreadmillDirection.Leftwards,
-            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait,
-            AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsLoop,
-            [0x81f9, 0x81fd, 0x8201, 0x8205]),
-    ];
-    private static readonly IReadOnlyList<WreckedShipTreadmillObjectDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
-
-    /// <summary>Both direction-specific retail treadmill objects.</summary>
-    public static IReadOnlyList<WreckedShipTreadmillObjectDefinition> All =>
-        ReadOnlyDefinitions;
-
-    /// <summary>Resolves the object selected by the Wrecked Ship entrance door setup.</summary>
-    public static WreckedShipTreadmillObjectDefinition ForDirection(
-        WreckedShipTreadmillDirection direction) =>
-        Definitions.FirstOrDefault(candidate => candidate.Direction == direction) ??
-        throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
-
-    /// <summary>Resolves a stock bank-$87 treadmill object header.</summary>
-    public static bool TryResolve(
-        ushort objectPointer,
-        out WreckedShipTreadmillObjectDefinition definition)
+    /// <summary>Both named directions in native header order, without a stored roster.</summary>
+    public static IEnumerable<WreckedShipTreadmillObjectDefinition> All
     {
-        foreach (WreckedShipTreadmillObjectDefinition candidate in Definitions)
+        get
         {
-            if (candidate.ObjectPointer != objectPointer)
-                continue;
-
-            definition = candidate;
-            return true;
+            yield return ForDirection(WreckedShipTreadmillDirection.Rightwards);
+            yield return ForDirection(WreckedShipTreadmillDirection.Leftwards);
         }
+    }
 
-        definition = null!;
-        return false;
+    /// <summary>Dispatches the two physical conveyor directions to their native headers.</summary>
+    public static WreckedShipTreadmillObjectDefinition ForDirection(
+        WreckedShipTreadmillDirection direction) => direction switch
+    {
+        WreckedShipTreadmillDirection.Rightwards => new(direction,
+            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
+            AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait),
+        WreckedShipTreadmillDirection.Leftwards => new(direction,
+            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
+            AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait),
+        _ => throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}."),
+    };
+
+    /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
+    public static bool TryResolve(ushort objectPointer, out WreckedShipTreadmillObjectDefinition definition)
+    {
+        definition = objectPointer switch
+        {
+            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards => ForDirection(WreckedShipTreadmillDirection.Rightwards),
+            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards => ForDirection(WreckedShipTreadmillDirection.Leftwards),
+            _ => null!,
+        };
+        return definition is not null;
     }
 }
 
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillObjectDefinition
 {
-    private readonly ushort[] frameInstructionPointers;
-    private readonly IReadOnlyList<ushort> readOnlyFrameInstructionPointers;
+    private readonly CalculatedFramePointers frameInstructionPointers;
 
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
         ushort objectPointer,
-        ushort waitInstructionPointer,
-        ushort loopInstructionPointer,
-        ushort[] frameInstructionPointers)
+        ushort waitInstructionPointer)
     {
-        if (frameInstructionPointers.Length != 4)
-        {
-            throw new ArgumentException(
-                "A Wrecked Ship treadmill requires exactly four animation frames.",
-                nameof(frameInstructionPointers));
-        }
-
         Direction = direction;
         ObjectPointer = objectPointer;
         WaitInstructionPointer = waitInstructionPointer;
-        LoopInstructionPointer = loopInstructionPointer;
-        this.frameInstructionPointers = frameInstructionPointers;
-        readOnlyFrameInstructionPointers = Array.AsReadOnly(frameInstructionPointers);
+        frameInstructionPointers = new(LoopInstructionPointer);
     }
 
+    // The native two-byte boss wait is followed by four four-byte timed entries.
+    // Store the first cursor only; indexing and enumeration calculate the layout.
+    private sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
+    {
+        public int Count => 4;
+        public ushort this[int index] => (uint)index < 4
+            ? unchecked((ushort)(first + 4 * index))
+            : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private int FrameIndex(ushort pointer)
+    {
+        int delta = unchecked((ushort)(pointer - LoopInstructionPointer));
+        return delta < 16 && (delta & 3) == 0 ? delta / 4 : -1;
+    }
     /// <summary>The physical direction selected by the entrance door setup.</summary>
     public WreckedShipTreadmillDirection Direction { get; }
 
@@ -94,11 +91,11 @@ public sealed class WreckedShipTreadmillObjectDefinition
     public ushort WaitInstructionPointer { get; }
 
     /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
-    public ushort LoopInstructionPointer { get; }
+    public ushort LoopInstructionPointer => unchecked((ushort)(WaitInstructionPointer + 2));
 
     /// <summary>The four timed frame-control addresses in execution order.</summary>
     public IReadOnlyList<ushort> FrameInstructionPointers =>
-        readOnlyFrameInstructionPointers;
+        frameInstructionPointers;
 
     /// <summary>
     /// Returns the native artwork identity for a frame-control record without reading
@@ -106,7 +103,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
     /// </summary>
     public int FrameSourceAddress(ushort instructionPointer)
     {
-        int listIndex = Array.IndexOf(frameInstructionPointers, instructionPointer);
+        int listIndex = FrameIndex(instructionPointer);
         if (listIndex < 0)
             throw new InvalidDataException(
                 $"Treadmill $87:{ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
@@ -117,7 +114,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     /// <summary>The terminal loop command after the fourth frame.</summary>
     public ushort GotoInstructionPointer =>
-        unchecked((ushort)(frameInstructionPointers[^1] + 4));
+        unchecked((ushort)(LoopInstructionPointer + 16));
 
     /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
@@ -130,7 +127,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
             value = WreckedShipTreadmillRomData.EncodedVramDestination;
         else if (pointer == WaitInstructionPointer)
             value = AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead;
-        else if (frameInstructionPointers.Contains(pointer))
+        else if (FrameIndex(pointer) >= 0)
             value = 1;
         else if (pointer == GotoInstructionPointer)
             value = AnimatedTileInstructionCodes.Goto;

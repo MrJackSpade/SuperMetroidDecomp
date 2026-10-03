@@ -150,52 +150,17 @@ internal static partial class Program
 
     private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
+        VerifyTreadmillHeaderSelection();
+        VerifyTreadmillWaitPointers(bus);
+        VerifyTreadmillFramePointers(bus);
+        VerifyTreadmillDurations(bus);
+        VerifyTreadmillControlOpcodes(bus);
+        VerifyTreadmillLoopTargets(bus);
+        VerifyTreadmillTransferSizes(bus);
+        VerifyTreadmillVramDestinations(bus);
+        VerifyTreadmillMechanicsDomain(bus);
         VerifyTreadmillArtworkSources(bus);
-        int wordCount = 0;
-        foreach (WreckedShipTreadmillObjectDefinition definition in
-                 WreckedShipTreadmillMechanicsDefinitions.All)
-        {
-            var expectedWords = new Dictionary<ushort, ushort>
-            {
-                [definition.ObjectPointer] = definition.WaitInstructionPointer,
-                [unchecked((ushort)(definition.ObjectPointer + 2))] =
-                    WreckedShipTreadmillRomData.TransferByteCount,
-                [unchecked((ushort)(definition.ObjectPointer + 4))] =
-                    WreckedShipTreadmillRomData.EncodedVramDestination,
-                [definition.WaitInstructionPointer] =
-                    AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead,
-                [definition.GotoInstructionPointer] = AnimatedTileInstructionCodes.Goto,
-                [unchecked((ushort)(definition.GotoInstructionPointer + 2))] =
-                    definition.LoopInstructionPointer,
-            };
-            foreach (ushort framePointer in definition.FrameInstructionPointers)
-                expectedWords.Add(framePointer, 1);
-
-            AssertEqual(10, expectedWords.Count,
-                $"{definition.Direction} treadmill mechanics word count");
-            foreach ((ushort pointer, ushort expected) in expectedWords)
-            {
-                AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort compiled),
-                    $"{definition.Direction} catalogs $87:{pointer:X4}");
-                AssertEqual(expected, compiled,
-                    $"{definition.Direction} compiled $87:{pointer:X4}");
-                AssertEqual(expected, RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(bus), RoomFxRomData.Banks.AnimatedTiles | pointer),
-                    $"{definition.Direction} cartridge $87:{pointer:X4}");
-                wordCount++;
-            }
-
-            foreach (ushort framePointer in definition.FrameInstructionPointers)
-            {
-                AssertTrue(!definition.TryReadMechanicsWord(
-                        unchecked((ushort)(framePointer + 2)), out _),
-                    $"{definition.Direction} leaves frame source presentation-owned");
-            }
-        }
-
-        AssertEqual(20, wordCount, "compiled treadmill mechanics word count");
     }
-
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);

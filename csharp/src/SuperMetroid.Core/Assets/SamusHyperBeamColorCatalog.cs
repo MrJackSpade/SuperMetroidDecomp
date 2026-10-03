@@ -57,6 +57,13 @@ public sealed class SamusHyperBeamColorCatalog
                     frames[5][color] >> 5 & 31, frame == 1 ? frames[5][color] & 31 : null));
                 continue;
             }
+            if (frame == 3 && color == 13)
+            {
+                ushort expected = SamusHyperBeamColorFormat.HueMidpoint(frames[3][3], frames[3][11]);
+                if (frames[frame][color] != expected)
+                    intermediateInputs.Add(index, new(frames[frame][color], expected));
+                continue;
+            }
             colors.Add(index, frames[frame][color]);
         }
     }
@@ -120,6 +127,11 @@ public sealed class SamusHyperBeamColorCatalog
     }
 
     /// <summary>Returns display color only; the frame clock remains cartridge-owned.</summary>
+    /// <remarks>Cyan frame3 ink13 at9BA31A is the upward-rounded RGB5
+    /// midpoint of shadow inks3/11 at9BA306/A316. Their RGB1/12/16 and
+    /// 3/13/18 yield2/13/17. Reuse the same bounded midpoint operation as
+    /// the temporal hue blends; independently supplied channels override it.
+    /// This converts that shade relationship without retaining a generated word.</remarks>
     public ushort Resolve(int frame, int color)
     {
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
@@ -139,6 +151,11 @@ public sealed class SamusHyperBeamColorCatalog
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
             return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0,
                 frame == 1 ? Resolve(5, color) & 31 : 0);
+        if (frame == 3 && color == 13)
+        {
+            ushort middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
+            return intermediateInputs.TryGetValue(frame * 16 + color, out var middleInput) ? middleInput.Apply(middle) : middle;
+        }
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
         ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));

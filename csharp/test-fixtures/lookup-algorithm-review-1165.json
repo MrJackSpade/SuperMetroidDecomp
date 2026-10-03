@@ -6421,4 +6421,16 @@
     "supersedes":"Resolves the pending five whiteout intensity choices in samusDeathWhiteoutSegmentsReview and all later death-color progress entries. With the completed sprite-color dispositions,this resolves the Samus death palette artwork payload. Separately indexed control/timing definitions and the wider1165 inventory remain subject to their own review.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source hash and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamCyanShadowMidpointReview": {
+    "status":"converted the cyan phase's middle shadow ink",
+    "owner":"SamusHyperBeamColorCatalog.Resolve/constructor; shared SamusHyperBeamColorFormat.HueMidpoint; reversed Hyper-shot view",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Body frame3 starts9BA300. Shadow inks3/11 have RGB1/12/16 and3/13/18; ink13 atA31A is2/13/17,the per-channel upward-rounded midpoint. This is a relationship among the three source shadow inks,distinct from their already calculated brighter ink assignments and temporal hue blends.",
+    "algorithm":"For frame3 ink13,apply the existing RGB5 HueMidpoint operation to resolved inks3/11. Constructor stores only independently differing supplied channels; no stock midpoint word or channel remains. Shared shade calculations and temporal views consume the supplied/resolved middle ink. Same representation serves reversed Hyper-shot playback.",
+    "storage":"Whole inputs seven to six:four unused transparent payloads and two remaining cyan shadow roots. Stock endpoint12,temporal intermediate8,and shade3 component counts remain unchanged. This removes three native opaque components without a generated cache.",
+    "domain":"Existing frame0..9/ink0..15 domain and exceptions unchanged. Midpoint computes ceil((a+b)/2) independently per channel,numerators<=63 with no wrap or saturation. Import still rejects invalid RGB5 components. Independent edits to either source or the middle ink preserve every supplied target.",
+    "proof":"Extend the existing single Hyper Beam proof's all160 original-word comparisons and exact ownership. Reuse its complete RGB5 midpoint arithmetic confirmation. Add every single-channel0..31 edit to the two cyan roots and middle ink,comparing all160 outputs with independent supplied/original values. Existing reversed-view original words,custom edits,bounds and guarded body/Hyper-shot cycles remain in the same proof.",
+    "scope":"Resolves this cyan shadow relationship; remaining29 opaque components still need their independent review/disposition. Transparent payload disposition remains separate. No new retention exception and no completion claim for the full1165 inventory.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; all three owner/dependency hashes and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

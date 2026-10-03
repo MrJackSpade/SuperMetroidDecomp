@@ -117,11 +117,8 @@ public static class GameOverPresentationExtractor
 
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
     {
-        ReadOnlySpan<GameOverBabyInstruction> instructions =
-            GameOverBabyAnimationDefinitions.All;
-        for (int index = 0; index < instructions.Length; index++)
+        foreach (GameOverBabyInstruction instruction in GameOverBabyAnimationDefinitions.All)
         {
-            GameOverBabyInstruction instruction = instructions[index];
             int address = GameOverRomData.SpriteBank | instruction.Pointer;
             ushort duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             ushort sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);

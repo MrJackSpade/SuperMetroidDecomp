@@ -25,9 +25,9 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
                 "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
-                "13056AD13B7091350E4FAF015367554ECE984AFAAFE3F09FEB6390AB5F1880D3"),
+                "93546CA50CA9AB570A2F09AF939163AFB5B10420A4DD360BAED521A9FD46104A"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverBabyAnimationDefinitions.cs",
-                "8DEAD1215A895068FF927725551EF880A3BC7D2DA1C50271662BC43F5384EE5F")],
+                "A8617F78639973FB3E9BDD260CC8CE7B38C1259248CF512C86F7039AB7FD3360")],
             "Private construction requires the full tilemap, all eight named sprites and all four baby palettes. " +
             "Baby frame/palette enum switches are exhaustive over their supported domains and reject invalid values; " +
             "all four cursor frames are required and bounds-checked. Egg/tilemap operations use fixed loaded resources."),

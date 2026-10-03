@@ -42,19 +42,17 @@ public readonly record struct GameOverBabyInstruction(
 /// sound dispatch are compiled application mechanics rather than editable visual data.
 /// </summary>
 /// <remarks>
-/// Issues #625 and #974: pinned NTSC J/U v1.0 ROM and bank_82.asm agree with
-/// all 60 records and every control word at $82:BC27..BD96. Build emits 2, 4,
-/// then 3 idle cycles, each with four 10-tick frames (Closed, Middle, Open,
-/// Middle) on the Idle palette. Each group ends with the same eight-frame cry:
-/// durations 6,5,4,3,2,3,4,5; frames Closed,Middle,Open,Middle,Closed,
-/// Middle,Open,Middle; matching cry palettes 1,2,3,2,1,2,3,2. The first cry
-/// frame is followed by a distinct opcode at $82:BC5D, BCEF, or BD69, so its
-/// successor is eight bytes away; all other successors are six bytes away.
-/// The last record starts at $82:BD8F, followed by $FFFF at BD95, which loops
-/// to BC27. An independent ROM walk matched all 180 record words, three cry
-/// words, and the terminator; the extractor also checks compiled records
-/// against cartridge reads. This bounded generator is smaller and clearer
-/// than storing the serialized instruction table. Unknown pointers fail in Get.
+/// Native $82:BC27..BD96 has three cry groups, preceded by 2, 4 and 3 idle
+/// cycles respectively. Each idle cycle is a four-step triangular frame wave,
+/// Closed/Middle/Open/Middle, held ten ticks per step. A cry has eight steps
+/// of that wave; its duration is 2 + abs(4 - step), with step 0..7, and its
+/// palette follows the frame plus one. These values are calculated on demand.
+/// The first cry step has a two-byte sound callback after its six-byte record.
+/// Get decodes this gap before checking alignment; callback bytes, fields within
+/// records and every other unsupported ushort pointer retain their rejection.
+/// The final record restarts at BC27 after the FFFF marker at BD95. There is no
+/// generated instruction array or pointer dictionary. The 2/4/3 cycle counts
+/// are named cry-stage cases, not an interpolated numeric curve.
 /// </remarks>
 public static class GameOverBabyAnimationDefinitions
 {
@@ -64,17 +62,69 @@ public static class GameOverBabyAnimationDefinitions
     /// <summary>End marker immediately after the final record at <c>$82:BD95</c>.</summary>
     public const ushort EndMarkerPointer = 0xbd95;
 
-    private static readonly GameOverBabyInstruction[] instructions = Build();
-    private static readonly Dictionary<ushort, GameOverBabyInstruction> byPointer =
-        instructions.ToDictionary(instruction => instruction.Pointer);
+    /// <summary>Sixty six-byte frame records plus three two-byte callbacks.</summary>
+    public const int InstructionCount = (2 + 4 + 3) * 4 + 3 * 8;
 
-    public static ReadOnlySpan<GameOverBabyInstruction> All => instructions;
+    /// <summary>First cry group: two idle cycles, eight cry steps and one sound word.</summary>
+    private const int FirstGroupBytes = (2 * 4 + 8) * 6 + 2;
+    /// <summary>Second cry group: four idle cycles, eight cry steps and one sound word.</summary>
+    private const int SecondGroupBytes = (4 * 4 + 8) * 6 + 2;
 
-    public static GameOverBabyInstruction Get(ushort pointer) =>
-        byPointer.TryGetValue(pointer, out GameOverBabyInstruction instruction)
-            ? instruction
-            : throw new InvalidDataException(
-                $"Unknown compiled game-over Baby instruction $82:{pointer:X4}.");
+    public static IEnumerable<GameOverBabyInstruction> All
+    {
+        get
+        {
+            ushort pointer = FirstPointer;
+            while (true)
+            {
+                GameOverBabyInstruction instruction = Get(pointer);
+                yield return instruction;
+                if (instruction.RestartAfter) yield break;
+                pointer = instruction.NextPointer;
+            }
+        }
+    }
+
+    public static GameOverBabyInstruction Get(ushort pointer)
+    {
+        int offset = pointer - FirstPointer;
+        if ((uint)offset >= EndMarkerPointer - FirstPointer) throw Unknown(pointer);
+        int idleFrames;
+        GameOverBabySound cry;
+        if (offset < FirstGroupBytes)
+        {
+            idleFrames = 2 * 4;
+            cry = GameOverBabySound.Cry23;
+        }
+        else if (offset < FirstGroupBytes + SecondGroupBytes)
+        {
+            offset -= FirstGroupBytes;
+            idleFrames = 4 * 4;
+            cry = GameOverBabySound.Cry26;
+        }
+        else
+        {
+            offset -= FirstGroupBytes + SecondGroupBytes;
+            idleFrames = 3 * 4;
+            cry = GameOverBabySound.Cry27;
+        }
+        int soundOffset = idleFrames * 6 + 6;
+        if (offset == soundOffset || offset == soundOffset + 1) throw Unknown(pointer);
+        if (offset > soundOffset) offset -= 2;
+        if (offset % 6 != 0) throw Unknown(pointer);
+        int step = offset / 6;
+        int cryStep = step - idleFrames;
+        int frame = 2 - Math.Abs(2 - (step & 3));
+        ushort duration = (ushort)(cryStep < 0 ? 10 : 2 + Math.Abs(4 - cryStep));
+        var palette = cryStep < 0 ? GameOverBabyPalette.Idle : (GameOverBabyPalette)(frame + 1);
+        GameOverBabySound sound = cryStep == 0 ? cry : GameOverBabySound.None;
+        bool restart = pointer == EndMarkerPointer - 6;
+        ushort next = restart ? FirstPointer : (ushort)(pointer + (sound == GameOverBabySound.None ? 6 : 8));
+        return new(pointer, duration, (GameOverBabyFrame)frame, palette, sound, next, restart);
+    }
+
+    private static InvalidDataException Unknown(ushort pointer) =>
+        new($"Unknown compiled game-over Baby instruction $82:{pointer:X4}.");
 
     /// <summary>Native menu-spritemap identity used only for extraction parity.</summary>
     /// <remarks>
@@ -126,71 +176,4 @@ public static class GameOverBabyAnimationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(sound)),
     };
 
-    private static GameOverBabyInstruction[] Build()
-    {
-        var seeds = new List<Seed>();
-        ushort pointer = FirstPointer;
-
-        AddIdleCycles(2);
-        AddCry(GameOverBabySound.Cry23);
-        AddIdleCycles(4);
-        AddCry(GameOverBabySound.Cry26);
-        AddIdleCycles(3);
-        AddCry(GameOverBabySound.Cry27);
-
-        if (pointer != EndMarkerPointer)
-            throw new InvalidDataException(
-                $"Compiled game-over Baby list ended at $82:{pointer:X4}, expected $82:{EndMarkerPointer:X4}.");
-
-        var result = new GameOverBabyInstruction[seeds.Count];
-        for (int index = 0; index < seeds.Count; index++)
-        {
-            Seed seed = seeds[index];
-            bool restart = index == seeds.Count - 1;
-            ushort next = restart ? FirstPointer : seeds[index + 1].Pointer;
-            result[index] = new(seed.Pointer, seed.Duration, seed.Frame, seed.Palette,
-                seed.SoundAfter, next, restart);
-        }
-        return result;
-
-        void AddIdleCycles(int count)
-        {
-            for (int cycle = 0; cycle < count; cycle++)
-            {
-                Add(10, GameOverBabyFrame.Closed, GameOverBabyPalette.Idle);
-                Add(10, GameOverBabyFrame.Middle, GameOverBabyPalette.Idle);
-                Add(10, GameOverBabyFrame.Open, GameOverBabyPalette.Idle);
-                Add(10, GameOverBabyFrame.Middle, GameOverBabyPalette.Idle);
-            }
-        }
-
-        void AddCry(GameOverBabySound sound)
-        {
-            Add(6, GameOverBabyFrame.Closed, GameOverBabyPalette.ClosedCry, sound);
-            Add(5, GameOverBabyFrame.Middle, GameOverBabyPalette.MiddleCry);
-            Add(4, GameOverBabyFrame.Open, GameOverBabyPalette.OpenCry);
-            Add(3, GameOverBabyFrame.Middle, GameOverBabyPalette.MiddleCry);
-            Add(2, GameOverBabyFrame.Closed, GameOverBabyPalette.ClosedCry);
-            Add(3, GameOverBabyFrame.Middle, GameOverBabyPalette.MiddleCry);
-            Add(4, GameOverBabyFrame.Open, GameOverBabyPalette.OpenCry);
-            Add(5, GameOverBabyFrame.Middle, GameOverBabyPalette.MiddleCry);
-        }
-
-        void Add(ushort duration, GameOverBabyFrame frame, GameOverBabyPalette palette,
-            GameOverBabySound soundAfter = GameOverBabySound.None)
-        {
-            seeds.Add(new(pointer, duration, frame, palette, soundAfter));
-            pointer = unchecked((ushort)(pointer +
-                (soundAfter == GameOverBabySound.None
-                    ? GameOverRomData.BabyAnimation.FrameByteCount
-                    : GameOverRomData.BabyAnimation.SoundInstructionByteCount)));
-        }
-    }
-
-    private readonly record struct Seed(
-        ushort Pointer,
-        ushort Duration,
-        GameOverBabyFrame Frame,
-        GameOverBabyPalette Palette,
-        GameOverBabySound SoundAfter);
 }

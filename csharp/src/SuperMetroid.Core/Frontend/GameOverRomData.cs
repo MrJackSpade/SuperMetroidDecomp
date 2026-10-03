@@ -102,7 +102,7 @@ public static class GameOverRomData
         /// library-3 effect $23, $26, or $27 and calls the same sound queue.
         /// The game-over Baby stream references those opcodes once each at
         /// $82:BC5D, BCEF, and BD69. Opcode spacing is regular, but the effect
-        /// identities are authored; retain the explicit bounded selector and
+        /// identities select three distinct sound operations; use the named cases and
         /// reject unknown opcodes.
         /// </remarks>
         public static SoundEffectId ResolveCry(ushort opcode) => opcode switch

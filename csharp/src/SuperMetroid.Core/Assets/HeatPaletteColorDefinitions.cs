@@ -11,7 +11,8 @@ namespace SuperMetroid.Core.Assets;
 /// suit-specific slots1,9,10 and Gravity's row-zero slot11. These are equal inks at
 /// the same palette indices, not a permutation or a fitted color transform. This
 /// also selects row zero for the constant slot5 in every suit and slot1 in Varia/Gravity.
-/// These original columns are unchanged across the complete animation. Other distinct colors need separate
+/// These original columns are unchanged across the complete animation. Endpoint component
+/// ownership is documented by HeatPaletteInputView; underlying suit artwork has its own
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {

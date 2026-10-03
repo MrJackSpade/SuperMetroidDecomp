@@ -372,6 +372,28 @@ internal static partial class Program
         var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(presentation)!;
+        var inputs = (HeatPaletteInputView)typeof(RoomPaletteFxPresentation)
+            .GetField("heatInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(presentation)!;
+        foreach (string field in new[] { "greenOverride", "blueOverride", "mixedBlueOverride" })
+            AssertTrue(typeof(HeatPaletteInputView).GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(inputs) is null, "Stock endpoint channels are calculated, not stored overrides");
+        foreach (ushort endpoint in new ushort[] { 0xe55c, 0xe55e })
+        for (int rgb = 0; rgb < 32768; rgb++)
+        {
+            var supplied = new Dictionary<ushort, ushort>
+            {
+                [0xe46e] = ReadVerificationWord(bus, 0x8de46e),
+                [0xe470] = ReadVerificationWord(bus, 0x8de470),
+                [0xe55c] = ReadVerificationWord(bus, 0x8de55c),
+                [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
+            };
+            supplied[endpoint] = (ushort)rgb;
+            var split = new HeatPaletteInputView(supplied);
+            AssertTrue(split.TryGetValue(endpoint, out ushort actual), "Split endpoint remains owned");
+            AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
+            AssertTrue(!supplied.ContainsKey(endpoint), "No complete endpoint word remains in source storage");
+        }
         var expectedAliases = new Dictionary<ushort, ushort>();
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
         for (int phase = 0; phase < 16; phase++)
@@ -411,7 +433,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(2, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly two heat-specific endpoint words remain");
+        AssertEqual(0, expectedAliases.Keys.Count(stored.ContainsKey), "No complete stock heat word remains stored");
         var baseSources = new Dictionary<ushort, ushort>();
         foreach (var (heat, loading, normal) in new (int, int, int)[]
             { (0xe468, 0xdb6d, 0x9b9402), (0xe694, 0xdcd3, 0x9b9522), (0xe8c0, 0xde39, 0x9b9802) })
@@ -432,9 +454,9 @@ internal static partial class Program
         }
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
-            if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, stored, out ushort calculated))
+            if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, inputs, out ushort calculated))
             {
-                AssertTrue(stored.ContainsKey(pointer), "Independent canonical input remains installed");
+                AssertTrue(inputs.ContainsKey(pointer), "Independent endpoint input remains available");
                 continue;
             }
             AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");

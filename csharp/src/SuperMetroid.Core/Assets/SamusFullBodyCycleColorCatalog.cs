@@ -25,6 +25,8 @@ public sealed class SamusFullBodyCycleColorCatalog
             if (source != index && value == palettes[source / 16][source % 16]) continue;
             if (source == index && SamusFullBodyCycleColorFormat.IsStoredShineShade(palette, color) &&
                 value == SamusFullBodyCycleColorFormat.StoredShineColor(palettes[palette / 16 * 16 + 4][color], palette % 4)) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
+                palettes[palette / 16 * 16][color], out ushort tinted) && value == tinted) continue;
             colors.Add(index, value);
         }
     }
@@ -52,6 +54,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
+            ResolveIndex(palette / 16 * 256 + color), out ushort tinted)) return tinted;
         return SamusFullBodyCycleColorFormat.StoredShineColor(
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
@@ -176,6 +180,31 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Calculates the base-derived Speed Booster blue/green tints.</summary>
+    /// <remarks>Original Power slots3..8/13..15 and Gravity10/11 in
+    /// $9B:9B40..9B9F/$9F40..9F9F use the same saturating tint as loading:
+    /// red unchanged, green+0/5/15 and blue+10/20/20 for dim/middle/bright.
+    /// Varia1/2 use green+0/0/5, blue+10/20/30; Varia10/11 use only
+    /// the first two levels. The bright Varia10/11 endpoint remains an input.
+    /// These43 canonical words reuse the reviewed loading tint arithmetic;
+    /// loading and full-body assets retain independent input ownership.</remarks>
+    internal static bool TrySpeedBoosterTint(int palette, int color, ushort basis, out ushort value)
+    {
+        value = 0;
+        if ((uint)palette >= PaletteCount || color is < 1 or > 15 || palette % 16 is < 1 or > 3) return false;
+        int suit = palette / 16, shade = palette % 4;
+        bool included = suit switch
+        {
+            0 => color is >= 3 and <= 8 or >= 13 and <= 15,
+            1 => color is 1 or 2 || (shade < 3 && color is 10 or 11),
+            _ => color is 10 or 11,
+        };
+        if (!included) return false;
+        value = suit == 1 ? LoadingPaletteColorDefinitions.VariaTintColor(basis, 3 - shade) :
+            LoadingPaletteColorDefinitions.TintColor(basis, 3 - shade);
+        return true;
+    }
 
     /// <summary>Stored-shine rows5..7 within each sixteen-row suit allocation, opaque colors only.</summary>
     internal static bool IsStoredShineShade(int palette, int color) =>

@@ -5784,4 +5784,15 @@
     "scope":"Other full-body shade/component relationships and transparent payload dispositions remain pending. No new retained input justification is asserted. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source hash and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodySpeedBoosterBaseTintReview": {
+    "status":"converted43 canonical Speed Booster shade words to shared tint arithmetic",
+    "owners":"SamusFullBodyCycleColorFormat.TrySpeedBoosterTint; SamusFullBodyCycleColorCatalog; LoadingPaletteColorDefinitions.TintColor/VariaTintColor",
+    "source":"Original Power9B40/9B60/9B80 slots3..8/13..15, Varia9D40/9D60/9D80 slots1/2 and first two shades10/11, Gravity9F40/9F60/9F80 slots10/11. Supported NTSC J/U v1.0, pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Standard tint keeps red, adds green0/5/15 and blue10/20/20 for dim/middle/bright, saturating each channel at31. Varia adds green0/0/5 and blue10/20/30. Its brightest slots10/11 are outside this mapping. Reuse the existing reviewed loading tint functions with shade reversal3-shade; no copied formula or generated shade cache. Canonical stored inputs fall245 to202.",
+    "ownership":"Full-body tints read that asset's own suit base. Loading asset inputs remain independent. Only matching canonical values collapse; differing custom colors and differing aliases remain explicit. Existing base-only edits confirm all separately supplied shade values survive.",
+    "proof":"Extend the existing full-body proof with an independent43-word native address domain, all original tint results, complete48-by16 membership and invalid bounds. Existing all768 native colors, pointer/color bounds, aliases,48 CGRAM copies, independent edits and source-only edits remain. Reuse --lookup-loading-colors for the existing complete RGB5 tint arithmetic/saturation proof; no duplicate formula-domain test.",
+    "scope":"Remaining Speed Booster endpoints/channels, active shinespark/Screw Attack relationships and transparent payload dispositions remain pending. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source hashes including the shared tint dependency and maintained-source index. Implementation record is this entry's commit."
+  }
 }

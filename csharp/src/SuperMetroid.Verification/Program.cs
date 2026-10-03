@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-options-headings"])
+{
+    VerifyGameOptionsHeadings();
+    Console.WriteLine("Options headings: all three original sprite selections and anchor pairs, imported records and enum bounds pass.");
+    return 0;
+}
 if (args is ["--game-options-cursor-phases"])
 {
     VerifyGameOptionsCursorPhases();

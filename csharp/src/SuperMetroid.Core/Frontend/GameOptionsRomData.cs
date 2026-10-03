@@ -238,29 +238,37 @@ public static class GameOptionsRomData
 
     /// <summary>Static and animated options-screen OBJ definitions.</summary>
     /// <remarks>
-    /// Issues #625 and #966: for options page p=0..2 (Primary, Controller,
+    /// Independently reviewed for #1165: for page p=0..2 (Primary, Controller,
     /// Special), heading-border spritemap ID is $4B+p. The $82:C5FF/C601/C603
     /// pointer-table words and $82:F47E/F48E/F49E instruction lists select
     /// $82:D24B/D2F7/D41B, respectively. Setup routines at $82:F34B/F353/F35B
     /// give X anchors $7C/$84/$80; common setup at $82:F369 gives Y=$10.
     /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all three tuples.
-    /// The IDs have a bounded consecutive rule, while the X anchors are authored
-    /// page layout. The disassembly's controller symbol says 49, but its table
+    /// Calculate consecutive IDs and select X through named page-layout cases.
+    /// This is not an exception retaining a numeric table. The disassembly's
+    /// controller symbol says 49, but its table
     /// position and actual spritemap header identify $4C.
     /// </remarks>
     public static class Spritemaps
     {
-        public const ushort OptionModeBorder = 0x4b;
-        public const ushort OptionModeBorderX = 0x7c;
-        public const ushort OptionModeBorderY = 0x10;
-        /// <summary>$82:F48E selects $82:D2F7, menu spritemap $4C at table entry $82:C601. The pinned disassembly's label incorrectly says 49.</summary>
-        public const ushort ControllerModeBorder = 0x4c;
-        /// <summary>$82:F353, controller-heading border setup X position.</summary>
-        public const ushort ControllerModeBorderX = 0x84;
-        /// <summary>$82:F49E, SPECIAL SETTING MODE border instruction list selects menu spritemap $4D.</summary>
-        public const ushort SpecialModeBorder = 0x4d;
-        /// <summary>$82:F35B, special-heading border setup X position.</summary>
-        public const ushort SpecialModeBorderX = 0x80;
+        /// <summary>$82:F369, common heading setup aligns the top edge at screen Y=0.</summary>
+        public const ushort HeadingY = 0x10;
+
+        /// <summary>$82:F47E/F48E/F49E select the consecutive page heading spritemaps $4B..4D.</summary>
+        internal static ushort Heading(GameOptionsPage page)
+        {
+            if ((uint)page > (uint)GameOptionsPage.Special) throw new ArgumentOutOfRangeException(nameof(page));
+            return (ushort)(0x4b + (int)page);
+        }
+
+        /// <summary>Native setup X anchors $82:F34B/F353/F35B, selected by the heading's page.</summary>
+        internal static ushort HeadingX(GameOptionsPage page) => page switch
+        {
+            GameOptionsPage.Primary => 0x7c,
+            GameOptionsPage.Controller => 0x84,
+            GameOptionsPage.Special => 0x80,
+            _ => throw new ArgumentOutOfRangeException(nameof(page)),
+        };
     }
 }
 

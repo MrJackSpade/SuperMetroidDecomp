@@ -58,11 +58,11 @@ public static class GameOptionsPresentationExtractor
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.PrimaryMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.OptionModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Primary)),
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.ControllerMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.ControllerModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Controller)),
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.SpecialMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.SpecialModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Special)),
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
@@ -73,14 +73,14 @@ public static class GameOptionsPresentationExtractor
         var headings = new Dictionary<string, MapLabelPoint>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = new(
-                GameOptionsRomData.Spritemaps.OptionModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Primary),
+                GameOptionsRomData.Spritemaps.HeadingY),
             [GameOptionsPresentationDefinitions.ControllerMenu] = new(
-                GameOptionsRomData.Spritemaps.ControllerModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Controller),
+                GameOptionsRomData.Spritemaps.HeadingY),
             [GameOptionsPresentationDefinitions.SpecialMenu] = new(
-                GameOptionsRomData.Spritemaps.SpecialModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Special),
+                GameOptionsRomData.Spritemaps.HeadingY),
         };
         var cursors = new Dictionary<string, MapLabelPoint[]>(StringComparer.Ordinal)
         {

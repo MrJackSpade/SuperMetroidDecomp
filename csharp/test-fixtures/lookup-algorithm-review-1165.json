@@ -5523,4 +5523,15 @@
     "scope":"This resolves the shared amplitude interpolation only. Remaining39 words, endpoint choices and other RGB relations remain pending review, without a retention claim. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed interface source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteSecondaryRedRampsReview": {
+    "status":"converted nine intermediate colors across three further red-only gradients",
+    "owners":"HeatPaletteColorDefinitions.TrySecondaryRedRamp/TryEndpointRed/TryCalculatedColor",
+    "source":"Complete original Power slot1 RGB rows(29,29,0),(29,29,0),(30,29,0),(30,29,0),(30,29,0); Power slot8(27,5,0),(28,5,0),(28,5,0),(29,5,0),(29,5,0); Varia slot9(30,13,0) for four rows then(31,13,0). Original starts8D:E46A/E478/E6A6, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. These are corresponding color-channel samples under the separately reviewed five-level heat phase, not unrelated numerical values.",
+    "algorithm":"Preserve initial green/blue and interpolate red at quarter steps between independently supplied endpoints. Power slots1/8 round nearest with upward ties, implemented by adding2 before division by4. Varia slot9 floors, adding0. All original interior samples follow these conventional exact rules with no correction terms. This establishes an exact representation, not a claim to know the historical authoring software.",
+    "implementation":"Share the bounded endpoint calculation with the existing primary red ramp, keeping each named slot's rounding convention explicit. Existing loader comparison removes only equal calculated words; independently edited intermediate values and endpoints remain intact. No sampled lookup or generated cache. Nine more words are removed, leaving30 independently stored heat words.",
+    "proof":"Extend the existing heat-color proof's native comparisons and storage count. All720 stock outputs and guarded consumers still match; every calculated canonical root matches its own original word. For each of three gradients, all1024 RGB5 red endpoint pairs at every interior position compare with a separate floating-point interpolation plus Math.Floor or nearest/away-from-zero oracle. Existing independent edits and pointer-domain checks remain consolidated under --lookup-heat-colors.",
+    "scope":"The30 remaining words include base/endpoint inputs and the multi-channel slot4 track; all still require independent component dispositions. No retention decision is made here. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, updated source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

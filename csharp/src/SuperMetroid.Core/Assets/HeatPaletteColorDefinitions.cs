@@ -39,7 +39,8 @@ internal static class HeatPaletteColorDefinitions
 
     }
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
-        TryRedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
+        TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
+        TrySharedRed(pointer, colors, out value);
 
     /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
@@ -50,15 +51,32 @@ internal static class HeatPaletteColorDefinitions
     /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
     internal static bool TryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+        => TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 3, 0, out value);
+
+    /// <summary>Calculates the remaining single-channel red gradients from their endpoints.</summary>
+    /// <remarks>Original Power slot1 reds29,29,30,30,30 and slot8 reds27,28,28,29,29
+    /// are nearest-rounded quarter steps, ties upward. Varia slot9 reds30,30,30,30,31
+    /// are floor-rounded quarter steps. All retain initial green/blue. Supported
+    /// NTSC J/U v1.0 words at $8D:E46A/E478/E6A6 plus the native phase strides
+    /// independently establish all five samples. These exact conventional interpolation
+    /// rules make no claim about the historical authoring software. Endpoints remain
+    /// editable inputs; differing intermediate colors remain explicit overrides.</remarks>
+    internal static bool TrySecondaryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 1, 2, out value) ||
+        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
+        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
+
+    private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors,
+        PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out ushort value)
     {
         value = 0;
-        int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 8;
+        int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2 + 2 * colorIndex;
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
         if (!colors.TryGetValue((ushort)first, out ushort start) ||
             !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
         int row = (offset / 34 + 1) / 2;
-        int red = ((start & 31) * (4 - row) + (end & 31) * row) / 4;
+        int red = ((start & 31) * (4 - row) + (end & 31) * row + roundingBias) / 4;
         value = (ushort)((start & 0x7fe0) | red);
         return true;
     }

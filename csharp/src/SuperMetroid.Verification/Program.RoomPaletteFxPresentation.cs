@@ -411,7 +411,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(39, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly39 independent heat words remain after red-ramp conversion");
+        AssertEqual(30, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly30 independent heat words remain after secondary-ramp conversion");
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
             if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, stored, out ushort calculated))
@@ -438,6 +438,24 @@ internal static partial class Program
                 AssertTrue(HeatPaletteColorDefinitions.TryRedRamp(pointer, endpoints, out ushort actual), "Interior ramp owned");
                 ushort expected = (ushort)(0x3fe0 | (int)Math.Floor(startRed * (1.0 - row / 4.0) + endRed * row / 4.0));
                 AssertEqual(expected, actual, "Edited red endpoints preserve floor interpolation and base green/blue");
+            }
+        }
+        foreach (int first in new[] { 0xe46a, 0xe478, 0xe6a6 })
+        for (int startRed = 0; startRed < 32; startRed++)
+        for (int endRed = 0; endRed < 32; endRed++)
+        {
+            var endpoints = new Dictionary<ushort, ushort>
+            {
+                [(ushort)first] = (ushort)(0x3fe0 | startRed),
+                [(ushort)(first + 238)] = (ushort)endRed,
+            };
+            for (int row = 1; row < 4; row++)
+            {
+                ushort pointer = (ushort)(first + (2 * row - 1) * 34);
+                AssertTrue(HeatPaletteColorDefinitions.TrySecondaryRedRamp(pointer, endpoints, out ushort actual), "Secondary red ramp owned");
+                double interpolated = startRed * (1.0 - row / 4.0) + endRed * row / 4.0;
+                int red = (int)(first == 0xe6a6 ? Math.Floor(interpolated) : Math.Round(interpolated, MidpointRounding.AwayFromZero));
+                AssertEqual((ushort)(0x3fe0 | red), actual, "All endpoint pairs preserve each gradient's original rounding convention");
             }
         }
         foreach (bool overflow in new[] { false, true })

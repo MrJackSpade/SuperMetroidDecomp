@@ -4950,5 +4950,20 @@
     "consumers":"ScrollingSkyState already used Get and now reaches arithmetic directly. Removed unused Land/Ocean spans and the verification-only six-entry LandChunkOffsets view; its covered first-ocean alias is in the full land proof. Removed the obsolete view-length assertion. Updated relevant ResourceAudit source hashes.",
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-sky-chunk-pointers pass. No broad artwork/runtime fixture or gameplay traversal was required for this pointer conversion.",
     "scope":"Both pointer mappings and all supported adjacency/wrapped-top inputs resolved without retention. Wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
+  },
+  "paletteFxDispatchReview": {
+    "status":"converted: three stored setup/program arrays containing63 records removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomPaletteFxDefinitions.cs: Get",
+    "source":"Supported NTSC J/U v1.0 bank8D PalFxDef declarations atE194..E200, F745..F7A5 andFFC9..FFED, four bytes each. Pinned bank_8D.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identifies per-object setup operations and initial animation instruction lists.",
+    "evidence":"Each native object identity dispatches to a setup callback and initial program. Direct cases preserve meaningful object-to-operation selection, including distinct objects sharing programs. Setup results use existing Null/Intro/Norfair/Brinstar catalog names; no sampled numerical sequence or generated cache is involved.",
+    "domain":{"disposition":"converted","proof":"VerifyPaletteFxDispatchDomain independently enumerates the three physical native regions, checks63 accepted identities and rejects every other ushort, including unaligned/interior addresses."},
+    "fields":[
+      {"field":"SetupCallback","disposition":"converted named setup-operation cases","proof":"VerifyPaletteFxSetupSelection"},
+      {"field":"InitialInstructionList","disposition":"converted per-object initial-program dispatch cases","proof":"VerifyPaletteFxInitialListSelection"}
+    ],
+    "proofCoverage":"Each field has one named proof comparing all63 direct native words. The older aggregate record checks are consolidated into those proofs. Reused the existing production-spawn fixture through a shared helper: every object is spawned with reads of all252 original definition bytes forbidden, verifying ID, instruction timer, pre-instruction and initial program behavior, including the Norfair setup override.",
+    "consumers":"RoomPaletteFxSystem.SpawnDefinition and HyperBeamPaletteFxState retain the same Get API and reach direct compiled dispatch. Removed three arrays and the array-based TryGet helper. The broad prior verifier calls the same named proofs and shared spawn fixture; its separate area and Hyper Beam execution checks remain outside this focused command.",
+    "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-palette-fx-dispatch pass. No exploratory gameplay or expanded effect campaign.",
+    "scope":"All63 object identities and both setup/program fields resolved without retention. Area-list identities and area/bit selection matrix remain separate unfinished mappings under1165. Implementation record is this entry's commit."
   }
 }

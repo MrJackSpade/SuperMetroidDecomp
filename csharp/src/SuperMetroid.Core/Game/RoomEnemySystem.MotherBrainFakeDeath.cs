@@ -563,13 +563,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (tube.YPosition < 0x00f4)
-        {
-            SpawnMotherBrainTubeSmoke(tube);
-            return;
-        }
-
-        tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
+        // Hiding the tube and moving the brain are independent native branches.
+        // The brain follows the tube throughout its descent, including before hiding.
+        if (tube.YPosition >= 0x00f4)
+            tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
         MotherBrainEnemyState state = _motherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
         ushort headY = unchecked((ushort)(tube.YPosition - 56));

@@ -20,6 +20,8 @@ public sealed class SamusFullBodyCycleColorCatalog
     // Independent channel inputs for the seven remaining Speed Booster endpoints.
     private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
+    /// <summary>Active-shinespark blue inputs at9C64/9C84/9E84 and9C50; all other channels derive from base ramps.</summary>
+    private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activeVariaBright2, activePowerDim8;
 
     private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
     {
@@ -59,6 +61,20 @@ public sealed class SamusFullBodyCycleColorCatalog
         variaBright10 = Capture(19, 10, true, 0);
         variaDim12 = Capture(17, 12, true, 2);
         gravityDim2 = Capture(33, 2, false, 2);
+        activePowerMiddle2 = CaptureActive(10, 2);
+        activePowerBright2 = CaptureActive(11, 2);
+        activeVariaBright2 = CaptureActive(27, 2);
+        activePowerDim8 = CaptureActive(9, 8);
+
+        LoadingPaletteInputView.Channels CaptureActive(int palette, int color)
+        {
+            ushort basis = palettes[palette / 16 * 16 + 8][color];
+            ushort expected;
+            if (color == 8) expected = SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 1);
+            else _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color, basis, out expected);
+            colors.Remove(palette * 16 + color);
+            return new(palettes[palette][color], expected);
+        }
 
         LoadingPaletteInputView.Channels Capture(int palette, int color, bool varia, int shade)
         {
@@ -98,6 +114,10 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 314: return variaBright10.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(266), 0));
             case 284: return variaDim12.Apply(LoadingPaletteColorDefinitions.VariaTintColor(ResolveIndex(268), 2));
             case 530: return gravityDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(514), 2));
+            case 162: return activePowerMiddle2.Apply(ActiveGoldExpected(10));
+            case 178: return activePowerBright2.Apply(ActiveGoldExpected(11));
+            case 434: return activeVariaBright2.Apply(ActiveGoldExpected(27));
+            case 152: return activePowerDim8.Apply(SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex(136), 1));
         }
         if (colors.TryGetValue(index, out ushort value)) return value;
         if (index is 513 or 524)
@@ -122,6 +142,13 @@ public sealed class SamusFullBodyCycleColorCatalog
             ResolveIndex(palette / 16 * 256 + color), out ushort tinted)) return tinted;
         return SamusFullBodyCycleColorFormat.StoredShineColor(
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
+    }
+
+    private ushort ActiveGoldExpected(int palette)
+    {
+        _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
+            ResolveIndex((palette / 16 * 16 + 8) * 16 + 2), out ushort value);
+        return value;
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
@@ -296,12 +323,12 @@ public static class SamusFullBodyCycleColorFormat
         return true;
     }
 
-    /// <summary>Calculates27 active-shinespark gold-ramp words while preserving base blue.</summary>
+    /// <summary>Calculates active-shinespark gold ramps while preserving base blue before explicit channel overrides.</summary>
     /// <remarks>Power slots1/9/11/12 use the stored-shine quarter-white
     /// interpolation on red/green only. Power10 adds three per shade to both
     /// channels. Varia1/11/12 add five per shade to red/green; Varia10 changes only green. All sums saturate at31.
     /// Original rows9C40/60/80 and9E40/60/80 establish the mapping;
-    /// other slots and Gravity are outside this gold-ramp domain.</remarks>
+    /// Power/Varia slot2 also add five red/green per shade; their differing blue components remain explicit. Other slots and Gravity are outside this domain.</remarks>
     internal static bool TryActiveGoldRamp(int palette, int color, ushort basis, out ushort value)
     {
         value = 0;
@@ -312,7 +339,8 @@ public static class SamusFullBodyCycleColorFormat
             value = (ushort)((StoredShineColor(basis, shade) & 0x03ff) | (basis & 0x7c00));
             return true;
         }
-        int step = suit == 0 && color == 10 ? 3 : suit == 1 && color is 1 or 10 or 11 or 12 ? 5 : 0;
+        int step = suit == 0 && color == 10 ? 3 :
+            (suit is 0 or 1 && color == 2) || (suit == 1 && color is 1 or 10 or 11 or 12) ? 5 : 0;
         if (step == 0) return false;
         value = (ushort)(Math.Min(31, (basis & 31) + (suit == 1 && color == 10 ? 0 : step * shade)) |
             Math.Min(31, (basis >> 5 & 31) + step * shade) << 5 | (basis & 0x7c00));

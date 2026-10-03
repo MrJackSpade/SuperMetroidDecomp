@@ -5883,4 +5883,15 @@
     "scope":"Remaining channels,base/transparent inputs and exceptional shades still need dispositions. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyActiveEndpointComponentsReview": {
+    "status":"converted seven active-shinespark words to calculated channels plus four independent blue inputs",
+    "owners":"SamusFullBodyCycleColorCatalog active endpoint capture/ResolveIndex; SamusFullBodyCycleColorFormat.TryActiveGoldRamp",
+    "source":"Original Power slot2 active rows9C44/9C64/9C84 and Varia9E44/9E64/9E84 use base red/green+5 per shade,saturating31. Power dim slot8 at9C50 uses the established warm tint red/green. Blue differs at9C64/9C84/9E84/9C50. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Extend the shared five-step gold ramp to slot2. Three complete words match and disappear. Four remaining words store only differing channels via the shared nullable Channels type, reconstructing red/green on demand. Stock40 to33 whole words; endpoint components9 to13. No generated shade cache.",
+    "ownership":"Capture against supplied active bases,not Speed Booster bases. Differing custom channels override the calculation. Existing all-color,Power-only and active-base-only edits confirm every supplied result remains independent.",
+    "proof":"Extend existing full-body proof to33-word/thirteen-component counts,original endpoint absence from word storage and all33 gold-ramp member identities. Native full-color comparisons cover all768 outputs,with independent red/green comparisons for six slot2 words. Complete RGB5 ramp checks include both suits' slot2. Reuse shared Channels coverage in --lookup-loading-colors and existing full-body edits/CGRAM/bounds.",
+    "scope":"Four remaining active blue inputs still require explicit disposition,as do other pending full-body inputs. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

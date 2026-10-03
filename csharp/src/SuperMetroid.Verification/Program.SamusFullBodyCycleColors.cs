@@ -14,13 +14,13 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(40, stored.Count, "Full-body shared base channels leave40 whole-word inputs");
+        AssertEqual(33, stored.Count, "Full-body channel splitting leaves33 whole-word inputs");
         int endpointComponents = 0;
         foreach (var field in typeof(SamusFullBodyCycleColorCatalog).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
             if (field.FieldType == typeof(LoadingPaletteInputView.Channels))
                 foreach (var channel in field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                     if (channel.GetValue(field.GetValue(native)) is not null) endpointComponents++;
-        AssertEqual(9, endpointComponents, "Seven Speed Booster endpoints store only nine independent channels");
+        AssertEqual(13, endpointComponents, "Speed and active endpoints store thirteen independent channels");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -55,10 +55,10 @@ internal static partial class Program
         AssertEqual(47, activeTintWords.Count, "Original active-shinespark warm tint domain");
         var activeGoldWords = new HashSet<int>();
         foreach (int pointer in new[] { 0x9c40, 0x9c60, 0x9c80 })
-        foreach (int color in new[] { 1, 9, 10, 11, 12 }) activeGoldWords.Add(pointer + 2 * color);
+        foreach (int color in new[] { 1, 2, 9, 10, 11, 12 }) activeGoldWords.Add(pointer + 2 * color);
         foreach (int pointer in new[] { 0x9e40, 0x9e60, 0x9e80 })
-        foreach (int color in new[] { 1, 10, 11, 12 }) activeGoldWords.Add(pointer + 2 * color);
-        AssertEqual(27, activeGoldWords.Count, "Original active gold-ramp domain");
+        foreach (int color in new[] { 1, 2, 10, 11, 12 }) activeGoldWords.Add(pointer + 2 * color);
+        AssertEqual(33, activeGoldWords.Count, "Original active gold-ramp domain");
         var screwTintWords = new HashSet<int>();
         foreach (int pointer in new[] { 0x9cc0, 0x9ce0, 0x9d00 })
         foreach (int color in new[] { 1, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15 })
@@ -128,7 +128,7 @@ internal static partial class Program
                 bool activeGold = activeGoldWords.Contains(pointer + 2 * color);
                 ushort goldBase = ReadVerificationWord(rom, 0x9b0000 | (0x9c20 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(activeGold, SamusFullBodyCycleColorFormat.TryActiveGoldRamp(paletteIndex, color, goldBase, out ushort gold), "Every active gold-ramp domain member");
-                if (activeGold) AssertEqual(expected, gold, "Every original active gold-ramp color");
+                if (activeGold) AssertEqual(color == 2 ? (ushort)(expected & 1023) : expected, color == 2 ? (ushort)(gold & 1023) : gold, "Every original active gold-ramp channel");
                 bool screwTint = screwTintWords.Contains(pointer + 2 * color);
                 ushort screwBase = ReadVerificationWord(rom, 0x9b0000 | (0x9ca0 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, screwBase, out ushort screw), "Every Screw Attack tint domain member");
@@ -137,7 +137,7 @@ internal static partial class Program
                 AssertEqual(powerInk, SamusFullBodyCycleColorFormat.TryScrewPowerInk(paletteIndex, color,
                     ReadVerificationWord(rom, 0x9b9ca0 + 2 * color), ReadVerificationWord(rom, 0x9b9b58), out ushort ink), "Every Power Screw ink domain member");
                 if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
-                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44;
+                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9e84 or 0x9c50;
                 bool gravityShared = pointer + 2 * color is 0x9f22 or 0x9f38;
                 if (gravityShared)
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(
@@ -216,7 +216,7 @@ internal static partial class Program
                 }
                 AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(8 + shade, 1, (ushort)basis, out ushort quarter), "Quarter gold-ramp selected");
                 AssertEqual((ushort)((expected & 1023) | (basis & 31744)), quarter, "Gold quarter ramp preserves blue over RGB5 domain");
-                foreach (var (palette, slot, step) in new[] { (8 + shade, 10, 3), (24 + shade, 1, 5), (24 + shade, 10, 5) })
+                foreach (var (palette, slot, step) in new[] { (8 + shade, 10, 3), (24 + shade, 1, 5), (24 + shade, 10, 5), (8 + shade, 2, 5), (24 + shade, 2, 5) })
                 {
                     int linear = Math.Clamp((basis & 31) + (palette >= 24 && slot == 10 ? 0 : step * shade), 0, 31) +
                         32 * Math.Clamp((basis >> 5 & 31) + step * shade, 0, 31) + (basis & 31744);

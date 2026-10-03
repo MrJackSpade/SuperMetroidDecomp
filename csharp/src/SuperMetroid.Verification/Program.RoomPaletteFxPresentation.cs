@@ -411,7 +411,25 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(27, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly27 base/endpoint heat words remain");
+        AssertEqual(5, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly five heat-specific endpoint words remain");
+        var baseSources = new Dictionary<ushort, ushort>();
+        foreach (var (heat, loading, normal) in new (int, int, int)[]
+            { (0xe468, 0xdb6d, 0x9b9402), (0xe694, 0xdcd3, 0x9b9522), (0xe8c0, 0xde39, 0x9b9802) })
+        for (int color = 0; color < 15; color++)
+        {
+            ushort heatPointer = (ushort)(heat + 2 * color);
+            ushort loadingPointer = (ushort)(loading + 2 * color);
+            ushort native = ReadVerificationWord(bus, 0x8d0000 | heatPointer);
+            AssertEqual(native, ReadVerificationWord(bus, 0x8d0000 | loadingPointer), "Initial heat/loading suit colors share original art");
+            AssertEqual(native, ReadVerificationWord(bus, normal + 2 * color), "Independent normal suit palette corroborates source");
+            baseSources.Add(heatPointer, loadingPointer);
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool owned = baseSources.TryGetValue((ushort)pointer, out ushort expected);
+            AssertEqual(owned, HeatPaletteColorDefinitions.TryBasePalettePointer((ushort)pointer, out ushort actual), "Complete heat base-pointer domain");
+            AssertEqual(expected, actual, "Exact loading source or unowned zero");
+        }
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
             if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, stored, out ushort calculated))

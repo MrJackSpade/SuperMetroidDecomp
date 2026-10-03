@@ -126,6 +126,21 @@ if (args is ["--lookup-heat-colors"])
         AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out ushort actual), "Edited heat color owned");
         AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
     }
+    document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
+        MapPresentationFormat.JsonOptions)!;
+    foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
+    for (int color = 0; color < 16; color++)
+        frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
+    var loadingEdited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+        MapPresentationFormat.JsonOptions)));
+    foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
+    for (int phase = 0; phase < 16; phase++)
+    for (int color = 0; color < 15; color++)
+    {
+        ushort pointer = (ushort)(first + phase * 34 + color * 2);
+        AssertTrue(loadingEdited.TryReadColor(pointer, out ushort actual), "Heat color survives independent loading-palette edit");
+        AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), actual, "Changing loading art cannot rewrite supplied heat art");
+    }
     Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage, edited frames and guarded consumers pass.");
     return 0;
 }

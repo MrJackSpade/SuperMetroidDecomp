@@ -5548,4 +5548,15 @@
     "scope":"All intermediate heat gradient words now calculate from shared base/endpoint inputs. The27 independent words still require their own component/source dispositions; no retention decision is made. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteNormalSuitSourceReview": {
+    "status":"converted22 remaining duplicate heat base words to shared normal suit artwork inputs",
+    "owners":"HeatPaletteColorDefinitions.TryBasePalettePointer/TryBaseColor/TryInputColor; existing RoomPaletteFxPresentation loader/query",
+    "source":"All45 original row-zero heat colors at8D:E468/E694/E8C0 match colors1..15 of the initial suit-loading palettes8D:DB6B/DCD1/DE37, independently corroborated by normal suit palettes9B:9400/9520/9800. Heat writes from CGRAM byte182 while suit loading writes from180, explaining omission of transparent index zero. Supported NTSC J/U v1.0 and pinned bank_8D.asm/bank_9B.asm362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"For each of the three named heat base ranges, preserve the two-byte color offset and point to the corresponding normal loading color after its transparent word. Reject odd/outside addresses. Existing cross-suit sharing reduces45 base identities to22 stored inputs; all22 now read their independently editable normal-color counterpart by default.",
+    "implementation":"The existing compiler removes a heat base only when it equals its loading color. Explicit heat edits remain first priority. Gradient input reads resolve an installed heat override or the calculated loading source, so removing base copies does not reintroduce a generated cache. The shared source data is still owned by the existing loading-palette presentation family. There are now only five separately stored stock heat endpoint words; this is duplicate-data removal, not a retention disposition for normal artwork.",
+    "proof":"Extend the same native heat-color proof with all45 heat/loading/normal comparisons and every ushort pointer's exact base-source identity or rejection. All720 final stock colors and every calculated root remain equal to original ROM; exactly five heat words remain installed. Existing720 independent heat edits remain intact. The focused entry point additionally changes the three loading base palettes while leaving heat colors unchanged and confirms every heat color is preserved as an independent override where necessary. Guarded installed/native palette loops are reused.",
+    "scope":"The five heat-specific endpoints still need component dispositions. Normal suit/loading palette data now supplies shared artwork but remains subject to its own full-source audit; this entry does not declare that owner reviewed or retained. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

@@ -39,8 +39,37 @@ internal static class HeatPaletteColorDefinitions
 
     }
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
-        TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
+        TryBaseColor(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
         TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
+
+    /// <summary>Maps heat row-zero colors to the corresponding normal suit-loading colors.</summary>
+    /// <remarks>The fifteen colors at $8D:E468/E694/E8C0 equal colors1..15 in the
+    /// initial loading palettes at $8D:DB6B/DCD1/DE37, and independently equal normal
+    /// suit palettes $9B:9402/9522/9802. Heat omits the transparent index zero.
+    /// Native program layout and every original color were independently checked.
+    /// This aliases identical suit artwork; it does not classify the source artwork
+    /// as irreducible. Differing heat edits retain their own installed value.</remarks>
+    internal static bool TryBasePalettePointer(ushort pointer, out ushort source)
+    {
+        int first;
+        int loading;
+        if (pointer >= 0xe468 && pointer < 0xe486) { first = 0xe468; loading = 0xdb6d; }
+        else if (pointer >= 0xe694 && pointer < 0xe6b2) { first = 0xe694; loading = 0xdcd3; }
+        else if (pointer >= 0xe8c0 && pointer < 0xe8de) { first = 0xe8c0; loading = 0xde39; }
+        else { source = 0; return false; }
+        if (((pointer - first) & 1) != 0) { source = 0; return false; }
+        source = (ushort)(loading + pointer - first);
+        return true;
+    }
+
+    private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    {
+        value = 0;
+        return TryBasePalettePointer(pointer, out ushort source) && colors.TryGetValue(source, out value);
+    }
+
+    private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+        colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value);
 
     /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
     /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
@@ -73,7 +102,7 @@ internal static class HeatPaletteColorDefinitions
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2 + 2 * colorIndex;
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
-        if (!colors.TryGetValue((ushort)first, out ushort start) ||
+        if (!TryInputColor((ushort)first, colors, out ushort start) ||
             !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
         int row = (offset / 34 + 1) / 2;
         int red = ((start & 31) * (4 - row) + (end & 31) * row + roundingBias) / 4;
@@ -95,7 +124,7 @@ internal static class HeatPaletteColorDefinitions
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 10;
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
-        if (!colors.TryGetValue((ushort)first, out ushort start) ||
+        if (!TryInputColor((ushort)first, colors, out ushort start) ||
             !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
         int row = (offset / 34 + 1) / 2;
         int red = ((start & 31) * (4 - row) + (end & 31) * row + 3) / 4;
@@ -140,8 +169,8 @@ internal static class HeatPaletteColorDefinitions
         }
         int phase = (pointer - first) / 34;
         if (phase == 0) return false;
-        if (!colors.TryGetValue((ushort)(first + index * 2), out ushort original) ||
-            !colors.TryGetValue((ushort)(powerFirst + 6), out ushort baseline) ||
+        if (!TryInputColor((ushort)(first + index * 2), colors, out ushort original) ||
+            !TryInputColor((ushort)(powerFirst + 6), colors, out ushort baseline) ||
             !(colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out ushort heated) ||
               TryRedRamp((ushort)(powerFirst + phase * 34 + 6), colors, out heated))) return false;
         int red = (original & 31) + (heated & 31) - (baseline & 31);

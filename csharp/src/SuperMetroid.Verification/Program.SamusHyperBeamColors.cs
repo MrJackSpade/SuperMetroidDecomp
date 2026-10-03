@@ -32,14 +32,7 @@ internal static partial class Program
         AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(5, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
-        AssertTrue(!componentInputs.ContainsKey(2 * 16 + 13), "Magenta-cyan middle shadow needs no stored correction");
-        AssertTrue(!componentInputs.ContainsKey(6 * 16 + 11), "Green-yellow upper shadow needs no stored correction");
-        int componentCount = 0;
-        foreach (var entry in componentInputs.Values)
-            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                if (field.GetValue(entry) is not null) componentCount++;
-        AssertEqual(6, componentCount, "Six independently supplied intermediate components remain under review");
+        AssertEqual(0, componentInputs.Count, "Every native intermediate shadow is calculated without stored corrections");
         var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(3, shadeInputs.Count, "Only three original colors have differing shade channels");
@@ -134,29 +127,6 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
-                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index && !(frame == 2 && index == 13) && !(frame == 6 && index == 11))
-                {
-                    ushort before = ReadVerificationWord(rom, 0x91d99e + ((frame + 9) % 10) * 2);
-                    ushort after = ReadVerificationWord(rom, 0x91d99e + (frame + 1) * 2);
-                    ushort first = ReadVerificationWord(rom, 0x9b0000 | (before + 2 * index));
-                    ushort second = ReadVerificationWord(rom, 0x9b0000 | (after + 2 * index));
-                    int expected = 0;
-                    for (int shift = 0; shift < 15; shift += 5)
-                        expected |= (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0) << shift;
-                    AssertEqual(native != expected, componentInputs.ContainsKey(frame * 16 + index), "Original differing channel ownership");
-                    if (componentInputs.TryGetValue(frame * 16 + index, out var inputs))
-                    {
-                        string[] names = ["red", "green", "blue"];
-                        for (int channel = 0; channel < 3; channel++)
-                        {
-                            int shift = channel * 5;
-                            object? actual = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
-                                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(inputs);
-                            int? wanted = (native >> shift & 31) == (expected >> shift & 31) ? null : native >> shift & 31;
-                            AssertTrue(Equals(wanted, actual), "Only original differing components are stored");
-                        }
-                    }
-                }
                 bool endpointOwner = !sharedShade && source == frame * 16 + index && index != 0 && frame is 1 or 5 or 9;
                 AssertEqual(endpointOwner, endpointInputs.ContainsKey(frame * 16 + index), "Endpoint channel ownership");
                 if (endpointOwner)
@@ -185,6 +155,12 @@ internal static partial class Program
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
+            foreach (int ink in new[] { 3, 11 })
+            {
+                bool fits = ink == 3 ? green > 0 : rgb % 32 < 31 && green < 31 && blue < 31;
+                AssertEqual(fits, SamusHyperBeamColorFormat.TryCyanTransitionShadow((ushort)rgb, ink, out ushort shadow), "Complete transition-shadow acceptance domain");
+                AssertEqual(fits ? (ushort)(rgb + (ink == 3 ? -32 : 1057)) : (ushort)0, shadow, "Transition shadows preserve channel arithmetic and reject overflow");
+            }
             foreach (int brightness in new[] { 2, 4, 7, 8 })
             {
                 bool fits = rgb % 32 <= 31 - brightness && green <= 31 - brightness && blue <= 31 - brightness;
@@ -214,6 +190,8 @@ internal static partial class Program
                 int lower = (int)Math.Floor((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Floor((green + other) / 2.0) + 1024 * (int)Math.Floor((blue + other) / 2.0);
                 AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057), roundUp: false), "Complete downward RGB5 midpoint arithmetic");
+                AssertEqual((ushort)((lower & 31) | (expected & 0x7fe0)),
+                    SamusHyperBeamColorFormat.CyanTransitionMiddle((ushort)rgb, (ushort)(other * 1057)), "Complete cyan-biased midpoint channel pairs");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 6, 9, 31, int.MaxValue })
@@ -247,7 +225,15 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(0, invalid, 0, out _), "Invalid middle shadow");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(0, 0, invalid, out _), "Invalid green source");
         }
-        foreach (int shadowFrame in new[] { 1, 2, 3, 5, 6, 9 })
+        foreach (int invalid in new[] { -1, 0, 1, 2, 4, 10, 12, 13, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(0, invalid, out _), "Invalid transition shadow selector");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(invalid, 0), "Invalid transition magenta endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(0, invalid), "Invalid transition cyan endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(invalid, 3, out _), "Invalid transition middle ink");
+        }
+        foreach (int shadowFrame in new[] { 0, 1, 2, 3, 5, 6, 8, 9 })
         foreach (int ink in new[] { 3, 11, 13 })
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)

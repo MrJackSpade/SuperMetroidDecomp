@@ -33,7 +33,8 @@ namespace SuperMetroid.Core.Assets;
 /// no runtime lighting quantity selects it. Per-phase numeric corrections or
 /// fitted coefficients would only recite those particular color-design choices.
 /// Retain these three inputs under the specific artwork/nonsense exception.
-/// This does not dispose of the remaining six intermediate adjustments.</remarks>
+/// Intermediate colors are calculated from hue blends and shared shadow groups;
+/// no original intermediate correction components remain stored.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -72,11 +73,25 @@ public sealed class SamusHyperBeamColorCatalog
                 else colors.Add(index, frames[frame][color]);
                 continue;
             }
-            if (source == index && color != 0 && (frame & 1) == 0 && !(frame == 2 && color == 13))
+            if (frame == 2 && color is 3 or 11 or 13)
+            {
+                ushort expected;
+                if (color == 13) expected = SamusHyperBeamColorFormat.CyanTransitionMiddle(frames[1][13], frames[3][13]);
+                else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(frames[2][13], color, out expected))
+                {
+                    colors.Add(index, frames[frame][color]);
+                    continue;
+                }
+                if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
+                continue;
+            }
+            if (source == index && color != 0 && (frame & 1) == 0)
             {
                 ushort expected = frame == 6 ?
                     SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color]) :
                     SamusHyperBeamColorFormat.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
+                int shift = SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color);
+                if (shift >= 0) expected = (ushort)((expected & ~(31 << shift)) | (frames[frame][13] & (31 << shift)));
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
@@ -89,9 +104,9 @@ public sealed class SamusHyperBeamColorCatalog
                     basis.Red, basis.Green));
                 continue;
             }
-            if (frame is 2 or 3 && color == 13)
+            if (frame == 3 && color == 13)
             {
-                ushort expected = SamusHyperBeamColorFormat.HueMidpoint(frames[frame][3], frames[frame][11], roundUp: frame == 3);
+                ushort expected = SamusHyperBeamColorFormat.HueMidpoint(frames[3][3], frames[3][11]);
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
@@ -163,9 +178,8 @@ public sealed class SamusHyperBeamColorCatalog
     /// midpoint of shadow inks3/11 at9BA306/A316. Their RGB1/12/16 and
     /// 3/13/18 yield2/13/17. Reuse the same bounded midpoint operation as
     /// the temporal hue blends; independently supplied channels override it.
-    /// The preceding magenta-cyan frame2 ink13 at9BA33A instead takes the
-    /// downward midpoint of10/6/18 and11/8/19,giving10/7/18. This is a shade
-    /// interpolation within that frame,not the midpoint of its temporal neighbors.
+    /// Magenta-cyan frame2 instead builds its three shadows around the cyan-biased
+    /// midpoint of the neighboring middle shadows; see CyanTransitionMiddle.
     /// This converts that shade relationship without retaining a generated word.</remarks>
     public ushort Resolve(int frame, int color)
     {
@@ -191,9 +205,17 @@ public sealed class SamusHyperBeamColorCatalog
                 color == 13 ? Resolve(frame, 11) : (ushort)0);
             return endpoint.Resolve(frame == 9, basis.Red ?? 0, basis.Green ?? 0);
         }
-        if (frame is 2 or 3 && color == 13)
+        if (frame == 2 && color is 3 or 11 or 13)
         {
-            ushort middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, 3), Resolve(frame, 11), roundUp: frame == 3);
+            ushort transition;
+            if (color == 13) transition = SamusHyperBeamColorFormat.CyanTransitionMiddle(Resolve(1, 13), Resolve(3, 13));
+            else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(Resolve(2, 13), color, out transition))
+                throw new InvalidOperationException("Validated Hyper Beam transition shadow exceeds RGB5.");
+            return intermediateInputs.TryGetValue(frame * 16 + color, out var transitionInput) ? transitionInput.Apply(transition) : transition;
+        }
+        if (frame == 3 && color == 13)
+        {
+            ushort middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
             return intermediateInputs.TryGetValue(frame * 16 + color, out var middleInput) ? middleInput.Apply(middle) : middle;
         }
         if (frame == 6 && color == 11)
@@ -205,6 +227,8 @@ public sealed class SamusHyperBeamColorCatalog
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
         ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
+        int shift = SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color);
+        if (shift >= 0) expected = (ushort)((expected & ~(31 << shift)) | (Resolve(frame, 13) & (31 << shift)));
         return intermediateInputs.TryGetValue(frame * 16 + color, out var inputs) ? inputs.Apply(expected) : expected;
     }
 
@@ -215,7 +239,7 @@ public sealed class SamusHyperBeamColorCatalog
     /// EndpointSourceChannels also derives middle-shadow inputs. Keep only
     /// independently differing channels; channel copying itself needs no rounding
     /// or saturation. The remaining endpoint shade inputs have the specific
-    /// class-level artwork disposition; intermediate work is separate.</remarks>
+    /// class-level artwork disposition; intermediate relationships are calculated.</remarks>
     internal readonly struct EndpointChannels
     {
         private readonly int? red;
@@ -268,6 +292,56 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Selects a shadow channel shared with the same frame's middle ink13.</summary>
+    /// <remarks>Native frame0 ink3 red and ink11 green at9BA366/A376
+    /// share middle ink13 red21/green3. Frame8 ink11 blue at9BA276 shares
+    /// middle blue3. Other channels keep their temporal blend. Return the
+    /// RGB5 bit shift or-1 when no within-frame sharing applies.</remarks>
+    internal static int SharedIntermediateShadowChannel(int frame, int ink) => (frame, ink) switch
+    {
+        (0, 3) => 0,
+        (0, 11) => 5,
+        (8, 11) => 10,
+        _ => -1,
+    };
+
+    /// <summary>Interpolates the magenta-to-cyan middle shadow, rounding toward cyan.</summary>
+    /// <remarks>Native frame2 ink13 at9BA33A is RGB10/7/18 between
+    /// magenta19/0/19 and cyan2/13/17. Floor the red half-sum and ceil the
+    /// green/blue half-sums: the quantization favors the cyan channels.
+    /// No fixed correction value is added. Numerators0..63,RGB5 inputs only.
+    /// This states the exact color construction,not the original tool's identity.</remarks>
+    internal static ushort CyanTransitionMiddle(ushort magenta, ushort cyan)
+    {
+        if (magenta > 0x7fff || cyan > 0x7fff) throw new ArgumentOutOfRangeException(nameof(magenta));
+        return (ushort)((HueMidpoint(magenta, cyan, roundUp: false) & 31) |
+            (HueMidpoint(magenta, cyan) & 0x7fe0));
+    }
+
+    /// <summary>Builds the lower and upper shadows around the magenta-cyan middle ink.</summary>
+    /// <remarks>Original frame2 middle13 is10/7/18. Lower3 is the same
+    /// red/blue with green one step lower; upper11 is one RGB step brighter.
+    /// This gives10/6/18 and11/8/19 without independent intermediate inputs.
+    /// Edited middle colors may exceed those operations' RGB5 bounds; return
+    /// false so import preserves the supplied whole target,without saturation.</remarks>
+    internal static bool TryCyanTransitionShadow(ushort middle, int ink, out ushort value)
+    {
+        if (middle > 0x7fff) throw new ArgumentOutOfRangeException(nameof(middle));
+        if (ink is not (3 or 11)) throw new ArgumentOutOfRangeException(nameof(ink));
+        int red = middle & 31, green = middle >> 5 & 31, blue = middle >> 10;
+        if (ink == 3)
+        {
+            if (green == 0) { value = 0; return false; }
+            value = (ushort)(middle - 32);
+        }
+        else
+        {
+            if (red == 31 || green == 31 || blue == 31) { value = 0; return false; }
+            value = (ushort)(middle + 0x421);
+        }
+        return true;
+    }
 
     /// <summary>Derives shared hue channels and the middle shadow's endpoint components.</summary>
     /// <remarks>Native endpoint frames1/5/9 are magenta,green,red at
@@ -338,11 +412,11 @@ public static class SamusHyperBeamColorFormat
     /// <summary>Interpolates RGB5 colors by half with the caller's channel rounding convention.</summary>
     /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
     /// frame0 wrapping between9/1. Frame6 uses the green-to-yellow red ramp.
-    /// Only independently supplied channels differing from this calculation
-    /// are stored. Their derivation/disposition remains under review in1165;
+    /// Only independently edited channels differing from the selected color
+    /// construction are stored; original intermediate colors need no corrections.
     /// matching channels are always calculated, never stored as generated words.
     /// Upward rounding is the default for hue blends. The magenta-cyan
-    /// middle-shadow interpolation uses downward rounding for all channels.
+    /// middle shadow selects downward red and upward green/blue rounding.
     /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
     internal static ushort HueMidpoint(ushort first, ushort second, bool roundUp = true)
     {

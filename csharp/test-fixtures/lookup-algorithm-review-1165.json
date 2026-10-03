@@ -6695,4 +6695,16 @@
     "proof":"VerifyFileSelectHelmetAnimation compares all nine original ROM words, native LDA/CMP operands and opcodes for duration/count/clamp, and invalid int boundaries. Early SHA-pinned --lookup-file-select-helmet passes. Existing --lookup-file-select-geometry passes real extraction/loading and helmet anchors after caller migration.",
     "confirmation":"Verification build passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry. Other file-select presentation-name lists and layout families remain separate review obligations."
   }
+,
+  "fileSelectSlotDestinationReview": {
+    "status":"converted all24 fixed slot-field destinations to bounded grid calculations",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/FileSelectLayout.cs",
+    "source":"Supported SHA-pinned ROM and pinned bank_81.asm: main reload81:9F16..9FAC; copy/clear slot draw routines81:960F..9699. Each original LDX immediate is an independent field/slot oracle.",
+    "mainFields":{"Label":"Tile column3 on rows5+5*slot; original LDX at9F16/9F49/9F7F","Energy":"Column14 on those rows;9F25/9F5B/9F91","TimeLabel":"Column27 on those rows;9F40/9F76/9FAC","TimeValue":"Column26 one row below;9F31/9F67/9F9D"},
+    "dataFields":{"Label":"Tile column4 on rows8+4*slot; original LDX at9639/9669/9699","Energy":"Column12 on those rows;960F/963F/966F","TimeLabel":"Column26 on those rows;9630/9660/9690","TimeValue":"Column25 one row below;961E/964E/967E"},
+    "algorithm":"Select the named field's column, calculate its slot row and add one row for time values, then convert the32-column word cell to a byte offset. Main and Copy/Clear spacing are separate semantic page layouts. Remove all24 per-slot constants and migrate both runtime fallback drawing and asset extraction to MainSlotDestination/DataSlotDestination. No lookup/cache or runtime ROM access.",
+    "domain":"Slot0..2 and four mutually exclusive named fields. Reject other slots with IndexOutOfRangeException and invalid fields with ArgumentOutOfRangeException before address calculation. All arithmetic is nonnegative int, maximum output remains within the32x32 two-byte tilemap; no rounding, narrowing or wrapping.",
+    "proof":"VerifyFileSelectSlotDestinations invokes one field proof for each of the eight independently indexed mappings, reading each of its three original LDX operands and opcode. It confirms exported energy/time anchors and text starts on both main variants or both Copy/Clear pages from original preceding LDY source operands. Each mapping checks unsupported slot/field boundaries. Original values are never regenerated from the replacement formula.",
+    "confirmation":"Verification build and isolated early SHA-pinned --lookup-file-select-slot-fields pass all24 original destinations, real extractor/loader integration and bounds. Static search finds no remaining old slot-destination constants/callers. Maintained-source index refreshed. Implementation commit is the commit adding this entry. Other frontend layout families remain separate review obligations."
+  }
 }

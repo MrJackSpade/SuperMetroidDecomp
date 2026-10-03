@@ -437,15 +437,15 @@ public sealed partial class FileSelectMenuState
 
     private void DrawDataManagementSlots()
     {
-        LoadMenuTilemap(FileSelectLayout.DataSlotALabelDestination, FileSelectTilemaps.SamusA);
-        DrawFileSlot(saveSlots[0], FileSelectLayout.DataSlotAEnergyDestination, FileSelectLayout.DataSlotATimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotATimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotBLabelDestination, FileSelectTilemaps.SamusB);
-        DrawFileSlot(saveSlots[1], FileSelectLayout.DataSlotBEnergyDestination, FileSelectLayout.DataSlotBTimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotBTimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotCLabelDestination, FileSelectTilemaps.SamusC);
-        DrawFileSlot(saveSlots[2], FileSelectLayout.DataSlotCEnergyDestination, FileSelectLayout.DataSlotCTimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotCTimeLabelDestination, FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SamusA);
+        DrawFileSlot(saveSlots[0], FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SamusB);
+        DrawFileSlot(saveSlots[1], FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SamusC);
+        DrawFileSlot(saveSlots[2], FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
     }
 
     private static void AddConfirmationText()

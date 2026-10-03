@@ -49,6 +49,36 @@ internal static class FileSelectLayout
         return (ushort)(MainSelectionY(slot) - 1);
     }
 
+    /// <summary>Main slot field destinations from native $81:9F16..9FAC.</summary>
+    /// <remarks>Three slots start on tile row 5, separated by five rows. Labels,
+    /// energy and time labels occupy columns 3, 14 and 27; time values start on
+    /// the following row at column 26. Convert 32-column cells to byte offsets.</remarks>
+    public static int MainSlotDestination(int slot, FileSelectSlotField field) =>
+        SlotDestination(slot, field, dataPage: false);
+
+    /// <summary>Copy/clear slot field destinations from native $81:960F..9699.</summary>
+    /// <remarks>Three slots start on tile row 8, separated by four rows. Labels,
+    /// energy and time labels occupy columns 4, 12 and 26; time values start on
+    /// the following row at column 25. Both Copy and Clear share this geometry.</remarks>
+    public static int DataSlotDestination(int slot, FileSelectSlotField field) =>
+        SlotDestination(slot, field, dataPage: true);
+
+    private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
+    {
+        if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
+        int column = field switch
+        {
+            FileSelectSlotField.Label => dataPage ? 4 : 3,
+            FileSelectSlotField.Energy => dataPage ? 12 : 14,
+            FileSelectSlotField.TimeValue => dataPage ? 25 : 26,
+            FileSelectSlotField.TimeLabel => dataPage ? 26 : 27,
+            _ => throw new ArgumentOutOfRangeException(nameof(field)),
+        };
+        int row = dataPage ? 8 + 4 * slot : 5 + 5 * slot;
+        if (field == FileSelectSlotField.TimeValue) row++;
+        return (row * 32 + column) * sizeof(ushort);
+    }
+
     /// <summary>Main file-select border spritemap.</summary>
     public const ushort NormalBorderSpritemap = 0x48;
     /// <summary>Copy-menu border spritemap.</summary>
@@ -64,18 +94,6 @@ internal static class FileSelectLayout
 
     /// <summary>BG1 byte destinations for the main file-select labels and fields.</summary>
     public const int SamusDataDestination = 0x056;
-    public const int SlotALabelDestination = 0x146;
-    public const int SlotAEnergyDestination = 0x15c;
-    public const int SlotATimeValueDestination = 0x1b4;
-    public const int SlotATimeLabelDestination = 0x176;
-    public const int SlotBLabelDestination = 0x286;
-    public const int SlotBEnergyDestination = 0x29c;
-    public const int SlotBTimeValueDestination = 0x2f4;
-    public const int SlotBTimeLabelDestination = 0x2b6;
-    public const int SlotCLabelDestination = 0x3c6;
-    public const int SlotCEnergyDestination = 0x3dc;
-    public const int SlotCTimeValueDestination = 0x434;
-    public const int SlotCTimeLabelDestination = 0x3f6;
     public const int DataCopyDestination = 0x508;
     public const int DataClearDestination = 0x5c8;
     public const int ExitDestination = 0x688;
@@ -95,22 +113,19 @@ internal static class FileSelectLayout
     public const int CopyCompletedDestination = 0x510;
     public const int DataClearedDestination = 0x500;
 
-    /// <summary>BG1 byte destinations for slots shown on data-management pages.</summary>
-    public const int DataSlotALabelDestination = 0x208;
-    public const int DataSlotAEnergyDestination = 0x218;
-    public const int DataSlotATimeValueDestination = 0x272;
-    public const int DataSlotATimeLabelDestination = 0x234;
-    public const int DataSlotBLabelDestination = 0x308;
-    public const int DataSlotBEnergyDestination = 0x318;
-    public const int DataSlotBTimeValueDestination = 0x372;
-    public const int DataSlotBTimeLabelDestination = 0x334;
-    public const int DataSlotCLabelDestination = 0x408;
-    public const int DataSlotCEnergyDestination = 0x418;
-    public const int DataSlotCTimeValueDestination = 0x472;
-    public const int DataSlotCTimeLabelDestination = 0x434;
+    /// <summary>BG1 byte destinations for the copy/clear confirmation choices.</summary>
     public const int ConfirmationQuestionDestination = 0x514;
     public const int ConfirmationYesDestination = 0x59c;
     public const int ConfirmationNoDestination = 0x65c;
+}
+
+/// <summary>Distinct fields in each native file-select save-slot panel.</summary>
+internal enum FileSelectSlotField
+{
+    Label,
+    Energy,
+    TimeValue,
+    TimeLabel,
 }
 
 /// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>

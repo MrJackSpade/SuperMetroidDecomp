@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-slot-fields"])
+{
+    VerifyFileSelectSlotDestinations();
+    Console.WriteLine("File-select slot fields: all 24 original destinations, extracted anchors/text and bounded selectors pass.");
+    return 0;
+}
 if (args is ["--lookup-file-select-helmet"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

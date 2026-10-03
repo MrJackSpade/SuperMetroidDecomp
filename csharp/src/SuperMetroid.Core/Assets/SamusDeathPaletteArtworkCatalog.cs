@@ -13,7 +13,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
     private readonly Dictionary<int, ushort> suitless = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
-    private readonly ushort[] whiteout;
+    private readonly WhiteoutInputs whiteout;
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     public SamusDeathPaletteArtworkCatalog(ushort[][][] suited, ushort[][] suitless,
@@ -65,7 +65,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
             else this.suitless.Add(key, value);
         }
-        this.whiteout = (ushort[])whiteout.Clone();
+        this.whiteout = new(whiteout);
         for (int frame = 0; frame < explosionPaletteIndices.Length; frame++)
             if (explosionPaletteIndices[frame] != DefaultExplosionPaletteIndex(frame))
                 this.explosionPaletteIndices.Add(frame, explosionPaletteIndices[frame]);
@@ -86,7 +86,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
             for (int color = 0; color < ColorCount; color++) suitedRow[color] = SuitlessColor(palette, color);
             content.AppendWords("suitless row", suitedRow);
         }
-        content.AppendWords("whiteout", this.whiteout);
+        Span<ushort> whiteoutColors = stackalloc ushort[SamusPaletteRomData.Death.WhiteoutShadeCount];
+        for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = WhiteoutColor(index);
+        content.AppendWords("whiteout", whiteoutColors);
         Span<ushort> selectors = stackalloc ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = ExplosionPaletteIndex(frame);
         content.AppendWords("explosion palette indices", selectors);
@@ -126,7 +128,60 @@ public sealed class SamusDeathPaletteArtworkCatalog
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
-    public ushort WhiteoutColor(int index) => whiteout[index];
+    public ushort WhiteoutColor(int index) => whiteout.Resolve(index);
+
+    /// <summary>Two linear grayscale segments and an independently supplied transition shade.</summary>
+    /// <remarks>Original9BB835..B860 has a linear intensity ramp at indices0..6,
+    /// a separate shade at7 and a second linear ramp at8..21. Each RGB word is
+    /// neutral. Five endpoint/transition intensities remain independent inputs;
+    /// their own disposition is not established by this interpolation conversion.
+    /// Differing edited channels override the calculated grayscale. Interpolation
+    /// stays within RGB5 even when endpoints are independently edited.</remarks>
+    private sealed class WhiteoutInputs
+    {
+        private readonly int earlyStart, earlyEnd, transition, lateStart, lateEnd;
+        private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
+
+        internal WhiteoutInputs(ushort[] source)
+        {
+            earlyStart = source[0] & 31;
+            earlyEnd = source[6] & 31;
+            transition = source[7] & 31;
+            lateStart = source[8] & 31;
+            lateEnd = source[21] & 31;
+            for (int index = 0; index < source.Length; index++)
+            {
+                ushort expected = Expected(index);
+                if (source[index] != expected) inputs.Add(index, new(source[index], expected));
+            }
+        }
+
+        internal ushort Resolve(int index)
+        {
+            if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new IndexOutOfRangeException();
+            ushort expected = Expected(index);
+            return inputs.TryGetValue(index, out var channels) ? channels.Apply(expected) : expected;
+        }
+
+        private ushort Expected(int index)
+        {
+            int intensity = index <= 6 ? InterpolateWhiteoutIntensity(earlyStart, earlyEnd, index, 6) :
+                index == 7 ? transition : InterpolateWhiteoutIntensity(lateStart, lateEnd, index - 8, 13);
+            return (ushort)(intensity | intensity << 5 | intensity << 10);
+        }
+    }
+
+    /// <summary>Interpolates RGB5 intensity between whiteout segment endpoints, rounding down.</summary>
+    /// <remarks>Only native six-step and thirteen-step spans are supported.
+    /// Nonnegative weighted sums are bounded by403. Descending edited endpoints
+    /// remain valid; no extrapolation, saturation or signed division is required.</remarks>
+    internal static int InterpolateWhiteoutIntensity(int first, int last, int step, int steps)
+    {
+        if ((uint)first > 31 || (uint)last > 31) throw new ArgumentOutOfRangeException(nameof(first));
+        if (steps is not (6 or 13)) throw new ArgumentOutOfRangeException(nameof(steps));
+        if ((uint)step > steps) throw new ArgumentOutOfRangeException(nameof(step));
+        return (first * (steps - step) + last * step) / steps;
+    }
     /// <summary>Advances through death palettes while skipping the flash-only row.</summary>
     /// <remarks>Original odd bytes9BB824..B834 select0,2..9 for frame0..8.
     /// Index1 belongs to the preceding yellow-flash stage, not the explosion.

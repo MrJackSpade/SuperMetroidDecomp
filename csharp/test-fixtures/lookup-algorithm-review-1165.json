@@ -6244,4 +6244,15 @@
     "scope":"Resolves row repetition and selector progression,including prior898/899/892 relationships. Independent root RGB channels,base-color sharing/dispositions,whiteout values and the separately indexed explosion durations still require review. No retention exception is claimed by this entry.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed owner/source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusDeathWhiteoutSegmentsReview": {
+    "status":"converted whiteout linear segments and repeated neutral channels; five intensity inputs pending disposition",
+    "owner":"SamusDeathPaletteArtworkCatalog.WhiteoutInputs/WhiteoutColor/InterpolateWhiteoutIntensity/ContentIdentity; SamusDeathSequenceState.ApplyWhiteout",
+    "source":"Supported NTSC J/U v1.0 original22 words at9BB835..B860; pinned bank9B disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. All words have equal RGB5 channels. Indices0..6 form one straight intensity segment,7 is a transition shade,8..21 form a second straight segment. The native/compiled consumer advances the shade once per active whiteout call until20; the terminal explosion call explicitly selects21. It excludes both Samus palettes and suppresses the effect at explosion frame0.",
+    "algorithm":"Copy red intensities at segment endpoints0/6/8/21 and transition7 as independent inputs. For each segment interpolate floor((first*(steps-step)+last*step)/steps),with steps6 or13,then replicate the intensity into RGB5. The nonnegative numerator is at most403; descending edited endpoints remain bounded. No wrap,clamp,extrapolation or cross-channel carry. Each differing supplied channel overrides its calculated result,including endpoint green/blue edits.",
+    "storage":"Replace22 stored RGB words with five named intensity fields and a sparse nullable-channel override dictionary,empty for stock. Do not retain an interpolated cache. ContentIdentity reconstructs the same22 words into a temporary stack buffer, preserving exact original serialization.",
+    "proof":"Extend the consolidated charge/death proof with all22 original whiteout words,zero stock corrections,all32x32 endpoint pairs at every step of both spans,invalid endpoints/steps/spans/indices,arbitrary RGB edits,anchor-only and nonanchor-only edits,plus exact content identities. Original ROM words are the independent conversion oracle; decimal arithmetic additionally confirms the general interpolation contract.",
+    "scope":"Only supported linear and neutral-channel relationships are resolved. The five endpoint/transition intensities and their temporal arrangement remain independent inputs under review; this entry does not use the segmented fit or small size as a retention justification. Death root/base colors and separately indexed explosion durations remain pending.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed closed-contract source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

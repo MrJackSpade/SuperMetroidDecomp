@@ -211,6 +211,35 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
         }
+        object whiteoutInput = typeof(SamusDeathPaletteArtworkCatalog).GetField("whiteout",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        var whiteoutOverrides = (Dictionary<int, LoadingPaletteInputView.Channels>)whiteoutInput.GetType().GetField("inputs",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(whiteoutInput)!;
+        AssertEqual(0, whiteoutOverrides.Count, "Native whiteout has no interpolation or neutral-channel corrections");
+        for (int index = 0; index < whiteout.Length; index++)
+            AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
+        for (int first = 0; first < 32; first++)
+        for (int last = 0; last < 32; last++)
+        foreach (int steps in new[] { 6, 13 })
+        for (int step = 0; step <= steps; step++)
+        {
+            // Exact decimal quotient avoids a replacement integer-division oracle.
+            int expectedIntensity = (int)decimal.Floor(((decimal)first * (steps - step) + (decimal)last * step) / steps);
+            AssertEqual(expectedIntensity, SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(first, last, step, steps),
+                "All endpoint intensities and whiteout interpolation steps");
+        }
+        foreach (int invalid in new[] { -1, 22, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(invalid, 0, 0, 6), "Invalid first intensity");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, invalid, 0, 6), "Invalid last intensity");
+        }
+        foreach (int steps in new[] { 6, 13 })
+        foreach (int invalid in new[] { -1, steps + 1, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, invalid, steps), "Invalid interpolation position");
+        foreach (int invalid in new[] { -1, 0, 7, 14, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, 0, invalid), "Unsupported whiteout span");
         for (int scope = 0; scope < 4; scope++)
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
@@ -235,7 +264,16 @@ internal static partial class Program
             if (scope != 0)
                 for (int frame = 0; frame < editedSelectors.Length; frame++)
                     editedSelectors[frame] = (ushort)((editedSelectors[frame] + scope) % 10);
-            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, whiteout, editedSelectors);
+            ushort[] editedWhiteout = (ushort[])whiteout.Clone();
+            for (int index = 0; index < editedWhiteout.Length; index++)
+            {
+                bool anchor = index is 0 or 6 or 7 or 8 or 21;
+                if (scope == 0 || scope == 2 && !anchor || scope == 3 && anchor) continue;
+                editedWhiteout[index] = (ushort)((editedWhiteout[index] + 137 * (index + 1)) & 0x7fff);
+            }
+            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, editedWhiteout, editedSelectors);
+            for (int index = 0; index < editedWhiteout.Length; index++)
+                AssertEqual(editedWhiteout[index], editedDeath.WhiteoutColor(index), "Independent whiteout and endpoint-only edits");
             for (int frame = 0; frame < editedSelectors.Length; frame++)
                 AssertEqual(editedSelectors[frame], editedDeath.ExplosionPaletteIndex(frame), "Original and independently edited death selectors");
             for (int family = 0; family < 4; family++)
@@ -249,7 +287,7 @@ internal static partial class Program
                 foreach (ushort[][] rows in suited)
                 foreach (ushort[] row in rows) content.AppendWords("suited row", row);
                 foreach (ushort[] row in suitless) content.AppendWords("suitless row", row);
-                content.AppendWords("whiteout", whiteout);
+                content.AppendWords("whiteout", editedWhiteout);
                 content.AppendWords("explosion palette indices", editedSelectors);
             });
             AssertEqual(originalIdentity, editedDeath.ContentIdentity, "Death color identity preserves original row serialization");

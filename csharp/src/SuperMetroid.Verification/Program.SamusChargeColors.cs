@@ -211,13 +211,13 @@ internal static partial class Program
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
             .Select(index => (ushort)rom.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, whiteout, selectors);
-        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs", "warmShadeInputs" })
+        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
         {
             var inputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 4), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 3), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -253,6 +253,23 @@ internal static partial class Program
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(invalid, 0, out _), "Invalid bright tint endpoint");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(0, invalid, out _), "Invalid dark tint endpoint");
+        }
+        var deathWarmInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
+            .GetField("warmShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        AssertEqual(1, deathWarmInputs.Count, "Only warm dark-endpoint components remain stored");
+        foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            AssertEqual(field.Name != "blue", field.GetValue(deathWarmInputs[4]) is not null, "Warm endpoint stores only independent red/green");
+        for (int blue = 0; blue < 32; blue++)
+        for (int redGreen = 0; redGreen < 1024; redGreen++)
+        {
+            ushort actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint((ushort)(blue << 10), (ushort)(redGreen | (31 - blue) << 10));
+            AssertEqual(blue, actual >> 10, "Warm endpoint takes bright blue");
+            AssertEqual(redGreen, actual & 1023, "Warm endpoint preserves dark red/green");
+        }
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(invalid, 0), "Invalid bright warm endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(0, invalid), "Invalid dark warm endpoint");
         }
         for (int first = 0; first < 32; first++)
         for (int last = 0; last < 32; last++)

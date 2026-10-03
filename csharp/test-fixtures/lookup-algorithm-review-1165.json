@@ -6370,4 +6370,16 @@
     "scope":"Resolves the duplicated endpoint balance left by samusSuitlessTintBalanceReview. Remaining endpoint/intensity choices,neutral roots,whiteout inputs and broader1165 work still require separate dispositions; no retention exception is introduced.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessWarmEndpointReview": {
+    "status":"converted shared warm-endpoint blue; independently disposed unused suitless ink0",
+    "owner":"SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint/SuitlessColor/warmShadeInputs",
+    "source":"Supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Original9BA122..A129 warm inks1..4 vary red/green and preserve blue0 throughout. Native9BB53A..B5A9 copies the suitless base to OBJ palette7;9BB5CE selects subsequent palette pairs.",
+    "algorithm":"Dark warm endpoint ink4 keeps independent red/green and takes blue from bright endpoint ink1. The two interior warm shades continue the verified thirds interpolation. Edited blue differences override sharing,including changes to the bright endpoint alone. RGB5 packing is exact with no rounding,overflow or saturation; high-bit words are rejected. No palette cache is generated.",
+    "storage":"Stock whole suitless inputs four to three:unused0,warm bright1,tint bright6. Dark warm4 stores red/green only in warmShadeInputs; no blue correction. Other tint and neutral inputs are unchanged.",
+    "transparentDisposition":"Retain only the unused base0 word under the concrete nonsense exception. Its original9BA120 value21A8 is copied to OBJ palette7 index0. SnesObjRenderer skips decoded index0 before reading CGRAM; native OBJ transparency has the same semantics. It supplies no visible ink or numerical quantity for another ink. Aliased base/fade rows preserve its payload but do not make it visible. Reciting its arbitrary RGB in a case or fitting coefficients would disguise unused data,not calculate a rendering function. This is independent of the visible shade relationships and does not exempt those roots.",
+    "proof":"Extend the existing single charge/death proof:all1216 original colors,stock warm endpoint channel ownership,all32 blue levels and1024 red/green pairs,invalid words,and existing every-channel endpoint edits across every suitless palette. Original bytes independently confirm the native mapping. No separate retention-only test for index0; its complete consumer path was inspected statically.",
+    "scope":"Resolves the repeated warm blue endpoint and unused suitless base payload. Visible endpoint/intensity choices,flash/final roots,whiteout choices and the wider1165 inventory remain pending. No performance,size,complexity or missing-provenance retention rationale.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source hash and maintained-source index. Implementation record is this entry's commit."
+  }
 }

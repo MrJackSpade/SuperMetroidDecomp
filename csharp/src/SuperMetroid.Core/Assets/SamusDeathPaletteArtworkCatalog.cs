@@ -11,9 +11,17 @@ namespace SuperMetroid.Core.Assets;
 /// input. Fitting or reciting ink-to-RGB choices would encode the artwork;
 /// index-zero RGB is ignored by OBJ rendering. This is the specific1165
 /// nonsense disposition of those aliased base inputs. Shared suits and fade
-/// shades are calculated; independent asset edits stay local. It does not
-/// settle suitless base colors,flash/final root channels,whiteout intensity
-/// choices,explosion timing or any other separately indexed field.</remarks>
+/// shades are calculated; independent asset edits stay local.
+///
+/// Suitless base ink0 at9BA120 is likewise an unused transparent payload:
+/// native9BB53A copies it to OBJ palette7 slot0,while OBJ rendering discards
+/// index-zero pixels before reading CGRAM. Its RGB is not a visible shade
+/// or an input to another opaque ink. Temporal fades preserve the selected
+/// word but do not make it visible. A numeric case or fitted expression for
+/// that arbitrary unused payload would only recite the data; retain this one
+/// word under the same specific nonsense exception. This does not settle
+/// visible suitless roots,flash/final channels or whiteout intensity choices.
+/// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
     public const int SuitCount = 3;
@@ -72,6 +80,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
+            if (palette == 0 && color == 4)
+            {
+                ushort expected = SuitlessWarmEndpoint(suitless[0][1], value);
+                warmShadeInputs.Add(key, new(value, expected, independentMask: 3));
+                continue;
+            }
             if (palette == 0 && color == 10)
             {
                 if (TrySuitlessTintEndpoint(suitless[0][6], value, out ushort expected))
@@ -177,6 +191,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color == 4)
+        {
+            var endpoint = warmShadeInputs[key];
+            return endpoint.Apply(SuitlessWarmEndpoint(SuitlessColor(0, 1), endpoint.Apply(0)));
+        }
         if (palette == 0 && color == 10)
         {
             var endpoint = tintShadeInputs[key];
@@ -266,6 +285,16 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if ((uint)red > 31 || (uint)green > 31) { value = 0; return false; }
         value = (ushort)(red | green << 5 | blue << 10);
         return true;
+    }
+    /// <summary>Shares the warm ramp's blue level between its endpoints.</summary>
+    /// <remarks>Native9BA122..A129 inks1..4 form a red/green shade ramp
+    /// with blue zero throughout. The bright endpoint supplies that common
+    /// blue; the dark endpoint keeps its independent red/green. Edited blue
+    /// differences override sharing. RGB5 words only,no rounding or saturation.</remarks>
+    internal static ushort SuitlessWarmEndpoint(ushort bright, ushort dark)
+    {
+        if (bright > 0x7fff || dark > 0x7fff) throw new ArgumentOutOfRangeException(nameof(bright));
+        return (ushort)((dark & 0x03ff) | (bright & 0x7c00));
     }
     /// <summary>Interpolates the two middle warm inks between their supplied endpoints.</summary>
     /// <remarks>Original9BA122..A129 contains four ordered warm shades.

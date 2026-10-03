@@ -5618,4 +5618,15 @@
     "reconciliation":"Resolves the replay-count pending item from suitLoadingGroupLayoutReview and suitLoadingProgramRosterReview. Loading colors and shared normal/speed-boost artwork remain pending implementation/review. Full1165 audit remains active.",
     "confirmation":"Source inspection of the timer consumer, all three native scripts and independent fanfare; JSON validation and refreshed maintained-source index. No behavioral change. Record is this entry's commit."
   }
+,
+  "suitLoadingRepeatedRowsReview": {
+    "status":"converted repeated loading palette rows to calculated aliases; unique artwork still under review",
+    "owners":"LoadingPaletteColorDefinitions; RoomPaletteFxPresentation loading colors",
+    "source":"All432 original color words in programs8D:DB62/DCC8/DE2E, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Original instructions delimit each row independently of replacement mapping.",
+    "algorithm":"Every even row0/2/4/6/8 shares row0; row3 shares row1; rows5/7 remain distinct. Pointer decoding uses the reviewed79-byte group stride,36-byte frame stride and final row offset313 from first color. Only16 aligned color words per record are owned. No stored row-selector array or generated color cache.",
+    "ownership":"Stock removes240 duplicate words, leaving192 words in four rows per suit. The loader removes a supplied color only when it equals its calculated canonical source. Independent edits to any repeated row or its base retain explicit overrides. Heat compilation still occurs before loading aliases and reads the retained first loading row, preserving its separate custom-edit ownership. Auditor enumeration includes all432 logical loading addresses.",
+    "proof":"Consolidate existing three installed loading-program checks into VerifyExtractedSamusLoadingPaletteFxPresentation. Independently decode native records and locate each earliest complete identical row; compare all432 colors,192 stored roots and all65536 address results including durations, commands, gaps and parity exclusions. --lookup-loading-colors pins ROM SHA and also checks distinct edits to every color and edits only to source rows, preserving unchanged dependent rows. Reuse guarded native/installed interpreter comparisons, without a second competing proof for this mapping.",
+    "scope":"Resolves repeated-row storage only. The192 distinct words, shared normal and speed-boost artwork and individual channel relationships require further review; no artwork retention exemption is inferred. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-loading-colors and --lookup-heat-colors for the directly affected shared loading inputs; refreshed interface dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

@@ -22,6 +22,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
         colors.TryGetValue(pointer, out color) ||
+        (LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort loading) &&
+         colors.TryGetValue(loading, out color)) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
@@ -35,7 +37,11 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         get
         {
             foreach (ushort pointer in colors.Keys)
-                if (!HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _)) yield return pointer;
+                if (!HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
+                    !LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out _)) yield return pointer;
+            foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+            for (int frame = 0; frame < 9; frame++)
+                for (int index = 0; index < 16; index++) yield return program.ColorPointer(frame, index);
             foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
             foreach (var frame in program.Frames)
                 for (int index = 0; index < 15; index++) yield return (ushort)(frame.FirstColorPointer + 2 * index);
@@ -491,6 +497,14 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             if (colors.TryGetValue(pointer, out ushort supplied) &&
                 HeatPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) && supplied == calculated)
                 colors.Remove(pointer);
+        }
+        foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < 9; frame++)
+        for (int index = 0; index < 16; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            if (LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
+                canonical != pointer && colors[pointer] == colors[canonical]) colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);
     }

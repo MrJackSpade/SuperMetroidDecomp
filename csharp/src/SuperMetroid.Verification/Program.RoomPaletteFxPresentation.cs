@@ -285,16 +285,7 @@ internal static partial class Program
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
-                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
-        {
-            VerifyInstalledPaletteFxFamily(
-                bus, presentation, $"Samus loading {definition.Owner}",
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                definition.ColorPointer, [definition.DefinitionPointer],
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        }
+        VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation);
         VerifyInstalledPaletteFxFamily(
             bus, presentation, "post-credits icon glare",
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
@@ -364,6 +355,67 @@ internal static partial class Program
         Console.WriteLine(
             "  Room palette presentation: 5108 editable palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
+    }
+
+    private static void VerifyExtractedSamusLoadingPaletteFxPresentation(
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
+    {
+        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(presentation)!;
+        var aliases = new Dictionary<ushort, ushort>();
+        foreach (int start in new[] { 0xdb62, 0xdcc8, 0xde2e })
+        {
+            var rows = new List<(int Pointer, ushort[] Colors)>();
+            int cursor = start + 4;
+            for (int group = 0; group < 4; group++)
+            {
+                AssertEqual((ushort)0xc648, ReadVerificationWord(bus, 0x8d0000 | cursor), "Loading row decoder timer command");
+                cursor += 3;
+                for (int frame = 0; frame < 2; frame++)
+                {
+                    cursor += 2;
+                    rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
+                    cursor += 34;
+                }
+                AssertEqual((ushort)0xc639, ReadVerificationWord(bus, 0x8d0000 | cursor), "Loading row decoder replay command");
+                cursor += 4;
+            }
+            cursor += 2;
+            rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
+            foreach (var row in rows)
+            {
+                var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
+                for (int color = 0; color < 16; color++)
+                {
+                    ushort pointer = (ushort)(row.Pointer + 2 * color);
+                    ushort canonical = (ushort)(original.Pointer + 2 * color);
+                    aliases.Add(pointer, canonical);
+                    AssertTrue(presentation.TryReadColor(pointer, out ushort actual), "All native loading colors remain installed");
+                    AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
+                    AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only independently distinct loading rows");
+                }
+            }
+        }
+        AssertEqual(432, aliases.Count, "Loading color domain");
+        AssertEqual(192, aliases.Count(item => item.Key == item.Value), "Four distinct rows per suit");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);
+            AssertEqual(expected, LoadingPaletteColorDefinitions.TryCanonicalPointer((ushort)address, out ushort actual), "Complete loading color address domain");
+            AssertEqual(canonical, actual, "Original earliest identical row or unowned zero");
+        }
+        AssertTrue(aliases.Keys.All(presentation.ColorPointers.Contains), "Auditor includes calculated loading aliases");
+        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Samus loading {definition.Owner}",
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer, [definition.DefinitionPointer],
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        }
     }
 
     private static void VerifyExtractedSamusHeatPaletteFxPresentation(

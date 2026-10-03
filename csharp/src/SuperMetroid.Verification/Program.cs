@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--baby-metroid-death-cry"]) return VerifyBabyMetroidDeathCry();
 if (args is ["--mother-brain-plasma-impact"]) return VerifyMotherBrainPlasmaImpact();
 if (args is ["--mother-brain-later-contact"]) return VerifyMotherBrainLaterContact();
 if (args is ["--mother-brain-ascent-capture"]) return VerifyMotherBrainTankBackground(ascentMaskOnly: true);

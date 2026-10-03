@@ -181,6 +181,8 @@ public sealed partial class RoomEnemySystem
         MotherBrainEnemyState state,
         BabyMetroidCutsceneStepResult step)
     {
+        if (step.FatalBlowStarted)
+            QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
         if (step.LatchSoundQueued)
             state.LastSoundEffectLibrary1 = 0x0040;
         if (step.AmbientCrySoundQueued)

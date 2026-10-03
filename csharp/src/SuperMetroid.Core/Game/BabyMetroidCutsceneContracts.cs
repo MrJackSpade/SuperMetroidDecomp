@@ -119,4 +119,9 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidDeathExplosionRequest? DeathExplosion,
     BabyMetroidPaletteTransferRequest? BabyPaletteTransfer,
     MotherBrainSpriteTileTransferRequest? AttackTileTransfer,
-    MotherBrainBackgroundPaletteTransferRequest? BackgroundPaletteTransfer);
+    MotherBrainBackgroundPaletteTransferRequest? BackgroundPaletteTransfer)
+{
+    /// <summary>The one-call fatal-impact edge at $A9:CBF2-CC3D, before the ongoing shake phase.</summary>
+    public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
+        PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
+}

@@ -144,6 +144,9 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$A9:CBFF-CC02 queues library-three $19 with Max6 when the Baby Metroid takes its fatal blow.</summary>
+    public static readonly SoundEffectId BabyMetroidDeathCry = new(SoundEffectLibrary.Library3, 0x19); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$91:F076 queues library-three $04 for a landing with whole Y speed at least five.</summary>
     public static readonly SoundEffectId HardLanding = new(SoundEffectLibrary.Library3, 0x04); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(188, stored.Count, "Full-body sharing, interpolation and tints remove580 stored words");
+        AssertEqual(183, stored.Count, "Full-body sharing, interpolation and channel tints remove585 stored words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -78,7 +78,21 @@ internal static partial class Program
                 ushort dim = ReadVerificationWord(rom, 0x9b0000 | (0x9b40 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(speedBright, SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(paletteIndex, color, dim, out ushort brightened), "Every Speed Booster brightening domain member");
                 if (speedBright) AssertEqual(expected, brightened, "Every original Speed Booster endpoint brightening word");
-                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright, stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
+                int sharedAddress = (pointer + 2 * color) switch
+                {
+                    0x9b52 => 0x9b32,
+                    0x9b54 or 0x9b56 => 0x9b44,
+                    0x9b72 => 0x9b92,
+                    0x9d96 => 0x9d94,
+                    _ => -1,
+                };
+                int sharedIndex = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(paletteIndex, color);
+                AssertEqual(sharedAddress < 0 ? -1 : (sharedAddress - 0x9b20) / 2, sharedIndex, "Every original shared-channel source identity");
+                if (sharedAddress >= 0)
+                    AssertEqual(expected, SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(paletteIndex, color, speedBasis,
+                        ReadVerificationWord(rom, 0x9b0000 | sharedAddress)), "Every native shared-channel color");
+                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0,
+                    stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -92,12 +106,14 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(invalid, 0), "Alias palette-index bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(invalid, 3, 0, out ushort rejected) && rejected == 0, "Speed tint palette bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(invalid, 1, 0, out rejected) && rejected == 0, "Speed brightening palette bounds");
+            AssertEqual(-1, SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(invalid, 9), "Shared-channel palette bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(0, invalid), "Alias color-index bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(1, invalid, 0, out ushort rejected) && rejected == 0, "Speed tint color bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(2, invalid, 0, out rejected) && rejected == 0, "Speed brightening color bounds");
+            AssertEqual(-1, SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(1, invalid), "Shared-channel color bounds");
         }
         for (int basis = 0; basis < 32768; basis++)
         for (int shade = 0; shade < 4; shade++)
@@ -193,6 +209,21 @@ internal static partial class Program
             ushort expected = pointer == 0x9b40 + suit * 0x200 ? (ushort)(5000 + suit * 16 + color) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
             AssertEqual(expected, edited.Resolve(pointer, color), "Dim-only edits preserve supplied brighter shades");
+        }
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        document.SpeedBooster[0][3][9] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
+        document.SpeedBooster[1][3][10] = new PaletteRgb5 { Red = 4, Green = 5, Blue = 6 };
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            ushort expected = (pointer, color) switch
+            {
+                (0x9b80, 9) => 1 | 2 << 5 | 3 << 10,
+                (0x9d80, 10) => 4 | 5 << 5 | 6 << 10,
+                _ => ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)),
+            };
+            AssertEqual(expected, edited.Resolve(pointer, color), "Shared blue source-only edits preserve supplied dependent colors");
         }
     }
     private static void VerifySamusFullBodyCycleColorOverride(

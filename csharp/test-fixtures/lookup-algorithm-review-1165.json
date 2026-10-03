@@ -5806,4 +5806,15 @@
     "scope":"Remaining dim endpoint components, other shared channels,active/Screw shade relationships and transparent payloads still require dispositions. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodySpeedBoosterSharedChannelsReview": {
+    "status":"converted five full-body Speed Booster words to shared-channel/base-tint calculations",
+    "owners":"SamusFullBodyCycleColorFormat.SpeedSharedChannelSource/SpeedSharedChannelColor; SamusFullBodyCycleColorCatalog",
+    "source":"Original9B52 dim Power9,9B54/9B56 dim Power10/11,9B72 middle Power9,9D96 bright Varia11; source words9B32,9B44,9B92,9D94. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Power dim9 is its normal base's standard dim tint. Dim10/11 retain normal red/green and share dim2 blue. Middle9 uses standard middle-tint red/green plus bright9 blue. Varia bright11 uses its own red,base green+5 saturated31,and bright10 blue. Reuse established tint arithmetic, select semantic channel sources with cases, mask/composeRGB5. Stock188 to183 words; no calculated cache.",
+    "ownership":"Compare full supplied values before omitting matching canonical words. Differing independent words remain explicit. Source edits preserve all separately supplied dependent colors; full-body inputs remain independent of loading inputs.",
+    "proof":"Extend the existing full-body proof with five independent original source-address pairs, exact native results, every48-by16 mapping identity and invalid bounds. Existing768 native comparisons,CGRAM,all-color/base/dim/Power edits remain. Add edits to only Power bright9 and Varia bright10, then compare all768 supplied outputs. Existing --lookup-loading-colors confirms the reused tint/channel arithmetic across RGB5 inputs.",
+    "scope":"Remaining endpoint components and other full-body families remain pending; no new retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

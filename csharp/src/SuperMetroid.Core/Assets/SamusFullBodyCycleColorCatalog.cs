@@ -29,6 +29,9 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[palette / 16 * 16][color], out ushort tinted) && value == tinted) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
                 palettes[palette / 16 * 16 + 1][color], out ushort brightened) && value == brightened) continue;
+            int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
+            if (source == index && channelSource >= 0 && value == SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
+                palette, color, palettes[palette / 16 * 16][color], palettes[channelSource / 16][channelSource % 16])) continue;
             colors.Add(index, value);
         }
     }
@@ -56,6 +59,9 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
+        if (channelSource >= 0) return SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
+            palette, color, ResolveIndex(palette / 16 * 256 + color), ResolveIndex(channelSource));
         if (palette % 16 is 2 or 3 && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
             ResolveIndex((palette / 16 * 16 + 1) * 16 + color), out ushort brightened)) return brightened;
         if (SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
@@ -184,6 +190,31 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Returns a shared Speed Booster channel source, or -1 outside the five-word mapping.</summary>
+    /// <remarks>Power dim10/11 share dim2's blue and retain base red/green.
+    /// Power dim9 is its base's standard dim tint; middle9 uses the middle
+    /// tint's red/green with bright9's blue. Varia bright11 retains base red,
+    /// adds five green and shares bright10's blue. Native words9B52/54/56,
+    /// 9B72 and9D96 establish these relationships; source payloads remain editable.</remarks>
+    internal static int SpeedSharedChannelSource(int palette, int color) => (palette, color) switch
+    {
+        (1, 9) => 9,
+        (1, 10 or 11) => 16 + 2,
+        (2, 9) => 3 * 16 + 9,
+        (19, 11) => 19 * 16 + 10,
+        _ => -1,
+    };
+
+    /// <summary>Combines the reviewed base tint with the explicitly selected shared blue channel.</summary>
+    internal static ushort SpeedSharedChannelColor(int palette, int color, ushort basis, ushort shared)
+    {
+        if (SpeedSharedChannelSource(palette, color) < 0) throw new ArgumentOutOfRangeException(nameof(palette));
+        if (palette == 1 && color == 9) return LoadingPaletteColorDefinitions.TintColor(basis, 2);
+        ushort tint = palette == 2 ? LoadingPaletteColorDefinitions.TintColor(basis, 1) :
+            palette == 19 ? LoadingPaletteColorDefinitions.VariaTintColor(basis, 0) : basis;
+        return (ushort)((tint & 0x03ff) | (shared & 0x7c00));
+    }
 
     /// <summary>Brightens seven independently supplied dim Speed Booster inks.</summary>
     /// <remarks>Original Power slots1/2/10/11/12, Varia12 and Gravity2

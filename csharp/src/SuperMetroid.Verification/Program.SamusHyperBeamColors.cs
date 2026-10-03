@@ -21,23 +21,23 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(16, stored.Count, "Hyper Beam whole inputs after endpoint channel sharing");
+        AssertEqual(8, stored.Count, "Hyper Beam whole inputs after shared shade calculation");
         var endpointInputs = (Dictionary<int, SamusHyperBeamColorCatalog.EndpointChannels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("endpointInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(36, endpointInputs.Count, "Three endpoint hues each have twelve canonical ink inputs");
+        AssertEqual(12, endpointInputs.Count, "Three endpoint hues each have four independent shade inputs");
         int endpointComponentCount = 0;
         foreach (var entry in endpointInputs.Values)
             foreach (var field in typeof(SamusHyperBeamColorCatalog.EndpointChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
-        AssertEqual(60, endpointComponentCount, "Only sixty independent endpoint channels remain");
+        AssertEqual(20, endpointComponentCount, "Only twenty independent endpoint channels remain");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(27, componentInputs.Count, "Only differing intermediate colors carry component inputs");
+        AssertEqual(10, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
         int componentCount = 0;
         foreach (var entry in componentInputs.Values)
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) componentCount++;
-        AssertEqual(30, componentCount, "Thirty independently supplied intermediate components remain under review");
+        AssertEqual(11, componentCount, "Eleven independently supplied intermediate components remain under review");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -67,6 +67,15 @@ internal static partial class Program
                         if (ReadVerificationWord(rom, paletteAddress + candidate * 2) == native) { sourceColor = candidate; break; }
                 int source = sourceFrame * 16 + sourceColor;
                 AssertEqual(source, SamusHyperBeamColorFormat.CanonicalColorIndex(frame, index), "Every native Hyper Beam alias");
+                var shade = SamusHyperBeamColorFormat.ShadeSource(index);
+                bool sharedShade = source == frame * 16 + index && shade.Ink != index;
+                if (sharedShade)
+                {
+                    ushort shadow = ReadVerificationWord(rom, paletteAddress + 2 * shade.Ink);
+                    for (int shift = 0; shift < 15; shift += 5)
+                        AssertEqual(shade.Brightness, (native >> shift & 31) - (shadow >> shift & 31),
+                            "Every native hue preserves its RGB shade spacing");
+                }
                 if (frame == 7 && index != 0)
                 {
                     ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
@@ -105,7 +114,7 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
-                if (index != 0 && (frame & 1) == 0 && source == frame * 16 + index)
+                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index)
                 {
                     ushort before = ReadVerificationWord(rom, 0x91d99e + ((frame + 9) % 10) * 2);
                     ushort after = ReadVerificationWord(rom, 0x91d99e + (frame + 1) * 2);
@@ -128,7 +137,7 @@ internal static partial class Program
                         }
                     }
                 }
-                bool endpointOwner = source == frame * 16 + index && index != 0 && frame is 1 or 5 or 9;
+                bool endpointOwner = !sharedShade && source == frame * 16 + index && index != 0 && frame is 1 or 5 or 9;
                 AssertEqual(endpointOwner, endpointInputs.ContainsKey(frame * 16 + index), "Endpoint channel ownership");
                 if (endpointOwner)
                 {
@@ -142,7 +151,7 @@ internal static partial class Program
                     int greenMaximum = ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index)) >> 5 & 31;
                     AssertEqual(native, input.Resolve(frame == 9, greenMaximum), "Original endpoint native channel reconstruction");
                 }
-                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                AssertEqual(!sharedShade && source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
@@ -156,6 +165,13 @@ internal static partial class Program
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
+            foreach (int brightness in new[] { 2, 4, 8 })
+            {
+                bool fits = rgb % 32 <= 31 - brightness && green <= 31 - brightness && blue <= 31 - brightness;
+                AssertEqual(fits, SamusHyperBeamColorFormat.TryBrighten((ushort)rgb, brightness, out ushort brighter),
+                    "Every RGB5 shade source accepts exactly the non-overflow domain");
+                if (fits) AssertEqual((ushort)(rgb + brightness * 1057), brighter, "Every valid RGB5 uniform shade increment");
+            }
             foreach (bool redHue in new[] { false, true })
             {
                 var inputs = new SamusHyperBeamColorCatalog.EndpointChannels((ushort)rgb, redHue, rgb % 32);
@@ -173,13 +189,17 @@ internal static partial class Program
                 AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057)), "All RGB5 first colors and all independent per-channel midpoint pairs");
             }
         }
-        foreach (bool sourcesOnly in new[] { false, true })
+        foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 7, 9, 31, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryBrighten(0, invalid, out _), "Unsupported shade increments reject");
+        foreach (string scope in new[] { "all", "aliases", "shades" })
         {
             var document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
-                if (sourcesOnly && !(color is 2 or 3 or 10 || (frame == 2 && color == 0))) continue;
+                bool edit = scope == "all" || (scope == "aliases" && (color is 2 or 3 or 10 || (frame == 2 && color == 0))) ||
+                    (scope == "shades" && color is 3 or 11 or 13);
+                if (!edit) continue;
                 int word = 2000 + frame * 16 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }
@@ -188,7 +208,9 @@ internal static partial class Program
             for (int color = 0; color < 16; color++)
             {
                 ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-                ushort expected = !sourcesOnly || color is 2 or 3 or 10 || (frame == 2 && color == 0) ?
+                bool edit = scope == "all" || (scope == "aliases" && (color is 2 or 3 or 10 || (frame == 2 && color == 0))) ||
+                    (scope == "shades" && color is 3 or 11 or 13);
+                ushort expected = edit ?
                     (ushort)(2000 + frame * 16 + color) : ReadVerificationWord(rom, 0x9b0000 | (pointer + color * 2));
                 AssertEqual(expected, edited.Resolve(frame, color), "Every independently supplied Hyper Beam color survives aliases/source edits");
             }

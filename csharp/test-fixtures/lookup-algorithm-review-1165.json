@@ -6018,4 +6018,15 @@
     "scope":"The remaining endpoint shade/channel relationships and30 intermediate differences still require independent review. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamSharedShadeReview": {
+    "status":"converted eighty canonical hue/shade words to uniform RGB brightening",
+    "owners":"SamusHyperBeamColorFormat.ShadeSource/TryBrighten; SamusHyperBeamColorCatalog constructor/Resolve",
+    "source":"Every original cycle row selected by91D99E preserves these RGB differences: inks1/8 minus ink11 are2/4; inks2/10/14 minus ink3 are8/4/2; inks4/5/9 minus ink13 are8/2/4. All three channels and all ten hues agree. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Named shade selection supplies the source ink and2/4/8 intensity increment; add it independently to RGB5 channels. Original values never overflow. Edited source overflow returns no calculable shade and import keeps the separately supplied target explicit, without wrapping/clamping. Resolve computes from the actual source input, not a generated cache.",
+    "ownership":"Shade matching precedes endpoint/intermediate input storage. All independent target edits survive, including when only shadow inputs3/11/13 change. Stock now8 whole inputs,20 endpoint components and11 intermediate components, down from16 whole/60 endpoint/30 intermediate.",
+    "proof":"Extend the existing single Hyper Beam proof with every original channel difference across all80 mapped words. Exhaust all32768 RGB5 sources for each supported increment,checking exact non-overflow domain and outputs; reject unsupported increments. Add source-ink-only edits alongside existing all/alias/source-frame edits. Reuse all160 original colors,original component ownership,bounds and22-call guarded palette cycle.",
+    "scope":"The remaining four shade roots,endpoint channels and11 intermediate differences still require review. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

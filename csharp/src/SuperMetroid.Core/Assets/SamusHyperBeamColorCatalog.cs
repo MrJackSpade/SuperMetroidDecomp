@@ -18,6 +18,14 @@ public sealed class SamusHyperBeamColorCatalog
         {
             int index = frame * 16 + color, source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
             if (source != index && frames[frame][color] == frames[source / 16][source % 16]) continue;
+            var shade = SamusHyperBeamColorFormat.ShadeSource(color);
+            if (source == index && shade.Ink != color)
+            {
+                if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out ushort brighter) &&
+                    frames[frame][color] == brighter) continue;
+                colors.Add(index, frames[frame][color]);
+                continue;
+            }
             if (source == index && frame == 7 && color != 0 &&
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
             if (source == index && color != 0 && (frame & 1) == 0)
@@ -96,6 +104,13 @@ public sealed class SamusHyperBeamColorCatalog
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
         if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
+        var shade = SamusHyperBeamColorFormat.ShadeSource(color);
+        if (shade.Ink != color)
+        {
+            if (SamusHyperBeamColorFormat.TryBrighten(Resolve(frame, shade.Ink), shade.Brightness, out ushort brighter))
+                return brighter;
+            throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
+        }
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
             return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0);
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
@@ -161,6 +176,33 @@ public static class SamusHyperBeamColorFormat
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
 
+    /// <summary>Selects the shared shadow ink and constant RGB brightening for an opaque sprite ink.</summary>
+    /// <remarks>Across all ten native rows9B:A240..A37F, inks1/8 share ink11
+    /// at +2/+4 in each channel; inks2/10/14 share ink3 at +8/+4/+2;
+    /// inks4/5/9 share ink13 at +8/+2/+4. These are fixed shade assignments,
+    /// independent of hue phase. Other inks keep their own input.</remarks>
+    internal static (int Ink, int Brightness) ShadeSource(int ink) => ink switch
+    {
+        1 => (11, 2), 8 => (11, 4),
+        2 => (3, 8), 10 => (3, 4), 14 => (3, 2),
+        4 => (13, 8), 5 => (13, 2), 9 => (13, 4),
+        _ => (ink, 0),
+    };
+
+    /// <summary>Adds a supported shade increment independently to all three RGB5 channels.</summary>
+    /// <remarks>Original shades never overflow. A supplied edited source that
+    /// would exceed31 cannot replace its independently supplied target; import
+    /// keeps that target explicit instead of clamping or wrapping a channel.</remarks>
+    internal static bool TryBrighten(ushort source, int brightness, out ushort value)
+    {
+        if (brightness is not (2 or 4 or 8)) throw new ArgumentOutOfRangeException(nameof(brightness));
+        int red = (source & 31) + brightness;
+        int green = (source >> 5 & 31) + brightness;
+        int blue = (source >> 10 & 31) + brightness;
+        if (red > 31 || green > 31 || blue > 31) { value = 0; return false; }
+        value = (ushort)(red | green << 5 | blue << 10);
+        return true;
+    }
     /// <summary>Interpolates two RGB5 hue endpoints by half, rounding each channel upward.</summary>
     /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
     /// frame0 wrapping between9/1. Frame6 uses the green-to-yellow red ramp.

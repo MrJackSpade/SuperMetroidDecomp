@@ -23,6 +23,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
     private readonly Dictionary<int, ushort> suitless = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
     private readonly WhiteoutInputs whiteout;
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
@@ -69,6 +70,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
+            if (palette == 0 && (color == 5 || color >= 11) || palette == 9 && color == 0)
+            {
+                neutralInputs.Add(key, new(value, NeutralFromRed(value), independentMask: 1));
+                continue;
+            }
             if (palette is >= 2 and <= 8)
             {
                 ushort expected = SamusPaletteFade.EighthTowardWhite(suitless[0][color], palette - 1);
@@ -137,11 +143,20 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (neutralInputs.TryGetValue(key, out var neutral))
+            return neutral.Apply(NeutralFromRed(neutral.Apply(0)));
         if (palette == 9) return SuitlessColor(9, 0);
         if (palette == 1) return SuitlessColor(0, color);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
+    /// <summary>Shares the intensity across neutral RGB5 channels.</summary>
+    /// <remarks>Original suitless base9BA120 inks5/11..15 and final9BA220
+    /// all have red=green=blue. Their intensity remains an independent input;
+    /// green/blue edits override the shared value. The supplied red channel
+    /// is bounded0..31; bit replication needs no rounding or saturation.
+    /// This converts channel duplication,not the separate intensity choices.</remarks>
+    private static ushort NeutralFromRed(ushort color) => (ushort)((color & 31) * 0x421);
     public ushort WhiteoutColor(int index) => whiteout.Resolve(index);
 
     /// <summary>Two linear grayscale segments and an independently supplied transition shade.</summary>

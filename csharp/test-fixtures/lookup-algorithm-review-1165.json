@@ -6292,4 +6292,15 @@
     "supersedes":"Resolves pending pseudo-Screw color generation and input dispositions in earlier samusCharge*/samusPseudo* entries. Together with samusChargeDeathBaseAliasDisposition and the shared whitening conversion,the charged-beam/pseudo-Screw color payloads are resolved. Hyper-shot's shared full-body Hyper Beam opaque input review remains pending,as do death-only fields and the wider1165 inventory. Pointer/control/timing domains are not blanket-exempted.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; added full-body formula owner to the charge contract source dependencies and refreshed hashes/index. Implementation record is this entry's commit."
   }
+,
+  "samusDeathNeutralRootChannelsReview": {
+    "status":"converted duplicate green/blue channels in suitless neutral base and final roots",
+    "owner":"SamusDeathPaletteArtworkCatalog.neutralInputs/NeutralFromRed/SuitlessColor; shared final view through SuitedColor",
+    "source":"Supported NTSC J/U v1.0; disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Original9BA120 base inks5/11..15 and9BA220 final row have equal RGB5 channels. Native9BB53A initializes the suitless row,and B80F pointer playback selects the same base/fade/final views. The renderer uses these as categorical OBJ inks; index0 remains a separate unused payload.",
+    "algorithm":"Keep supplied red as the neutral intensity; reproduce it in green and blue by RGB5 bit replication. Store only independently differing green/blue channels,including edited root values. Existing fade interpolation and final aliases resolve through that neutral root. No rounding,saturation,overflow or generated color cache.",
+    "storage":"Suitless whole inputs17 to10,plus seven scalar intensities:base5/11..15 and final0. Stock nullable-channel entries retain red only. This removes14 duplicated component inputs without claiming that the remaining intensity sequence has a derivation or retention disposition.",
+    "proof":"Extend the existing single charge/death palette proof with exact neutral input ownership,all original colors,and each of32 values independently edited into every red/green/blue component of the seven roots. Compare every suitless output and all suited finals against independently supplied rows to prove fade/alias isolation. Existing content identity,bounds,whiteout and charge checks remain in the same proof.",
+    "scope":"Neutral channel duplication is resolved. Suitless root intensities/chromatic inks,flash/final root parameter dispositions,whiteout intensity choices and separately indexed explosion durations remain pending; no new retain exception. Suited charge/death and pseudo-Screw base/input dispositions remain as previously resolved.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

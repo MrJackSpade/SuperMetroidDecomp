@@ -217,11 +217,20 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 17), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 10), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
+        }
+        var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
+            .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        AssertEqual(7, neutralInputs.Count, "Six suitless base neutral inks and one final neutral root");
+        foreach (var entry in neutralInputs)
+        {
+            AssertTrue(entry.Key is 5 or >= 11 and <= 15 or 144, "Only native neutral ink roots use shared channels");
+            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
         }
         object whiteoutInput = typeof(SamusDeathPaletteArtworkCatalog).GetField("whiteout",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -312,6 +321,21 @@ internal static partial class Program
             ushort before = editedDeath.SuitedColor(0, 0, 0);
             suited[0][0][0] ^= 1;
             AssertEqual(before, editedDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
+        }
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            foreach (int ink in new[] { 5, 11, 12, 13, 14, 15 })
+                rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            rows[9][0] = (ushort)((rows[9][0] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var neutralEdited = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], neutralEdited.SuitlessColor(palette, color), "Each neutral channel edit stays independent of fades and final aliases");
+            for (int suit = 0; suit < 3; suit++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(deathSuited[suit][9][color], neutralEdited.SuitedColor(suit, 9, color), "Editing final neutral root preserves independently supplied suited finals");
         }
         for (int rgb = 0; rgb <= 0x7fff; rgb++)
         for (int shade = 0; shade < 8; shade++)

@@ -217,7 +217,7 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 5), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 4), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -225,12 +225,34 @@ internal static partial class Program
         }
         var deathTintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("tintShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-        AssertEqual(2, deathTintInputs.Count, "Only the two tint intensities surrounding the midpoint remain supplied");
+        AssertEqual(3, deathTintInputs.Count, "Two interior intensities and dark-endpoint red/blue remain supplied");
         foreach (var entry in deathTintInputs)
         {
-            AssertTrue(entry.Key is 7 or 9, "Only the two tint endpoint inks have intensity inputs");
+            AssertTrue(entry.Key is 7 or 9 or 10, "Only the tint endpoint and two interior inks have inputs");
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only blue intensity stored for each native middle tint");
+                AssertEqual(field.Name == "blue" || entry.Key == 10 && field.Name == "red",
+                    field.GetValue(entry.Value) is not null, "Only independent native tint channels remain stored");
+        }
+        for (int brightGreen = 0; brightGreen < 32; brightGreen++)
+        for (int brightBlue = 0; brightBlue < 32; brightBlue++)
+        for (int darkBlue = 0; darkBlue < 32; darkBlue++)
+        {
+            ushort bright = (ushort)(brightGreen << 5 | brightBlue << 10);
+            ushort dark = (ushort)(31 - darkBlue | darkBlue << 10);
+            bool valid = SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(bright, dark, out ushort result);
+            int expectedGreen = brightGreen - (brightBlue - darkBlue);
+            AssertEqual(expectedGreen is >= 0 and <= 31, valid, "Complete endpoint balance bounds");
+            if (valid)
+            {
+                AssertEqual(dark & 0x7c1f, result & 0x7c1f, "Endpoint keeps independent red/blue");
+                AssertEqual(brightGreen - brightBlue, (result >> 5 & 31) - (result >> 10), "Endpoint preserves green-blue balance");
+            }
+            else AssertEqual((ushort)0, result, "Unrepresentable endpoint is not clamped or wrapped");
+        }
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(invalid, 0, out _), "Invalid bright tint endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(0, invalid, out _), "Invalid dark tint endpoint");
         }
         for (int first = 0; first < 32; first++)
         for (int last = 0; last < 32; last++)

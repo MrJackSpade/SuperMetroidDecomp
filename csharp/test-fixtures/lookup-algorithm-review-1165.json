@@ -6359,4 +6359,15 @@
     "scope":"Resolves the center intensity left pending by samusSuitlessTintBalanceReview. Remaining endpoints,neutral root choices,whiteout inputs and the broader1165 inventory still need independent dispositions. No retention exception is introduced.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessTintEndpointBalanceReview": {
+    "status":"converted the dark tint endpoint green channel",
+    "owner":"SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint/SuitlessColor/tintShadeInputs",
+    "source":"Supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. All five ordered tint inks6..10 at9BA12C..A135 preserve green-minus-blue6. The existing interior shade conversion already uses this shared color balance; the endpoint duplicated it.",
+    "algorithm":"Keep dark-endpoint red and blue as independent components. Calculate its green as darkBlue+brightGreen-brightBlue,using bright ink6 and dark ink10. No literal six or fitted correction is stored. Signed intermediate spans-31..62; return false outsideRGB5 so import retains the supplied whole color. Within range,independent green edits override the calculation. Reject high-bit input words; no saturation,wrapping or generated cache.",
+    "storage":"Whole suitless inputs five to four,plus two independent dark-endpoint channels. Native green needs no override. Interior inks7/9 retain blue only,and ink8 remains their calculated midpoint. Temporal shades and aliases consume resolved source colors.",
+    "proof":"Extend the same charge/death palette proof:compare all1216 original colors against the supported ROM,verify exact stored channel ownership,all32x32x32 bright-green/bright-blue/dark-blue combinations and fallback bounds,invalid RGB5 words,and existing exhaustive single-channel edits to inks6..10 across all suitless palettes. Arithmetic checks confirm the edited-input contract; original bytes independently prove the native conversion.",
+    "scope":"Resolves the duplicated endpoint balance left by samusSuitlessTintBalanceReview. Remaining endpoint/intensity choices,neutral roots,whiteout inputs and broader1165 work still require separate dispositions; no retention exception is introduced.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; source pin and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

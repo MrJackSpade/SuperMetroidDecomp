@@ -72,6 +72,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
+            if (palette == 0 && color == 10)
+            {
+                if (TrySuitlessTintEndpoint(suitless[0][6], value, out ushort expected))
+                    tintShadeInputs.Add(key, new(value, expected, independentMask: 5));
+                else this.suitless.Add(key, value);
+                continue;
+            }
             if (palette == 0 && color == 8)
             {
                 ushort expected = SuitlessTintMidpoint(suitless[0][7], suitless[0][9]);
@@ -170,6 +177,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color == 10)
+        {
+            var endpoint = tintShadeInputs[key];
+            if (!TrySuitlessTintEndpoint(SuitlessColor(0, 6), endpoint.Apply(0), out ushort expectedEndpoint))
+                throw new InvalidOperationException("Validated suitless tint endpoint exceeds RGB5.");
+            return endpoint.Apply(expectedEndpoint);
+        }
         if (palette == 0 && color == 8)
         {
             ushort middle = SuitlessTintMidpoint(SuitlessColor(0, 7), SuitlessColor(0, 9));
@@ -197,6 +211,21 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if (palette == 1) return SuitlessColor(0, color);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
+    }
+    /// <summary>Preserves the tint ramp's green-minus-blue balance at its dark endpoint.</summary>
+    /// <remarks>All five native inks6..10 at9BA12C..A135 have G-B=6.
+    /// The bright endpoint supplies that balance; the dark endpoint retains
+    /// independent red/blue and calculates green=darkBlue+brightGreen-brightBlue.
+    /// No fixed correction is embedded. Edited inputs may yield green outside
+    /// RGB5; return false so import preserves the supplied color without clamping.
+    /// Inputs are RGB5 words; signed intermediate green spans-31..62.</remarks>
+    internal static bool TrySuitlessTintEndpoint(ushort bright, ushort dark, out ushort value)
+    {
+        if (bright > 0x7fff || dark > 0x7fff) throw new ArgumentOutOfRangeException(nameof(bright));
+        int green = (dark >> 10) + (bright >> 5 & 31) - (bright >> 10);
+        if ((uint)green > 31) { value = 0; return false; }
+        value = (ushort)((dark & 0x7c1f) | green << 5);
+        return true;
     }
     /// <summary>Calculates the central suitless tint between its neighboring shades.</summary>
     /// <remarks>Native9BA12E..A133 inks7/8/9 form an evenly spaced RGB run:

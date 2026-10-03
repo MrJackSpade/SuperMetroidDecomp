@@ -25,15 +25,19 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "5FC3060A58A9FB345A62521ED7A0DD505D7672A4EBBC8C8A0AFDED67A6268210"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "59020E84573C1A0470BD5B40E681B91570931F8E3DD1382B7C2934DED1694476"),
-        new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs", "148F7D5BBEEFB793D4184D5514B2236792C1913F9C11238190F04FBAE08509DE"),
-        new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs", "CDD73487A5B7E604BE96CAC72AF1EE919802D7D038EF4F6EF271DC9BC8FBBDEB"),
+        // #1221: importer and runtime share the appended three 128-byte spike images.
+        // The fourth animation step reuses image 1; segment deduplication preserves
+        // exact source/count ownership. Legacy PNGs retain their historical prefix
+        // and inherit only the missing tail from the required stock atlas.
+        new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs", "7A7EA4E0C6C6464339C681D250FD621BAD9B93F06BC3EC4CF71F0896201D7847"),
+        new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs", "59F6D690AA31FBCCE6CC639C7EAB176FADC193A9FC0FDD79B9905E8CDAC1CE75"),
         new("csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs", "0D01251B2DC1141A3EB53E71D6B35CDF8A3D9181401238DDF55503E33B9F330E"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "76A235967E736A9B6FDC9CA2E67B26FEC0DBE71074D63F83A901608AC7E48ABA"),
         new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "E41E04EFE81AEB4519ACE14BFA3484D4013D7EC534061E23E0B8C3E7C6CCD43D"),
         new("csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs", "5801EDCACB25496E1EDAF78AFF5D1412EE953B2619C9C9395EC02F6478AF4E11"),
         new("csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs", "ACB555D170F035CFB2BEF171CD3A825A2C4EB7F464D54C42D72688CDD0855AD3"),
         new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs", "89C2E9395509B26095EF3BE583C3615BE0393E0FC03DD06253FB7701F9FD66E8"),
-        new("csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs", "852357C1333E36F792FCC4CA02DD255CA37361C184517D790D9E83252E0F118B"),
+        new("csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs", "055780E86F5CC9A147AA620929B0F1EB4BAA23C075FC7AFF48EB0C2113EE1315"),
         new("csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs", "101BD6CE0ACDD08B75F8277AE806D58AAE9DD35346271A274E38AA4984343AA2"),
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs", "333D81789E0B85435D5CF64E1AB45CC8511BD3A9AFEBC443545433B02F18A593"),
         new("csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs", "114E620B0734F0AA25FC9DBD1B2F511FF8603C9033EE68918DAE478F02ECC002"),
@@ -51,7 +55,8 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.AssetExtraction/RoomSkyTilemapArtworkFiles.cs", "E42511E668408ED254DFDD028B263C2E5397BE960830DC47F0B241B639A75CDC"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.cs", "13F664C4B4EB794EF8D79EEB2CC811F6F06BCC4BAAA1A19B2E4F192F05B65404"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Validation.cs", "89AB35FBE763ABD4D9EBE802A7C6A8B3C1777F68E6D281F136411DEF1B290E11"),
-        new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs", "A31B369BCEC753FFC83855718273AA9C9DF3D3875FD703D4BDA61B2D413982B8"),
+        // Format 83 requires reimporting the extended room-FX stock artwork.
+        new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs", "B2BE0DA8109C1374C7DC2F7430D81DEE279309236B1DCFA17553B88544AAB2FD"),
     ];
     internal static void Verify(string root, VramDmaReport report)
     {

@@ -73,13 +73,20 @@ public sealed class SamusHyperBeamColorCatalog
         {
             throw new InvalidDataException("Invalid Samus Hyper Beam color JSON.", error);
         }
-        if (document.Version != SamusHyperBeamColorFormat.Version ||
-            document.Frames is null || document.Frames.Length != SamusHyperBeamColorFormat.FrameCount)
-            throw new InvalidDataException("Samus Hyper Beam colors require the supported version and ten frames.");
-        var compiled = new ushort[document.Frames.Length][];
+        if (document.Version != SamusHyperBeamColorFormat.Version)
+            throw new InvalidDataException("Samus Hyper Beam colors require the supported version.");
+        return FromFrames(document.Frames);
+    }
+
+    /// <summary>Validates independently supplied rows for either native view of the Hyper Beam palette.</summary>
+    internal static SamusHyperBeamColorCatalog FromFrames(PaletteRgb5[][]? frames)
+    {
+        if (frames is null || frames.Length != SamusHyperBeamColorFormat.FrameCount)
+            throw new InvalidDataException("Samus Hyper Beam colors require ten frames.");
+        var compiled = new ushort[frames.Length][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
-            PaletteRgb5[]? source = document.Frames[frame];
+            PaletteRgb5[]? source = frames[frame];
             if (source is null || source.Length != SamusHyperBeamColorFormat.ColorsPerFrame)
                 throw new InvalidDataException($"Samus Hyper Beam frame {frame} requires sixteen RGB5 colors.");
             compiled[frame] = new ushort[source.Length];

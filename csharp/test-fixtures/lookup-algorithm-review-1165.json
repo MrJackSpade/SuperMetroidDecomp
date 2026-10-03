@@ -6040,4 +6040,15 @@
     "scope":"Remaining hue/shade input derivations and dispositions are still pending. This supersedes ink7's earlier independent-root representation only. No retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamShotSharedViewReview": {
+    "status":"converted the duplicate Hyper-shot palette table to the shared calculated logical mapping",
+    "owners":"SamusChargeColorCatalog hyperShot/CompileHyper/ResolveHyper/ApplyHyper; SamusHyperBeamColorCatalog.FromFrames; SamusProjectileSystem.UpdateBeamChargePalette",
+    "source":"Native91D82B..D83D and91D99E..D9B0 contain the same ten palette pointers. The first list has padding at91D829; Hyper-shot playback selects offsets20..2 in descending order, reversing full-body cycle frames0..9. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Replace the stored ten-by-sixteen Hyper-shot ushort array with an independently loaded SamusHyperBeamColorCatalog. Reverse validated source row references at import and frame index9-frame at resolution. Reuse all established hue,channel,shade and alias calculations; no duplicated algorithm or generated cache. ApplyHyper computes its16 outputs directly into CGRAM.",
+    "ownership":"Share the logical mapping,not mutable asset state. Hyper-shot edits remain isolated from full-body colors. The common frame loader retains validation of ten complete RGB5 rows. Existing charged-beam/pseudo-Screw arrays are separate pending owners and unchanged.",
+    "proof":"Extend the existing single Hyper Beam proof with both original native pointer views,all160 Hyper-shot outputs and applied CGRAM words,frame/color bounds,all-color and source-only reverse-view edits,and explicit separate-asset isolation. Add the actual20-call projectile Hyper-shot paint/hold cycle against original ROM words with palette and both pointer views forbidden at runtime. Existing full-body proof and arithmetic domains remain consolidated.",
+    "scope":"This closes the duplicate Hyper-shot storage/view conversion,not the remaining shared color-input dispositions. Projectile effect colors at8D:D906 remain a separate pending logical mapping. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed both owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

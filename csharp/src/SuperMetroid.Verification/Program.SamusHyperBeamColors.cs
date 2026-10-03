@@ -249,6 +249,69 @@ internal static partial class Program
         }
 
         }
+        byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
+        var shot = SamusChargeColorCatalog.Load(new MemoryStream(chargeJson));
+        AssertEqual(typeof(SamusHyperBeamColorCatalog), typeof(SamusChargeColorCatalog).GetField("hyperShot",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.FieldType,
+            "Hyper-shot owns the shared calculated representation, not another whole palette table");
+        var shotCgram = new SnesCgram();
+        for (int frame = 0; frame < 10; frame++)
+        {
+            ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
+            AssertEqual(ReadVerificationWord(rom, 0x91d99e + 2 * (9 - frame)), pointer,
+                "Both native pointer views address the same rows in reverse playback order");
+            shot.ApplyHyper(shotCgram, frame);
+            for (int color = 0; color < 16; color++)
+            {
+                ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+                AssertEqual(expected, shot.ResolveHyper(frame, color), "Every original Hyper-shot color");
+                AssertEqual(expected, shotCgram.Colors[192 + color], "Every original Hyper-shot applied color");
+            }
+        }
+        foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(invalid, 0), "Hyper-shot frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ApplyHyper(shotCgram, invalid), "Hyper-shot apply frame bounds");
+        }
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
+        foreach (bool sourcesOnly in new[] { false, true })
+        {
+            var document = JsonSerializer.Deserialize<SamusChargeColorDocument>(chargeJson, MapPresentationFormat.JsonOptions)!;
+            for (int frame = 0; frame < 10; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                if (sourcesOnly && !(frame == 4 || color is 3 or 11 or 13)) continue;
+                int word = 1000 + frame * 16 + color;
+                document.HyperShot[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+            }
+            var edited = SamusChargeColorCatalog.Load(new MemoryStream(SamusChargeColorCatalog.Write(document)));
+            for (int frame = 0; frame < 10; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
+                ushort expected = !sourcesOnly || frame == 4 || color is 3 or 11 or 13 ?
+                    (ushort)(1000 + frame * 16 + color) : ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+                AssertEqual(expected, edited.ResolveHyper(frame, color), "Reverse-view independent edits preserve all supplied colors");
+                AssertEqual(ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), catalog.Resolve(9 - frame, color),
+                    "Shot edits cannot mutate the separate full-body asset");
+            }
+        }
+        var shotSamus = new SamusState { HyperBeam = 0x8000, ChargeColors = shot };
+        var projectiles = new SamusProjectileSystem();
+        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ChargedShotGlowTimer))!.SetValue(projectiles, (ushort)0x8014);
+        var shotGuard = new ForbiddenHyperBeamColorBus(rom);
+        for (int call = 0; call < 20; call++)
+        {
+            var step = projectiles.UpdateBeamChargePalette(shotGuard, shotCgram, shotSamus);
+            AssertEqual((call & 1) == 0 ? SamusBeamChargePaletteAction.HyperPalette : SamusBeamChargePaletteAction.HyperHold,
+                step.Action, "Original Hyper-shot alternating paint/hold cadence");
+            ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * (call / 2));
+            for (int color = 0; color < 16; color++)
+                AssertEqual(ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), shotCgram.Colors[192 + color],
+                    "Guarded Hyper-shot cycle preserves original applied colors and held rows");
+        }
+        AssertEqual(0, shotGuard.ForbiddenReads, "Hyper-shot calculated colors avoid original palette and pointer reads");
         var installedSamus = new SamusState();
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog;
@@ -276,7 +339,7 @@ internal static partial class Program
             "duplicate Hyper Beam JSON property fails loudly");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Load(
             new MemoryStream([1, 2, 3])), "corrupt Hyper Beam JSON fails loudly");
-        Console.WriteLine("  Hyper Beam: ten native pointer/palette frames and guarded runtime cycle pass.");
+        Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
     private static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
@@ -344,7 +407,8 @@ internal static partial class Program
             int paletteStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(9);
             int paletteEnd = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(0) +
                 SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort);
-            if ((address >= pointerStart && address < pointerStart +
+            if ((address >= 0x91d829 && address < 0x91d83f) ||
+                (address >= pointerStart && address < pointerStart +
                     SamusHyperBeamColorFormat.FrameCount * sizeof(ushort)) ||
                 (address >= paletteStart && address < paletteEnd))
             {

@@ -50,6 +50,13 @@ internal sealed partial class EndingCreditsState
                 if (PostCreditsBackgroundEnabled)
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
                         CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
+                if (Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
+                    layers.Add(new BgSubscreenAddRenderLayer(EndingWavySamusDefinitions.TilemapWord,
+                        EndingWavySamusDefinitions.CharacterWord,
+                        new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
+                            0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null))
+                        .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
+                            EndingCreditsRomData.Timing.WaitingBackdropFrames - phaseTimer)));
             }
             else if (EscapeBackgroundEnabled)
             {

@@ -57,9 +57,9 @@ uint Palette(uint index)
 
 bool MainCoverage(uint2 screen)
 {
-    uint4 geometry = ScanlineParameters[1];
+    uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
     if (geometry.w == 0) return true;
-    uint4 map = ScanlineParameters[0];
+    uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
     uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
     uint2 tile = position >> 3;
     uint page = ((tile.y >> 5) * (geometry.x >> 5) + (tile.x >> 5)) * 1024;

@@ -41,6 +41,8 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(sub.IncludeObjects);
                 writer.Write(sub.MainObjects);
                 if (sub.VerticalScroll != 0) writer.Write(sub.VerticalScroll);
+                writer.Write(!sub.Scrolls.IsEmpty);
+                foreach (BackgroundLineScroll line in sub.Scrolls) { writer.Write(line.X); writer.Write(line.Y); }
                 break;
             case Mode7GameplayRenderLayer gameplay7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
@@ -232,10 +234,18 @@ public static partial class RenderFrameSnapshotCodec
             coverage = new(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
                 reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader));
         }
-        return new(map, characters, coverage, fourBpp,
+        var layer = new BgSubscreenAddRenderLayer(map, characters, coverage, fourBpp,
             version >= RenderPacketFormat.SubscreenObjectsVersion && ReadBoolean(reader),
             version >= RenderPacketFormat.SubscreenMainObjectsVersion && ReadBoolean(reader),
             scrolled ? reader.ReadUInt16() : (ushort)0);
+        if (version >= RenderPacketFormat.SubscreenLineScrollVersion && ReadBoolean(reader))
+        {
+            var scrolls = new BackgroundLineScroll[224];
+            for (int line = 0; line < scrolls.Length; line++)
+                scrolls[line] = new(reader.ReadUInt16(), reader.ReadUInt16());
+            layer = layer.WithScrolls(scrolls);
+        }
+        return layer;
     }
 
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)

@@ -12,34 +12,7 @@ internal static partial class Program
         byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorCatalog.Load(new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
-        for (int family = 0; family < 2; family++)
-        for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
-        {
-            int table = family == 0
-                ? SamusProjectileRomData.Palettes.BeamChargePointers
-                : SamusProjectileRomData.Palettes.PseudoScrewPointers;
-            int top = table + suit * sizeof(ushort);
-            ushort list = BlockWord(top);
-            for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
-            {
-                ushort offset = (ushort)(phase * sizeof(ushort));
-                ushort pointer = BlockWord(SamusProjectileRomData.Banks.Pose | (list + offset));
-                bool compiled = family == 0
-                    ? SamusChargePalettePointerDefinitions.TryChargedBeam((ushort)(suit * 2), offset,
-                        out ushort compiledPointer)
-                    : SamusChargePalettePointerDefinitions.TryPseudoScrew((ushort)(suit * 2), offset,
-                        out compiledPointer);
-                AssertTrue(compiled, "all native charge list entries are compiled");
-                AssertEqual(pointer, compiledPointer, $"family {family} suit {suit} phase {phase} pointer");
-                for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                {
-                    int address = SamusProjectileRomData.Banks.PaletteAndTrailData |
-                        (pointer + color * sizeof(ushort));
-                    AssertEqual(BlockWord(address), native.ResolveCharge(family != 0, suit, phase, color),
-                        $"family {family} suit {suit} phase {phase} color {color}");
-                }
-            }
-        }
+        forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
         {
             ushort offset = (ushort)(SamusChargePalettePointerDefinitions.LastHyperTableByteOffset -
@@ -161,6 +134,121 @@ internal static partial class Program
         }
     }
 
+    private static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
+    {
+        byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
+        var catalog = SamusChargeColorCatalog.Load(new MemoryStream(extracted));
+        var forbidden = new HashSet<int>();
+        var expected = new ushort[2, 3, 6, 16];
+        var cgram = new SnesCgram();
+        for (int family = 0; family < 2; family++)
+        {
+            object input = typeof(SamusChargeColorCatalog).GetField(family == 0 ? "chargedBeam" : "pseudoScrew",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+            var stored = (Dictionary<int, ushort>)input.GetType().GetField("colors",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
+            AssertEqual(family == 0 ? 192 : 96, stored.Count, "Charge catalog stores each native phase input once");
+            for (int suit = 0; suit < 3; suit++)
+            {
+                int table = family == 0 ? SamusProjectileRomData.Palettes.BeamChargePointers : SamusProjectileRomData.Palettes.PseudoScrewPointers;
+                ushort list = Word(table + suit * 2);
+                for (int phase = 0; phase < 6; phase++)
+                {
+                    ushort pointer = Word(0x910000 | (list + phase * 2));
+                    int firstPhase = 0;
+                    while (Word(0x910000 | (list + firstPhase * 2)) != pointer) firstPhase++;
+                    AssertEqual(firstPhase, SamusChargeColorFormat.CanonicalPhase(family != 0, phase), "Canonical phase matches first native pointer identity");
+                    bool found = family == 0
+                        ? SamusChargePalettePointerDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
+                        : SamusChargePalettePointerDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
+                    AssertTrue(found, "Native charge pointer supported");
+                    AssertEqual(pointer, compiled, "Native charge pointer selection");
+                    for (int index = 0; index < 256; index++) cgram.SetColor(index, 0x1234);
+                    catalog.ApplyCharge(cgram, family != 0, suit, phase);
+                    for (int color = 0; color < 16; color++)
+                    {
+                        ushort native = Word(0x9b0000 | (pointer + color * 2));
+                        expected[family, suit, phase, color] = native;
+                        AssertEqual(native, catalog.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
+                        AssertEqual(phase == firstPhase, stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
+                    }
+                    for (int index = 0; index < 256; index++)
+                        AssertEqual(index is >= 192 and < 208 ? expected[family, suit, phase, index - 192] : (ushort)0x1234,
+                            cgram.Colors[index], "Charge copy changes exactly its sixteen native colors");
+                }
+            }
+        }
+        // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
+        for (int editScope = 0; editScope < 3; editScope++)
+        {
+            var document = JsonSerializer.Deserialize<SamusChargeColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+            for (int family = 0; family < 2; family++)
+            for (int suit = 0; suit < 3; suit++)
+            for (int phase = 0; phase < 6; phase++)
+            for (int color = 0; color < 16; color++)
+            {
+                bool isSource = family == 0 ? phase < 4 : phase is 0 or 3;
+                if (editScope == 1 && !isSource || editScope == 2 && isSource) continue;
+                var rows = family == 0 ? document.ChargedBeam : document.PseudoScrew;
+                ushort value = expected[family, suit, phase, color];
+                int delta = 1 + (suit * 6 + phase) % 31;
+                rows[suit][phase][color] = new PaletteRgb5 { Red = ((value & 31) + delta) % 32,
+                    Green = ((value >> 5 & 31) + delta) % 32, Blue = ((value >> 10 & 31) + delta) % 32 };
+            }
+            var edited = SamusChargeColorCatalog.Load(new MemoryStream(SamusChargeColorCatalog.Write(document)));
+            for (int family = 0; family < 2; family++)
+            for (int suit = 0; suit < 3; suit++)
+            for (int phase = 0; phase < 6; phase++)
+            for (int color = 0; color < 16; color++)
+            {
+                PaletteRgb5 rgb = (family == 0 ? document.ChargedBeam : document.PseudoScrew)[suit][phase][color];
+                AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10), edited.ResolveCharge(family != 0, suit, phase, color), "Independent charge phase edit");
+            }
+        }
+        foreach (bool pseudo in new[] { false, true })
+        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.CanonicalPhase(pseudo, invalid), "Invalid phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(pseudo, 0, invalid, 0), "Invalid charge phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ApplyCharge(cgram, pseudo, 0, invalid), "Invalid apply phase rejected");
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
+        var guarded = new ChargeColorReadGuard(rom, forbidden);
+        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose,
+            EquippedBeams = (ushort)SamusBeamFlags.Charge, ChargeColors = catalog };
+        var projectiles = new SamusProjectileSystem();
+        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.FlareCounter))!.SetValue(projectiles, (ushort)60);
+        ushort[] suits = [0, 1, 0x20];
+        for (int family = 0; family < 2; family++)
+        for (int suit = 0; suit < 3; suit++)
+        {
+            samus.EquippedItems = suits[suit];
+            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? (ushort)0 : (ushort)4;
+            for (int phase = 0; phase < 6; phase++)
+            {
+                var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
+                AssertEqual(phase, step.ChargePaletteIndex, "Native charge phase order");
+                AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
+                    step.Action, "Native charge family action");
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(expected[family, suit, phase, color], cgram.Colors[192 + color], "Guarded runtime charge color");
+            }
+        }
+        AssertEqual(0, projectiles.SamusChargePaletteIndex, "Charge phase wraps after six calls");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
+        Console.WriteLine("Charge phases: all576 native colors, first-pointer ownership, independent edits, bounds and36 guarded calls pass.");
+        return forbidden;
+
+        ushort Word(int address)
+        {
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            return ReadVerificationWord(rom, address);
+        }
+    }
     private sealed class ChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden)
         : ISnesAddressSpace, IImportCartridgeSource
     {

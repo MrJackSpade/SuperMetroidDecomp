@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Samus body colors during beam charge, pseudo-Screw, and Hyper-shot glow.</summary>
 public sealed class SamusChargeColorCatalog
 {
-    private readonly ushort[][][] chargedBeam;
-    private readonly ushort[][][] pseudoScrew;
+    private readonly ChargeInputs chargedBeam;
+    private readonly ChargeInputs pseudoScrew;
     private readonly SamusHyperBeamColorCatalog hyperShot;
 
-    private SamusChargeColorCatalog(ushort[][][] chargedBeam,
-        ushort[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
+    private SamusChargeColorCatalog(ChargeInputs chargedBeam,
+        ChargeInputs pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
         this.chargedBeam = chargedBeam;
         this.pseudoScrew = pseudoScrew;
@@ -28,7 +28,7 @@ public sealed class SamusChargeColorCatalog
     };
 
     public ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-        Resolve(pseudo ? pseudoScrew : chargedBeam, suit, phase, color);
+        (pseudo ? pseudoScrew : chargedBeam).Resolve(suit, phase, color);
 
     public ushort ResolveHyper(int frame, int color)
     {
@@ -64,8 +64,8 @@ public sealed class SamusChargeColorCatalog
         }
         if (document.Version != SamusChargeColorFormat.Version)
             throw new InvalidDataException("Samus charge colors require the supported version.");
-        return new(CompileCharge(document.ChargedBeam, "charged beam"),
-            CompileCharge(document.PseudoScrew, "pseudo-Screw"),
+        return new(CompileCharge(document.ChargedBeam, "charged beam", false),
+            CompileCharge(document.PseudoScrew, "pseudo-Screw", true),
             CompileHyper(document.HyperShot));
     }
 
@@ -76,31 +76,48 @@ public sealed class SamusChargeColorCatalog
         return bytes;
     }
 
-    private static ushort Resolve(ushort[][][] source, int suit, int phase, int color)
+    /// <summary>Shares native repeated phases without caching calculated palette rows.</summary>
+    /// <remarks>Bank91 lists D7DB/D7E7/D7F3 select charge shades0,1,2,3,2,1;
+    /// D805/D811/D81D select the same pseudo-Screw row for phases0..2 and
+    /// the normal row for3..5. Each differing supplied color remains independent.
+    /// This only removes temporal duplicates; the distinct RGB inputs still require review.</remarks>
+    private sealed class ChargeInputs
     {
-        if ((uint)suit >= source.Length) throw new ArgumentOutOfRangeException(nameof(suit));
-        if ((uint)phase >= source[suit].Length) throw new ArgumentOutOfRangeException(nameof(phase));
-        if ((uint)color >= source[suit][phase].Length)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return source[suit][phase][color];
+        private readonly bool pseudo;
+        private readonly Dictionary<int, ushort> colors = new();
+
+        internal ChargeInputs(ushort[][][] source, bool pseudo)
+        {
+            this.pseudo = pseudo;
+            for (int suit = 0; suit < source.Length; suit++)
+            for (int phase = 0; phase < source[suit].Length; phase++)
+            for (int color = 0; color < source[suit][phase].Length; color++)
+            {
+                int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
+                ushort value = source[suit][phase][color];
+                if (phase == canonical || value != source[suit][canonical][color])
+                    colors.Add((suit * 6 + phase) * 16 + color, value);
+            }
+        }
+
+        internal ushort Resolve(int suit, int phase, int color)
+        {
+            if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
+            int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
+            if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
+            return colors.TryGetValue((suit * 6 + phase) * 16 + color, out ushort value)
+                ? value : colors[(suit * 6 + canonical) * 16 + color];
+        }
     }
 
-    private static void Apply(SnesCgram cgram, ushort[][][] source, int suit, int phase)
+    private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)suit >= source.Length) throw new ArgumentOutOfRangeException(nameof(suit));
-        if ((uint)phase >= source[suit].Length) throw new ArgumentOutOfRangeException(nameof(phase));
-        Apply(cgram, source[suit][phase]);
+        for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color,
+                source.Resolve(suit, phase, color));
     }
-
-    private static void Apply(SnesCgram cgram, ushort[] colors)
-    {
-        for (int index = 0; index < colors.Length; index++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
-                colors[index]);
-    }
-
-    private static ushort[][][] CompileCharge(PaletteRgb5[][][]? source, string name)
+    private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
             throw new InvalidDataException($"{name} requires three suits.");
@@ -115,7 +132,7 @@ public sealed class SamusChargeColorCatalog
                 result[suit][phase] = CompileColors(phases[phase],
                     $"{name} suit {suit}, phase {phase}");
         }
-        return result;
+        return new(result, pseudo);
     }
 
     /// <summary>Uses the same palette algorithms for the reverse Hyper-shot playback view.</summary>
@@ -178,6 +195,15 @@ public sealed record SamusChargeColorDocument
 
 public static class SamusChargeColorFormat
 {
+    /// <summary>Returns the first phase using a native charge palette.</summary>
+    /// <remarks>Phase0..5: charge mirrors around3; pseudo-Screw holds each
+    /// input for three phases. Original pointers91D7DB..D827 establish exact
+    /// row identity for all three suits. No extrapolation or invalid masking.</remarks>
+    internal static int CanonicalPhase(bool pseudo, int phase)
+    {
+        if ((uint)phase >= PhasesPerSuit) throw new ArgumentOutOfRangeException(nameof(phase));
+        return pseudo ? phase / 3 * 3 : Math.Min(phase, 6 - phase);
+    }
     public const string FileName = "samus-charge-colors.json";
     public const int Version = 1;
     public const int SuitCount = 3;

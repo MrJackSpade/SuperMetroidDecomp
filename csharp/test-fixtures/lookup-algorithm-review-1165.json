@@ -6211,4 +6211,15 @@
     "scope":"Remaining body opaque input dispositions still require review. Projectile color-payload disposition remains resolved. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors and --hyper-beam-fx-colors; refreshed both owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusChargeRepeatedPhaseReview": {
+    "status":"converted repeated charged-beam and pseudo-Screw palette phases",
+    "owner":"SamusChargeColorCatalog.ChargeInputs; SamusChargeColorFormat.CanonicalPhase; SamusProjectileSystem.UpdateBeamChargePalette",
+    "source":"Supported NTSC J/U v1.0 ROM; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank91D7D5..D827. Three charge lists repeat pointers in order0,1,2,3,2,1; three pseudo-Screw lists repeat bright pointers three times then normal pointers three times. All576 source colors and36 native pointers are independently read by the focused proof.",
+    "domain":"Family charge/pseudo-Screw,suit0..2,phase0..5,color0..15. Canonical phase is min(phase,6-phase) for charge and floor(phase/3)*3 for pseudo-Screw. Invalid indices throw; no wrap,clamp,extrapolation or native overread is introduced.",
+    "implementation":"Replace two retained six-phase jagged arrays with asset-local sparse input dictionaries. Canonical rows own supplied inputs; repeated phases resolve through the native phase rule unless their independently supplied color differs. Stock charge inputs fall288 to192 and pseudo-Screw288 to96. Validated import rows are temporary; no generated runtime cache or ROM reads.",
+    "proof":"Consolidate the existing charge portion of VerifySamusChargeColorOverride into VerifySamusChargeColorPhases,also exposed as --samus-charge-phases. Compare first pointer identity and every original color,canonical ownership counts,exact CGRAM placement,independent/source-only/repeated-phase-only edits,invalid bounds and36 guarded production calls. Existing asset override workflow reuses this proof. Hyper-shot remains covered by its existing shared logical proof.",
+    "scope":"Only phase duplication is resolved. Distinct charge color generation and shared pseudo-Screw/full-body color views remain work under1165; this is not a retention disposition for those inputs. Remaining full-body Hyper Beam opaque fields remain pending.",
+    "confirmation":"Verification and ResourceAudit builds; focused charge phase and existing Hyper Beam proofs; source hash and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

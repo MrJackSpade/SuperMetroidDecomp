@@ -21,7 +21,7 @@ internal static class SamusColorClosedContractDefinitions
             "The sole private-constructor loader requires three sixteen-color RGB5 suit inputs, stores the Power colors and only differing Varia/Gravity slots, preserving independent edits through explicit overrides. Apply/Resolve accept only even suit offsets zero/two/four and bounded color indices. Equipment priority and suit selection remain gameplay responsibilities."),
         new("SuperMetroid.Core.Assets.SamusChargeColorCatalog", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveCharge", "ResolveHyper"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "05E617B9A3D9655D2812341C4906DFB70368A635A2D849834D88112B119C32A3"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "1DB91A0C354705AA19959581EF4846E48D556016B438D57CF5AC67FFC5CF29AA"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "BDC26DD20D599391AF76A2DFBF81310E273AA8995826918A453F40E130C2CCBC"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9")],
             "Private construction requires charged and pseudo-Screw families with three suits/six phases each plus ten Hyper-shot frames, all sixteen colors. Charge-family selectors guard the complete independent arrays. Hyper-shot rows use an independently loaded shared Hyper Beam calculation with reversed frame indices; the common loader validates all rows and channels. Both boolean branches are covered; charging and shot timing are not executed."),

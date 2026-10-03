@@ -108,6 +108,7 @@ if (args is ["--lookup-ceres-haze"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres haze oracle revision");
     VerifyCeresHazeNativeRamp(rom);
     VerifyCeresHazeTintScaling(rom);
+    VerifyCeresHazePhaseControl(rom);
     Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels, captured/software views and RGB5 tint scaling pass.");
     return 0;
 }

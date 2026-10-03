@@ -15,13 +15,15 @@ public static class RoomFxPaletteBlendExtractor
         var blends = new Dictionary<string, PaletteRgb5[]>();
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
         {
+            ushort? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxPaletteBlendDefinitions.SourceAddress(id),
-                RoomFxRomData.Layer3.PaletteBlendColorCount * sizeof(ushort));
+                (calculatedThird.HasValue ? 2 : RoomFxRomData.Layer3.PaletteBlendColorCount) * sizeof(ushort));
             var colors = new PaletteRgb5[RoomFxRomData.Layer3.PaletteBlendColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort)));
+                ushort word = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
+                    : BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort)));
                 colors[index] = new PaletteRgb5
                 {
                     Red = word & 31,

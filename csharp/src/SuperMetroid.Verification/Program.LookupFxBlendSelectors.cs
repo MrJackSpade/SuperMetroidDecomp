@@ -57,6 +57,8 @@ internal static partial class Program
                     catalog.Apply(cgram, id);
                     for (int color = 0; color < 3; color++)
                     {
+                        // Calculated stock black components have their own native proofs.
+                        if (!useEdited && color == 2 && id is not (0x22 or 0x62)) continue;
                         ushort expected = useEdited ? (ushort)(selectionIndex | color << 5 | (31 - selectionIndex) << 10)
                             : ReadVerificationWord(rom, 0x89aa02 + id + 2 * color);
                         AssertEqual(expected, colors[color], "Native or independently edited selector content");

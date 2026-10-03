@@ -5305,4 +5305,19 @@
     "pending":"The24 stock BGR555 color words and two stock Ceres tint triples remain separate field-level review work; no artwork or palette retention exception is asserted here.",
     "scope":"All selector/address/loaded-resource dispatch mappings resolved without retention. Full maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "roomFxBlackThirdColorReview": {
+    "status":"converted: six repeated stock third-color words no longer imported or stored",
+    "owners":"RoomFxPaletteBlendDefinitions.CalculatedThirdColor; RoomFxBlendColors; RoomFxPaletteBlendExtractor",
+    "source":"Supported NTSC J/U v1.0 third words89:AA08,AA48,AA4E,AAE8,AAEE,AAF4 for selectors02,42,48,E2,E8,EE. Full24-word palette inspection against pinned bank_89.asm362be646929cf8e483f692b73a6561cfc2dc1d0d identifies black third colors for all six liquid blends; rain22 and fog62 have independent nonblack third colors.",
+    "red":{"disposition":"converted constant zero for the six named liquid third colors","proof":"VerifyFxBlendBlackRed"},
+    "green":{"disposition":"converted constant zero for the same six third colors","proof":"VerifyFxBlendBlackGreen"},
+    "blue":{"disposition":"converted constant zero for the same six third colors","proof":"VerifyFxBlendBlackBlue"},
+    "algorithm":"CalculatedThirdColor selects black for Lava, MaridiaWaterA, WaterAndAcid and MaridiaWaterB/C/D; rain/fog return no calculated value, and every unsupported byte rejects. Loaded color owners retain primary/secondary inputs and only a differing third-color override. Output composes a fresh three-color result; generated stock black is never cached. Arbitrary nonzero edits remain exact.",
+    "import":"Extractor reads only the first four bytes for the six liquid blends and calculates the third word; weather still imports all six bytes pending its independent color review. Editable JSON shape remains three RGB5 colors for every blend.",
+    "proofCoverage":"Each component proof compares its original native bits, calculated value, Resolve view and applied CGRAM color27. VerifyFxBlendBlackStorageAndEdits covers all256 selector identities, stock override absence before/after output, custom values spanning all RGB5 components and output-copy isolation. Existing eight independently edited JSON palettes exercise actual Load/Resolve/Apply. Consolidated stock black comparison out of the earlier selector proof; remaining colors and custom edits retain their existing checks.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-blends. Stock extraction runs through BlackBlendSourceGuard, which forbids all twelve converted source bytes; component proofs read the original ROM separately. Existing guarded installed load/reload and haze override checks pass. Updated source pin and maintained-source index.",
+    "pending":"The sixteen primary/secondary colors, two weather third colors and Ceres tint triples still require their own field dispositions. No arbitrary-art exemption or performance argument is applied to them.",
+    "scope":"Resolves18 regular RGB components without retention. Broader palette and maintained-source review remain active under1165. Implementation record is this entry's commit."
+  }
 }

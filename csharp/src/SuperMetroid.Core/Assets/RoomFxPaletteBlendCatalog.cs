@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
 public sealed class RoomFxPaletteBlendCatalog
 {
-    private readonly ushort[] lava;
-    private readonly ushort[] landingSiteRain;
-    private readonly ushort[] maridiaWaterA;
-    private readonly ushort[] waterAndAcid;
-    private readonly ushort[] fog;
-    private readonly ushort[] maridiaWaterB;
-    private readonly ushort[] maridiaWaterC;
-    private readonly ushort[] maridiaWaterD;
+    private readonly RoomFxBlendColors lava;
+    private readonly RoomFxBlendColors landingSiteRain;
+    private readonly RoomFxBlendColors maridiaWaterA;
+    private readonly RoomFxBlendColors waterAndAcid;
+    private readonly RoomFxBlendColors fog;
+    private readonly RoomFxBlendColors maridiaWaterB;
+    private readonly RoomFxBlendColors maridiaWaterC;
+    private readonly RoomFxBlendColors maridiaWaterD;
 
-    private RoomFxPaletteBlendCatalog(ushort[] lava, ushort[] landingSiteRain,
-        ushort[] maridiaWaterA, ushort[] waterAndAcid, ushort[] fog,
-        ushort[] maridiaWaterB, ushort[] maridiaWaterC, ushort[] maridiaWaterD,
+    private RoomFxPaletteBlendCatalog(RoomFxBlendColors lava, RoomFxBlendColors landingSiteRain,
+        RoomFxBlendColors maridiaWaterA, RoomFxBlendColors waterAndAcid, RoomFxBlendColors fog,
+        RoomFxBlendColors maridiaWaterB, RoomFxBlendColors maridiaWaterC, RoomFxBlendColors maridiaWaterD,
         PaletteRgb5 ceresHazeBlue, PaletteRgb5 ceresHazeRed)
     {
         this.lava = lava;
@@ -79,7 +79,7 @@ public sealed class RoomFxPaletteBlendCatalog
             ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
                 nameof(document.CeresHazeRed)));
 
-        ushort[] Compile(byte id)
+        RoomFxBlendColors Compile(byte id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxRomData.Layer3.PaletteBlendColorCount)
@@ -93,7 +93,7 @@ public sealed class RoomFxPaletteBlendCatalog
                     throw new InvalidDataException($"Room-FX blend {id:X2} color {index} requires RGB components from zero through 31.");
                 words[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             }
-            return words;
+            return new(id, words[0], words[1], words[2]);
         }
     }
 
@@ -120,14 +120,14 @@ public sealed class RoomFxPaletteBlendCatalog
 
     public ReadOnlySpan<ushort> Resolve(byte selection) => selection switch
     {
-        RoomFxPaletteBlendDefinitions.Lava => lava,
-        RoomFxPaletteBlendDefinitions.LandingSiteRain => landingSiteRain,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterA => maridiaWaterA,
-        RoomFxPaletteBlendDefinitions.WaterAndAcid => waterAndAcid,
-        RoomFxPaletteBlendDefinitions.Fog => fog,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterB => maridiaWaterB,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterC => maridiaWaterC,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterD => maridiaWaterD,
+        RoomFxPaletteBlendDefinitions.Lava => lava.CreateColors(),
+        RoomFxPaletteBlendDefinitions.LandingSiteRain => landingSiteRain.CreateColors(),
+        RoomFxPaletteBlendDefinitions.MaridiaWaterA => maridiaWaterA.CreateColors(),
+        RoomFxPaletteBlendDefinitions.WaterAndAcid => waterAndAcid.CreateColors(),
+        RoomFxPaletteBlendDefinitions.Fog => fog.CreateColors(),
+        RoomFxPaletteBlendDefinitions.MaridiaWaterB => maridiaWaterB.CreateColors(),
+        RoomFxPaletteBlendDefinitions.MaridiaWaterC => maridiaWaterC.CreateColors(),
+        RoomFxPaletteBlendDefinitions.MaridiaWaterD => maridiaWaterD.CreateColors(),
         _ => throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection."),
     };
     private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
@@ -154,6 +154,23 @@ public sealed class RoomFxPaletteBlendCatalog
     }
 }
 
+/// <summary>Loaded colors with calculated stock black separated from arbitrary edits.</summary>
+internal sealed class RoomFxBlendColors
+{
+    private readonly ushort primary;
+    private readonly ushort secondary;
+    private readonly ushort? thirdOverride;
+
+    public RoomFxBlendColors(byte selection, ushort primary, ushort secondary, ushort third)
+    {
+        this.primary = primary;
+        this.secondary = secondary;
+        thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : third;
+    }
+
+    // The generated array is the requested output, never a retained stock-color cache.
+    public ushort[] CreateColors() => [primary, secondary, thirdOverride ?? 0];
+}
 public sealed record RoomFxPaletteBlendDocument
 {
     public required int Version { get; init; }
@@ -215,6 +232,16 @@ public static class RoomFxPaletteBlendDefinitions
         return $"blend-{id:X2}";
     }
 
+    /// <summary>
+    /// The six liquid blends use black as their third color. Weather's independent
+    /// third colors have no calculated value here. Unknown selectors still reject.
+    /// </summary>
+    public static ushort? CalculatedThirdColor(byte id) => id switch
+    {
+        Lava or MaridiaWaterA or WaterAndAcid or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD => 0,
+        LandingSiteRain or Fog => null,
+        _ => throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued."),
+    };
     /// <summary>Native byte address for the first of three adjacent BGR555 colors.</summary>
     public static int SourceAddress(byte id)
     {

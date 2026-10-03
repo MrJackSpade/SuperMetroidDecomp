@@ -66,7 +66,8 @@ internal static class HeatPaletteColorDefinitions
     private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
     {
         value = 0;
-        return TryBasePalettePointer(pointer, out ushort source) && colors.TryGetValue(source, out value);
+        return TryBasePalettePointer(pointer, out ushort source) &&
+            LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
     }
 
     private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>

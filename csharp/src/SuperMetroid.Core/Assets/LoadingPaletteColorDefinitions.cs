@@ -19,6 +19,26 @@ public static class LoadingPaletteColorDefinitions
         TryProgram(pointer, 0xdcd1, out canonical) ||
         TryProgram(pointer, 0xde37, out canonical);
 
+    /// <summary>Resolves an explicit edit before following a calculated loading alias.</summary>
+    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+        colors.TryGetValue(pointer, out value) ||
+        (TryCanonicalPointer(pointer, out ushort canonical) && colors.TryGetValue(canonical, out value));
+
+    /// <summary>Shares identical suit slots with the Power palette for the same shade.</summary>
+    /// <remarks>Original complete RGB5 words establish each equality. Varia's
+    /// normal row differs at0/2/10/11 and bright rows at1/2/10/11/12. Gravity's
+    /// normal row differs at2/10/11/12 and bright rows at2/10/11. All other slots
+    /// share the Power input, including transparent entries where equal.
+    /// Differing custom colors remain explicit overrides before this mapping.</remarks>
+    private static ushort ShareSuit(int first, int rowOffset, int colorOffset)
+    {
+        int slot = colorOffset / 2;
+        bool distinct = first == 0xdb6b || (first == 0xdcd1
+            ? (rowOffset == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
+            : (rowOffset == 0 ? slot is 2 or 10 or 11 or 12 : slot is 2 or 10 or 11));
+        return (ushort)((distinct ? first : 0xdb6b) + rowOffset + colorOffset);
+    }
+
     private static bool TryProgram(ushort pointer, int first, out ushort canonical)
     {
         canonical = 0;
@@ -26,7 +46,7 @@ public static class LoadingPaletteColorDefinitions
         int finalColor = offset - 313;
         if ((uint)finalColor < 32 && (finalColor & 1) == 0)
         {
-            canonical = (ushort)(first + finalColor);
+            canonical = ShareSuit(first, 0, finalColor);
             return true;
         }
         if ((uint)offset >= 4 * 79) return false;
@@ -35,8 +55,8 @@ public static class LoadingPaletteColorDefinitions
         int record = within / 36;
         int color = within % 36;
         if (record >= 2 || color >= 32 || (color & 1) != 0) return false;
-        canonical = (ushort)(first + color + (record == 0 ? 0 :
-            (group < 2 ? 36 : group * 79 + 36)));
+        canonical = ShareSuit(first, record == 0 ? 0 :
+            (group < 2 ? 36 : group * 79 + 36), color);
         return true;
     }
 }

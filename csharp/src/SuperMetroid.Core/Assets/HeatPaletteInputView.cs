@@ -47,7 +47,7 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, ushort>
     {
         if (colors.TryGetValue(pointer, out ushort value)) return value;
         if (HeatPaletteColorDefinitions.TryBasePalettePointer(pointer, out ushort source) &&
-            colors.TryGetValue(source, out value)) return value;
+            LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value)) return value;
         throw new InvalidDataException($"Missing installed heat base ${pointer:X4}.");
     }
 

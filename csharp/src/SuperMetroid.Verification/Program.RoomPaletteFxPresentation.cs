@@ -364,6 +364,7 @@ internal static partial class Program
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(presentation)!;
         var aliases = new Dictionary<ushort, ushort>();
+        List<(int Pointer, ushort[] Colors)>? powerRows = null;
         foreach (int start in new[] { 0xdb62, 0xdcc8, 0xde2e })
         {
             var rows = new List<(int Pointer, ushort[] Colors)>();
@@ -383,6 +384,7 @@ internal static partial class Program
             }
             cursor += 2;
             rows.Add((cursor, Enumerable.Range(0, 16).Select(color => ReadVerificationWord(bus, 0x8d0000 | (cursor + 2 * color))).ToArray()));
+            if (start == 0xdb62) powerRows = rows;
             foreach (var row in rows)
             {
                 var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
@@ -390,15 +392,17 @@ internal static partial class Program
                 {
                     ushort pointer = (ushort)(row.Pointer + 2 * color);
                     ushort canonical = (ushort)(original.Pointer + 2 * color);
+                    var power = powerRows![rows.IndexOf(original)];
+                    if (power.Colors[color] == row.Colors[color]) canonical = (ushort)(power.Pointer + 2 * color);
                     aliases.Add(pointer, canonical);
                     AssertTrue(presentation.TryReadColor(pointer, out ushort actual), "All native loading colors remain installed");
                     AssertEqual(row.Colors[color], actual, "Loading color equals original payload");
-                    AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only independently distinct loading rows");
+                    AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only distinct suit/shade colors");
                 }
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(192, aliases.Count(item => item.Key == item.Value), "Four distinct rows per suit");
+        AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = aliases.TryGetValue((ushort)address, out ushort canonical);

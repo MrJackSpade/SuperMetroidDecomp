@@ -5629,4 +5629,15 @@
     "scope":"Resolves repeated-row storage only. The192 distinct words, shared normal and speed-boost artwork and individual channel relationships require further review; no artwork retention exemption is inferred. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-loading-colors and --lookup-heat-colors for the directly affected shared loading inputs; refreshed interface dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingSharedColorsReview": {
+    "status":"converted repeated color slots across loading suits",
+    "owners":"LoadingPaletteColorDefinitions.ShareSuit/TryReadColor; heat base-color consumers",
+    "source":"Original complete RGB5 words in the four distinct loading rows per suit at8D:DB62/DCC8/DE2E, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"After repeated-row reduction, compare the same shade and color slot with Power. Varia normal differs only at0/2/10/11; bright rows at1/2/10/11/12. Gravity normal differs at2/10/11/12; bright rows at2/10/11. Other slots resolve directly to Power's corresponding root. All192 original distinct-row colors were inspected; exactly96 stored roots remain. These are exact shared artwork relationships, not numerical fits or an exception for the remaining values.",
+    "ownership":"Explicit custom values take precedence. The existing loader removes a color only when its supplied value equals the final calculated root. Heat base resolution now follows the same loading alias when no explicit source color exists; it does not duplicate missing loading colors or cache derived heat colors. Existing independently edited loading and heat families retain their separate values.",
+    "proof":"Extend the existing loading proof's independently decoded original rows with same-shade Power color comparisons. All432 values, complete ushort address ownership,96 stored roots, every distinct edit and base-row-only edits remain checked. Reuse the three guarded loading executions. --lookup-heat-colors confirms the changed shared base resolution against all720 original heat colors and independent edits; no unrelated tests are added.",
+    "scope":"Further channel/shade relationships among the96 remaining roots and shared normal/speed-boost art remain pending. No new retention decision. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

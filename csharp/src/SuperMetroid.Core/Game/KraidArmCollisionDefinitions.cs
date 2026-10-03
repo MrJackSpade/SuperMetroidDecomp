@@ -205,6 +205,12 @@ internal static class KraidArmCollisionDefinitions
     /// The native callbacks are Kraid-arm touch $9490 or background touch $948B,
     /// and Kraid-arm shot $94B6.
     /// </summary>
+    /// <remarks>Independently reviewed for #1165: these cases select ordered
+    /// rectangle slices for native arm shapes 0..6, 8..A, F..12 and the two
+    /// dying/lunge shapes. Starts are ordinals in the selected 24-record geometry
+    /// domain, not native byte offsets; lengths match each original count word.
+    /// Shape7, B..E, foot/lint lists, record interiors and every other ushort
+    /// identity remain rejected. Rectangle-edge data has a separate disposition.</remarks>
     internal static KraidArmHitboxSequence HitboxesAt(ushort pointer) =>
         pointer switch
         {

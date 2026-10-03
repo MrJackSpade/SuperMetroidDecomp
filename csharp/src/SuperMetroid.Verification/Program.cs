@@ -53,6 +53,15 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--lookup-kraid-arm-hitbox-lists"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Kraid arm list oracle revision");
+    VerifyKraidArmHitboxListSelection(rom);
+    Console.WriteLine("Kraid arm hitbox selection: all 16 native lists, 24 ordered rectangles, full ushort rejection domain and slice bounds pass.");
+    return 0;
+}
 if (args is ["--room-plm-populations"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

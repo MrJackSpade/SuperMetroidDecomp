@@ -5817,4 +5817,15 @@
     "scope":"Remaining endpoint components and other full-body families remain pending; no new retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyActiveShinesparkWarmTintReview": {
+    "status":"converted47 canonical active-shinespark colors to shared phase tint operations",
+    "owners":"SamusFullBodyCycleColorFormat.IsActiveShineTint/ActiveShineTint; SamusFullBodyCycleColorCatalog",
+    "source":"Original9C40/9C60/9C80 Power slots3..8/13..15 except first-shade8;9E40/9E60/9E80 Varia9;A040/A060/A080 Gravity1/2/9/10/11/12. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Three phase operations add red/green10/16/26 and blue5/0/10 to the supplied base, saturating channels at31. Phase0 returns base. Shared phase cases replace47 complete words; stock183 to136. No per-color correction,polynomial fit or generated palette cache. Power first-shade8 is excluded for its differing blue,still pending review.",
+    "ownership":"The independent full-body active base is the source. Only formula-equal canonical words collapse; differing aliases/edits remain explicit. Changing base alone preserves separately supplied tinted shades.",
+    "proof":"Extend the existing full-body proof with independent47-word native domain and every original color as oracle; complete48-by16 mapping acceptance and invalid palette/color/shade bounds; all32768 RGB5 bases at four phases for channel saturation. Existing all768 colors,CGRAM,pointer boundaries and independent edit fixtures remain. Add active-base-only edits checked across all768 values.",
+    "scope":"Other active-shine inks and exceptional components,Screw Attack relationships,Speed Booster endpoint components and transparent payloads remain pending. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

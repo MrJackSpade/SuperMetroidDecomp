@@ -32,6 +32,8 @@ public sealed class SamusFullBodyCycleColorCatalog
             int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
             if (source == index && channelSource >= 0 && value == SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
                 palette, color, palettes[palette / 16 * 16][color], palettes[channelSource / 16][channelSource % 16])) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color) &&
+                value == SamusFullBodyCycleColorFormat.ActiveShineTint(palettes[palette / 16 * 16 + 8][color], palette % 4)) continue;
             colors.Add(index, value);
         }
     }
@@ -59,6 +61,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color))
+            return SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex((palette / 16 * 16 + 8) * 16 + color), palette % 4);
         int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
         if (channelSource >= 0) return SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
             palette, color, ResolveIndex(palette / 16 * 256 + color), ResolveIndex(channelSource));
@@ -190,6 +194,40 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Selects the47 canonical active-shinespark words that use the shared warm tint.</summary>
+    internal static bool IsActiveShineTint(int palette, int color)
+    {
+        if ((uint)palette >= PaletteCount || palette % 16 is < 9 or > 11) return false;
+        return (palette / 16) switch
+        {
+            0 => color is >= 3 and <= 7 or >= 13 and <= 15 || (color == 8 && palette != 9),
+            1 => color == 9,
+            _ => color is 1 or 2 or 9 or 10 or 11 or 12,
+        };
+    }
+
+    /// <summary>Applies the active-shinespark warm tint, saturating each RGB5 channel.</summary>
+    /// <remarks>Original rows9C40/9C60/9C80 and suit offsets512/1024
+    /// share red/green offsets10/16/26 and blue offsets5/0/10. These
+    /// three phase operations apply uniformly to47 opaque words selected by
+    /// IsActiveShineTint. Phase0 is the unchanged supplied base. Power slot8's
+    /// first shade is outside this mapping; its blue component needs separate review.
+    /// Tint amounts describe shared phase operations, not per-color corrections.</remarks>
+    internal static ushort ActiveShineTint(ushort basis, int shade)
+    {
+        var (warm, blue) = shade switch
+        {
+            0 => (0, 0),
+            1 => (10, 5),
+            2 => (16, 0),
+            3 => (26, 10),
+            _ => throw new ArgumentOutOfRangeException(nameof(shade)),
+        };
+        return (ushort)(Math.Min(31, (basis & 31) + warm) |
+            Math.Min(31, (basis >> 5 & 31) + warm) << 5 |
+            Math.Min(31, (basis >> 10 & 31) + blue) << 10);
+    }
 
     /// <summary>Returns a shared Speed Booster channel source, or -1 outside the five-word mapping.</summary>
     /// <remarks>Power dim10/11 share dim2's blue and retain base red/green.

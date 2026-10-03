@@ -11,10 +11,16 @@ internal static partial class Program
     {
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
         var originalPointers = new SortedSet<ushort>();
+        var originalBases = new Dictionary<ushort, ushort>();
+        var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
+            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
+        AssertEqual(633, stored.Count, "Full-body base sharing removes135 duplicate words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
             ushort list = ReadVerificationWord(rom, header + 2 * suit);
+            ushort speedList = ReadVerificationWord(rom, 0x91daa9 + 2 * suit);
+            originalBases.Add(ReadVerificationWord(rom, 0x910000 | list), ReadVerificationWord(rom, 0x910000 | speedList));
             for (int phase = 0; phase < phases; phase++)
                 originalPointers.Add(ReadVerificationWord(rom, 0x910000 | (list + 2 * phase)));
         }
@@ -29,6 +35,12 @@ internal static partial class Program
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
                 AssertEqual(expected, native.Resolve(pointer, color), "Every original full-body palette word");
+                ushort sourcePointer = color != 0 && originalBases.TryGetValue(pointer, out ushort basePointer) ? basePointer : pointer;
+                AssertEqual(expected, ReadVerificationWord(rom, 0x9b0000 | (sourcePointer + 2 * color)), "Native base-row equality is independent of the alias formula");
+                int paletteIndex = ordinal - 1;
+                int sourceIndex = originalPointers.ToList().IndexOf(sourcePointer) * 16 + color;
+                AssertEqual(sourceIndex, SamusFullBodyCycleColorFormat.CanonicalColorIndex(paletteIndex, color), "Every native color alias index");
+                AssertEqual(pointer == sourcePointer, stored.ContainsKey(paletteIndex * 16 + color), "Only duplicate base words are absent from stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -37,6 +49,10 @@ internal static partial class Program
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!originalPointers.Contains((ushort)pointer))
                 AssertThrows<ArgumentOutOfRangeException>(() => native.Resolve((ushort)pointer, 0), "Complete original palette identity domain rejects gaps and outside addresses");
+        foreach (int invalid in new[] { -1, 48, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(invalid, 0), "Alias palette-index bounds");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(0, invalid), "Alias color-index bounds");
         var document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
         ordinal = 0;
         foreach (var family in new[] { document.SpeedBooster, document.ScrewAttack, document.StoredShine, document.ActiveShinespark })
@@ -51,6 +67,22 @@ internal static partial class Program
         for (int shade = 0; shade < 4; shade++)
         for (int color = 0; color < 16; color++, ordinal++)
             AssertEqual((ushort)ordinal, edited.Resolve((ushort)(first + suit * 0x200 + shade * 32), color), "Every independent full-body color edit survives calculated placement");
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        for (int suit = 0; suit < 3; suit++)
+        for (int color = 0; color < 16; color++)
+        {
+            int word = 2000 + suit * 16 + color;
+            document.SpeedBooster[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            int suit = (pointer - 0x9b20) / 0x200;
+            ushort expected = pointer == 0x9b20 + suit * 0x200 ? (ushort)(2000 + suit * 16 + color) :
+                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+            AssertEqual(expected, edited.Resolve(pointer, color), "Changing only a shared source row preserves all supplied family colors");
+        }
     }
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,

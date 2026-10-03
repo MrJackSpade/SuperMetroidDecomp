@@ -5740,4 +5740,15 @@
     "scope":"All full-body color/shade/component relationships remain pending. Reviewed loading/normal base inputs can be reused as evidence where independently matching; they do not exempt the entire full-body catalog. Hyper Beam projectile and pre-explosion color ownership remain in the source audit. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-full-body-colors, updated Samus/sequence closed-contract source pins and refreshed maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyBaseRowSharingReview": {
+    "status":"converted135 repeated opaque base colors across full-body families",
+    "owners":"SamusFullBodyCycleColorCatalog constructor/Resolve; SamusFullBodyCycleColorFormat.CanonicalColorIndex",
+    "source":"Original base palettes9B:9B20/9BA0/9C20/9CA0 and their512/1024-byte suit offsets; independently established through bank91 native family/suit dispatcher lists. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. All15 opaque base slots match across four families within each suit; transparent payloads differ and are excluded.",
+    "algorithm":"Every fourth palette is a family base; sixteen palettes make one suit. For base-row colors1..15, source row is16*(palette/16), same color. Other colors retain their own index. Replace repeated stored base words with on-demand alias resolution. Stock stores633 input words instead of768. The sparse dictionary contains actual supplied colors and differing edits, not a cached pointer-to-row mapping or generated palette rows.",
+    "ownership":"Compile and validate every supplied row before comparing its color with the calculated source. Store a differing value at its own logical index. Changing only the Speed Booster base therefore preserves unchanged colors in other supplied families as overrides; edits to all768 colors remain independent. No runtime cartridge access or generated color cache.",
+    "proof":"Extend VerifyFullBodyPaletteColorData. Original dispatcher operands independently establish each family's first row and its suit's Speed Booster source. All768 original values compare both with the installed result and the proposed original source word. Verify every alias index/storage presence,633-word stock count, palette/color bounds, all pointer identities, every independently edited color and source-row-only edits. Existing48 live CGRAM copies remain in the same focused proof.",
+    "scope":"Remaining633 words and their cross-suit, transparent, shade and channel relationships require further review. This entry provides no retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-full-body-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

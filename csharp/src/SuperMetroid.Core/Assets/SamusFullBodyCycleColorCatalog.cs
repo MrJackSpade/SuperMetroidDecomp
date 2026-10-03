@@ -11,9 +11,20 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class SamusFullBodyCycleColorCatalog
 {
-    private readonly ushort[][] palettes;
+    private readonly Dictionary<int, ushort> colors;
 
-    private SamusFullBodyCycleColorCatalog(ushort[][] palettes) => this.palettes = palettes;
+    private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
+    {
+        colors = new Dictionary<int, ushort>();
+        for (int palette = 0; palette < palettes.Length; palette++)
+        for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
+        {
+            int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + color;
+            int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
+            ushort value = palettes[palette][color];
+            if (source == index || value != palettes[source / 16][source % 16]) colors.Add(index, value);
+        }
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -28,7 +39,9 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = SamusFullBodyCycleColorFormat.PaletteIndex(pointer);
         if ((uint)colorIndex >= SamusFullBodyCycleColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return palettes[palette][colorIndex];
+        int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + colorIndex;
+        return colors.TryGetValue(index, out ushort value) ? value :
+            colors[SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, colorIndex)];
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
@@ -151,6 +164,21 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Shares each family's opaque base row with its suit's Speed Booster base.</summary>
+    /// <remarks>Original $9B:9B20/9BA0/9C20/9CA0 base rows agree at all15
+    /// opaque slots, and the same holds512/1024 bytes later for Varia/Gravity.
+    /// Every fourth row is a family base; each suit occupies16 rows. Therefore
+    /// a base-row opaque color resolves to row16*(palette/16), same color.
+    /// Transparent entries and later shades retain their own identities.
+    /// Explicit differing asset values override this alias, including base edits.</remarks>
+    internal static int CanonicalColorIndex(int palette, int color)
+    {
+        if ((uint)palette >= PaletteCount) throw new ArgumentOutOfRangeException(nameof(palette));
+        if ((uint)color >= ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
+        int source = palette % ShadesPerSuit == 0 && color != 0 ? palette / 16 * 16 : palette;
+        return source * ColorsPerPalette + color;
+    }
 
     /// <summary>Maps an original full-body palette identity to its contiguous artwork row.</summary>
     /// <remarks>Native bank91 lists select all48 aligned32-byte records in

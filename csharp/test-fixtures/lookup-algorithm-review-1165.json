@@ -4909,5 +4909,16 @@
     "consumers":"Migrated water software compositor, captured BG3 scrolls, water BG2 projection and vertical lava/acid BG2 projection. Shared lava helper selects vertical arithmetic or the still-separate horizontal source directly. No generated wave cache remains. Source search confirms former Water.WaveDisplacements and VerticalWaveDisplacements names have no maintained code references. Updated three ResourceAudit source hashes.",
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-liquid-wave pass. Confirmation covers this mapping and changed projection consumers, not a gameplay traversal or full renderer campaign.",
     "scope":"Both copies of the mirrored liquid wave and their renderer views are resolved without retention. Horizontal lava/acid wave and wider maintained-source inventory remain unfinished under1165. Implementation record is the commit introducing this entry."
+  },
+  "quakeSoundSuppressionReview": {
+    "status":"converted: six-room stored membership span removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs: Earthquake.SoundSuppressedRooms.Contains",
+    "source":"Supported NTSC J/U v1.0 $88:82CD..82E9 six CMP/BEQ pairs in Initialise_Special_Effects_for_New_Room. Pinned bank_88.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identifies BombTorizo, Climb, Ridley, Pillar, MotherBrain and TourianEscape4, all branching to82ED to writeFFFF to the earthquake sound timer.",
+    "algorithm":"Named room-identity cases return true for the six native suppression branches and false for every other ushort. This is direct semantic selection, matching the native comparisons, without stored membership or runtime cache.",
+    "domain":"Every ushort room identity, including zero, unknown rooms andFFFF. Existing named constants remain catalog identities; no input masking, validation or domain expansion.",
+    "proof":"VerifyQuakeSoundSuppression reads the six original immediate operands, confirms CMP/BEQ opcodes and their common82ED target, and compares all65536 room identities with the production predicate. The same proof runs actual RoomLayer3FxState.Load plus PublishStatueEarthquakeSound for all six selected cases and ordinary zero, confirms emission suppression, and confirms that loading an ordinary room clears the prior sentinel. Expected membership comes only from original instructions.",
+    "consumers":"Migrated the sole production membership check in RoomLayer3FxState.Load. No SoundSuppressedRooms.All code references remain. Updated three ResourceAudit ownership hashes for RoomFxRomData.",
+    "confirmation":"Verification and ResourceAudit builds and early SHA-pinned --lookup-quake-suppression pass. No exploratory gameplay or defect search.",
+    "scope":"Room-based quake sound suppression fully resolved without retention. The separate eight-entry sound timing sequence and wider maintained-source inventory remain within1165. Implementation record is the commit introducing this entry."
   }
 }

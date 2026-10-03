@@ -143,7 +143,7 @@ public sealed class RoomLayer3FxState
             RoomFxRomData.Layer3.ClearDestinationWord,
             wordIncrement: 1);
 
-        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.All.Contains(roomHeaderPointer))
+        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(roomHeaderPointer))
             earthquakeSoundTimer = ushort.MaxValue;
         if (fxPointer == 0)
             return;

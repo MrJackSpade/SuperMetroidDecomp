@@ -390,12 +390,14 @@ public static class RoomFxRomData
             /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
             public const ushort TourianEscape4 = 0xdede;
 
-            /// <summary>
-            /// Exact comparison set at <c>$88:82CD-$82E9</c>. Matching rooms initialize
-            /// the earthquake-sound timer to <c>$FFFF</c>.
-            /// </summary>
-            public static ReadOnlySpan<ushort> All =>
-                [BombTorizo, Climb, Ridley, Pillar, MotherBrain, TourianEscape4];
+            /// <summary>Whether room initialization disables earthquake sounds for this identity.</summary>
+            /// <remarks>Ports the six named comparisons at $88:82CD..82E9, whose shared
+            /// branch initializes the sound timer to FFFF. All other ushort identities,
+            /// including zero and unknown rooms, return false. Verified against original
+            /// NTSC J/U v1.0 instruction operands and pinned bank_88.asm
+            /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No stored membership list remains.</remarks>
+            public static bool Contains(ushort room) => room is
+                BombTorizo or Climb or Ridley or Pillar or MotherBrain or TourianEscape4;
         }
     }
 

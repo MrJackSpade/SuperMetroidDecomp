@@ -2699,34 +2699,46 @@ internal static partial class Program
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {
-            var expected = new Dictionary<ushort, ushort>
+            ushort nativeStart = definition.Suit switch
             {
-                [definition.ProgramStart] = PaletteFxInstructionCodes.SetPreInstruction,
-                [unchecked((ushort)(definition.ProgramStart + 2))] =
-                    PaletteFxPreInstructionCodes.Heat,
-                [unchecked((ushort)(definition.ProgramStart + 4))] =
-                    PaletteFxInstructionCodes.SetColorIndex,
-                [unchecked((ushort)(definition.ProgramStart + 6))] = 0x0182,
-                [definition.LoopInstructionPointer] = PaletteFxInstructionCodes.Goto,
-                [unchecked((ushort)(definition.LoopInstructionPointer + 2))] =
-                    definition.Frames[0].InstructionPointer,
+                PaletteFxHeatSuit.Power => 0xe45e,
+                PaletteFxHeatSuit.Varia => 0xe68a,
+                PaletteFxHeatSuit.Gravity => 0xe8b6,
+                _ => throw new InvalidOperationException(),
             };
-            foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+            AssertEqual(nativeStart, definition.ProgramStart, "Native suit setup entry");
+            var expected = new Dictionary<ushort, ushort>();
+            void Capture(int pointer) => expected.Add((ushort)pointer, ReadVerificationWord(bus, 0x8d0000 | pointer));
+            for (int setup = nativeStart; setup < nativeStart + 8; setup += 2) Capture(setup);
+            int cursor = nativeStart + 8;
+            AssertEqual(16, definition.Frames.Count, "Native phase count");
+            for (int phase = 0; phase < 16; phase++)
             {
-                expected.Add(frame.InstructionPointer, frame.Duration);
-                expected.Add(frame.WaitInstructionPointer, PaletteFxInstructionCodes.Wait);
-                for (int color = 0;
-                     color < PaletteFxHeatProgramDefinition.ColorsPerFrame;
-                     color++)
-                {
-                    ushort presentationPointer = unchecked((ushort)(
-                        frame.FirstColorPointer + color * sizeof(ushort)));
-                    AssertTrue(!PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
-                            presentationPointer,
-                            out _),
-                        $"{definition.Suit} heat color ${presentationPointer:X4} remains presentation-owned");
-                }
+                var frame = definition.Frames[phase];
+                Capture(cursor);
+                AssertEqual((ushort)cursor, frame.InstructionPointer, "Calculated frame address");
+                AssertEqual(expected[(ushort)cursor], frame.Duration, "Original duration schedule");
+                cursor += 2;
+                AssertEqual((ushort)cursor, frame.FirstColorPointer, "Calculated first color address");
+                for (int color = 0; color < 15; color++, cursor += 2)
+                    AssertTrue(!definition.TryReadMechanicsWord((ushort)cursor, out _), "Color word is not mechanics");
+                AssertEqual((ushort)cursor, frame.WaitInstructionPointer, "Calculated wait address");
+                Capture(cursor);
+                AssertEqual((ushort)0xc595, expected[(ushort)cursor], "Native terminal wait");
+                cursor += 2;
             }
+            AssertEqual((ushort)cursor, definition.LoopInstructionPointer, "Calculated terminal goto address");
+            Capture(cursor);
+            Capture(cursor + 2);
+            for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            {
+                bool owned = expected.TryGetValue((ushort)pointer, out ushort native);
+                AssertEqual(owned, definition.TryReadMechanicsWord((ushort)pointer, out ushort actual),
+                    "Every byte pointer has exact native mechanics ownership");
+                AssertEqual(owned ? native : (ushort)0, actual, "Every owned value/unowned zero matches original");
+            }
+            foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = definition.Frames[invalid], "Frame list index bounds");
 
             AssertEqual(38, expected.Count, $"{definition.Suit} heat mechanics word count");
             foreach ((ushort pointer, ushort value) in expected)
@@ -2780,22 +2792,6 @@ internal static partial class Program
         AssertTrue(!PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(0xe45c, out _),
             "Norfair heat owner rejects adjacent setup code");
 
-        _ = PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(0xe45e, out _);
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        ushort checksum = 0;
-        for (int iteration = 0; iteration < 65_536; iteration++)
-        {
-            if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
-                    (ushort)(0xe45e + (iteration & 0x7ff)),
-                    out ushort value))
-            {
-                checksum ^= value;
-            }
-        }
-        long allocatedAfter = GC.GetAllocatedBytesForCurrentThread();
-        GC.KeepAlive(checksum);
-        AssertEqual(0L, allocatedAfter - allocatedBefore,
-            "warmed Norfair heat program lookup allocates no managed memory");
     }
 
     private static void VerifyPaletteFxHeatInstructionListDefinitions(

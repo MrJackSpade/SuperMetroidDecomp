@@ -16,92 +16,99 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
-    private static readonly ushort[] PowerDurations =
-        [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 3];
-    private static readonly ushort[] ProtectedSuitDurations =
-        [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
-
-    private static readonly PaletteFxHeatProgramDefinition[] Definitions =
-    [
-        new(PaletteFxHeatSuit.Power, 0xe45e, 0xe686, PowerDurations),
-        new(PaletteFxHeatSuit.Varia, 0xe68a, 0xe8b2, ProtectedSuitDurations),
-        new(PaletteFxHeatSuit.Gravity, 0xe8b6, 0xeade, ProtectedSuitDurations),
-    ];
-    private static readonly IReadOnlyList<PaletteFxHeatProgramDefinition> ReadOnlyDefinitions =
-        Array.AsReadOnly(Definitions);
+    private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power);
+    private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia);
+    private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity);
+    private static readonly IReadOnlyList<PaletteFxHeatProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
-    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All => ReadOnlyDefinitions;
+    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All => Programs;
 
-    /// <summary>Resolves one compiled mechanics word across all three programs.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
+    private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
     {
-        foreach (PaletteFxHeatProgramDefinition definition in Definitions)
+        public int Count => 3;
+        public PaletteFxHeatProgramDefinition this[int index] => index switch
         {
-            if (definition.TryReadMechanicsWord(pointer, out value))
-                return true;
+            0 => Power, 1 => Varia, 2 => Gravity,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<PaletteFxHeatProgramDefinition> GetEnumerator()
+        {
+            yield return Power;
+            yield return Varia;
+            yield return Gravity;
         }
-
-        value = 0;
-        return false;
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    /// <summary>Resolves one compiled mechanics word across the three named suit programs.</summary>
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
+        Power.TryReadMechanicsWord(pointer, out value) ||
+        Varia.TryReadMechanicsWord(pointer, out value) ||
+        Gravity.TryReadMechanicsWord(pointer, out value);
 }
 
 /// <summary>One suit-specific Samus-in-heat palette control program.</summary>
+/// <remarks>The $8D:E45E/E68A/E8B6 setup occupies eight bytes before phase zero.
+/// Sixteen 34-byte records end at the terminal goto. These native layout relationships
+/// calculate all cursor fields; the descriptor stores only suit identity and a calculated
+/// list view, never a generated frame cache. Independently reviewed for #1165.</remarks>
 public sealed class PaletteFxHeatProgramDefinition
 {
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
+    private readonly IReadOnlyList<PaletteFxHeatProgramFrameDefinition> frames;
 
-    private readonly PaletteFxHeatProgramFrameDefinition[] frames;
-    private readonly IReadOnlyList<PaletteFxHeatProgramFrameDefinition> readOnlyFrames;
-
-    internal PaletteFxHeatProgramDefinition(
-        PaletteFxHeatSuit suit,
-        ushort programStart,
-        ushort loopInstructionPointer,
-        ushort[] durations)
+    internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
     {
-        if (durations.Length != PaletteFxHeatInstructionListDefinitions.PhaseCount)
-        {
-            throw new ArgumentException(
-                $"A heat program requires {PaletteFxHeatInstructionListDefinitions.PhaseCount} durations.",
-                nameof(durations));
-        }
-
         Suit = suit;
-        ProgramStart = programStart;
-        LoopInstructionPointer = loopInstructionPointer;
-        frames = new PaletteFxHeatProgramFrameDefinition[durations.Length];
-        for (ushort phase = 0; phase < durations.Length; phase++)
-        {
-            frames[phase] = new PaletteFxHeatProgramFrameDefinition(
-                PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),
-                durations[phase]);
-        }
-        readOnlyFrames = Array.AsReadOnly(frames);
+        frames = new FrameList(suit);
     }
 
     /// <summary>The mutually exclusive suit palette represented by this program.</summary>
     public PaletteFxHeatSuit Suit { get; }
+    /// <summary>Eight-byte setup preceding the first selected native frame.</summary>
+    public ushort ProgramStart => (ushort)(PaletteFxHeatInstructionListDefinitions.Resolve(Suit, 0) - 8);
+    /// <summary>Native goto after sixteen duration/color/wait records.</summary>
+    public ushort LoopInstructionPointer => (ushort)(PaletteFxHeatInstructionListDefinitions.Resolve(Suit, 0) + 16 * 34);
 
-    /// <summary>The setup entry chosen by palette-FX definition $F761.</summary>
-    public ushort ProgramStart { get; }
+    /// <summary>Calculated duration for one of the sixteen native phases.</summary>
+    /// <remarks>Native $8D:E466/E692/E8BE records hold at phase zero for16 frames,
+    /// then traverse a mirrored duration ramp with a floor4 and plateau8. Interior
+    /// p=1..14 uses min(8,max(4,min(p,15-p)+2)). The terminal phase holds16 for
+    /// protected suits; Power uses3 before its loop. These explicit endpoint roles
+    /// and the symmetric interior reproduce all48 original durations. No schedule
+    /// array remains. Source: supported NTSC J/U v1.0 and pinned bank_8D.asm.</remarks>
+    internal static ushort Duration(PaletteFxHeatSuit suit, int phase)
+    {
+        if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
+        if (phase == 0) return 16;
+        if (phase == 15) return (ushort)(suit == PaletteFxHeatSuit.Power ? 3 : 16);
+        return (ushort)Math.Min(8, Math.Max(4, Math.Min(phase, 15 - phase) + 2));
+    }
 
-    /// <summary>The terminal <c>goto</c> command after this suit's final color record.</summary>
-    public ushort LoopInstructionPointer { get; }
+    /// <summary>The sixteen timed records, calculated on access without stored rows.</summary>
+    public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames => frames;
 
-    /// <summary>The sixteen timed color records addressed by the shared heat phase.</summary>
-    /// <remarks>
-    /// For p=0..14, let d=min(p,15-p): duration is 16 at p=0,
-    /// otherwise min(8,max(4,d+2)). At p=15 it is 3 for Power and
-    /// 16 for Varia/Gravity. Thus Power loops in 103 frames and the
-    /// protected suits in 116 frames. The two 16-element duration
-    /// schedules match every corresponding pinned-ROM word.
-    /// </remarks>
-    public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames => readOnlyFrames;
+    private sealed class FrameList(PaletteFxHeatSuit suit) : IReadOnlyList<PaletteFxHeatProgramFrameDefinition>
+    {
+        public int Count => 16;
+        public PaletteFxHeatProgramFrameDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index), Duration(suit, index));
+            }
+        }
+        public IEnumerator<PaletteFxHeatProgramFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
-    /// <summary>Reads one control word while excluding every BGR555 presentation word.</summary>
+    /// <summary>Reads aligned control fields; color payloads and other pointers are unowned.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         int setupOffset = pointer - ProgramStart;
@@ -113,71 +120,32 @@ public sealed class PaletteFxHeatProgramDefinition
             6 => 0x0182,
             _ => null,
         };
-        if (setupWord.HasValue)
+        if (setupWord.HasValue) { value = setupWord.Value; return true; }
+        if (pointer == LoopInstructionPointer) { value = PaletteFxInstructionCodes.Goto; return true; }
+        if (pointer == LoopInstructionPointer + 2)
         {
-            value = setupWord.Value;
+            value = PaletteFxHeatInstructionListDefinitions.Resolve(Suit, 0);
             return true;
         }
-
-        if (pointer == LoopInstructionPointer)
+        int offset = pointer - PaletteFxHeatInstructionListDefinitions.Resolve(Suit, 0);
+        if ((uint)offset < 16 * 34)
         {
-            value = PaletteFxInstructionCodes.Goto;
-            return true;
+            if (offset % 34 == 0) { value = Duration(Suit, offset / 34); return true; }
+            if (offset % 34 == 32) { value = PaletteFxInstructionCodes.Wait; return true; }
         }
-        if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
-        {
-            value = frames[0].InstructionPointer;
-            return true;
-        }
-
-        foreach (PaletteFxHeatProgramFrameDefinition frame in frames)
-        {
-            if (pointer == frame.InstructionPointer)
-            {
-                value = frame.Duration;
-                return true;
-            }
-            if (pointer == frame.WaitInstructionPointer)
-            {
-                value = PaletteFxInstructionCodes.Wait;
-                return true;
-            }
-        }
-
         value = 0;
         return false;
     }
 }
-
 /// <summary>One timed fifteen-color record in a Samus-in-heat palette program.</summary>
 public readonly record struct PaletteFxHeatProgramFrameDefinition(
     ushort InstructionPointer,
     ushort Duration)
 {
     /// <summary>The first live BGR555 presentation word after the duration.</summary>
-    /// <remarks>
-    /// For Power Suit phases p=0..15, fifteen live colors per record
-    /// start at $8D:E468 + $22*p. Five distinct authored rows first
-    /// occur at phases 0,1,3,5,7; the bounded row selector is
-    /// (0,1,1,2,2,3,3,4,4,3,3,2,2,1,1,1).
-    /// All 240 words match the pinned NTSC J/U v1.0 ROM. Channel-wise
-    /// floor interpolation between the first and fifth authored rows
-    /// misses seven of 75 distinct words, so these rows remain live
-    /// presentation data. Phase sixteen reaches the terminal goto.
-    /// Varia's fifteen live colors start at $8D:E694 + $22*p. Its five
-    /// authored rows use selector (0,1,1,2,2,3,3,4,4,3,3,2,2,1,1,0).
-    /// Twelve of fifteen color positions in each row equal Power's
-    /// corresponding row; Varia authors positions 1,9,10 separately.
-    /// All 240 Varia words match the pinned ROM. Endpoint floor
-    /// interpolation misses five of its 75 distinct row/color words,
-    /// so the authored rows remain live presentation data.
-    /// Gravity's fifteen live colors start at $8D:E8C0 + $22*p and use
-    /// Varia's row selector. Gravity authors positions 1,9,10 in every
-    /// row and first-row position 11 ($0274 rather than Power/Varia's
-    /// $0252). All 240 Gravity words match the pinned ROM. Endpoint
-    /// floor interpolation misses eight of its 75 distinct values,
-    /// so its five authored rows also remain live presentation data.
-    /// </remarks>
+    /// <remarks>Derived from the native duration word followed immediately by color data.
+    /// The color values and repeated color-row relationships require their own review;
+    /// this address calculation is not a disposition for their contents.</remarks>
     public ushort FirstColorPointer => unchecked((ushort)(InstructionPointer + sizeof(ushort)));
 
     /// <summary>The terminal wait command after fifteen live BGR555 colors.</summary>

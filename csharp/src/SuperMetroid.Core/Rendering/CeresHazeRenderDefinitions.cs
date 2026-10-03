@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -14,7 +15,7 @@ internal static class CeresHazeRenderDefinitions
     /// <summary>Each subsequent HDMA color band spans eight physical scanlines.</summary>
     internal const int BandHeight = 8;
     /// <summary>$88:DE2D's final table write uses counter fifteen; the following call only changes pre-instruction.</summary>
-    internal const int MaximumComponent = 15;
+    internal const int MaximumComponent = CeresHazeDefinitions.FadeSteps - 1;
 
     /// <summary>
     /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade

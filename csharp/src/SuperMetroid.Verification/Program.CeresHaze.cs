@@ -11,6 +11,10 @@ internal static partial class Program
 {
     private static void VerifyCeresHazeLifecycle()
     {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres haze oracle revision");
+        VerifyCeresHazeNativeRamp(rom);
         var haze = new CeresHazeState();
         haze.Load(true, false, false);
         haze.Step();
@@ -19,16 +23,6 @@ internal static partial class Program
         {
             haze.Step(roomFadeIn: true);
             AssertEqual(frame, haze.Intensity, "native haze fade-in table counter");
-            var pixels = new Rgba32[256 * 224];
-            SnesGameplayFrameRenderer.ApplyCeresHaze(pixels, haze.IsRed, haze.Intensity);
-            for (int band = 0; band < 16; band++)
-            {
-                int y = band == 0 ? 32 : 64 + (band - 1) * 8;
-                int component = Math.Max(0, frame - (15 - band));
-                AssertEqual((component << 3) | (component >> 2), pixels[y * 256].B,
-                    "native HDMA band at fade frame");
-                AssertEqual(0, pixels[y * 256].R, "blue room does not gain red haze");
-            }
         }
         haze.Step(); // Counter sixteen changes pre-instruction without rewriting the table.
         haze.Step(roomFadeOut: true);
@@ -39,7 +33,7 @@ internal static partial class Program
             AssertEqual(frame, haze.Intensity, "native fade-out table before decrement");
         }
 
-        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        var runtime = new SuperMetroidRuntime(rom);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

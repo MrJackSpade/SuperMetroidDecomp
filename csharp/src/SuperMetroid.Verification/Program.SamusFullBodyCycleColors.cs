@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(202, stored.Count, "Full-body sharing, interpolation and base tints remove566 stored words");
+        AssertEqual(188, stored.Count, "Full-body sharing, interpolation and tints remove580 stored words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -33,6 +33,12 @@ internal static partial class Program
         foreach (int pointer in new[] { 0x9d40, 0x9d60, 0x9f40, 0x9f60, 0x9f80 })
         foreach (int color in new[] { 10, 11 }) speedTintWords.Add(pointer + 2 * color);
         AssertEqual(43, speedTintWords.Count, "Original Speed Booster tint word domain");
+        var speedBrightWords = new HashSet<int>();
+        foreach (int pointer in new[] { 0x9b60, 0x9b80 })
+        foreach (int color in new[] { 1, 2, 10, 11, 12 }) speedBrightWords.Add(pointer + 2 * color);
+        foreach (int pointer in new[] { 0x9d60, 0x9d80 }) speedBrightWords.Add(pointer + 24);
+        foreach (int pointer in new[] { 0x9f60, 0x9f80 }) speedBrightWords.Add(pointer + 4);
+        AssertEqual(14, speedBrightWords.Count, "Original Speed Booster endpoint brightening domain");
         int ordinal = 0;
         foreach (ushort pointer in originalPointers)
         {
@@ -68,7 +74,11 @@ internal static partial class Program
                 ushort speedBasis = ReadVerificationWord(rom, 0x9b0000 | (0x9b20 + paletteIndex / 16 * 512 + 2 * color));
                 AssertEqual(speedTint, SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(paletteIndex, color, speedBasis, out ushort tint), "Every Speed Booster tint domain member");
                 if (speedTint) AssertEqual(expected, tint, "Every original Speed Booster base tint word");
-                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint, stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
+                bool speedBright = speedBrightWords.Contains(pointer + 2 * color);
+                ushort dim = ReadVerificationWord(rom, 0x9b0000 | (0x9b40 + paletteIndex / 16 * 512 + 2 * color));
+                AssertEqual(speedBright, SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(paletteIndex, color, dim, out ushort brightened), "Every Speed Booster brightening domain member");
+                if (speedBright) AssertEqual(expected, brightened, "Every original Speed Booster endpoint brightening word");
+                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright, stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -81,11 +91,13 @@ internal static partial class Program
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(invalid, 0), "Alias palette-index bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(invalid, 3, 0, out ushort rejected) && rejected == 0, "Speed tint palette bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(invalid, 1, 0, out rejected) && rejected == 0, "Speed brightening palette bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(0, invalid), "Alias color-index bounds");
             AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(1, invalid, 0, out ushort rejected) && rejected == 0, "Speed tint color bounds");
+            AssertTrue(!SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(2, invalid, 0, out rejected) && rejected == 0, "Speed brightening color bounds");
         }
         for (int basis = 0; basis < 32768; basis++)
         for (int shade = 0; shade < 4; shade++)
@@ -165,6 +177,22 @@ internal static partial class Program
             ushort expected = pointer == 0x9ba0 + suit * 0x200 ? (ushort)(4000 + suit * 16 + color) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
             AssertEqual(expected, edited.Resolve(pointer, color), "Stored-shine basis-only edits preserve supplied derived shades");
+        }
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        for (int suit = 0; suit < 3; suit++)
+        for (int color = 0; color < 16; color++)
+        {
+            int word = 5000 + suit * 16 + color;
+            document.SpeedBooster[suit][1][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            int suit = (pointer - 0x9b20) / 0x200;
+            ushort expected = pointer == 0x9b40 + suit * 0x200 ? (ushort)(5000 + suit * 16 + color) :
+                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+            AssertEqual(expected, edited.Resolve(pointer, color), "Dim-only edits preserve supplied brighter shades");
         }
     }
     private static void VerifySamusFullBodyCycleColorOverride(

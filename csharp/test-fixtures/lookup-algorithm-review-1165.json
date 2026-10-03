@@ -5795,4 +5795,15 @@
     "scope":"Remaining Speed Booster endpoints/channels, active shinespark/Screw Attack relationships and transparent payload dispositions remain pending. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source hashes including the shared tint dependency and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodySpeedBoosterEndpointBrighteningReview": {
+    "status":"converted14 canonical Speed Booster words from independently supplied dim endpoints",
+    "owners":"SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening; SamusFullBodyCycleColorCatalog; LoadingPaletteColorDefinitions.BrightenDimColor",
+    "source":"Original middle/bright rows9B60/9B80 Power slots1/2/10/11/12;9D60/9D80 Varia12;9F60/9F80 Gravity2. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Red stays fixed. Power1/12 and Gravity2 add green5/15 and blue10/10; Power2 and Varia12 add green0/0,blue5/10; Power10/11 add green0/5,blue5/10. Saturate at31. Reuse reviewed loading brightening arithmetic with reversed shade. Stock storage202 to188, without generated rows or runtime ROM reads.",
+    "ownership":"Evaluate against each full-body suit's own supplied dim row; loading input ownership is separate. Remove only matching canonical words. Differing aliases and independently edited brighter colors remain explicit, including when dim sources alone change.",
+    "proof":"Extend the existing full-body proof with independent14-word original-address domain, all native values and complete48-by16 membership plus invalid bounds. Add dim-row-only edits checked across all768 outputs. Existing all-color,Power-only,base-only,stored-shine-base-only edits and all original768 colors/CGRAM/pointer boundaries remain. Reuse --lookup-loading-colors for full RGB5 brightening arithmetic and saturation coverage.",
+    "scope":"Remaining dim endpoint components, other shared channels,active/Screw shade relationships and transparent payloads still require dispositions. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

@@ -27,6 +27,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 value == SamusFullBodyCycleColorFormat.StoredShineColor(palettes[palette / 16 * 16 + 4][color], palette % 4)) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
                 palettes[palette / 16 * 16][color], out ushort tinted) && value == tinted) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
+                palettes[palette / 16 * 16 + 1][color], out ushort brightened) && value == brightened) continue;
             colors.Add(index, value);
         }
     }
@@ -54,6 +56,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
+        if (palette % 16 is 2 or 3 && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
+            ResolveIndex((palette / 16 * 16 + 1) * 16 + color), out ushort brightened)) return brightened;
         if (SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
             ResolveIndex(palette / 16 * 256 + color), out ushort tinted)) return tinted;
         return SamusFullBodyCycleColorFormat.StoredShineColor(
@@ -180,6 +184,25 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Brightens seven independently supplied dim Speed Booster inks.</summary>
+    /// <remarks>Original Power slots1/2/10/11/12, Varia12 and Gravity2
+    /// in the middle/bright Speed Booster rows derive from their dim row.
+    /// Power1/12 and Gravity2 add green5/15 and blue10/10; Power2 and
+    /// Varia12 add green0/0 and blue5/10; Power10/11 add green0/5 and
+    /// blue5/10. Red is unchanged and sums saturate at31. Reuse the loading
+    /// endpoint brightening formula while preserving separate full-body inputs.</remarks>
+    internal static bool TrySpeedBoosterBrightening(int palette, int color, ushort dim, out ushort value)
+    {
+        value = 0;
+        if ((uint)palette >= PaletteCount || color is < 1 or > 15 || palette % 16 is not (2 or 3)) return false;
+        int suit = palette / 16;
+        if (!(suit == 0 ? color is 1 or 2 or 10 or 11 or 12 : suit == 1 ? color == 12 : color == 2)) return false;
+        bool plateau = suit == 2 || (suit == 0 && color is 1 or 12);
+        int greenPeak = plateau ? 15 : suit == 0 && color is 10 or 11 ? 5 : 0;
+        value = LoadingPaletteColorDefinitions.BrightenDimColor(dim, 3 - palette % 4, greenPeak, plateau);
+        return true;
+    }
 
     /// <summary>Calculates the base-derived Speed Booster blue/green tints.</summary>
     /// <remarks>Original Power slots3..8/13..15 and Gravity10/11 in

@@ -5828,4 +5828,15 @@
     "scope":"Other active-shine inks and exceptional components,Screw Attack relationships,Speed Booster endpoint components and transparent payloads remain pending. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyActiveGoldRampReview": {
+    "status":"converted26 canonical active-shinespark gold-ramp words;27 mapped words including one existing alias",
+    "owners":"SamusFullBodyCycleColorFormat.TryActiveGoldRamp; SamusFullBodyCycleColorCatalog",
+    "source":"Original9C40/9C60/9C80 Power1/9/10/11/12 and9E40/9E60/9E80 Varia1/10/11/12. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Power1/9/11/12 interpolate red/green toward31 by shade/4 with floor rounding, reusing StoredShineColor arithmetic. Power10 increases red/green by3 per shade; Varia1/11/12 by5; Varia10 only increases green by5 and keeps red unchanged. Saturate linear channels at31 and preserve supplied blue. Stock136 to110 words; no cached computed shades.",
+    "ownership":"Use each suit's independent active-shinespark base. Compare supplied canonical words before omission; preserve differing overrides and aliases. Existing active-base-only fixture confirms unchanged supplied shades survive source edits.",
+    "proof":"Extend existing full-body proof with27 original addresses and native word comparisons; every48-by16 member and invalid boundaries; all32768 RGB5 bases at three shades for quarter interpolation and both linear steps, including saturation and blue preservation. Reuse existing768-color,all-edit,base-only and CGRAM checks rather than creating a second palette proof.",
+    "scope":"Remaining active exceptional channels,Speed Booster endpoint components,Screw Attack shades and transparent payloads still need dispositions. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

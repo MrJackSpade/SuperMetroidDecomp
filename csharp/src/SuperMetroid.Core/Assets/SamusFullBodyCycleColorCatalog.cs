@@ -34,6 +34,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palette, color, palettes[palette / 16 * 16][color], palettes[channelSource / 16][channelSource % 16])) continue;
             if (source == index && SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color) &&
                 value == SamusFullBodyCycleColorFormat.ActiveShineTint(palettes[palette / 16 * 16 + 8][color], palette % 4)) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
+                palettes[palette / 16 * 16 + 8][color], out ushort gold) && value == gold) continue;
             colors.Add(index, value);
         }
     }
@@ -63,6 +65,8 @@ public sealed class SamusFullBodyCycleColorCatalog
         if (source != index) return ResolveIndex(source);
         if (SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color))
             return SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex((palette / 16 * 16 + 8) * 16 + color), palette % 4);
+        if (palette % 16 is >= 9 and <= 11 && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
+            ResolveIndex((palette / 16 * 16 + 8) * 16 + color), out ushort gold)) return gold;
         int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
         if (channelSource >= 0) return SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
             palette, color, ResolveIndex(palette / 16 * 256 + color), ResolveIndex(channelSource));
@@ -194,6 +198,29 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Calculates27 active-shinespark gold-ramp words while preserving base blue.</summary>
+    /// <remarks>Power slots1/9/11/12 use the stored-shine quarter-white
+    /// interpolation on red/green only. Power10 adds three per shade to both
+    /// channels. Varia1/11/12 add five per shade to red/green; Varia10 changes only green. All sums saturate at31.
+    /// Original rows9C40/60/80 and9E40/60/80 establish the mapping;
+    /// other slots and Gravity are outside this gold-ramp domain.</remarks>
+    internal static bool TryActiveGoldRamp(int palette, int color, ushort basis, out ushort value)
+    {
+        value = 0;
+        if ((uint)palette >= PaletteCount || palette % 16 is < 9 or > 11) return false;
+        int suit = palette / 16, shade = palette % 4;
+        if (suit == 0 && color is 1 or 9 or 11 or 12)
+        {
+            value = (ushort)((StoredShineColor(basis, shade) & 0x03ff) | (basis & 0x7c00));
+            return true;
+        }
+        int step = suit == 0 && color == 10 ? 3 : suit == 1 && color is 1 or 10 or 11 or 12 ? 5 : 0;
+        if (step == 0) return false;
+        value = (ushort)(Math.Min(31, (basis & 31) + (suit == 1 && color == 10 ? 0 : step * shade)) |
+            Math.Min(31, (basis >> 5 & 31) + step * shade) << 5 | (basis & 0x7c00));
+        return true;
+    }
 
     /// <summary>Selects the47 canonical active-shinespark words that use the shared warm tint.</summary>
     internal static bool IsActiveShineTint(int palette, int color)

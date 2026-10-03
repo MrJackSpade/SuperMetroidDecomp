@@ -11,9 +11,9 @@ internal static class SamusColorClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.SamusFullBodyCycleColorCatalog", "samus-body-cycle-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusFullBodyCycleColorCatalog.cs", "6BBE2050D309463B3DE94E909DA5D1BAEB25C9CA79B5F6ECBA9964825A11F898"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusFullBodyCycleColorCatalog.cs", "7CCD8EE20DA2ABE50C2AC75F38B61E1117814050F63E3EC8D1BB908B9C9AA0F8"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteColorDefinitions.cs", "22521B690AF6FFFD1C89A4271C2F3BF97253890355253E559849B210A4D5D697")],
-            "Private construction follows validation of all four families, each with three suits and four sixteen-color shades. The loader validates complete rows at calculated allocation indices and rejects collisions, then stores unique color inputs and differing overrides while calculating opaque base-row, transparent-entry and cross-suit aliases plus stored-shine quarter-white interpolation and Speed Booster base tints and dim-endpoint brightening with shared blue channels, and active-shinespark warm tints. Apply/Resolve require one of48 aligned native palette identities and bounded color indices; palette clocks and restored caller state are not certified."),
+            "Private construction follows validation of all four families, each with three suits and four sixteen-color shades. The loader validates complete rows at calculated allocation indices and rejects collisions, then stores unique color inputs and differing overrides while calculating opaque base-row, transparent-entry and cross-suit aliases plus stored-shine quarter-white interpolation and Speed Booster base tints and dim-endpoint brightening with shared blue channels, and active-shinespark warm tints and gold ramps. Apply/Resolve require one of48 aligned native palette identities and bounded color indices; palette clocks and restored caller state are not certified."),
         new("SuperMetroid.Core.Assets.SamusSuitColorCatalog", "samus-suit-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions,
              new("csharp/src/SuperMetroid.Core/Assets/SamusSuitColorCatalog.cs", "A1E47A88B24A4E21282174E417E5C0C1A5CBF36FBB58F46F6891C8FC0C5D7DD4")],

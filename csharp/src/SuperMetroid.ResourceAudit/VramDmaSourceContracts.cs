@@ -27,7 +27,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "59020E84573C1A0470BD5B40E681B91570931F8E3DD1382B7C2934DED1694476"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs", "148F7D5BBEEFB793D4184D5514B2236792C1913F9C11238190F04FBAE08509DE"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs", "7847D7359C95EF6D00D5CB78E9D40F817AE9FF04D51FA3A5C919D78ECEA58E76"),
-        new("csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs", "0D01251B2DC1141A3EB53E71D6B35CDF8A3D9181401238DDF55503E33B9F330E"),
+        new("csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs", "697D7E7EBCF798075CF6FA5A891DCD9DF805092EE349CF8847705EDFFC790B03"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "76A235967E736A9B6FDC9CA2E67B26FEC0DBE71074D63F83A901608AC7E48ABA"),
         new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "E41E04EFE81AEB4519ACE14BFA3484D4013D7EC534061E23E0B8C3E7C6CCD43D"),
         new("csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs", "5801EDCACB25496E1EDAF78AFF5D1412EE953B2619C9C9395EC02F6478AF4E11"),

@@ -66,6 +66,7 @@ internal static partial class Program
     private static void VerifyTourianStatueAnimatedTileMechanics(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
+        VerifyTourianStatueArtworkSources(rom);
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
@@ -90,10 +91,6 @@ internal static partial class Program
                         $"$87:{pointer:X4} presentation-owned");
                     int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
                         definition, pointer);
-                    AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                            RoomFxRomData.Banks.AnimatedTiles | pointer),
-                        (ushort)source,
-                        $"statue $87:{definition.ObjectPointer:X4} compiled frame selection $87:{pointer:X4}");
                     byte[] native = RomDataReader.ReadFixedBank(rom, source,
                         definition.TransferByteCount);
                     AssertTrue(artwork.TryResolve(source, native.Length,

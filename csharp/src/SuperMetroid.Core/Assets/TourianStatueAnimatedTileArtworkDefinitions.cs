@@ -15,34 +15,33 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
     /// <summary>Complete editable 2-bpp character strip, including shared frames.</summary>
     public const int TransferByteCount = SourceEnd - FirstSource;
 
-    // Each row follows the nine source operands of the corresponding $87 header.
-    // Repeated pointers are intentional: native programs reuse existing pictures.
-    private static readonly ushort[][] Sources =
-    [
-        [0x9364, 0x93e4, 0x9464, 0x93e4, 0x9364, 0x93e4, 0x9464, 0x97e4, 0x97e4],
-        [0x94e4, 0x9524, 0x9564, 0x9524, 0x94e4, 0x9524, 0x9564, 0x9864, 0x9864],
-        [0x9724, 0x9764, 0x97a4, 0x9764, 0x9724, 0x9764, 0x97a4, 0x98a4, 0x98a4],
-        [0x95a4, 0x9624, 0x96a4, 0x9624, 0x95a4, 0x9624, 0x96a4, 0x98e4, 0x98e4],
-    ];
-
-    /// <summary>Resolves one source operand in the stock statue animation program.</summary>
+    /// <summary>
+    /// Resolves the nine timed-frame operands of each stock $87:83AC..854B program.
+    /// The first five positions traverse three contiguous pictures forward and back
+    /// (min(index, 4-index)); the next two replay pictures one and two during release.
+    /// Eye-glow and soul waits share the boss-specific released picture. The native
+    /// Kraid/Draygon "Other" labels are reversed; selection follows original operands.
+    /// Only exact operand identities are accepted, with no wrapping or extrapolation.
+    /// </summary>
     public static int SourceAddress(TourianStatueAnimatedTileProgramDefinition definition,
         ushort operandPointer)
     {
         ArgumentNullException.ThrowIfNull(definition);
-        int statue = -1;
-        for (int index = 0; index < TourianStatueAnimatedTileMechanicsDefinitions.All.Count; index++)
-            if (TourianStatueAnimatedTileMechanicsDefinitions.All[index].ObjectPointer ==
-                definition.ObjectPointer)
-            {
-                statue = index;
-                break;
-            }
-        if (statue < 0)
-            throw new InvalidDataException($"Unknown Tourian statue $87:{definition.ObjectPointer:X4}.");
+        (int first, int width, int released) = definition.ObjectPointer switch
+        {
+            AnimatedTileObjectPointers.TourianStatuePhantoon => (0x9364, 0x80, 0x97e4),
+            AnimatedTileObjectPointers.TourianStatueRidley => (0x94e4, 0x40, 0x9864),
+            AnimatedTileObjectPointers.TourianStatueKraid => (0x9724, 0x40, 0x98a4),
+            AnimatedTileObjectPointers.TourianStatueDraygon => (0x95a4, 0x80, 0x98e4),
+            _ => throw new InvalidDataException($"Unknown Tourian statue $87:{definition.ObjectPointer:X4}."),
+        };
         for (int index = 0; index < definition.SourceOperandPointers.Count; index++)
             if (definition.SourceOperandPointers[index] == operandPointer)
-                return RoomFxRomData.Banks.AnimatedTiles | Sources[statue][index];
+            {
+                int source = index >= 7 ? released
+                    : first + width * (index <= 4 ? Math.Min(index, 4 - index) : index - 4);
+                return RoomFxRomData.Banks.AnimatedTiles | source;
+            }
         throw new InvalidDataException(
             $"Tourian statue $87:{definition.ObjectPointer:X4} has no frame operand $87:{operandPointer:X4}.");
     }

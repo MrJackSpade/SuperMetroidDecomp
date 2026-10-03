@@ -36,6 +36,14 @@ public static class AnimatedTileInstructionCodes
 /// <summary>Bank-$87 object headers selected directly by translated room setup code.</summary>
 public static class AnimatedTileObjectPointers
 {
+    /// <summary>$87:854C AnimatedTilesObject_TourianStatuePhantoon.</summary>
+    public const ushort TourianStatuePhantoon = 0x854c;
+    /// <summary>$87:8552 AnimatedTilesObject_TourianStatueRidley.</summary>
+    public const ushort TourianStatueRidley = 0x8552;
+    /// <summary>$87:8558 AnimatedTilesObject_TourianStatueKraid.</summary>
+    public const ushort TourianStatueKraid = 0x8558;
+    /// <summary>$87:855E AnimatedTilesObject_TourianStatueDraygon.</summary>
+    public const ushort TourianStatueDraygon = 0x855e;
     /// <summary>$87:824B AnimatedTilesObjects_FX_nothing, the unused area-bit object.</summary>
     public const ushort Empty = 0x824b;
     /// <summary>$87:8257 AnimatedTilesObjects_FX_horizontalSpikes, common area bit0.</summary>

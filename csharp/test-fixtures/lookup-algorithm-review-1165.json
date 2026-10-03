@@ -5028,4 +5028,17 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-animated-frames pass source-address, header/frame and guarded loop checks. No artwork payload was published and no full renderer/playthrough campaign was performed.",
     "scope":"The existing artwork-address algorithm now has an independent completed disposition under1165. This is not a new table conversion or a retention decision about pixel artwork. Wider maintained-source audit remains active; implementation/review record is this entry's commit."
   }
+,
+  "tourianStatueArtworkSourceReview": {
+    "status":"converted: four nine-address source rows removed",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs: SourceAddress",
+    "source":"Supported NTSC J/U v1.0 bank87 programs83AC/8414/847C/84E4, headers854C/8552/8558/855E. Pinned bank_87.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d independently identifies the timed instructions and contiguous three-picture strips.",
+    "algorithm":"Named boss cases select first picture, width and released picture. Timed positions0..4 use picture min(index,4-index), positions5/6 replay pictures1/2 during release, positions7/8 share the released picture. This is the common forward/back animation and release sequence, without cached source addresses or fitted corrections.",
+    "domain":"Four compiled object identities and their nine exact operand addresses each. Every other ushort operand rejects InvalidDataException; null rejects ArgumentNullException and unknown object identity rejects before operand selection. Native Kraid release uses98A4 and Draygon98E4 despite reversed Other symbol names; assignments remain exact.",
+    "evidence":"All36 original pointer words follow the same triangular/replay/release rule. Three regular frames are contiguous at each boss-specific transfer width. Released frames are semantic boss-specific artwork selections, not samples of a numerical curve. No lookup retention is needed.",
+    "proof":"VerifyTourianStatueArtworkSources independently decodes original bytecode lengths until both delete instructions, reads all36 original source words and compares production SourceAddress over all65536 operand inputs for each boss. It also checks the existing operand enumeration view against decoded native frame identities and null/unknown-object rejection. Consolidated the old per-frame source equality into this single proof; separate pixel-content checks remain unchanged.",
+    "consumers":"TourianStatueSequence.StepTiles, RoomFxAnimatedTileAtlas import/lookup, ResourceAudit domains/ownership and render fixtures use the same SourceAddress API. Added exact named object identities in AnimatedTileObjectPointers and refreshed the artwork source hash in VramDmaSourceContracts. Compiler boundaries confirm consumers without a broad room fixture.",
+    "confirmation":"SHA-pinned --lookup-tourian-artwork plus Verification and ResourceAudit builds. Original ROM remains local; no artwork payload is published.",
+    "scope":"All36 artwork-address mappings resolved without retention. Statue header descriptors, operand-offset storage and existing mechanics dispatch remain separate review work, not exempted or declared complete. Wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
+  }
 }

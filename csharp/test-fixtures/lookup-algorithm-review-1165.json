@@ -6661,4 +6661,15 @@
     "consumers":"GameOverMenuState keeps Get and all tick/ordering behavior. All becomes lazy enumeration; extractor consumes it directly. Removed Build, seed list, generated60-record array and duplicate pointer dictionary. Existing asset fixture uses InstructionCount rather than array Length. No runtime ROM dependency introduced.",
     "confirmation":"Verification/ResourceAudit builds pass. SHA-pinned --lookup-game-over-baby-animation confirms every native record and all65536 pointer admissions/rejections; --lookup-game-over-baby-colors additionally confirms real extractor/loader integration after enumeration changed. Menu dependency hashes and maintained-source index refreshed. Implementation commit is the commit adding this record. No gameplay sweep or whole-game validation."
   }
+,
+  "gameOverBabyMaterialShadeReview": {
+    "status":"converted material-specific cry shading; base artwork choices remain pending",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
+    "nativeEvidence":"Supported SHA-pinned ROM: spritemaps82:CFF6/CFFD/D004 select16x16 OBJ tiles90/92/9B from B6:C000. Static planar decoding shows inks10/11/12 on the lower fangs and1/13/14/15 on the surrounding glass. The categorical material roles come from fixed sprite pixels, not a numerical fit across unrelated indices. Native82:BB9F..BBB4 copies the phase to OBJ palette4.",
+    "fangShading":"MiddleCry holds red of all three fang shades10..12 and raises green/blue by3. OpenCry raises all channels by3. This removes the MiddleCry red differences at11/12; brightest fang10 already saturated red, so the same rule covers the whole fang ramp.",
+    "glassShading":"ClosedCry glass highlight14 adds5 to all Idle channels with saturation. Later glass shade13 raises3 but is capped one RGB5 level below its same-phase highlight14 in each channel, keeping it distinct from the highlight. This removes OpenCry green/blue differences while preserving the MiddleCry result. Edited highlights clamp the lower cap to0 and independent target differences remain preserved.",
+    "storage":"Stock14 whole base words and four differing components remain pending. The four former Middle/Open differences are now derived, not accepted exceptions. The remaining differing components are ClosedCry9 red4,15 red0,4 red1/blue1. Supersedes the15-word/eight-component count in gameOverBabyCoolTintReview.",
+    "proof":"Reuse the one consolidated VerifyGameOverBabyColors proof: all64 original ROM words, actual CGRAM, JSON identity, bounded selectors and all6144 independently edited components across every output. This includes independent glass-highlight edits and fang-source edits.",
+    "confirmation":"Verification and ResourceAudit builds and isolated --lookup-game-over-baby-colors pass. Owner hash and maintained-source index refreshed. Implementation commit is the commit adding this entry. Static pixel inspection stayed scoped to the identified palette; no gameplay search or new retention-only test."
+  }
 }

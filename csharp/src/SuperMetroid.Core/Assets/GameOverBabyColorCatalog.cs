@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// the preceding cry phase by three independently saturated RGB5 steps. Color zero
 /// instead aliases Idle color zero. Import stores only differing target channels,
 /// so independently edited source and target colors remain exact. Stock input consists
-/// of 15 base words and eight differing components, whose separate review remains open;
+/// of 14 base words and four differing components, whose separate review remains open;
 /// this conversion does not assert that those inputs qualify for retention.
 /// Idle/ClosedCry green inks 2..4 share red/blue and have green levels spaced by five;
 /// derive inks 2/3 from darkest ink 4, saturating for independently edited assets.
@@ -18,6 +18,10 @@ namespace SuperMetroid.Core.Assets;
 /// ClosedCry cyan inks 1/15 add five red/green levels and subtract five blue levels;
 /// ink 15 red remains independently supplied. The green ramp also adds five green
 /// levels from Idle, with its red/blue endpoint choices still independently supplied.
+/// Native OBJ tiles $90/$92/$9B use inks 10..12 for fangs and 1/13/14/15 for
+/// the surrounding glass. MiddleCry holds fang red while lifting green/blue;
+/// OpenCry lifts all three. Glass shade 13 stays at least one level below highlight
+/// 14 in each channel. ClosedCry highlight 14 brightens Idle by five saturated steps.
 /// </remarks>
 internal sealed class GameOverBabyColorCatalog
 {
@@ -37,13 +41,16 @@ internal sealed class GameOverBabyColorCatalog
             bool middleShade = phase == 0 && color == 11;
             bool coolCry = phase == 1 && color is 1 or 15;
             bool greenCry = phase == 1 && color == 4;
-            if (!greenShade && !warmCry && !middleShade && !coolCry && !greenCry &&
+            bool glassHighlight = phase == 1 && color == 14;
+            if (!greenShade && !warmCry && !middleShade && !coolCry && !greenCry && !glassHighlight &&
                 (phase == 0 || (phase == 1 && color != 0)))
             {
                 inputs.Add(key, supplied);
                 continue;
             }
-            ushort expected = coolCry
+            ushort expected = glassHighlight
+                ? Brighten(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color], 5)
+                : coolCry
                 ? CoolCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
                 : greenCry ? GreenCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
                 : middleShade
@@ -54,7 +61,8 @@ internal sealed class GameOverBabyColorCatalog
                 : warmCry ? WarmCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
                 : color == 0
                 ? palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][0]
-                : BrightenCry(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)(phase - 1))][color]);
+                : CryShade(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)(phase - 1))][color],
+                    phase, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][14] : (ushort)0);
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
         }
@@ -67,7 +75,9 @@ internal sealed class GameOverBabyColorCatalog
         int phase = (int)palette;
         int key = phase * 16 + color;
         if (inputs.TryGetValue(key, out ushort value)) return value;
-        ushort expected = phase == 1 && color is 1 or 15
+        ushort expected = phase == 1 && color == 14
+            ? Brighten(Read(GameOverBabyPalette.Idle, color), 5)
+            : phase == 1 && color is 1 or 15
             ? CoolCry(Read(GameOverBabyPalette.Idle, color))
             : phase == 1 && color == 4 ? GreenCry(Read(GameOverBabyPalette.Idle, color))
             : phase == 0 && color == 11
@@ -75,7 +85,8 @@ internal sealed class GameOverBabyColorCatalog
             : phase < 2 && color is 2 or 3
             ? GreenShade(Read(palette, 4), color)
             : phase == 1 && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
-            : color == 0 ? inputs[0] : BrightenCry(Read((GameOverBabyPalette)(phase - 1), color));
+            : color == 0 ? inputs[0] : CryShade(Read((GameOverBabyPalette)(phase - 1), color),
+                phase, color, color == 13 ? Read(palette, 14) : (ushort)0);
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
 
@@ -97,12 +108,21 @@ internal sealed class GameOverBabyColorCatalog
             ((bright >> 5 & 31) + (dark >> 5 & 31)) / 2 << 5 |
             ((bright >> 10 & 31) + (dark >> 10 & 31)) / 2 << 10);
 
-    /// <summary>RGB5 additive brightness, +3 per component, saturating each component at 31 before packing.</summary>
-    internal static ushort BrightenCry(ushort color)
+    private static ushort CryShade(ushort previous, int phase, int ink, ushort highlight)
     {
-        if (color > 0x7fff) throw new ArgumentOutOfRangeException(nameof(color));
-        return (ushort)(Math.Min(31, (color & 31) + 3) |
-            Math.Min(31, (color >> 5 & 31) + 3) << 5 |
-            Math.Min(31, (color >> 10 & 31) + 3) << 10);
+        ushort bright = Brighten(previous, 3);
+        if (phase == 2 && ink is >= 10 and <= 12)
+            return (ushort)((bright & 0x7fe0) | (previous & 31));
+        if (ink == 13)
+            return (ushort)(Math.Min(bright & 31, Math.Max(0, (highlight & 31) - 1)) |
+                Math.Min(bright >> 5 & 31, Math.Max(0, (highlight >> 5 & 31) - 1)) << 5 |
+                Math.Min(bright >> 10 & 31, Math.Max(0, (highlight >> 10 & 31) - 1)) << 10);
+        return bright;
     }
+
+    /// <summary>RGB5 additive brightness, saturating each component at 31 before packing.</summary>
+    private static ushort Brighten(ushort color, int amount) =>
+        (ushort)(Math.Min(31, (color & 31) + amount) |
+            Math.Min(31, (color >> 5 & 31) + amount) << 5 |
+            Math.Min(31, (color >> 10 & 31) + amount) << 10);
 }

@@ -4849,5 +4849,30 @@
     "consumers":"Runtime Ceres entry, save restoration and load-station room entry keep the same Count/Get API. No source pointer or placement arrays are generated at startup. Removed old suggested-formula/retention annotations. The stale uninstalled full-runtime guard fixture is replaced by complete configuration-domain proofs; Get takes no cartridge capability and the runtime calls this same API.",
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --load-station-definitions pass. Static source/native inspection chose the conversion; no gameplay sweep or exploratory defect search.",
     "scope":"All seven retail-area station domains, list identities and seven placement fields resolved without retention. Other maintained mappings remain under1165; implementation record is the commit introducing this entry."
+  },
+  "roomFxRecordReview": {
+    "status":"converted:295 stored FX records and generated dictionary removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxRecordDefinitions.cs and RoomFxRecordDefinitions.Generated.cs",
+    "source":"Supported NTSC J/U v1.0 bank83 FX headers, pinned bank_83.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d. Native documented offsets0/2/4/6 are four words;8..15 are eight bytes. Native capture walks every room-state FX root plus Mother Brain direct indexed records.",
+    "evidence":"Each room/entrance identity selects liquid positions, packed velocity, timer, effect kind, layer blending controls and enabled palette/animated-tile effects. Direct semantic configuration cases replace stored records; these are not arbitrary samples recast as a numerical formula. All enumeration is lazy ascending identity selection without a persistent generated cache. The maintained one-time generator emits the same cases.",
+    "identities":{"disposition":"converted","proof":"VerifyRoomFxIdentities compares original pre-conversion295-pointer membership with independently captured native records and All enumeration; checks all65536 ushort Get inputs including interior/unknown rejection, and signed byte/word offset rejection boundaries."},
+    "fields": [
+      {"field":"DoorPointer","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxDoorPointer"},
+      {"field":"BaseYPosition","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxBaseYPosition"},
+      {"field":"TargetYPosition","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxTargetYPosition"},
+      {"field":"PackedYVelocity","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxPackedYVelocity"},
+      {"field":"Timer","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxTimer"},
+      {"field":"Type","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxType"},
+      {"field":"DefaultLayerBlend","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxDefaultLayerBlend"},
+      {"field":"Layer3LayerBlend","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxLayer3LayerBlend"},
+      {"field":"LiquidOptions","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxLiquidOptions"},
+      {"field":"PaletteFxBitset","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxPaletteFxBitset"},
+      {"field":"AnimatedTileBitset","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxAnimatedTileBitset"},
+      {"field":"PaletteBlend","disposition":"converted semantic room/entrance configuration selection","proof":"VerifyRoomFxPaletteBlend"}
+    ],
+    "proofCoverage":"Each named field proof compares every295 record against original native bytes. All enumerated fields share that proof. All16 byte views and15 overlapping word starts (including odd offsets and cross-field reads) are assigned exactly once to the proof owning their starting byte. Terminator records preserve the existing canonical doorFFFF plus zero-filled payload; native adjacent data is not falsely treated as that synthetic tail. The old aggregate equality check is consolidated into these proofs. The oracle ROM is SHA-pinned.",
+    "consumers":"RoomLayer3FxState, RoomPaletteFxSystem, RoomSandAnimatedTilesState and RoomTreadmillAnimatedTilesState retain typed Get/Select. Tooling and verification enumerate All without a stored collection. Existing native door-selection comparisons remain scoped to room roots/default and retail physical doors; they are not claimed as a complete independent review of the separate list-walk algorithm.",
+    "confirmation":"Verification and ResourceAudit builds pass. Early --room-fx-record-definitions with the supported ROM passes all field/domain proofs, deterministic generator comparison, existing selection fixtures and Ceres consumer guard prohibiting original record reads. Both guarded and unguarded integration paths use compiled definitions; independent numerical evidence comes from direct native field proofs, not their mutual agreement.",
+    "scope":"All twelve record fields, accepted identity set and byte/word views resolved without retention. The separate Select algorithm and wider maintained-source inventory remain subject to independent review. Implementation record is the commit introducing this entry."
   }
 }

@@ -49,16 +49,30 @@ public sealed record RoomFxRecordDefinition(
 /// <summary>Compiled retail room-FX records selected by all known room states.</summary>
 public static partial class RoomFxRecordDefinitions
 {
-    // Partial-file static field order is unspecified; defer the index until generated is ready.
-    private static readonly Lazy<Dictionary<ushort, RoomFxRecordDefinition>> byPointer =
-        new(BuildIndex);
+    /// <summary>Enumerates every selected record in ascending native identity order without a stored cache.</summary>
+    public static IEnumerable<RoomFxRecordDefinition> All
+    {
+        get
+        {
+            for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
+                if (SelectRecord((ushort)pointer) is { } record)
+                    yield return record;
+        }
+    }
 
-    public static IReadOnlyList<RoomFxRecordDefinition> All => generated;
-
-    public static RoomFxRecordDefinition Get(ushort pointer) =>
-        byPointer.Value.TryGetValue(pointer, out RoomFxRecordDefinition? record)
-            ? record
-            : throw new InvalidDataException($"No compiled room-FX record at $83:{pointer:X4}.");
+    /// <summary>Directly selects the room-FX configuration for one original record identity.</summary>
+    /// <remarks>All 295 selected identities preserve the native four words/eight bytes.
+    /// Terminator identities preserve the existing canonical view: door FFFF and
+    /// zero payload, rather than exposing adjacent native records. Byte and odd-word
+    /// views preserve that same representation. Unknown/interior addresses reject.
+    /// Each identity selects a room/entrance configuration: liquid positions and velocity,
+    /// timer, effect kind, layer blend controls and enabled palette/animation effects.
+    /// These are semantic configuration cases, not samples of a numerical curve.
+    /// Field layout and original values are independently verified against supported
+    /// NTSC J/U v1.0 bank83 and pinned bank_83.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+    /// No record array or generated dictionary is retained.</remarks>
+    public static RoomFxRecordDefinition Get(ushort pointer) => SelectRecord(pointer) ??
+        throw new InvalidDataException($"No compiled room-FX record at $83:{pointer:X4}.");
 
     /// <summary>Replays the native first-default-or-matching-door walk over typed records.</summary>
     public static ushort Select(ushort fxPointer, ushort doorPointer)
@@ -76,16 +90,4 @@ public static partial class RoomFxRecordDefinitions
             $"Compiled room-FX list $83:{fxPointer:X4} did not terminate for door $83:{doorPointer:X4}.");
     }
 
-    private static Dictionary<ushort, RoomFxRecordDefinition> BuildIndex()
-    {
-        var result = new Dictionary<ushort, RoomFxRecordDefinition>(generated.Length);
-        ushort previous = 0;
-        foreach (RoomFxRecordDefinition record in generated)
-        {
-            if (record.Pointer <= previous || !result.TryAdd(record.Pointer, record))
-                throw new InvalidDataException("Compiled room-FX record pointers must be unique and sorted.");
-            previous = record.Pointer;
-        }
-        return result;
-    }
 }

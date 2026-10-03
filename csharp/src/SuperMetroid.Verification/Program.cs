@@ -53,6 +53,12 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--room-fx-record-definitions", var roomFxDefinitionsRom])
+{
+    VerifyRoomFxRecordDefinitions(roomFxDefinitionsRom);
+    return 0;
+}
+
 if (args is ["--load-station-definitions"])
 {
     VerifyCompiledLoadStationDefinitions();
@@ -1808,11 +1814,6 @@ if (args is ["--room-fx-retail-inventory"])
 if (args is ["--generate-room-fx-records", var roomFxGeneratorRom])
 {
     GenerateRoomFxRecordDefinitions(roomFxGeneratorRom);
-    return 0;
-}
-if (args is ["--room-fx-record-definitions", var roomFxDefinitionsRom])
-{
-    VerifyRoomFxRecordDefinitions(roomFxDefinitionsRom);
     return 0;
 }
 if (args is ["--enemy-projectile-instruction-mechanics"])

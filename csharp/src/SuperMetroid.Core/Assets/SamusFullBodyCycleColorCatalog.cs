@@ -48,6 +48,8 @@ public sealed class SamusFullBodyCycleColorCatalog
                 palettes[palette / 16 * 16 + 12][color], out ushort screw) && value == screw) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
                 palettes[12][color], palettes[1][12], out ushort ink) && value == ink) continue;
+            if (palette == 32 && color is 1 or 12 && value ==
+                SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
             colors.Add(index, value);
         }
         powerDim1 = Capture(1, 1, false, 2);
@@ -98,6 +100,8 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 530: return gravityDim2.Apply(LoadingPaletteColorDefinitions.TintColor(ResolveIndex(514), 2));
         }
         if (colors.TryGetValue(index, out ushort value)) return value;
+        if (index is 513 or 524)
+            return SamusFullBodyCycleColorFormat.GravitySharedBase(ResolveIndex(index % 16), ResolveIndex(16 + index % 16));
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
@@ -240,6 +244,14 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Combines Power's base blue with its dim Speed Booster red/green for Gravity base slots1/12.</summary>
+    /// <remarks>Original $9B:9F22/9F38 share red/green with9B42/9B58
+    /// and blue with9B22/9B38. These are repeated channels of the same suit
+    /// inks, not newly encoded color constants. Differing supplied Gravity
+    /// words remain explicit overrides, including when Power sources change.</remarks>
+    internal static ushort GravitySharedBase(ushort powerBase, ushort powerDim) =>
+        (ushort)((powerBase & 0x7c00) | (powerDim & 0x03ff));
 
     /// <summary>Calculates Power Screw Attack's descending-red ink and shared gold ink.</summary>
     /// <remarks>Original9CC4/9CE4/9D04 subtract five red and add five green

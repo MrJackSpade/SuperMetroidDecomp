@@ -5872,4 +5872,15 @@
     "scope":"Nine full-body component dispositions and remaining full-body inputs still need explicit review. Existing loading-input disposition is evidence, not a blanket exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed both resource-contract source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyGravityBaseChannelReview": {
+    "status":"converted two Gravity base inks to existing Power channels",
+    "owners":"SamusFullBodyCycleColorFormat.GravitySharedBase; SamusFullBodyCycleColorCatalog",
+    "source":"Original9F22/9F38 use Power dim9B42/9B58 red/green and Power base9B22/9B38 blue. Direct native values14,6,0 and22,16,0 confirm the split. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Compose low10 bits from dim ink and blue5 bits from base. Remove only supplied Gravity words matching that composition. Stock42 to40 whole words plus nine endpoint components. No generated caches or encoded payload constants.",
+    "ownership":"Independent Gravity differences remain complete overrides. Existing Power-only,Speed-base-only and Speed-dim-only fixtures confirm source edits preserve every separately supplied Gravity/family color, including derived descendants.",
+    "proof":"Extend existing full-body proof with two original source pairs and exact storage ownership. Check everyRGB5 dim input with all32 independent base-blue values while deliberately differing unused base red/green. Reuse all768 native outputs,CGRAM,mapping/bounds and independent edit fixtures.",
+    "scope":"Remaining channels,base/transparent inputs and exceptional shades still need dispositions. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

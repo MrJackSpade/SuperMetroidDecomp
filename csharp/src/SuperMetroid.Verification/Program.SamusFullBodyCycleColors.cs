@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(42, stored.Count, "Full-body endpoint splitting leaves42 whole-word inputs");
+        AssertEqual(40, stored.Count, "Full-body shared base channels leave40 whole-word inputs");
         int endpointComponents = 0;
         foreach (var field in typeof(SamusFullBodyCycleColorCatalog).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
             if (field.FieldType == typeof(LoadingPaletteInputView.Channels))
@@ -138,7 +138,11 @@ internal static partial class Program
                     ReadVerificationWord(rom, 0x9b9ca0 + 2 * color), ReadVerificationWord(rom, 0x9b9b58), out ushort ink), "Every Power Screw ink domain member");
                 if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
                 bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44;
-                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint,
+                bool gravityShared = pointer + 2 * color is 0x9f22 or 0x9f38;
+                if (gravityShared)
+                    AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(
+                        ReadVerificationWord(rom, 0x9b9b20 + 2 * color), ReadVerificationWord(rom, 0x9b9b40 + 2 * color)), "Original Gravity base shared-channel pairs");
+                AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint && !gravityShared,
                     stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
@@ -173,6 +177,10 @@ internal static partial class Program
         for (int basis = 0; basis < 32768; basis++)
         for (int shade = 0; shade < 4; shade++)
         {
+            if (shade == 0)
+                for (int baseBlue = 0; baseBlue < 32; baseBlue++)
+                    AssertEqual((ushort)((basis % 1024) + 1024 * baseBlue), SamusFullBodyCycleColorFormat.GravitySharedBase(
+                        (ushort)((baseBlue << 10) | (1023 - (basis & 1023))), (ushort)basis), "Complete independent Gravity base channel domain");
             int expected = 0;
             for (int shift = 0; shift <= 10; shift += 5)
             {

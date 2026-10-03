@@ -6007,4 +6007,15 @@
     "scope":"This supersedes earlier whole-word exclusions only. The30 differing components and all remaining endpoint/shade relationships still require review. No retention exception has been claimed. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; updated source/dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamEndpointChannelReview": {
+    "status":"converted shared endpoint channels",
+    "owners":"SamusHyperBeamColorCatalog.EndpointChannels and constructor/Resolve",
+    "source":"Native91D99E selects magenta frame1 at9B:A340, green frame5 atA2C0, red frame9 atA240. Every opaque magenta/green ink has blue=red. Every red ink has blue=green and red=green-frame green. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Store red/green for each canonical magenta/green endpoint, only green for the red endpoint. Calculate equal blue channels and red maximum from green-frame input. Nullable component overrides preserve differing asset inputs. Twelve inks across three endpoints replace36 whole words with60 independent components, leaving16 whole words plus30 intermediate components. No generated cache, rounding or saturation.",
+    "ownership":"Supplied target values are compared with supplied dependencies; edited blue or red channels become explicit input overrides. Existing source-frame-only edits cover magenta, green and red independently without changing other supplied rows.",
+    "proof":"Extend the single Hyper Beam proof with native per-endpoint ownership,16 whole words and60 endpoint components. Every32768 RGB5 input survives endpoint separation with matching and differing source maxima. Reuse all160 native words,complete midpoint domain,independent edits,bounds and22-call guarded runtime cycle.",
+    "scope":"The remaining endpoint shade/channel relationships and30 intermediate differences still require independent review. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

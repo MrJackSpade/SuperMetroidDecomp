@@ -9,6 +9,7 @@ public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
+    private readonly Dictionary<int, EndpointChannels> endpointInputs = new();
 
     private SamusHyperBeamColorCatalog(ushort[][] frames)
     {
@@ -26,6 +27,12 @@ public sealed class SamusHyperBeamColorCatalog
                     SamusHyperBeamColorFormat.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
+                continue;
+            }
+            if (source == index && color != 0 && frame is 1 or 5 or 9)
+            {
+                endpointInputs.Add(index, new(frames[frame][color], frame == 9,
+                    frames[5][color] >> 5 & 31));
                 continue;
             }
             colors.Add(index, frames[frame][color]);
@@ -89,12 +96,41 @@ public sealed class SamusHyperBeamColorCatalog
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
         if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
+        if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
+            return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0);
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
         ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
         return intermediateInputs.TryGetValue(frame * 16 + color, out var inputs) ? inputs.Apply(expected) : expected;
     }
 
+    /// <summary>Independent endpoint channels, sharing equal channels and the green-to-red maximum.</summary>
+    /// <remarks>Original rows9B:A340/A2C0 (cycle frames1/5) have blue=red
+    /// for every opaque ink. RowA240 (frame9) has blue=green and red=frame5
+    /// green. Keep the distinct endpoint inputs; independent edits override
+    /// either relationship. No rounding or saturation occurs. Derivation of
+    /// the remaining endpoint shade inputs is still under review in1165.</remarks>
+    internal readonly struct EndpointChannels
+    {
+        private readonly int? red;
+        private readonly int green;
+        private readonly int? blue;
+
+        internal EndpointChannels(ushort supplied, bool redHue, int greenHueMaximum)
+        {
+            int suppliedRed = supplied & 31;
+            green = supplied >> 5 & 31;
+            red = redHue && suppliedRed == greenHueMaximum ? null : suppliedRed;
+            int expectedBlue = redHue ? green : suppliedRed;
+            blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
+        }
+
+        internal ushort Resolve(bool redHue, int greenHueMaximum)
+        {
+            int resolvedRed = red ?? greenHueMaximum;
+            return (ushort)(resolvedRed | green << 5 | (blue ?? (redHue ? green : resolvedRed)) << 10);
+        }
+    }
     private static void RejectDuplicates(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.Object)

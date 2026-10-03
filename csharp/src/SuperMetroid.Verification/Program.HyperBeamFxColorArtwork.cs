@@ -19,7 +19,30 @@ internal static partial class Program
 
         var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(15, stored.Count, "Red middle shade removes another whole input");
+        AssertEqual(11, stored.Count, "Partial middle shades remove four whole inputs");
+        var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
+            .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(4, shadeInputs.Count, "Four middle colors have differing components");
+        int shadeComponentCount = 0;
+        foreach (var entry in shadeInputs)
+        {
+            int frame = entry.Key / 8, color = entry.Key % 8;
+            ushort native = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
+            ushort first = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color - 1));
+            ushort second = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color + 1));
+            string[] names = ["red", "green", "blue"];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int shift = 5 * channel;
+                int expected = (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0);
+                int? differing = (native >> shift & 31) == expected ? null : native >> shift & 31;
+                object? actual = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value);
+                AssertTrue(Equals(differing, actual), "Only originally differing middle-shade channels are stored");
+                if (actual is not null) shadeComponentCount++;
+            }
+        }
+        AssertEqual(6, shadeComponentCount, "Six differing middle-shade components remain under review");
         var pairedInputs = (Dictionary<int, HyperBeamFxColorCatalog.PairedChannels>)typeof(HyperBeamFxColorCatalog)
             .GetField("pairedInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(9, pairedInputs.Count, "Middle shades remove three further paired inputs");
@@ -115,7 +138,7 @@ internal static partial class Program
             {
                 if (editScope == "even" && (frame & 1) != 0 || editScope == "green" && frame != 4 ||
                     editScope == "red" && !(frame == 0 && color == 3) || editScope == "white" && !(frame == 0 && color == 0) ||
-                    editScope == "shade-sources" && !(frame is 0 or 4 or 8 && color is 1 or 3 or 4 or 6)) continue;
+                    editScope == "shade-sources" && !(frame is 0 or 2 or 4 or 6 or 8 && color is 1 or 3 or 4 or 6)) continue;
                 int value = 1000 + frame * 8 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
             }
@@ -128,11 +151,11 @@ internal static partial class Program
                 {
                     bool changed = editScope == "all" || editScope == "even" && (frame & 1) == 0 || editScope == "green" && frame == 4 ||
                         editScope == "red" && frame == 0 && color == 3 || editScope == "white" && frame == 0 && color == 0 ||
-                        editScope == "shade-sources" && frame is 0 or 4 or 8 && color is 1 or 3 or 4 or 6;
+                        editScope == "shade-sources" && frame is 0 or 2 or 4 or 6 or 8 && color is 1 or 3 or 4 or 6;
                     ushort expected = changed ? (ushort)(1000 + frame * 8 + color) :
                         ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
                     AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
-                    bool middleShade = (frame == 0 || frame == 8) && color == 2 || (frame == 4 || frame == 8) && color == 5;
+                    bool middleShade = (frame & 1) == 0 && color == 2 || frame is 4 or 6 or 8 && color == 5;
                     bool pairedOwner = !middleShade && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
                     AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
                     AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),

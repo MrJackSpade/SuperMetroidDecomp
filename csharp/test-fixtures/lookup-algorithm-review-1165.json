@@ -6126,4 +6126,15 @@
     "scope":"Remaining endpoint intensity and shade relationships are still pending. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectilePartialShadeReview": {
+    "status":"converted matching channels of four remaining middle shades",
+    "owners":"HyperBeamFxColorFormat.IsShadeMidpoint; HyperBeamFxColorCatalog shadeInputs; shared LoadingPaletteInputView.Channels",
+    "source":"Original even-frame ink2 uses neighboring inks1/3; frame6 ink5 uses4/6. Frames2/4 ink2 differ in two channels each,frame6 ink2 differs only in blue,frame6 ink5 only in green. The other channels equal the upward-rounded midpoint. Rows8D:D906+20*frame, supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Calculate matching channels of all middle shades and store only supplied differing components. Reuse the existing RGB5 midpoint and nullable input-channel representation. Four whole words become six components; stock11 whole words plus18 paired and6 middle-shade components remain. No generated cache or numerical correction constants.",
+    "ownership":"Keep separately supplied targets exact when neighboring inks change. Expand source-ink-only edits to every even hue while retaining all/even/green/red/white scopes.",
+    "proof":"Extend the same projectile proof with original per-component ownership,exact four-input/six-component counts and expanded source-only edits. Reuse all80 original outputs,complete midpoint arithmetic,timed guarded loop,untouched CGRAM,bounds and JSON checks.",
+    "scope":"The six differences require further derivation/disposition review; mismatch with a midpoint is not a retention justification. Other endpoint intensities also remain pending. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

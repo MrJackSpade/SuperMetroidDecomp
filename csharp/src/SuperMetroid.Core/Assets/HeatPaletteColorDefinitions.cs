@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Assets;
 /// progression. Varia and Gravity share Power's corresponding color slots except
 /// suit-specific slots1,9,10 and Gravity's row-zero slot11. These are equal inks at
 /// the same palette indices, not a permutation or a fitted color transform. This
-/// resolves repetition and cross-suit sharing only; distinct colors remain a separate
+/// also selects row zero for the constant slot5 in every suit and slot1 in Varia/Gravity.
+/// These original columns are unchanged across the complete animation. Other distinct colors need separate
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {
@@ -32,6 +33,7 @@ internal static class HeatPaletteColorDefinitions
         bool sharedWithPower = suit != PaletteFxHeatSuit.Power && color is not (1 or 9 or 10) &&
             !(suit == PaletteFxHeatSuit.Gravity && row == 0 && color == 11);
         if (sharedWithPower) first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 2;
+        if (color == 5 || (suit != PaletteFxHeatSuit.Power && color == 1)) firstPhase = 0;
         canonical = (ushort)(first + firstPhase * 34 + offset % 34);
         return true;
 

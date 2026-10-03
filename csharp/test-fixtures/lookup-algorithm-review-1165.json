@@ -5501,4 +5501,15 @@
     "scope":"Base colors, shared amplitude samples and the54 remaining independent words still require component-level review. This entry does not retain them as arbitrary art or claim an algorithm for their values. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed interface source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteConstantColumnsReview": {
+    "status":"converted12 remaining duplicate words from unchanged heat-color columns",
+    "owners":"HeatPaletteColorDefinitions.TryCanonicalPointer and existing loader/query consumers",
+    "source":"All sixteen native frames per suit at8D:E468/E694/E8C0, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Slot5 is unchanged throughout every suit animation and shared across suits. Slot1 is unchanged throughout Varia and Gravity, with its independent suit-specific color. These complete-column equalities are separate from the already converted repeated-row selection.",
+    "algorithm":"Select row-zero canonical storage for slot5 in each suit and slot1 in either protected suit. Apply existing cross-suit sharing to slot5. No change to Power slot1, which varies. The three constant columns each lose four remaining repeated distinct-row entries, removing12 words and leaving42 independently stored stock words. The actual three base colors remain separate review inputs, not declared unrepresentable.",
+    "implementation":"Reuse the direct canonical pointer calculation and existing exact-equality loader override rule. Differing per-frame player colors remain explicit even when the stock column is constant. No constant-value array, generated cache or runtime source read is added.",
+    "proof":"Extend the existing native alias proof by independently comparing all sixteen original samples in each candidate column; constant columns map to their first original word without using the production slot cases. Full ushort pointer/canonical/rejection proof, all720 native installed colors,42-word stock storage,720 independently distinct edits, red-boundary checks and three guarded palette interpreter loops remain consolidated under --lookup-heat-colors.",
+    "scope":"This resolves constant-column repetition only. The42 independent words and their RGB components remain pending review; there is no new retention exception. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

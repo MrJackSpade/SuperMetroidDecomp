@@ -394,6 +394,12 @@ internal static partial class Program
                 ushort power = (ushort)(0xe468 + earliest * 34 + color * 2);
                 if (first != 0xe468 && ReadVerificationWord(bus, 0x8d0000 | canonical) ==
                     ReadVerificationWord(bus, 0x8d0000 | power)) canonical = power;
+                int canonicalFirst = canonical >= 0xe8c0 ? 0xe8c0 : canonical >= 0xe694 ? 0xe694 : 0xe468;
+                bool constant = true;
+                for (int sample = 1; sample < 16; sample++)
+                    constant &= ReadVerificationWord(bus, 0x8d0000 | (canonicalFirst + color * 2)) ==
+                        ReadVerificationWord(bus, 0x8d0000 | (canonicalFirst + sample * 34 + color * 2));
+                if (constant) canonical = (ushort)(canonicalFirst + color * 2);
                 expectedAliases.Add(pointer, canonical);
 
             }
@@ -405,7 +411,7 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(54, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly54 independent heat words remain after shared-red conversion");
+        AssertEqual(42, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly42 independent heat words remain after constant-column conversion");
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
             if (!HeatPaletteColorDefinitions.TrySharedRed(pointer, stored, out ushort calculated))

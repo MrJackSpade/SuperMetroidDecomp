@@ -6159,4 +6159,15 @@
     "scope":"The remaining varying intensities and middle-channel differences still require independent review. No new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamProjectileNeutralReview": {
+    "status":"converted the repeated neutral highlight to one intensity input",
+    "owners":"HyperBeamFxColorFormat.Neutral; HyperBeamFxColorCatalog neutralIntensity/neutralOverrides",
+    "source":"Original white word at8D:D906 has equal RGB5 channels and repeats as ink0 in all ten projectile rows. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Expand one bounded0..31 intensity to RGB=(i,i,i). Store only differing edited channels in the existing nullable-channel input representation. Repeated first-color rows continue sharing this source unless independently edited. Stock10 whole words plus1 neutral/7 paired/6 middle-shade components remain.",
+    "ownership":"A colored edit to the neutral slot preserves every independently supplied channel. Existing white-source-only edits preserve other whites,red maxima and highlight targets via explicit overrides. No generated color cache.",
+    "proof":"Extend the single projectile proof with original neutral intensity and absence of duplicate original channel fields,all32 valid intensities and invalid bounds. Reuse all80 original colors,all edit scopes including unequal white-only edits,timed guarded loop,untouched CGRAM and JSON checks.",
+    "scope":"Remaining independent intensities and middle-shade differences still require review. No new retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --hyper-beam-fx-colors; refreshed owner pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

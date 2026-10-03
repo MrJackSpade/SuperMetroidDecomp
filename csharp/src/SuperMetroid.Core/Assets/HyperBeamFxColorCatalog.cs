@@ -9,15 +9,20 @@ namespace SuperMetroid.Core.Assets;
 public sealed class HyperBeamFxColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
+    private readonly int neutralIntensity;
+    private readonly LoadingPaletteInputView.Channels neutralOverrides;
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private HyperBeamFxColorCatalog(ushort[][] frames)
     {
+        neutralIntensity = frames[0][0] & 31;
+        neutralOverrides = new(frames[0][0], HyperBeamFxColorFormat.Neutral(neutralIntensity));
         for (int frame = 0; frame < HyperBeamFxColorFormat.FrameCount; frame++)
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
         {
             ushort value = frames[frame][color];
+            if (frame == 0 && color == 0) continue;
             if (color == 0 && frame != 0 && value == frames[0][0]) continue;
             if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
                 frames[frame - 1][color], frames[(frame + 1) % HyperBeamFxColorFormat.FrameCount][color])) continue;
@@ -52,13 +57,14 @@ public sealed class HyperBeamFxColorCatalog
     /// body cycle. Other even-frame endpoint relationships remain under review.</remarks>
     private ushort Resolve(int frame, int color)
     {
+        if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
         if (colors.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out ushort value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired))
         {
             var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? (ushort)0 : Resolve(0, 3));
             return paired.Resolve(frame == 0, shared.Red ?? 0, shared.Green ?? 0);
         }
-        if (color == 0) return colors[0];
+        if (color == 0) return Resolve(0, 0);
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
         if (frame == 8 && color == 1) return HyperBeamFxColorFormat.MagentaFromRed(Resolve(0, 3));
         if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
@@ -196,6 +202,15 @@ public sealed record HyperBeamFxColorDocument
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
 public static class HyperBeamFxColorFormat
 {
+    /// <summary>Builds a neutral RGB5 highlight from its single intensity.</summary>
+    /// <remarks>The repeated white at8D:D906 has equal red,green,blue.
+    /// Expand one0..31 intensity into all three channels. Edited unequal
+    /// channels remain independent overrides; no generated color is stored.</remarks>
+    internal static ushort Neutral(int intensity)
+    {
+        if ((uint)intensity > 31) throw new ArgumentOutOfRangeException(nameof(intensity));
+        return (ushort)(intensity | intensity << 5 | intensity << 10);
+    }
     /// <summary>Rotates the red endpoint into green by exchanging red and green channels.</summary>
     /// <remarks>Original projectile frame4 ink7 ($8D:D964) derives from
     /// frame0 ink3 ($D90C). Blue stays fixed; RGB5 channel exchange has no

@@ -19,7 +19,18 @@ internal static partial class Program
 
         var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(11, stored.Count, "Partial middle shades remove four whole inputs");
+        AssertEqual(10, stored.Count, "Neutral highlight stores one intensity instead of a whole color");
+        int neutralIntensity = (int)typeof(HyperBeamFxColorCatalog).GetField("neutralIntensity",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual((int)(ReadVerificationWord(bus, 0x8dd906) & 31), neutralIntensity, "Original neutral intensity");
+        object neutralOverrides = typeof(HyperBeamFxColorCatalog).GetField("neutralOverrides",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            AssertTrue(field.GetValue(neutralOverrides) is null, "No duplicate original neutral channels are stored");
+        for (int intensity = 0; intensity < 32; intensity++)
+            AssertEqual((ushort)(intensity * 1057), HyperBeamFxColorFormat.Neutral(intensity), "Complete neutral RGB5 domain");
+        foreach (int invalidIntensity in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.Neutral(invalidIntensity), "Neutral intensity bounds");
         var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
             .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(4, shadeInputs.Count, "Four middle colors have differing components");
@@ -183,7 +194,7 @@ internal static partial class Program
                     bool transformedEndpoint = frame == 4 && color == 7 || frame == 8 && color == 1;
                     bool pairedOwner = !middleShade && !transformedEndpoint && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
                     AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
-                    AssertEqual((frame & 1) == 0 && (color != 0 || frame == 0) && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
+                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
                         "Original FX input ownership");
                 }
             }

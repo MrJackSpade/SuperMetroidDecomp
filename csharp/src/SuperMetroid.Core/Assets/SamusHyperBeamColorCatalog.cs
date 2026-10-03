@@ -24,6 +24,10 @@ public sealed class SamusHyperBeamColorCatalog
                 frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[3][color], frames[5][color])) continue;
             if (source == index && frame == 8 && color is not (0 or 1 or 7 or 8 or 11) &&
                 frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[7][color], frames[9][color])) continue;
+            if (source == index && frame == 0 && color is 4 or 5 or 9 or 13 &&
+                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[9][color], frames[1][color])) continue;
+            if (source == index && frame == 2 && color == 7 &&
+                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[1][color], frames[3][color])) continue;
             colors.Add(index, frames[frame][color]);
         }
     }
@@ -87,6 +91,8 @@ public sealed class SamusHyperBeamColorCatalog
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
         if (frame == 4) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, color), Resolve(5, color));
         if (frame == 8) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(7, color), Resolve(9, color));
+        if (frame == 0) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(9, color), Resolve(1, color));
+        if (frame == 2) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(1, color), Resolve(3, color));
         return frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
     }
@@ -127,6 +133,8 @@ public static class SamusHyperBeamColorFormat
     /// remains outside this whole-word mapping pending component review.
     /// Eight canonical frame8 words ($A260) likewise interpolate frames7/9
     /// ($A280/$A240); slots1/7/8/11 have differing components under review.
+    /// Frame0 inks4/5/9/13 interpolate frames9/1 across the cycle boundary;
+    /// frame2 ink7 interpolates frames1/3. Other components remain under review.
     /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
     internal static ushort HueMidpoint(ushort first, ushort second)
     {

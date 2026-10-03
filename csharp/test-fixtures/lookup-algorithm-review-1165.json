@@ -5985,4 +5985,15 @@
     "scope":"Four differing channel cases and all remaining hue/shade inputs require further review; no retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamWrapAndCyanMidpointReview": {
+    "status":"converted five additional exact Hyper Beam hue midpoint words",
+    "owners":"SamusHyperBeamColorCatalog; SamusHyperBeamColorFormat.HueMidpoint",
+    "source":"Original frame0 inks4/5/9/13 at9B:A360 interpolate frame9 atA240 andframe1 atA340;frame2 ink7 atA320 interpolates frame1 andframe3 atA300. Native91D99E operands establish all identities. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Reuse upward-rounded independent RGB5 midpoint arithmetic. Frame0 uses last/first endpoint hues across cycle boundary. Only the five exact whole-word cases collapse; other differing channels remain pending. Stock84 to79 words,with no generated palette cache.",
+    "ownership":"Retain differing supplied values as explicit overrides. Extend source-only edits toframe1,so all five odd endpoint frames now have independent edit coverage preserving separately supplied intermediate frames.",
+    "proof":"Extend existing Hyper Beam proof with five original endpoint/target comparisons via native pointers and79-word storage ownership. Reuse existing complete channel arithmetic proof,all160 original outputs,all/source-only edits,frame/color bounds and22-call guarded cycle.",
+    "scope":"Other intermediate channel differences and endpoint hue/shade relationships still require review. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

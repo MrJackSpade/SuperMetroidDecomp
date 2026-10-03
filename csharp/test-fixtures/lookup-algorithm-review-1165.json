@@ -5773,4 +5773,15 @@
     "scope":"No retention exemption. Remaining opaque shade/component relationships and four transparent payload dispositions still require review. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed closed-contract source hash and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyStoredShineInterpolationReview": {
+    "status":"converted69 canonical stored-shine shade words to quarter-white interpolation",
+    "owners":"SamusFullBodyCycleColorFormat.StoredShineColor/IsStoredShineShade; SamusFullBodyCycleColorCatalog constructor/ResolveIndex",
+    "source":"Original stored-shine rows9B:9BA0..9C1F and suit blocks512/1024 bytes later; all135 opaque nonbase words. Supported NTSC J/U v1.0, pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Each channel equals floor(((4-shade)*base+31*shade)/4), shade0..3.",
+    "algorithm":"Interpolate RGB5 channels independently toward white at quarter steps, rounding down. Each numerator is0..124, so no overflow, wrap, saturation or channel carry. Combine with existing aliases to remove69 canonical words,314 to245. Evaluate at read time; retain no generated shade cache.",
+    "ownership":"Only canonical roots equal to the formula are omitted. Differing alias edits remain explicit even if they happen to match their own suit formula. Resolve omitted roots using the supplied stored-shine base, whose independent override can differ from the Speed Booster base. Full supplied rows are compared before collapse, preserving unchanged shade values when a base alone is edited.",
+    "proof":"Extend the same full-body proof with every original stored-shine opaque word as independent ROM oracle; complete RGB5 basis and shade domain against direct real-valued quarter interpolation; invalid ushort colors and shade bounds; exact derived-row domain;245-word stock storage. Existing all768 native values, aliases, pointer/color bounds,48 CGRAM copies,all-color/base-source/Power-only edits remain. Add stored-shine-base-only edits and verify all768 supplied outputs.",
+    "scope":"Other full-body shade/component relationships and transparent payload dispositions remain pending. No new retained input justification is asserted. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source hash and maintained-source index. Implementation record is this entry's commit."
+  }
 }

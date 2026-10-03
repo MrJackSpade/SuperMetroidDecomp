@@ -22,7 +22,10 @@ public sealed class SamusFullBodyCycleColorCatalog
             int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + color;
             int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
             ushort value = palettes[palette][color];
-            if (source == index || value != palettes[source / 16][source % 16]) colors.Add(index, value);
+            if (source != index && value == palettes[source / 16][source % 16]) continue;
+            if (source == index && SamusFullBodyCycleColorFormat.IsStoredShineShade(palette, color) &&
+                value == SamusFullBodyCycleColorFormat.StoredShineColor(palettes[palette / 16 * 16 + 4][color], palette % 4)) continue;
+            colors.Add(index, value);
         }
     }
 
@@ -40,8 +43,17 @@ public sealed class SamusFullBodyCycleColorCatalog
         if ((uint)colorIndex >= SamusFullBodyCycleColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
         int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + colorIndex;
-        return colors.TryGetValue(index, out ushort value) ? value :
-            colors[SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, colorIndex)];
+        return ResolveIndex(index);
+    }
+
+    private ushort ResolveIndex(int index)
+    {
+        if (colors.TryGetValue(index, out ushort value)) return value;
+        int palette = index / 16, color = index % 16;
+        int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
+        if (source != index) return ResolveIndex(source);
+        return SamusFullBodyCycleColorFormat.StoredShineColor(
+            ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
@@ -164,6 +176,26 @@ public static class SamusFullBodyCycleColorFormat
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;
+
+    /// <summary>Stored-shine rows5..7 within each sixteen-row suit allocation, opaque colors only.</summary>
+    internal static bool IsStoredShineShade(int palette, int color) =>
+        (uint)palette < PaletteCount && color is >= 1 and < 16 && palette % 16 is >= 5 and <= 7;
+
+    /// <summary>Interpolates each RGB5 channel toward white by shade/4, rounding down.</summary>
+    /// <remarks>All opaque words of $9B:9BA0..9C1F and the Varia/Gravity
+    /// blocks512/1024 bytes later obey floor(((4-shade)*base+31*shade)/4).
+    /// Shade0 is the supplied base, shades1..3 are quarter steps toward white.
+    /// Arithmetic is nonnegative and bounded by124 per channel; no saturation,
+    /// wrapping or cross-channel carry is involved. Differing asset edits remain inputs.</remarks>
+    internal static ushort StoredShineColor(ushort basis, int shade)
+    {
+        if (basis > 0x7fff) throw new ArgumentOutOfRangeException(nameof(basis));
+        if ((uint)shade >= 4) throw new ArgumentOutOfRangeException(nameof(shade));
+        int red = ((4 - shade) * (basis & 31) + 31 * shade) / 4;
+        int green = ((4 - shade) * (basis >> 5 & 31) + 31 * shade) / 4;
+        int blue = ((4 - shade) * (basis >> 10) + 31 * shade) / 4;
+        return (ushort)(red | green << 5 | blue << 10);
+    }
 
     /// <summary>Shares each family's opaque base row with its suit's Speed Booster base.</summary>
     /// <remarks>Original $9B:9B20/9BA0/9C20/9CA0 base rows agree at all15

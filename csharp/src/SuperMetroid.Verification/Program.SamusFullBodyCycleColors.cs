@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(314, stored.Count, "Full-body base, transparent and suit sharing removes454 duplicate words");
+        AssertEqual(245, stored.Count, "Full-body sharing and stored-shine interpolation remove523 stored words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -48,7 +48,15 @@ internal static partial class Program
                 int paletteIndex = ordinal - 1;
                 int sourceIndex = originalPointers.ToList().IndexOf(sourcePointer) * 16 + color;
                 AssertEqual(sourceIndex, SamusFullBodyCycleColorFormat.CanonicalColorIndex(paletteIndex, color), "Every native color alias index");
-                AssertEqual(pointer == sourcePointer, stored.ContainsKey(paletteIndex * 16 + color), "Only duplicate base words are absent from stock storage");
+                bool storedShine = (pointer - 0x9b20) % 0x200 is >= 0xa0 and <= 0xe0 && color != 0;
+                AssertEqual(storedShine, SamusFullBodyCycleColorFormat.IsStoredShineShade(paletteIndex, color), "Original stored-shine derived-row domain");
+                if (storedShine)
+                {
+                    int shade = ((pointer - 0x9ba0) % 0x200) / 32;
+                    ushort basis = ReadVerificationWord(rom, 0x9b0000 | (pointer - 32 * shade + 2 * color));
+                    AssertEqual(expected, SamusFullBodyCycleColorFormat.StoredShineColor(basis, shade), "Every native stored-shine interpolation word");
+                }
+                AssertEqual(pointer == sourcePointer && !storedShine, stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -61,6 +69,25 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(invalid, 0), "Alias palette-index bounds");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.CanonicalColorIndex(0, invalid), "Alias color-index bounds");
+        for (int basis = 0; basis < 32768; basis++)
+        for (int shade = 0; shade < 4; shade++)
+        {
+            int expected = 0;
+            for (int shift = 0; shift <= 10; shift += 5)
+            {
+                int component = basis >> shift & 31;
+                int blended = (int)Math.Floor(component + (31 - component) * (shade / 4.0));
+                expected |= blended << shift;
+            }
+            AssertEqual((ushort)expected, SamusFullBodyCycleColorFormat.StoredShineColor((ushort)basis, shade), "Complete RGB5 quarter-white blend domain");
+        }
+        foreach (int invalid in new[] { -1, 4, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(0, invalid), "Stored-shine shade bounds");
+        for (int invalid = 32768; invalid <= ushort.MaxValue; invalid++)
+        {
+            ushort value = (ushort)invalid;
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(value, 0), "Stored-shine RGB5 bounds");
+        }
         var document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
         ordinal = 0;
         foreach (var family in new[] { document.SpeedBooster, document.ScrewAttack, document.StoredShine, document.ActiveShinespark })
@@ -104,6 +131,22 @@ internal static partial class Program
             ushort expected = pointer < 0x9d20 ? (ushort)(3000 + (pointer - 0x9b20) / 2 + color) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
             AssertEqual(expected, edited.Resolve(pointer, color), "Power-only edits preserve supplied Varia and Gravity colors");
+        }
+        document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+        for (int suit = 0; suit < 3; suit++)
+        for (int color = 0; color < 16; color++)
+        {
+            int word = 4000 + suit * 16 + color;
+            document.StoredShine[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        foreach (ushort pointer in originalPointers)
+        for (int color = 0; color < 16; color++)
+        {
+            int suit = (pointer - 0x9b20) / 0x200;
+            ushort expected = pointer == 0x9ba0 + suit * 0x200 ? (ushort)(4000 + suit * 16 + color) :
+                ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
+            AssertEqual(expected, edited.Resolve(pointer, color), "Stored-shine basis-only edits preserve supplied derived shades");
         }
     }
     private static void VerifySamusFullBodyCycleColorOverride(

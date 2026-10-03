@@ -99,7 +99,8 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastCacatacSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastBoulderSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2,
+            maximumQueued: LastEtecoonSoundEffect == EtecoonWakeSound ? (byte)15 : (byte)6);
         QueueLegacySound(LastDachoraSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastEvirSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastMorphBallEyeSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);

@@ -240,8 +240,10 @@ public sealed partial class RoomEnemySystem
         EtecoonEnemyState state,
         SamusState samus)
     {
-        // RoomEnemySystem is run only after the door-enemy transition flag clears. Native
-        // tests that flag here before touching E; no separate host branch is therefore lost.
+        // Destination OAM construction runs AI while door-transition audio is disabled.
+        // Preserve the initial wake edge and the countdown until the native pause clears.
+        if (ElevatorDoorTransitionActive)
+            return;
         if ((state.FunctionTimer & 0x8000) == 0)
         {
             if (DecrementEtecoonTimerAndTestExpired(state))

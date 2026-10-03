@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--etecoon-door-fanfare"])
+{
+    VerifyEtecoonFanfareAfterDoor();
+    return 0;
+}
 if (args is ["--waterfall-rooms"])
 {
     VerifyWaterfallRooms();

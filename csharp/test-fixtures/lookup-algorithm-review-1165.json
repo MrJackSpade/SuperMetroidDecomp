@@ -5512,4 +5512,15 @@
     "scope":"This resolves constant-column repetition only. The42 independent words and their RGB components remain pending review; there is no new retention exception. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteRedRampReview": {
+    "status":"converted the three interior samples of the shared linear red heating ramp",
+    "owners":"HeatPaletteColorDefinitions.TryRedRamp/TryCalculatedColor/TrySharedRed and RoomPaletteFxPresentation",
+    "source":"Original Power slot3 words at8D:E46E/E490/E4D4/E518/E55C, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Distinct rows have red0,1,2,3,5 with unchanged green31/blue14. Thirteen independently reviewed color tracks share this exact red difference; the mirrored phase mapping controls visits to these five levels.",
+    "algorithm":"For interior row r=1..3, compute floor((startRed*(4-r)+endRed*r)/4), preserving start green/blue. Endpoints remain supplied colors. Native0..5 quarter steps give0,1,2,3,5 exactly. This conventional sampled linear gradient explains the complete red track and its common effect on thirteen other tracks without correction terms; failed whole-palette interpolation does not invalidate this separately indexed channel rule.",
+    "implementation":"The loader removes an interior word only when its value equals interpolation from supplied endpoints. Explicitly edited intermediate words take precedence at runtime. Shared-red consumers first read an installed amplitude override and otherwise calculate the sample from endpoints. No generated ramp cache or recursive general palette evaluation. Three more words disappear, leaving39 independently stored stock words.",
+    "proof":"Extend the same focused heat-color proof. Original native comparisons cover every calculated root and all720 final outputs, with exactly39 stock heat words stored. All1024 RGB5 red endpoint pairs at all three interior positions compare with an independent floating-point weighted-average/floor oracle, including decreasing gradients; green/blue are preserved. Existing720 independent edits, pointer boundaries, underflow/overflow handling for shared-red transforms and guarded native/installed loops remain consolidated under --lookup-heat-colors.",
+    "scope":"This resolves the shared amplitude interpolation only. Remaining39 words, endpoint choices and other RGB relations remain pending review, without a retention claim. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed interface source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

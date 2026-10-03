@@ -411,16 +411,34 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(42, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly42 independent heat words remain after constant-column conversion");
+        AssertEqual(39, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly39 independent heat words remain after red-ramp conversion");
         foreach (ushort pointer in expectedAliases.Values.Distinct())
         {
-            if (!HeatPaletteColorDefinitions.TrySharedRed(pointer, stored, out ushort calculated))
+            if (!HeatPaletteColorDefinitions.TryCalculatedColor(pointer, stored, out ushort calculated))
             {
                 AssertTrue(stored.ContainsKey(pointer), "Independent canonical input remains installed");
                 continue;
             }
             AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");
             AssertTrue(!stored.ContainsKey(pointer), "Calculated shared-red word is not cached");
+        }
+        // Confirm the newly identified endpoint interpolation for every RGB5 red
+        // endpoint pair. The oracle uses a floating-point weighted average and floor.
+        for (int startRed = 0; startRed < 32; startRed++)
+        for (int endRed = 0; endRed < 32; endRed++)
+        {
+            var endpoints = new Dictionary<ushort, ushort>
+            {
+                [0xe46e] = (ushort)(0x3fe0 | startRed),
+                [0xe55c] = (ushort)endRed,
+            };
+            for (int row = 1; row < 4; row++)
+            {
+                ushort pointer = (ushort)(0xe46e + (2 * row - 1) * 34);
+                AssertTrue(HeatPaletteColorDefinitions.TryRedRamp(pointer, endpoints, out ushort actual), "Interior ramp owned");
+                ushort expected = (ushort)(0x3fe0 | (int)Math.Floor(startRed * (1.0 - row / 4.0) + endRed * row / 4.0));
+                AssertEqual(expected, actual, "Edited red endpoints preserve floor interpolation and base green/blue");
+            }
         }
         foreach (bool overflow in new[] { false, true })
         {

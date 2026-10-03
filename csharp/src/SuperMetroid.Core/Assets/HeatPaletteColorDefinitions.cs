@@ -38,11 +38,36 @@ internal static class HeatPaletteColorDefinitions
         return true;
 
     }
+    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+        TryRedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
+
+    /// <summary>Calculates the three interior samples of the shared five-level red ramp.</summary>
+    /// <remarks>Power slot3's original red levels0,1,2,3,5 are the floor-rounded
+    /// quarter steps from0 to5. Its green31/blue14 remain fixed. Thirteen other
+    /// color tracks share this red difference, independently verified from the native
+    /// rows. Keep the endpoint colors as inputs; interior row r=1..3 is
+    /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
+    /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
+    /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
+    internal static bool TryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    {
+        value = 0;
+        int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 8;
+        int offset = pointer - first;
+        if (offset is not (34 or 102 or 170)) return false;
+        if (!colors.TryGetValue((ushort)first, out ushort start) ||
+            !colors.TryGetValue((ushort)(first + 7 * 34), out ushort end)) return false;
+        int row = (offset / 34 + 1) / 2;
+        int red = ((start & 31) * (4 - row) + (end & 31) * row) / 4;
+        value = (ushort)((start & 0x7fe0) | red);
+        return true;
+    }
+
     /// <summary>Reconstructs shared red heating while preserving the base green/blue.</summary>
     /// <remarks>Across all five original rows, Power slots0,2,6,7,9..14,
     /// Varia slot10 and Gravity slots9,10 add the same red delta as Power slot3.
-    /// Base colors and the slot3 samples remain independently owned inputs. No claim
-    /// about their generation follows from this channel-sharing rule. Only canonical
+    /// Base colors and slot3 endpoints remain independently owned inputs. Interior
+    /// slot3 samples are calculated by TryRedRamp when no edited override exists. Only canonical
     /// noninitial rows qualify. Nonrepresentable edited deltas return false so the
     /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
     internal static bool TrySharedRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
@@ -70,7 +95,8 @@ internal static class HeatPaletteColorDefinitions
         if (phase == 0) return false;
         if (!colors.TryGetValue((ushort)(first + index * 2), out ushort original) ||
             !colors.TryGetValue((ushort)(powerFirst + 6), out ushort baseline) ||
-            !colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out ushort heated)) return false;
+            !(colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out ushort heated) ||
+              TryRedRamp((ushort)(powerFirst + phase * 34 + 6), colors, out heated))) return false;
         int red = (original & 31) + (heated & 31) - (baseline & 31);
         if ((uint)red > 31) return false;
         value = (ushort)((original & 0x7fe0) | red);

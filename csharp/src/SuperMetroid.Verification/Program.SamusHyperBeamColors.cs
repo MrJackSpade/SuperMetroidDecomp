@@ -29,7 +29,7 @@ internal static partial class Program
         foreach (var entry in endpointInputs.Values)
             foreach (var field in typeof(SamusHyperBeamColorCatalog.EndpointChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
-        AssertEqual(15, endpointComponentCount, "Only fifteen independent endpoint channels remain");
+        AssertEqual(12, endpointComponentCount, "Only twelve independent endpoint channels remain");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(7, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
@@ -167,7 +167,10 @@ internal static partial class Program
                     AssertTrue(Equals(frame == 9 ? null : (int?)(native & 31), red), "Original red endpoint inherits its maximum");
                     ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
                     int greenMaximum = ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index)) >> 5 & 31;
-                    AssertEqual(native, input.Resolve(frame == 9, greenMaximum), "Original endpoint native channel reconstruction");
+                    int greenMinimum = ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index)) & 31;
+                    object? green = type.GetField("green", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
+                    AssertTrue(Equals(frame == 1 ? null : (int?)(native >> 5 & 31), green), "Original magenta minimum is shared");
+                    AssertEqual(native, input.Resolve(frame == 9, greenMaximum, greenMinimum), "Original endpoint native channel reconstruction");
                 }
                 AssertEqual(!sharedShade && source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0) && !(index != 0 && frame is 1 or 5 or 9), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
@@ -197,6 +200,10 @@ internal static partial class Program
                 var independent = new SamusHyperBeamColorCatalog.EndpointChannels((ushort)rgb, redHue, (rgb + 1) % 32);
                 AssertEqual((ushort)rgb, independent.Resolve(redHue, (rgb + 1) % 32), "Every RGB5 endpoint preserves a differing source maximum");
             }
+            var minimumInput = new SamusHyperBeamColorCatalog.EndpointChannels((ushort)rgb, false, 0, green);
+            AssertEqual((ushort)rgb, minimumInput.Resolve(false, 0, green), "Every RGB5 shared endpoint minimum");
+            var editedMinimum = new SamusHyperBeamColorCatalog.EndpointChannels((ushort)rgb, false, 0, (green + 1) % 32);
+            AssertEqual((ushort)rgb, editedMinimum.Resolve(false, 0, (green + 1) % 32), "Every RGB5 independently edited endpoint minimum");
             AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen((ushort)rgb), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
             AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint((ushort)rgb), "Complete RGB5 hue midpoint domain");

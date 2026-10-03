@@ -5,6 +5,14 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable ten-frame full-body Hyper Beam RGB5 palette cycle.</summary>
+/// <remarks>The four distinct color-zero payloads ($3800,$7FFF,$0000,$0400)
+/// are retained as unused RGB input, not a hue curve. Native91DD64 copies each
+/// row's first word to SpriteP4C0; both playback views preserve that copy.
+/// SnesObjRenderer discards index-zero pixels before reading CGRAM, so their
+/// RGB bits have no visible color meaning. A phase-to-RGB formula or reciting
+/// switch would only re-encode arbitrary unused payloads. Repeated zero rows
+/// already share one input; independent edits remain exact. This disposition
+/// covers only transparent payloads, not remaining opaque-channel work.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -44,7 +52,7 @@ public sealed class SamusHyperBeamColorCatalog
             if (source == index && color != 0 && frame is 1 or 5 or 9)
             {
                 endpointInputs.Add(index, new(frames[frame][color], frame == 9,
-                    frames[5][color] >> 5 & 31));
+                    frames[5][color] >> 5 & 31, frame == 1 ? frames[5][color] & 31 : null));
                 continue;
             }
             colors.Add(index, frames[frame][color]);
@@ -123,7 +131,8 @@ public sealed class SamusHyperBeamColorCatalog
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
         }
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
-            return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0);
+            return endpoint.Resolve(frame == 9, frame == 9 ? Resolve(5, color) >> 5 & 31 : 0,
+                frame == 1 ? Resolve(5, color) & 31 : 0);
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
         ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
@@ -133,28 +142,31 @@ public sealed class SamusHyperBeamColorCatalog
     /// <summary>Independent endpoint channels, sharing equal channels and the green-to-red maximum.</summary>
     /// <remarks>Original rows9B:A340/A2C0 (cycle frames1/5) have blue=red
     /// for every opaque ink. RowA240 (frame9) has blue=green and red=frame5
-    /// green. Keep the distinct endpoint inputs; independent edits override
+    /// green. Frame1 green equals frame5 red: the two hues share their minimum.
+    /// Keep the distinct endpoint inputs; independent edits override
     /// either relationship. No rounding or saturation occurs. Derivation of
     /// the remaining endpoint shade inputs is still under review in1165.</remarks>
     internal readonly struct EndpointChannels
     {
         private readonly int? red;
-        private readonly int green;
+        private readonly int? green;
         private readonly int? blue;
 
-        internal EndpointChannels(ushort supplied, bool redHue, int greenHueMaximum)
+        internal EndpointChannels(ushort supplied, bool redHue, int greenHueMaximum, int? greenHueMinimum = null)
         {
             int suppliedRed = supplied & 31;
-            green = supplied >> 5 & 31;
+            int suppliedGreen = supplied >> 5 & 31;
+            green = suppliedGreen == greenHueMinimum ? null : suppliedGreen;
             red = redHue && suppliedRed == greenHueMaximum ? null : suppliedRed;
-            int expectedBlue = redHue ? green : suppliedRed;
+            int expectedBlue = redHue ? suppliedGreen : suppliedRed;
             blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
         }
 
-        internal ushort Resolve(bool redHue, int greenHueMaximum)
+        internal ushort Resolve(bool redHue, int greenHueMaximum, int greenHueMinimum = 0)
         {
             int resolvedRed = red ?? greenHueMaximum;
-            return (ushort)(resolvedRed | green << 5 | (blue ?? (redHue ? green : resolvedRed)) << 10);
+            int resolvedGreen = green ?? greenHueMinimum;
+            return (ushort)(resolvedRed | resolvedGreen << 5 | (blue ?? (redHue ? resolvedGreen : resolvedRed)) << 10);
         }
     }
     private static void RejectDuplicates(JsonElement value)

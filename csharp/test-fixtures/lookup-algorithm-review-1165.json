@@ -6051,4 +6051,24 @@
     "scope":"This closes the duplicate Hyper-shot storage/view conversion,not the remaining shared color-input dispositions. Projectile effect colors at8D:D906 remain a separate pending logical mapping. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed both owner/dependency pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamSharedMinimumReview": {
+    "status":"converted magenta endpoint minimum to the green endpoint minimum",
+    "owners":"SamusHyperBeamColorCatalog.EndpointChannels and constructor/Resolve; shared Hyper-shot view",
+    "source":"For all15 opaque original inks, frame1 green at9B:A340 equals frame5 red at9B:A2C0. These are the minimum channels of the magenta/green hues. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Store only differing supplied magenta green components and otherwise resolve from the corresponding green-frame red input. Reuse existing shade and duplicate-ink derivations. No rounding,saturation or generated cache. Stock endpoint components drop15 to12; total stock remains7 whole words plus12 endpoint/8 intermediate/4 shade components.",
+    "ownership":"Full-body and reversed Hyper-shot assets retain independent ownership. Source-only green edits preserve separately supplied magenta values through explicit nullable overrides.",
+    "proof":"Extend the consolidated Hyper Beam proof with original endpoint minimum ownership and the complete32768 RGB5 matching/differing minimum domains. Reuse all native colors for both views,independent edits,bounds and both guarded runtime cycles.",
+    "scope":"Other opaque endpoint/intermediate/shade inputs still require independent review; no opaque-input retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed both shared owner pins and maintained-source index. Implementation record is this entry's commit."
+  },
+  "hyperBeamTransparentPayloadDisposition": {
+    "status":"retained four distinct transparent RGB payload inputs under the nonsense exception; repeated zero payloads already converted to aliases",
+    "owners":"SamusHyperBeamColorCatalog colors/CanonicalColorIndex; both full-body and Hyper-shot views",
+    "source":"Original cycle color0 words in frame order are3800,7FFF,0000,0400,then six0000 words. Native91DD64..DD67 copies the first palette word to SpriteP4C0. Native full-body91D978 and Hyper-shot91D7C4 flow to the complete palette copy. SamusDrainedState and SamusChargeColorCatalog preserve all16 words. SnesObjRenderer at the index-zero branch discards transparent pixels before resolving any CGRAM RGB.",
+    "rationale":"The four distinct RGB payloads do not determine transparency,visible hue,brightness,timing or another quantitative parameter: the sprite pixel index alone excludes them from color resolution. The only remaining requirement is preserving the original unused copied bits and supplied edits. An equation or phase switch producing those unrelated unused RGB payloads would merely recite them without functional color semantics. This is the specific nonsense rationale,not size,performance,complexity or failed formula fitting.",
+    "domain":"Ten bounded color-zero entries in each reverse playback view; frames4..9 already alias frame2 unless independently edited. Only the four distinct source payloads remain.",
+    "proof":"No new retention-only test. Existing consolidated proof already compares every original copied word,all independent edits and both guarded native-order CGRAM cycles.",
+    "scope":"Only transparent payloads receive this disposition. Remaining opaque hue/shade components stay pending. Full1165 remains active."
+  }
 }

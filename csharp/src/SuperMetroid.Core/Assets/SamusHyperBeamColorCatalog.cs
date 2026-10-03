@@ -10,6 +10,7 @@ public sealed class SamusHyperBeamColorCatalog
     private readonly Dictionary<int, ushort> colors = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
     private readonly Dictionary<int, EndpointChannels> endpointInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private SamusHyperBeamColorCatalog(ushort[][] frames)
     {
@@ -21,8 +22,11 @@ public sealed class SamusHyperBeamColorCatalog
             var shade = SamusHyperBeamColorFormat.ShadeSource(color);
             if (source == index && shade.Ink != color)
             {
-                if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out ushort brighter) &&
-                    frames[frame][color] == brighter) continue;
+                if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out ushort brighter))
+                {
+                    if (frames[frame][color] != brighter) shadeInputs.Add(index, new(frames[frame][color], brighter));
+                    continue;
+                }
                 colors.Add(index, frames[frame][color]);
                 continue;
             }
@@ -108,7 +112,7 @@ public sealed class SamusHyperBeamColorCatalog
         if (shade.Ink != color)
         {
             if (SamusHyperBeamColorFormat.TryBrighten(Resolve(frame, shade.Ink), shade.Brightness, out ushort brighter))
-                return brighter;
+                return shadeInputs.TryGetValue(frame * 16 + color, out var shadeInput) ? shadeInput.Apply(brighter) : brighter;
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
         }
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
@@ -180,11 +184,13 @@ public static class SamusHyperBeamColorFormat
     /// <remarks>Across all ten native rows9B:A240..A37F, inks1/8 share ink11
     /// at +2/+4 in each channel; inks2/10/14 share ink3 at +8/+4/+2;
     /// inks4/5/9 share ink13 at +8/+2/+4. These are fixed shade assignments,
-    /// independent of hue phase. Other inks keep their own input.</remarks>
+    /// independent of hue phase. Ink7 likewise uses ink3+7, with differing
+    /// components in frames1/4/8 kept as independent inputs pending review.
+    /// Other inks keep their own input.</remarks>
     internal static (int Ink, int Brightness) ShadeSource(int ink) => ink switch
     {
         1 => (11, 2), 8 => (11, 4),
-        2 => (3, 8), 10 => (3, 4), 14 => (3, 2),
+        2 => (3, 8), 7 => (3, 7), 10 => (3, 4), 14 => (3, 2),
         4 => (13, 8), 5 => (13, 2), 9 => (13, 4),
         _ => (ink, 0),
     };
@@ -195,7 +201,7 @@ public static class SamusHyperBeamColorFormat
     /// keeps that target explicit instead of clamping or wrapping a channel.</remarks>
     internal static bool TryBrighten(ushort source, int brightness, out ushort value)
     {
-        if (brightness is not (2 or 4 or 8)) throw new ArgumentOutOfRangeException(nameof(brightness));
+        if (brightness is not (2 or 4 or 7 or 8)) throw new ArgumentOutOfRangeException(nameof(brightness));
         int red = (source & 31) + brightness;
         int green = (source >> 5 & 31) + brightness;
         int blue = (source >> 10 & 31) + brightness;

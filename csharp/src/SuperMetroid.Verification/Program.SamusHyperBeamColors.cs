@@ -21,23 +21,31 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(8, stored.Count, "Hyper Beam whole inputs after shared shade calculation");
+        AssertEqual(7, stored.Count, "Hyper Beam whole inputs after shared shade calculation");
         var endpointInputs = (Dictionary<int, SamusHyperBeamColorCatalog.EndpointChannels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("endpointInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(12, endpointInputs.Count, "Three endpoint hues each have four independent shade inputs");
+        AssertEqual(9, endpointInputs.Count, "Three endpoint hues each have three independent shade inputs");
         int endpointComponentCount = 0;
         foreach (var entry in endpointInputs.Values)
             foreach (var field in typeof(SamusHyperBeamColorCatalog.EndpointChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
-        AssertEqual(20, endpointComponentCount, "Only twenty independent endpoint channels remain");
+        AssertEqual(15, endpointComponentCount, "Only fifteen independent endpoint channels remain");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(10, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
+        AssertEqual(7, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
         int componentCount = 0;
         foreach (var entry in componentInputs.Values)
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) componentCount++;
-        AssertEqual(11, componentCount, "Eleven independently supplied intermediate components remain under review");
+        AssertEqual(8, componentCount, "Eight independently supplied intermediate components remain under review");
+        var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
+            .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(3, shadeInputs.Count, "Only three original colors have differing shade channels");
+        int shadeComponentCount = 0;
+        foreach (var entry in shadeInputs.Values)
+            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                if (field.GetValue(entry) is not null) shadeComponentCount++;
+        AssertEqual(4, shadeComponentCount, "Only four differing shade components remain");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -72,9 +80,19 @@ internal static partial class Program
                 if (sharedShade)
                 {
                     ushort shadow = ReadVerificationWord(rom, paletteAddress + 2 * shade.Ink);
-                    for (int shift = 0; shift < 15; shift += 5)
-                        AssertEqual(shade.Brightness, (native >> shift & 31) - (shadow >> shift & 31),
-                            "Every native hue preserves its RGB shade spacing");
+                    bool differs = false;
+                    string[] names = ["red", "green", "blue"];
+                    for (int channel = 0; channel < 3; channel++)
+                    {
+                        int shift = 5 * channel, expectedChannel = (shadow >> shift & 31) + shade.Brightness;
+                        int? differing = (native >> shift & 31) == expectedChannel ? null : native >> shift & 31;
+                        differs |= differing.HasValue;
+                        object? actual = shadeInputs.TryGetValue(frame * 16 + index, out var shadeInput) ?
+                            typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
+                                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(shadeInput) : null;
+                        AssertTrue(Equals(differing, actual), "Only original differing shade components are stored");
+                    }
+                    AssertEqual(differs, shadeInputs.ContainsKey(frame * 16 + index), "Exact shade component ownership");
                 }
                 if (frame == 7 && index != 0)
                 {
@@ -165,7 +183,7 @@ internal static partial class Program
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
-            foreach (int brightness in new[] { 2, 4, 8 })
+            foreach (int brightness in new[] { 2, 4, 7, 8 })
             {
                 bool fits = rgb % 32 <= 31 - brightness && green <= 31 - brightness && blue <= 31 - brightness;
                 AssertEqual(fits, SamusHyperBeamColorFormat.TryBrighten((ushort)rgb, brightness, out ushort brighter),
@@ -189,7 +207,7 @@ internal static partial class Program
                 AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057)), "All RGB5 first colors and all independent per-channel midpoint pairs");
             }
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 7, 9, 31, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 6, 9, 31, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryBrighten(0, invalid, out _), "Unsupported shade increments reject");
         foreach (string scope in new[] { "all", "aliases", "shades" })
         {

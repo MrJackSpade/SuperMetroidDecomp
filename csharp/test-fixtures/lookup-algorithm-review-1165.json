@@ -6029,4 +6029,15 @@
     "scope":"The remaining four shade roots,endpoint channels and11 intermediate differences still require review. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamSeventhInkChannelReview": {
+    "status":"converted matching seventh-ink shade channels; four differing components remain pending",
+    "owners":"SamusHyperBeamColorFormat.ShadeSource/TryBrighten; SamusHyperBeamColorCatalog shadeInputs",
+    "source":"In all ten original rows selected by91D99E, ink7 is ink3 brightened by7 except red/blue in frame1,blue in frame4 andgreen in frame8. All other channels match. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Extend shared shade calculation to ink7 and store only supplied channels differing from expected brightening. All9 derived inks use this same component ownership, preserving independent edits without cached generated colors. Source overflow still preserves the whole supplied target explicitly. Stock now7 whole inputs,15 endpoint components,8 intermediate components and4 differing shade components.",
+    "ownership":"Compare complete supplied sources and targets before omission. Shade-source-only edits,alias edits,endpoint-only edits and all-color edits preserve all supplied values. The four original differences are inputs under review,not formula corrections or claimed arbitrary artwork.",
+    "proof":"Extend the single Hyper Beam proof to all original per-channel shade ownership,exact stored-input counts and the complete RGB5 domain for brightness7 in addition to2/4/8. Reuse original160 colors,all independent edit fixtures,bounds and22-call guarded cycle.",
+    "scope":"Remaining hue/shade input derivations and dispositions are still pending. This supersedes ink7's earlier independent-root representation only. No retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

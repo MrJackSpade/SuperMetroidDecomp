@@ -41,7 +41,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "2B33D6EBBB637851A8DCB48DF7E0668FFA868B1FC50241004DBB30FAE5A25B3D"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "0CD30E5E51334F440D1ABB4E84E93D656E181CD7DFE618638C2861214CB75C9A"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "FD0E9AA1573C75DA565AA453B3FDF3C89BE9B0E5680322A539279308467C62F3"),
-        new("csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectionDefinitions.cs", "BE4C801027637F874D055718D778103B40BCDBFA5F9C2C3C60832475B747DB8E"),
+        new("csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectionDefinitions.cs", "0DEDA3C701DFF8D19280C9EB64558D8A31C55C9CE55D40B1DF541C41005D2481"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs", "A1E977737280B7E3B4DD59F9AF02CFD3EB61FD8E973C9C125B4BB5C6CEB2E28B"),
         new("csharp/src/SuperMetroid.Core/Rooms/LandingSiteEntryState.cs", "2D5613F90CD952A22FEB9336C094D7C2DEAF29BB504ACC249D424205A2628569"),
         new("csharp/src/SuperMetroid.AssetExtraction/ProjectilePresentationFiles.cs", "D6E607E0DB85DB67CC84CB7DCA0668478C5662EC776F324499A41F3415D59423"),

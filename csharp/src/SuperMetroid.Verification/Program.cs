@@ -53,6 +53,11 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--room-state-definitions"])
+{
+    VerifyCompiledRoomStateSelectionDefinitions();
+    return 0;
+}
 if (args is ["--lookup-room-state-settings"])
 {
     VerifyCompiledRoomStateDefinitions();
@@ -3524,11 +3529,6 @@ if (args is ["--room-callback-definitions"])
 if (args is ["--room-definition-integration"])
 {
     VerifyCompiledRoomDefinitionIntegration();
-    return 0;
-}
-if (args is ["--room-state-definitions"])
-{
-    VerifyCompiledRoomStateSelectionDefinitions();
     return 0;
 }
 if (args is ["--gameplay-message-titles", var messageTitleRom])

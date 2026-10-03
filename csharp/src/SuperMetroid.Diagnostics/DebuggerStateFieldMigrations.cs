@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusHorizontalSpeedState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<EchoSoundFlag>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older speed state lacks the echo-sound flag; inferring it from the saved active boost stage. A previously stopped, stale audio loop cannot be inferred from movement state.");
+            return current.Where(field => field.Name != "<EchoSoundFlag>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusState) &&
             current.Any(field => field.Name == "<PreviousHealthForHurtCheck>k__BackingField"))
         {
@@ -553,6 +559,10 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SamusHorizontalSpeedState speed && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(SamusHorizontalSpeedState)) - 1)
+            speed.EchoSoundFlag = (speed.SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage) != 0
+                ? (ushort)1 : (ushort)0;
         if (instance is SamusState samus && serializedCount < GetCurrentInstanceFieldCount(typeof(SamusState)))
             samus.PreviousHealthForHurtCheck = samus.Health;
         if (instance is SamusPowerBombExplosionState explosion && serializedCount ==

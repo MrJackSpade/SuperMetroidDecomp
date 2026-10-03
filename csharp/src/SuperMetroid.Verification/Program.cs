@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--speed-booster-echo-stop"])
+{
+    VerifySpeedBoosterEchoStop();
+    return 0;
+}
 if (args is ["--grapple-hurt-feedback"])
 {
     VerifyGrappleHurtFeedback();

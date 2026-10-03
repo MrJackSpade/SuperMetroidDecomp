@@ -60,6 +60,12 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundRequested { get; set; }
 
+    /// <summary>
+    /// WRAM $0B40, SamusEchoesSFXFlag: set by $90:859D before the start request,
+    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E.
+    /// </summary>
+    public ushort EchoSoundFlag { get; set; }
+
     /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
     public bool ConsumeEchoSoundRequest()
     {
@@ -286,6 +292,7 @@ public sealed class SamusHorizontalSpeedState
             tableSelection = stagedCounter;
             if ((stagedCounter & 0x0400) != 0)
             {
+                EchoSoundFlag = 1;
                 if (queueEchoSound is null)
                     EchoSoundRequested = true;
                 else

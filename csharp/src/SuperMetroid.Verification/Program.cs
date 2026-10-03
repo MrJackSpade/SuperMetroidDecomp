@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-save-marker-coordinates"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Save-marker coordinate oracle revision");
+    VerifyMapSaveMarkerCoordinates(rom);
+    Console.WriteLine("Save-marker coordinates: all 68 native components, independent edits, JSON identity, actual marker binding and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-map-area-cases"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

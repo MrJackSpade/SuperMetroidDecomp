@@ -19,8 +19,23 @@ namespace SuperMetroid.Core.Assets;
 /// or an input to another opaque ink. Temporal fades preserve the selected
 /// word but do not make it visible. A numeric case or fitted expression for
 /// that arbitrary unused payload would only recite the data; retain this one
-/// word under the same specific nonsense exception. This does not settle
-/// visible suitless shade roots,final intensity or whiteout intensity choices.
+/// word under the same specific nonsense exception.
+///
+/// The remaining13 visible suitless base components are artwork inputs:
+/// ink1 RGB,ink4 RG,ink6 RGB,ink7/9 blue,ink10 red/blue and ink11 intensity.
+/// They choose the warm/tinted endpoint colors and local shade contrast of
+/// categorical sprite inks. Native9BB53A and9BB5CE copy selected palette
+/// rows; pixel indices select painted classes,not a measured illumination,
+/// material or hue coordinate that determines those choices. Linear warm,
+/// tint-balance,midpoint,gray and temporal shade relationships are calculated
+/// separately. Fitting or reciting the remaining color anchors would merely
+/// encode the painting in another form,the specific1165 nonsense exception.
+///
+/// Final9BA220 chooses one uniform gray intensity29 for all inks and suits.
+/// It replaces their different preceding shades; it is not another eighth
+/// step,which would produce full white31. This chosen foreground color is
+/// likewise retained as artwork,with neutral channels and all aliases derived.
+/// This disposition does not cover the separately indexed whiteout curve.
 /// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
@@ -284,7 +299,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// RGB offsets matching a quarter-step endpoint gradient. Interpolate each
     /// endpoint channel downward,then shift RGB equally so blue equals the
     /// independently supplied middle blue. Thus green-blue remains6 and
-    /// red-blue descends17,15,13,11,9. Blue choices at7/9 remain under review;
+    /// red-blue descends17,15,13,11,9. Blue choices at7/9 are the independently
+    /// selected shade anchors covered by the class-level artwork disposition;
     /// ink8 is independently resolved by SuitlessTintMidpoint. This does not
     /// substitute fixed correction values.
     /// Edited endpoints/intensities may place calculated red/green outside RGB5.

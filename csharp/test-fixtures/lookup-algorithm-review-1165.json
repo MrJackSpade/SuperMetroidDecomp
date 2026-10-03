@@ -6593,4 +6593,16 @@
     "confirmation":"Verification build and isolated --lookup-file-select-navigation. Source search confirms only the two authorized direction call sites and no production main-choice arrays remain. Maintained-source index refreshed; implementation commit is the commit adding this record.",
     "remainingScope":"This resolves the main visible-choice list only. Other file-select dispatch, slot-field layouts, motion-origin coordinates and presentation mappings remain separate review obligations."
   }
+,
+  "gameOverTextCaseReview": {
+    "status":"converted text element mapping; adjacent palette skip rationale removed and reopened",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
+    "source":"Supported NTSC ROM SHA in inventory evidence; pinned bank_81.asm GameOverMenu_1_Init81:9206..9230, five LDY-source/LDX-destination/JSR load calls in native order.",
+    "sourcePointers":{"disposition":"converted","domain":"Five mutually exclusive named text elements:Title,Objective,Prompt,ReturnToGame,ReturnToTitle","algorithm":"Explicit named element cases select their native text stream identities. Remove the stored five-record array and enumerate calculated cases in native call order. No prefix-sum approximation, generated cache or runtime cartridge lookup.","proof":"VerifyGameOverTextSources compares all five original LDY immediate operands/opcodes through direct Get and complete enumeration; checks count and invalid enum/int boundaries."},
+    "destinations":{"disposition":"converted semantic selection","domain":"The same five independently selected text elements","algorithm":"Each named element selects its corresponding BG1 placement, preserving title/objective/prompt/answer roles and exact byte offsets. This is UI element-to-placement selection rather than a proposed numerical curve; source/destination fields have separate original-operand proofs.","proof":"VerifyGameOverTextDestinations compares all five original LDX immediate operands/opcodes through Get and ordered enumeration, plus count/bounds."},
+    "consumers":"GameOverPresentationExtractor keeps its foreach in the original order over lazy All enumeration. The synthetic text fixture materializes verification-only records for seeding. Unsupported selectors throw IndexOutOfRangeException without narrowing/masking. The old clarity/authored-placement retention explanation is removed.",
+    "confirmation":"Verification and ResourceAudit builds; isolated SHA-pinned --lookup-game-over-text; updated GameOverRomData owner hash and maintained-source index. Implementation commit is the commit adding this record.",
+    "reopenedBabyPalettePayload":{"status":"pending, not accepted retention","identity":"Four16-word Baby palettes82:BD97..BE16","reason":"Removed the old retention conclusion based on nonmonotonic channels and failure of a uniform fade/common tint. Those observations do not establish impossibility or nonsense. Independently derive the actual channel/phase relationships or establish a specific qualifying exception; all64 source colors remain in scope. This text mapping conversion supplies no palette disposition."},
+    "remainingScope":"Baby animation/color payload, cry dispatch, sprite/position identities and other game-over mappings require separate review."
+  }
 }

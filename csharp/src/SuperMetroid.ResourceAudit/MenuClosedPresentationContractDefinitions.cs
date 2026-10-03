@@ -21,7 +21,7 @@ internal static class MenuClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
                 "A07C619692FB74869E6781A35DAB12DF9F595D5575530CFFE9941A099A39FB81"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
-                "D4898ADBE50B570C97A08BED0BFD06D5AF53009406849FE0E307F8A68B649891"),
+                "13056AD13B7091350E4FAF015367554ECE984AFAAFE3F09FEB6390AB5F1880D3"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverBabyAnimationDefinitions.cs",
                 "8DEAD1215A895068FF927725551EF880A3BC7D2DA1C50271662BC43F5384EE5F")],
             "Private construction requires the full tilemap, all eight named sprites and all four baby palettes. " +

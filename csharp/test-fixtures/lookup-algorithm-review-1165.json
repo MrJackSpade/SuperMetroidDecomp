@@ -5941,4 +5941,15 @@
     "scope":"Remaining full-body Hyper Beam hue/shade/component relationships require review. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed Samus/sequence source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamYellowHueReview": {
+    "status":"converted twelve canonical Hyper Beam yellow-frame words to green-frame channel transformation",
+    "owners":"SamusHyperBeamColorCatalog constructor/Resolve; SamusHyperBeamColorFormat.YellowFromGreen",
+    "source":"Original91D99E pointer list selects frame5 at9B:A2C0 and frame7 at9B:A280. Every opaque frame7 word preserves frame5 green/blue and replaces red with green. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Yellow hue setsR=G,G=G,B=B from the same green-frame ink. Component copying needs no rounding,saturation or overflow. Exclude slot0. Combine with repeated-ink aliases to remove twelve canonical whole words,124 to112. Calculate at read time with no generated frame cache.",
+    "ownership":"Compare complete supplied yellow values with supplied green values before omitting matching canonical words. Differing yellow values remain explicit. Green-frame-only edits preserve separately supplied yellow and all other frames.",
+    "proof":"Extend existing Hyper Beam proof with every original green-to-yellow word pair via native pointer operands; all32768 RGB5 inputs;112-word storage/ownership. Add green-frame-only edits checked across all160 outputs. Existing native160 colors,all/source-only edits,bounds and22-call guarded CGRAM cycle remain.",
+    "scope":"Other Hyper Beam hue/shade/component relationships and all remaining input dispositions are still pending. No retention exemption. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

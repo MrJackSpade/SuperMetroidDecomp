@@ -15,8 +15,10 @@ public sealed class SamusHyperBeamColorCatalog
         for (int color = 0; color < frames[frame].Length; color++)
         {
             int index = frame * 16 + color, source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
-            if (source == index || frames[frame][color] != frames[source / 16][source % 16])
-                colors.Add(index, frames[frame][color]);
+            if (source != index && frames[frame][color] == frames[source / 16][source % 16]) continue;
+            if (source == index && frame == 7 && color != 0 &&
+                frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
+            colors.Add(index, frames[frame][color]);
         }
     }
 
@@ -75,7 +77,9 @@ public sealed class SamusHyperBeamColorCatalog
     public ushort Resolve(int frame, int color)
     {
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
-        return colors.TryGetValue(frame * 16 + color, out ushort value) ? value : colors[source];
+        if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
+        if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
+        return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
     }
 
     private static void RejectDuplicates(JsonElement value)
@@ -107,6 +111,14 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
+    /// <remarks>Every opaque original frame7 word ($9B:A280) equals frame5
+    /// ($9B:A2C0) with red replaced by green. Green/blue remain unchanged.
+    /// RGB5 component copying needs no rounding or saturation. Transparent
+    /// payloads are outside the hue transform; differing asset values override it.</remarks>
+    internal static ushort YellowFromGreen(ushort green) =>
+        (ushort)((green & 0x7fe0) | (green >> 5 & 31));
 
     /// <summary>Shares repeated Hyper Beam sprite inks and transparent payloads.</summary>
     /// <remarks>Original ten rows selected by91D99E have slots6=2,15=3,

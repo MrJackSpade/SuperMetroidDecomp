@@ -6,18 +6,9 @@ internal static partial class Program
 {
     private static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int table = 0xa896d3;
+        VerifyFuneNamiheProgramSelection(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        for (int index = 0; index < 8; index++)
-        {
-            ushort cursor = (ushort)(0x96d3 + index * 2);
-            ushort native = (ushort)(rom.ReadByte(table + index * 2) |
-                rom.ReadByte(table + index * 2 + 1) << 8);
-            AssertEqual(native, FuneNamiheDefinitions.InstructionList(cursor),
-                $"Fune/Namihe instruction selector {index}");
-        }
-
         for (int variant = 0; variant < 4; variant++)
         {
             bool namihe = (variant & 2) != 0;
@@ -48,16 +39,29 @@ internal static partial class Program
                 $"Fune/Namihe production active list {variant}");
         }
 
-        AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(0x96d2),
-            "Fune/Namihe selector below table");
-        AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(0x96d4),
-            "Fune/Namihe odd selector");
-        AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(0x96e3),
-            "Fune/Namihe selector beyond table");
         Console.WriteLine(
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
     }
 
+    private static void VerifyFuneNamiheProgramSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
+        foreach (ushort cursor in cursors)
+        {
+            ushort native = (ushort)(rom.ReadByte(0xa80000 | cursor) |
+                rom.ReadByte(0xa80000 | (cursor + 1)) << 8);
+            AssertEqual(native, FuneNamiheDefinitions.InstructionList(cursor),
+                "Fune/Namihe named species/activity/facing case matches native pointer");
+        }
+        var valid = cursors.ToHashSet();
+        for (int cursor = 0x96d1; cursor <= 0x96e4; cursor++)
+            if (!valid.Contains((ushort)cursor))
+                AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList((ushort)cursor),
+                    "Fune/Namihe selection rejects odd and adjacent cursors");
+        foreach (ushort cursor in new ushort[] { 0, 1, 0x16d3, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(cursor),
+                "Fune/Namihe selection rejects distant and wrapped cursors");
+    }
     private sealed class FuneNamiheReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);

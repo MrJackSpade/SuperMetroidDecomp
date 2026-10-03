@@ -9,17 +9,21 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     /// <summary><c>$84:A4F3</c>: bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";
 
-    internal static readonly RoomPlmShotBlockDrawDefinitions.DrawList BombReveal =
+    /// <summary>Physical type-B parent with the named Speed Booster visual block.</summary>
+    internal static ushort BombRevealWord => (ushort)(0xb000 | RoomPlmVisualBlockIndexes.SpeedBoosterParent);
+
+    // Materialize records only for existing artwork import/export interfaces.
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList BombReveal =>
         new(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { 0xb0b6 }, 0, 0),
+                new(1, new ushort[] { BombRevealWord }, 0, 0),
             });
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         [BombReveal];
 
-    internal static string VisualId(ushort pointer) => pointer == BombReveal.Pointer
+    internal static string VisualId(ushort pointer) => pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw
         ? BombRevealVisualId
         : throw new InvalidDataException(
             $"Speed Booster draw ${pointer:X4} has no visual ID.");
@@ -39,7 +43,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        if (pointer == BombReveal.Pointer)
+        if (pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
         {
             list = BombReveal;
             return true;

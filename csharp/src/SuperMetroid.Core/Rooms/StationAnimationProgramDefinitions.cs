@@ -14,55 +14,60 @@ internal static class StationAnimationProgramDefinitions
 
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
-    private static readonly Dictionary<ushort, Frame[]> Programs =
-        new Dictionary<ushort, Frame[]>
-        {
-            [MapIdle] =
-            [
-                new(6, 0x9f25), new(6, 0x9f31), new(6, 0x9f3d),
-            ],
-            [MapAcquired] =
-            [
-                new(2, 0x9f25), new(2, 0x9f31), new(2, 0x9f3d),
-            ],
-            [Energy] =
-            [
-                new(6, 0x9f6d), new(6, 0x9f79), new(6, 0x9f85),
-            ],
-            [Missile] =
-            [
-                new(6, 0x9f91), new(6, 0x9f9d), new(6, 0x9fa9),
-            ],
-            [RoomPlmInstructionLists.SaveStationIdleDraw] =
-            [
-                new(1, 0x9a3f),
-            ],
-            [RoomPlmInstructionLists.SaveStationAnimationFirstFrame] =
-            [
-                new(4, 0x9a9f),
-            ],
-            [RoomPlmInstructionLists.SaveStationAnimationSecondFrame] =
-            [
-                new(4, 0x9a6f),
-            ],
-        };
+    private static IEnumerable<ushort> Lists()
+    {
+        yield return MapIdle;
+        yield return MapAcquired;
+        yield return Energy;
+        yield return Missile;
+        yield return RoomPlmInstructionLists.SaveStationIdleDraw;
+        yield return RoomPlmInstructionLists.SaveStationAnimationFirstFrame;
+        yield return RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
+    }
 
     internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
     {
-        foreach ((ushort list, Frame[] frames) in Programs)
-        for (int index = 0; index < frames.Length; index++)
+        foreach (ushort list in Lists())
+        for (int index = 0; index < (list is MapIdle or MapAcquired or Energy or Missile ? 3 : 1); index++)
         {
-            yield return (checked((ushort)(list + 4 * index)), frames[index].Duration);
-            yield return (checked((ushort)(list + 4 * index + 2)), frames[index].DrawPointer);
+            Frame frame = Resolve(list, index);
+            yield return (checked((ushort)(list + 4 * index)), frame.Duration);
+            yield return (checked((ushort)(list + 4 * index + 2)), frame.DrawPointer);
         }
     }
 
+    /// <summary>
+    /// Seven named program entries own fifteen timed frames. Map/resource cycles
+    /// have three frames at twelve-byte draw-list strides and six-tick holds;
+    /// acquired maps hold two ticks. Save idle draws once for one tick; its two
+    /// active entries each own one four-tick frame. Reject all other list/index pairs.
+    /// </summary>
     internal static Frame Resolve(ushort list, int frameIndex)
     {
-        if (!Programs.TryGetValue(list, out Frame[]? frames) ||
-            (uint)frameIndex >= (uint)frames.Length)
+        int count = list is MapIdle or MapAcquired or Energy or Missile ? 3 :
+            list is RoomPlmInstructionLists.SaveStationIdleDraw or
+                RoomPlmInstructionLists.SaveStationAnimationFirstFrame or
+                RoomPlmInstructionLists.SaveStationAnimationSecondFrame ? 1 : 0;
+        if ((uint)frameIndex >= (uint)count)
             throw new InvalidDataException(
                 $"Station animation $84:{list:X4} frame {frameIndex} is not compiled.");
-        return frames[frameIndex];
+        ushort duration = list switch
+        {
+            MapAcquired => 2,
+            RoomPlmInstructionLists.SaveStationIdleDraw => 1,
+            RoomPlmInstructionLists.SaveStationAnimationFirstFrame or
+                RoomPlmInstructionLists.SaveStationAnimationSecondFrame => 4,
+            _ => 6,
+        };
+        ushort firstDraw = list switch
+        {
+            MapIdle or MapAcquired => RoomPlmStationDrawDefinitions.MapFirst,
+            Energy => RoomPlmStationDrawDefinitions.EnergyFirst,
+            Missile => RoomPlmStationDrawDefinitions.MissileFirst,
+            RoomPlmInstructionLists.SaveStationIdleDraw => RoomPlmStationDrawDefinitions.SaveIdle,
+            RoomPlmInstructionLists.SaveStationAnimationFirstFrame => RoomPlmStationDrawDefinitions.SaveActive,
+            _ => RoomPlmStationDrawDefinitions.SaveAlternate,
+        };
+        return new(duration, (ushort)(firstDraw + frameIndex * 12));
     }
 }

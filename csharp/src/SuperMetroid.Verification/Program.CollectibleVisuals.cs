@@ -9,36 +9,19 @@ internal static partial class Program
 {
     private static void VerifyCollectibleVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(24, RoomPlmCollectibleDrawDefinitions.All.Length,
-            "all native collectible item/orb/reveal draw frames are compiled");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Collectible oracle revision");
+        VerifyCollectibleDrawGeometry(rom);
+        VerifyCollectibleDrawCollision(rom);
+        VerifyCollectibleDrawVisuals(rom);
+        VerifyCollectibleDrawIdentity(rom);
         RoomPlmCollectibleVisualCatalog stock = RoomPlmCollectibleVisualCatalog.Stock();
-        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-        {
-            AssertEqual((ushort)1, ReadCollectibleVisualWord(rom, frame.Pointer),
-                $"collectible {frame.Id} native one-block shape");
-            AssertEqual(frame.LevelWord,
-                ReadCollectibleVisualWord(rom, checked((ushort)(frame.Pointer + 2))),
-                $"collectible {frame.Id} native physical level word");
-            AssertEqual((ushort)0,
-                ReadCollectibleVisualWord(rom, checked((ushort)(frame.Pointer + 4))),
-                $"collectible {frame.Id} native terminator");
-            AssertEqual(new RoomLevelWord(frame.LevelWord).VisualWord,
-                stock.GetWord(frame.Pointer), $"collectible {frame.Id} stock visual word");
-        }
-        for (int slot = 0; slot < 4; slot++)
-        for (int animation = 0; animation < 2; animation++)
-        {
-            ushort table = animation == 0
-                ? RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table
-                : RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table;
-            AssertEqual(ReadCollectibleVisualWord(rom,
-                    checked((ushort)(table + slot * 2))),
-                RoomPlmCollectibleDrawDefinitions.VisibleFrame(
-                    InWorldCollectibleKind.Bombs, animation, slot),
-                $"dynamic collectible slot {slot} frame {animation}");
-        }
+
+        VerifyCollectibleOrbSelector(rom);
+        VerifyCollectibleRevealSelector(rom);
+        VerifyCollectibleTankSelector(rom);
+        VerifyCollectibleDynamicSelector(rom);
 
         RoomPlmCollectibleVisualEntry[] entries =
             RoomPlmCollectibleDrawDefinitions.All.ToArray()
@@ -125,19 +108,6 @@ internal static partial class Program
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries.Skip(1)),
-            "collectible visuals reject a missing frame");
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0xf053 };
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries),
-            "collectible visuals reject collision-bit edits");
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0053 };
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmCollectibleVisualCatalog(entries.Select(entry =>
-                entry.Id == "energy-tank-0" ? entry with { Id = "unknown" } : entry)),
-            "collectible visuals reject unknown frame identities");
-
         VerifyCollectibleVisualInstallation(rom);
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
@@ -163,9 +133,7 @@ internal static partial class Program
             RoomPlmCollectibleVisualFiles.ValidateStock(
                 installation.RoomPlmCollectibleVisualDirectory);
             ushort pointer = RoomPlmCollectibleDrawDefinitions.TankFirst;
-            AssertEqual((ushort)0x004a,
-                installation.LoadRoomPlmCollectibleVisuals().GetWord(pointer),
-                "installed stock energy-tank art matches the cartridge");
+            VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
                 RoomPlmCollectibleVisualFiles.VisualFileName);

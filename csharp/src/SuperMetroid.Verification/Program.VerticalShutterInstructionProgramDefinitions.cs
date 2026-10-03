@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -14,16 +15,9 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < VerticalShutterInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            VerticalShutterInstructionMechanicsWord definition =
-                VerticalShutterInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadVerticalShutterInstructionWord(rom, 0xa20000 | definition.Address),
-                $"vertical-shutter instruction mechanics word $A2:{definition.Address:X4}");
-        }
+        VerifyVerticalShutterMechanicsMapping(rom);
+        VerifyVerticalShutterPresentationAddresses();
+        VerifyKamerPlatformVisualSelectors(rom);
 
         var guard = new VerticalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
@@ -106,6 +100,174 @@ internal static partial class Program
             "mechanics bytes forbidden.");
     }
 
+    private static void VerifyVerticalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xe9aa, 0xe9ae, 0xede7, 0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedf9];
+        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitions.MechanicsWordCount,
+            "vertical shutter independent native word count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa20000 | address);
+            var word = VerticalShutterInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, word.Address, "vertical shutter native word address");
+            AssertEqual(native, word.Value, "vertical shutter native enumerated word");
+            AssertEqual(native, VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "vertical shutter native direct word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+                "vertical shutter full byte ownership");
+            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address),
+                "vertical shutter high-bit aliases");
+            AssertTrue(!VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+                "vertical shutter other-bank rejection");
+        }
+        var words = addresses.ToHashSet();
+        foreach (int start in new[] { 0xe9a8, 0xede5 })
+            for (int address = start; address <= start + 24; address++)
+                if (!words.Contains((ushort)address))
+                    AssertThrows<InvalidDataException>(() => VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                        "vertical shutter rejects visual operands, odd addresses and neighboring instructions");
+        foreach (int index in new[] { int.MinValue, -1, 8, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitions.MechanicsWord(index),
+                "vertical shutter word ordinal bounds");
+    }
+
+    private static void VerifyVerticalShutterPresentationAddresses()
+    {
+        ushort[] addresses = [0xe9ac, 0xede9, 0xeded, 0xedf1, 0xedf5];
+        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitions.PresentationWordCount,
+            "vertical shutter independent presentation count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(index),
+                "vertical shutter native presentation position");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(address == 0xe9ac, VerticalShutterInstructionProgramDefinitions.IsPlainShutterPresentationWord((ushort)address),
+                "plain shutter exact presentation domain");
+            AssertEqual(address is 0xede9 or 0xeded or 0xedf1 or 0xedf5,
+                VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
+                "Kamer exact presentation domain");
+        }
+        foreach (int index in new[] { int.MinValue, -1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(index),
+                "vertical shutter presentation ordinal bounds");
+    }
+
+    private static void VerifyKamerPlatformVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xede9, 0xeded, 0xedf1, 0xedf5];
+        foreach (ushort operand in operands)
+        {
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand);
+            AssertEqual(native, EnemySpritemapDefinitions.KamerPlatformFrameAt(operand), "Kamer native visual pointer");
+            AssertEqual((ushort)2, ReadVerticalShutterInstructionWord(rom, 0xa20000 | native), "Kamer native two-sprite map");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, operand, out ushort shared), "Kamer shared selector exists");
+            AssertEqual(native, shared, "Kamer shared selector value");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa20000 | operand), "Kamer excluded from literal regeneration");
+        }
+        var known = operands.ToHashSet();
+        for (int address = 0xede5; address <= 0xedfc; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.KamerPlatformFrameAt((ushort)address),
+                    "Kamer visual resolver rejects controls and neighboring data");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa2, (ushort)address, out ushort missing), "Kamer shared holes rejected");
+                AssertEqual((ushort)0, missing, "Kamer shared missing value cleared");
+            }
+    }
+    private static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    {
+        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialVerticalShutterFunction",
+            BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<VerticalShutterEnemyState, VerticalShutterFunction>>();
+        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0))
+        {
+            Function = VerticalShutterFunction.Initial,
+        };
+        for (ushort offset = 0; offset <= 8; offset += 2)
+        {
+            state.InitialFunctionTableOffset = offset;
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa2edfb + offset);
+            AssertEqual(native, (ushort)select(state), "vertical shutter native initial function pointer");
+            AssertEqual(VerticalShutterFunction.Initial, state.Function,
+                "vertical initial dispatch selects a function without installing it");
+        }
+        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 0x100, 0xfffe, 0xffff })
+        {
+            state.InitialFunctionTableOffset = offset;
+            AssertThrows<InvalidDataException>(() => select(state), "vertical shutter invalid initial offset");
+            AssertEqual(VerticalShutterFunction.Initial, state.Function, "invalid vertical selector preserves state");
+        }
+    }
+
+    private static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    {
+        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialHorizontalShutterFunction",
+            BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<HorizontalShutterEnemyState>>();
+        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0));
+        for (ushort offset = 0; offset <= 8; offset += 2)
+        {
+            state.Function = HorizontalShutterFunction.Initial;
+            state.InitialFunctionTableOffset = offset;
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa2f107 + offset);
+            select(state);
+            AssertEqual(native, (ushort)state.Function, "horizontal shutter installs native initial function pointer");
+        }
+        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 0x100, 0xfffe, 0xffff })
+        {
+            state.Function = HorizontalShutterFunction.Initial;
+            state.InitialFunctionTableOffset = offset;
+            AssertThrows<InvalidDataException>(() => select(state), "horizontal shutter invalid initial offset");
+            AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
+        }
+    }
+    private static void VerifyShutterVisualPointerMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac, 0xe9d6];
+        for (int index = 0; index < operands.Length; index++)
+        {
+            ushort operand = operands[index];
+            ushort native = ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand);
+            AssertEqual(native, ShutterVisualDefinitions.PointerAt(operand), "shutter calculated native visual pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, operand, out ushort shared), "shutter shared selector exists");
+            AssertEqual(native, shared, "shutter shared selector matches native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa20000 | operand), "shutter excluded from literal regeneration");
+            AssertEqual(native, ShutterVisualDefinitions.Frames()[index].Pointer, "shutter export pointer reuses calculation");
+        }
+        ushort[] usedMaps = [0xed44, 0xed57, 0xed74, 0xed9b];
+        ushort[] betweenMaps = [0xed4b, 0xed63, 0xed85];
+        for (int stage = 0; stage < 4; stage++)
+        {
+            AssertEqual((ushort)(stage + 1), ReadVerticalShutterInstructionWord(rom, 0xa20000 | usedMaps[stage]), "native growing map sprite count");
+            if (stage < 3)
+                AssertEqual((ushort)(stage + 2), ReadVerticalShutterInstructionWord(rom, 0xa20000 | betweenMaps[stage]), "native intervening map sprite count");
+        }
+        var known = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(known.Contains((ushort)address), ShutterVisualDefinitions.IsPresentationWord((ushort)address), "shutter full visual membership domain");
+        for (int address = 0xe996; address <= 0xe9db; address++)
+            if (!known.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.PointerAt((ushort)address), "shutter pointer rejects mechanics and unowned neighboring programs");
+        foreach (ushort owner in new ushort[] { RoomEnemySystem.GrowingShutterDefinition, RoomEnemySystem.ShootableVerticalShutterDefinition,
+            RoomEnemySystem.DestroyableVerticalShutterDefinition, RoomEnemySystem.ShootableHorizontalShutterDefinition })
+            foreach (ushort operand in operands)
+            {
+                bool allowed = owner == RoomEnemySystem.GrowingShutterDefinition ? operand != 0xe9d6
+                    : owner == RoomEnemySystem.ShootableHorizontalShutterDefinition ? operand == 0xe9d6 : operand == 0xe9ac;
+                if (allowed)
+                    AssertEqual(ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand), ShutterVisualDefinitions.FrameAt(owner, operand), "shutter owner-specific native pointer");
+                else
+                    AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(owner, operand), "shutter cross-family operand rejected");
+            }
+        AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(0, 0xe9ac), "unknown shutter owner rejected");
+    }
     private static int ProbeVerticalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;

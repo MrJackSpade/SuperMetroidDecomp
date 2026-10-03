@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Four native two-by-two physical ceiling draws. Each list has two
-/// horizontal runs; editable visible block selections are a separate asset.
+/// horizontal runs, calculated without a stored layout cache. Editable visible
+/// block selections remain a separate asset.
 /// </summary>
 internal static class SporeSpawnCeilingPlmDrawDefinitions
 {
@@ -17,15 +18,39 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// <summary><c>$84:9453</c>: first byte of the following Mother Brain draw region.</summary>
     internal const ushort EndExclusive = 0x9453;
 
-    private static readonly RoomPlmShotBlockDrawDefinitions.DrawList[] Lists =
-    [
-        Square(ClearPointer, 0x00ff),
-        Square(CrumbleFirstPointer, 0x0053),
-        Square(CrumbleSecondPointer, 0x0054),
-        Square(CrumbleThirdPointer, 0x0055),
-    ];
+    /// <summary>
+    /// Clear fills with the blank tile; crumble advances through tiles $53..55
+    /// at the native sixteen-byte record stride. Every cell uses the same air word.
+    /// </summary>
+    internal static bool TryGetWord(ushort pointer, out ushort word)
+    {
+        if (pointer == ClearPointer)
+        {
+            word = 0x00ff;
+            return true;
+        }
+        int relative = pointer - CrumbleFirstPointer;
+        if (relative >= 0 && relative <= CrumbleThirdPointer - CrumbleFirstPointer && relative % 16 == 0)
+        {
+            word = (ushort)(0x53 + relative / 16);
+            return true;
+        }
+        word = 0;
+        return false;
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists;
+    // Temporary DTOs serve artwork interfaces; runtime draws the scalar square directly.
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            for (int pointer = ClearPointer; pointer < EndExclusive; pointer += 16)
+            {
+                TryGet((ushort)pointer, out var list);
+                yield return list;
+            }
+        }
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -40,7 +65,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (!string.Equals(VisualId(candidate.Pointer), id,
                     StringComparison.Ordinal))
@@ -63,11 +88,9 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists)
+        if (TryGetWord(pointer, out ushort word))
         {
-            if (candidate.Pointer != pointer)
-                continue;
-            list = candidate;
+            list = Square(pointer, word);
             return true;
         }
         list = default;

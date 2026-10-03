@@ -17,6 +17,7 @@ internal static partial class Program
         if (File.Exists(RoomFxGeneratedPath))
             throw new IOException($"Refusing to overwrite existing compiled definitions: {RoomFxGeneratedPath}");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
         File.WriteAllText(RoomFxGeneratedPath, RenderRoomFxDefinitions(records.Values));
         Console.WriteLine($"Generated {records.Count} typed room-FX records at {RoomFxGeneratedPath}.");
@@ -26,31 +27,16 @@ internal static partial class Program
     private static void VerifyRoomFxRecordDefinitions(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
-        AssertEqual(records.Count, RoomFxRecordDefinitions.All.Count,
-            "compiled room-FX record inventory count");
-        foreach ((ushort pointer, RoomFxRecordDefinition expected) in records)
-            AssertEqual(expected, RoomFxRecordDefinitions.Get(pointer),
-                $"compiled room-FX record $83:{pointer:X4} matches all native fields");
-        ushort[] doors = RetailDoorHeaderCatalog.EnumeratePointers().ToArray();
-        foreach (ushort fxPointer in RoomStateDefinitions.All.Select(state => state.FxPointer)
-                     .Where(pointer => pointer != 0).Distinct())
-        {
-            AssertEqual(SelectFxRecordIndependently(bus, fxPointer, 0),
-                RoomFxRecordDefinitions.Select(fxPointer, 0),
-                $"compiled room-FX list $83:{fxPointer:X4} default selection");
-            foreach (ushort door in doors)
-                AssertEqual(SelectFxRecordIndependently(bus, fxPointer, door),
-                    RoomFxRecordDefinitions.Select(fxPointer, door),
-                    $"compiled room-FX list $83:{fxPointer:X4} door $83:{door:X4} selection");
-        }
+        VerifyRoomFxFields(bus, records);
+        VerifyRoomFxListSelection(bus);
         string generated = RenderRoomFxDefinitions(records.Values).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxGeneratedPath).Replace("\r\n", "\n");
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
-        VerifyRoomFxRecordSelection();
         VerifyCompiledCeresRoomFxConsumers(bus);
-        Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count} room states match every native field.");
+        Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
@@ -226,20 +212,22 @@ internal static partial class Program
     {
         var source = new StringBuilder();
         source.AppendLine("// Generated from the pinned Super Metroid cartridge by --generate-room-fx-records.");
+        source.AppendLine("#nullable enable");
         source.AppendLine("namespace SuperMetroid.Core.Game;");
         source.AppendLine();
         source.AppendLine("public static partial class RoomFxRecordDefinitions");
         source.AppendLine("{");
-        source.AppendLine("    private static readonly RoomFxRecordDefinition[] generated =");
-        source.AppendLine("    [");
+        source.AppendLine("    private static RoomFxRecordDefinition? SelectRecord(ushort pointer) => pointer switch");
+        source.AppendLine("    {");
         foreach (RoomFxRecordDefinition record in records)
-            source.AppendLine($"        new(0x{record.Pointer:X4}, 0x{record.DoorPointer:X4}, " +
+            source.AppendLine($"        0x{record.Pointer:X4} => new(0x{record.Pointer:X4}, 0x{record.DoorPointer:X4}, " +
                 $"0x{record.BaseYPosition:X4}, 0x{record.TargetYPosition:X4}, " +
                 $"0x{record.PackedYVelocity:X4}, 0x{record.Timer:X2}, 0x{record.Type:X2}, " +
                 $"0x{record.DefaultLayerBlend:X2}, 0x{record.Layer3LayerBlend:X2}, " +
                 $"0x{record.LiquidOptions:X2}, 0x{record.PaletteFxBitset:X2}, " +
                 $"0x{record.AnimatedTileBitset:X2}, 0x{record.PaletteBlend:X2}),");
-        source.AppendLine("    ];");
+        source.AppendLine("        _ => null,");
+        source.AppendLine("    };");
         source.AppendLine("}");
         return source.ToString();
     }

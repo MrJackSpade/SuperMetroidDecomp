@@ -9,9 +9,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
-    private readonly Dictionary<RoomFxType, byte[]> pages;
+    private readonly byte[]? lava, acid, water;
+    private readonly RoomFxSporeTilemap spores;
+    private readonly RoomFxAtmosphereTilemap rain, fog;
 
-    private RoomFxLayer3TilemapCatalog(Dictionary<RoomFxType, byte[]> pages) => this.pages = pages;
+    private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
+        byte[] spores, byte[] rain, byte[] fog)
+    {
+        this.lava = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Lava, lava) ? null : lava;
+        this.acid = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Acid, acid) ? null : acid;
+        this.water = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Water, water) ? null : water;
+        this.spores = new RoomFxSporeTilemap(spores);
+        this.rain = new RoomFxAtmosphereTilemap(RoomFxType.Rain, rain);
+        this.fog = new RoomFxAtmosphereTilemap(RoomFxType.Fog, fog);
+    }
 
     /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
@@ -25,8 +36,10 @@ public sealed class RoomFxLayer3TilemapCatalog
             throw new InvalidDataException(
                 "Room-FX BG3 tilemaps require the supported version and six named pages.");
 
-        var pages = new Dictionary<RoomFxType, byte[]>();
-        foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
+        return new(Compile(RoomFxType.Lava), Compile(RoomFxType.Acid), Compile(RoomFxType.Water),
+            Compile(RoomFxType.Spores), Compile(RoomFxType.Rain), Compile(RoomFxType.Fog));
+
+        byte[] Compile(RoomFxType type)
         {
             if (!document.Pages.TryGetValue(type.ToString(), out RoomBackgroundTilemapCell[]? cells) ||
                 cells is null || cells.Length != RoomFxLayer3TilemapFormat.CellsPerPage)
@@ -50,9 +63,8 @@ public sealed class RoomFxLayer3TilemapCatalog
                     value.Palette, value.Priority, flips).Raw;
                 BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * sizeof(ushort)), word);
             }
-            pages.Add(type, bytes);
+            return bytes;
         }
-        return new(pages);
     }
 
     /// <summary>Validates and writes a complete editable tilemap document.</summary>
@@ -64,11 +76,23 @@ public sealed class RoomFxLayer3TilemapCatalog
         json.Write(bytes);
     }
 
-    /// <summary>Returns the full 33-row native transfer for one room-FX type.</summary>
-    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => pages.TryGetValue(
-        RoomFxTypes.UsesWater(type) ? RoomFxType.Water : type, out byte[]? bytes)
-        ? bytes
-        : throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page.");
+    /// <summary>
+    /// Selects one of the six named editable 33-row resources directly. The six
+    /// even identities $02..0C match the original $83:ABF2..ABFC page dispatch;
+    /// Arbitrary edited payloads are compiled from the supplied document. Exact
+    /// stock liquid pages use their layout formulas and retain no generated cache.
+    /// The statue effect aliases the water page; other ushort types are rejected.
+    /// </summary>
+    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
+    {
+        RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+        RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+        RoomFxType.Water or RoomFxType.TourianEntranceStatue => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(RoomFxType.Water),
+        RoomFxType.Spores => spores.CreateTransfer(),
+        RoomFxType.Rain => rain.CreateTransfer(),
+        RoomFxType.Fog => fog.CreateTransfer(),
+        _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
+    };
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -98,25 +122,38 @@ public static class RoomFxLayer3TilemapFormat
     /// <summary>$8A:8000, first room-FX BG3 page; the six pages end at $8A:B17F.</summary>
     public const int FirstSourceAddress = 0x8a8000;
 
-    private static readonly RoomFxType[] AuthoredTypes =
-    [
-        RoomFxType.Lava,
-        RoomFxType.Acid,
-        RoomFxType.Water,
-        RoomFxType.Spores,
-        RoomFxType.Rain,
-        RoomFxType.Fog,
-    ];
+    /// <summary>
+    /// The six even type identities $02..0C at $83:ABF2..ABFC, in page order.
+    /// Index0..5 maps to 2*(index+1); enumeration computes values without a roster.
+    /// </summary>
+    public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
-    public static IReadOnlyList<RoomFxType> Types { get; } = Array.AsReadOnly(AuthoredTypes);
+    private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
+    {
+        public int Count => 6;
+        public RoomFxType this[int index] => (uint)index < Count
+            ? (RoomFxType)(2 * (index + 1))
+            : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>Returns the cartridge art source corresponding to a named effect page.</summary>
+        public IEnumerator<RoomFxType> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// Returns $8A:8000 + (type/2-1)*$840 for the six even types $02..0C.
+    /// The original pointers at $83:ABF2..ABFC select consecutive 32x33 word pages.
+    /// The statue effect aliases water; every other ushort type remains unsupported.
+    /// </summary>
     public static int SourceAddress(RoomFxType type)
     {
         if (RoomFxTypes.UsesWater(type)) type = RoomFxType.Water;
-        int index = Array.IndexOf(AuthoredTypes, type);
-        if (index < 0)
+        int value = (ushort)type;
+        if (value is < 2 or > 12 || (value & 1) != 0)
             throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");
-        return FirstSourceAddress + index * PageByteCount;
+        return FirstSourceAddress + (value / 2 - 1) * PageByteCount;
     }
 }

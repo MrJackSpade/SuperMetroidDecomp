@@ -14,16 +14,9 @@ internal static partial class Program
     private static void VerifyElevatorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < ElevatorInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            ElevatorInstructionMechanicsWord definition =
-                ElevatorInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadElevatorInstructionWord(rom, definition.Address),
-                $"elevator mechanics word $A3:{definition.Address:X4}");
-        }
+        VerifyElevatorMechanicsMapping(rom);
+        VerifyElevatorPresentationMapping();
+        VerifyElevatorVisualPointers(rom);
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new ElevatorInstructionReadGuard(rom);
@@ -51,16 +44,6 @@ internal static partial class Program
             "elevator two-frame program loops to its second mechanics word");
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "both elevator visual selectors are compiled, not reread from cartridge");
-        for (int index = 0;
-             index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ElevatorInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertEqual(ReadElevatorInstructionWord(rom, operand),
-                EnemySpritemapDefinitions.ElevatorFrameAt(operand),
-                $"compiled elevator selector $A3:{operand:X4} matches cartridge");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled elevator mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -85,6 +68,63 @@ internal static partial class Program
             "mechanics and selector reads forbidden.");
     }
 
+    private static void VerifyElevatorMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0x94d6, 0x94da, 0x94de, 0x94e0];
+        AssertEqual(addresses.Length, ElevatorInstructionProgramDefinitions.MechanicsWordCount, "elevator native mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort native = ReadElevatorInstructionWord(rom, addresses[index]);
+            var word = ElevatorInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(addresses[index], word.Address, "elevator native word position");
+            AssertEqual(native, word.Value, "elevator enumerated native word");
+            AssertEqual(native, ElevatorInstructionProgramDefinitions.ReadMechanicsWord(addresses[index]), "elevator direct native word");
+            bytes.Add(addresses[index]); bytes.Add(addresses[index] + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "elevator full byte ownership");
+            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a30000 | address), "elevator bank mask aliases");
+            AssertTrue(!ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "elevator other bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0x94d4; address <= 0x94e4; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => ElevatorInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "elevator invalid mechanics word");
+        foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitions.MechanicsWord(index), "elevator mechanics bounds");
+    }
+    private static void VerifyElevatorPresentationMapping()
+    {
+        ushort[] expected = [0x94d8, 0x94dc];
+        AssertEqual(expected.Length, ElevatorInstructionProgramDefinitions.PresentationWordCount, "elevator native visual count");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], ElevatorInstructionProgramDefinitions.PresentationWordAddress(index), "elevator native visual position");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(address is 0x94d8 or 0x94dc, ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address), "elevator full visual membership");
+        foreach (int index in new[] { int.MinValue, -1, 2, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitions.PresentationWordAddress(index), "elevator visual ordinal bounds");
+    }
+    private static void VerifyElevatorVisualPointers(SuperMetroidAddressSpace rom)
+    {
+        foreach (ushort operand in new ushort[] { 0x94d8, 0x94dc })
+        {
+            ushort native = ReadElevatorInstructionWord(rom, operand);
+            AssertEqual(native, EnemySpritemapDefinitions.ElevatorFrameAt(operand), "elevator native visual pointer");
+            AssertEqual((ushort)4, ReadElevatorInstructionWord(rom, native), "elevator native four-entry map");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, operand, out ushort shared), "elevator shared selector exists");
+            AssertEqual(native, shared, "elevator shared selector value");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa30000 | operand), "elevator excluded from literal regeneration");
+        }
+        for (int address = 0x94d4; address <= 0x94e4; address++)
+            if (address is not (0x94d8 or 0x94dc))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.ElevatorFrameAt((ushort)address), "elevator invalid visual operand");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa3, (ushort)address, out ushort missing), "elevator shared holes rejected");
+                AssertEqual((ushort)0, missing, "elevator missing output cleared");
+            }
+    }
     private static int ProbeElevatorInstructionMechanicsAllocation()
     {
         int checksum = 0;

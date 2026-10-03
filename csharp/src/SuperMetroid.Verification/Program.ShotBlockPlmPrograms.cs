@@ -51,7 +51,24 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        VerifyShotBlockStockVisualMapping(rom);
+        VerifyShotBlockProgramControlMapping(rom);
+        VerifyShotBlockProgramDrawMapping(rom);
+        VerifyShotBlockProgramSoundMapping(rom);
+        VerifyRespawningShotSizeSelection(rom);
+        VerifyPermanentShotSizeSelection(rom);
         var forbidden = new HashSet<int>();
+        ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
+            0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
+        AssertTrue(nativeDraws.SequenceEqual(RoomPlmShotBlockDrawDefinitions.All.Select(draw => draw.Pointer)),
+            "shot-block independent native draw order");
+        var knownDraws = nativeDraws.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+        {
+            bool found = RoomPlmShotBlockDrawDefinitions.TryGet((ushort)pointer, out var draw);
+            AssertEqual(knownDraws.Contains((ushort)pointer), found, "shot-block full draw-pointer domain");
+            if (!found) AssertEqual(default(RoomPlmShotBlockDrawDefinitions.Draw), draw, "shot-block unknown draw output cleared");
+        }
         int wordCount = 0;
         foreach (ushort address in RoomPlmShotBlockProgramDefinitions.MechanicsWordAddresses())
         {
@@ -87,9 +104,15 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  RoomPlmShotBlockDrawDefinitions.All)
         {
+            AssertTrue(RoomPlmShotBlockDrawDefinitions.TryGet(list.Pointer, out var calculated), "shot-block calculated draw exists");
+            AssertEqual(list.Runs.Length, calculated.RunCount, "shot-block calculated run count");
             int cursor = list.Pointer;
+            int runIndex = 0;
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
+                AssertEqual(run.LevelWords.Length, calculated.WordsPerRun, "shot-block calculated run width");
+                AssertEqual((run.DirectionAndCount & 0x8000) != 0, calculated.Vertical, "shot-block calculated direction");
+                int blockIndex = 0;
                 AssertEqual(run.DirectionAndCount,
                     unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
                         (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
@@ -98,6 +121,7 @@ internal static partial class Program
                 forbidden.Add(0x840000 | cursor++);
                 foreach (ushort word in run.LevelWords.Span)
                 {
+                    AssertEqual(word, calculated.WordAt(runIndex, blockIndex++), "shot-block direct and exported word agree");
                     AssertEqual(word,
                         unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
                             (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
@@ -112,7 +136,16 @@ internal static partial class Program
                 AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
                     $"shot-block draw list ${list.Pointer:X4} next Y");
                 forbidden.Add(0x840000 | cursor++);
+                runIndex++;
             }
+
+            foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
+            {
+                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(invalid, 0), "shot-block invalid run");
+                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, invalid), "shot-block invalid block");
+            }
+            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(calculated.RunCount, 0), "shot-block run upper bound");
+            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, calculated.WordsPerRun), "shot-block word upper bound");
 
             drawListCount++;
         }
@@ -154,6 +187,144 @@ internal static partial class Program
         VerifyShotBlockVisualInstallation(rom);
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
+    }
+
+    private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+                RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot native shape selection");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot rejects other BTS values without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
+    }
+
+    private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
+    {
+        ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
+        for (int size = 0; size < fields.Length; size++)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+                RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot native shape selection after caller subtracts four");
+        for (int size = 4; size <= byte.MaxValue; size++)
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot rejects out-of-range size without masking");
+        foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
+    }
+
+    private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>
+        [(0xcadf,7,true),(0xcb02,8,false),(0xcb27,8,false),(0xcb4c,8,false),
+         (0xcbb7,4,false),(0xcbcc,4,false),(0xcbe1,4,false),(0xcbf6,4,false),
+         (0xcb71,7,true),(0xcb94,7,true),(0xcc0b,4,false),(0xcc20,4,false),(0xcd53,4,false)];
+
+    private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        {
+            addresses.Add(layout.Start);
+            for (int frame = 0; frame <= layout.Frames; frame++)
+                addresses.Add((ushort)(layout.Start + 3 + 4 * frame));
+            if (layout.RestoreWord) addresses.Add((ushort)(layout.Start + 5 + 4 * layout.Frames));
+        }
+        AssertTrue(addresses.SequenceEqual(RoomPlmShotBlockProgramDefinitions.MechanicsWordAddresses()), "shot-block native control enumeration order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full control-word domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native control value including respawn hold and Power Bomb cadence");
+        }
+    }
+
+    private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new HashSet<ushort>();
+        foreach (var layout in ShotBlockNativeProgramLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Start + 5 + 4 * frame));
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
+            AssertEqual(addresses.Contains((ushort)address), found, "shot-block full draw-operand domain");
+            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+                "shot-block native shape, reverse breakup and restoration draw selection");
+        }
+    }
+
+    private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
+            0xcb73,0xcb96,0xcc0d,0xcc22,0xcd55];
+        AssertTrue(addresses.SequenceEqual(RoomPlmShotBlockProgramDefinitions.MechanicsByteAddresses()), "shot-block native sound operand order");
+        var known = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
+            AssertEqual(known.Contains((ushort)address), found, "shot-block full packed sound domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0, value, "shot-block native packed sound IDs");
+        }
+    }
+
+    private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
+            0xa37d,0xa385,0xa38d,0xa395,0xa39d,0xa3ad,0xa3bd,0xa3cd,0xa47b,0xa483,0xa48b];
+        var native = new Dictionary<ushort, ushort[][]>();
+        foreach (ushort pointer in pointers)
+        {
+            int cursor = pointer;
+            var runs = new List<ushort[]>();
+            do
+            {
+                int count = ReadBotwoonInstructionWord(rom, 0x840000 | cursor) & 0x7fff;
+                cursor += 2;
+                ushort[] row = new ushort[count];
+                for (int i = 0; i < count; i++, cursor += 2)
+                    row[i] = (ushort)(ReadBotwoonInstructionWord(rom, 0x840000 | cursor) & 0x0fff);
+                runs.Add(row);
+                ushort next = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                cursor += 2;
+                if (next == 0) break;
+                AssertTrue(runs.Count < 2, "shot-block native oracle has at most two runs");
+            } while (true);
+            native.Add(pointer, runs.ToArray());
+        }
+        var stock = RoomPlmShotBlockVisualCatalog.Stock();
+        var loaded = new RoomPlmShotBlockVisualCatalog(native.Select(pair => new RoomPlmShotBlockVisualEntry(pair.Key, pair.Value)));
+        string identity = SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmShotBlockVisualCatalog), native);
+        AssertEqual(identity, stock.ContentIdentity, "shot-block stock preserves original native content identity");
+        AssertEqual(identity, loaded.ContentIdentity, "shot-block imported stock preserves identity");
+        foreach (var pair in native)
+        for (int run = 0; run < pair.Value.Length; run++)
+        for (int word = 0; word < pair.Value[run].Length; word++)
+        {
+            AssertEqual(pair.Value[run][word], stock.GetWord(pair.Key, run, word), "shot-block calculated native stock word");
+            AssertEqual(pair.Value[run][word], loaded.GetWord(pair.Key, run, word), "shot-block imported native stock word");
+        }
+        native[0xa345][0][0] = 0x0054;
+        native[0xa48b][1][1] = 0x0258;
+        var edited = new RoomPlmShotBlockVisualCatalog(native.Select(pair => new RoomPlmShotBlockVisualEntry(pair.Key, pair.Value)));
+        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmShotBlockVisualCatalog), native), edited.ContentIdentity,
+            "shot-block mixed stock/custom identity preserves original framing");
+        foreach (var pair in native)
+        for (int run = 0; run < pair.Value.Length; run++)
+        for (int word = 0; word < pair.Value[run].Length; word++)
+            AssertEqual(pair.Value[run][word], edited.GetWord(pair.Key, run, word), "shot-block mixed payload output");
+        native[0xa345][0][0] = 0;
+        AssertEqual((ushort)0x0054, edited.GetWord(0xa345, 0, 0), "shot-block custom data cloned");
+        AssertEqual((ushort)0x0053, loaded.GetWord(0xa345, 0, 0), "shot-block normalized stock isolated from caller mutation");
+        foreach (var catalog in new[] {stock, loaded, edited})
+        foreach (var pair in native)
+        {
+            foreach (int invalid in new[] {int.MinValue,-1,pair.Value.Length,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(pair.Key, invalid, 0), "shot-block visual run bounds");
+            foreach (int invalid in new[] {int.MinValue,-1,pair.Value[0].Length,int.MaxValue})
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(pair.Key, 0, invalid), "shot-block visual word bounds");
+        }
+        AssertThrows<InvalidDataException>(() => new RoomPlmShotBlockVisualCatalog(native.Skip(1).Select(pair => new RoomPlmShotBlockVisualEntry(pair.Key, pair.Value))), "shot-block imported stock still requires complete coverage");
     }
 
     private static void VerifyShotBlockVisualSeparation(

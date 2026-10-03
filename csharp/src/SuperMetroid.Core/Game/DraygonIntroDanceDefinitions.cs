@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Compiled fixed timing definitions for Draygon's opening Evir dance.</summary>
+/// <summary>Compiled timing and traced movement for Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
     /// <summary>Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>.</summary>
@@ -10,15 +10,8 @@ internal static class DraygonIntroDanceDefinitions
     /// The four reachable words of <c>MovementLatencyForEachEvirSpriteObject</c> at
     /// <c>$A5:A19F-$A5:A1A6</c>, ordered by sprite slots 28 through 31.
     /// </summary>
-    /// <remarks>Issues #625 and #936 exact formula: 128*(slot-35) for validated slots
-    /// 28..31, equivalently 128*(i-7) for bounded table index i=0..3.
-    /// LookupTableResearch checks all four signed words against the NTSC ROM,
-    /// pinned bank_A5.asm and MovementLatencyForSlot. Preserve signed latency
-    /// before the caller's word wrapping. The four following unused native words
-    /// do not broaden this consumer's domain. Packed dance trajectories are a
-    /// separate table and are not explained by this latency progression.</remarks>
-    private static ReadOnlySpan<short> MovementLatencies =>
-        [-0x0380, -0x0300, -0x0280, -0x0200];
+    /// <remarks>The native loop at $A5:A13E indexes with 2*(slot-28).</remarks>
+    public const int NativeMovementLatencyAddress = 0xa5a19f;
 
     /// <summary>Native byte-index advance after each dance update at <c>$A5:A188</c>.</summary>
     public const ushort StreamIndexAdvance = 4;
@@ -28,26 +21,24 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// Last four-byte-aligned movement offset reachable by the four Evir actors during
-    /// the native 1,232-frame intro. Each packed byte stores signed X and Y deltas as
-    /// biased nibbles; <c>FF</c> is the cartridge's <c>80 80</c> delete sentinel. The
-    /// authored deltas occupy only -4 through +5, so the sentinel cannot collide.
+    /// the native 1,232-frame intro. Movement bytes pack signed X/Y as biased nibbles;
+    /// the cartridge's <c>80 80</c> delete commands are separate control cases.
+    /// Non-command deltas occupy only -4 through +5.
     /// </summary>
     public const ushort LastMovementStreamOffset = 0x113c;
 
-    private const byte DeleteSentinel = 0xff;
+    /// <summary>$A5:DDBF and $A5:DDC3 are the two aligned 8080 delete commands,
+    /// at offsets0FB8/0FBC from DraygonFightIntroDanceData_KeikoLove.</summary>
+    private const ushort FirstDeleteOffset = 0x0fb8;
 
-    /// <summary>Exact authored Evir movement script, packed as one byte per reachable record.</summary>
-    /// <remarks>
-    /// Issues #625 and #940 retain the 1,104-record trajectory. Four-byte-aligned
-    /// native offsets $0000..$113C select the X/Y delta bytes at $A5:CE07+offset;
-    /// this caller never selects the other two bytes of each four-byte step.
-    /// A read-only probe matched all packed records to the pinned NTSC J/U v1.0
-    /// ROM: 49 distinct packed values, including two $80,$80 delete sentinels.
-    /// The biased nibbles encode signed deltas; $FF is reserved for deletion.
-    /// This is an authored, irregular frame-by-frame route with sentinel state,
-    /// not samples of an independently evidenced trajectory function. Retain
-    /// the scripted data and the aligned, bounded ResolveMovement contract.
-    /// </remarks>
+    /// <summary>Signed X/Y deltas of the handwritten Keiko Love path, packed as biased nibbles.</summary>
+    /// <remarks>Independently reviewed for #1165: integrating the original aligned
+    /// deltas visibly traces the lettering named by the pinned disassembly. Retain this
+    /// drawing content under the nonsense exception: fitted splines, per-stroke corrections
+    /// or a numeric switch would encode the same particular letter shapes and pen timing.
+    /// This is not a sampled physical trajectory. The supported post-delete continuation
+    /// remains exact; the two delete commands themselves are decoded as control cases and
+    /// occupy no packed entries. See draygonIntroTraceReview in the #1165 inventory.</remarks>
     private const string PackedMovementHex =
         "B8B8B8B8B7A7A6A6A59596969898898A8A8A7B8B8B8C8C7C7C8D7C7C7D7C7C7B7B7B7B7A8989788787878685958584949484959595A59595A695A696A6A7B6B6" +
         "B6B6B6B6B7A7A7A8A8A8998A8A8B7B7B6B6B6B6B6B6A5A69696959596857575757667696A6B6C7B8B8B8AAAAAAAA9B9B9BAB9A9B9B9B9AAAAAAAAAA9A9B9B9B8" +
@@ -64,25 +55,34 @@ internal static class DraygonIntroDanceDefinitions
         "9787978787787989897979788989898989897989898A898A898A89998A8989899999989887978798979797878787879697878786968686878786878777777878" +
         "787879787979798989999898989898989898979897979797978797988989898A8989898A8A7A8A8A898989897989898989998998989898989897979787979697" +
         "86979796878787968786878787978789898989898989998999898999998999899998999998999999999998999899989898989797979797978787879787978787" +
-        "87878787778687868787777787877778787878897989898979797989897989898A898A8989898A89898999999989FFFF979797A7A79796A69796969695969696" +
+        "87878787778687868787777787877778787878897989898979797989897989898A898A8989898A89898999999989979797A7A79796A69796969695969696" +
         "95969595959585968777777879797A6A6B6A6B6A7B7C7B7B8B8B8B8B9B8A9B9A9A9AA9A9A9A898A797A797A7A6A6A69596959595848585858575867666766677" +
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
 
     private static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
 
     /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A5.asm:
+    /// the four reachable signed words are the arithmetic progression 128*(slot-35).
+    /// The caller adds this byte-stream latency with 16-bit wrap, then tests the sign.
+    /// Keep the first four native words (including the 128-frame initial delay); the
+    /// unused following four words do not extend the domain. Packed motion is separate.
+    /// </remarks>
     public static short MovementLatencyForSlot(int slotIndex)
     {
         int index = slotIndex - 28;
-        if ((uint)index >= MovementLatencies.Length)
+        if ((uint)index >= 4)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
-        return MovementLatencies[index];
+        return (short)(128 * (slotIndex - 35));
     }
 
     /// <summary>
-    /// Resolves one normally reachable, four-byte-aligned Evir movement record from the
+    /// Resolves one supported, four-byte-aligned Evir movement record from the
     /// compiled <c>$A5:CE07-$A5:DF44</c> trajectory. The native 1,232-frame owner can
-    /// select exactly these 1,104 records after applying the four sprite latencies.
+    /// address these 1,104 records after applying the four sprite latencies; active
+    /// sprites stop consuming movement at the first delete command. Preserve the full
+    /// existing decoder domain, including its post-delete continuation.
     /// A restored index outside that domain is corrupt state, not permission to interpret
     /// adjacent executable or presentation bytes as signed movement.
     /// </summary>
@@ -95,9 +95,12 @@ internal static class DraygonIntroDanceDefinitions
                 "four-byte-aligned retail trajectory.");
         }
 
-        byte packed = PackedMovement[streamOffset / 4];
-        if (packed == DeleteSentinel)
+        if (streamOffset is FirstDeleteOffset or FirstDeleteOffset + StreamIndexAdvance)
             return new DraygonIntroMovement(0, 0, DeletesSprite: true);
+
+        int index = streamOffset / StreamIndexAdvance;
+        if (streamOffset > FirstDeleteOffset) index -= 2;
+        byte packed = PackedMovement[index];
 
         return new DraygonIntroMovement(
             unchecked((sbyte)((packed >> 4) - 8)),

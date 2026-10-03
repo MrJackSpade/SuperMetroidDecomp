@@ -4,23 +4,11 @@ namespace SuperMetroid.Core.Game;
 internal static class FakeKraidProjectileDefinitions
 {
     /// <summary>
-    /// Two leftward followed by two rightward signed 8.8 velocity pairs from
-    /// <c>$A6:9A48-$A6:9A57</c>.
-    /// </summary>
-    private static readonly FakeKraidSpitLaunch[] SpitLaunches =
-    [
-        new(0xfe00, 0xfb00),
-        new(0xfc00, 0xfb00),
-        new(0x0200, 0xfb00),
-        new(0x0400, 0xfb00),
-    ];
-
-    /// <summary>
     /// Top, middle, and bottom body-spike Y offsets from <c>$86:9E7D-$86:9E82</c>.
     /// </summary>
     private static readonly short[] SpikeYOffsets = [-2, 12, 24];
 
-    /// <summary>Returns one of the two authored spit launches for a facing direction.</summary>
+    /// <summary>Computes the signed8.8 near/far launches from $A6:9A48-9A57, mirrored by facing.</summary>
     internal static FakeKraidSpitLaunch SpitLaunch(bool movingRight, int projectile)
     {
         if ((uint)projectile >= 2)
@@ -29,7 +17,11 @@ internal static class FakeKraidProjectileDefinitions
                 $"Fake Kraid spit index {projectile} exceeds its two-entry direction set.");
         }
 
-        return SpitLaunches[(movingRight ? 2 : 0) + projectile];
+        // Near/far shots travel at two/four pixels per frame,
+        // mirrored with facing; both start upward at five pixels per frame.
+        int horizontal = (projectile + 1) * 2 * 256;
+        return new(unchecked((ushort)(movingRight ? horizontal : -horizontal)),
+            unchecked((ushort)(-5 * 256)));
     }
 
     /// <summary>Returns the authored Y offset for one of Fake Kraid's three spike rows.</summary>

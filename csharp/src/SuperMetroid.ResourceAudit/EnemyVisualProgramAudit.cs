@@ -41,12 +41,12 @@ internal static class EnemyVisualProgramAudit
             int? bank = ResolveBank(type, parts, compilation);
             var addresses = new HashSet<ushort>();
             string shape = "unrecognized";
-            PropertyInfo? count = type.GetProperty("PresentationWordCount", Flags);
+            int? count = PresentationCount(type);
             MethodInfo? at = type.GetMethod("PresentationWordAddress", Flags, [typeof(int)]);
             if (count is not null && at is not null)
             {
                 shape = "indexed";
-                for (int i = 0; i < (int)count.GetValue(null)!; i++) addresses.Add((ushort)at.Invoke(null, [i])!);
+                for (int i = 0; i < count.Value; i++) addresses.Add((ushort)at.Invoke(null, [i])!);
             }
             else if (type.GetField("PresentationWord", Flags) is { IsLiteral: true } single)
             {
@@ -108,6 +108,13 @@ internal static class EnemyVisualProgramAudit
         foreach (AuditFinding finding in report.Findings.DistinctBy(item => (item.Owner, item.Resource, item.Message)))
             Console.WriteLine($"{finding.Code} {finding.Owner} {finding.Resource}: {finding.Message}");
         return report.Findings.Count == 0 ? 0 : 1;
+    }
+
+    internal static int? PresentationCount(Type type)
+    {
+        if (type.GetProperty("PresentationWordCount", Flags)?.GetValue(null) is int count) return count;
+        return type.GetField("PresentationWordCount", Flags) is { IsLiteral: true } field
+            ? (int)field.GetRawConstantValue()! : null;
     }
 
     internal static IEnumerable<ushort> InterleavedOperands(Dictionary<ushort, ushort> words) =>

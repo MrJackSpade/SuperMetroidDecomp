@@ -14,17 +14,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < KraidRockProjectileInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidRockProjectileInstructionMechanicsWord definition =
-                KraidRockProjectileInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadKraidRockProjectileInstructionWord(rom, definition.Address),
-                $"Kraid-rock projectile mechanics word $86:{definition.Address:X4}");
-        }
+        VerifyKraidRockMechanicsMapping(rom);
+        VerifyKraidRockPresentationMapping();
 
         var guard = new KraidRockProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();

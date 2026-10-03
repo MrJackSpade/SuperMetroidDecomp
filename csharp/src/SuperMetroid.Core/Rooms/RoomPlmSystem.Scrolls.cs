@@ -50,10 +50,14 @@ public sealed partial class RoomPlmSystem
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
-        // Legacy snapshots lack the decoded program. Their retained room argument
-        // is enough to rebind the immutable retail definition without opening a ROM.
-        ReadOnlyMemory<byte> program = slot.Scroll.Program is { } supplied
-            ? supplied : RoomPlmScrollProgramDefinitions.Get(slot.RoomArgument);
+        // Retail and historical identity-only states execute ordered writes without a decoded cache.
+        if (slot.Scroll.Program is null)
+        {
+            RoomPlmScrollProgramDefinitions.Apply(slot.Scroll.CompiledSource ?? slot.RoomArgument, scrolls.SetStorage);
+            FinishScrollMutation(level, slot);
+            return true;
+        }
+        ReadOnlyMemory<byte> program = slot.Scroll.Program;
         for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
         {
             int offset = pairIndex * 2;
@@ -63,16 +67,7 @@ public sealed partial class RoomPlmSystem
             byte scrollIndex = program.Span[offset];
             if ((scrollIndex & 0x80) != 0)
             {
-                // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
-                // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
-                slot.Scroll.Triggered = false;
-                slot.RestoreLevelWord = 0;
-                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
-                ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
-                level.SetForegroundEntry(
-                    slot.BlockIndex,
-                    (ushort)((triggerWord & 0x0fff) | 0x3000));
-                level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
+                FinishScrollMutation(level, slot);
                 return true;
             }
 
@@ -91,9 +86,23 @@ public sealed partial class RoomPlmSystem
             $"Scroll PLM data $8F:{slot.RoomArgument:X4} has no negative terminator.");
     }
 
+    private static void FinishScrollMutation(RoomLevelData level, PlmSlot slot)
+    {
+        // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
+        // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
+        slot.Scroll!.Triggered = false;
+        slot.RestoreLevelWord = 0;
+        slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
+        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        level.SetForegroundEntry(
+            slot.BlockIndex,
+            (ushort)((triggerWord & 0x0fff) | 0x3000));
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
+    }
+
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
-        ushort header, ReadOnlySpan<byte> program)
+        ushort header, ReadOnlySpan<byte> program, ushort? compiledSource)
     {
         if (header != RoomPlmHeaders.ScrollTrigger)
         {
@@ -122,7 +131,8 @@ public sealed partial class RoomPlmSystem
         slot.Scroll = new ScrollPlmState
         {
             UseCompiledRetailProgram = true,
-            Program = program.ToArray(),
+            Program = compiledSource.HasValue ? null : program.ToArray(),
+            CompiledSource = compiledSource,
         };
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(
@@ -134,9 +144,11 @@ public sealed partial class RoomPlmSystem
     private sealed class ScrollPlmState
     {
         public bool Triggered { get; set; }
+        /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
+        public ushort? CompiledSource { get; set; }
         /// <summary>Legacy snapshot field only; it no longer selects an input reader.</summary>
         public bool UseCompiledRetailProgram { get; set; }
-        /// <summary>Validated decoded pairs. Null in historical states means rebind the retail identity.</summary>
+        /// <summary>Validated constructed pairs. Null executes the retail identity directly, including historical states.</summary>
         public byte[]? Program { get; set; }
     }
 }

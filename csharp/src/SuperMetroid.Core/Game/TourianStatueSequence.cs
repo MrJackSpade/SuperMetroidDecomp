@@ -34,17 +34,7 @@ public sealed class TourianStatueSequence
         DisplayedVerticalOffset = 0;
         Enabled = runtime.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
-        foreach (ushort objectPointer in TourianStatueRomData.AnimatedObjects)
-        {
-            if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
-                    objectPointer, out TourianStatueAnimatedTileProgramDefinition definition))
-            {
-                throw new InvalidDataException(
-                    $"Tourian statue animated-tile object $87:{objectPointer:X4} is not cataloged.");
-            }
-
-            objects.Add(new() { Definition = definition, Pointer = definition.ProgramStart });
-        }
+        SpawnAnimatedObjects();
         if (runtime.System.HasEvent(EventNumber.TourianUnlocked))
         {
             descent = TourianStatueRomData.DescentDistance << 16;
@@ -56,6 +46,29 @@ public sealed class TourianStatueSequence
         {
             runtime.Camera!.Scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
             runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
+        }
+    }
+
+    /// <summary>
+    /// Translates the four LDY/JSL calls at $8F:91D7..91F2 directly. Native allocation
+    /// and handler traversal both descend through slots, so insertion order also
+    /// preserves execution order and which statue can acquire the shared busy bit.
+    /// </summary>
+    private void SpawnAnimatedObjects()
+    {
+        Spawn(AnimatedTileObjectPointers.TourianStatueKraid);
+        Spawn(AnimatedTileObjectPointers.TourianStatuePhantoon);
+        Spawn(AnimatedTileObjectPointers.TourianStatueDraygon);
+        Spawn(AnimatedTileObjectPointers.TourianStatueRidley);
+
+        void Spawn(ushort objectPointer)
+        {
+            if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
+                    objectPointer, out TourianStatueAnimatedTileProgramDefinition definition))
+                throw new InvalidDataException(
+                    $"Tourian statue animated-tile object $87:{objectPointer:X4} is not cataloged.");
+
+            objects.Add(new() { Definition = definition, Pointer = definition.ProgramStart });
         }
     }
 

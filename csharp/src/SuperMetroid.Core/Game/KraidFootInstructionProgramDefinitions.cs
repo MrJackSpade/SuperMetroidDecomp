@@ -31,221 +31,247 @@ internal static class KraidFootInstructionProgramDefinitions
     /// <summary>Adjacent unreferenced fast-backwards program at $A7:893D.</summary>
     internal const ushort AdjacentUnusedFastBackward = 0x893d;
 
-    private static readonly KraidFootInstructionMechanicsWord[] Words;
-    private static readonly ushort[] PresentationWords;
-
-    static KraidFootInstructionProgramDefinitions()
+    private static void Generate(ref MechanicsSelection words, ref PresentationSelection presentation)
     {
-        var words = new List<KraidFootInstructionMechanicsWord>(capacity: 193);
-        var presentation = new List<ushort>(capacity: 106);
-
         ushort cursor = Initial;
-        AddFrame(words, presentation, ref cursor, 0x7fff);
-        AddInstruction(words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddFrame(ref words, ref presentation, ref cursor, 0x7fff);
+        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
         RequireCursor(cursor, Neutral);
 
-        AddFrame(words, presentation, ref cursor, 0x7fff);
-        AddInstruction(words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddFrame(ref words, ref presentation, ref cursor, 0x7fff);
+        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
         RequireCursor(cursor, WalkingForward);
 
         AddForwardProgram(
-            words,
-            presentation,
+            ref words,
+            ref presentation,
             ref cursor,
             fast: false,
             KraidInstructionCodes.Instruction_Kraid_XPositionMinus3);
         RequireCursor(cursor, LungeForward);
 
         AddForwardProgram(
-            words,
-            presentation,
+            ref words,
+            ref presentation,
             ref cursor,
             fast: true,
             KraidInstructionCodes.Instruction_Kraid_XPositionMinus3_duplicate);
         RequireCursor(cursor, WalkingBackward);
 
-        AddBackwardProgram(words, presentation, ref cursor);
+        AddBackwardProgram(ref words, ref presentation, ref cursor);
         RequireCursor(cursor, AdjacentUnusedFastBackward);
-
-        Words = words.ToArray();
-        PresentationWords = presentation.ToArray();
     }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KraidFootInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Two initial frames, two 36-frame forward programs and 32 backward frames.</summary>
+    internal const int PresentationWordCount = 2 + 2 * 36 + 32;
+    /// <summary>Every other word in the bounded native program region is mechanics.</summary>
+    internal const int MechanicsWordCount = (AdjacentUnusedFastBackward - Initial) / 2 - PresentationWordCount;
 
-    /// <summary>Returns fixed Kraid-foot control or rejects non-mechanics pointers.</summary>
+    internal static KraidFootInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        var words = new MechanicsSelection(index, -1, false);
+        var presentation = new PresentationSelection(-1);
+        Generate(ref words, ref presentation);
+        return words.Selected;
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        var words = new MechanicsSelection(-1, -1, false);
+        var presentation = new PresentationSelection(index);
+        Generate(ref words, ref presentation);
+        return presentation.Selected;
+    }
+
+    /// <summary>Evaluates the native program grammar for one mechanics address,
+    /// without storing its generated words or presentation offsets.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
-
-        throw new InvalidDataException(
-            $"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
+        var words = new MechanicsSelection(-1, address, false);
+        var presentation = new PresentationSelection(-1);
+        Generate(ref words, ref presentation);
+        if (words.Found) return words.Selected.Value;
+        throw new InvalidDataException($"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
+        if ((address & 0xff0000) != 0xa70000) return false;
+        var words = new MechanicsSelection(-1, unchecked((ushort)address), true);
+        var presentation = new PresentationSelection(-1);
+        Generate(ref words, ref presentation);
+        return words.Found;
+    }
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+    private struct MechanicsSelection(int targetIndex, int targetAddress, bool includeHighByte)
+    {
+        private int count;
+        internal bool Found;
+        internal KraidFootInstructionMechanicsWord Selected;
+        internal void Add(KraidFootInstructionMechanicsWord word)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            if (count == targetIndex || word.Address == targetAddress ||
+                includeHighByte && unchecked((ushort)(word.Address + 1)) == targetAddress)
             {
-                return true;
+                Found = true;
+                Selected = word;
             }
+            count++;
         }
-        return false;
+    }
+
+    private struct PresentationSelection(int targetIndex)
+    {
+        private int count;
+        internal ushort Selected;
+        internal void Add(ushort address)
+        {
+            if (count == targetIndex) Selected = address;
+            count++;
+        }
     }
 
     private static void AddForwardProgram(
-        List<KraidFootInstructionMechanicsWord> words,
-        List<ushort> presentation,
+        ref MechanicsSelection words,
+        ref PresentationSelection presentation,
         ref ushort cursor,
         bool fast,
         ushort moveLeftInstruction)
     {
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
         for (int frame = 0; frame < 11; frame++)
-            AddFrame(words, presentation, ref cursor, fast ? (ushort)1 : (ushort)4);
-        AddFrame(words, presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
+            AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)4);
+        AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
         for (int frame = 0; frame < 5; frame++)
-            AddFrame(words, presentation, ref cursor, 1);
-        AddFrame(words, presentation, ref cursor, fast ? (ushort)4 : (ushort)0x10);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)4 : (ushort)0x10);
 
-        AddVerticalAndHorizontal(words, ref cursor,
+        AddVerticalAndHorizontal(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
-        AddFrame(words, presentation, ref cursor, 1);
-        AddVerticalAndHorizontal(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddVerticalAndHorizontal(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
-        AddFrame(words, presentation, ref cursor, 1);
+        AddFrame(ref words, ref presentation, ref cursor, 1);
 
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddFrame(words, presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
-        AddVerticalAndHorizontal(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
+        AddVerticalAndHorizontal(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
-        AddFrame(words, presentation, ref cursor, 1);
-        AddInstruction(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddFrame(words, presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
-        AddVerticalAndHorizontal(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
+        AddVerticalAndHorizontal(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
-        AddFrame(words, presentation, ref cursor, 1);
-        AddInstruction(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddFrame(words, presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
+        AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
 
         for (int frame = 0; frame < 3; frame++)
         {
-            AddVerticalAndHorizontal(words, ref cursor,
+            AddVerticalAndHorizontal(ref words, ref cursor,
                 KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
                 moveLeftInstruction);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
-        AddVerticalAndHorizontal(words, ref cursor,
+        AddVerticalAndHorizontal(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
             moveLeftInstruction);
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6);
-        AddFrame(words, presentation, ref cursor, 1);
+        AddFrame(ref words, ref presentation, ref cursor, 1);
 
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddInstruction(words, ref cursor, moveLeftInstruction);
-        AddFrame(words, presentation, ref cursor, 1);
+        AddInstruction(ref words, ref cursor, moveLeftInstruction);
+        AddFrame(ref words, ref presentation, ref cursor, 1);
         for (int frame = 0; frame < 4; frame++)
         {
-            AddInstruction(words, ref cursor, moveLeftInstruction);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddInstruction(ref words, ref cursor, moveLeftInstruction);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         if (!fast)
         {
-            AddInstruction(words, ref cursor, moveLeftInstruction);
-            AddFrame(words, presentation, ref cursor, 1);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddInstruction(ref words, ref cursor, moveLeftInstruction);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         else
         {
-            AddFrame(words, presentation, ref cursor, 1);
-            AddInstruction(words, ref cursor, moveLeftInstruction);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
+            AddInstruction(ref words, ref cursor, moveLeftInstruction);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
-        AddInstruction(words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
     }
 
     private static void AddBackwardProgram(
-        List<KraidFootInstructionMechanicsWord> words,
-        List<ushort> presentation,
+        ref MechanicsSelection words,
+        ref PresentationSelection presentation,
         ref ushort cursor)
     {
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
-        AddFrame(words, presentation, ref cursor, 4);
+        AddFrame(ref words, ref presentation, ref cursor, 4);
         for (int frame = 0; frame < 6; frame++)
         {
-            AddInstruction(words, ref cursor,
+            AddInstruction(ref words, ref cursor,
                 KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         for (int frame = 0; frame < 4; frame++)
         {
-            AddVerticalAndHorizontal(words, ref cursor,
+            AddVerticalAndHorizontal(ref words, ref cursor,
                 KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
                 KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         for (int frame = 0; frame < 3; frame++)
         {
-            AddVerticalAndHorizontal(words, ref cursor,
+            AddVerticalAndHorizontal(ref words, ref cursor,
                 KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
                 KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
-            AddFrame(words, presentation, ref cursor, 1);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
         }
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking);
-        AddInstruction(words, ref cursor,
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6);
-        AddFrame(words, presentation, ref cursor, 1);
-        AddInstruction(words, ref cursor,
+        AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddInstruction(ref words, ref cursor,
             KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
-        AddFrame(words, presentation, ref cursor, 0x14);
+        AddFrame(ref words, ref presentation, ref cursor, 0x14);
         for (int frame = 0; frame < 8; frame++)
-            AddFrame(words, presentation, ref cursor, 4);
+            AddFrame(ref words, ref presentation, ref cursor, 4);
         for (int frame = 0; frame < 8; frame++)
-            AddFrame(words, presentation, ref cursor, 1);
-        AddInstruction(words, ref cursor, CommonEnemyInstructionCodes.Goto);
-        AddInstruction(words, ref cursor, WalkingBackward);
+            AddFrame(ref words, ref presentation, ref cursor, 1);
+        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Goto);
+        AddInstruction(ref words, ref cursor, WalkingBackward);
     }
 
     private static void AddVerticalAndHorizontal(
-        List<KraidFootInstructionMechanicsWord> words,
+        ref MechanicsSelection words,
         ref ushort cursor,
         ushort vertical,
         ushort horizontal)
     {
-        AddInstruction(words, ref cursor, vertical);
-        AddInstruction(words, ref cursor, horizontal);
+        AddInstruction(ref words, ref cursor, vertical);
+        AddInstruction(ref words, ref cursor, horizontal);
     }
 
     private static void AddInstruction(
-        List<KraidFootInstructionMechanicsWord> words,
+        ref MechanicsSelection words,
         ref ushort cursor,
         ushort instruction)
     {
@@ -254,8 +280,8 @@ internal static class KraidFootInstructionProgramDefinitions
     }
 
     private static void AddFrame(
-        List<KraidFootInstructionMechanicsWord> words,
-        List<ushort> presentation,
+        ref MechanicsSelection words,
+        ref PresentationSelection presentation,
         ref ushort cursor,
         ushort duration)
     {

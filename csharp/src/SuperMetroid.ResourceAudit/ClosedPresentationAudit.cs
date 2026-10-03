@@ -99,7 +99,9 @@ internal sealed class ClosedPresentationAudit
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
                     ? [typeof(EnemySpritemapDefinitions).FullName!]
-                    : [typeof(EnemyExtendedFrameDefinitions).FullName!, typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName!];
+                    : [typeof(EnemyExtendedFrameDefinitions).FullName!, typeof(EnemyExtendedFrameSequence).FullName!,
+                        typeof(BossOamFrameDefinitions).FullName!, typeof(PirateArtworkNameDefinitions).FullName!,
+                        typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName!];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));

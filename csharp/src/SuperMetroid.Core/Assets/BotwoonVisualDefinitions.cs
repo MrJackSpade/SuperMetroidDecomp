@@ -37,17 +37,28 @@ internal static class BotwoonVisualDefinitions
 
     internal static ushort FrameAt(ushort operandAddress)
     {
-        for (int index = 0;
-             index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        if (BotwoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
-            if (operandAddress != BotwoonInstructionProgramDefinitions
-                    .PresentationWordAddress(index))
-                continue;
-            if (CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort pointer))
-                return pointer;
-            break;
+            if (operandAddress == BotwoonInstructionProgramDefinitions.Hidden + 2)
+                return CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+            bool spitting = operandAddress >= BotwoonInstructionProgramDefinitions.SpittingUpLeft;
+            int relative = operandAddress - (spitting ? BotwoonInstructionProgramDefinitions.SpittingUpLeft : BotwoonInstructionProgramDefinitions.MovingUpLeft);
+            int direction = relative / (spitting ? 16 : 8);
+            bool open = spitting && relative % 16 == 12;
+            // Closed maps all have two entries: two-byte count plus ten sprite bytes.
+            if (!open) return (ushort)(0xe329 + 12 * direction);
+            int pointer = 0xe3a1 + 12 * direction;
+            // Each prior diagonal open-mouth map contributes a third five-byte piece.
+            for (int prior = 0; prior < direction; prior++)
+            {
+                int movement = BotwoonInstructionProgramDefinitions.MovingUpLeft + 8 * prior;
+                if (movement is BotwoonInstructionProgramDefinitions.MovingUpLeft or
+                    BotwoonInstructionProgramDefinitions.MovingDownLeft or
+                    BotwoonInstructionProgramDefinitions.MovingDownRight or
+                    BotwoonInstructionProgramDefinitions.MovingUpRight)
+                    pointer += 5;
+            }
+            return (ushort)pointer;
         }
         throw new InvalidDataException(
             $"Botwoon head visual operand $B3:{operandAddress:X4} is not compiled.");

@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -106,10 +105,17 @@ internal static class DoorCatalogAudit
 
     private static Dictionary<ushort, ushort[]> CompiledLists()
     {
-        // Inventory the whole compiled allocation, including unexpected additions.
-        var field = typeof(DoorDefinitions).GetField("lists", BindingFlags.NonPublic | BindingFlags.Static)
-            ?? throw new InvalidDataException("Door catalog layout changed; update its audit explicitly.");
-        return ((DoorListDefinition[])field.GetValue(null)!).ToDictionary(r => r.Pointer, r => r.DoorPointers.ToArray());
+        // Inventory the complete calculated identity domain, including unexpected
+        // additions. No runtime, room loading, or gameplay is involved.
+        var lists = new Dictionary<ushort, ushort[]>();
+        for (int value = 0; value <= ushort.MaxValue; value++)
+        {
+            DoorListDefinition list;
+            try { list = DoorDefinitions.GetList((ushort)value); }
+            catch (ArgumentOutOfRangeException) { continue; }
+            lists.Add(list.Pointer, list.DoorPointers.ToArray());
+        }
+        return lists;
     }
 
     private static NativeDoorManifest Load(string root)

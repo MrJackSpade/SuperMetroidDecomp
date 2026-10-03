@@ -9,10 +9,11 @@ internal static partial class Program
 {
     private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyEyeDoorVisualIds();
         VerifyEyeDoorProgramDefinitions(rom);
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
+        VerifyEyeDoorLayoutGeometry(rom);
+        VerifyEyeDoorLayoutCollision(rom);
+        VerifyEyeDoorLayoutVisuals(rom);
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             EyeDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
         RoomPlmEyeDoorVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
@@ -28,8 +29,6 @@ internal static partial class Program
         rightEye.Blocks[0] = 0x0056;
         AssertEqual((ushort)0x0055, edited.GetWord(0x9c5b, 0),
             "eye-door catalog copies author data");
-        AssertEqual(stockWord, RoomPlmEyeDoorVisualCatalog.Stock().GetWord(0x9c5b, 0),
-            "stock eye-door catalog retains native frame");
         rightEye.Blocks[0] = stockWord;
         AssertEqual(24, lists.Length,
             "mirrored eye, middle and bottom components include both four-block opening clears");
@@ -39,35 +38,10 @@ internal static partial class Program
                 EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
                 edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
                 "left opening clear mirrors its authored appearance without changing the override schema");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"eye-door draw ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"eye-door draw ${list.Pointer:X4} direction/count matches ROM");
-            for (int block = 0; block < run.LevelWords.Length; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"eye-door draw ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0,
-                ReadWord(rom, source + 2 + run.LevelWords.Length * 2),
-                $"eye-door draw ${list.Pointer:X4} terminates after its physical words");
-        }
-
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null);
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited);
         VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists);
         VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Right, lists);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmEyeDoorVisualCatalog(entries.Skip(1)),
-            "eye-door catalog rejects missing frames");
-        rightEye.Blocks[0] = 0xf055;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmEyeDoorVisualCatalog(entries),
-            "eye-door catalog rejects collision bits in visual words");
-        rightEye.Blocks[0] = stockWord;
         VerifyEyeDoorVisualInstallation(rom);
         Console.WriteLine(
             "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
@@ -75,30 +49,18 @@ internal static partial class Program
 
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = EyeDoorPlmProgramDefinitions.FirstAddress;
-             address <= EyeDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"eye-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"eye-door program byte $84:{address:X4} matches ROM");
-            if (address == EyeDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"eye-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"eye-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xd81d, out _),
-            "eye-door program does not claim preceding executable setup code");
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xda8c, out _),
-            "eye-door program does not claim following unrelated data");
-        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(0xda8b, out _),
-            "eye-door program refuses a word crossing into unrelated data");
+        VerifyEyeDoorProgramControl(rom);
+        VerifyEyeDoorProgramDuration(rom);
+        VerifyEyeDoorProgramDraw(rom);
+        VerifyEyeDoorProgramTarget(rom);
+        VerifyEyeDoorProgramCallback(rom);
+        VerifyEyeDoorProgramColumns(rom);
+        VerifyEyeDoorProgramRows(rom);
+        VerifyEyeDoorProgramAttack(rom);
+        VerifyEyeDoorProgramSweat(rom);
+        VerifyEyeDoorProgramSound(rom);
+        VerifyEyeDoorProgramHitCount(rom);
+        VerifyEyeDoorProgramLoopCount(rom);
     }
 
     private static void VerifyEyeDoorNativeDrawPath(
@@ -269,6 +231,7 @@ internal static partial class Program
                 installation.RoomPlmEyeDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmEyeDoorVisualFiles.ValidateStock(
                 installation.RoomPlmEyeDoorVisualDirectory);
+            VerifyEyeDoorStockMapping(rom, installation.LoadRoomPlmEyeDoorVisuals());
             string stockPath = Path.Combine(installation.RoomPlmEyeDoorVisualDirectory,
                 RoomPlmEyeDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

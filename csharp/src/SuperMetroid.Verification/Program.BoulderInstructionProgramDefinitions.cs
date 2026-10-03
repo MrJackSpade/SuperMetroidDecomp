@@ -5,6 +5,90 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    private static ushort[] BoulderPresentationOracle() =>
+        [0x86a9,0x86ad,0x86b1,0x86b5,0x86b9,0x86bd,0x86c1,0x86c5,
+         0x86cd,0x86d1,0x86d5,0x86d9,0x86dd,0x86e1,0x86e5,0x86e9];
+
+    private static void VerifyBoulderMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+            [0x86a7,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bf,0x86c3,0x86c7,0x86c9,
+             0x86cb,0x86cf,0x86d3,0x86d7,0x86db,0x86df,0x86e3,0x86e7,0x86eb,0x86ed];
+        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitions.MechanicsWordCount, "Boulder word count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadBoulderInstructionWord(rom, 0xa60000 | address);
+            var actual = BoulderInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, actual.Address, "Boulder native word position");
+            AssertEqual(expected, actual.Value, "Boulder native enumerated word");
+            AssertEqual(expected, BoulderInstructionProgramDefinitions.ReadMechanicsWord(address), "Boulder native direct word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = bytes.Contains(address);
+            AssertEqual(expected, BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa60000 | address),
+                "Boulder full bank byte ownership with odd word starts");
+            AssertEqual(expected, BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a60000 | address),
+                "Boulder high-bit alias preserved");
+            AssertTrue(!BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+                "Boulder wrong bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0x86a5; address <= 0x86f1; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BoulderInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Boulder visual, misaligned and adjacent words rejected");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => BoulderInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "Boulder distant invalid word");
+        foreach (int index in new[] { int.MinValue, -1, 20, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitions.MechanicsWord(index),
+                "Boulder mechanics ordinal bounds");
+    }
+
+    private static void VerifyBoulderPresentationAddresses()
+    {
+        ushort[] addresses = BoulderPresentationOracle();
+        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitions.PresentationWordCount, "Boulder visual count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], BoulderInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Boulder original visual position");
+        var valid = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(valid.Contains((ushort)address), BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Boulder full visual membership");
+        foreach (int index in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Boulder presentation ordinal bounds");
+    }
+
+    private static void VerifyBoulderVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = BoulderPresentationOracle();
+        foreach (ushort address in addresses)
+        {
+            ushort expected = ReadBoulderInstructionWord(rom, 0xa60000 | address);
+            AssertEqual(expected, EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder native visual value");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort shared), "Boulder shared visual selection");
+            AssertEqual(expected, shared, "Boulder shared native visual value");
+        }
+        var valid = addresses.ToHashSet();
+        for (int address = 0x86a5; address <= 0x86f1; address++)
+            if (!valid.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoulderFrameAt((ushort)address),
+                    "Boulder control, misaligned and adjacent visual operands rejected");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa6, (ushort)address, out ushort missing), "Boulder shared holes rejected");
+                AssertEqual((ushort)0, missing, "Boulder shared miss clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder far invalid visual");
+    }
+
     private static void VerifyBoulderInstructionProgramDefinitions()
     {
         VerifyBoulderInstructionProgramDefinitions(
@@ -15,17 +99,9 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        for (int index = 0;
-             index < BoulderInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            BoulderInstructionMechanicsWord definition =
-                BoulderInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadBoulderInstructionWord(rom, 0xa60000 | definition.Address),
-                $"Boulder instruction mechanics word $A6:{definition.Address:X4}");
-        }
+        VerifyBoulderMechanicsMapping(rom);
+        VerifyBoulderPresentationAddresses();
+        VerifyBoulderVisualSelectors(rom);
 
         var guard = new BoulderInstructionProgramReadGuard(rom);
         VerifyBoulderInstructionProgram(
@@ -39,27 +115,8 @@ internal static partial class Program
             BoulderInstructionProgramDefinitions.Right,
             "right");
 
-        for (int index = 0;
-             index < BoulderInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address = BoulderInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadBoulderInstructionWord(rom, 0xa60000 | address),
-                EnemySpritemapDefinitions.BoulderFrameAt(address),
-                $"compiled Boulder visual selector $A6:{address:X4} matches cartridge");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Boulder mechanics and visual bytes");
-
-        AssertThrows<InvalidDataException>(
-            () => BoulderInstructionProgramDefinitions.ReadMechanicsWord(0x86a9),
-            "interleaved Boulder spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => BoulderInstructionProgramDefinitions.ReadMechanicsWord(0x86ef),
-            "adjacent Boulder data is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.BoulderFrameAt(0x86ef),
-            "uncompiled Boulder visual selector is rejected loudly");
 
         _ = ProbeBoulderInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();

@@ -4,8 +4,112 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
+    {
+        var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
+        for (int offset = 0; offset < 32; offset += 8)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb3949d + offset);
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Right, "Botwoon native right boundary");
+            var head = new RoomEnemySystem().Slots[0];
+            head.YPosition = ReadBotwoonInstructionWord(rom, 0xb3949f + offset);
+            foreach (int x in new[] {native - 1, native})
+            {
+                head.XPosition = (ushort)x;
+                var state = new BotwoonEnemyState(head);
+                detect(head, state);
+                AssertEqual(x < native, state.InsideHole, "Botwoon right boundary is exclusive");
+            }
+        }
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+            if (offset > 24 || offset % 8 != 0)
+                AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
+    }
+
+    private static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
+    {
+        var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
+        for (int offset = 0; offset < 32; offset += 8)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0xb394a1 + offset);
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Bottom, "Botwoon native bottom boundary");
+            var head = new RoomEnemySystem().Slots[0];
+            head.XPosition = ReadBotwoonInstructionWord(rom, 0xb3949b + offset);
+            foreach (int y in new[] {native - 1, native})
+            {
+                head.YPosition = (ushort)y;
+                var state = new BotwoonEnemyState(head);
+                detect(head, state);
+                AssertEqual(y < native, state.InsideHole, "Botwoon bottom boundary is exclusive");
+            }
+        }
+    }
+
+    private static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
+    {
+        VerifyBotwoonPathPointerMapping(rom);
+        VerifyBotwoonPathDirectionMapping(rom);
+        VerifyBotwoonPathDestinationMapping(rom);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
+        var run = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
+        for (int offset = 0; offset < 256; offset += 8)
+        {
+            var enemies = new RoomEnemySystem();
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new BotwoonNavigationReadGuard(rom));
+            RoomEnemySlot head = enemies.Slots[0];
+            var state = new BotwoonEnemyState(head) { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
+                PathChoiceOffset = (ushort)offset, Speed = 0 };
+            ushort pointer = ReadBotwoonInstructionWord(rom, 0xb3e150 + offset);
+            short direction = (short)ReadBotwoonInstructionWord(rom, 0xb3e152 + offset);
+            run(head, state);
+            AssertEqual(direction < 0 ? (ushort)(pointer - 4) : pointer, state.PathPointer, "Botwoon production path pointer and reverse rewind");
+            AssertEqual(direction, state.PathDirection, "Botwoon production path direction");
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e154 + offset), state.TargetHoleOffset, "Botwoon production destination");
+            AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction, "Botwoon path handoff");
+        }
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+            if (offset >= 256 || offset % 8 != 0)
+                AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset), "Botwoon descriptor rejects every invalid byte offset");
+        Console.WriteLine("Botwoon path descriptors: all 32 pointer, direction and destination fields and production installations match native records; invalid offsets rejected.");
+    }
+
+    private static void VerifyBotwoonPathPointerMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
+            0xbc84,0xc084,0xc28e,0xc68e,0xc9ca,0xcdca,0xd13e,0xd4a0,0xd87e,
+            0xda00,0xdb9a,0xdd40,0xde7c,0xdfde,0xe14e];
+        foreach (ushort pointer in boundaries)
+        {
+            AssertEqual((ushort)0x0080, ReadBotwoonInstructionWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
+            AssertEqual(new BotwoonMovementSample(sbyte.MinValue, 0), BotwoonNavigationDefinitions.MovementSampleForPointer(pointer), "Botwoon compiled stream separator");
+        }
+        AssertEqual((ushort)0xf080, ReadBotwoonInstructionWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
+        for (int offset = 0; offset < 256; offset += 8)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e150 + offset),
+                BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).PathPointer, "Botwoon native forward/reverse descriptor pointer");
+    }
+
+    private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
+    {
+        for (int offset = 0; offset < 256; offset += 8)
+            AssertEqual((short)ReadBotwoonInstructionWord(rom, 0xb3e152 + offset),
+                BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).Direction, "Botwoon native traversal direction");
+    }
+
+    private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
+    {
+        for (int offset = 0; offset < 256; offset += 8)
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e154 + offset),
+                BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
+    }
+
     private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyBotwoonHoleRightBounds(rom);
+        VerifyBotwoonHoleBottomBounds(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>
@@ -19,9 +123,7 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.HoleForByteOffset(byteOffset);
             holes[byteOffset >> 3] = hole;
             AssertEqual(Word(address), hole.Left, $"Botwoon hole {byteOffset:X2} left");
-            AssertEqual(Word(address + 2), hole.Right, $"Botwoon hole {byteOffset:X2} right");
             AssertEqual(Word(address + 4), hole.Top, $"Botwoon hole {byteOffset:X2} top");
-            AssertEqual(Word(address + 6), hole.Bottom, $"Botwoon hole {byteOffset:X2} bottom");
         }
 
         var runMovement = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!

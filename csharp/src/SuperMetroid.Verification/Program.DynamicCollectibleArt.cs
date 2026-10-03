@@ -31,9 +31,7 @@ internal static partial class Program
             RoomPlmDynamicCollectibleGraphic nativeBombs =
                 RoomPlmDynamicCollectibleGraphicsDefinitions.Get(
                     InWorldCollectibleKind.Bombs);
-            AssertTrue(stock.Resolve(InWorldCollectibleKind.Bombs).Tiles.Span
-                    .SequenceEqual(nativeBombs.Tiles.Span),
-                "installed Bombs PNG compiles to exact stock tiles");
+            VerifyDynamicCollectibleStockMapping(rom, stock);
 
             Directory.CreateDirectory(overrideDirectory);
             string name = RoomPlmDynamicCollectibleArtFiles.FileName(

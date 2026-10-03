@@ -38,16 +38,8 @@ internal static partial class Program
                     (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
                 $"retail Kraid nail slot {slotIndex} uses ordinary OAM composition");
         }
-        for (int index = 0;
-             index < KraidNailInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidNailInstructionMechanicsWord definition =
-                KraidNailInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadKraidNailInstructionWord(rom, definition.Address),
-                $"Kraid fingernail mechanics word $A7:{definition.Address:X4}");
-        }
+        VerifyKraidNailMechanicsMapping(rom);
+        VerifyKraidNailPresentationMapping();
 
         var guard = new KraidNailInstructionReadGuard(rom);
         foreach (ushort definitionPointer in new ushort[]
@@ -81,6 +73,7 @@ internal static partial class Program
                 $"Kraid fingernail ${definitionPointer:X4} loops to its first frame");
         }
 
+        VerifyKraidNailVisualSelectors(rom);
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Kraid fingernail programs never read installed visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -91,10 +84,6 @@ internal static partial class Program
         {
             ushort address =
                 KraidNailInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadKraidNailInstructionWord(rom, address),
-                KraidVisualDefinitions.FrameAt(
-                    RoomEnemySystem.KraidGoodNailDefinition, address),
-                $"compiled Kraid fingernail frame $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => KraidNailInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid fingernail spritemap $A7:{address:X4} is rejected as mechanics");

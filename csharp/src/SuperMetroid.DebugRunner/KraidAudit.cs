@@ -228,8 +228,8 @@ internal static class KraidAudit
         }
         ushort[] expectedEighths = [125, 250, 375, 500, 625, 750, 875, 1000];
         ushort[] expectedQuarters = [250, 500, 750, 1000];
-        if (!state.HealthEighthThresholds.SequenceEqual(expectedEighths) ||
-            !state.HealthQuarterThresholds.SequenceEqual(expectedQuarters))
+        if (!Enumerable.Range(0, 8).Select(state.HealthEighthThreshold).SequenceEqual(expectedEighths) ||
+            !Enumerable.Range(0, 4).Select(state.HealthQuarterThreshold).SequenceEqual(expectedQuarters))
         {
             throw new InvalidDataException("Kraid health phase thresholds do not match retail arithmetic.");
         }

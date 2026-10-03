@@ -7,7 +7,7 @@ internal readonly record struct BotwoonInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Botwoon's selector-reachable head movement,
-/// hiding, and spit programs. Interleaved spritemap operands remain cartridge data.
+/// hiding, and spit programs. Interleaved spritemap operands select installed presentation art.
 /// </summary>
 internal static class BotwoonInstructionProgramDefinitions
 {
@@ -64,119 +64,97 @@ internal static class BotwoonInstructionProgramDefinitions
     /// </summary>
     internal const ushort FirstAdjacentProgram = 0x942f;
 
-    private static readonly BotwoonInstructionMechanicsWord[] Words =
-    [
-        new(0x9341, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC),
-        new(0x9343, 0x0001), new(0x9347, CommonEnemyInstructionCodes.Sleep),
-        new(0x9349, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8),
-        new(0x934b, 0x0001), new(0x934f, CommonEnemyInstructionCodes.Sleep),
-        new(0x9351, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate),
-        new(0x9353, 0x0001), new(0x9357, CommonEnemyInstructionCodes.Sleep),
+    internal static int MechanicsWordCount => 74;
+    internal static int PresentationWordCount => 25;
+    private static int PhysicalDirection(int index) => index < 3 ? index : index + 1;
 
-        new(0x9361, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again),
-        new(0x9363, 0x0001), new(0x9367, CommonEnemyInstructionCodes.Sleep),
-        new(0x9369, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again),
-        new(0x936b, 0x0001), new(0x936f, CommonEnemyInstructionCodes.Sleep),
-        new(0x9371, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate),
-        new(0x9373, 0x0001), new(0x9377, CommonEnemyInstructionCodes.Sleep),
-        new(0x9379, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2),
-        new(0x937b, 0x0001), new(0x937f, CommonEnemyInstructionCodes.Sleep),
-        new(0x9381, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2),
-        new(0x9383, 0x0001), new(0x9387, CommonEnemyInstructionCodes.Sleep),
-        new(Hidden, 0x0001), new(0x938d, CommonEnemyInstructionCodes.Sleep),
-
-        new(SpittingUpLeft, 0x0020),
-        new(0x93a3, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC),
-        new(0x93a5, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x93a7, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x93a9, 0x0010), new(0x93ad, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingLeft, 0x0020),
-        new(0x93b3, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8),
-        new(0x93b5, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x93b7, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x93b9, 0x0019), new(0x93bd, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingDownLeft, 0x0020),
-        new(0x93c3, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate),
-        new(0x93c5, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x93c7, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x93c9, 0x0010), new(0x93cd, CommonEnemyInstructionCodes.Sleep),
-
-        new(SpittingDown, 0x0020),
-        new(0x93e3, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again),
-        new(0x93e5, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x93e7, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x93e9, 0x0010), new(0x93ed, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingDownRight, 0x0020),
-        new(0x93f3, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again),
-        new(0x93f5, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x93f7, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x93f9, 0x0010), new(0x93fd, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingRight, 0x0020),
-        new(0x9403, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate),
-        new(0x9405, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x9407, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x9409, 0x0010), new(0x940d, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingUpRight, 0x0020),
-        new(0x9413, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2),
-        new(0x9415, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x9417, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x9419, 0x0010), new(0x941d, CommonEnemyInstructionCodes.Sleep),
-        new(SpittingUp, 0x0020),
-        new(0x9423, BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2),
-        new(0x9425, BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX),
-        new(0x9427, BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag),
-        new(0x9429, 0x0010), new(0x942d, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9345, 0x934d, 0x9355, 0x9365, 0x936d, 0x9375, 0x937d, 0x9385,
-        0x938b,
-        0x93a1, 0x93ab, 0x93b1, 0x93bb, 0x93c1, 0x93cb,
-        0x93e1, 0x93eb, 0x93f1, 0x93fb, 0x9401, 0x940b, 0x9411, 0x941b,
-        0x9421, 0x942b,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BotwoonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static BotwoonInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address;
+        if (index < 24)
+        {
+            int word = index % 3;
+            address = (ushort)(MovingUpLeft + 8 * PhysicalDirection(index / 3) + (word == 0 ? 0 : word == 1 ? 2 : 6));
+        }
+        else if (index < 26) address = (ushort)(Hidden + 4 * (index - 24));
+        else
+        {
+            int word = (index - 26) % 6;
+            int offset = word == 0 ? 0 : word == 5 ? 14 : 2 + 2 * word;
+            address = (ushort)(SpittingUpLeft + 16 * PhysicalDirection((index - 26) / 6) + offset);
+        }
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 8) return (ushort)(MovingUpLeft + 8 * PhysicalDirection(index) + 4);
+        if (index == 8) return Hidden + 2;
+        int frame = index - 9;
+        return (ushort)(SpittingUpLeft + 16 * PhysicalDirection(frame / 2) + (frame % 2 == 0 ? 2 : 12));
+    }
+    internal static bool IsPresentationWord(ushort address) => address == Hidden + 2 ||
+        (TryDecodeDirectional(address, out bool spitting, out _, out int offset) &&
+            (spitting ? offset is 2 or 12 : offset == 4));
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        if (address == Hidden) return 1;
+        if (address == Hidden + 4) return CommonEnemyInstructionCodes.Sleep;
+        if (TryDecodeDirectional(address, out bool spitting, out ushort movement, out int offset))
         {
-            int middle = low + ((high - low) >> 1);
-            BotwoonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Botwoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb30000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            if (!spitting)
             {
-                return true;
+                if (offset == 0) return RadiusInstruction(movement);
+                if (offset == 2) return 1;
+                if (offset == 6) return CommonEnemyInstructionCodes.Sleep;
+            }
+            else
+            {
+                switch (offset)
+                {
+                    case 0: return 32;
+                    case 4: return RadiusInstruction(movement);
+                    case 6: return BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX;
+                    case 8: return BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag;
+                    case 10: return (ushort)(movement == MovingLeft ? 25 : 16);
+                    case 14: return CommonEnemyInstructionCodes.Sleep;
+                }
             }
         }
-        return false;
+        throw new InvalidDataException($"Botwoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
+    private static ushort RadiusInstruction(ushort movement) => movement switch
+    {
+        MovingUpLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC,
+        MovingLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8,
+        MovingDownLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate,
+        MovingDown => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again,
+        MovingDownRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again,
+        MovingRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate,
+        MovingUpRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2,
+        MovingUp => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2,
+        _ => throw new InvalidDataException("Unknown Botwoon movement program."),
+    };
+    private static bool TryDecodeDirectional(ushort address, out bool spitting, out ushort movement, out int offset)
+    {
+        spitting = address >= SpittingUpLeft;
+        int relative = address - (spitting ? SpittingUpLeft : MovingUpLeft);
+        int stride = spitting ? 16 : 8;
+        int direction = relative / stride;
+        if ((uint)relative >= 9 * stride || direction == 3)
+        {
+            movement = 0; offset = 0; return false;
+        }
+        movement = (ushort)(MovingUpLeft + 8 * direction);
+        offset = relative % stride;
+        return true;
+    }
+    private static bool IsMechanicsWord(ushort address) => address == Hidden || address == Hidden + 4 ||
+        (TryDecodeDirectional(address, out bool spitting, out _, out int offset) &&
+            (spitting ? offset is 0 or 4 or 6 or 8 or 10 or 14 : offset is 0 or 2 or 6));
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == 0xb30000 &&
+        (IsMechanicsWord(unchecked((ushort)address)) || IsMechanicsWord(unchecked((ushort)(address - 1))));
 }

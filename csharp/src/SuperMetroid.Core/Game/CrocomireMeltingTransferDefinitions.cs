@@ -20,8 +20,11 @@ internal readonly record struct CrocomireMeltingPass(
     ushort TransferStartOffset,
     ushort TransferEndOffset,
     ushort NextHeaderOffset,
-    ReadOnlyMemory<CrocomireMeltingCopy> Copies,
-    ReadOnlyMemory<CrocomireMeltingUpload> Uploads);
+    int ChunkCount)
+{
+    internal CrocomireMeltingCopySequence Copies => new(this);
+    internal CrocomireMeltingUploadSequence Uploads => new(this);
+}
 
 /// <summary>
 /// The two complete mixed instruction/data records at $A4:9BC5-$A4:9C78.
@@ -42,92 +45,110 @@ internal static class CrocomireMeltingTransferDefinitions
     /// <summary>Exclusive end of the two native records.</summary>
     internal const int NativeByteCount = 0x00b4;
 
-    private static readonly CrocomireMeltingPass First = new(
-        HeaderOffset: FirstHeaderOffset,
-        MaximumAdjustedDestinationY: 0x0058,
-        DistortionEndY: 0x0030,
-        WordsToCopy: 0x0200,
-        SourceBank: 0xa4,
-        TransferStartOffset: 0x0022,
-        TransferEndOffset: 0x0052,
-        NextHeaderOffset: SecondHeaderOffset,
-        Copies: new CrocomireMeltingCopy[]
-        {
-            new(0xa07d, 0x4000), new(0xa27d, 0x4200),
-            new(0xa47d, 0x4400), new(0xa67d, 0x4600),
-            new(0xa87d, 0x4800), new(0xaa7d, 0x4a00),
-        },
-        Uploads: new CrocomireMeltingUpload[]
-        {
-            new(0x0160, 0x0000, 0x7e, 0x4000),
-            new(0x0160, 0x0100, 0x7e, 0x4200),
-            new(0x0160, 0x0200, 0x7e, 0x4400),
-            new(0x0160, 0x0300, 0x7e, 0x4600),
-            new(0x0160, 0x0400, 0x7e, 0x4800),
-            new(0x0160, 0x0500, 0x7e, 0x4a00),
-        });
+    internal static CrocomireMeltingPassSequence Passes => new(2);
 
-    private static readonly CrocomireMeltingPass Second = new(
-        HeaderOffset: SecondHeaderOffset,
-        MaximumAdjustedDestinationY: 0x0058,
-        DistortionEndY: 0x0030,
-        WordsToCopy: 0x0200,
-        SourceBank: 0xa4,
-        TransferStartOffset: 0x007a,
-        TransferEndOffset: 0x00b2,
-        NextHeaderOffset: NativeByteCount,
-        Copies: new CrocomireMeltingCopy[]
-        {
-            new(0xac7d, 0x4000), new(0xae7d, 0x4200),
-            new(0xb07d, 0x4400), new(0xb27d, 0x4600),
-            new(0xb47d, 0x4800), new(0xb67d, 0x4a00),
-            new(0xb87d, 0x4c00),
-        },
-        Uploads: new CrocomireMeltingUpload[]
-        {
-            new(0x0160, 0x0000, 0x7e, 0x4000),
-            new(0x0160, 0x0100, 0x7e, 0x4200),
-            new(0x0160, 0x0200, 0x7e, 0x4400),
-            new(0x0160, 0x0300, 0x7e, 0x4600),
-            new(0x0160, 0x0400, 0x7e, 0x4800),
-            new(0x0160, 0x0500, 0x7e, 0x4a00),
-            new(0x0160, 0x0600, 0x7e, 0x4c00),
-        });
-
-    private static readonly CrocomireMeltingPass[] AllPasses = [First, Second];
-
-    internal static ReadOnlySpan<CrocomireMeltingPass> Passes => AllPasses;
-
-    internal static CrocomireMeltingPass Header(ushort offset) => offset switch
+    /// <summary>Six chunks in the first pass and seven in the second. Each header
+    /// occupies eight bytes, each copy four, each upload eight, and each list ends
+    /// with a two-byte sentinel. Derive serialized cursors from that layout.</summary>
+    internal static CrocomireMeltingPass Header(ushort offset)
     {
-        FirstHeaderOffset => First,
-        SecondHeaderOffset => Second,
-        _ => throw new InvalidDataException(
-            $"Crocomire melt header offset ${offset:X4} is not compiled."),
-    };
+        int chunks = offset switch
+        {
+            FirstHeaderOffset => 6,
+            SecondHeaderOffset => 7,
+            _ => throw new InvalidDataException($"Crocomire melt header offset ${offset:X4} is not compiled."),
+        };
+        ushort start = (ushort)(offset + 8 + 4 * chunks + 2);
+        ushort end = (ushort)(start + 8 * chunks);
+        return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, (ushort)(end + 2), chunks);
+    }
 
-    internal static CrocomireMeltingPass Transfers(ushort offset) => offset switch
+    internal static CrocomireMeltingPass Transfers(ushort offset)
     {
-        0x0022 => First,
-        0x007a => Second,
-        _ => throw new InvalidDataException(
-            $"Crocomire melt transfer start ${offset:X4} is not compiled."),
-    };
+        if (offset == Header(FirstHeaderOffset).TransferStartOffset) return Header(FirstHeaderOffset);
+        if (offset == Header(SecondHeaderOffset).TransferStartOffset) return Header(SecondHeaderOffset);
+        throw new InvalidDataException($"Crocomire melt transfer start ${offset:X4} is not compiled.");
+    }
 
-    /// <summary>Distinguishes a native transfer terminator from a valid record.</summary>
+    /// <summary>Distinguishes the native transfer terminators from aligned records.</summary>
     internal static bool TryUpload(int offset, out CrocomireMeltingUpload upload)
     {
-        CrocomireMeltingPass pass = offset < Second.TransferStartOffset ? First : Second;
+        var second = Header(SecondHeaderOffset);
+        var pass = offset < second.TransferStartOffset ? Header(FirstHeaderOffset) : second;
         if (offset == pass.TransferEndOffset)
         {
             upload = default;
             return false;
         }
         int index = offset - pass.TransferStartOffset;
-        if (index < 0 || index % 8 != 0 || index >= pass.Uploads.Length * 8)
-            throw new InvalidDataException(
-                $"Crocomire melt transfer offset ${offset:X4} is not compiled.");
-        upload = pass.Uploads.Span[index / 8];
+        if (index < 0 || index % 8 != 0 || index >= pass.ChunkCount * 8)
+            throw new InvalidDataException($"Crocomire melt transfer offset ${offset:X4} is not compiled.");
+        upload = pass.Uploads[index / 8];
         return true;
+    }
+}
+
+/// <summary>Native copy pairs: consecutive $0200-byte source/scratch strides.
+/// The second pass includes $A4:B87D (palette and adjacent data) as its seventh
+/// source. Preserve that native chunk and the caller's inclusive $0201-word copy.</summary>
+internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPass Pass)
+{
+    internal int Length => Pass.ChunkCount;
+    internal CrocomireMeltingCopy this[int index]
+    {
+        get
+        {
+            if ((uint)index >= Length) throw new IndexOutOfRangeException();
+            int source = Pass.HeaderOffset == CrocomireMeltingTransferDefinitions.FirstHeaderOffset ? 0xa07d : 0xac7d;
+            return new((ushort)(source + index * 0x200), (ushort)(0x4000 + index * 0x200));
+        }
+    }
+
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(CrocomireMeltingCopySequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public CrocomireMeltingCopy Current => sequence[index];
+    }
+}
+/// <summary>Native uploads: $0160 bytes from successive $0200-byte scratch chunks
+/// in bank $7E, to successive $0100-word VRAM destinations.</summary>
+internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingPass Pass)
+{
+    internal int Length => Pass.ChunkCount;
+    internal CrocomireMeltingUpload this[int index]
+    {
+        get
+        {
+            if ((uint)index >= Length) throw new IndexOutOfRangeException();
+            return new(0x160, (ushort)(index * 0x100), 0x7e, (ushort)(0x4000 + index * 0x200));
+        }
+    }
+
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(CrocomireMeltingUploadSequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public CrocomireMeltingUpload Current => sequence[index];
+    }
+}
+/// <summary>Enumerates the two native melt passes without stored records.</summary>
+internal readonly record struct CrocomireMeltingPassSequence(int Length)
+{
+    internal CrocomireMeltingPass this[int index] => index switch
+    {
+        0 => CrocomireMeltingTransferDefinitions.Header(CrocomireMeltingTransferDefinitions.FirstHeaderOffset),
+        1 => CrocomireMeltingTransferDefinitions.Header(CrocomireMeltingTransferDefinitions.SecondHeaderOffset),
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    public Enumerator GetEnumerator() => new(this);
+    internal struct Enumerator(CrocomireMeltingPassSequence sequence)
+    {
+        private int index = -1;
+        public bool MoveNext() => ++index < sequence.Length;
+        public CrocomireMeltingPass Current => sequence[index];
     }
 }

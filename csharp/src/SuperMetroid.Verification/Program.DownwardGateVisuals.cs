@@ -99,15 +99,15 @@ internal static partial class Program
         try
         {
             var installation = new GameInstallation(testRoot);
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             RoomPlmDownwardGateVisualFiles.Extract(rom,
                 installation.RoomPlmDownwardGateVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmDownwardGateVisualFiles.ValidateStock(
                 installation.RoomPlmDownwardGateVisualDirectory);
-            AssertEqual((ushort)0x00ff,
-                installation.LoadRoomPlmDownwardGateVisuals().GetWord(0xa55d, 0, 1),
-                "installed gate stock matches the cartridge column art");
+            AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate stock oracle revision");
+            VerifyDownwardGateStockMapping(rom, installation.LoadRoomPlmDownwardGateVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmDownwardGateVisualDirectory,
                 RoomPlmDownwardGateVisualFiles.VisualFileName);

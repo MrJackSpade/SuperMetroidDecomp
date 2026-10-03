@@ -1,48 +1,50 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Native 8-by-8 quadrant definitions for the five square-slope shapes.</summary>
+/// <summary>Native 8-by-8 quadrant geometry for the five square-slope shapes.</summary>
 public static class SquareSlopeDefinitions
 {
-    /// <summary>
-    /// $94:8E54, SquareSlopeDefinitions_Bank94 (kTab948E54). Four quadrants per
-    /// shape in top-left, top-right, bottom-left, bottom-right order: zero is air,
-    /// $80 is solid. BTS mirroring and leading-edge selection belong to the caller.
-    /// </summary>
-    /// <remarks>Issue #625 exact Boolean geometry: validate shape 0..4 and
-    /// quadrant 0..3; let right=(q&amp;1)!=0, bottom=(q&amp;2)!=0. Solidity is,
-    /// by shape, bottom, right, bottom AND right, bottom OR right, or true.
-    /// Encode solid as $80 and air as zero. LookupTableResearch exhaustively
-    /// checks all 20 bytes against the NTSC ROM and pinned bank_94.asm, including
-    /// input bounds. Shape policy remains explicit; the four repeated quadrant
-    /// samples need not be stored. Runtime behavior has not been changed.
-    /// Individual Samus-table investigation: #625 / #915.</remarks>
-    public static ReadOnlySpan<byte> SamusQuadrants =>
-    [
-        0x00, 0x00, 0x80, 0x80,
-        0x00, 0x80, 0x00, 0x80,
-        0x00, 0x00, 0x00, 0x80,
-        0x00, 0x80, 0x80, 0x80,
-        0x80, 0x80, 0x80, 0x80,
-    ];
+    /// <summary>$94:8E54 SquareSlopeDefinitions_Bank94: Samus solidity bytes.</summary>
+    public const int SamusReferenceAddress = 0x948e54;
+    /// <summary>$A0:C435 SquareSlopeDefinitions_BankA0: solidity and quadrant identity.</summary>
+    public const int EnemyReferenceAddress = 0xa0c435;
+    /// <summary>$86:8729 SquareSlopeDefinitions_Bank86: identical enemy-projectile copy.</summary>
+    public const int ProjectileReferenceAddress = 0x868729;
 
     /// <summary>
-    /// $A0:C435 / $86:8729, SquareSlopeDefinitions_BankA0 / Bank86. Enemy and
-    /// enemy-projectile copies retain quadrant identity in bits zero and one;
-    /// only bit seven denotes solidity. Keep the complete native bytes.
+    /// Reads the Samus solidity byte at native flattened index 0..19 (4*shape+quadrant).
+    /// $94:8E54 encodes bottom half, right half, bottom-right quarter, all but top-left,
+    /// and full block respectively. Top-left/right/bottom-left/right are quadrants 0..3.
     /// </summary>
-    /// <remarks>Issue #625 exact formula: use the bounded Boolean geometry
-    /// documented on SamusQuadrants, then OR the result with quadrant q (0..3).
-    /// LookupTableResearch proves all 20 bytes in EACH of the $A0 and $86 copies
-    /// against the NTSC ROM, pinned assembly, and this span. Keeping q is essential
-    /// even though current collision tests primarily consume the solidity bit.
-    /// The two physical copies are one logical table. Individual investigation:
-    /// #625 / #916.</remarks>
-    public static ReadOnlySpan<byte> EnemyQuadrants =>
-    [
-        0x00, 0x01, 0x82, 0x83,
-        0x00, 0x81, 0x02, 0x83,
-        0x00, 0x01, 0x02, 0x83,
-        0x00, 0x81, 0x82, 0x83,
-        0x80, 0x81, 0x82, 0x83,
-    ];
+    /// <remarks>
+    /// Independently checked for #1165 against all twenty NTSC J/U v1.0 bytes and pinned
+    /// bank_94.asm. Return exactly zero or $80. Callers retain BTS/XOR mirroring and
+    /// leading-edge selection; reject unsupported indices as the previous span did.
+    /// </remarks>
+    public static byte ReadSamusQuadrant(int tableIndex)
+    {
+        if ((uint)tableIndex >= 20) throw new IndexOutOfRangeException();
+        bool right = (tableIndex & 1) != 0;
+        bool bottom = (tableIndex & 2) != 0;
+        bool solid = (tableIndex / 4) switch
+        {
+            0 => bottom,
+            1 => right,
+            2 => bottom && right,
+            3 => bottom || right,
+            _ => true,
+        };
+        return solid ? (byte)0x80 : (byte)0;
+    }
+
+    /// <summary>
+    /// Reads the enemy byte at native flattened index 0..19. $A0:C435 and $86:8729
+    /// share the Samus geometry but retain quadrant identity in the two low bits.
+    /// </summary>
+    /// <remarks>
+    /// Independently checked for #1165 against all twenty bytes in each NTSC copy
+    /// and pinned bank_A0/bank_86.asm. Validation precedes masking, so invalid input
+    /// cannot wrap into the valid domain. Solidity remains bit seven.
+    /// </remarks>
+    public static byte ReadEnemyQuadrant(int tableIndex) =>
+        (byte)(ReadSamusQuadrant(tableIndex) | (tableIndex & 3));
 }

@@ -7,26 +7,42 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmBombedRevealProgramDefinitions
 {
-    private static readonly (ushort Start, ushort Draw)[] Programs =
-    [
-        (RoomPlmInstructionLists.CrumbleReveal1x1, RoomPlmBombedRevealDrawDefinitions.CrumbleSingle),
-        (RoomPlmInstructionLists.CrumbleReveal2x1, RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal),
-        (RoomPlmInstructionLists.CrumbleReveal1x2, RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical),
-        (RoomPlmInstructionLists.CrumbleReveal2x2, RoomPlmContactCrumbleRestoreDrawDefinitions.Square),
-        (RoomPlmInstructionLists.BombedPowerBombBlockUnused, RoomPlmBombedRevealDrawDefinitions.PowerBomb),
-        (RoomPlmInstructionLists.BombedSuperMissileBlockUnused, RoomPlmBombedRevealDrawDefinitions.SuperMissile),
-    ];
-
     internal static bool TryReadWord(ushort address, out ushort value)
     {
-        foreach ((ushort start, ushort draw) in Programs)
+        // Each supported list is one duration/draw pair followed by deletion.
+        // The intervening four unused bomb-reveal lists are outside this owner.
+        int relative = address - RoomPlmInstructionLists.CrumbleReveal1x1;
+        if ((uint)relative >= 4 * 6)
         {
-            int offset = address - start;
-            if (offset is not (0 or 2 or 4)) continue;
-            value = offset switch { 0 => 1, 2 => draw, _ => RoomPlmInstructionCodes.Delete };
-            return true;
+            relative = address - RoomPlmInstructionLists.BombedPowerBombBlockUnused;
+            if ((uint)relative >= 2 * 6)
+            {
+                value = 0;
+                return false;
+            }
         }
-        value = 0;
-        return false;
+        int offset = relative % 6;
+        if ((offset & 1) != 0)
+        {
+            value = 0;
+            return false;
+        }
+        ushort start = (ushort)(address - offset);
+        value = offset switch
+        {
+            0 => 1,
+            4 => RoomPlmInstructionCodes.Delete,
+            _ => start switch
+            {
+                RoomPlmInstructionLists.CrumbleReveal1x1 => RoomPlmBombedRevealDrawDefinitions.CrumbleSingle,
+                RoomPlmInstructionLists.CrumbleReveal2x1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
+                RoomPlmInstructionLists.CrumbleReveal1x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
+                RoomPlmInstructionLists.CrumbleReveal2x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
+                RoomPlmInstructionLists.BombedPowerBombBlockUnused => RoomPlmBombedRevealDrawDefinitions.PowerBomb,
+                RoomPlmInstructionLists.BombedSuperMissileBlockUnused => RoomPlmBombedRevealDrawDefinitions.SuperMissile,
+                _ => throw new InvalidOperationException("Reveal list bounds admitted an unknown program."),
+            },
+        };
+        return true;
     }
 }

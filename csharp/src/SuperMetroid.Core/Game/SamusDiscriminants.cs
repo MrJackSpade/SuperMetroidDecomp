@@ -58,7 +58,7 @@ public enum SamusLiquidMedium : ushort
 
 /// <summary>
 /// Verified even room-FX dispatcher values from the bank-$83 function table. Values $0E
-/// through $1E are null entries and remain unnamed rather than receiving speculative labels.
+/// through $1E share a no-op RTL and remain unnamed at the port validation boundary.
 /// </summary>
 public enum RoomFxType : ushort
 {

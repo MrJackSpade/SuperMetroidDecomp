@@ -24,39 +24,124 @@ internal static class EyeDoorPlmDrawDefinitions
     /// <summary>Right-facing bottom component begins at $84:9C95.</summary>
     private const ushort RightBottomFirst = 0x9c95;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    internal enum Component { Eye, Middle, Bottom, Clear }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
-    /// <summary>The mirrored clear shares one authored visual identity instead of invalidating existing 23-frame overrides.</summary>
+    internal readonly record struct Draw(ushort Pointer, Component Part, int Frame, bool Left)
+    {
+        internal bool Vertical => Part is Component.Eye or Component.Clear;
+        internal int WordCount => Pointer == 0 ? 0 : Part == Component.Clear ? 4 : Part == Component.Eye ? 2 : 1;
+        internal ushort WordAt(int cell)
+        {
+            if ((uint)cell >= (uint)WordCount) throw new IndexOutOfRangeException();
+            int tile, collision;
+            bool bottom;
+            if (Part == Component.Clear)
+            {
+                tile = cell is 0 or 3 ? 0xaa : 0xcc;
+                collision = 8;
+                bottom = cell >= 2;
+            }
+            else if (Part == Component.Eye)
+            {
+                // Closed, opening, vulnerable, hit-flash and open-but-solid draws.
+                tile = Frame < 3 ? 0xcc - Frame : Frame == 3 ? 0xcd : 0xca;
+                collision = Frame == 2 ? 0xc + cell : 8;
+                bottom = cell != 0;
+            }
+            else
+            {
+                tile = 0xaa + Frame;
+                collision = 0xa;
+                bottom = Part == Component.Bottom;
+            }
+            return (ushort)((collision << 12) | (Left ? 0x400 : 0) | (bottom ? 0x800 : 0) | tile);
+        }
+    }
+
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            for (int side = 0; side < 2; side++)
+            {
+                int shift = side * (RightEyeFirst - LeftEyeFirst);
+                TryGet((ushort)(MirroredOpeningClear + shift), out var clear);
+                yield return clear;
+                for (int frame = 0; frame < 5; frame++)
+                {
+                    TryGet((ushort)(LeftEyeFirst + shift + frame * 8), out var eye);
+                    yield return eye;
+                }
+                for (int component = 0; component < 2; component++)
+                for (int frame = 0; frame < 3; frame++)
+                {
+                    TryGet((ushort)(LeftMiddleFirst + shift + component * 18 + frame * 6), out var value);
+                    yield return value;
+                }
+            }
+        }
+    }
+
+    /// <summary>The mirrored clear shares one visual identity, preserving existing 23-frame overrides.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
-        Lists.Values.Where(draw => draw.Pointer != MirroredOpeningClear);
+        All.Where(draw => draw.Pointer != MirroredOpeningClear);
 
     internal static ushort VisualSource(ushort pointer) =>
         pointer == MirroredOpeningClear ? LeftEyeClear : pointer;
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        if (pointer is MirroredOpeningClear or LeftEyeClear)
+        {
+            draw = new(pointer, Component.Clear, 0, pointer == MirroredOpeningClear);
+            return true;
+        }
+        bool left = pointer < RightEyeFirst;
+        int normalized = left ? pointer : pointer - (RightEyeFirst - LeftEyeFirst);
+        Component part;
+        int first, count, stride;
+        if (normalized < LeftMiddleFirst)
+        { part = Component.Eye; first = LeftEyeFirst; count = 5; stride = 8; }
+        else if (normalized < LeftBottomFirst)
+        { part = Component.Middle; first = LeftMiddleFirst; count = 3; stride = 6; }
+        else
+        { part = Component.Bottom; first = LeftBottomFirst; count = 3; stride = 6; }
+        int offset = normalized - first;
+        if (offset < 0 || offset >= count * stride || offset % stride != 0)
+        { draw = default; return false; }
+        draw = new(pointer, part, offset / stride, left);
+        return true;
+    }
+
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        if (!TryDescribe(pointer, out var draw)) { list = default; return false; }
+        var words = new ushort[draw.WordCount];
+        for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(cell);
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
+        {
+            new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words, 0, 0),
+        });
+        return true;
+    }
 
     internal static string VisualId(ushort pointer)
     {
         if (pointer == LeftEyeClear) return "left-eye-clear";
-        foreach ((ushort first, int count, int stride, string name) in new[]
-                 {
-                     (LeftEyeFirst, 5, 8, "left-eye"),
-                     (LeftMiddleFirst, 3, 6, "left-middle"),
-                     (LeftBottomFirst, 3, 6, "left-bottom"),
-                     (RightEyeFirst, 5, 8, "right-eye"),
-                     (RightMiddleFirst, 3, 6, "right-middle"),
-                     (RightBottomFirst, 3, 6, "right-bottom"),
-                 })
-        {
-            int offset = pointer - first;
-            if (offset >= 0 && offset < count * stride && offset % stride == 0)
-                return $"{name}-frame-{offset / stride}";
-        }
-        throw new InvalidDataException($"Eye-door draw ${pointer:X4} has no visual ID.");
+        bool right = pointer >= RightEyeFirst;
+        int normalized = right ? pointer - (RightEyeFirst - LeftEyeFirst) : pointer;
+        string component;
+        int first, count, stride;
+        if (normalized < LeftMiddleFirst)
+        { component = "eye"; first = LeftEyeFirst; count = 5; stride = 8; }
+        else if (normalized < LeftBottomFirst)
+        { component = "middle"; first = LeftMiddleFirst; count = 3; stride = 6; }
+        else
+        { component = "bottom"; first = LeftBottomFirst; count = 3; stride = 6; }
+        int offset = normalized - first;
+        if (offset < 0 || offset >= count * stride || offset % stride != 0)
+            throw new InvalidDataException($"Eye-door draw ${pointer:X4} has no visual ID.");
+        return $"{(right ? "right" : "left")}-{component}-frame-{offset / stride}";
     }
 
     internal static bool TryGetByVisualId(string id,
@@ -74,48 +159,4 @@ internal static class EyeDoorPlmDrawDefinitions
         return false;
     }
 
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(24);
-        Add(lists, MirroredOpeningClear, 0x8004, [0x84aa, 0x84cc, 0x8ccc, 0x8caa]);
-        Add(lists, LeftEyeFirst + 0, 0x8002, [0x84cc, 0x8ccc]);
-        Add(lists, LeftEyeFirst + 8, 0x8002, [0x84cb, 0x8ccb]);
-        Add(lists, LeftEyeFirst + 16, 0x8002, [0xc4ca, 0xdcca]);
-        Add(lists, LeftEyeFirst + 24, 0x8002, [0x84cd, 0x8ccd]);
-        Add(lists, LeftEyeFirst + 32, 0x8002, [0x84ca, 0x8cca]);
-        Add(lists, LeftMiddleFirst + 0, 0x0001, [0xa4aa]);
-        Add(lists, LeftMiddleFirst + 6, 0x0001, [0xa4ab]);
-        Add(lists, LeftMiddleFirst + 12, 0x0001, [0xa4ac]);
-        Add(lists, LeftBottomFirst + 0, 0x0001, [0xacaa]);
-        Add(lists, LeftBottomFirst + 6, 0x0001, [0xacab]);
-        Add(lists, LeftBottomFirst + 12, 0x0001, [0xacac]);
-        Add(lists, LeftEyeClear, 0x8004, [0x80aa, 0x80cc, 0x88cc, 0x88aa]);
-        Add(lists, RightEyeFirst + 0, 0x8002, [0x80cc, 0x88cc]);
-        Add(lists, RightEyeFirst + 8, 0x8002, [0x80cb, 0x88cb]);
-        Add(lists, RightEyeFirst + 16, 0x8002, [0xc0ca, 0xd8ca]);
-        Add(lists, RightEyeFirst + 24, 0x8002, [0x80cd, 0x88cd]);
-        Add(lists, RightEyeFirst + 32, 0x8002, [0x80ca, 0x88ca]);
-        Add(lists, RightMiddleFirst + 0, 0x0001, [0xa0aa]);
-        Add(lists, RightMiddleFirst + 6, 0x0001, [0xa0ab]);
-        Add(lists, RightMiddleFirst + 12, 0x0001, [0xa0ac]);
-        Add(lists, RightBottomFirst + 0, 0x0001, [0xa8aa]);
-        Add(lists, RightBottomFirst + 6, 0x0001, [0xa8ab]);
-        Add(lists, RightBottomFirst + 12, 0x0001, [0xa8ac]);
-        return lists;
-    }
-
-    private static void Add(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        int pointer, ushort directionAndCount, ushort[] words)
-    {
-        if (words.Length != (directionAndCount & 0x7fff))
-            throw new InvalidDataException($"Eye-door draw ${pointer:X4} count disagrees with its payload.");
-        if (!lists.TryAdd(checked((ushort)pointer), new(checked((ushort)pointer),
-                new RoomPlmShotBlockDrawDefinitions.Run[]
-                {
-                    new(directionAndCount, words, 0, 0),
-                })))
-            throw new InvalidDataException($"Duplicate eye-door draw ${pointer:X4}.");
-    }
 }

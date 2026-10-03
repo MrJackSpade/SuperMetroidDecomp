@@ -755,7 +755,7 @@ public sealed partial class RoomPlmSystem
             // add type-$5/$D extension words around this type-$F parent.
             slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockIndexes.CollisionBombParent)
                 .WithCollisionType(block.CollisionType).Raw;
-            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex[bts.NormalReactionIndex];
+            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex(bts.NormalReactionIndex);
             slot.InstructionTimer = 1;
             level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
             return true;
@@ -799,13 +799,13 @@ public sealed partial class RoomPlmSystem
             ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer =
-                RoomPlmHeaders.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+                RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.BlockIndex = blockIndex;
             RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
                 .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);
             slot.RestoreLevelWord = restoreWord.Raw;
             slot.InstructionPointer =
-                RoomPlmInstructionLists.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+                RoomPlmInstructionLists.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.InstructionTimer = 4;
             level.SetForegroundEntry(
                 blockIndex,
@@ -964,7 +964,7 @@ public sealed partial class RoomPlmSystem
             // visible tile number. Dimension-specific final draw lists reconstruct linked
             // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex[bts.NormalReactionIndex];
+            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex(bts.NormalReactionIndex);
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
             // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
@@ -1063,7 +1063,7 @@ public sealed partial class RoomPlmSystem
                 // word, exactly like the retail setup's two consecutive stores.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -1076,7 +1076,7 @@ public sealed partial class RoomPlmSystem
                 // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                 // solid until the same-frame list draws its first breaking frame.
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -1219,7 +1219,7 @@ public sealed partial class RoomPlmSystem
                 // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -1232,7 +1232,7 @@ public sealed partial class RoomPlmSystem
                 // permanent. The current word loses the shootable collision bits before
                 // the first animated breaking frame runs later in this gameplay pass.
                 slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -1344,11 +1344,11 @@ public sealed partial class RoomPlmSystem
         ushort instructionPointer;
         if (!bts.UsesAreaReactionTable)
         {
-            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.InstructionLists.Length))
+            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
                 throw new ArgumentOutOfRangeException(nameof(bts),
                     "Area-independent special-block BTS is outside the cartridge reaction table.");
 
-            instructionPointer = BombSpecialBlockReactions.InstructionLists[bts.NormalReactionIndex];
+            instructionPointer = BombSpecialBlockReactions.InstructionListAt(bts.NormalReactionIndex);
         }
         else
         {
@@ -1874,20 +1874,21 @@ public sealed partial class RoomPlmSystem
         }
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, compiled, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: true);
+            for (int run = 0; run < compiled.RunCount; run++)
+            for (int block = 0; block < compiled.WordsPerRun; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (compiled.Vertical ? 0 : block),
+                    originY + (compiled.Vertical ? block : run),
+                    compiled.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    shotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (SpeedBoosterBlockPlmDrawDefinitions.TryGet(drawPointer,
-                out var speedReveal))
+        if (drawPointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, speedReveal, originX, originY,
+            DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
+                SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                speedBoosterVisuals: speedBoosterVisuals);
+                speedBoosterVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&
@@ -1895,218 +1896,340 @@ public sealed partial class RoomPlmSystem
         {
             // $9367 is shared with Maridia's elevatube. Select its appearance
             // from the active PLM header, never from the pointer alone.
-            DrawCompiledBlockInstruction(
+            DrawKraidBlockInstruction(
                 level, streamer, ownedKraidDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, kraidVisuals: kraidVisuals);
+                kraidVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, MaridiaElevatubePlmDefinitions.Draw,
-                originX, originY, layer1XPosition, layer1YPosition,
-                bg1XOffset, useShotBlockVisuals: false,
-                maridiaElevatubeVisuals: maridiaElevatubeVisuals);
+            DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
+                MaridiaElevatubePlmDefinitions.PhysicalWord,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                maridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))
         {
-            DrawCompiledBlockInstruction(
+            DrawKraidBlockInstruction(
                 level, streamer, kraidDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                null);
             return;
         }
-        if (CrocomireArenaPlmDrawDefinitions.TryGet(drawPointer,
+        if (CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer,
                 out var crocomireDraw))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, crocomireDraw, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                crocomireVisuals: crocomireVisuals);
+            for (int run = 0; run < crocomireDraw.RunCount; run++)
+            for (int block = 0; block < crocomireDraw.WordsPerRun; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (crocomireDraw.Wall ? run : block),
+                    originY + (crocomireDraw.Wall ? block : 0),
+                    crocomireDraw.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    crocomireVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer,
-                out var fakeDeathDraw))
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var backgroundFakeDeath))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, fakeDeathDraw, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                motherBrainFakeDeathVisuals: motherBrainFakeDeathVisuals);
+            for (int column = 0; column < 13; column++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY,
+                    backgroundFakeDeath.WordAt(column), layer1XPosition, layer1YPosition, bg1XOffset,
+                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
             return;
         }
-        if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
-                out var accessFloor))
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regularFakeDeath))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, accessFloor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                tourianAccessVisuals: tourianAccessVisuals);
+            for (int run = 0; run < regularFakeDeath.RunCount; run++)
+            for (int block = 0; block < regularFakeDeath.Count(run); block++)
+            {
+                bool vertical = regularFakeDeath.Vertical(run);
+                int x = originX + (run == 0 ? 0 : regularFakeDeath.NextX(run - 1));
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    x + (vertical ? 0 : block), originY + (vertical ? block : 0),
+                    regularFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+            }
             return;
         }
-        if (SporeSpawnCeilingPlmDrawDefinitions.TryGet(drawPointer,
-                out var sporeCeiling))
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(drawPointer, out var boundaryFakeDeath))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, sporeCeiling, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                sporeSpawnCeilingVisuals: sporeSpawnCeilingVisuals);
+            for (int run = 0; run < 2; run++)
+            for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (run == 0 ? 0 : boundaryFakeDeath.NextX(0)),
+                    originY + (run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block,
+                    boundaryFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (SamusEaterPlmDrawDefinitions.TryGet(drawPointer, out var samusEater))
+        if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, samusEater, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                samusEaterVisuals: samusEaterVisuals);
+            for (int row = 0; row < tourianRows; row++)
+            for (int column = 0; column < 4; column++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
+                    tourianWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                    tourianAccessVisuals?.GetWord(drawPointer, row, column));
+            return;
+        }
+        if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))
+        {
+            for (int row = 0; row < 2; row++)
+            for (int column = 0; column < 2; column++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
+                    sporeCeilingWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                    sporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
+            return;
+        }
+        if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))
+        {
+            int plantX = originX, plantY = originY;
+            for (int run = 0; run < 3; run++)
+            {
+                for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
+                    DrawPlmWordAt(level, streamer, drawPointer, plantX + block, plantY,
+                        samusEater.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
+                        samusEaterVisuals?.GetWord(drawPointer, run, block));
+                plantX = originX + SamusEaterPlmDrawDefinitions.Draw.NextX(run);
+                plantY = originY + samusEater.NextY(run);
+            }
             return;
         }
         if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, BotwoonWallPlmDrawDefinitions.Clear,
-                originX, originY, layer1XPosition, layer1YPosition,
-                bg1XOffset, useShotBlockVisuals: false,
-                botwoonWallVisuals: botwoonWallVisuals);
+            for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
+                DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row,
+                    BotwoonWallPlmDrawDefinitions.LevelWordAt(row),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    botwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
+        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, bombRestore, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                linkedRestoreVisuals: linkedRestoreVisuals);
+            for (int run = 0; run < bombRestore.RunCount; run++)
+            for (int block = 0; block < 2; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (bombRestore.Vertical ? 0 : block),
+                    originY + (bombRestore.Vertical ? block : run),
+                    bombRestore.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet(drawPointer, out var crumbleRestore))
+        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, crumbleRestore, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                linkedRestoreVisuals: linkedRestoreVisuals);
+            for (int run = 0; run < crumbleRestore.RunCount; run++)
+            for (int block = 0; block < 2; block++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (crumbleRestore.Vertical ? 0 : block),
+                    originY + (crumbleRestore.Vertical ? block : run),
+                    crumbleRestore.WordAt(run, block),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (BlueDoorPlmDrawDefinitions.TryGet(drawPointer, out var blueDoor))
+        if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, blueDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, blueDoorVisuals: blueDoorVisuals);
+            for (int cell = 0; cell < 4; cell++)
+            {
+                ushort physical = blueDoor.WordAt(cell);
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (blueDoor.Vertical ? 0 : cell), originY + (blueDoor.Vertical ? cell : 0),
+                    physical, layer1XPosition, layer1YPosition, bg1XOffset,
+                    blueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+            }
             return;
         }
-        if (ColoredDoorPlmDrawDefinitions.TryGet(drawPointer, out var coloredDoor))
+        if (ColoredDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var coloredDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, coloredDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, coloredDoorVisuals: coloredDoorVisuals);
+            for (int cell = 0; cell < 4; cell++)
+            {
+                ushort physical = coloredDoor.WordAt(cell);
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (coloredDoor.Vertical ? 0 : cell), originY + (coloredDoor.Vertical ? cell : 0),
+                    physical, layer1XPosition, layer1YPosition, bg1XOffset,
+                    coloredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+            }
             return;
         }
-        if (GreyDoorPlmDrawDefinitions.TryGet(drawPointer, out var greyDoor))
+        if (GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var greyDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, greyDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, greyDoorVisuals: greyDoorVisuals);
+            for (int cell = 0; cell < 4; cell++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (greyDoor.Vertical ? 0 : cell),
+                    originY + (greyDoor.Vertical ? cell : 0), greyDoor.WordAt(cell),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    greyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
             return;
         }
-        if (EyeDoorPlmDrawDefinitions.TryGet(drawPointer, out var eyeDoor))
+        if (EyeDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var eyeDoor))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, eyeDoor, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, eyeDoorVisuals: eyeDoorVisuals);
+            for (int cell = 0; cell < eyeDoor.WordCount; cell++)
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + (eyeDoor.Vertical ? 0 : cell),
+                    originY + (eyeDoor.Vertical ? cell : 0), eyeDoor.WordAt(cell),
+                    layer1XPosition, layer1YPosition, bg1XOffset,
+                    eyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
             return;
         }
-        if (MotherBrainGlassPlmDrawDefinitions.TryGet(drawPointer, out var motherBrainGlass))
+        if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var motherBrainGlass))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, motherBrainGlass, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                motherBrainGlassVisuals: motherBrainGlassVisuals);
+            int glassX = originX, glassY = originY;
+            for (int run = 0; run < motherBrainGlass.RunCount; run++)
+            {
+                bool vertical = motherBrainGlass.Vertical(run);
+                for (int cell = 0; cell < motherBrainGlass.WordCount(run); cell++)
+                {
+                    ushort physical = motherBrainGlass.WordAt(run, cell);
+                    ushort visual = motherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, glassX + (vertical ? 0 : cell),
+                        glassY + (vertical ? cell : 0), physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                glassX = originX + motherBrainGlass.NextX(run);
+                glassY = originY + motherBrainGlass.NextY(run);
+            }
             return;
         }
-        if (NoobTubePlmDrawDefinitions.TryGet(drawPointer, out var noobTube))
+        if (NoobTubePlmDrawDefinitions.TryDescribe(drawPointer, out var noobTube))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, noobTube, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, noobTubeVisuals: noobTubeVisuals);
+            int tubeY = originY;
+            for (int run = 0; run < noobTube.RunCount; run++)
+            {
+                for (int cell = 0; cell < noobTube.WordCount(run); cell++)
+                {
+                    ushort physical = noobTube.WordAt(run, cell);
+                    ushort visual = noobTubeVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, originX + cell, tubeY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                tubeY = originY + noobTube.NextY(run);
+            }
             return;
         }
-        if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
+        if (RoomPlmStationDrawDefinitions.TryDescribe(drawPointer, out var station))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, station, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, customVisuals: stationVisuals);
+            int stationX = originX, stationY = originY;
+            for (int run = 0; run < station.RunCount; run++)
+            {
+                for (int cell = 0; cell < station.WordCount(run); cell++)
+                {
+                    ushort physical = station.WordAt(run, cell);
+                    ushort visual = stationVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, stationX + cell, stationY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                stationX = originX + station.NextX(run);
+                stationY = originY + station.NextY(run);
+            }
             return;
         }
-        if (ElevatorPlatformPlmDefinitions.TryGetDraw(drawPointer, out var elevator))
+        if (ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var elevator))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, elevator, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                elevatorPlatformVisuals: elevatorPlatformVisuals);
+            int elevatorX = originX, elevatorY = originY;
+            for (int run = 0; run < elevator.RunCount; run++)
+            {
+                for (int cell = 0; cell < elevator.WordCount(run); cell++)
+                {
+                    ushort physical = elevator.WordAt(run, cell);
+                    ushort visual = elevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, elevatorX + cell, elevatorY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                elevatorX = originX + elevator.NextX(run);
+                elevatorY = originY + elevator.NextY(run);
+            }
             return;
         }
-        if (DownwardGatePlmDrawDefinitions.TryGet(drawPointer, out var gate))
+        if (DownwardGatePlmDrawDefinitions.TryDescribe(drawPointer, out var gate))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, gate, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, gateVisuals: downwardGateVisuals);
+            int gateX = originX;
+            for (int run = 0; run < gate.RunCount; run++)
+            {
+                for (int word = 0; word < gate.WordCount(run); word++)
+                {
+                    ushort physical = gate.WordAt(run, word);
+                    ushort visual = downwardGateVisuals?.GetWord(drawPointer, run, word)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, gateX + (gate.Column ? 0 : word),
+                        originY + (gate.Column ? word : 0), physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                gateX = originX + gate.NextX(run);
+            }
             return;
         }
-        if (MotherBrainEscapeGatePlmDrawDefinitions.TryGet(drawPointer, out var escapeGate))
+        if (MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(drawPointer, out var escapeGate))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, escapeGate, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false, escapeGateVisuals: escapeGateVisuals);
+            for (int row = 0; row < 4; row++)
+            {
+                ushort physical = escapeGate.WordAt(row);
+                ushort visual = escapeGateVisuals?.GetWord(drawPointer, row)
+                    ?? new RoomLevelWord(physical).VisualWord;
+                DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row, physical,
+                    layer1XPosition, layer1YPosition, bg1XOffset, visual);
+            }
             return;
         }
-        if (BombTorizoHandPlmDrawDefinitions.TryGet(drawPointer, out var bombTorizoHand))
+        if (BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var bombTorizoHand))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, bombTorizoHand, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                bombTorizoHandVisuals: bombTorizoHandVisuals);
+            for (int run = 0; run < bombTorizoHand.RunCount; run++)
+            for (int word = 0; word < bombTorizoHand.WordCount(run); word++)
+            {
+                ushort physical = bombTorizoHand.WordAt(run, word);
+                ushort visual = bombTorizoHandVisuals?.GetWord(drawPointer, run, word)
+                    ?? new RoomLevelWord(physical).VisualWord;
+                DrawPlmWordAt(level, streamer, drawPointer,
+                    originX + bombTorizoHand.OriginX(run) + word, originY + bombTorizoHand.OriginY(run),
+                    physical, layer1XPosition, layer1YPosition, bg1XOffset, visual);
+            }
             return;
         }
-        if (DraygonCannonPlmDrawDefinitions.TryGet(drawPointer, out var draygonCannon))
+        if (DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draygonCannon))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, draygonCannon, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                draygonCannonVisuals: draygonCannonVisuals);
+            int cannonX = originX, cannonY = originY;
+            for (int run = 0; run < draygonCannon.RunCount; run++)
+            {
+                for (int cell = 0; cell < draygonCannon.WordCount(run); cell++)
+                {
+                    ushort physical = draygonCannon.WordAt(run, cell);
+                    ushort visual = draygonCannonVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, cannonX + cell, cannonY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                cannonX = originX + draygonCannon.NextX(run);
+                cannonY = originY + draygonCannon.NextY(run);
+            }
             return;
         }
-        if (ChozoStatuePlmDrawDefinitions.TryGet(drawPointer, out var chozoStatue))
+        if (ChozoStatuePlmDrawDefinitions.TryDescribe(drawPointer, out var chozoStatue))
         {
-            DrawCompiledBlockInstruction(
-                level, streamer, chozoStatue, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false,
-                chozoStatueVisuals: chozoStatueVisuals);
+            int chozoX = originX, chozoY = originY;
+            for (int run = 0; run < chozoStatue.RunCount; run++)
+            {
+                for (int cell = 0; cell < chozoStatue.WordCount(run); cell++)
+                {
+                    ushort physical = chozoStatue.WordAt(run, cell);
+                    ushort visual = chozoStatueVisuals?.GetWord(drawPointer, run, cell)
+                        ?? new RoomLevelWord(physical).VisualWord;
+                    DrawPlmWordAt(level, streamer, drawPointer, chozoX + cell, chozoY, physical,
+                        layer1XPosition, layer1YPosition, bg1XOffset, visual);
+                }
+                chozoX = originX + chozoStatue.NextX(run);
+                chozoY = originY + chozoStatue.NextY(run);
+            }
             return;
         }
-        if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
+        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(drawPointer, out ushort collectible))
         {
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
-                collectible.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                collectible, layer1XPosition, layer1YPosition, bg1XOffset,
                 collectibleVisuals?.GetWord(drawPointer));
             return;
         }
@@ -2194,8 +2317,6 @@ public sealed partial class RoomPlmSystem
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
         RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null,
-        RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
-        RoomPlmKraidVisualCatalog? kraidVisuals = null,
         RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
         RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null)
     {
@@ -2236,8 +2357,6 @@ public sealed partial class RoomPlmSystem
                     ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? samusEaterVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? motherBrainFakeDeathVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;

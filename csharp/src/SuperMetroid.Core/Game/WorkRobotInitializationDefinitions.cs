@@ -14,19 +14,20 @@ internal static class WorkRobotInitializationDefinitions
     /// first code word of MainAI_Robot. The native range check accepts parameter
     /// three, so that adjacent-code observation remains part of the definition.
     /// </summary>
-    private static ReadOnlySpan<ushort> InitialInstructionLists =>
-        [
-            WorkRobotInstructionProgramDefinitions.NoPowerNeutral,
-            WorkRobotInstructionProgramDefinitions.NoPowerLeaningLeft,
-            WorkRobotInstructionProgramDefinitions.NoPowerLeaningRight,
-            AdjacentMainAiOpcode,
-        ];
-
-    /// <summary>Returns the native initial instruction word for sanitized parameter zero through three.</summary>
-    internal static ushort GetInitialInstruction(int parameter)
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm.
+    /// The first three pointers happen to advance by six because their authored lists
+    /// each occupy six bytes. Computing addresses would obscure the named neutral/left/
+    /// right selection and couple it to instruction storage layout. The fourth value is
+    /// an opcode overread, not a fourth list or a progression endpoint. Explicit cases
+    /// express this fixed selection policy without retaining an indexed pointer array.
+    /// </remarks>
+    internal static ushort GetInitialInstruction(int parameter) => parameter switch
     {
-        if ((uint)parameter >= InitialInstructionLists.Length)
-            throw new ArgumentOutOfRangeException(nameof(parameter));
-        return InitialInstructionLists[parameter];
-    }
+        0 => WorkRobotInstructionProgramDefinitions.NoPowerNeutral,
+        1 => WorkRobotInstructionProgramDefinitions.NoPowerLeaningLeft,
+        2 => WorkRobotInstructionProgramDefinitions.NoPowerLeaningRight,
+        3 => AdjacentMainAiOpcode,
+        _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
+    };
 }

@@ -7,7 +7,8 @@ internal readonly record struct BombTorizoStatueInstructionMechanicsWord(
 /// <summary>
 /// Compiled control for the sixteen Bomb Torizo statue-fragment programs at
 /// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands use extracted
-/// presentation art; sixteen packed sound IDs remain cartridge audio data.
+/// presentation art. The packed sound-ID byte remains outside mechanics-word ownership;
+/// the projectile interpreter advances past audio commands without reading that byte.
 /// </summary>
 internal static class BombTorizoStatueInstructionProgramDefinitions
 {
@@ -20,13 +21,8 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
     /// <summary>Number of authored fragment programs selected by even parameters $00-$1E.</summary>
     internal const int ProgramCount = 16;
 
-    private static readonly ushort[] InitialDurations =
-    [
-        0x0080, 0x0078, 0x0070, 0x0068,
-        0x0060, 0x0058, 0x0050, 0x0048,
-        0x0040, 0x0040, 0x0040, 0x0040,
-        0x0040, 0x0040, 0x0040, 0x0040,
-    ];
+    // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
+    private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
 
     internal static int MechanicsWordCount => ProgramCount * 6;
     internal static int PresentationWordCount => ProgramCount * 2;
@@ -44,27 +40,19 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int programIndex = index / 6;
         ushort program = Program(programIndex);
-        return (index % 6) switch
+        int word = index % 6;
+        // First timed frame, three-byte sound command, callback plus argument,
+        // second timed frame, then delete. Reuse the direct reader for values.
+        int offset = word switch
         {
-            0 => new BombTorizoStatueInstructionMechanicsWord(
-                program, InitialDurations[programIndex]),
-            1 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 4)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-            2 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 7)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            3 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 9)),
-                EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling),
-            4 => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 11)), 0x0070),
-            _ => new BombTorizoStatueInstructionMechanicsWord(
-                unchecked((ushort)(program + 15)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            0 => 0,
+            1 => 4,
+            2 or 3 or 4 => 7 + 2 * (word - 2),
+            _ => 15,
         };
+        ushort address = (ushort)(program + offset);
+        return new(address, ReadMechanicsWord(address));
     }
-
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -73,6 +61,8 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         return unchecked((ushort)(program + ((index & 1) == 0 ? 2 : 13)));
     }
 
+    internal static bool IsPresentationWord(ushort address) =>
+        TryDecodeProgramOffset(address, out _, out int offset) && offset is 2 or 13;
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!TryDecodeProgramOffset(address, out int programIndex, out int offset))
@@ -83,7 +73,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
 
         return offset switch
         {
-            0 => InitialDurations[programIndex],
+            0 => InitialDuration(programIndex),
             4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6,
             7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
             9 => EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling,

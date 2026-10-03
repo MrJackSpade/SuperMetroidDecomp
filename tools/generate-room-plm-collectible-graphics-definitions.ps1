@@ -17,11 +17,21 @@ try {
     $lines = [Collections.Generic.List[string]]::new()
     $lines.Add('namespace SuperMetroid.Core.Rooms;')
     $lines.Add('')
-    $lines.Add('/// <summary>Pinned bank-$89 item tiles and bank-$84 palette offsets; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
+    $lines.Add('/// <summary>Pinned bank-$89 item tiles; regenerate with tools/generate-room-plm-collectible-graphics-definitions.ps1.</summary>')
     $lines.Add('internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions')
     $lines.Add('{')
-    $lines.Add('    private static readonly (byte Kind, ushort GraphicsPointer, string PaletteHex, string TilesHex)[] Sources =')
+    $lines.Add('    /// <summary>')
+    $lines.Add('    /// ItemPLMGFX_Bombs through ItemPLMGFX_ReserveTank, $89:8000-$90FF:')
+    $lines.Add('    /// seventeen two-frame 16x16 drawings encoded as eight planar 4bpp tiles each.')
+    $lines.Add('    /// Decoding shows item silhouettes, shading and beam lettering. These bytes')
+    $lines.Add('    /// are pixels consumed by VRAM, not samples of a numeric or control function.')
+    $lines.Add('    /// A fitted formula or per-pixel case list would only disguise the same drawing;')
+    $lines.Add('    /// retain this artwork under the nonsense exception (dynamicCollectibleArtworkReview).')
+    $lines.Add('    /// Kind, source address and palette selection are calculated separately.')
+    $lines.Add('    /// </summary>')
+    $lines.Add('    private static readonly string[] Tiles =')
     $lines.Add('    [')
+    $tileBlocks = [Collections.Generic.SortedDictionary[int,string]]::new()
     $uniqueGraphics = [Collections.Generic.HashSet[int]]::new()
     for ($kind = 4; $kind -lt 21; $kind++) {
         $graphicPointer = -1
@@ -51,7 +61,15 @@ try {
         }
         $sourceOffset = 0x48000 + ($graphicPointer - 0x8000)
         $tilesHex = [Convert]::ToHexString($rom[$sourceOffset..($sourceOffset + 0xFF)])
-        $lines.Add(('        ({0}, 0x{1:X4}, "{2}", "{3}"),' -f $kind, $graphicPointer, $paletteHex, $tilesHex))
+        $tileBlocks.Add($graphicPointer, $tilesHex)
+    }
+    $blockIndex = 0
+    foreach ($block in $tileBlocks.GetEnumerator()) {
+        if ($block.Key -ne 0x8000 + $blockIndex * 0x100) {
+            throw 'Native item artwork blocks are not consecutive.'
+        }
+        $lines.Add(('        "{0}",' -f $block.Value))
+        $blockIndex++
     }
     $lines.Add('    ];')
     $lines.Add('}')

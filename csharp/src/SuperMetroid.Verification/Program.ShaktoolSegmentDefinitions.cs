@@ -6,40 +6,21 @@ internal static partial class Program
 {
     private static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyShaktoolPropertySelection(rom);
+        VerifyShaktoolOwnerOffsetAlgorithm(rom);
+        VerifyShaktoolInitialInstructionSelection(rom);
+        VerifyShaktoolLayerSelection(rom);
+        VerifyShaktoolCallbackSelection(rom);
+        VerifyShaktoolInitialAngleAlgorithm(rom);
+        VerifyShaktoolAngularVelocityAlgorithm(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        int[] tables =
-        [
-            0xaade95,
-            0xaadea3,
-            0xaadeb1,
-            0xaadebf,
-            0xaadecd,
-            0xaadedb,
-            0xaadee9,
-        ];
-
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(index);
             definitions[index] = definition;
-            ushort[] actual =
-            [
-                definition.PropertyMask,
-                definition.OwnerNativeOffset,
-                definition.InitialOrbitAngle,
-                definition.InitialInstruction,
-                definition.Layer,
-                (ushort)definition.PreInstruction,
-                definition.AngularVelocity,
-            ];
-            for (int field = 0; field < actual.Length; field++)
-            {
-                AssertEqual(Word(tables[field] + index * 2), actual[field],
-                    $"Shaktool segment {index} definition field {field}");
-            }
             AssertEqual((ushort)0, Word(0xaadef7 + index * 2),
                 $"Shaktool segment {index} initialization subtrahend");
         }
@@ -108,6 +89,57 @@ internal static partial class Program
             "Shaktool segment definition past table");
         Console.WriteLine(
             "Shaktool segment definitions: 56 native words, all seven real initializers and the group callback reset pass with source tables forbidden.");
+    }
+
+    private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
+            definition => definition.PropertyMask, "property selection");
+
+    private static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
+            definition => definition.InitialOrbitAngle, "initial angle algorithm");
+
+    private static void VerifyShaktoolAngularVelocityAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        VerifyShaktoolDefinitionField(rom, ShaktoolAngularVelocityDefinitions.ReferenceAddress,
+            definition => definition.AngularVelocity, "angular velocity algorithm");
+        for (int index = 0; index < 7; index++)
+            AssertEqual(ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity,
+                ShaktoolAngularVelocityDefinitions.ForSegment(index), "Shaktool velocity alias");
+        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => ShaktoolAngularVelocityDefinitions.ForSegment(invalid),
+                "Shaktool velocity alias bounds");
+    }
+
+    private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
+            definition => definition.OwnerNativeOffset, "owner offset");
+
+    private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
+            definition => definition.InitialInstruction, "initial instruction selection");
+
+    private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
+            definition => definition.Layer, "layer selection");
+
+    private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
+        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
+            definition => (ushort)definition.PreInstruction, "callback selection");
+
+    private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
+        int nativeAddress, Func<ShaktoolSegmentDefinition, ushort> select, string label)
+    {
+        for (int index = 0; index < 7; index++)
+        {
+            int address = nativeAddress + 2 * index;
+            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(expected, select(ShaktoolSegmentDefinitions.ForIndex(index)),
+                $"Shaktool {label} original word {index}");
+        }
+        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => select(ShaktoolSegmentDefinitions.ForIndex(invalid)),
+                $"Shaktool {label} rejects {invalid}");
     }
 
     private sealed class ShaktoolSegmentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

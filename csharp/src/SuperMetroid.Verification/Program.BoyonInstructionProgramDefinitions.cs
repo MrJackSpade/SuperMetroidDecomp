@@ -5,6 +5,78 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    private static ushort[] BoyonPresentationOracle() =>
+        [0x86ad,0x86b1,0x86b5,0x86b9,0x86c5,0x86c9,0x86cd,0x86d1,0x86d5,0x86d9];
+
+    private static void VerifyBoyonMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0x86a7,0x86a9,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bd,
+            0x86bf,0x86c1,0x86c3,0x86c7,0x86cb,0x86cf,0x86d3,0x86d7,0x86db,0x86dd];
+        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitions.MechanicsWordCount, "Boyon word count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadBoyonInstructionWord(rom, 0xa20000 | address);
+            var actual = BoyonInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, actual.Address, "Boyon native word position");
+            AssertEqual(expected, actual.Value, "Boyon native enumerated word");
+            AssertEqual(expected, BoyonInstructionProgramDefinitions.ReadMechanicsWord(address), "Boyon direct native word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = bytes.Contains(address);
+            AssertEqual(expected, BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "Boyon full bank byte ownership");
+            AssertEqual(expected, BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address), "Boyon high-bit alias preserved");
+            AssertTrue(!BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "Boyon wrong bank rejected");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0x86a5; address <= 0x86e1; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BoyonInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Boyon presentation, misaligned and adjacent words rejected");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => BoyonInstructionProgramDefinitions.ReadMechanicsWord(address), "Boyon far invalid word");
+        foreach (int index in new[] { int.MinValue, -1, 18, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitions.MechanicsWord(index), "Boyon mechanics ordinal bounds");
+    }
+
+    private static void VerifyBoyonPresentationAddresses()
+    {
+        ushort[] addresses = BoyonPresentationOracle();
+        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitions.PresentationWordCount, "Boyon visual count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], BoyonInstructionProgramDefinitions.PresentationWordAddress(index), "Boyon original visual position");
+        var valid = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(valid.Contains((ushort)address), BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Boyon full visual membership");
+        foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitions.PresentationWordAddress(index), "Boyon presentation ordinal bounds");
+    }
+
+    private static void VerifyBoyonVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = BoyonPresentationOracle();
+        foreach (ushort address in addresses)
+        {
+            ushort expected = ReadBoyonInstructionWord(rom, 0xa20000 | address);
+            AssertEqual(expected, EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon native visual value");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, address, out ushort shared), "Boyon shared visual selection");
+            AssertEqual(expected, shared, "Boyon shared native visual value");
+        }
+        var valid = addresses.ToHashSet();
+        for (int address = 0x86a5; address <= 0x86e1; address++)
+            if (!valid.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoyonFrameAt((ushort)address), "Boyon invalid visual operand");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa2, (ushort)address, out ushort missing), "Boyon shared hole rejected");
+                AssertEqual((ushort)0, missing, "Boyon shared miss clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon distant visual rejected");
+    }
     private static void VerifyBoyonInstructionProgramDefinitions()
     {
         VerifyBoyonInstructionProgramDefinitions(
@@ -16,17 +88,9 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        for (int index = 0;
-             index < BoyonInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            BoyonInstructionMechanicsWord definition =
-                BoyonInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadBoyonInstructionWord(rom, 0xa20000 | definition.Address),
-                $"Boyon instruction mechanics word $A2:{definition.Address:X4}");
-        }
+        VerifyBoyonMechanicsMapping(rom);
+        VerifyBoyonPresentationAddresses();
+        VerifyBoyonVisualSelectors(rom);
 
         var guard = new BoyonInstructionProgramReadGuard(rom);
         RoomEnemySystem idleSystem = CreateBoyonProgramSystem(guard, out RoomEnemySlot idle);
@@ -58,24 +122,8 @@ internal static partial class Program
         AssertTrue(!bouncingState.BounceDisabled,
             "Boyon bouncing callback permits the movement arc");
 
-        for (int index = 0;
-             index < BoyonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address = BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadBoyonInstructionWord(rom, 0xa20000 | address),
-                EnemySpritemapDefinitions.BoyonFrameAt(address),
-                $"compiled Boyon visual selector $A2:{address:X4} matches cartridge");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Boyon mechanics and visual selector bytes");
-
-        AssertThrows<InvalidDataException>(
-            () => BoyonInstructionProgramDefinitions.ReadMechanicsWord(0x86ad),
-            "interleaved Boyon spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => BoyonInstructionProgramDefinitions.ReadMechanicsWord(0x86df),
-            "adjacent Boyon definition data is rejected as mechanics");
 
         _ = ProbeBoyonInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();

@@ -3,20 +3,47 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
+    private static void VerifyAlcoonVerticalLaunchMapping(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (ushort offset = 0; offset <= 4; offset += 2)
-            AssertEqual(Word(0x869ef9 + offset), EnemyFireballLaunchDefinitions.AlcoonYVelocity(offset), "Alcoon native launch");
+            AssertEqual(FireballLaunchOracleWord(rom, 0x869ef9 + offset),
+                EnemyFireballLaunchDefinitions.AlcoonYVelocity(offset), "Alcoon native signed8.8 launch");
+        foreach (ushort offset in new ushort[] { 1, 3, 5, 6, 0x100, 0x102, 0x104, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemyFireballLaunchDefinitions.AlcoonYVelocity(offset),
+                "Alcoon rejects odd, out-of-range and high-byte selectors");
+    }
+
+    private static void VerifyNamiFuneLeftLaunchMapping(SuperMetroidAddressSpace rom) =>
+        VerifyNamiFuneLaunchField(rom, left: true);
+
+    private static void VerifyNamiFuneRightLaunchMapping(SuperMetroidAddressSpace rom) =>
+        VerifyNamiFuneLaunchField(rom, left: false);
+
+    private static void VerifyNamiFuneLaunchField(SuperMetroidAddressSpace rom, bool left)
+    {
         for (int high = 0; high < 256; high++)
+        {
             for (int index = 0; index < 8; index++)
             {
                 var pair = EnemyFireballLaunchDefinitions.NamiFuneVelocities((ushort)((high << 8) | index));
-                AssertEqual(Word(0x86deb6 + index * 4), pair.Left, "NamiFune native left velocity");
-                AssertEqual(Word(0x86deb8 + index * 4), pair.Right, "NamiFune native right velocity");
+                ushort expected = FireballLaunchOracleWord(rom, (left ? 0x86deb6 : 0x86deb8) + index * 4);
+                AssertEqual(expected, left ? pair.Left : pair.Right,
+                    left ? "NamiFune native negative horizontal speed and high-byte aliases" : "NamiFune native positive horizontal speed and high-byte aliases");
             }
-        AssertThrows<InvalidDataException>(() => EnemyFireballLaunchDefinitions.AlcoonYVelocity(1), "Alcoon odd selector");
-        AssertThrows<InvalidDataException>(() => EnemyFireballLaunchDefinitions.NamiFuneVelocities(8), "NamiFune out-of-table selector");
-        Console.WriteLine("Enemy fireball launches: 19 native words and all 2048 valid high-byte/selector combinations match.");
+            foreach (int index in new[] { 8, 9, 127, 255 })
+                AssertThrows<InvalidDataException>(() => EnemyFireballLaunchDefinitions.NamiFuneVelocities((ushort)((high << 8) | index)),
+                    "NamiFune rejects invalid low-byte selectors regardless of high byte");
+        }
+    }
+
+    private static ushort FireballLaunchOracleWord(SuperMetroidAddressSpace rom, int address) =>
+        (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+
+    private static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
+    {
+        VerifyAlcoonVerticalLaunchMapping(rom);
+        VerifyNamiFuneLeftLaunchMapping(rom);
+        VerifyNamiFuneRightLaunchMapping(rom);
+        Console.WriteLine("Enemy fireball launches: three independent mappings, 19 native words, 2048 valid parameter aliases and invalid selectors pass.");
     }
 }

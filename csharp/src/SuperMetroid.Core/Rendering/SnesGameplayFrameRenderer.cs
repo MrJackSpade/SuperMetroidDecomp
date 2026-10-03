@@ -1067,10 +1067,10 @@ public static partial class SnesGameplayFrameRenderer
             int pixelY = scrolledY & 7;
             int waveDisplacement = RoomFxTypes.UsesWater(fx.Type) &&
                 screenY > fx.WaterSurfaceScreenY
-                ? RoomFxRomData.Water.WaveDisplacements[
+                ? RoomFxRomData.Water.WaveDisplacement(
                     (screenY - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
                         RoomFxRomData.Water.WaveDisplacementCount) %
-                    RoomFxRomData.Water.WaveDisplacementCount]
+                    RoomFxRomData.Water.WaveDisplacementCount)
                 : 0;
             for (int screenX = 0; screenX < Width; screenX++)
             {
@@ -1127,7 +1127,6 @@ public static partial class SnesGameplayFrameRenderer
 
         var result = Enumerable.Repeat(bg2HorizontalScroll, Height - HudHeight).ToArray();
         int verticalPhase = bg2VerticalScroll & 0x000f;
-        ReadOnlySpan<short> wave = RoomFxRomData.Water.WaveDisplacements;
         for (int screenY = Math.Max(HudHeight, fx.WaterSurfaceScreenY + 1);
              screenY < Height;
              screenY++)
@@ -1136,7 +1135,7 @@ public static partial class SnesGameplayFrameRenderer
                 screenY - fx.WaterSurfaceScreenY - 1) &
                 (RoomFxRomData.Water.WaveDisplacementCount - 1);
             result[screenY - HudHeight] = unchecked((ushort)(
-                bg2HorizontalScroll + wave[index]));
+                bg2HorizontalScroll + RoomFxRomData.Water.WaveDisplacement(index)));
         }
         return result;
     }
@@ -1163,7 +1162,7 @@ public static partial class SnesGameplayFrameRenderer
             bg2HorizontalScroll,
             bg2VerticalScroll,
             fx.LavaAcidBg2WavePhase,
-            RoomFxRomData.LavaAcid.HorizontalWaveDisplacements);
+            verticalWave: false);
     }
 
     /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
@@ -1181,14 +1180,14 @@ public static partial class SnesGameplayFrameRenderer
             bg2VerticalScroll,
             bg2VerticalScroll,
             fx.LavaAcidBg2WavePhase,
-            RoomFxRomData.LavaAcid.VerticalWaveDisplacements);
+            verticalWave: true);
     }
 
     private static ushort[] BuildLavaAcidBg2Wave(
         ushort baseScroll,
         ushort bg2VerticalScroll,
         int wavePhase,
-        ReadOnlySpan<short> wave)
+        bool verticalWave)
     {
         var result = new ushort[Height - HudHeight];
         int verticalPhase = bg2VerticalScroll & 0x000f;
@@ -1200,7 +1199,10 @@ public static partial class SnesGameplayFrameRenderer
             // waveform periods, so gameplay-local and physical scanline indices coincide.
             int waveIndex = (verticalPhase + line + wavePhase) &
                 (RoomFxRomData.LavaAcid.WaveDisplacementCount - 1);
-            result[line] = unchecked((ushort)(baseScroll + wave[waveIndex]));
+            short displacement = verticalWave
+                ? RoomFxRomData.LavaAcid.VerticalWaveDisplacement(waveIndex)
+                : RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(waveIndex);
+            result[line] = unchecked((ushort)(baseScroll + displacement));
         }
         return result;
     }
@@ -1291,7 +1293,7 @@ public static partial class SnesGameplayFrameRenderer
         // performs that clipping after this method, so only the common profile builder
         // is needed here. Widths increase while vertical boundaries decrease.
         int currentOuterScanline =
-            horizontalRadius * PowerBombShapeDefinitions.TopOffsets[0] >> 8;
+            horizontalRadius * PowerBombShapeDefinitions.TopOffset(0) >> 8;
         if (scanlineDistance > currentOuterScanline)
             return -1;
 
@@ -1301,8 +1303,8 @@ public static partial class SnesGameplayFrameRenderer
         {
             // The 65816 routine uses the high byte of an unsigned 8x8 product. An
             // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = horizontalRadius * PowerBombShapeDefinitions.TopOffsets[curveIndex] >> 8;
-            int halfWidth = horizontalRadius * PowerBombShapeDefinitions.Widths[curveIndex] >> 8;
+            int innerScanline = horizontalRadius * PowerBombShapeDefinitions.TopOffset(curveIndex) >> 8;
+            int halfWidth = horizontalRadius * PowerBombShapeDefinitions.Width(curveIndex) >> 8;
             finalHalfWidth = halfWidth;
 
             // Native code fills both endpoints inclusively, then begins the next band

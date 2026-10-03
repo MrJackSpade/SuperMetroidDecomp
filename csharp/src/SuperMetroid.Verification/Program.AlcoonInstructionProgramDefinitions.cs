@@ -7,6 +7,109 @@ internal static partial class Program
 {
     private const ushort AlcoonInstructionAuditRoom = 0x93aa;
 
+    private static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+        [
+            0xdbe7,0xdbe9,0xdbed,0xdbef,0xdbf3,0xdbf5,0xdbf9,0xdbfb,0xdbff,0xdc01,
+            0xdc03,0xdc07,0xdc0b,0xdc0f,0xdc13,0xdc15,0xdc19,0xdc1d,0xdc21,0xdc25,
+            0xdc29,0xdc2b,0xdc2f,0xdc33,0xdc37,0xdc3b,0xdc3f,0xdc41,0xdc45,0xdc47,
+            0xdc4b,0xdc4f,0xdc51,0xdc55,
+            0xdc57,0xdc59,0xdc5d,0xdc5f,0xdc63,0xdc65,0xdc69,0xdc6b,0xdc6f,0xdc71,
+            0xdc73,0xdc77,0xdc7b,0xdc7f,0xdc83,0xdc85,0xdc89,0xdc8d,0xdc91,0xdc95,
+            0xdc99,0xdc9b,0xdc9f,0xdca3,0xdca7,0xdcab,0xdcaf,0xdcb1,0xdcb5,0xdcb7,
+            0xdcbb,0xdcbf,0xdcc1,0xdcc5,
+        ];
+        AssertEqual(addresses.Length, AlcoonInstructionProgramDefinitions.MechanicsWordCount, "Alcoon word count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadAlcoonInstructionWord(rom, address);
+            var actual = AlcoonInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, actual.Address, "Alcoon original word position");
+            AssertEqual(expected, actual.Value, "Alcoon original enumerated word");
+            AssertEqual(expected, AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Alcoon direct word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = bytes.Contains(address);
+            AssertEqual(expected, AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address),
+                "Alcoon full bank byte ownership including odd word starts");
+            AssertEqual(expected, AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address),
+                "Alcoon preserves high-bit mask");
+            AssertTrue(!AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+                "Alcoon rejects other bank");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0xdbe5; address <= 0xdcc9; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => AlcoonInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Alcoon rejects presentation words, misalignment and adjacent data");
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "Alcoon rejects distant invalid word");
+        foreach (int index in new[] { int.MinValue, -1, 68, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitions.MechanicsWord(index),
+                "Alcoon mechanics ordinal bounds");
+    }
+
+    private static ushort[] AlcoonPresentationAddressOracle() =>
+        [
+            0xdbeb,0xdbf1,0xdbf7,0xdbfd,
+            0xdc05,0xdc09,0xdc0d,0xdc11,0xdc17,0xdc1b,0xdc1f,0xdc23,
+            0xdc27,0xdc2d,0xdc31,0xdc35,0xdc39,0xdc3d,0xdc43,0xdc49,0xdc4d,0xdc53,
+            0xdc5b,0xdc61,0xdc67,0xdc6d,
+            0xdc75,0xdc79,0xdc7d,0xdc81,0xdc87,0xdc8b,0xdc8f,0xdc93,
+            0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
+        ];
+
+    private static void VerifyAlcoonPresentationAddressMapping()
+    {
+        ushort[] expected = AlcoonPresentationAddressOracle();
+        AssertEqual(expected.Length, AlcoonInstructionProgramDefinitions.PresentationWordCount, "Alcoon visual count");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Alcoon original presentation operand position");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Alcoon full presentation word membership domain");
+        foreach (int index in new[] { int.MinValue, -1, 44, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Alcoon presentation ordinal bounds");
+    }
+
+    private static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = AlcoonPresentationAddressOracle();
+        foreach (ushort address in addresses)
+        {
+            ushort expected = ReadAlcoonInstructionWord(rom, address);
+            AssertEqual(expected, EnemySpritemapDefinitions.AlcoonFrameAt(address), "Alcoon direct native visual");
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(RoomEnemySystem.AlcoonDefinition, address, out ushort frame),
+                "Alcoon actor visual dispatch");
+            AssertEqual(expected, frame, "Alcoon actor selected visual");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared), "Alcoon shared visual dispatch");
+            AssertEqual(expected, shared, "Alcoon shared selected visual");
+        }
+        var valid = addresses.ToHashSet();
+        for (int address = 0xdbe5; address <= 0xdcc9; address++)
+            if (!valid.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt((ushort)address),
+                    "Alcoon rejects control, misaligned and adjacent visual operands");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing),
+                    "Alcoon shared selector rejects holes");
+                AssertEqual((ushort)0, missing, "Alcoon missing shared selector clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt(address),
+                "Alcoon distant invalid visual operand");
+    }
+
     private static void VerifyAlcoonInstructionProgramDefinitions()
     {
         VerifyAlcoonInstructionProgramDefinitions(
@@ -16,16 +119,8 @@ internal static partial class Program
     private static void VerifyAlcoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
-        for (int index = 0;
-             index < AlcoonInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            AlcoonInstructionMechanicsWord definition =
-                AlcoonInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadAlcoonInstructionWord(rom, definition.Address),
-                $"Alcoon mechanics word $A8:{definition.Address:X4}");
-        }
+        VerifyAlcoonMechanicsMapping(rom);
+        VerifyAlcoonPresentationAddressMapping();
 
         var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
@@ -107,12 +202,6 @@ internal static partial class Program
             "Alcoon reads no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Alcoon mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => AlcoonInstructionProgramDefinitions.ReadMechanicsWord(0xdbeb),
-            "Alcoon spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => AlcoonInstructionProgramDefinitions.ReadMechanicsWord(0xdcc7),
-            "Alcoon constants following the programs are rejected as mechanics");
 
         _ = ProbeAlcoonInstructionMechanicsAllocation();
         long before = GC.GetAllocatedBytesForCurrentThread();

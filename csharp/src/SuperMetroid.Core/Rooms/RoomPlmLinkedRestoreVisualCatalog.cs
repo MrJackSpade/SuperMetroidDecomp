@@ -12,55 +12,81 @@ public sealed record RoomPlmLinkedRestoreVisualEntry(string Id, ushort[] Blocks)
 public sealed class RoomPlmLinkedRestoreVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmLinkedRestoreVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[4];
+        foreach (var draw in RoomPlmLinkedRestoreDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        {
+            Describe(draw.Pointer, out int runs, out _);
+            for (int run = 0; run < runs; run++)
+            for (int block = 0; block < 2; block++)
+                words[run * 2 + block] = GetWord(draw.Pointer, run, block);
+            content.Append("frame", draw.Pointer);
+            // The original catalog hashes each flattened frame as one run.
+            content.Append("runs", 1);
+            content.AppendWords("words", words[..(runs * 2)]);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    public RoomPlmLinkedRestoreVisualCatalog(
-        IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)
+    private RoomPlmLinkedRestoreVisualCatalog() { }
+
+    public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmLinkedRestoreVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
-                !RoomPlmLinkedRestoreDrawDefinitions.TryGetByVisualId(entry.Id,
-                    out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
-                    run.LevelWords.Length) ||
+                !RoomPlmLinkedRestoreDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
+                !Describe(draw.Pointer, out int runs, out ushort stockWord) ||
+                entry.Blocks.Length != runs * 2 ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Linked restoration visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
-                throw new InvalidDataException(
-                    $"Linked restoration visuals repeat frame {entry.Id}.");
+            if (!seen.Add(draw.Pointer))
+                throw new InvalidDataException($"Linked restoration visuals repeat frame {entry.Id}.");
+            if (entry.Blocks.Any(word => word != stockWord))
+                selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != RoomPlmLinkedRestoreDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Linked restoration visuals do not cover all six compiled layouts.");
-        blocks = selected;
+        if (seen.Count != RoomPlmLinkedRestoreDrawDefinitions.All.Count())
+            throw new InvalidDataException("Linked restoration visuals do not cover all six compiled layouts.");
+        if (selected.Count != 0) customWords = selected;
     }
 
-    public static RoomPlmLinkedRestoreVisualCatalog Stock() => new(
-        RoomPlmLinkedRestoreDrawDefinitions.All.Select(draw =>
-            new RoomPlmLinkedRestoreVisualEntry(
-                RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
+    /// <summary>Stock words are calculated from the physical draw's visual portion.</summary>
+    public static RoomPlmLinkedRestoreVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !RoomPlmLinkedRestoreDrawDefinitions.TryGet(drawPointer, out var draw))
-            throw new InvalidDataException(
-                $"Linked restoration visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if (!Describe(drawPointer, out int runs, out ushort stockWord))
+            throw new InvalidDataException($"Linked restoration visuals lack frame ${drawPointer:X4}.");
+        if ((uint)runIndex >= runs || (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        int flatIndex = blockIndex;
-        for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
-        return words[flatIndex];
+        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+            ? words[runIndex * 2 + blockIndex] : stockWord;
+    }
+
+    // Every cell in a linked restoration uses the same visual tile; only its
+    // collision link changes. Keep domain identity and geometry in the draw owners.
+    private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
+    {
+        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))
+        {
+            runs = bomb.RunCount;
+            stockWord = new RoomLevelWord(bomb.WordAt(0, 0)).VisualWord;
+            return true;
+        }
+        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out var crumble))
+        {
+            runs = crumble.RunCount;
+            stockWord = new RoomLevelWord(crumble.WordAt(0, 0)).VisualWord;
+            return true;
+        }
+        runs = 0;
+        stockWord = 0;
+        return false;
     }
 }

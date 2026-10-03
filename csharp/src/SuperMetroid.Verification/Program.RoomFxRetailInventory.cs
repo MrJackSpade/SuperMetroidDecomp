@@ -514,10 +514,10 @@ internal static partial class Program
                 bus,
                 cursor,
                 RoomFxRomData.Record.DoorPointerOffset);
-            if (candidateDoor == 0 || candidateDoor == doorPointer)
-                return cursor;
             if (candidateDoor == RoomFxRomData.Record.TerminatorDoorPointer)
                 return 0;
+            if (candidateDoor == 0 || candidateDoor == doorPointer)
+                return cursor;
             cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
         }
 

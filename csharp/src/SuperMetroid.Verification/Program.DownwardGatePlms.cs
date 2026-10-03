@@ -7,33 +7,9 @@ internal static partial class Program
 {
     private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-
-        for (ushort roomArgument = 0; roomArgument <= 14; roomArgument += 2)
-        {
-            DownwardGateShotBlockDefinition definition =
-                DownwardGateShotBlockDefinitions.Resolve(roomArgument);
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.InstructionListTableAddress + roomArgument),
-                definition.InstructionList,
-                $"gate row ${roomArgument:X2} instruction list matches the cartridge");
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.LeftBlockWordTableAddress + roomArgument),
-                definition.LeftBlockWord,
-                $"gate row ${roomArgument:X2} left block matches the cartridge");
-            AssertEqual(
-                ReadWord(rom, DownwardGateShotBlockDefinitions.RightBlockWordTableAddress + roomArgument),
-                definition.RightBlockWord,
-                $"gate row ${roomArgument:X2} right block matches the cartridge");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => DownwardGateShotBlockDefinitions.Resolve(1),
-            "odd downward-gate table offsets fail loudly");
-        AssertThrows<InvalidDataException>(
-            () => DownwardGateShotBlockDefinitions.Resolve(16),
-            "out-of-range downward-gate table offsets fail loudly");
+        VerifyDownwardGateListSelection(rom);
+        VerifyDownwardGateLeftSelection(rom);
+        VerifyDownwardGateRightSelection(rom);
 
         // The synthetic address space intentionally omits all three source tables. Running
         // every row through production setup proves room loading no longer reads them.
@@ -73,92 +49,46 @@ internal static partial class Program
 
     private static void VerifyDownwardGateHeaderDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        foreach (ushort header in new ushort[]
-                 { RoomPlmHeaders.DownwardGate, RoomPlmHeaders.DownwardGateShotBlock })
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate header oracle revision");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            AssertTrue(DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
-                    header, out ushort compiled),
-                $"gate header $84:{header:X4} has a compiled initial list");
-            ushort address = checked((ushort)(header + 2));
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled,
-                $"gate header $84:{header:X4} first instruction matches ROM");
+            ushort header = (ushort)raw;
+            bool owned = raw is 0xc82a or 0xc836;
+            AssertEqual(owned, DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(header, out ushort actual),
+                "Gate complete header selector domain");
+            if (!owned) AssertEqual((ushort)0, actual, "Gate missing header output");
+            else
+            {
+                int source = raw == 0xc82a ? 0x84c82c : 0x84c838;
+                ushort expected = ReadSamusEaterPlmWord(rom, source);
+                AssertEqual(expected, actual, "Gate original first instruction");
+                AssertEqual(expected, RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
+                    "Gate compiled-population first instruction");
+            }
         }
-        AssertTrue(!DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
-                RoomPlmHeaders.ElevatorPlatform, out _),
-            "gate header catalog does not claim unrelated room objects");
     }
 
     private static void VerifyDownwardGateDrawDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        int count = 0;
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DownwardGatePlmDrawDefinitions.All)
-        {
-            int cursor = list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                ushort directionAndCount = unchecked((ushort)(
-                    rom.ReadByte(0x840000 | cursor) |
-                    rom.ReadByte(0x840000 | (cursor + 1)) << 8));
-                AssertEqual(run.DirectionAndCount, directionAndCount,
-                    $"gate draw ${list.Pointer:X4} direction/count matches ROM");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8));
-                    AssertEqual(word, native,
-                        $"gate draw ${list.Pointer:X4} physical level word matches ROM");
-                    cursor += 2;
-                }
-
-                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor++),
-                    $"gate draw ${list.Pointer:X4} next X matches ROM");
-                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor++),
-                    $"gate draw ${list.Pointer:X4} next Y matches ROM");
-            }
-
-            count++;
-        }
-        AssertEqual(14, count, "all six resident and eight shot-trigger gate draws are compiled");
-        AssertTrue(!DownwardGatePlmDrawDefinitions.TryGet(0xa518, out _),
-            "adjacent payload bytes cannot alias a complete gate draw list");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate draw oracle revision");
+        VerifyDownwardGateDrawGeometry(rom);
+        VerifyDownwardGateDrawCollision(rom);
+        VerifyDownwardGateDrawVisuals(rom);
     }
 
     private static void VerifyDownwardGateProgramDefinitions()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        int wordCount = 0;
-        foreach ((ushort address, ushort compiled) in
-                 DownwardGatePlmProgramDefinitions.MechanicsWords)
-        {
-            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8));
-            AssertEqual(native, compiled,
-                $"downward-gate program word $84:{address:X4} matches ROM");
-            wordCount++;
-        }
-        AssertEqual(62, wordCount,
-            "resident and eight trigger gate streams have all compiled words");
-
-        int byteCount = 0;
-        foreach ((ushort address, byte compiled) in
-                 DownwardGatePlmProgramDefinitions.MechanicsBytes)
-        {
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"downward-gate sound byte $84:{address:X4} matches ROM");
-            byteCount++;
-        }
-        AssertEqual(2, byteCount, "both resident gate sound operands are compiled");
-        AssertTrue(!DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(0xbc61, out _),
-            "adjacent non-gate list bytes are not claimed");
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate program oracle revision");
+        VerifyDownwardGateProgramControls(rom);
+        VerifyDownwardGateProgramDraws(rom);
+        VerifyDownwardGateProgramOperands(rom);
+        VerifyDownwardGateProgramSounds(rom);
     }
 
     private static void VerifyDownwardGateSetupAndProjectile()
@@ -330,13 +260,15 @@ internal static partial class Program
         const byte gateY = 2;
         const int roomWidth = 16;
         ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
-        bus.WriteBytes(0x8f0000 | populationPointer, [
-            0x2a, 0xc8, gateX, gateY, 0x00, 0x00,
-            0x36, 0xc8, gateX, gateY, unchecked((byte)argument), 0x00,
-            0x00, 0x00,
+        // Supply imported placements directly. Cartridge header reads belong to import;
+        // the guard below prohibits them only while the production runtime sets up slots.
+        var population = new RoomPlmPopulationDefinition(populationPointer,
+        [
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGate),
+                gateX, gateY, 0),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGateShotBlock),
+                gateX, gateY, argument),
         ]);
-        // Gate header first-list words are intentionally absent; the population
-        // allocator must use the compiled definitions before gate setup/dispatch.
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
         SeedDownwardGateProjectileRom(bus);
 
@@ -359,7 +291,7 @@ internal static partial class Program
             level,
             streamer,
             new SnesVram(),
-            RoomPlmPopulationImporter.Read(new DownwardGateHeaderReadGuard(bus), populationPointer),
+            population,
             new Bank80SystemState(),
             AreaId.Brinstar,
             getSamus: () => null,
@@ -368,9 +300,9 @@ internal static partial class Program
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
 
         public byte ReadByte(int address)
         {

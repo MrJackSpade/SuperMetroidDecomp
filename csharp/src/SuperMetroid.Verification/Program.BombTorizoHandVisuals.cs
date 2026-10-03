@@ -26,14 +26,9 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(
                 installation.RoomPlmBombTorizoHandVisualDirectory);
-            AssertEqual((ushort)0x0065,
-                installation.LoadRoomPlmBombTorizoHandVisuals().GetWord(
-                    BombTorizoHandPlmDrawDefinitions.Intact, 0, 0),
-                "stock hand visual matches the native first block");
-            AssertThrows<InvalidDataException>(
-                () => new RoomPlmBombTorizoHandVisualCatalog(
-                    [new RoomPlmBombTorizoHandVisualEntry("intact", new ushort[8])]),
-                "hand catalog rejects a missing cleared frame");
+            AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand stock oracle revision");
+            VerifyBombTorizoHandStockMapping(rom, installation.LoadRoomPlmBombTorizoHandVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmBombTorizoHandVisualDirectory,

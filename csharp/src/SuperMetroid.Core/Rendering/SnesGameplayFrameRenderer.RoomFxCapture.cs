@@ -43,8 +43,8 @@ public static partial class SnesGameplayFrameRenderer
         {
             ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.VerticalScroll;
             int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
-                ? RoomFxRomData.Water.WaveDisplacements[(y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
-                    RoomFxRomData.Water.WaveDisplacementCount) % RoomFxRomData.Water.WaveDisplacementCount] : 0;
+                ? RoomFxRomData.Water.WaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
+                    RoomFxRomData.Water.WaveDisplacementCount) % RoomFxRomData.Water.WaveDisplacementCount) : 0;
             scrolls[y] = new(unchecked((ushort)(fx.HorizontalScroll + wave)), vertical);
         }
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is

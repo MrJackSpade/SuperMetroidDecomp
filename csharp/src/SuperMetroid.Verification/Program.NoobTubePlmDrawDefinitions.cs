@@ -9,8 +9,9 @@ internal static partial class Program
 {
     private static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        VerifyTubeGeometry(rom);
+        VerifyTubeCollision(rom);
+        VerifyTubeVisuals(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             NoobTubePlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -34,39 +35,12 @@ internal static partial class Program
         cleared.Blocks[24] = originalWord;
         AssertEqual(7, lists.Length,
             "n00b-tube program selects seven distinct physical draw lists");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            int cursor = 0x840000 | list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                AssertEqual(run.DirectionAndCount, ReadWord(rom, cursor),
-                    $"n00b-tube draw ${list.Pointer:X4} direction/count at ${cursor:X6}");
-                for (int block = 0; block < run.LevelWords.Length; block++)
-                    AssertEqual(run.LevelWords.Span[block],
-                        ReadWord(rom, cursor + 2 + block * 2),
-                        $"n00b-tube draw ${list.Pointer:X4} physical block {block}");
-                ushort offset = (ushort)((byte)run.NextX | ((byte)run.NextY << 8));
-                AssertEqual(offset,
-                    ReadWord(rom, cursor + 2 + run.LevelWords.Length * 2),
-                    $"n00b-tube draw ${list.Pointer:X4} signed next-run offset");
-                cursor += 4 + run.LevelWords.Length * 2;
-            }
-        }
-
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x98e3 ? edited : null);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmNoobTubeVisualCatalog(entries.Skip(1)),
-            "n00b-tube catalog rejects missing frames");
-        cleared.Blocks[24] = 0xf059;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmNoobTubeVisualCatalog(entries),
-            "n00b-tube catalog rejects collision bits in visual words");
-        cleared.Blocks[24] = originalWord;
         VerifyNoobTubeVisualInstallation(rom);
         Console.WriteLine(
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -165,6 +139,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmNoobTubeVisualFiles.ValidateStock(
                 installation.RoomPlmNoobTubeVisualDirectory);
+            VerifyNoobTubeStockMapping(rom, installation.LoadRoomPlmNoobTubeVisuals());
             string stockPath = Path.Combine(
                 installation.RoomPlmNoobTubeVisualDirectory,
                 RoomPlmNoobTubeVisualFiles.VisualFileName);

@@ -17,30 +17,34 @@ internal static class KraidLintInstructionProgramDefinitions
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
     internal const ushort PostGrowth = 0x8b04;
 
-    /// <summary>The first adjacent Kraid foot program at $A7:8B0A.</summary>
+    /// <summary>The first adjacent Kraid fingernail program at $A7:8B0A.</summary>
     internal const ushort FirstAdjacentFootProgram = 0x8b0a;
 
-    private static readonly KraidLintInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x7fff),
-        new(0x8b02, CommonEnemyInstructionCodes.Sleep),
-        new(PostGrowth, 0x7fff),
-        new(0x8b08, CommonEnemyInstructionCodes.Sleep),
-    ];
+    internal const int MechanicsWordCount = 4;
+    internal const int PresentationWordCount = 2;
 
-    private static readonly ushort[] PresentationWords = [0x8b00, 0x8b06];
+    /// <summary>Two six-byte poses each contain duration, visual operand and Sleep.
+    /// Mechanics ordinals alternate between the duration and terminal instruction.</summary>
+    internal static KraidLintInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool sleep = (index & 1) != 0;
+        return new((ushort)(Initial + 6 * (index / 2) + (sleep ? 4 : 0)),
+            sleep ? CommonEnemyInstructionCodes.Sleep : (ushort)0x7fff);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KraidLintInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    /// <summary>The visual operand lies two bytes into each six-byte pose.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Initial + 6 * index + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -53,9 +57,9 @@ internal static class KraidLintInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

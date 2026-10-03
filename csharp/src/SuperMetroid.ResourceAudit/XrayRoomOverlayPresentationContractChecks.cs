@@ -14,7 +14,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         try { _ = new XrayOverlayVisualCatalog(new ushort[8], []); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject missing required room overlays");
-        ushort first = XrayRoomOverlaySourceDefinitions.All[0];
+        ushort first = XrayRoomOverlaySourceDefinitions.All.First();
         XrayRoomOverlayVisual[] tiles = [new(1, 2, 3)];
         var rooms = XrayRoomOverlaySourceDefinitions.All.Select(pointer =>
             (pointer, (IReadOnlyList<XrayRoomOverlayVisual>)tiles)).ToArray();

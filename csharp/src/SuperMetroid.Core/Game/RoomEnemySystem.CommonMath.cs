@@ -122,7 +122,7 @@ public sealed partial class RoomEnemySystem
     private static int ReadEightBitSineProduct(ushort angle, ushort radius)
     {
         int byteAngle = angle & 0xff;
-        int sample = EnemyTrigonometryTables.EightBitHalfWave[byteAngle & 0x7f];
+        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
         int magnitude = sample * (radius & 0xff) >> 8;
         return byteAngle < 0x80 ? magnitude : -magnitude;
     }
@@ -149,7 +149,7 @@ public sealed partial class RoomEnemySystem
         ushort radius)
     {
         int byteAngle = angle & 0xff;
-        int sample = EnemyTrigonometryTables.EightBitHalfWave[byteAngle & 0x7f];
+        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
         ushort product = unchecked((ushort)(sample * (radius & 0xff)));
         ushort whole = unchecked((ushort)(product >> 8));
         ushort fraction = unchecked((ushort)(product << 8));
@@ -182,7 +182,7 @@ public sealed partial class RoomEnemySystem
     /// $A0:B643. The routine reads a 16-bit unsigned quarter-circle sample, multiplies it
     /// by an unsigned 16-bit magnitude, and returns the complete 16.16 product. Callers
     /// supply either $40 (absolute cosine) or $80 (absolute sine) as the angle offset.
-    /// Keeping this table-backed avoids host floating-point rounding and makes the raw
+    /// Keeping sample generation deterministic avoids host floating-point rounding and makes the raw
     /// velocity words directly comparable with the SNES multiplication result.
     /// </summary>
     private static int ReadUnsignedSineMagnitudeProduct(
@@ -191,7 +191,7 @@ public sealed partial class RoomEnemySystem
         ushort angleOffset)
     {
         int tableIndex = unchecked((ushort)(angle + angleOffset)) & 0x007f;
-        ushort sample = EnemyTrigonometryTables.UnsignedHalfWave[tableIndex];
+        ushort sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
         uint product = (uint)sample * magnitude;
         return unchecked((int)product);
     }

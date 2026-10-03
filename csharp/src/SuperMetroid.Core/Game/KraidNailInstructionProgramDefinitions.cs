@@ -7,7 +7,7 @@ internal readonly record struct KraidNailInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing and loop control for Kraid's two reusable fingernail actors.
-/// The eight interleaved spritemap operands remain live cartridge presentation data.
+/// The eight interleaved spritemap operands select compiled presentation identities.
 /// </summary>
 internal static class KraidNailInstructionProgramDefinitions
 {
@@ -16,35 +16,38 @@ internal static class KraidNailInstructionProgramDefinitions
     /// <summary>First adjacent unused extended-spritemap record at $A7:8B2E.</summary>
     internal const ushort AdjacentPresentationData = 0x8b2e;
 
-    private static readonly KraidNailInstructionMechanicsWord[] Words =
-    [
-        new(0x8b0a, 3),
-        new(0x8b0e, 3),
-        new(0x8b12, 3),
-        new(0x8b16, 3),
-        new(0x8b1a, 3),
-        new(0x8b1e, 3),
-        new(0x8b22, 3),
-        new(0x8b26, 3),
-        new(0x8b2a, CommonEnemyInstructionCodes.Goto),
-        new(0x8b2c, Loop),
-    ];
+    internal const int PresentationWordCount = 8;
+    internal const int MechanicsWordCount = PresentationWordCount + 2;
 
-    private static readonly ushort[] PresentationWords =
-        [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
+    /// <summary>Eight four-byte frames last three ticks each, followed by Goto
+    /// and its loop target. Only exact duration/control starts are mechanics words.</summary>
+    internal static KraidNailInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return index < PresentationWordCount
+            ? new((ushort)(Loop + 4 * index), 3)
+            : new((ushort)(Loop + 4 * PresentationWordCount + 2 * (index - PresentationWordCount)),
+                index == PresentationWordCount ? CommonEnemyInstructionCodes.Goto : Loop);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KraidNailInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Each frame's visual operand is two bytes after its duration.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Loop + 4 * index + 2);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Loop + 2);
+        return (uint)offset < 4 * PresentationWordCount && offset % 4 == 0;
+    }
 
-    /// <summary>Returns fixed fingernail control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -57,9 +60,9 @@ internal static class KraidNailInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

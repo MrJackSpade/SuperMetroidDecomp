@@ -9,8 +9,10 @@ internal static partial class Program
 {
     private static void VerifySporeSpawnCeilingVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling stock oracle revision");
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "spore-ceiling-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
@@ -26,21 +28,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
                 installation.RoomPlmSporeSpawnCeilingVisualDirectory);
-            RoomPlmSporeSpawnCeilingVisualCatalog stock =
-                installation.LoadRoomPlmSporeSpawnCeilingVisuals();
-            AssertEqual((ushort)0x0053,
-                stock.GetWord(SporeSpawnCeilingPlmDrawDefinitions.CrumbleFirstPointer,
-                    0, 0),
-                "stock Spore Spawn first crumble block matches ROM");
-            AssertEqual((ushort)0x00ff,
-                stock.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
-                    1, 1),
-                "stock Spore Spawn bottom-right clear block matches ROM");
-            AssertThrows<InvalidDataException>(
-                () => new RoomPlmSporeSpawnCeilingVisualCatalog(
-                    [new RoomPlmSporeSpawnCeilingVisualEntry(
-                        "crumble-frame-0", new ushort[4])]),
-                "Spore Spawn visual catalog rejects missing frames");
+            VerifySporeSpawnCeilingStockMapping(rom, installation.LoadRoomPlmSporeSpawnCeilingVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmSporeSpawnCeilingVisualDirectory,
@@ -100,6 +88,64 @@ internal static partial class Program
         }
         Console.WriteLine(
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");
+    }
+
+    private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
+        RoomPlmSporeSpawnCeilingVisualCatalog installed)
+    {
+        (ushort Pointer, string Id)[] frames = [(0x9413,"clear-ceiling"), (0x9423,"crumble-frame-0"),
+            (0x9433,"crumble-frame-1"), (0x9443,"crumble-frame-2")];
+        var native = new Dictionary<ushort, ushort[]>();
+        foreach (var frame in frames)
+        {
+            var words = new ushort[4];
+            for (int index = 0; index < words.Length; index++)
+                words[index] = (ushort)(ReadSamusEaterPlmWord(rom,
+                    0x840000 | (frame.Pointer + index / 2 * 8 + index % 2 * 2 + 2)) & 0xfff);
+            native.Add(frame.Pointer, words);
+        }
+        var entries = frames.Select(frame => new RoomPlmSporeSpawnCeilingVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var stock = RoomPlmSporeSpawnCeilingVisualCatalog.Stock();
+        var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
+        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+            nameof(RoomPlmSporeSpawnCeilingVisualCatalog), words);
+        foreach (var catalog in new[] {stock, imported, installed})
+        {
+            AssertEqual(Hash(native), catalog.ContentIdentity, "Spore ceiling original flattened hash");
+            foreach (var frame in frames)
+            {
+                for (int index = 0; index < 4; index++)
+                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(frame.Pointer,index / 2,index % 2), "Spore ceiling native stock word");
+                foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
+                {
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Spore ceiling run bounds");
+                    for (int run = 0; run < 2; run++)
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Spore ceiling block bounds");
+                }
+            }
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            if (!native.ContainsKey((ushort)pointer))
+                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Spore ceiling unknown pointer");
+        entries[0].Blocks[3] = 0x0c58;
+        entries[2].Blocks[0] = 0x0059;
+        var mixed = new RoomPlmSporeSpawnCeilingVisualCatalog(entries);
+        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
+        AssertEqual(Hash(expected), mixed.ContentIdentity, "Spore ceiling mixed custom stock hash");
+        entries[0].Blocks[3] = 0x005a;
+        entries[1].Blocks[0] = 0x005b;
+        foreach (var frame in frames)
+        for (int index = 0; index < 4; index++)
+            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(frame.Pointer,index / 2,index % 2), "Spore ceiling clone isolation and stock fallback");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries[..3]), "Spore ceiling missing frame");
+        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Append(entries[0])), "Spore ceiling duplicate frame");
+        var invalid = entries.ToArray();
+        invalid[0] = new("CLEAR-CEILING", entries[0].Blocks);
+        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(invalid), "Spore ceiling ordinal identity");
+        invalid[0] = new(entries[0].Id, new ushort[3]);
+        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(invalid), "Spore ceiling exact frame shape");
+        entries[0].Blocks[0] = 0xf058;
+        AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries), "Spore ceiling visual bits only");
     }
 
     private static void VerifySporeSpawnCeilingVisualSeparation(

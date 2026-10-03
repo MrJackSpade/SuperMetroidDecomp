@@ -21,6 +21,9 @@ internal static partial class Program
                 RoomPaletteFxDefinitions.TourianDefinitionsBegin,
                 RoomPaletteFxDefinitions.TourianDefinitionsEnd),
         ];
+        VerifyPaletteFxDispatchDomain();
+        VerifyPaletteFxSetupSelection(rom);
+        VerifyPaletteFxInitialListSelection(rom);
         AssertEqual(63, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
@@ -33,10 +36,6 @@ internal static partial class Program
                 forbidden.Add(address + index);
 
             RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
-            AssertEqual(Word(address), definition.SetupCallback,
-                $"palette-FX ${pointer:X4} setup callback");
-            AssertEqual(Word(address + 2), definition.InitialInstructionList,
-                $"palette-FX ${pointer:X4} initial list");
             if (definition.InitialInstructionList ==
                 HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer)
             {
@@ -57,52 +56,25 @@ internal static partial class Program
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
 
-        ReadOnlySpan<ushort> areaLists = RoomPaletteFxDefinitions.NativeAreaListPointers;
-        AssertEqual(RoomPaletteFxDefinitions.AreaCount, areaLists.Length,
-            "palette-FX area-list count");
+        VerifyPaletteFxAreaListPointers(rom);
+        VerifyPaletteFxAreaSelections(rom);
         for (int area = 0; area < RoomPaletteFxDefinitions.AreaCount; area++)
         {
             int pointerAddress = RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + area * 2;
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             ushort nativeList = Word(pointerAddress);
-            AssertEqual(nativeList, areaLists[area], $"area {area} native palette-FX list identity");
             for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
             {
                 int entryAddress = RoomFxRomData.Banks.RoomDefinitions |
                     unchecked((ushort)(nativeList + bit * 2));
                 forbidden.Add(entryAddress);
                 forbidden.Add(entryAddress + 1);
-                AssertEqual(
-                    Word(entryAddress),
-                    RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
-                    $"area {area} palette-FX bit {bit}");
             }
         }
 
         var guardedRom = new RoomPaletteFxDefinitionReadGuard(rom, forbidden);
-        foreach (ushort pointer in pointers)
-        {
-            RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
-            var system = new RoomPaletteFxSystem();
-            system.SpawnDefinition(guardedRom, pointer, equippedItems: 0);
-            object slot = ActivePaletteFxSlot(system);
-            AssertEqual(pointer, PaletteFxSlotWord(slot, "Id"), $"${pointer:X4} production ID");
-            AssertEqual((ushort)1, PaletteFxSlotWord(slot, "InstructionTimer"),
-                $"${pointer:X4} production timer");
-            AssertEqual(
-                definition.SetupCallback == PaletteFxSetupCodes.Intro
-                    ? PaletteFxPreInstructionCodes.Intro
-                    : PaletteFxPreInstructionCodes.Null,
-                PaletteFxSlotWord(slot, "PreInstruction"),
-                $"${pointer:X4} production pre-instruction");
-            AssertEqual(
-                definition.SetupCallback == PaletteFxSetupCodes.Norfair
-                    ? PaletteFxInstructionListPointers.NorfairPowerSuit
-                    : definition.InitialInstructionList,
-                PaletteFxSlotWord(slot, "InstructionPointer"),
-                $"${pointer:X4} production initial list");
-        }
+        VerifyPaletteFxDispatchSpawns(guardedRom, pointers);
 
         const ushort fxPointer = 0x9000;
         for (int area = 0; area < AreaIds.RetailCount; area++)
@@ -154,6 +126,33 @@ internal static partial class Program
             "64 area selections, every production spawn, all retail room-load selections, " +
             "62 compiled generic program entries, and the specialized Hyper Beam owner pass " +
             "with fixed metadata reads forbidden.");
+    }
+
+    private static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
+    {
+        foreach (ushort pointer in pointers)
+        {
+            RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
+            var system = new RoomPaletteFxSystem();
+            system.SpawnDefinition(guardedRom, pointer, equippedItems: 0);
+            object slot = ActivePaletteFxSlot(system);
+            AssertEqual(pointer, PaletteFxSlotWord(slot, "Id"), $"${pointer:X4} production ID");
+            AssertEqual((ushort)1, PaletteFxSlotWord(slot, "InstructionTimer"),
+                $"${pointer:X4} production timer");
+            AssertEqual(
+                definition.SetupCallback == PaletteFxSetupCodes.Intro
+                    ? PaletteFxPreInstructionCodes.Intro
+                    : PaletteFxPreInstructionCodes.Null,
+                PaletteFxSlotWord(slot, "PreInstruction"),
+                $"${pointer:X4} production pre-instruction");
+            AssertEqual(
+                definition.SetupCallback == PaletteFxSetupCodes.Norfair
+                    ? PaletteFxInstructionListPointers.NorfairPowerSuit
+                    : definition.InitialInstructionList,
+                PaletteFxSlotWord(slot, "InstructionPointer"),
+                $"${pointer:X4} production initial list");
+        }
+
     }
 
     private static IEnumerable<ushort> DefinitionRange(ushort first, ushort last)

@@ -1,56 +1,127 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Cartridge-authored bank-$84 instruction data for Mother Brain's glass. This is
-/// control flow and draw-list selection, not the eleven physical draw payloads or
-/// the neighboring $D2F9/$D30B callback machine code.
+/// NTSC bank-$84 glass control program. Nine stages wait for successive even hit
+/// counts; five transitions emit two four-shard bursts around a four-tick draw.
+/// Named draw and branch cases express glass damage states, not stored ROM bytes.
+/// All 247 bytes and 246 overlapping word starts at D202..D2F8 remain supported.
 /// </summary>
 internal static class MotherBrainGlassPlmProgramDefinitions
 {
-    /// <summary>Start of the glass PLM's main instruction list at $84:D202.</summary>
+    /// <summary>$84:D202: main glass instruction list.</summary>
     internal const ushort FirstAddress = 0xd202;
-    /// <summary>Last byte of the no-glass branch at $84:D2F8.</summary>
+    /// <summary>$84:D2F8: last byte of the no-glass branch, before callback code.</summary>
     internal const ushort LastAddress = 0xd2f8;
-
-    private static readonly byte[] Program = Convert.FromHexString(
-        "0E8801EDD22D880200F3D2C186E6D101" +
-        "001797F9D2020011D201001D97F9D204" +
-        "001BD201003197F9D2060025D20BD300" +
-        "00000000000000040045970BD3000000" +
-        "000000000001004597F9D2080047D201" +
-        "004F97F9D20A0051D201006997F9D20C" +
-        "005BD20BD30200020002000200040081" +
-        "970BD3020002000200020001008197F9" +
-        "D20E007DD20BD3000000000200020004" +
-        "008F970BD3040004000400040001008F" +
-        "97F9D210009FD20BD302000200040004" +
-        "000400B7970BD3020002000400040001" +
-        "00B797F9D21200C1D20BD30200020004" +
-        "0004000400E7970BD302000200040004" +
-        "003000E7973E880200BC8601001798BC" +
-        "860100E797BC86");
+    /// <summary>$84:D1E6: increment the glass PLM room argument on a missile hit.</summary>
+    internal const ushort HitPreInstruction = 0xd1e6;
+    /// <summary>$84:D2ED: boss-dead branch selects cleared glass.</summary>
+    private const ushort BossDead = 0xd2ed;
+    /// <summary>$84:D2F3: persisted glass-destroyed branch selects final shatter.</summary>
+    private const ushort NoGlass = 0xd2f3;
+    /// <summary>$84:D211: first one-tick glass damage stage.</summary>
+    private const ushort Stages = 0xd211;
+    /// <summary>$86:CE61 shard placement: argument zero selects X offset +8.</summary>
+    private const ushort RightShard = 0;
+    /// <summary>$86:CE63 shard placement: argument two selects X offset -40.</summary>
+    private const ushort LeftShard = 2;
+    /// <summary>$86:CE65 shard placement: argument four selects X offset -16.</summary>
+    private const ushort CentreShard = 4;
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length - 1)
-        {
-            value = (ushort)(Program[offset] | Program[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (address < FirstAddress || address >= LastAddress) return false;
+        value = (ushort)(ByteAt(address) | ByteAt(address + 1) << 8);
+        return true;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        int offset = address - FirstAddress;
-        if ((uint)offset < Program.Length)
-        {
-            value = Program[offset];
-            return true;
-        }
         value = 0;
-        return false;
+        if (address < FirstAddress || address > LastAddress) return false;
+        value = ByteAt(address);
+        return true;
     }
+
+    private static byte ByteAt(int address)
+    {
+        if (address == FirstAddress + 2) return 1; // Area's primary boss bit.
+        int start = address < FirstAddress + 2 ? FirstAddress + ((address - FirstAddress) & ~1) :
+            FirstAddress + 3 + ((address - FirstAddress - 3) & ~1);
+        return (byte)(WordAt(start) >> ((address - start) * 8));
+    }
+
+    private static ushort WordAt(int address)
+    {
+        if (address < Stages)
+            return address switch
+            {
+                FirstAddress => RoomPlmInstructionCodes.GotoIfAreaBossBitSet,
+                0xd205 => BossDead,
+                0xd207 => RoomPlmInstructionCodes.GotoIfEventSet,
+                0xd209 => (ushort)EventNumber.MotherBrainGlassDestroyed,
+                0xd20b => NoGlass,
+                0xd20d => RoomPlmInstructionCodes.InstallPreInstruction,
+                _ => HitPreInstruction,
+            };
+        if (address >= BossDead)
+            return ((address - BossDead) % 6) switch
+            {
+                0 => 1,
+                2 => address < NoGlass ? MotherBrainGlassPlmDrawDefinitions.Cleared : MotherBrainGlassPlmDrawDefinitions.Shatter3,
+                _ => RoomPlmInstructionCodes.Delete,
+            };
+        int start = Stages;
+        for (int stage = 0; stage < 9; stage++)
+        {
+            bool burst = stage == 2 || stage >= 5;
+            int length = stage == 8 ? 44 : burst ? 34 : 10;
+            if (address >= start + length) { start += length; continue; }
+            int offset = address - start;
+            if (offset is >= 12 and <= 18 or >= 26 and <= 32)
+            {
+                // The first group starts at 12; the second starts at 26.
+                int shard = (offset - (offset < 20 ? 12 : 26)) / 2;
+                return stage switch
+                {
+                    2 => RightShard,
+                    5 => LeftShard,
+                    6 => offset >= 26 ? CentreShard : shard < 2 ? RightShard : LeftShard,
+                    _ => shard < 2 ? LeftShard : CentreShard,
+                };
+            }
+            return offset switch
+            {
+                0 => 1,
+                2 => DrawAt(stage),
+                4 => RoomPlmInstructionCodes.GotoIfRoomArgumentLess,
+                6 => (ushort)(2 * (stage + 1)),
+                8 => (ushort)start,
+                10 or 24 => RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards,
+                20 => 4,
+                22 or 36 => DrawAt(stage + 1),
+                34 => 48,
+                38 => RoomPlmInstructionCodes.SetEvent,
+                40 => (ushort)EventNumber.MotherBrainGlassDestroyed,
+                _ => RoomPlmInstructionCodes.Delete,
+            };
+        }
+        throw new InvalidOperationException("Glass program stage domain is inconsistent.");
+    }
+
+    private static ushort DrawAt(int stage) => stage switch
+    {
+        0 => MotherBrainGlassPlmDrawDefinitions.Initial,
+        1 => MotherBrainGlassPlmDrawDefinitions.PaneDamage1,
+        2 => MotherBrainGlassPlmDrawDefinitions.PaneDamage2,
+        3 => MotherBrainGlassPlmDrawDefinitions.PaneTransition,
+        4 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane1,
+        5 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane2,
+        6 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane3,
+        7 => MotherBrainGlassPlmDrawDefinitions.Shatter1,
+        8 => MotherBrainGlassPlmDrawDefinitions.Shatter2,
+        _ => MotherBrainGlassPlmDrawDefinitions.Shatter3,
+    };
 }

@@ -414,17 +414,17 @@ public sealed partial class RoomEnemySystem
         if (remaining == 0)
         {
             if (((slot.YRadius + slot.YPosition - 1) & 8) == 0)
-                return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0;
+                return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
                  ((slot.YPosition - slot.YRadius) & 8) != 0)
         {
-            return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 2] & 0x80) != 0;
+            return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
         }
 
-        if ((SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0)
+        if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0)
             return true;
-        return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 2] & 0x80) != 0;
+        return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
     }
 
     private static bool SquareVerticalSlopeIsSolid(
@@ -439,17 +439,17 @@ public sealed partial class RoomEnemySystem
         if (remaining == 0)
         {
             if (((slot.XRadius + slot.XPosition - 1) & 8) == 0)
-                return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0;
+                return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
                  ((slot.XPosition - slot.XRadius) & 8) != 0)
         {
-            return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 1] & 0x80) != 0;
+            return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
         }
 
-        if ((SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0)
+        if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0)
             return true;
-        return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 1] & 0x80) != 0;
+        return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
     }
 
     private bool NonSquareVerticalSlopeIsSolid(

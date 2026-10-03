@@ -5,16 +5,6 @@ internal static partial class CompiledEnemyVisualSelectors
 {
     private static CompiledEnemyVisualSelector[] BankA2 =>
     [
-        new(0xA286AD, 0x88DA),
-        new(0xA286B1, 0x88E1),
-        new(0xA286B5, 0x88E8),
-        new(0xA286B9, 0x88E1),
-        new(0xA286C5, 0x88EF),
-        new(0xA286C9, 0x88F6),
-        new(0xA286CD, 0x88FD),
-        new(0xA286D1, 0x8904),
-        new(0xA286D5, 0x88FD),
-        new(0xA286D9, 0x88F6),
         new(0xA28936, 0x8ACA),
         new(0xA2893A, 0x8AD6),
         new(0xA2893E, 0x8AE7),
@@ -417,14 +407,5 @@ internal static partial class CompiledEnemyVisualSelectors
         new(0xA2E5E1, 0xE940),
         new(0xA2E5E5, 0xE916),
         new(0xA2E5E9, 0xE8EC),
-        new(0xA2E99A, 0xED44),
-        new(0xA2E9A0, 0xED57),
-        new(0xA2E9A6, 0xED74),
-        new(0xA2E9AC, 0xED9B),
-        new(0xA2E9D6, 0xEDB1),
-        new(0xA2EDE9, 0xF468),
-        new(0xA2EDED, 0xF474),
-        new(0xA2EDF1, 0xF480),
-        new(0xA2EDF5, 0xF48C),
     ];
 }

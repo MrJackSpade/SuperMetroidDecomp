@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom)
+    private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var shared = typeof(RoomEnemySystem).GetMethod("ReadLinearEnemySpeed",
@@ -23,6 +23,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(-1), "negative linear offset");
         AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(517), "partial linear pair");
         AssertThrows<InvalidDataException>(() => shared(ushort.MaxValue), "unclassified linear overread");
+
+        if (definitionsOnly) return;
 
         var enemies = new RoomEnemySystem();
         // Only family-specific distance/timer data can be read. No speed bytes

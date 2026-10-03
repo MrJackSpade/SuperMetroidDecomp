@@ -34,6 +34,13 @@ internal static partial class Program
                 EnemyVisualProgramAuditChecks.Run();
                 return 0;
             }
+            if (args is ["--room-source-contract-check"])
+            {
+                RoomLayoutPresentationContractChecks.Run();
+                XrayRoomOverlayPresentationContractChecks.Run();
+                Console.WriteLine("Derived room-layout and X-ray source admission contracts passed.");
+                return 0;
+            }
             if (args is ["--plm-program-self-check"])
             {
                 PlmProgramContractChecks.Run();
@@ -43,6 +50,19 @@ internal static partial class Program
             {
                 EnemyTileArtworkPresentationContractChecks.Run();
                 Console.WriteLine("Enemy artwork admission/resolver static contracts passed.");
+                return 0;
+            }
+            if (args is ["--bg2-catalog-contract-check"])
+            {
+                BackgroundTransferPresentationContractChecks.Run(bg2Only: true);
+                Console.WriteLine("Generated BG2 catalog source contracts and stale-source revocation passed.");
+                return 0;
+            }
+            if (args is ["--extended-display-contract-check"])
+            {
+                EnemyDisplayArtworkContractChecks.Run();
+                NativeDisplaySelectorContractChecks.Run();
+                Console.WriteLine("Extended display admission, generated-source guards and selector projection contracts passed.");
                 return 0;
             }
             if (args is ["--vram-dma-self-check"])
@@ -111,6 +131,7 @@ internal static partial class Program
                         "--door-catalog-audit REPOSITORY REPORT_JSON | --door-catalog-self-check REPOSITORY | " +
                         "--door-catalog-manifest DISASSEMBLY ROM OUTPUT_JSON | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
+                        "--bg2-catalog-contract-check | --extended-display-contract-check | " +
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +

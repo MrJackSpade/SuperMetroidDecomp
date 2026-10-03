@@ -6,6 +6,9 @@ internal static partial class Program
 {
     private static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyGunshipBrakeAlgorithm(rom);
+        VerifyGunshipHoverTimerAlgorithm(rom);
+        VerifyGunshipHoverDeltaSelection(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var brakeMethod = typeof(RoomEnemySystem).GetMethod("BouncePostCeresGunship", flags)!;
         var bobMethod = typeof(RoomEnemySystem).GetMethod("StepGunshipBob", flags)!;
@@ -15,8 +18,6 @@ internal static partial class Program
             short expected = unchecked((short)ReadGunshipMotionWord(
                 rom,
                 0xa2a622 + frame * 2));
-            AssertEqual(expected, GunshipMotionDefinitions.LandingBrakeYDelta(frame),
-                $"gunship landing-brake delta {frame}");
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -48,11 +49,6 @@ internal static partial class Program
             int address = 0xa2a7cf + phase * 2;
             byte expectedTimer = rom.ReadByte(address);
             sbyte expectedDelta = unchecked((sbyte)rom.ReadByte(address + 1));
-            GunshipIdleBobDefinition definition = GunshipMotionDefinitions.IdleBob(phase);
-            AssertEqual(expectedTimer, definition.Timer,
-                $"gunship idle-bob timer {phase}");
-            AssertEqual(expectedDelta, definition.YDelta,
-                $"gunship idle-bob delta {phase}");
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -80,17 +76,37 @@ internal static partial class Program
                 $"gunship production bob pad Y {phase}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => GunshipMotionDefinitions.LandingBrakeYDelta(17),
-            "gunship landing-brake schedule rejects a post-table frame");
-        AssertThrows<InvalidDataException>(
-            () => GunshipMotionDefinitions.IdleBob(4),
-            "gunship idle-bob schedule rejects a post-table phase");
-
         Console.WriteLine(
             "Gunship motion definitions: all seventeen brake deltas, four idle-bob records, and both production consumers pass with source reads forbidden.");
     }
 
+    private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (ushort frame = 0; frame < 17; frame++)
+            AssertEqual(unchecked((short)ReadGunshipMotionWord(rom,
+                    GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame)),
+                GunshipMotionDefinitions.LandingBrakeYDelta(frame), $"Original gunship brake {frame}");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(17), "Brake upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
+    }
+
+    private static void VerifyGunshipHoverTimerAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (ushort phase = 0; phase < 4; phase++)
+            AssertEqual(rom.ReadByte(GunshipMotionDefinitions.HoverTimerReferenceAddress + 2 * phase),
+                GunshipMotionDefinitions.IdleBob(phase).Timer, $"Original gunship hover timer {phase}");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover timer upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
+    }
+
+    private static void VerifyGunshipHoverDeltaSelection(SuperMetroidAddressSpace rom)
+    {
+        for (ushort phase = 0; phase < 4; phase++)
+            AssertEqual(unchecked((sbyte)rom.ReadByte(GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),
+                GunshipMotionDefinitions.IdleBob(phase).YDelta, $"Original gunship hover delta {phase}");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover delta upper bound");
+        AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
+    }
     private static ushort ReadGunshipMotionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 

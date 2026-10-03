@@ -12,32 +12,8 @@ internal static partial class Program
     private static void VerifyCrocomireTongueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < CrocomireTongueInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            CrocomireTongueInstructionMechanicsWord definition =
-                CrocomireTongueInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadCrocomireTongueInstructionWord(rom, 0xa40000 | definition.Address),
-                $"Crocomire tongue mechanics word $A4:{definition.Address:X4}");
-        }
-
-        for (int index = 0;
-             index < CrocomireTongueInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                CrocomireTongueInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertThrows<InvalidDataException>(
-                () => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address),
-                $"Crocomire tongue spritemap $A4:{address:X4} is rejected as mechanics");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(0xbe6a),
-            "unused reversed Crocomire tongue list is rejected as mechanics");
+        VerifyCrocomireTongueMechanicsDispatch(rom);
+        VerifyCrocomireTonguePresentationPositions(rom);
 
         _ = ProbeCrocomireTongueInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
@@ -52,6 +28,53 @@ internal static partial class Program
             "presentation data.");
     }
 
+    private static void VerifyCrocomireTongueMechanicsDispatch(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+        [
+            0xbe56, 0xbe5a, 0xbe5e, 0xbe62, 0xbe66, 0xbe68, 0xbf62,
+            0xbf98, 0xbf9c, 0xbfa0, 0xbfa4, 0xbfa8, 0xbfac, 0xbfae,
+        ];
+        AssertEqual(addresses.Length, CrocomireTongueInstructionProgramDefinitions.MechanicsWordCount, "tongue mechanics count");
+        for (int i = 0; i < addresses.Length; i++)
+        {
+            ushort address = addresses[i];
+            var definition = CrocomireTongueInstructionProgramDefinitions.MechanicsWord(i);
+            ushort expected = ReadCrocomireTongueInstructionWord(rom, 0xa40000 | address);
+            AssertEqual(address, definition.Address, "tongue independent mechanics address");
+            AssertEqual(expected, definition.Value, "tongue enumerated native control value");
+            AssertEqual(expected, CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address), "tongue native dispatch value");
+            AssertThrows<InvalidDataException>(() => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address + 1)), "tongue odd word rejected");
+        }
+        // Verify the exact byte classifier domain against the independent original
+        // address set, including holes between programs and presentation operands.
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = Array.Exists(addresses, word => address == word || address == word + 1);
+            AssertEqual(expected, CrocomireTongueInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa40000 | address), "tongue mechanics byte domain");
+        }
+        AssertTrue(!CrocomireTongueInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa5be56), "tongue rejects another bank");
+        foreach (ushort address in new ushort[] { 0, 0xbe54, 0xbe58, 0xbe6a, 0xbf60, 0xbf64, 0xbf96, 0xbf9a, 0xbfb0, 0xffff })
+            AssertThrows<InvalidDataException>(() => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address), "tongue rejects nonmechanics address");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitions.MechanicsWord(-1), "tongue negative mechanics index");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitions.MechanicsWord(14), "tongue mechanics index past end");
+    }
+
+    private static void VerifyCrocomireTonguePresentationPositions(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
+        AssertEqual(addresses.Length, CrocomireTongueInstructionProgramDefinitions.PresentationWordCount, "tongue presentation count");
+        for (int i = 0; i < addresses.Length; i++)
+        {
+            ushort actual = CrocomireTongueInstructionProgramDefinitions.PresentationWordAddress(i);
+            AssertEqual(addresses[i], actual, "tongue independent presentation address");
+            AssertEqual(ReadCrocomireTongueInstructionWord(rom, 0xa40000 | addresses[i]),
+                ReadCrocomireTongueInstructionWord(rom, 0xa40000 | actual), "tongue original presentation operand");
+            AssertThrows<InvalidDataException>(() => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(actual), "tongue presentation is not mechanics");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitions.PresentationWordAddress(-1), "tongue negative presentation index");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitions.PresentationWordAddress(9), "tongue presentation index past end");
+    }
     private static int ProbeCrocomireTongueInstructionMechanicsAllocation()
     {
         int checksum = 0;

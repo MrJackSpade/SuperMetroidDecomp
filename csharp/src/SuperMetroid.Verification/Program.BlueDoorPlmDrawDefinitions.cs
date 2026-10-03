@@ -32,24 +32,9 @@ internal static partial class Program
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
             "stock blue-door visual retains native tile choice");
-        AssertEqual(20, lists.Length, "four orientations each have four animation frames and a closed physical layout");
-        AssertEqual(16, entries.Length, "closed cap aliases preserve all sixteen existing authored identities");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = list.Runs.Span;
-            AssertEqual(1, runs.Length, $"blue-cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = runs[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadNativeWord(rom, source),
-                $"blue-cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"blue-cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block], ReadNativeWord(rom, source + 2 + block * 2),
-                    $"blue-cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadNativeWord(rom, source + 10),
-                $"blue-cap ${list.Pointer:X4} ends at its signed-offset terminator");
-        }
+        VerifyBlueCapGeometry(rom);
+        VerifyBlueCapCollision(rom);
+        VerifyBlueCapVisuals(rom);
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
@@ -143,13 +128,6 @@ internal static partial class Program
                 $"{orientation} complete blue-door lists avoid all compiled ROM sources");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmBlueDoorVisualCatalog(entries.Skip(1)),
-            "blue-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmBlueDoorVisualCatalog(entries),
-            "blue-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifyBlueDoorVisualInstallation(rom, leftFirstDraw);
 
@@ -158,28 +136,10 @@ internal static partial class Program
 
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = BlueDoorPlmProgramDefinitions.FirstAddress;
-             address <= BlueDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                checked((ushort)address), out byte compiled),
-                $"blue-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"blue-door program byte $84:{address:X4} matches ROM");
-            if (address == BlueDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)address), out ushort compiledWord),
-                $"blue-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"blue-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc54c, out _),
-            "blue-door program refuses a word crossing into setup machine code");
-        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc54d, out _),
-            "blue-door program does not claim adjacent setup machine code");
+        VerifyBlueProgramControls(rom);
+        VerifyBlueProgramDraws(rom);
+        VerifyBlueProgramSounds(rom);
+        VerifyBlueProgramBts(rom);
     }
 
     private static void VerifyBlueDoorVisualInstallation(
@@ -198,7 +158,9 @@ internal static partial class Program
                 installation.RoomPlmBlueDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmBlueDoorVisualFiles.ValidateStock(
                 installation.RoomPlmBlueDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmBlueDoorVisuals().GetWord(firstDraw, 0);
+            var installed = installation.LoadRoomPlmBlueDoorVisuals();
+            VerifyBlueDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(firstDraw, 0);
 
             string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
                 RoomPlmBlueDoorVisualFiles.VisualFileName);

@@ -31,46 +31,97 @@ internal static class RoomPlmShotBlockDrawDefinitions
 
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
-    private static readonly ushort[] BreakFrames = [0x0053, 0x0054, 0x0055, 0x00ff];
-    private static readonly Dictionary<ushort, DrawList> Lists = Build();
+    internal const int DrawCount = 19;
+    internal enum Shape { Single, Horizontal, Vertical, Square }
 
-    internal static IEnumerable<DrawList> All => Lists.Values;
-
-    internal static bool TryGet(ushort pointer, out DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
-
-    private static Dictionary<ushort, DrawList> Build()
+    /// <summary>Bounded native draw: four breakup stages per shape at $84:A345-$A3DC,
+    /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
+    /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
+    /// consecutive columns and a 32-index row stride, with native collision links.</summary>
+    internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
     {
-        var lists = new Dictionary<ushort, DrawList>(19);
-        for (int frame = 0; frame < BreakFrames.Length; frame++)
-        {
-            ushort word = BreakFrames[frame];
-            Add(lists, checked((ushort)(SingleFrame0 + frame * 6)),
-                new Run(1, new ushort[] { word }, 0, 0));
-            Add(lists, checked((ushort)(HorizontalFrame0 + frame * 8)),
-                new Run(2, new ushort[] { word, word }, 0, 0));
-            Add(lists, checked((ushort)(VerticalFrame0 + frame * 8)),
-                new Run(0x8002, new ushort[] { word, word }, 0, 0));
-            Add(lists, checked((ushort)(SquareFrame0 + frame * 16)),
-                new Run(2, new ushort[] { word, word }, 0, 1),
-                new Run(2, new ushort[] { word, word }, 0, 0));
-        }
+        internal int RunCount => Layout == Shape.Square ? 2 : 1;
+        internal int WordsPerRun => Layout == Shape.Single ? 1 : 2;
+        internal bool Vertical => Layout == Shape.Vertical;
 
-        // The final draw of a multi-block respawning shot block restores native parent
-        // collision nibbles and child directions, not just its original appearance.
-        Add(lists, RestoreHorizontal,
-            new Run(2, new ushort[] { 0xc096, 0x5097 }, 0, 0));
-        Add(lists, RestoreVertical,
-            new Run(0x8002, new ushort[] { 0xc098, 0xd0b8 }, 0, 0));
-        Add(lists, RestoreSquare,
-            new Run(2, new ushort[] { 0xc099, 0x509a }, 0, 1),
-            new Run(2, new ushort[] { 0xd0b9, 0xd0ba }, 0, 0));
-        return lists;
+        internal ushort WordAt(int run, int block)
+        {
+            if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
+                throw new IndexOutOfRangeException();
+            if (!Restore) return Frame == 3 ? (ushort)0x00ff : (ushort)(0x0053 + Frame);
+            int row = Vertical ? block : run;
+            int column = Vertical ? 0 : block;
+            int tile = Layout switch { Shape.Horizontal => 0x96, Shape.Vertical => 0x98, _ => 0x99 };
+            // Parent is shootable; children link left on the first row and up below.
+            int collision = row == 0 && column == 0 ? 0xc000 : row == 0 ? 0x5000 : 0xd000;
+            return (ushort)(collision | (tile + 32 * row + column));
+        }
     }
 
-    private static void Add(Dictionary<ushort, DrawList> lists, ushort pointer, params Run[] runs)
+    internal static bool TryGet(ushort pointer, out Draw draw)
     {
-        if (!lists.TryAdd(pointer, new DrawList(pointer, runs)))
-            throw new InvalidDataException($"Duplicate compiled shot-block draw list ${pointer:X4}.");
+        if (TryFrames(pointer, SingleFrame0, 6, Shape.Single, out draw) ||
+            TryFrames(pointer, HorizontalFrame0, 8, Shape.Horizontal, out draw) ||
+            TryFrames(pointer, VerticalFrame0, 8, Shape.Vertical, out draw) ||
+            TryFrames(pointer, SquareFrame0, 16, Shape.Square, out draw)) return true;
+        switch (pointer)
+        {
+            case RestoreHorizontal: draw = new(pointer, Shape.Horizontal, 0, true); return true;
+            case RestoreVertical: draw = new(pointer, Shape.Vertical, 0, true); return true;
+            case RestoreSquare: draw = new(pointer, Shape.Square, 0, true); return true;
+            default: draw = default; return false;
+        }
+    }
+
+    private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
+    {
+        int relative = pointer - first;
+        if ((uint)relative < 4 * stride && relative % stride == 0)
+        {
+            draw = new(pointer, shape, relative / stride, false);
+            return true;
+        }
+        draw = default;
+        return false;
+    }
+
+    // Preserve the published interleaved export order; materialize DTOs only for
+    // asset tooling. Runtime uses the calculated draw directly.
+    internal static IEnumerable<Draw> Calculated
+    {
+        get
+        {
+            for (int frame = 0; frame < 4; frame++)
+            {
+                yield return Describe((ushort)(SingleFrame0 + frame * 6));
+                yield return Describe((ushort)(HorizontalFrame0 + frame * 8));
+                yield return Describe((ushort)(VerticalFrame0 + frame * 8));
+                yield return Describe((ushort)(SquareFrame0 + frame * 16));
+            }
+            yield return Describe(RestoreHorizontal);
+            yield return Describe(RestoreVertical);
+            yield return Describe(RestoreSquare);
+        }
+    }
+
+    internal static IEnumerable<DrawList> All => Calculated.Select(Export);
+
+    private static Draw Describe(ushort pointer)
+    {
+        if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
+        return draw;
+    }
+
+    private static DrawList Export(Draw draw)
+    {
+        var runs = new Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordsPerRun];
+            for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
+            runs[run] = new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words,
+                0, (sbyte)(run + 1 < runs.Length ? 1 : 0));
+        }
+        return new(draw.Pointer, runs);
     }
 }

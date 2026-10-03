@@ -17,52 +17,45 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_NamiFuneFireball_Right</c> at $86:DEA6.</summary>
     internal const ushort Right = 0xdea6;
 
-    private static readonly FuneNamiheFireballInstructionMechanicsWord[] Words =
-    [
-        new(0xde96, 0x0005),
-        new(0xde9a, 0x0005),
-        new(0xde9e, 0x0005),
-        new(0xdea2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdea4, Left),
-        new(0xdea6, 0x0005),
-        new(0xdeaa, 0x0005),
-        new(0xdeae, 0x0005),
-        new(0xdeb2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdeb4, Right),
-    ];
+    // Each facing has three five-tick frames followed by a jump to its start.
+    internal static int MechanicsWordCount => 10;
+    internal static int PresentationWordCount => 6;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xde98,
-        0xde9c,
-        0xdea0,
-        0xdea8,
-        0xdeac,
-        0xdeb0,
-    ];
+    internal static FuneNamiheFireballInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int word = index % 5;
+        ushort address = (ushort)(Left + 16 * (index / 5) +
+            (word < 3 ? 4 * word : 12 + 2 * (word - 3)));
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FuneNamiheFireballInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Left + 16 * (index / 3) + 4 * (index % 3) + 2);
+    }
 
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Left + 2);
+        return (uint)offset < 32 && offset % 16 < 12 && offset % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - Left;
+        if ((uint)offset < 32)
         {
-            int middle = low + ((high - low) >> 1);
-            FuneNamiheFireballInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int stage = offset % 16;
+            if (stage < 12 && stage % 4 == 0)
+                return 5;
+            if (stage == 12)
+                return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            if (stage == 14)
+                return (ushort)(address - 14);
         }
-
         throw new InvalidDataException(
             $"Fune/Namihe fireball instruction mechanics pointer $86:{address:X4} " +
             "is not compiled.");
@@ -72,18 +65,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        int offset = unchecked((ushort)address) - Left;
+        return (uint)offset < 32 && (offset % 16 >= 12 || offset % 4 < 2);
     }
 }

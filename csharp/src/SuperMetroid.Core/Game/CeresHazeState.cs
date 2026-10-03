@@ -1,6 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Room-owned $88:DDC7/$DE10-$DECA haze selection and pre-instruction lifecycle.</summary>
+/// <summary>
+/// Room-owned $88:DDC7/$DE10-$DED2 haze selection and direct pre-instruction cases.
+/// Waiting falls through into the first fade-in write ($88:DE27..DE2D); counter16
+/// selects holding without writing. Holding selects fade-out and returns ($88:DE95),
+/// so its first write is on the next call. Fade-in writes counters0..15 before
+/// incrementing; fade-out writes16..1 before decrementing and retains1 at zero.
+/// These mutually exclusive control phases use scalar state, not a sampled timing
+/// table. Immediate viewport loading starts at the completed fade-in state.
+/// </summary>
 public sealed class CeresHazeState
 {
     private enum Phase { Waiting, FadingIn, Holding, FadingOut }

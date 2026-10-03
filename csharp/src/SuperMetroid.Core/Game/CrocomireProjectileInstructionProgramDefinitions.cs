@@ -25,16 +25,15 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
     /// <c>InstList_EnemyProjectile_CrocomireBridgeCrumbling</c> at $86:8FEB.
     /// The pinned NTSC J/U v1.0 ROM has $7FFF here, a live spritemap operand
     /// at $8FED, goto-Y $81AB at $8FEF, and target $8FEB at $8FF1. This
-    /// one-pose loop is retained as three authored control words; an address
-    /// classifier would only restate them. $8FF3 starts the spike-wall list.
+    /// one-pose loop uses a duration, goto opcode and self-target.
+    /// $8FF3 starts the spike-wall list.
     /// </summary>
     internal const ushort BridgeFragment = 0x8feb;
 
     /// <summary>
     /// <c>InstList_EnemyProjectile_CrocomireSpikeWallPieces</c> at $86:8FF3.
     /// The pinned NTSC J/U v1.0 ROM has $7FFF here, a live spritemap operand
-    /// at $8FF5, goto-Y $81AB at $8FF7, and target $8FF3 at $8FF9. Retain
-    /// these three authored control words for the eight spawned fragments;
+    /// at $8FF5, goto-Y $81AB at $8FF7, and target $8FF3 at $8FF9;
     /// the following unused list at $8FFB is outside their one-pose loop.
     /// </summary>
     internal const ushort SpikeWallPiece = 0x8ff3;
@@ -42,112 +41,86 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
     /// <summary>
     /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> at $86:9007.
     /// The five mechanics words at $9007 + 4*i (i=0..4) are exactly four-frame
-    /// durations in the pinned NTSC J/U v1.0 ROM. Retain the authored
-    /// side-effect order: $901B calls drop opcode $9270, $901D is goto-Y
+    /// durations in the pinned NTSC J/U v1.0 ROM. After those frames,
+    /// $901B calls drop opcode $9270, $901D is goto-Y
     /// $81AB, and $901F targets shared delete program $84FC. The physical
     /// $8154 word at $9021 is skipped by that jump, not a sixth frame or
     /// compiled word. Interleaved explosion spritemaps remain live reads.
     /// </summary>
     internal const ushort MouthProjectileShot = 0x9007;
 
-    private static readonly CrocomireProjectileInstructionMechanicsWord[] Words =
-    [
-        new(MouthProjectile, 0x0003),
-        new(0x8fd3, 0x0003),
-        new(0x8fd7, 0x0003),
-        new(0x8fdb, 0x0003),
-        new(0x8fdf, 0x0003),
-        new(0x8fe3, 0x0003),
-        new(0x8fe7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8fe9, MouthProjectile),
-        new(BridgeFragment, 0x7fff),
-        new(0x8fef, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8ff1, BridgeFragment),
-        new(SpikeWallPiece, 0x7fff),
-        new(0x8ff7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8ff9, SpikeWallPiece),
-        new(MouthProjectileShot, 0x0004),
-        new(0x900b, 0x0004),
-        new(0x900f, 0x0004),
-        new(0x9013, 0x0004),
-        new(0x9017, 0x0004),
-        new(0x901b,
-            EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances),
-        new(0x901d, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x901f, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-    ];
+    internal static int MechanicsWordCount => 22;
+    internal static int PresentationWordCount => 13;
 
-    /// <summary>
-    /// Entries 0..5 identify mouth-projectile presentation operands at
-    /// $86:8FD1 + 4*i. In the pinned NTSC J/U v1.0 ROM their stock pointers
-    /// are exactly $802A + $16 * min(i, 6-i) for i=0..5: a four-level pose
-    /// sweep that returns through levels two and one before the loop. These
-    /// operands remain live cartridge reads so installed presentation works.
-    /// Entry 6 is the bridge-fragment operand at $86:8FED: stock pointer
-    /// $8109, followed by goto-Y at $8FEF. Retain this single authored
-    /// spritemap identity as a live read; no indexed formula clarifies it.
-    /// Entry 7 is the spike-wall operand at $86:8FF5: stock pointer $8110,
-    /// followed by goto-Y at $8FF7. Its eight spawned actors all keep this
-    /// separately authored one-pose presentation operand live.
-    /// Entries 8..12 identify shot operands at $86:9009 + 4*i. Their stock
-    /// pointers are $8D9C at i=0 and $8DA3 + $16*(i-1) for i=1..4; the
-    /// first stride is only $0007. $901B starts the drop/delete control.
-    /// These shot operands also remain live presentation reads.
-    /// </summary>
-    private static readonly ushort[] PresentationWords =
-    [
-        0x8fd1, 0x8fd5, 0x8fd9, 0x8fdd, 0x8fe1, 0x8fe5,
-        0x8fed, 0x8ff5,
-        0x9009, 0x900d, 0x9011, 0x9015, 0x9019,
-    ];
+    /// <summary>Enumerates each program's timed frames followed by its control
+    /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
+    internal static CrocomireProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort start = index < 8 ? MouthProjectile : index < 11 ? BridgeFragment
+            : index < 14 ? SpikeWallPiece : MouthProjectileShot;
+        int field = index < 8 ? index : index < 11 ? index - 8
+            : index < 14 ? index - 11 : index - 14;
+        var layout = Layout(start);
+        int offset = field < layout.Frames ? 4 * field
+            : 4 * layout.Frames + 2 * (field - layout.Frames);
+        ushort address = (ushort)(start + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CrocomireProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Spritemap operands are two bytes after each frame duration.
+    /// Enumerate six mouth frames, one bridge frame, one spike frame and five
+    /// shot frames. These are operand positions, not stored artwork identities.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 6 ? MouthProjectile + 2 + 4 * index
+            : index == 6 ? BridgeFragment + 2
+            : index == 7 ? SpikeWallPiece + 2
+            : MouthProjectileShot + 2 + 4 * (index - 8));
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CrocomireProjectile or
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
         RoomEnemyProjectileKind.CrocomireSpikeWallPieces;
 
+    /// <summary>Dispatches timed frames and named control instructions at their
+    /// exact native positions. Adjacent unused programs and sprite operands are
+    /// excluded, including the skipped $86:9021 delete opcode.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            CrocomireProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        var layout = Layout(address);
+        int offset = address - layout.Start;
+        int trailer = 4 * layout.Frames;
+        if (offset >= 0 && offset < trailer && offset % 4 == 0) return layout.Duration;
+        bool shot = layout.Start == MouthProjectileShot;
+        if (offset == trailer)
+            return shot ? EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances
+                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (offset == trailer + 2)
+            return shot ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : layout.Start;
+        if (shot && offset == trailer + 4)
+            return CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         throw new InvalidDataException(
             $"Crocomire projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        var layout = Layout(bankAddress);
+        int offset = bankAddress - layout.Start;
+        int trailer = 4 * layout.Frames;
+        int length = trailer + (layout.Start == MouthProjectileShot ? 6 : 4);
+        return offset >= 0 && offset < length && (offset >= trailer || offset % 4 < 2);
     }
+
+    // Select the preceding program; the caller validates its exact field domain.
+    private static (ushort Start, int Frames, ushort Duration) Layout(ushort address) =>
+        address < BridgeFragment ? (MouthProjectile, 6, (ushort)3)
+        : address < SpikeWallPiece ? (BridgeFragment, 1, (ushort)0x7fff)
+        : address < MouthProjectileShot ? (SpikeWallPiece, 1, (ushort)0x7fff)
+        : (MouthProjectileShot, 5, (ushort)4);
 }

@@ -7,67 +7,13 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = KraidRoomPlmProgramDefinitions
-            .NativeWordAddresses().ToArray();
-        AssertEqual(55, addresses.Length,
-            "Kraid ceiling/spikes own fifty-five instruction words");
-        AssertEqual(addresses.Length, addresses.Distinct().Count(),
-            "Kraid room instruction words do not overlap");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"Kraid room word $84:{address:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8),
-                compiled,
-                $"Kraid room word $84:{address:X4} matches ROM");
-        }
-        ushort loopCountAddress = checked((ushort)(
-            KraidRoomPlmProgramDefinitions.CrumbleSpikes + 2));
-        AssertTrue(KraidRoomPlmProgramDefinitions.TryReadMechanicsByte(
-                loopCountAddress, out byte loopCount),
-            "Kraid spike-loop count is compiled");
-        AssertEqual(rom.ReadByte(0x840000 | loopCountAddress), loopCount,
-            "Kraid spike-loop count matches ROM");
-        AssertTrue(!KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                KraidRoomPlmProgramDefinitions.MoveRightCallback, out _),
-            "Kraid move-right callback is not instruction data");
-        AssertTrue(!KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(
-                KraidRoomPlmProgramDefinitions.EndExclusive, out _),
-            "following Mother Brain program is not claimed by Kraid");
+        VerifyKraidRoomProgramMapping(rom);
 
-        RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            KraidRoomPlmDrawDefinitions.All.ToArray();
-        AssertEqual(10, draws.Length,
-            "Kraid room owns ten reachable physical draw lists");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
-        {
-            int cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertWord(run.DirectionAndCount);
-                foreach (ushort word in run.LevelWords.Span)
-                    AssertWord(word);
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
-                    $"Kraid draw ${draw.Pointer:X4} signed X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
-                    $"Kraid draw ${draw.Pointer:X4} signed Y offset");
-            }
-            AssertTrue(cursor <= KraidRoomPlmDrawDefinitions.EndExclusive,
-                $"Kraid draw ${draw.Pointer:X4} remains in its bounded region");
-
-            void AssertWord(ushort expected)
-            {
-                AssertEqual((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8),
-                    expected,
-                    $"Kraid draw ${draw.Pointer:X4} word +{cursor - draw.Pointer}");
-                cursor += 2;
-            }
-        }
+        VerifyKraidDrawAddresses();
+        VerifyKraidDrawOwnerClassification(rom);
+        VerifyKraidDrawShapes(rom);
+        VerifyKraidDrawWords(rom);
+        VerifyKraidDrawVisualIds();
 
         VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
             12, 0x013c, 1);

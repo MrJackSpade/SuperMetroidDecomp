@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom)
+    private static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var samples = new short[512];
         for (int offset = 0; offset < samples.Length; offset++)
@@ -30,6 +30,7 @@ internal static partial class Program
         for (int phase = 0; phase <= ushort.MaxValue; phase++)
             AssertEqual(samples[phase & 511], PhantoonWaveRomData.ReadSineAtBytePhase((ushort)phase),
                 "Phantoon byte-phase read and wrapping");
+        if (definitionsOnly) return;
         var displacementReader = typeof(PhantoonWaveTable)
             .GetMethod("CalculateDisplacement", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, ushort, int>>();

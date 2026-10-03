@@ -8,46 +8,16 @@ internal static partial class Program
     private static void VerifyBombTorizoStatueFragmentDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const int instructionAddress = 0x86a7ab;
-        const int xOffsetAddress = 0x86a7cb;
-        const int yOffsetAddress = 0x86a7eb;
-        const int yVelocityAddress = 0x86a7fb;
-        const int accelerationAddress = 0x86a80b;
+        VerifyStatueFragmentProgramField(rom);
+        VerifyStatueFragmentXField(rom);
+        VerifyStatueFragmentYField(rom);
+        VerifyStatueFragmentVelocityField(rom);
+        VerifyStatueFragmentAccelerationField(rom);
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
-        for (ushort index = 0; index < 16; index++)
-        {
-            ushort parameter = unchecked((ushort)(index * 2));
-            int row = index & 7;
-            BombTorizoStatueFragmentDefinition definition =
-                BombTorizoStatueFragmentDefinitions.ForParameter(parameter);
-            AssertEqual(ReadWord(rom, instructionAddress + index * 2),
-                definition.InstructionList,
-                $"Bomb Torizo statue fragment {index} instruction");
-            AssertEqual(unchecked((short)ReadWord(rom, xOffsetAddress + index * 2)),
-                definition.XOffset,
-                $"Bomb Torizo statue fragment {index} X offset");
-            AssertEqual(unchecked((short)ReadWord(rom, yOffsetAddress + row * 2)),
-                definition.YOffset,
-                $"Bomb Torizo statue fragment {index} Y offset");
-            AssertEqual(ReadWord(rom, yVelocityAddress + row * 2),
-                definition.YVelocity,
-                $"Bomb Torizo statue fragment {index} Y velocity");
-            AssertEqual(ReadWord(rom, accelerationAddress + row * 2),
-                definition.Acceleration,
-                $"Bomb Torizo statue fragment {index} acceleration");
-        }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => BombTorizoStatueFragmentDefinitions.ForParameter(1),
-            "Bomb Torizo statue odd fragment parameter");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => BombTorizoStatueFragmentDefinitions.ForParameter(0x20),
-            "Bomb Torizo statue high fragment parameter");
-
+        for (ushort parameter = 1; parameter < 32; parameter += 2)
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects every odd parameter in the native range");
+        foreach (ushort parameter in new ushort[] {32,33,0x100,0x101,0x7ffe,0x8000,0xfffe,0xffff})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects parameters beyond the sixteen fragments");
         var guarded = new BombTorizoStatueFragmentReadGuard(rom);
         for (ushort index = 0; index < 16; index++)
         {
@@ -88,6 +58,39 @@ internal static partial class Program
             "Bomb Torizo statue fragments: 56 native source words and all sixteen real room-graphics projectile allocations pass with the five physical tables forbidden.");
     }
 
+    private static ushort ReadStatueFragmentOracleWord(ISnesAddressSpace rom, int address) =>
+        (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+
+    private static void VerifyStatueFragmentProgramField(ISnesAddressSpace rom)
+    {
+        for (ushort parameter = 0; parameter < 32; parameter += 2)
+            AssertEqual(ReadStatueFragmentOracleWord(rom, 0x86a7ab + parameter),
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).InstructionList, "statue native program field");
+    }
+    private static void VerifyStatueFragmentXField(ISnesAddressSpace rom)
+    {
+        for (ushort parameter = 0; parameter < 32; parameter += 2)
+            AssertEqual(unchecked((short)ReadStatueFragmentOracleWord(rom, 0x86a7cb + parameter)),
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).XOffset, "statue native signed X field including mirrored set");
+    }
+    private static void VerifyStatueFragmentYField(ISnesAddressSpace rom)
+    {
+        for (ushort parameter = 0; parameter < 32; parameter += 2)
+            AssertEqual(unchecked((short)ReadStatueFragmentOracleWord(rom, 0x86a7eb + (parameter & 15))),
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).YOffset, "statue native signed Y field with eight-row wrap");
+    }
+    private static void VerifyStatueFragmentVelocityField(ISnesAddressSpace rom)
+    {
+        for (ushort parameter = 0; parameter < 32; parameter += 2)
+            AssertEqual(ReadStatueFragmentOracleWord(rom, 0x86a7fb + (parameter & 15)),
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).YVelocity, "statue native constant launch velocity field");
+    }
+    private static void VerifyStatueFragmentAccelerationField(ISnesAddressSpace rom)
+    {
+        for (ushort parameter = 0; parameter < 32; parameter += 2)
+            AssertEqual(ReadStatueFragmentOracleWord(rom, 0x86a80b + (parameter & 15)),
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).Acceleration, "statue native constant acceleration field");
+    }
     private sealed class BombTorizoStatueFragmentReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {

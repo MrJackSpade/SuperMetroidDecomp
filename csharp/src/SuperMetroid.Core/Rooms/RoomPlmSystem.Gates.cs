@@ -49,7 +49,7 @@ public sealed partial class RoomPlmSystem
             DownwardGateShotBlockDefinitions.Resolve(slot.RoomArgument);
         slot.InstructionPointer = definition.InstructionList;
 
-        // Setup $C7B1 performs independent left and right writes even though every authored
+        // Setup $C6E0 performs independent left and right writes even though every authored
         // row installs exactly one side. Preserve that ordering instead of deriving the side
         // from the trigger's low bit.
         if (definition.LeftBlockWord != 0)

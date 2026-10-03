@@ -6,9 +6,50 @@ internal static partial class Program
 {
     private static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        ReadOnlySpan<ChozoStatuePlmDefinition> definitions = ChozoStatuePlmDefinitions.All;
+        VerifyChozoTerrainHeaders(rom);
+        VerifyChozoProgramControls(rom);
+        VerifyChozoProgramDraws(rom);
+        VerifyChozoProgramTargets(rom);
+        VerifyChozoProgramCallback(rom);
+        VerifyChozoProgramEvent(rom);
+        AssertTrue(RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
+            RoomPlmSharedDeleteProgramDefinitions.Start, out ushort sharedDelete),
+            "shared delete list is compiled");
+        AssertEqual(ReadChozoStatuePlmWord(rom,
+                0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start),
+            sharedDelete, "shared delete list matches cartridge");
+        AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
+            RoomPlmSharedDeleteProgramDefinitions.End, out _),
+            "shared delete list refuses a word crossing its boundary");
+        VerifyChozoLayoutGeometry(rom);
+        VerifyChozoLayoutCollision(rom);
+        VerifyChozoLayoutVisuals(rom);
+        VerifyChozoStatueVisualInstallation(rom);
+        Console.WriteLine(
+            "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");
+    }
+
+    private static void VerifyChozoTerrainHeaders(SuperMetroidAddressSpace rom)
+    {
+        ChozoStatuePlmDefinition[] definitions = ChozoStatuePlmDefinitions.All.ToArray();
         AssertEqual(5, definitions.Length, "Chozo terrain PLM definition count");
 
+        ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
+        AssertTrue(headers.SequenceEqual(definitions.Select(d => d.HeaderPointer)), "Chozo original header enumeration");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort header = (ushort)raw;
+            if (!headers.Contains(header))
+                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve(header), "Chozo full unsupported header domain");
+            else
+            {
+                var selected = ChozoStatuePlmDefinitions.Resolve(header);
+                AssertEqual(header, selected.HeaderPointer, "Chozo dispatch header identity");
+                AssertEqual(ReadChozoStatuePlmWord(rom, 0x840000 | (header + 2)), selected.InstructionListPointer,
+                    "Chozo dispatch original initial list");
+                AssertEqual(definitions.Single(d => d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
+            }
+        }
         foreach (ChozoStatuePlmDefinition definition in definitions)
         {
             ushort expected = ReadChozoStatuePlmWord(
@@ -66,52 +107,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => ChozoStatuePlmDefinitions.Resolve(0xd6f2),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (ChozoStatuePlmProgramDefinitions.CrumblePlugStart,
-                ChozoStatuePlmProgramDefinitions.CrumblePlugEnd),
-            (ChozoStatuePlmProgramDefinitions.LowerNorfairHandStart,
-                ChozoStatuePlmProgramDefinitions.LowerNorfairHandEnd),
-            (ChozoStatuePlmProgramDefinitions.ClearSlopeStart,
-                ChozoStatuePlmProgramDefinitions.ClearSlopeEnd),
-            (ChozoStatuePlmProgramDefinitions.BlockSlopeStart,
-                ChozoStatuePlmProgramDefinitions.BlockSlopeEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                    $"Chozo program claims byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"Chozo program byte $84:{address:X4} matches cartridge");
-                if (address == last) continue;
-                AssertTrue(ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                    $"Chozo program claims word $84:{address:X4}");
-                AssertEqual(ReadChozoStatuePlmWord(rom, 0x840000 | address),
-                    compiledWord,
-                    $"Chozo program word $84:{address:X4} matches cartridge");
-            }
-            AssertTrue(!ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(
-                last, out _),
-                $"Chozo program word cannot cross out of list ending $84:{last:X4}");
-            AssertTrue(!ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(
-                checked((ushort)(last + 1)), out _),
-                $"Chozo program does not claim adjacent native code after $84:{last:X4}");
-        }
-        AssertTrue(RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
-            RoomPlmSharedDeleteProgramDefinitions.Start, out ushort sharedDelete),
-            "shared delete list is compiled");
-        AssertEqual(ReadChozoStatuePlmWord(rom,
-                0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start),
-            sharedDelete, "shared delete list matches cartridge");
-        AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
-            RoomPlmSharedDeleteProgramDefinitions.End, out _),
-            "shared delete list refuses a word crossing its boundary");
-        VerifyChozoStatueVisualInstallation(rom);
-        Console.WriteLine(
-            "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");
     }
 
     private static ushort ReadChozoStatuePlmWord(SuperMetroidAddressSpace bus, int address) =>

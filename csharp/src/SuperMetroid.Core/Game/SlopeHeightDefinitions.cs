@@ -4,75 +4,47 @@ namespace SuperMetroid.Core.Game;
 public static class SlopeHeightDefinitions
 {
     /// <summary>
-    /// $94:8B2B..8D2A, native SlopeDefinitions_SlopeTopXOffsetByYPixel (kAlignYPos_Tab0).
-    /// Despite the assembly label's swapped axes, these are top Y offsets indexed by X:
-    /// thirty-two authored sixteen-column profiles, including unused/overhanging shapes.
+    /// $94:8B2B SlopeDefinitions_SlopeTopXOffsetByYPixel: top Y offset at column X,
+    /// despite the swapped-axis native label. Thirty-two sixteen-column profiles.
     /// </summary>
-    /// <remarks>
-    /// Issue #625 exact geometric reconstruction: validate shape s=0..31 and
-    /// column x=0..15 before applying these integer rules (division floors).
-    /// Shapes 0/7 are flat 8; 4,8..13,19 are zero. For 1..3, the left eight
-    /// columns are 16 except shape 3 (8), and the right eight are zero except
-    /// shape 2 (8). Shapes 5/6 are V profiles: 16-(s-4)*min(x,15-x).
-    /// For 14/15, step=1&lt;&lt;(16-s), height=16-step*(x/step+1).
-    /// Shape 16 is flat 16; shape 17 is 20 until x=13, then 16; shape 18 is 16-x.
-    /// Shapes 20/21 use clamp(24-16*(s-20)-x,0,16). Shapes 22/23 concatenate
-    /// a half slope: 16-floor((16*(s-22)+x)/2); 24..26 concatenate a third
-    /// slope: 16-floor((16*(s-24)+x)/3), including the carry across tile seams.
-    /// For 27/28 let h=32-16*(s-27)-2*x; for 29..31 let h=48-16*(s-29)-3*x.
-    /// Both steep families encode h&gt;16 as 20 and h&lt;0 as zero, rather than
-    /// numerically saturating at 20. Shape 17's overhang is explicit authored
-    /// geometry, not a floating-point discrepancy. These families replace the
-    /// pixel samples, but their shape identities remain domain definitions.
-    /// csharp/tools/LookupTableResearch proves all 512 stored bytes against Read,
-    /// the NTSC J/U v1.0 ROM and pinned bank_94.asm, and rejects invalid inputs
-    /// independently on both axes. No floating-point math or per-pixel exceptions
-    /// are required. Runtime migration is deferred; caller BTS mirrors stay separate.
-    /// The same physical bytes are catalogued for enemy, Samus movement,
-    /// projectile, and bomb-spread readers. Individual investigation:
-    /// #625 / #914.
-    /// </remarks>
-    private static ReadOnlySpan<byte> Heights =>
-    [
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        16, 16, 16, 16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 0, 0,
-        16, 16, 16, 16, 16, 16, 16, 16, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        16, 15, 14, 13, 12, 11, 10, 9, 9, 10, 11, 12, 13, 14, 15, 16,
-        16, 14, 12, 10, 8, 6, 4, 2, 2, 4, 6, 8, 10, 12, 14, 16,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        12, 12, 12, 12, 8, 8, 8, 8, 4, 4, 4, 4, 0, 0, 0, 0,
-        14, 14, 12, 12, 10, 10, 8, 8, 6, 6, 4, 4, 2, 2, 0, 0,
-        16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
-        20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 16, 16, 16,
-        16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        16, 16, 16, 16, 16, 16, 16, 16, 16, 15, 14, 13, 12, 11, 10, 9,
-        8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        16, 16, 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 9, 9,
-        8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1,
-        16, 16, 16, 15, 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11,
-        11, 11, 10, 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6,
-        6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1,
-        20, 20, 20, 20, 20, 20, 20, 20, 16, 14, 12, 10, 8, 6, 4, 2,
-        16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-        20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 15, 12, 9, 6, 3,
-        20, 20, 20, 20, 20, 20, 14, 11, 8, 5, 2, 0, 0, 0, 0, 0,
-        16, 13, 10, 7, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ];
+    public const int ReferenceAddress = 0x948b2b;
 
-    /// <summary>Returns the native five-bit height. Callers own BTS mirroring and floor/ceiling collision rules.</summary>
+    /// <summary>Returns the native five-bit height for shape 0..31 and column 0..15.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_94.asm.
+    /// Flat, half-block, V, stair and rational-slope families below reproduce all 512
+    /// original bytes. Integer division floors nonnegative profile coordinates; the
+    /// third-height family carries its division phase across tile seams. Steep slopes
+    /// encode heights above sixteen as twenty, not a saturation to twenty. Shape 17
+    /// is an explicit authored overhang (twenty until column thirteen, then sixteen).
+    /// Bounds are checked before arithmetic. Geometric clipping never clamps input;
+    /// BTS mirroring, collision comparison and world-coordinate wrapping stay in callers.
+    /// </remarks>
     public static byte Read(int shape, int column)
     {
         if ((uint)shape >= 32) throw new ArgumentOutOfRangeException(nameof(shape));
         if ((uint)column >= 16) throw new ArgumentOutOfRangeException(nameof(column));
-        return (byte)(Heights[shape * 16 + column] & 0x1f);
+        int height = shape switch
+        {
+            0 or 7 => 8,
+            1 => column < 8 ? 16 : 0,
+            2 => column < 8 ? 16 : 8,
+            3 => column < 8 ? 8 : 0,
+            4 or >= 8 and <= 13 or 19 => 0,
+            5 or 6 => 16 - (shape - 4) * Math.Min(column, 15 - column),
+            14 => 12 - 4 * (column / 4),
+            15 => 14 - 2 * (column / 2),
+            16 => 16,
+            17 => column < 13 ? 20 : 16,
+            18 => 16 - column,
+            20 or 21 => Math.Clamp(24 - 16 * (shape - 20) - column, 0, 16),
+            22 or 23 => 16 - (16 * (shape - 22) + column) / 2,
+            >= 24 and <= 26 => 16 - (16 * (shape - 24) + column) / 3,
+            27 or 28 => EncodeSteepHeight(32 - 16 * (shape - 27) - 2 * column),
+            _ => EncodeSteepHeight(48 - 16 * (shape - 29) - 3 * column),
+        };
+        return (byte)height;
     }
+
+    private static int EncodeSteepHeight(int height) => height > 16 ? 20 : Math.Max(0, height);
 }

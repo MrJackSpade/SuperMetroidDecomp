@@ -6,7 +6,10 @@ internal static partial class Program
 {
     private static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        ReadOnlySpan<SamusEaterPlmDefinition> definitions = SamusEaterPlmDefinitions.All;
+        VerifySamusEaterHeaderInstructionMapping(rom);
+        VerifySamusEaterMountingMapping(rom);
+        SamusEaterPlmDefinition[] definitions =
+            [SamusEaterPlmDefinitions.Resolve(0xb6cb), SamusEaterPlmDefinitions.Resolve(0xb6cf)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
         AssertEqual(definitions[0].InstructionListPointer,
             SamusEaterPlmProgramDefinitions.FloorStart,
@@ -16,38 +19,12 @@ internal static partial class Program
             "ceiling plant header enters its compiled instruction program");
         AssertEqual(0xad38, SamusEaterPlmProgramDefinitions.EndExclusive,
             "plant program ends before the Wrecked Ship treadmill");
-        for (int address = SamusEaterPlmProgramDefinitions.FloorStart;
-             address < SamusEaterPlmProgramDefinitions.EndExclusive; address++)
-        {
-            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(
-                    (ushort)address, out byte compiledByte),
-                $"Samus Eater program byte $84:{address:X4} is compiled");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiledByte,
-                $"Samus Eater program byte $84:{address:X4} matches cartridge");
-            if (address + 1 == SamusEaterPlmProgramDefinitions.EndExclusive)
-                continue;
-            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(
-                    (ushort)address, out ushort compiledWord),
-                $"Samus Eater program word $84:{address:X4} is compiled");
-            AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | address), compiledWord,
-                $"Samus Eater program word $84:{address:X4} matches cartridge");
-        }
-        AssertTrue(!SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(
-                0xacb7, out _) &&
-            !SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(0xad38, out _) &&
-            !SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(0xad37, out _),
-            "Samus Eater program excludes adjacent bank-$84 code");
+        VerifySamusEaterProgramControls(rom);
+        VerifySamusEaterProgramDraws(rom);
+        VerifySamusEaterProgramSound(rom);
 
         foreach (SamusEaterPlmDefinition definition in definitions)
         {
-            ushort expected = ReadSamusEaterPlmWord(
-                rom,
-                0x840000 | unchecked((ushort)(definition.HeaderPointer + 2)));
-            AssertEqual(
-                expected,
-                definition.InstructionListPointer,
-                $"Samus Eater PLM ${definition.HeaderPointer:X4} initial list matches cartridge");
-
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
@@ -90,6 +67,93 @@ internal static partial class Program
             "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
             "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
+    }
+
+    private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterHeaderField(rom, false);
+
+    private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
+        VerifySamusEaterHeaderField(rom, true);
+
+    private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
+    {
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort header = (ushort)raw;
+            if (header is not (0xb6cb or 0xb6cf))
+            {
+                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve(header),
+                    "plant header selector rejects every unsupported identity");
+                continue;
+            }
+            var actual = SamusEaterPlmDefinitions.Resolve(header);
+            AssertEqual(header, actual.HeaderPointer, "plant selected header identity");
+            if (mounting)
+            {
+                ushort setup = ReadSamusEaterPlmWord(rom, 0x840000 | header);
+                AssertTrue(setup is 0xb0dc or 0xb113, "plant native setup belongs to floor/ceiling pair");
+                AssertEqual(setup == 0xb113, actual.Ceiling, "plant mounting follows native setup");
+                // The native ceiling subtracts radius and increments held Y; floor adds
+                // radius, decrements the edge and decrements held Y.
+                AssertEqual((byte)(actual.Ceiling ? 0xed : 0x6d),
+                    rom.ReadByte(0x840000 | (setup + 4)), "plant native edge add/subtract opcode");
+                AssertEqual((byte)(actual.Ceiling ? 0x1a : 0x3a),
+                    rom.ReadByte(actual.Ceiling ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
+            }
+            else
+                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
+                    actual.InstructionListPointer, "plant native initial instruction selection");
+        }
+    }
+
+    private static void VerifySamusEaterProgramControls(SuperMetroidAddressSpace rom)
+    {
+        int[] drawWords = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
+            0xad01,0xad05,0xad09,0xad12,0xad16,0xad1a,0xad1e,0xad24,0xad30,0xad34];
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort address = (ushort)raw;
+            bool byteOwned = raw is >= 0xacb8 and < 0xad38;
+            bool wordOwned = raw is >= 0xacb8 and < 0xad37;
+            AssertEqual(byteOwned, SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out byte actualByte), "plant complete byte ownership");
+            AssertEqual(wordOwned, SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort actualWord), "plant complete word ownership");
+            if (!byteOwned) AssertEqual((byte)0, actualByte, "plant missing byte zero");
+            else if (raw != 0xaccd && raw != 0xad0d && !drawWords.Any(pointer => raw == pointer || raw == pointer + 1))
+                AssertEqual(rom.ReadByte(0x840000 | raw), actualByte, "plant native control byte and timer operand");
+            if (!wordOwned) AssertEqual((ushort)0, actualWord, "plant missing word zero");
+            else
+            {
+                // Every byte-aligned view, including ACF7 crossing between the two lists.
+                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), actualWord, "plant native packed word view");
+                AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "plant shared reader ownership");
+                AssertEqual(actualWord, shared, "plant shared reader preserves word view");
+            }
+        }
+    }
+
+    private static void VerifySamusEaterProgramDraws(SuperMetroidAddressSpace rom)
+    {
+        int[] pointers = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
+            0xad01,0xad05,0xad09,0xad12,0xad16,0xad1a,0xad1e,0xad24,0xad30,0xad34];
+        foreach (int pointer in pointers)
+        {
+            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsWord((ushort)pointer, out ushort actual), "plant draw operand word");
+            AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), actual, "plant original draw selector");
+            for (int half = 0; half < 2; half++)
+            {
+                AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte((ushort)(pointer + half), out byte value), "plant draw operand byte");
+                AssertEqual(rom.ReadByte(0x840000 | (pointer + half)), value, "plant original draw operand byte");
+            }
+        }
+    }
+
+    private static void VerifySamusEaterProgramSound(SuperMetroidAddressSpace rom)
+    {
+        foreach (ushort pointer in new ushort[] {0xaccd,0xad0d})
+        {
+            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(pointer, out byte value), "plant packed sound byte");
+            AssertEqual(rom.ReadByte(0x840000 | pointer), value, "plant original sound selection");
+        }
     }
 
     private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>

@@ -150,10 +150,10 @@ internal static class SpcMusicDefinitionCodec
             if (instruction.Opcode >= SpcDriverData.Music.FirstEffect)
             {
                 int effectIndex = instruction.Opcode - SpcDriverData.Music.FirstEffect;
-                if ((uint)effectIndex >= SpcMusicTables.EffectByteLengths.Length ||
+                if ((uint)effectIndex >= SpcMusicTables.EffectCount ||
                     instruction.Operation != AudioMusicInstructionOperations.ForEffect(
                         (SpcMusicEffect)instruction.Opcode) ||
-                    instruction.Arguments.Count != SpcMusicTables.EffectByteLengths[effectIndex])
+                    instruction.Arguments.Count != SpcMusicTables.EffectByteLength(effectIndex))
                     throw InvalidProgramInstruction(program, instruction);
                 bytes.Add(instruction.Opcode);
                 foreach (byte argument in instruction.Arguments)
@@ -329,9 +329,9 @@ internal static class SpcMusicDefinitionCodec
             if (command >= SpcDriverData.Music.FirstEffect)
             {
                 int effectIndex = command - SpcDriverData.Music.FirstEffect;
-                if ((uint)effectIndex >= SpcMusicTables.EffectByteLengths.Length)
+                if ((uint)effectIndex >= SpcMusicTables.EffectCount)
                     throw new InvalidDataException($"Music program '{id}' uses unknown effect ${command:X2}.");
-                int argumentCount = SpcMusicTables.EffectByteLengths[effectIndex];
+                int argumentCount = SpcMusicTables.EffectByteLength(effectIndex);
                 byte[] arguments = new byte[argumentCount];
                 for (int index = 0; index < arguments.Length; index++)
                     arguments[index] = ReadByte(ram, written, ref cursor, id);

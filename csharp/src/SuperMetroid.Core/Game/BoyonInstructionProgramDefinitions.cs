@@ -19,65 +19,62 @@ internal static class BoyonInstructionProgramDefinitions
     /// <summary><c>$A2:86BF</c>, the six-frame bouncing loop.</summary>
     internal const ushort Bouncing = 0x86bf;
 
-    private static readonly BoyonInstructionMechanicsWord[] Words =
-    [
-        new(0x86a7, 0x817d), new(0x86a9, 0x88c5),
-        new(0x86ab, 0x000a), new(0x86af, 0x000a),
-        new(0x86b3, 0x000a), new(0x86b7, 0x000a),
-        new(0x86bb, 0x80ed), new(0x86bd, 0x86ab),
-        new(0x86bf, 0x8173), new(0x86c1, 0x88c6),
-        new(0x86c3, 0x0005), new(0x86c7, 0x0005),
-        new(0x86cb, 0x0005), new(0x86cf, 0x0005),
-        new(0x86d3, 0x0005), new(0x86d7, 0x0005),
-        new(0x86db, 0x80ed), new(0x86dd, 0x86c3),
-    ];
+    internal static int MechanicsWordCount => 18;
+    internal static int PresentationWordCount => 10;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x86ad, 0x86b1, 0x86b5, 0x86b9,
-        0x86c5, 0x86c9, 0x86cd, 0x86d1, 0x86d5, 0x86d9,
-    ];
+    internal static BoyonInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool bouncing = index >= 8;
+        int word = bouncing ? index - 8 : index;
+        int frames = bouncing ? 6 : 4;
+        int offset = word < 2 ? 2 * word : word < frames + 2
+            ? 4 + 4 * (word - 2) : 4 + 4 * frames + 2 * (word - frames - 2);
+        ushort address = (ushort)((bouncing ? Bouncing : Idle) + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BoyonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 4 ? Idle + 6 + 4 * index : Bouncing + 6 + 4 * (index - 4));
+    }
 
-    /// <summary>Returns fixed Boyon control or rejects pointers outside both programs.</summary>
+    internal static bool IsPresentationWord(ushort address)
+    {
+        bool bouncing = address >= Bouncing;
+        int offset = address - (bouncing ? Bouncing : Idle) - 6;
+        return (uint)offset < (bouncing ? 24u : 16u) && offset % 4 == 0;
+    }
+
+    /// <summary>Setup property/callback, timed animation, then goto the first timed frame.
+    /// The idle loop has four ten-frame steps; bouncing has six five-frame steps.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            BoyonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        bool bouncing = address >= Bouncing;
+        ushort start = bouncing ? Bouncing : Idle;
+        int offset = address - start;
+        int frames = bouncing ? 6 : 4;
+        if (offset == 0) return bouncing ? CommonEnemyInstructionCodes.EnableOffScreenProcessing
+            : CommonEnemyInstructionCodes.DisableOffScreenProcessing;
+        if (offset == 2) return bouncing ? EnemyInstructionCodePointers.Instruction_Boyon_88C6
+            : EnemyInstructionCodePointers.RTL_A288C5;
+        if (offset >= 4 && offset < 4 + 4 * frames && offset % 4 == 0)
+            return (ushort)(bouncing ? 5 : 10);
+        if (offset == 4 + 4 * frames) return CommonEnemyInstructionCodes.Goto;
+        if (offset == 6 + 4 * frames) return (ushort)(start + 4);
         throw new InvalidDataException(
             $"Boyon instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa20000) return false;
+        int offset = (ushort)address - Idle;
+        if ((uint)offset >= 56) return false;
+        bool bouncing = offset >= 24;
+        int local = bouncing ? offset - 24 : offset;
+        int tail = bouncing ? 28 : 20;
+        return local < 4 || local >= tail || local % 4 < 2;
     }
 }

@@ -5,42 +5,19 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
-    private static void VerifyRunningCadence(SuperMetroidAddressSpace rom)
+    private static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        for (int address = 0x91b5d1; address < 0x91b62b; address++)
-        {
-            AssertEqual(
-                rom.ReadByte(address),
-                SamusRunningCadenceDefinitions.ReadCompiledByte(address),
-                "Complete bounded cadence catalog");
-        }
-
-        for (byte selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
-        {
-            AssertEqual(
-                Word(0x91b5de + selection * 2),
-                SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(selection),
-                "Native Max6 delay-list selection");
-            AssertEqual(
-                Word(0x91b61f + selection * 2),
-                SamusRunningCadenceDefinitions.ReadResetWord(selection),
-                "Native Max6 reset-word selection");
-        }
-        for (int selection = SamusRunningCadenceDefinitions.MaximumSoundQueueSelection + 1;
-             selection <= byte.MaxValue;
-             selection++)
-        {
-            byte invalid = (byte)selection;
-            AssertThrows<InvalidDataException>(
-                () => SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(invalid),
-                "Non-native delay-list selection fails loudly");
-            AssertThrows<InvalidDataException>(
-                () => SamusRunningCadenceDefinitions.ReadResetWord(invalid),
-                "Non-native reset-word selection fails loudly");
-        }
-
+        VerifyOrdinaryRunningPointer(rom);
+        VerifyOrdinaryRunningStream(rom);
+        VerifyBoostRunningPointers(rom);
+        VerifyBoostRunningStream0(rom);
+        VerifyBoostRunningStream1(rom);
+        VerifyBoostRunningStream2(rom);
+        VerifyBoostRunningStream3(rom);
+        VerifyBoostRunningStream4(rom);
+        VerifyBoostRunningResets(rom);
         var ordinary = typeof(SamusState).GetMethod("ReadDefaultRunningAnimationByte", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ISnesAddressSpace, ushort, byte>>();
         var speed = new SamusHorizontalSpeedState();
@@ -73,6 +50,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => speed.ReadSpeedBoosterAnimationByte(bus, 0),
             "Restored non-native stage cannot reinterpret adjacent code as a pointer");
+
+        if (definitionsOnly) return;
 
         // Exercise every stored counter word through the real command interceptor.
         // For the sound-call case, A=$0500 deliberately selects the adjacent-data bug.
@@ -157,6 +136,51 @@ internal static partial class Program
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
     }
 
+    private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
+    {
+        VerifyCadenceBytes(rom, 0x91b5d1, 2);
+        AssertEqual((ushort)(rom.ReadByte(0x91b5d1) | rom.ReadByte(0x91b5d2) << 8),
+            SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
+    }
+
+    private static void VerifyOrdinaryRunningStream(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5d3, 11);
+    private static void VerifyBoostRunningStream0(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5e8, 11);
+    private static void VerifyBoostRunningStream1(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5f3, 11);
+    private static void VerifyBoostRunningStream2(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5fe, 11);
+    private static void VerifyBoostRunningStream3(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b609, 11);
+    private static void VerifyBoostRunningStream4(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b614, 11);
+
+    private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
+    {
+        VerifyCadenceBytes(rom, 0x91b5de, 10);
+        for (byte selection = 0; selection <= 5; selection++)
+        {
+            int address = 0x91b5de + 2 * selection;
+            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8),
+                SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(selection), "Original pointer including stage5 alias");
+        }
+        for (int selection = 6; selection <= byte.MaxValue; selection++)
+            AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer((byte)selection), "Pointer unsupported stage");
+    }
+
+    private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
+    {
+        VerifyCadenceBytes(rom, 0x91b61f, 12);
+        for (byte selection = 0; selection <= 5; selection++)
+        {
+            int address = 0x91b61f + 2 * selection;
+            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8),
+                SamusRunningCadenceDefinitions.ReadResetWord(selection), "Original reset including pose0 alias");
+        }
+        for (int selection = 6; selection <= byte.MaxValue; selection++)
+            AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadResetWord((byte)selection), "Reset unsupported stage");
+    }
+
+    private static void VerifyCadenceBytes(SuperMetroidAddressSpace rom, int start, int count)
+    {
+        for (int address = start; address < start + count; address++)
+            AssertEqual(rom.ReadByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
+    }
     private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

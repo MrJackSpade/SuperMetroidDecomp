@@ -21,68 +21,45 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitions
     /// <summary><c>$A8:E828</c>, the one-frame neutral program installed at initialization.</summary>
     internal const ushort Initial = 0xe828;
 
-    private static readonly BlueBrinstarFaceBlockInstructionMechanicsWord[] Words =
-    [
-        new(0xe80c, 0x0030), new(0xe810, 0x0010),
-        new(0xe814, 0x0010), new(0xe818, 0x812f),
-        new(0xe81a, 0x0030), new(0xe81e, 0x0010),
-        new(0xe822, 0x0010), new(0xe826, 0x812f),
-        new(0xe828, 0x0001), new(0xe82c, 0x812f),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe80e, 0xe812, 0xe816,
-        0xe81c, 0xe820, 0xe824,
-        0xe82a,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BlueBrinstarFaceBlockInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>True only for an OAM selector in one of the three native programs.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
-    /// <summary>Returns fixed face-block control or rejects pointers outside its programs.</summary>
+    internal static int MechanicsWordCount => 10;
+    internal static int PresentationWordCount => 7;
+    internal static BlueBrinstarFaceBlockInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = index < 8 ? (ushort)(SamusLeft + 14 * (index / 4) + 4 * (index % 4))
+            : (ushort)(Initial + 4 * (index - 8));
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return index < 6 ? (ushort)(SamusLeft + 14 * (index / 3) + 4 * (index % 3) + 2)
+            : (ushort)(Initial + 2);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - SamusLeft;
+        return (uint)offset < 28 ? offset % 14 % 4 == 2 : address == Initial + 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - SamusLeft;
+        if ((uint)offset < 28 && offset % 14 % 4 == 0)
         {
-            int middle = low + ((high - low) >> 1);
-            BlueBrinstarFaceBlockInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int local = offset % 14;
+            // Wait facing forward, show the intermediate and final turn poses, then sleep.
+            return local == 12 ? CommonEnemyInstructionCodes.Sleep : (ushort)(local == 0 ? 48 : 16);
         }
-
-        throw new InvalidDataException(
-            $"Blue Brinstar face-block instruction mechanics pointer " +
-            $"$A8:{address:X4} is not compiled.");
+        if (address == Initial) return 1;
+        if (address == Initial + 4) return CommonEnemyInstructionCodes.Sleep;
+        throw new InvalidDataException($"Blue Brinstar face-block instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa80000) return false;
+        int offset = unchecked((ushort)address) - SamusLeft;
+        if ((uint)offset < 28) return offset % 14 % 4 < 2;
+        int initialOffset = unchecked((ushort)address) - Initial;
+        return (uint)initialOffset < 6 && initialOffset % 4 < 2;
     }
 }

@@ -206,6 +206,62 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
+    /// <summary>Botwoon body/tail maps start at $8D:B62E/$B72A and spit at
+    /// $8D:B8B4. Each visible map has one OAM entry (seven bytes); hidden uses
+    /// the zero-entry record $8D:B8B2. Physical body slots include the unused fourth.</summary>
+    internal static ushort BotwoonProjectileFrameAt(ushort operandAddress)
+    {
+        if (!BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException($"Botwoon projectile visual operand $86:{operandAddress:X4} is not compiled.");
+        if (operandAddress >= BotwoonProjectileInstructionProgramDefinitions.Spit)
+            return (ushort)(0xb8b4 + 7 * ((operandAddress - BotwoonProjectileInstructionProgramDefinitions.Spit - 2) / 4));
+        if (operandAddress == BotwoonProjectileInstructionProgramDefinitions.Hidden + 2) return 0xb8b2;
+        if (operandAddress >= BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight)
+            return (ushort)(0xb72a + 7 * ((operandAddress - BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight - 2) / 6));
+        int relative = operandAddress - BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft;
+        return (ushort)(0xb62e + 7 * (4 * (relative / 20) + (relative % 20) / 4));
+    }
+    /// <summary>Sixteen consecutive single-entry maps at $8D:8DFB. Each fragment
+    /// selects the same seven-byte record for its waiting and falling poses.</summary>
+    internal static ushort BombTorizoStatueFrameAt(ushort operandAddress)
+    {
+        if (!BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException($"Bomb Torizo statue visual operand $86:{operandAddress:X4} is not compiled.");
+        int program = (operandAddress - BombTorizoStatueInstructionProgramDefinitions.FirstProgram) /
+            BombTorizoStatueInstructionProgramDefinitions.ProgramStride;
+        return (ushort)(0x8dfb + 7 * program);
+    }
+    /// <summary>Drool delays use the blank map; falling uses $8D:8C54 and floor
+    /// impact advances through the next three single-entry maps (seven bytes each).</summary>
+    internal static ushort BombTorizoDroolFrameAt(ushort operandAddress)
+    {
+        if (!BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException($"Bomb Torizo drool visual operand $86:{operandAddress:X4} is not compiled.");
+        if (operandAddress < BombTorizoDroolInstructionProgramDefinitions.NoDelay) return BlankSpritemap;
+        int frame = operandAddress < BombTorizoDroolInstructionProgramDefinitions.FloorImpact ? 0 :
+            1 + (operandAddress - (BombTorizoDroolInstructionProgramDefinitions.FloorImpact + 4)) / 4;
+        return (ushort)(0x8c54 + 7 * frame);
+    }
+    /// <summary>Four consecutive fireball maps at $8D:8404, each with a
+    /// two-byte count and one five-byte OAM record, selected in animation order.</summary>
+    internal static ushort AlcoonFireballFrameAt(ushort operandAddress)
+    {
+        if (!AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Alcoon fireball visual operand $86:{operandAddress:X4} is not compiled.");
+        int frame = (operandAddress - (AlcoonFireballInstructionProgramDefinitions.Initial + 2)) / 4;
+        return (ushort)(0x8404 + 7 * frame);
+    }
+    /// <summary>Three fireball frames per facing at $8D:AAB9, each with a
+    /// two-byte count and one five-byte OAM record; right-facing maps follow left.</summary>
+    internal static ushort FuneNamiheFireballFrameAt(ushort operandAddress)
+    {
+        if (!FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Fune/Namihe fireball visual operand $86:{operandAddress:X4} is not compiled.");
+        int offset = operandAddress - (FuneNamiheFireballInstructionProgramDefinitions.Left + 2);
+        return (ushort)(0xaab9 + 7 * (3 * (offset / 16) + (offset % 16) / 4));
+    }
     /// <summary>
     /// EnemyProjSpritemaps_Blank_Default at $8D:8000; the native count is zero.
     /// Newly initialized bank-$86 slots select it before their first timed frame.

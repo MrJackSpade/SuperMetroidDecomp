@@ -151,6 +151,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmEscapeGateVisualFiles.ValidateStock(
                 installation.RoomPlmEscapeGateVisualDirectory);
+            VerifyEscapeGateStockMapping(rom, installation.LoadRoomPlmEscapeGateVisuals());
             string stockPath = Path.Combine(
                 installation.RoomPlmEscapeGateVisualDirectory,
                 RoomPlmEscapeGateVisualFiles.VisualFileName);

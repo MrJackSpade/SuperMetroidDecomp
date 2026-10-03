@@ -772,7 +772,7 @@ internal static partial class Program
         private readonly HashSet<int> blockedPresentationBytes = [];
 
         internal void BlockExtendedBg2Streams(byte bank,
-            ReadOnlySpan<EnemyBg2FrameDefinition> frames)
+            EnemyBg2FrameDefinitionSequence frames)
         {
             ISnesAddressSpace catalogueSource = lookupSource ?? source;
             foreach (EnemyBg2FrameDefinition frame in frames)

@@ -3,95 +3,103 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Fixed bank-$84 resident downward-gate and eight shot-trigger instruction streams.
-/// Referenced draw-list payloads and bank-$86 gate actor art are separate data.
+/// Bounded decoder of $84:BC13..BC60 and BCAF..BCDE. Resident control actions
+/// are named cases; four timed closing/opening frames traverse the draw records
+/// in opposite directions, with sixteen-frame holds and a twenty-four-frame final
+/// hold. Eight trigger programs each draw for one frame then delete. Packed sound
+/// bytes change word alignment; only actual instruction/operand boundaries exist.
+/// No word, byte or generated lookup cache is stored.
 /// </summary>
 internal static class DownwardGatePlmProgramDefinitions
 {
-    /// <summary>Resident gate's first closed-frame entry at $84:BC13.</summary>
-    private const ushort ClosedStart = 0xbc13;
-    /// <summary>Cartridge library-three movement sound operand in both gate phases.</summary>
-    private const byte MovementSound = DownwardGatePlmRomData.MovementSound;
-    /// <summary>Opening gate's odd-byte sound operand at $84:BC29.</summary>
-    private const ushort OpeningSoundAddress = 0xbc29;
-    /// <summary>Closing gate's odd-byte sound operand at $84:BC4C.</summary>
-    private const ushort ClosingSoundAddress = 0xbc4c;
+    /// <summary>$84:BC13: open-and-wait list, entered again after opening completes.</summary>
+    private const ushort OpenStart = 0xbc13;
+    /// <summary>$84:BC2A: first timed closing frame.</summary>
+    private const ushort ClosingFrames = 0xbc2a;
+    /// <summary>$84:BC4D: first timed opening frame.</summary>
+    private const ushort OpeningFrames = 0xbc4d;
+    /// <summary>$84:BC29: packed movement sound after the closing spawn command.</summary>
+    private const ushort ClosingSoundAddress = 0xbc29;
+    /// <summary>$84:BC4C: packed movement sound after the opening wake command.</summary>
+    private const ushort OpeningSoundAddress = 0xbc4c;
+    /// <summary>$84:BC61: adjacent upward-gate program, outside this decoder.</summary>
+    private const ushort ResidentEnd = 0xbc61;
+    /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
+    private const ushort TriggerEnd = 0xbcdf;
 
-    private static readonly Dictionary<ushort, ushort> Words = BuildWords();
-    private static readonly Dictionary<ushort, byte> Bytes =
-        new Dictionary<ushort, byte>
-        {
-            [OpeningSoundAddress] = MovementSound,
-            [ClosingSoundAddress] = MovementSound,
-        };
-
-    internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords =>
-        Words.Select(pair => (pair.Key, pair.Value));
-
-    internal static IEnumerable<(ushort Address, byte Value)> MechanicsBytes =>
-        Bytes.Select(pair => (pair.Key, pair.Value));
-
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Words.TryGetValue(address, out value);
-
-    internal static bool TryReadMechanicsByte(ushort address, out byte value) =>
-        Bytes.TryGetValue(address, out value);
-
-    private static Dictionary<ushort, ushort> BuildWords()
+    internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords
     {
-        var words = new Dictionary<ushort, ushort>();
-        void Add(int address, ushort value)
+        get
         {
-            if (!words.TryAdd(checked((ushort)address), value))
-                throw new InvalidDataException(
-                    $"Duplicate compiled downward-gate control word $84:{address:X4}.");
+            for (int address = OpenStart; address < ResidentEnd; address++)
+                if (TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
+            for (int address = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft; address < TriggerEnd; address += 2)
+                if (TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
         }
+    }
 
-        void Timed(int address, ushort duration, ushort drawPointer)
+    internal static IEnumerable<(ushort Address, byte Value)> MechanicsBytes
+    {
+        get
         {
-            Add(address, duration);
-            Add(address + 2, drawPointer);
+            yield return (ClosingSoundAddress, DownwardGatePlmRomData.MovementSound);
+            yield return (OpeningSoundAddress, DownwardGatePlmRomData.MovementSound);
         }
+    }
 
-        Timed(ClosedStart, 1, 0xa517);
-        Add(0xbc17, RoomPlmInstructionCodes.ClearDownwardGateTrigger);
-        Add(0xbc19, RoomPlmInstructionCodes.InstallPreInstruction);
-        Add(0xbc1b, DownwardGatePreInstructionCodes.WakeIfTriggered);
-        Add(0xbc1d, RoomPlmInstructionCodes.Sleep);
-        Timed(0xbc1f, 16, 0xa517);
-        Add(0xbc23, RoomPlmInstructionCodes.SpawnDownwardGateProjectile);
-        Add(0xbc25, (ushort)RoomEnemyProjectileKind.DownwardGateMoving);
-        Add(0xbc27, RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6);
-        Timed(0xbc2a, 16, 0xa525);
-        Timed(0xbc2e, 16, 0xa533);
-        Timed(0xbc32, 16, 0xa541);
-        Timed(0xbc36, 24, 0xa54f);
+    internal static bool TryReadMechanicsByte(ushort address, out byte value)
+    {
+        bool owned = address is ClosingSoundAddress or OpeningSoundAddress;
+        value = owned ? DownwardGatePlmRomData.MovementSound : (byte)0;
+        return owned;
+    }
 
-        Timed(RoomPlmInstructionLists.DownwardGateOpening, 1, 0xa55d);
-        Add(0xbc3e, RoomPlmInstructionCodes.ClearDownwardGateTrigger);
-        Add(0xbc40, RoomPlmInstructionCodes.InstallPreInstruction);
-        Add(0xbc42, DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow);
-        Add(0xbc44, RoomPlmInstructionCodes.Sleep);
-        Add(0xbc46, RoomPlmInstructionCodes.WakeDownwardGateProjectile);
-        // Native $BBF0 consumes but ignores this bank-$86 list operand.
-        Add(0xbc48, DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep);
-        Add(0xbc4a, RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6);
-        Timed(0xbc4d, 16, 0xa54f);
-        Timed(0xbc51, 16, 0xa541);
-        Timed(0xbc55, 16, 0xa533);
-        Timed(0xbc59, 24, 0xa525);
-        Add(0xbc5d, RoomPlmInstructionCodes.Goto);
-        Add(0xbc5f, ClosedStart);
-
-        ushort[] triggerDraws =
-            [0xa5d7, 0xa5e3, 0xa5eb, 0xa5f7, 0xa5ff, 0xa60b, 0xa613, 0xa61f];
-        for (int index = 0; index < triggerDraws.Length; index++)
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    {
+        int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;
+        if (triggerOffset >= 0 && address < TriggerEnd && (triggerOffset & 1) == 0)
         {
-            int start = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft + 6 * index;
-            Timed(start, 1, triggerDraws[index]);
-            Add(start + 4, RoomPlmInstructionCodes.Delete);
+            int trigger = triggerOffset / 6;
+            value = (triggerOffset % 6) switch
+            {
+                0 => 1,
+                2 => (ushort)(0xa5d7 + trigger / 2 * 20 + (trigger % 2) * 12),
+                _ => RoomPlmInstructionCodes.Delete,
+            };
+            return true;
         }
-
-        return words;
+        int closingOffset = address - ClosingFrames, openingOffset = address - OpeningFrames;
+        bool closing = closingOffset is >= 0 and < 16 && (closingOffset & 1) == 0;
+        bool opening = openingOffset is >= 0 and < 16 && (openingOffset & 1) == 0;
+        if (closing || opening)
+        {
+            int offset = closing ? closingOffset : openingOffset;
+            int frame = offset / 4;
+            value = offset % 4 == 0 ? (ushort)(frame == 3 ? 24 : 16) :
+                (ushort)(closing ? 0xa525 + frame * 14 : 0xa54f - frame * 14);
+            return true;
+        }
+        value = address switch
+        {
+            0xbc13 or 0xbc3a => 1,
+            0xbc15 or 0xbc21 => 0xa517,
+            0xbc1f => 16,
+            0xbc3c => 0xa55d,
+            0xbc17 or 0xbc3e => RoomPlmInstructionCodes.ClearDownwardGateTrigger,
+            0xbc19 or 0xbc40 => RoomPlmInstructionCodes.InstallPreInstruction,
+            0xbc1b => DownwardGatePreInstructionCodes.WakeIfTriggered,
+            0xbc42 => DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow,
+            0xbc1d or 0xbc44 => RoomPlmInstructionCodes.Sleep,
+            0xbc23 => RoomPlmInstructionCodes.SpawnDownwardGateProjectile,
+            0xbc25 => (ushort)RoomEnemyProjectileKind.DownwardGateMoving,
+            0xbc27 or 0xbc4a => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
+            0xbc46 => RoomPlmInstructionCodes.WakeDownwardGateProjectile,
+            // Native BBF0 advances over this operand without using its value.
+            0xbc48 => DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
+            0xbc5d => RoomPlmInstructionCodes.Goto,
+            0xbc5f => OpenStart,
+            _ => 0,
+        };
+        return value != 0;
     }
 }

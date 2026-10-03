@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
@@ -94,7 +93,7 @@ public sealed partial class RoomPlmSystem
     {
         if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand || slot.PreInstruction == 0)
             return;
-        if (slot.PreInstruction != WakeIfSamusHasBombsPreInstruction)
+        if (slot.PreInstruction != BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction)
         {
             throw new InvalidDataException(
                 $"Bomb Torizo hand has invalid pre-instruction $84:{slot.PreInstruction:X4}.");

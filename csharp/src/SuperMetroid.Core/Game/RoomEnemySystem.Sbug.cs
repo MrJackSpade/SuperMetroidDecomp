@@ -494,7 +494,7 @@ public sealed partial class RoomEnemySystem
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
         int tableIndex = (angle + phase) & 0x7f;
-        uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave[tableIndex] * speed;
+        uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * speed;
         return new SbugVelocityWords(
             unchecked((ushort)(product >> 16)),
             unchecked((ushort)product));
@@ -516,7 +516,7 @@ public sealed partial class RoomEnemySystem
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         byte tableAngle = unchecked((byte)(angle + phase));
-        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave[tableAngle & 0x7f];
+        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & 0x7f);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
         ushort pixel = unchecked((ushort)(product >> 8));
         ushort subpixel = unchecked((ushort)(product << 8));

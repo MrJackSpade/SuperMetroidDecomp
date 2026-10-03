@@ -14,16 +14,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < CrocomireProjectileInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            CrocomireProjectileInstructionMechanicsWord definition =
-                CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadCrocomireProjectileInstructionWord(rom, definition.Address),
-                $"Crocomire projectile mechanics word $86:{definition.Address:X4}");
-        }
+        VerifyCrocomireProjectileMechanicsDispatch(rom);
+        VerifyCrocomireProjectilePresentationPositions(rom);
 
         var guard = new CrocomireProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -171,6 +163,57 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyCrocomireProjectileMechanicsDispatch(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+        [
+            0x8fcf, 0x8fd3, 0x8fd7, 0x8fdb, 0x8fdf, 0x8fe3, 0x8fe7, 0x8fe9,
+            0x8feb, 0x8fef, 0x8ff1, 0x8ff3, 0x8ff7, 0x8ff9,
+            0x9007, 0x900b, 0x900f, 0x9013, 0x9017, 0x901b, 0x901d, 0x901f,
+        ];
+        AssertEqual(addresses.Length, CrocomireProjectileInstructionProgramDefinitions.MechanicsWordCount, "Crocomire projectile mechanics count");
+        for (int i = 0; i < addresses.Length; i++)
+        {
+            ushort address = addresses[i];
+            var definition = CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(i);
+            ushort expected = ReadCrocomireProjectileInstructionWord(rom, address);
+            AssertEqual(address, definition.Address, "Crocomire projectile independent mechanics address");
+            AssertEqual(expected, definition.Value, "Crocomire projectile enumerated native word");
+            AssertEqual(expected, CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Crocomire projectile native control dispatch");
+            AssertThrows<InvalidDataException>(() => CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address + 1)), "Crocomire projectile misaligned mechanics word");
+        }
+        // Confirm the complete byte-ownership contract against native addresses,
+        // including the unused program gap and the skipped delete instruction.
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool expected = Array.Exists(addresses, word => address == word || address == word + 1);
+            AssertEqual(expected, CrocomireProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Crocomire projectile mechanics byte domain");
+        }
+        AssertTrue(!CrocomireProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x878fcf), "Crocomire projectile rejects another bank");
+        foreach (ushort address in new ushort[] { 0, 0x8fcd, 0x8fd1, 0x8fed, 0x8ff5, 0x8ffb, 0x9003, 0x9005, 0x9009, 0x9021, 0xffff })
+            AssertThrows<InvalidDataException>(() => CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Crocomire projectile rejects nonmechanics address");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(-1), "negative Crocomire projectile mechanics index");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(22), "Crocomire projectile mechanics index past end");
+    }
+
+    private static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses =
+        [
+            0x8fd1, 0x8fd5, 0x8fd9, 0x8fdd, 0x8fe1, 0x8fe5, 0x8fed, 0x8ff5,
+            0x9009, 0x900d, 0x9011, 0x9015, 0x9019,
+        ];
+        AssertEqual(addresses.Length, CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount, "Crocomire projectile presentation count");
+        for (int i = 0; i < addresses.Length; i++)
+        {
+            ushort actual = CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(i);
+            AssertEqual(addresses[i], actual, "Crocomire projectile independent sprite operand address");
+            AssertEqual(ReadCrocomireProjectileInstructionWord(rom, addresses[i]), ReadCrocomireProjectileInstructionWord(rom, actual), "Crocomire projectile original presentation operand");
+            AssertThrows<InvalidDataException>(() => CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(actual), "Crocomire projectile presentation excluded from mechanics");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(-1), "negative Crocomire projectile presentation index");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(13), "Crocomire projectile presentation index past end");
+    }
     private static int ProbeCrocomireProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;

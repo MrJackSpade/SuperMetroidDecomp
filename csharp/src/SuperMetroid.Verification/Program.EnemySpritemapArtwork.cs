@@ -837,8 +837,8 @@ internal static partial class Program
         AssertTrue(platformFramePointers.Except(selectedPlatformFrames).ToHashSet()
                 .SetEquals(new[]
                 {
-                    RoomEnemySystem.TripperFrozenMovingLeftSpritemap,
-                    RoomEnemySystem.TripperFrozenMovingRightSpritemap,
+                    TripperKamerVisualDefinitions.FrozenMovingLeft,
+                    TripperKamerVisualDefinitions.FrozenMovingRight,
                 }),
             "only Tripper's two direct shot-AI frozen compositions lack animation selectors");
         AssertThrows<InvalidDataException>(

@@ -183,8 +183,6 @@ public sealed partial class RoomEnemySystem
 
     internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
     internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;
-    internal const ushort TripperFrozenMovingLeftSpritemap = 0xa009;
-    internal const ushort TripperFrozenMovingRightSpritemap = 0xa015;
 
     private readonly ushort[] _platformYMovementFunctions = new ushort[MaximumEnemyCount];
     private readonly ushort[] _platformPreviousPositions = new ushort[MaximumEnemyCount];
@@ -225,16 +223,8 @@ public sealed partial class RoomEnemySystem
         // typed dispatcher reject it instead of silently normalizing it to index one.
         state.XMovement = (PlatformHorizontalMovement)slot.Parameter1;
 
-        // Kamer and Tripper use deliberately different apparent facing names for their
-        // vertically-still lists. Select the literal list pointer here; later helpers retain
-        // that same species-specific table instead of trying to infer art orientation.
-        slot.CurrentInstruction = isKamer
-            ? state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.KamerStillLeft
-                : PlatformInstructionProgramDefinitions.KamerStillRight
-            : state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.TripperStillMovingLeft
-                : PlatformInstructionProgramDefinitions.TripperStillMovingRight;
+        slot.CurrentInstruction = PlatformInstructionProgramDefinitions.SelectProgram(
+            isKamer, verticallyMoving: false, state.XMovement);
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
@@ -458,13 +448,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        ushort instruction = state.IsSuspensorPlatform
-            ? state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.KamerMovingLeft
-                : PlatformInstructionProgramDefinitions.KamerMovingRight
-            : state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.TripperMovingLeft
-                : PlatformInstructionProgramDefinitions.TripperMovingRight;
+        ushort instruction = PlatformInstructionProgramDefinitions.SelectProgram(
+            state.IsSuspensorPlatform, verticallyMoving: true, state.XMovement);
         InstallPlatformInstruction(slot, instruction);
     }
 
@@ -472,13 +457,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        ushort instruction = state.IsSuspensorPlatform
-            ? state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.KamerStillLeft
-                : PlatformInstructionProgramDefinitions.KamerStillRight
-            : state.XMovement == PlatformHorizontalMovement.Left
-                ? PlatformInstructionProgramDefinitions.TripperStillMovingLeft
-                : PlatformInstructionProgramDefinitions.TripperStillMovingRight;
+        ushort instruction = PlatformInstructionProgramDefinitions.SelectProgram(
+            state.IsSuspensorPlatform, verticallyMoving: false, state.XMovement);
         InstallPlatformInstruction(slot, instruction);
     }
 

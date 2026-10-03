@@ -11,8 +11,47 @@ internal static partial class Program
     {
         var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(cartridge)));
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
+        byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(cartridge);
+        SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(extracted));
+        foreach (var (field, source) in new[] { ("varia", 0x9b9520), ("gravity", 0x9b9800) })
+        {
+            var differences = (Dictionary<int, ushort>)typeof(SamusSuitColorCatalog)
+                .GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(colors)!;
+            AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
+            for (int color = 0; color < 16; color++)
+            {
+                ushort powerColor = ReadVerificationWord(cartridge, 0x9b9400 + 2 * color);
+                ushort suitColor = ReadVerificationWord(cartridge, source + 2 * color);
+                AssertEqual(powerColor != suitColor, differences.TryGetValue(color, out ushort stored), "Every native shared/different slot is independently classified");
+                if (powerColor != suitColor) AssertEqual(suitColor, stored, "Differing native word is preserved");
+            }
+        }
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+            if (offset is not (0 or 2 or 4))
+                AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((ushort)offset, 0), "Complete invalid suit-offset domain");
+        foreach (ushort offset in new ushort[] { 0, 2, 4 })
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(offset, invalid), "Normal color index bounds");
+        foreach (bool powerOnly in new[] { false, true })
+        {
+            var document = JsonSerializer.Deserialize<SamusSuitColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+            int ordinal = 1000;
+            foreach (var palette in new[] { document.Power, document.Varia, document.Gravity })
+            for (int color = 0; color < 16; color++, ordinal++)
+                if (!powerOnly || ReferenceEquals(palette, document.Power))
+                    palette[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+            var edited = SamusSuitColorCatalog.Load(new MemoryStream(SamusSuitColorCatalog.Write(document)));
+            ordinal = 1000;
+            for (int suit = 0; suit < 3; suit++)
+            for (int color = 0; color < 16; color++, ordinal++)
+            {
+                int source = suit == 0 ? 0x9b9400 : suit == 1 ? 0x9b9520 : 0x9b9800;
+                ushort expected = !powerOnly || suit == 0 ? (ushort)ordinal : ReadVerificationWord(cartridge, source + 2 * color);
+                AssertEqual(expected, edited.Resolve((ushort)(2 * suit), color), "Every supplied suit color survives independent Power/suit edits");
+            }
+        }
         ushort[] equipment =
         [
             0,

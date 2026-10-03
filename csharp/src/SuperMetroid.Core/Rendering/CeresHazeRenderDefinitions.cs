@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -14,7 +15,7 @@ internal static class CeresHazeRenderDefinitions
     /// <summary>Each subsequent HDMA color band spans eight physical scanlines.</summary>
     internal const int BandHeight = 8;
     /// <summary>$88:DE2D's final table write uses counter fifteen; the following call only changes pre-instruction.</summary>
-    internal const int MaximumComponent = 15;
+    internal const int MaximumComponent = CeresHazeDefinitions.FadeSteps - 1;
 
     /// <summary>
     /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade
@@ -28,9 +29,10 @@ internal static class CeresHazeRenderDefinitions
             : Math.Min(MaximumComponent,
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
-        PaletteRgb5 tint = ridleyIsDead
-            ? colors?.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed
-            : colors?.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue;
+        PaletteRgb5? custom = ridleyIsDead ? colors?.CeresHazeRed : colors?.CeresHazeBlue;
+        (int Red, int Green, int Blue) tint = custom is null
+            ? RoomFxPaletteBlendDefinitions.StockCeresHazeComponents(ridleyIsDead)
+            : (custom.Red, custom.Green, custom.Blue);
         static byte Scale(int component, int channel) =>
             (byte)Math.Min(31, (component * channel + MaximumComponent / 2) / MaximumComponent);
         return (Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));

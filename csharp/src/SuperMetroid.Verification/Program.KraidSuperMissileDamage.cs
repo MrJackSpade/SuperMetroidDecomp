@@ -13,7 +13,9 @@ internal static partial class Program
     private static int VerifyKraidSuperMissileDamage()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        var installation=new GameInstallation(GameAssetInstaller.DesktopRoot);
+        string fixtureRoot = Path.GetFullPath("out/workbook-investigation/kraid-super-missile-install");
+        var installation = GameAssetInstaller.EnsureInstalled(fixtureRoot)
+            ?? GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), fixtureRoot);
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         game.BindMapPresentation(installation.LoadMaps());

@@ -21,30 +21,19 @@ internal static class RoomPlmBombBlockProgramDefinitions
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
     }
 
-    private static readonly Program[] Programs =
-    [
-        new(RoomPlmInstructionLists.CollisionBombBlock1x1Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock1x1Respawning, true, 0),
-        new(RoomPlmInstructionLists.CollisionBombBlock2x1Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock2x1Respawning, true, 1),
-        new(RoomPlmInstructionLists.CollisionBombBlock1x2Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock1x2Respawning, true, 2),
-        new(RoomPlmInstructionLists.CollisionBombBlock2x2Respawning,
-            RoomPlmInstructionLists.ReactionBombBlock2x2Respawning, true, 3),
-        new(RoomPlmInstructionLists.CollisionBombBlock1x1Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock1x1Permanent, false, 0),
-        new(RoomPlmInstructionLists.CollisionBombBlock2x1Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock2x1Permanent, false, 1),
-        new(RoomPlmInstructionLists.CollisionBombBlock1x2Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock1x2Permanent, false, 2),
-        new(RoomPlmInstructionLists.CollisionBombBlock2x2Permanent,
-            RoomPlmInstructionLists.ReactionBombBlock2x2Permanent, false, 3),
-    ];
+    private const int ProgramCount = 8;
+
+    // BTS low bits select size; bit two selects permanent versus respawning.
+    // The collision and projectile heads enter the same shape-specific tail.
+    private static Program ProgramAt(int index) => new(
+        RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
+        RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
 
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             int dimension = program.Dimension;
             int drawOffset = address - program.Tail - 2;
             if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
@@ -70,8 +59,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.CollisionHead || address == program.ReactionHead)
             {
                 value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3;
@@ -123,8 +113,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.CollisionHead + 2)
             {
                 value = CollisionBreakSoundId;
@@ -144,8 +135,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsWordAddresses()
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return program.CollisionHead;
             yield return checked((ushort)(program.CollisionHead + 3));
             yield return checked((ushort)(program.CollisionHead + 5));
@@ -161,8 +153,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsByteAddresses()
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return checked((ushort)(program.CollisionHead + 2));
             yield return checked((ushort)(program.ReactionHead + 2));
         }

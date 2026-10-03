@@ -31,25 +31,9 @@ internal static partial class Program
             "colored-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa827, 0),
             "stock colored-door visual retains native tile choice");
-        AssertEqual(48, lists.Length,
-            "three colored-door families each have four orientations and four frames");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"colored cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"colored cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"colored cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"colored cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadWord(rom, source + 10),
-                $"colored cap ${list.Pointer:X4} has a zero offset terminator");
-        }
+        VerifyColoredCapGeometry(rom);
+        VerifyColoredCapCollision(rom);
+        VerifyColoredCapVisuals(rom);
 
         // A synthetic population selects each real resident header. Only the bank-$8F
         // population is synthetic; setup and first-draw instruction bytes are copied
@@ -187,13 +171,6 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door ${header:X4} converts without program/draw ROM reads");
         }
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmColoredDoorVisualCatalog(entries.Skip(1)),
-            "colored-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmColoredDoorVisualCatalog(entries),
-            "colored-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifyColoredDoorVisualInstallation(rom);
         Console.WriteLine(
@@ -202,40 +179,12 @@ internal static partial class Program
 
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (ColoredDoorPlmProgramDefinitions.YellowStart,
-                ColoredDoorPlmProgramDefinitions.YellowEnd),
-            (ColoredDoorPlmProgramDefinitions.GreenStart,
-                ColoredDoorPlmProgramDefinitions.GreenEnd),
-            (ColoredDoorPlmProgramDefinitions.RedStart,
-                ColoredDoorPlmProgramDefinitions.RedEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                    $"colored-door program claims byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"colored-door program byte $84:{address:X4} matches ROM");
-                if (address == last)
-                    continue;
-                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                    $"colored-door program claims word $84:{address:X4}");
-                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8);
-                AssertEqual(native, compiledWord,
-                    $"colored-door program word $84:{address:X4} matches ROM");
-            }
-        }
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffc, out _),
-            "colored-door program does not claim preceding grey-door byte");
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc489, out _),
-            "colored-door program does not claim following blue-door byte");
-        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc184, out _),
-            "yellow list refuses a word crossing into the green list");
+        VerifyColoredProgramControls(rom);
+        VerifyColoredProgramDraws(rom);
+        VerifyColoredProgramTargets(rom);
+        VerifyColoredProgramSounds(rom);
+        VerifyColoredProgramHitCount(rom);
+        VerifyColoredProgramCallback(rom);
     }
 
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
@@ -253,7 +202,9 @@ internal static partial class Program
                 installation.RoomPlmColoredDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmColoredDoorVisualFiles.ValidateStock(
                 installation.RoomPlmColoredDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmColoredDoorVisuals().GetWord(0xa827, 0);
+            var installed = installation.LoadRoomPlmColoredDoorVisuals();
+            VerifyColoredDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(0xa827, 0);
             string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

@@ -17,31 +17,41 @@ public readonly record struct QuicksandReactionDefinition(
 /// <summary>Compiled Maridia quicksand dispatch and physical definition data.</summary>
 public static class QuicksandDefinitions
 {
-    /// <summary>Complete eight-header sand-reaction domain from bank $84.</summary>
-    public static ReadOnlySpan<QuicksandReactionDefinition> Reactions => reactions;
-
     /// <summary>
     /// `$84:B48B-$84:B495`, suit-indexed moving displacement, stationary
     /// displacement, and upward-speed-limit words used by the surface reaction.
+    /// Gravity equipment selects one of two named scalar cases. Words are unsigned 8.8:
+    /// airborne displacement is 2 for either suit, grounded displacement is 1.125/1,
+    /// and the NTSC upward cap is 2.5/3.5 without/with Gravity. Consumers shift by eight
+    /// for 16.16 displacement and compare the middle word of upward velocity.
     /// </summary>
     public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>
         gravitySuit ? withGravitySuit : withoutGravitySuit;
 
-    /// <summary>Resolves one of the eight authored sand headers without reading executable metadata.</summary>
+    /// <summary>
+    /// Named setup dispatch for the eight supported sand headers at $84:B713..B73F.
+    /// All select the shared delete list; unsupported pointers return false/default,
+    /// including the unused surface clones between the named headers. No table is stored.
+    /// </summary>
     public static bool TryGetReaction(
         ushort header,
         out QuicksandReactionDefinition definition)
     {
-        foreach (QuicksandReactionDefinition candidate in reactions)
+        // Native headers select behavior; the gaps contain unused clones outside this API.
+        ushort setup = header switch
         {
-            if (candidate.HeaderPointer != header)
-                continue;
-            definition = candidate;
-            return true;
-        }
-
-        definition = default;
-        return false;
+            QuicksandRomData.SurfaceInsideHeader => QuicksandRomData.SurfaceSetup,
+            QuicksandRomData.SubmergingInsideHeader => QuicksandRomData.SubmergingSetup,
+            QuicksandRomData.SlowFallsInsideHeader => QuicksandRomData.SlowFallsSetup,
+            QuicksandRomData.FastFallsInsideHeader => QuicksandRomData.FastFallsSetup,
+            QuicksandRomData.SurfaceCollisionHeader => QuicksandRomData.SurfaceCollision,
+            QuicksandRomData.SubmergingCollisionHeader => QuicksandRomData.SubmergingCollision,
+            QuicksandRomData.SlowFallsCollisionHeader or QuicksandRomData.FastFallsCollisionHeader =>
+                QuicksandRomData.SandFallsCollision,
+            _ => 0,
+        };
+        definition = setup == 0 ? default : new(header, setup, RoomPlmInstructionLists.Delete);
+        return setup != 0;
     }
 
     /// <summary>Resolves one supported sand header or rejects an invalid allocator request.</summary>
@@ -58,24 +68,4 @@ public static class QuicksandDefinitions
 
     private static readonly QuicksandSurfacePhysics withGravitySuit =
         new(0x0200, 0x0100, 0x0380);
-
-    private static readonly QuicksandReactionDefinition[] reactions =
-    [
-        new(QuicksandRomData.SurfaceInsideHeader, QuicksandRomData.SurfaceSetup,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.SubmergingInsideHeader, QuicksandRomData.SubmergingSetup,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.SlowFallsInsideHeader, QuicksandRomData.SlowFallsSetup,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.FastFallsInsideHeader, QuicksandRomData.FastFallsSetup,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.SurfaceCollisionHeader, QuicksandRomData.SurfaceCollision,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.SubmergingCollisionHeader, QuicksandRomData.SubmergingCollision,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.SlowFallsCollisionHeader, QuicksandRomData.SandFallsCollision,
-            RoomPlmInstructionLists.Delete),
-        new(QuicksandRomData.FastFallsCollisionHeader, QuicksandRomData.SandFallsCollision,
-            RoomPlmInstructionLists.Delete),
-    ];
 }

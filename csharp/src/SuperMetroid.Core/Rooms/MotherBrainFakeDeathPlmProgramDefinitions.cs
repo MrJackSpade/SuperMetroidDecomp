@@ -15,33 +15,7 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// <summary>Native size of each timer/draw/delete list in bytes.</summary>
     internal const int ProgramByteLength = 6;
 
-    private static readonly ushort[] DrawPointers =
-    [
-        MotherBrainFakeDeathPlmDrawDefinitions.FillWall,
-        MotherBrainFakeDeathPlmDrawDefinitions.EscapeDoor,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow2,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow3,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow4,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow5,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow6,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow7,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow8,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow9,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowA,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowB,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowC,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowD,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowEUnused,
-        MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowFUnused,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingBlock,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingTube,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleSideTube,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleTubes,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube,
-        MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
-    ];
-
-    internal static int ProgramCount => DrawPointers.Length;
+    internal static int ProgramCount => (EndExclusive - Start) / ProgramByteLength;
 
     internal static IEnumerable<ushort> NativeWordAddresses() =>
         Enumerable.Range(0, ProgramCount * 3)
@@ -55,15 +29,39 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
             value = 0;
             return false;
         }
-        int programIndex = offset / ProgramByteLength;
         value = (offset % ProgramByteLength) switch
         {
             0 => (ushort)1,
-            2 => DrawPointers[programIndex],
+            2 => DrawForProgram(address - 2),
             4 => checked((ushort)RoomPlmInstructionCodes.Delete),
             _ => throw new InvalidDataException(
                 $"Mother Brain instruction offset {offset} is not a word."),
         };
         return true;
+    }
+
+    /// <summary>
+    /// Background row 2 through unused F selects thirteen-word horizontal draws
+    /// with thirty-byte stride. Wall, door and tube lists select their named draw.
+    /// This is called only for aligned, bounded draw operands in AC05..AC88.
+    /// </summary>
+    private static ushort DrawForProgram(int start)
+    {
+        if (start >= RoomPlmInstructionLists.MotherBrainsBackgroundRow2 &&
+            start < RoomPlmInstructionLists.ClearMotherBrainCeilingBlock)
+            return (ushort)(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow2 +
+                (start - RoomPlmInstructionLists.MotherBrainsBackgroundRow2) / ProgramByteLength * 30);
+        return start switch
+        {
+            RoomPlmInstructionLists.FillMotherBrainsWall => MotherBrainFakeDeathPlmDrawDefinitions.FillWall,
+            RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor => MotherBrainFakeDeathPlmDrawDefinitions.EscapeDoor,
+            RoomPlmInstructionLists.ClearMotherBrainCeilingBlock => MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingBlock,
+            RoomPlmInstructionLists.ClearMotherBrainCeilingTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingTube,
+            RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleSideTube,
+            RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleTubes,
+            RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube,
+            RoomPlmInstructionLists.ClearMotherBrainBottomRightTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
+            _ => throw new InvalidOperationException("Invalid bounded Mother Brain mutation program."),
+        };
     }
 }

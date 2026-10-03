@@ -5,48 +5,14 @@ internal static partial class Program
 {
     private static void VerifyCompiledCrocomireArenaPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = CrocomireArenaPlmProgramDefinitions.NativeWordAddresses().ToArray();
-        AssertEqual(15, addresses.Length, "Crocomire owns fifteen instruction words");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort compiled), $"Crocomire instruction ${address:X4} is compiled");
-            AssertEqual(ReadRomWord(rom, address), compiled,
-                $"Crocomire instruction ${address:X4} matches pinned ROM");
-        }
-        AssertTrue(!CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(
-                CrocomireArenaPlmProgramDefinitions.EndExclusive, out _),
-            "following save-station instruction is not claimed");
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire native oracle revision");
+        VerifyCrocomireProgramControls(rom);
+        VerifyCrocomireProgramDraws(rom);
 
-        RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
-            CrocomireArenaPlmDrawDefinitions.All.ToArray();
-        AssertEqual(5, draws.Length, "Crocomire owns five draw lists");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
-        {
-            int cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertEqual(ReadRomWord(rom, cursor), run.DirectionAndCount,
-                    $"Crocomire draw ${draw.Pointer:X4} direction/count at ${cursor:X4}");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(ReadRomWord(rom, cursor), word,
-                        $"Crocomire draw ${draw.Pointer:X4} word at ${cursor:X4}");
-                    cursor += 2;
-                }
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
-                    $"Crocomire draw ${draw.Pointer:X4} X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
-                    $"Crocomire draw ${draw.Pointer:X4} Y offset");
-            }
-            AssertTrue(cursor <= CrocomireArenaPlmDrawDefinitions.EndExclusive,
-                $"Crocomire draw ${draw.Pointer:X4} stays in bounded region");
-        }
+        VerifyCrocomirePhysicalDrawMapping(rom);
 
         VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireBridge,
             (x, y) => y == 0 && x < 10 ? (ushort)0x0080 : (ushort)0x8123);
@@ -60,9 +26,6 @@ internal static partial class Program
             (x, y) => x < 3 && y < 8 ? WallWord(x, y, true) : (ushort)0x8123);
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
-        static ushort ReadRomWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(0x840000 | address) |
-                bus.ReadByte(0x840000 | (address + 1)) << 8);
     }
 
     private static ushort WallWord(int x, int y, bool solid)

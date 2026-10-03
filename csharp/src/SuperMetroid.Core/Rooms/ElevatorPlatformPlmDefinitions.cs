@@ -16,29 +16,60 @@ internal static class ElevatorPlatformPlmDefinitions
     /// <summary>Third elevator-platform draw list, $84:AAC7.</summary>
     internal const ushort ThirdDraw = 0xaac7;
 
-    private static readonly (ushort Address, ushort Value)[] Program =
-    [
-        (0xafb6, 4), (0xafb8, FirstDraw),
-        (0xafba, 4), (0xafbc, SecondDraw),
-        (0xafbe, 4), (0xafc0, ThirdDraw),
-        (0xafc2, 4), (0xafc4, SecondDraw),
-        (0xafc6, RoomPlmInstructionCodes.Goto), (0xafc8, InstructionLoop),
-    ];
-
-    private static readonly IReadOnlyDictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists =
-        new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
+    /// <summary>
+    /// Three frames at $84:AA97..AADE, each with two upper edge cells and a
+    /// four-cell lower row. All cells are solid. Edge art advances one tile per
+    /// frame; lower art advances two, mirrored about the platform centre.
+    /// Continuations are absolute offsets (3,0), (0,1), then the terminator.
+    /// </summary>
+    internal readonly record struct Draw(ushort Pointer, int Frame)
+    {
+        internal int RunCount => Pointer == 0 ? 0 : 3;
+        private void CheckRun(int run)
         {
-            [FirstDraw] = CreateDraw(FirstDraw, 0x8085, 0x8485,
-                0x8088, 0x8089, 0x8489, 0x8488),
-            [SecondDraw] = CreateDraw(SecondDraw, 0x8086, 0x8486,
-                0x808a, 0x808b, 0x848b, 0x848a),
-            [ThirdDraw] = CreateDraw(ThirdDraw, 0x8087, 0x8487,
-                0x808c, 0x808d, 0x848d, 0x848c),
-        };
-
-    internal static ReadOnlySpan<(ushort Address, ushort Value)> ProgramWords => Program;
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists => Lists.Values;
+            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+        }
+        internal int WordCount(int run)
+        {
+            CheckRun(run);
+            return run == 2 ? 4 : 1;
+        }
+        internal sbyte NextX(int run)
+        {
+            CheckRun(run);
+            return run == 0 ? (sbyte)3 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return run == 1 ? (sbyte)1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int cell)
+        {
+            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            bool right = run == 1 || run == 2 && cell >= 2;
+            int tile = run < 2 ? 0x85 + Frame : 0x88 + Frame * 2 + Math.Min(cell, 3 - cell);
+            return (ushort)(0x8000 | (right ? 0x400 : 0) | tile);
+        }
+    }
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        int offset = pointer - FirstDraw;
+        bool owned = offset >= 0 && offset <= ThirdDraw - FirstDraw && offset % 24 == 0;
+        draw = owned ? new(pointer, offset / 24) : default;
+        return owned;
+    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
+    {
+        get
+        {
+            for (int frame = 0; frame < 3; frame++)
+            {
+                TryGetDraw((ushort)(FirstDraw + frame * 24), out var list);
+                yield return list;
+            }
+        }
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -58,37 +89,47 @@ internal static class ElevatorPlatformPlmDefinitions
             "third-frame" => ThirdDraw,
             _ => 0,
         };
-        return Lists.TryGetValue(pointer, out list);
+        return TryGetDraw(pointer, out list);
     }
 
+    /// <summary>
+    /// $84:AFB6..AFC8, ten aligned words: four holds of four ticks with a
+    /// first/second/third/second ping-pong selection, then Goto the loop start.
+    /// Only original word starts are owned; odd and adjacent reads are rejected.
+    /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach ((ushort candidate, ushort word) in Program)
+        int offset = address - InstructionLoop;
+        if (offset < 0 || offset > 18 || (offset & 1) != 0)
         {
-            if (candidate == address)
-            {
-                value = word;
-                return true;
-            }
+            value = 0;
+            return false;
         }
-        value = 0;
-        return false;
+        if (offset == 16) value = RoomPlmInstructionCodes.Goto;
+        else if (offset == 18) value = InstructionLoop;
+        else if ((offset & 3) == 0) value = 4;
+        else
+        {
+            int phase = offset / 4;
+            int frame = 2 - Math.Abs(phase - 2);
+            value = (ushort)(FirstDraw + frame * 24);
+        }
+        return true;
     }
 
-    internal static bool TryGetDraw(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
-
-    private static RoomPlmShotBlockDrawDefinitions.DrawList CreateDraw(
-        ushort pointer, ushort upperLeft, ushort lowerLeft,
-        ushort centerTopLeft, ushort centerTopRight,
-        ushort centerBottomRight, ushort centerBottomLeft) =>
-        new(pointer,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
+    // Temporary artwork DTOs; gameplay draws calculate cells directly.
+    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
         {
-            new(1, new ushort[] { upperLeft }, 3, 0),
-            new(1, new ushort[] { lowerLeft }, 0, 1),
-            new(4, new ushort[] { centerTopLeft, centerTopRight,
-                centerBottomRight, centerBottomLeft }, 0, 0),
-        });
+            var words = new ushort[draw.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, draw.NextX(run), draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
+    }
 }

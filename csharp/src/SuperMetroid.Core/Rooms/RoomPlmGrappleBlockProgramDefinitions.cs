@@ -16,16 +16,20 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         internal ushort TerminalAddress => checked((ushort)(Start + 7 + 4 * FrameCount));
     }
 
-    private static readonly Program[] Programs =
-    [
-        new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
-        new(RoomPlmInstructionLists.PermanentBreakableGrappleBlock, false),
-    ];
+    private const int ProgramCount = 2;
+
+    private static Program ProgramAt(int index) => index switch
+    {
+        0 => new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
+        1 => new(RoomPlmInstructionLists.PermanentBreakableGrappleBlock, false),
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
                 value = RoomPlmGrappleBlockDrawDefinitions.Grapple;
@@ -34,11 +38,15 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
             int drawOffset = address - program.Start - 9;
             if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
             {
-                ReadOnlySpan<ushort> draws = [RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
-                    RoomPlmGrappleBlockDrawDefinitions.BreakFrame1, RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
-                    RoomPlmGrappleBlockDrawDefinitions.Blank];
                 int frame = drawOffset / 4;
-                value = draws[frame < 4 ? frame : 6 - frame];
+                // Three breakup poses, blank, then the same poses in reverse.
+                value = (frame < 4 ? frame : 6 - frame) switch
+                {
+                    0 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
+                    1 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame1,
+                    2 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
+                    _ => RoomPlmGrappleBlockDrawDefinitions.Blank,
+                };
                 return true;
             }
         }
@@ -48,8 +56,9 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start)
             {
                 value = program.Respawns ? (ushort)240 : (ushort)120;
@@ -100,8 +109,9 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             if (address == program.Start + 6)
             {
                 value = BreakSoundId;
@@ -115,8 +125,9 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsWordAddresses()
     {
-        foreach (Program program in Programs)
+        for (int index = 0; index < ProgramCount; index++)
         {
+            Program program = ProgramAt(index);
             yield return program.Start;
             yield return checked((ushort)(program.Start + 4));
             for (int frame = 0; frame < program.FrameCount; frame++)
@@ -132,7 +143,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
 
     internal static IEnumerable<ushort> MechanicsByteAddresses()
     {
-        foreach (Program program in Programs)
-            yield return checked((ushort)(program.Start + 6));
+        for (int index = 0; index < ProgramCount; index++)
+            yield return checked((ushort)(ProgramAt(index).Start + 6));
     }
 }

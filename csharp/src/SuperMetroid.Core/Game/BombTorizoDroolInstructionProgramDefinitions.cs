@@ -25,51 +25,37 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
 
-    private static readonly ushort[] InitialPrograms =
-    [
-        NoDelay,
-        TwoFrameDelay,
-        FourFrameDelay,
-        NoDelay,
-        TwoFrameDelay,
-        FourFrameDelay,
-        NoDelay,
-        TwoFrameDelay,
-    ];
-
-    private static readonly BombTorizoDroolInstructionMechanicsWord[] Words =
-    [
-        new(FourFrameDelay, 2),
-        new(TwoFrameDelay, 2),
-        new(NoDelay, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xa474, FallingPreInstruction),
-        new(0xa476, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xa478, 0x3000),
-        new(0xa47a, 5),
-        new(0xa47e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
-        new(0xa480, 0xefff),
-        new(FallingLoop, 0x0040),
-        new(0xa486, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xa488, FallingLoop),
-        new(WallImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xa48c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(FloorImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xa490, 8),
-        new(0xa494, 8),
-        new(0xa498, 8),
-        new(0xa49c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xa46c, 0xa470, 0xa47c, 0xa484, 0xa492, 0xa496, 0xa49a,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BombTorizoDroolInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => 19;
+    internal static int PresentationWordCount => 7;
+    internal static BombTorizoDroolInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        // Every two-byte word in the bounded program is control except the seven visuals.
+        for (ushort address = FourFrameDelay; address <= FloorImpact + 14; address += 2)
+        {
+            if (IsPresentationWord(address)) continue;
+            if (index-- == 0) return new(address, ReadMechanicsWord(address));
+        }
+        throw new InvalidOperationException("Drool program word count does not match its layout.");
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return index switch
+        {
+            < 2 => (ushort)(FourFrameDelay + 2 + 4 * index),
+            2 => NoDelay + 10,
+            3 => FallingLoop + 2,
+            _ => (ushort)(FloorImpact + 4 + 4 * (index - 4)),
+        };
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int impact = address - (FloorImpact + 4);
+        return address == FourFrameDelay + 2 || address == TwoFrameDelay + 2 ||
+            address == NoDelay + 10 || address == FallingLoop + 2 ||
+            ((uint)impact < 12 && impact % 4 == 0);
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
@@ -80,34 +66,39 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
     /// <c>$86:A64D</c> low-health-drool instruction-list table.
     /// </summary>
     internal static ushort SelectLowHealthInitialProgram(ushort random) =>
-        InitialPrograms[(random >> 2) & 7];
-
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        (((random >> 2) & 7) % 3) switch
         {
-            int middle = low + ((high - low) >> 1);
-            BombTorizoDroolInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address) return candidate.Value;
-            if (candidate.Address < address) low = middle + 1;
-            else high = middle - 1;
-        }
+            0 => NoDelay,
+            1 => TwoFrameDelay,
+            _ => FourFrameDelay,
+        };
 
-        throw new InvalidDataException(
-            $"Bomb Torizo drool mechanics pointer $86:{address:X4} is not compiled.");
-    }
+    internal static ushort ReadMechanicsWord(ushort address) => address switch
+    {
+        // Each blank frame adds two ticks before falling setup.
+        FourFrameDelay or TwoFrameDelay => 2,
+        NoDelay => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
+        NoDelay + 2 => FallingPreInstruction,
+        NoDelay + 4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY,
+        NoDelay + 6 => 0x3000,
+        NoDelay + 8 => 5,
+        NoDelay + 12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY,
+        NoDelay + 14 => 0xefff,
+        FallingLoop => 64,
+        FallingLoop + 4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+        FallingLoop + 6 => FallingLoop,
+        // Wall collision deletes immediately; floor collision shows three eight-tick poses.
+        WallImpact or FloorImpact => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+        WallImpact + 2 or FloorImpact + 14 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        FloorImpact + 2 or FloorImpact + 6 or FloorImpact + 10 => 8,
+        _ => throw new InvalidDataException($"Bomb Torizo drool mechanics pointer $86:{address:X4} is not compiled."),
+    };
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        foreach (BombTorizoDroolInstructionMechanicsWord word in Words)
-        {
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
+        int offset = unchecked((ushort)address) - FourFrameDelay;
+        return (uint)offset < FloorImpact + 16 - FourFrameDelay &&
+            !IsPresentationWord((ushort)(FourFrameDelay + (offset & ~1)));
     }
 }

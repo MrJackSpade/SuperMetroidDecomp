@@ -74,7 +74,7 @@ internal static partial class Program
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
                 var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-                foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+                foreach (CrocomireMeltingCopy copy in pass.Copies)
                 {
                     int destination = copy.DestinationWord - 0x4000;
                     for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)

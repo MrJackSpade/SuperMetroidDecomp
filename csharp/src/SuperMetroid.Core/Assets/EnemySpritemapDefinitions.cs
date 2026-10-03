@@ -724,11 +724,6 @@ internal static class EnemySpritemapDefinitions
         .. RidleyBreakupVisualDefinitions.Claw,
     ];
 
-    private static readonly ushort[] AtomicUpRightFrames =
-        [0xe489, 0xe49f, 0xe4b5, 0xe4cb, 0xe4e1, 0xe4f2];
-    private static readonly ushort[] AtomicUpLeftFrames =
-        [0xe508, 0xe51e, 0xe534, 0xe54a, 0xe560, 0xe571];
-
     internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
 
     /// <summary>
@@ -944,39 +939,44 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.RipperDefinition;
     }
 
-    /// <summary>Reads only the 38 Fune/Namihe presentation operands from their eight native programs.</summary>
+    /// <summary>Selects opening/recovery poses in the two directional sprite strips.
+    /// Every native map has eight five-byte OAM entries and a two-byte count.</summary>
     internal static ushort FuneNamiheFrameAt(ushort operandAddress)
     {
-        if (FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(FuneNamiheBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
+        if (!FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
+        bool namihe = operandAddress >= FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft;
+        int stride = namihe ? 52 : 48;
+        int offset = operandAddress - (namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
+            : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft);
+        int local = offset % stride;
+        int peak = namihe ? 5 : 4;
+        int recovery = 12 + 4 * peak;
+        int pose = local == 2 ? 0 : local < recovery ? (local - 8) / 4
+            : peak - (local - recovery) / 4;
+        return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
     }
-
-    /// <summary>Four cartridge selectors in Kamer platform's $A2:EDE7 loop.</summary>
+    /// <summary>Four consecutive Kamer maps, each holding two five-byte OAM
+    /// records after its two-byte count, selected in forward animation order.</summary>
     internal static ushort KamerPlatformFrameAt(ushort operandAddress)
     {
-        if (operandAddress is (0xede9 or 0xeded or 0xedf1 or 0xedf5) &&
-            CompiledEnemyVisualSelectors.TryGet(KamerPlatformBank,
-                operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
+        if (!VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
+        int frame = (operandAddress - (VerticalShutterInstructionProgramDefinitions.KamerPlatform + 2)) / 4;
+        return (ushort)(0xf468 + 12 * frame);
     }
-
-    /// <summary>The two visual operands in the native $A3:94D6 elevator loop.</summary>
+    /// <summary>Two elevator maps in forward animation order. Each native map
+    /// contains four five-byte OAM entries after its two-byte count.</summary>
     internal static ushort ElevatorFrameAt(ushort operandAddress)
     {
-        if (operandAddress is (0x94d8 or 0x94dc) &&
-            CompiledEnemyVisualSelectors.TryGet(ElevatorBank,
-                operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
+        if (!ElevatorInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+            throw new InvalidDataException(
+                $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
+        int frame = (operandAddress - (ElevatorInstructionProgramDefinitions.Loop + 2)) / 4;
+        return (ushort)(0x962f + 22 * frame);
     }
-
     /// <summary>
     /// Rio's twenty-four fixed presentation operands at $A2:BB4D..BBB5 select
     /// eight distinct extracted OAM compositions. The instruction timing, swoop
@@ -1057,10 +1057,29 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort AlcoonFrameAt(ushort operandAddress)
     {
-        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(AlcoonBank, operandAddress,
-                out ushort frame))
-            return frame;
+        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int offset = operandAddress - AlcoonInstructionProgramDefinitions.WalkingLeft;
+            int local = offset % 112;
+            int pose = local switch
+            {
+                < 28 => (local - 4) / 6,
+                < 94 => ((local - 28) % 22) switch
+                {
+                    2 => 4,             // Wing extended before the shot.
+                    6 or 14 => 5,       // Mouth opening, also used for windup.
+                    10 => 6,            // Ready to spit.
+                    _ => 7,             // Recovery after firing.
+                },
+                98 => 7,                // Trailing recovery pose after StartWalking.
+                102 => 8,               // Airborne, looking up.
+                _ => 3,                 // Airborne, looking forward reuses walking pose.
+            };
+            // Nine records per facing. Each has a two-byte count and six five-byte
+            // OAM entries, except poses2/5 have seven and pose6 has nine:313 bytes.
+            return (ushort)(0xdfa2 + 313 * (offset / 112) + 32 * pose +
+                (pose > 2 ? 5 : 0) + (pose > 5 ? 5 : 0) + (pose > 6 ? 15 : 0));
+        }
         throw new InvalidDataException(
             $"Alcoon visual operand $A8:{operandAddress:X4} is not compiled.");
     }
@@ -1071,10 +1090,33 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort BeetomFrameAt(ushort operandAddress)
     {
-        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(BeetomBank, operandAddress,
-                out ushort frame))
-            return frame;
+        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int stride = BeetomInstructionProgramDefinitions.CrawlingRight - BeetomInstructionProgramDefinitions.CrawlingLeft;
+            int offset = operandAddress - BeetomInstructionProgramDefinitions.CrawlingLeft;
+            int local = offset % stride;
+            int pose;
+            if (local < BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            {
+                int frame = (local - 4) / 4;
+                pose = 2 - Math.Abs(2 - frame);
+            }
+            else if (local < BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            {
+                int frame = (local - (BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft) - 4) / 4;
+                pose = frame == 3 ? 0 : 4 - Math.Abs(1 - frame);
+            }
+            else
+            {
+                int drain = local - (BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft);
+                bool loop = drain >= 20;
+                int frame = (drain - (loop ? 20 : 2)) / 4;
+                pose = (loop ? 8 : 5) + 2 - Math.Abs(2 - frame);
+            }
+            // Each facing owns eight five-entry maps (27 bytes) then three six-entry
+            // maps (32 bytes). Account for the extra entry only after the eighth map.
+            return (ushort)(0xbed3 + 312 * (offset / stride) + 27 * pose + 5 * Math.Max(0, pose - 8));
+        }
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
     }
@@ -1237,21 +1279,22 @@ internal static class EnemySpritemapDefinitions
     /// The ten fixed pointer operands interleaved with Boyon's compiled idle and bounce
     /// instructions. Repeated frames retain the cartridge's exact visual sequence.
     /// </summary>
-    internal static ushort BoyonFrameAt(ushort operandAddress) => operandAddress switch
+    internal static ushort BoyonFrameAt(ushort operandAddress)
     {
-        0x86ad => 0x88da,
-        0x86b1 => 0x88e1,
-        0x86b5 => 0x88e8,
-        0x86b9 => 0x88e1,
-        0x86c5 => 0x88ef,
-        0x86c9 => 0x88f6,
-        0x86cd => 0x88fd,
-        0x86d1 => 0x8904,
-        0x86d5 => 0x88fd,
-        0x86d9 => 0x88f6,
-        _ => throw new InvalidDataException(
-            $"Boyon visual operand $A2:{operandAddress:X4} is not compiled."),
-    };
+        if (BoyonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            bool bouncing = operandAddress >= BoyonInstructionProgramDefinitions.Bouncing;
+            int firstOperand = (bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + 6;
+            int frame = (operandAddress - firstOperand) / 4;
+            int peak = bouncing ? 3 : 2;
+            int pose = peak - Math.Abs(peak - frame);
+            // One five-byte OAM entry and a two-byte count per frame; both sequences
+            // advance to their peak pose then reverse without repeating the endpoints.
+            return (ushort)((bouncing ? 0x88ef : 0x88da) + 7 * pose);
+        }
+        throw new InvalidDataException(
+            $"Boyon visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
 
     /// <summary>
     /// Four native Cacatac programs: eight idle frames and four attack selectors
@@ -1333,18 +1376,17 @@ internal static class EnemySpritemapDefinitions
     /// </summary>
     internal static ushort AtomicFrameAt(ushort operandAddress)
     {
-        if (operandAddress >= 0xe312 && operandAddress <= 0xe326 &&
-            (operandAddress - 0xe312) % 4 == 0)
-            return AtomicUpRightFrames[(operandAddress - 0xe312) / 4];
-        if (operandAddress >= 0xe32e && operandAddress <= 0xe342 &&
-            (operandAddress - 0xe32e) % 4 == 0)
-            return AtomicUpLeftFrames[(operandAddress - 0xe32e) / 4];
-        if (operandAddress >= 0xe34a && operandAddress <= 0xe35e &&
-            (operandAddress - 0xe34a) % 4 == 0)
-            return AtomicUpRightFrames[5 - (operandAddress - 0xe34a) / 4];
-        if (operandAddress >= 0xe366 && operandAddress <= 0xe37a &&
-            (operandAddress - 0xe366) % 4 == 0)
-            return AtomicUpLeftFrames[5 - (operandAddress - 0xe366) / 4];
+        int offset = operandAddress - 0xe312;
+        if (AtomicInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int direction = offset / 28;
+            int frame = offset % 28 / 4;
+            if (direction >= 2) frame = 5 - frame;
+            // Each spiral has six records: a two-byte count and four five-byte
+            // OAM entries, except frame four has three entries. Its shorter record
+            // moves frame five back five bytes and makes the spiral span127 bytes.
+            return (ushort)(0xe489 + (direction & 1) * 127 + frame * 22 - (frame == 5 ? 5 : 0));
+        }
         throw new InvalidDataException(
             $"Atomic visual operand $A8:{operandAddress:X4} is not compiled.");
     }

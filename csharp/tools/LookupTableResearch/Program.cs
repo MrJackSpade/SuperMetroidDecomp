@@ -14,8 +14,19 @@ internal static partial class Program
             NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
         try
         {
-            byte[] rom = File.ReadAllBytes(args.Length == 0 ? "Super Metroid.smc" : args.Single());
+            if (args is ["--dsp-gaussian-only"])
+            {
+                VerifyGaussian();
+                return 0;
+            }
+            bool profilesOnly = args is ["--power-bomb-profiles-only"];
+            byte[] rom = File.ReadAllBytes(args.Length == 0 || profilesOnly ? "Super Metroid.smc" : args.Single());
             Equal(ResearchData.RomSha256, Convert.ToHexString(SHA256.HashData(rom)), "NTSC J/U v1.0 oracle identity");
+            if (profilesOnly)
+            {
+                VerifyPowerBombProfiles(rom, definitionsOnly: true);
+                return 0;
+            }
             Verify(rom);
             VerifyGeometry(rom);
             VerifyAudio(rom);
@@ -49,8 +60,8 @@ internal static partial class Program
 
         for (int i = 0; i < 128; i++)
         {
-            Equal(bytes[i], (int)EnemyTrigonometryTables.EightBitHalfWave[i], $"compiled byte {i}");
-            Equal(words[i], (int)EnemyTrigonometryTables.UnsignedHalfWave[i], $"compiled unsigned {i}");
+            Equal(bytes[i], (int)EnemyTrigonometryTables.EightBitHalfWave(i), $"compiled byte {i}");
+            Equal(words[i], (int)EnemyTrigonometryTables.UnsignedHalfWave(i), $"compiled unsigned {i}");
             Equal(bytes[i], ByteSine(i), $"algorithm byte {i}");
             Equal(words[i], UnsignedSine(i), $"algorithm unsigned {i}");
         }
@@ -83,8 +94,8 @@ internal static partial class Program
         Equal(10428, Tangent(63), "mathematical tangent counterexample");
         for (int i = 0; i < 32; i++)
         {
-            Equal(widths[i], (int)PowerBombShapeDefinitions.Widths[i], $"compiled width {i}");
-            Equal(tops[i], (int)PowerBombShapeDefinitions.TopOffsets[i], $"compiled top {i}");
+            Equal(widths[i], (int)PowerBombShapeDefinitions.Width(i), $"compiled width {i}");
+            Equal(tops[i], (int)PowerBombShapeDefinitions.TopOffset(i), $"compiled top {i}");
             Equal(widths[i], Width(i), $"algorithm width {i}");
             Equal(tops[i], Top(i), $"algorithm top {i}");
         }

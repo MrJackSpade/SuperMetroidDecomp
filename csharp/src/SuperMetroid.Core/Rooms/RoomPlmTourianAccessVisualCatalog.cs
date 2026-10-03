@@ -12,55 +12,66 @@ public sealed record RoomPlmTourianAccessVisualEntry(string Id, ushort[] Blocks)
 public sealed class RoomPlmTourianAccessVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmTourianAccessVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmTourianAccessVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[24];
+        foreach (var draw in TourianAccessPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        {
+            TourianAccessPlmDrawDefinitions.TryDescribe(draw.Pointer, out int rows, out _);
+            for (int index = 0; index < rows * 4; index++)
+                words[index] = GetWord(draw.Pointer, index / 4, index % 4);
+            content.Append("frame", draw.Pointer);
+            // Preserve the original flattened-frame hash, including the six-row clear.
+            content.Append("runs", 1);
+            content.AppendWords("words", words[..(rows * 4)]);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customWords;
+
+    private RoomPlmTourianAccessVisualCatalog() { }
 
     public RoomPlmTourianAccessVisualCatalog(
         IEnumerable<RoomPlmTourianAccessVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmTourianAccessVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !TourianAccessPlmDrawDefinitions.TryGetByVisualId(entry.Id,
                     out var draw) ||
+                !TourianAccessPlmDrawDefinitions.TryDescribe(draw.Pointer, out _, out ushort stockWord) ||
                 entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
                     run.LevelWords.Length) ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
                     "Tourian access visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
+            if (!seen.Add(draw.Pointer))
                 throw new InvalidDataException(
                     $"Tourian access visuals repeat frame {entry.Id}.");
+            if (entry.Blocks.Any(word => word != new RoomLevelWord(stockWord).VisualWord))
+                selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != TourianAccessPlmDrawDefinitions.All.Count())
+        if (seen.Count != TourianAccessPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Tourian access visuals do not cover all five compiled layouts.");
-        blocks = selected;
+        if (selected.Count != 0) customWords = selected;
     }
 
-    public static RoomPlmTourianAccessVisualCatalog Stock() => new(
-        TourianAccessPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmTourianAccessVisualEntry(
-                TourianAccessPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
+    /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
+    public static RoomPlmTourianAccessVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words) ||
-            !TourianAccessPlmDrawDefinitions.TryGet(drawPointer, out var draw))
+        if (!TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int rows, out ushort stockWord))
             throw new InvalidDataException(
                 $"Tourian access visuals lack frame ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.Runs.Length ||
-            (uint)blockIndex >= (uint)draw.Runs.Span[runIndex].LevelWords.Length)
+        if ((uint)runIndex >= (uint)rows ||
+            (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        int flatIndex = blockIndex;
-        for (int run = 0; run < runIndex; run++)
-            flatIndex += draw.Runs.Span[run].LevelWords.Length;
-        return words[flatIndex];
+        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+            ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
     }
 }

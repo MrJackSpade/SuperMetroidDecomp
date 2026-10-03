@@ -3,6 +3,19 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>NTSC running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
+/// <remarks>
+/// Independently reviewed for #1165 against the complete NTSC J/U v1.0 catalog and
+/// pinned bank_91.asm, bank_90 stage advancement, and bank_80 Max6 queue accumulator.
+/// Keep these prior conversions: ordinary frames use two ticks; boost stages use
+/// 3, 2+(frame&amp;1), 2, 1+(frame&amp;1), and 1 tick, respectively. Every stream ends
+/// at frame ten with command $FF. Pointers advance by eleven bytes; reset words are
+/// one for stages0..3 and two for stage4. Separate named proofs cover each logical
+/// mapping and byte view. This is NTSC policy, not a PAL interpolation rule.
+/// Stage5 is a bounded adjacent-data case: pointer $0303 aliases the first two stage0
+/// frames, and reset zero aliases pose0's direction/movement bytes. Its delay remains
+/// mutable WRAM. Wrapped restored indices may reach other compiled catalog bytes or
+/// the low bank; unrelated upper-bank code stays rejected. No stored table remains.
+/// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {
     /// <summary>$91:B5D1 AnimationDelayTable_Running_NoSpeedBooster_pointer selects ten two-tick frames and a loop command.</summary>

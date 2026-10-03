@@ -6,20 +6,33 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record RoomPlmGreyDoorVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
-/// Editable grey caps and door-clear appearances. Native PLM level words,
-/// collision, condition gates, timing, sound, and persistence remain unchanged.
+/// Presentation-only selection for twenty grey-door and shared clear-cap frames. The compiled
+/// level words continue to own collision, animation timing, and door handoff.
 /// </summary>
 public sealed class RoomPlmGreyDoorVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGreyDoorVisualCatalog), blocks);
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmGreyDoorVisualCatalog), content =>
+    {
+        Span<ushort> words = stackalloc ushort[4];
+        foreach (var frame in GreyDoorPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        {
+            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Pointer, row);
+            content.Append("frame", frame.Pointer);
+            content.Append("runs", 1);
+            content.AppendWords("words", words);
+        }
+    });
 
-    private readonly Dictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+
+    private RoomPlmGreyDoorVisualCatalog() { }
 
     public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmGreyDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
+        var seen = new HashSet<ushort>();
         foreach (RoomPlmGreyDoorVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
@@ -28,30 +41,32 @@ public sealed class RoomPlmGreyDoorVisualCatalog
                 entry.Blocks.Length != draw.Runs.Span[0].LevelWords.Length ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(
-                    "Grey-door visuals changed a frame identity, draw shape, or visual word.");
-            if (!selected.TryAdd(draw.Pointer, entry.Blocks.ToArray()))
-                throw new InvalidDataException(
-                    $"Grey-door visuals repeat frame {entry.Id}.");
+                    "Grey-door visuals changed a compiled frame identity, draw shape, or visual word.");
+            if (!seen.Add(draw.Pointer))
+                throw new InvalidDataException($"Grey-door visuals repeat frame {entry.Id}.");
+            GreyDoorPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
+            bool changed = false;
+            for (int row = 0; row < entry.Blocks.Length; row++)
+                changed |= entry.Blocks[row] != new RoomLevelWord(shape.WordAt(row)).VisualWord;
+            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
         }
-        if (selected.Count != GreyDoorPlmDrawDefinitions.All.Count())
+        if (seen.Count != GreyDoorPlmDrawDefinitions.All.Count())
             throw new InvalidDataException(
                 "Grey-door visuals do not cover all compiled frames.");
-        blocks = selected;
+        if (selected.Count != 0) customBlocks = selected;
     }
 
-    public static RoomPlmGreyDoorVisualCatalog Stock() => new(
-        GreyDoorPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmGreyDoorVisualEntry(
-                GreyDoorPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span[0].LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray())));
+    /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
+    public static RoomPlmGreyDoorVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
-        if (!blocks.TryGetValue(drawPointer, out ushort[]? words))
-            throw new InvalidDataException($"Grey-door visuals lack frame ${drawPointer:X4}.");
-        if ((uint)blockIndex >= (uint)words.Length)
+        if (!GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+            throw new InvalidDataException(
+                $"Grey-door visuals lack frame ${drawPointer:X4}.");
+        if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return words[blockIndex];
+        return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
+            ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
     }
 }

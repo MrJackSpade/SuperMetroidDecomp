@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RoomPlmStationDrawDefinitions
 {
     /// <summary>First map-station frame draw list at $84:9F25.</summary>
-    private const ushort MapFirst = 0x9f25;
+    internal const ushort MapFirst = 0x9f25;
     /// <summary>First energy-station frame draw list at $84:9F6D.</summary>
-    private const ushort EnergyFirst = 0x9f6d;
+    internal const ushort EnergyFirst = 0x9f6d;
     /// <summary>First missile-station frame draw list at $84:9F91.</summary>
-    private const ushort MissileFirst = 0x9f91;
+    internal const ushort MissileFirst = 0x9f91;
     /// <summary>Save-pod idle draw list at $84:9A3F.</summary>
-    private const ushort SaveIdle = 0x9a3f;
+    internal const ushort SaveIdle = 0x9a3f;
     /// <summary>First active save-pod draw list at $84:9A9F.</summary>
-    private const ushort SaveActive = 0x9a9f;
+    internal const ushort SaveActive = 0x9a9f;
     /// <summary>Second active save-pod draw list at $84:9A6F.</summary>
-    private const ushort SaveAlternate = 0x9a6f;
+    internal const ushort SaveAlternate = 0x9a6f;
     /// <summary>Retracted right-side map access draw at $84:9F49.</summary>
     private const ushort MapRightRetracted = 0x9f49;
     /// <summary>Extended right-side map access draw at $84:9F55.</summary>
@@ -35,124 +35,188 @@ internal static class RoomPlmStationDrawDefinitions
     /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
     private const ushort ResourceLeftExtended = 0x9fc7;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-    private static readonly Dictionary<ushort, string> VisualIds = BuildVisualIds();
+    internal enum LayoutKind { Map, Energy, Missile, Save, MapAccess, ResourceAccess }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+    /// <summary>
+    /// Native station runs are horizontal. Map displays write origin then left;
+    /// resource displays write origin then above. Save pods have six two-cell rows
+    /// from floor to cap. Access layouts select side and extension explicitly.
+    /// All continuations are absolute origin-relative offsets, not accumulated.
+    /// Map art advances 32 tiles per frame; resource art advances one and its upper
+    /// cell is 32 tiles earlier. Resource upper cells are slopes. Save floor/cap
+    /// are solid except the idle floor-left trigger; the shaft is air. Save art
+    /// mirrors horizontally, its floor also vertically, and active-A advances one
+    /// tile. Map access mirrors by side; resource access changes trigger to solid
+    /// on extension. These rules cover only the twenty native owned draw pointers.
+    /// </summary>
+    internal readonly record struct Draw(ushort Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
+    {
+        internal int RunCount => Kind switch
+        {
+            LayoutKind.Save => 6,
+            LayoutKind.MapAccess => Extended ? 1 : 2,
+            LayoutKind.ResourceAccess => 1,
+            _ => 2,
+        };
+        private void CheckRun(int run)
+        {
+            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+        }
+        internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
+        internal sbyte NextX(int run)
+        {
+            CheckRun(run);
+            if (run != 0) return 0;
+            return Kind == LayoutKind.Map ? (sbyte)-1 : Kind == LayoutKind.MapAccess && !Extended
+                ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
+                : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int cell)
+        {
+            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            int tile, collision, flip = 0;
+            switch (Kind)
+            {
+                case LayoutKind.Map:
+                    tile = 0x10c + Frame * 32 - run; collision = 8; break;
+                case LayoutKind.Energy:
+                case LayoutKind.Missile:
+                    tile = (Kind == LayoutKind.Energy ? 0xc4 : 0xc7) + Frame - run * 32;
+                    collision = run == 0 ? 8 : 1; break;
+                case LayoutKind.Save:
+                    bool shaft = run is > 0 and < 5;
+                    tile = (shaft ? 0x5b : 0x59) + (Pointer == SaveActive ? 1 : 0);
+                    flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
+                    collision = shaft ? 0 : Pointer == SaveIdle && run == 0 && cell == 0 ? 11 : 8;
+                    break;
+                case LayoutKind.MapAccess:
+                    tile = Extended ? 0x129 : 0x128; collision = 8;
+                    flip = (Left ^ (run != 0)) ? 0x400 : 0; break;
+                default:
+                    tile = Extended ? 0xc1 : 0xc3; collision = Extended ? 8 : 11;
+                    flip = Left ? 0 : 0x400; break;
+            }
+            return (ushort)(collision << 12 | flip | tile);
+        }
+    }
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        for (int frame = 0; frame < 3; frame++)
+        {
+            if (pointer == MapFirst + frame * 12) { draw = new(pointer, LayoutKind.Map, frame); return true; }
+            if (pointer == EnergyFirst + frame * 12) { draw = new(pointer, LayoutKind.Energy, frame); return true; }
+            if (pointer == MissileFirst + frame * 12) { draw = new(pointer, LayoutKind.Missile, frame); return true; }
+        }
+        draw = pointer switch
+        {
+            SaveIdle or SaveActive or SaveAlternate => new(pointer, LayoutKind.Save, 0),
+            MapRightRetracted => new(pointer, LayoutKind.MapAccess, 0),
+            MapRightExtended => new(pointer, LayoutKind.MapAccess, 0, Extended: true),
+            MapLeftRetracted => new(pointer, LayoutKind.MapAccess, 0, Left: true),
+            MapLeftExtended => new(pointer, LayoutKind.MapAccess, 0, Left: true, Extended: true),
+            ResourceRightRetracted => new(pointer, LayoutKind.ResourceAccess, 0),
+            ResourceRightExtended => new(pointer, LayoutKind.ResourceAccess, 0, Extended: true),
+            ResourceLeftRetracted => new(pointer, LayoutKind.ResourceAccess, 0, Left: true),
+            ResourceLeftExtended => new(pointer, LayoutKind.ResourceAccess, 0, Left: true, Extended: true),
+            _ => default,
+        };
+        return draw.Pointer != 0;
+    }
+    private static IEnumerable<ushort> Pointers()
+    {
+        for (int frame = 0; frame < 3; frame++)
+        {
+            yield return (ushort)(MapFirst + frame * 12);
+            yield return (ushort)(EnergyFirst + frame * 12);
+            yield return (ushort)(MissileFirst + frame * 12);
+        }
+        yield return SaveIdle;
+        yield return SaveActive;
+        yield return SaveAlternate;
+        yield return MapRightRetracted;
+        yield return MapRightExtended;
+        yield return MapLeftRetracted;
+        yield return MapLeftExtended;
+        yield return ResourceRightRetracted;
+        yield return ResourceRightExtended;
+        yield return ResourceLeftRetracted;
+        yield return ResourceLeftExtended;
+    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (ushort pointer in Pointers())
+            {
+                TryGet(pointer, out var list);
+                yield return list;
+            }
+        }
+    }
+    // Temporary artwork DTOs; runtime draws calculate cells directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, draw.NextX(run), draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
+    }
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
-
-    internal static string VisualId(ushort pointer) =>
-        VisualIds.TryGetValue(pointer, out string? id)
-            ? id
-            : throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID.");
+    /// <summary>
+    /// Published ordinal artwork IDs: three numbered frames per map/resource
+    /// station, and named save/access states. These are identity selections,
+    /// independent of the physical words. Only complete native lists have IDs.
+    /// </summary>
+    internal static string VisualId(ushort pointer)
+    {
+        for (int frame = 0; frame < 3; frame++)
+        {
+            if (pointer == MapFirst + frame * 12) return $"map-frame-{frame}";
+            if (pointer == EnergyFirst + frame * 12) return $"energy-frame-{frame}";
+            if (pointer == MissileFirst + frame * 12) return $"missile-frame-{frame}";
+        }
+        return pointer switch
+        {
+            SaveIdle => "save-idle",
+            SaveActive => "save-active-a",
+            SaveAlternate => "save-active-b",
+            MapRightRetracted => "map-right-retracted",
+            MapRightExtended => "map-right-extended",
+            MapLeftRetracted => "map-left-retracted",
+            MapLeftExtended => "map-left-extended",
+            ResourceRightRetracted => "resource-right-retracted",
+            ResourceRightExtended => "resource-right-extended",
+            ResourceLeftRetracted => "resource-left-retracted",
+            ResourceLeftExtended => "resource-left-extended",
+            _ => throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID."),
+        };
+    }
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach ((ushort pointer, string candidate) in VisualIds)
+        foreach (var candidate in All)
         {
-            if (string.Equals(id, candidate, StringComparison.Ordinal))
-                return Lists.TryGetValue(pointer, out list);
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
         }
-
         list = default;
         return false;
     }
 
-    private static Dictionary<ushort, string> BuildVisualIds()
-    {
-        var ids = new Dictionary<ushort, string>();
-        for (int frame = 0; frame < 3; frame++)
-        {
-            ids.Add(checked((ushort)(MapFirst + frame * 12)), $"map-frame-{frame}");
-            ids.Add(checked((ushort)(EnergyFirst + frame * 12)), $"energy-frame-{frame}");
-            ids.Add(checked((ushort)(MissileFirst + frame * 12)), $"missile-frame-{frame}");
-        }
-
-        ids.Add(SaveIdle, "save-idle");
-        ids.Add(SaveActive, "save-active-a");
-        ids.Add(SaveAlternate, "save-active-b");
-        ids.Add(MapRightRetracted, "map-right-retracted");
-        ids.Add(MapRightExtended, "map-right-extended");
-        ids.Add(MapLeftRetracted, "map-left-retracted");
-        ids.Add(MapLeftExtended, "map-left-extended");
-        ids.Add(ResourceRightRetracted, "resource-right-retracted");
-        ids.Add(ResourceRightExtended, "resource-right-extended");
-        ids.Add(ResourceLeftRetracted, "resource-left-retracted");
-        ids.Add(ResourceLeftExtended, "resource-left-extended");
-        if (ids.Count != Lists.Count)
-            throw new InvalidDataException("Station visual IDs do not cover all draw lists.");
-        return ids;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>();
-        for (int frame = 0; frame < 3; frame++)
-        {
-            Add(lists, checked((ushort)(MapFirst + frame * 12)),
-                new(1, new ushort[] { checked((ushort)(0x810c + frame * 0x20)) }, -1, 0),
-                new(1, new ushort[] { checked((ushort)(0x810b + frame * 0x20)) }, 0, 0));
-            Add(lists, checked((ushort)(EnergyFirst + frame * 12)),
-                new(1, new ushort[] { checked((ushort)(0x80c4 + frame)) }, 0, -1),
-                new(1, new ushort[] { checked((ushort)(0x10a4 + frame)) }, 0, 0));
-            Add(lists, checked((ushort)(MissileFirst + frame * 12)),
-                new(1, new ushort[] { checked((ushort)(0x80c7 + frame)) }, 0, -1),
-                new(1, new ushort[] { checked((ushort)(0x10a7 + frame)) }, 0, 0));
-        }
-
-        AddSavePod(lists, SaveIdle, 0xb859, 0x8c59, 0x005b, 0x045b, 0x8059, 0x8459);
-        AddSavePod(lists, SaveActive, 0x885a, 0x8c5a, 0x005c, 0x045c, 0x805a, 0x845a);
-        AddSavePod(lists, SaveAlternate, 0x8859, 0x8c59, 0x005b, 0x045b, 0x8059, 0x8459);
-        Add(lists, MapRightRetracted,
-            new(1, new ushort[] { 0x8128 }, -3, 0),
-            new(1, new ushort[] { 0x8528 }, 0, 0));
-        Add(lists, MapRightExtended,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x8129 }, 0, 0));
-        Add(lists, MapLeftRetracted,
-            new(1, new ushort[] { 0x8528 }, 3, 0),
-            new(1, new ushort[] { 0x8128 }, 0, 0));
-        Add(lists, MapLeftExtended,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x8529 }, 0, 0));
-        Add(lists, ResourceRightRetracted,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0xb4c3 }, 0, 0));
-        Add(lists, ResourceRightExtended,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x84c1 }, 0, 0));
-        Add(lists, ResourceLeftRetracted,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0xb0c3 }, 0, 0));
-        Add(lists, ResourceLeftExtended,
-            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x80c1 }, 0, 0));
-        return lists;
-    }
-
-    private static void AddSavePod(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        ushort pointer,
-        ushort floorLeft,
-        ushort floorRight,
-        ushort shaftLeft,
-        ushort shaftRight,
-        ushort capLeft,
-        ushort capRight) =>
-        Add(lists, pointer,
-            new(2, new ushort[] { floorLeft, floorRight }, 0, -1),
-            new(2, new ushort[] { shaftLeft, shaftRight }, 0, -2),
-            new(2, new ushort[] { shaftLeft, shaftRight }, 0, -3),
-            new(2, new ushort[] { shaftLeft, shaftRight }, 0, -4),
-            new(2, new ushort[] { shaftLeft, shaftRight }, 0, -5),
-            new(2, new ushort[] { capLeft, capRight }, 0, 0));
-
-    private static void Add(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        ushort pointer,
-        params RoomPlmShotBlockDrawDefinitions.Run[] runs)
-    {
-        if (!lists.TryAdd(pointer, new(pointer, runs)))
-            throw new InvalidDataException($"Duplicate compiled station draw list ${pointer:X4}.");
-    }
 }

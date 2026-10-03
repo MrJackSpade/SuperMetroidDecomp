@@ -33,7 +33,7 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
             [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "9DA6692490EC96929BF7005D9DCB403799E2510FBA83C7CA43183C61A3BBE347"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "8063D11FFF1947241535DB52D3372C904AB7FE5BFD291B4EDECC1D567C7BAE1C"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "5094274A1BA6593E9EC95B419DC07461ECB3464DC739E7E872695E2E41E4C54E"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "23A3E27001C5B6A284DD0B4CD1152C0329634713075698820367010D64FC99C8")],
             "The public constructor validates and deep-clones all three ten-row suited families, ten suitless rows, 22 whiteout shades and nine explosion palette indices. Direct array selectors have complete valid domains and CLR bounds checks; this rule does not prove callers keep dynamic indices in range."),
     ];

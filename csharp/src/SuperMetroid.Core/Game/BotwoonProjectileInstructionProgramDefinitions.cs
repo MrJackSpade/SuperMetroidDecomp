@@ -7,7 +7,7 @@ internal readonly record struct BotwoonProjectileInstructionMechanicsWord(
 /// <summary>
 /// Compiled control for Botwoon's articulated body, tail, hidden, and spit projectile
 /// programs at $86:E80F-$E8F7 and $86:EBAE-$EBC5. Their forty-six spritemap operands
-/// remain live presentation data.
+/// select installed presentation artwork.
 /// </summary>
 internal static class BotwoonProjectileInstructionProgramDefinitions
 {
@@ -48,102 +48,98 @@ internal static class BotwoonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>
     internal const ushort Spit = 0xebae;
 
-    private static readonly ushort[] LoopingBodyPrograms =
-    [
-        BodyUpLeft, BodyLeft, BodyDownLeft, BodyDownFacingRight,
-        BodyDownRight, BodyRight, BodyUpRight, BodyUpFacingRight,
-    ];
+    internal const int MechanicsWordCount = 73;
+    internal const int PresentationWordCount = 46;
+    internal const int BodyProgramCount = 17;
 
-    private static readonly ushort[] SleepingBodyPrograms =
-    [
-        TailUpFacingRight, TailUpLeft, TailLeft, TailDownLeft,
-        TailDown, TailDownRight, TailRight, TailUpRight, Hidden,
-    ];
+    internal static ushort BodyProgram(int index)
+    {
+        if ((uint)index >= BodyProgramCount) throw new IndexOutOfRangeException();
+        // Nine physical body slots include the unused fourth slot.
+        return index < 8
+            ? (ushort)(BodyUpLeft + 20 * (index < 3 ? index : index + 1))
+            : (ushort)(TailUpFacingRight + 6 * (index - 8));
+    }
 
-    private static readonly BotwoonProjectileInstructionMechanicsWord[] Words =
-        BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static BotwoonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int address;
+        if (index < 48)
+        {
+            int command = index % 6;
+            address = BodyProgram(index / 6) + (command < 5 ? 4 * command : 18);
+        }
+        else if (index < 66)
+            address = BodyProgram(8 + (index - 48) / 2) + 4 * ((index - 48) % 2);
+        else
+        {
+            int command = index - 66;
+            address = Spit + (command < 6 ? 4 * command : 22);
+        }
+        return new((ushort)address, ReadMechanicsWord((ushort)address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static int BodyProgramCount => LoopingBodyPrograms.Length + SleepingBodyPrograms.Length;
-    internal static BotwoonProjectileInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static ushort BodyProgram(int index) => index < LoopingBodyPrograms.Length
-        ? LoopingBodyPrograms[index]
-        : SleepingBodyPrograms[index - LoopingBodyPrograms.Length];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 32) return (ushort)(BodyProgram(index / 4) + 4 * (index % 4) + 2);
+        if (index < 41) return (ushort)(BodyProgram(index - 24) + 2);
+        return (ushort)(Spit + 4 * (index - 41) + 2);
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
-        RoomEnemyProjectileKind.BotwoonBody or
-        RoomEnemyProjectileKind.BotwoonSpit;
+        RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        if (TryBodyOffset(address, out int offset))
         {
-            int middle = low + ((high - low) >> 1);
-            BotwoonProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address) return candidate.Value;
-            if (candidate.Address < address) low = middle + 1;
-            else high = middle - 1;
+            if (offset < 16 && offset % 4 == 0) return 8;
+            if (offset == 16) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            if (offset == 18) return (ushort)(address - offset);
         }
-
+        int sleeping = address - TailUpFacingRight;
+        if ((uint)sleeping < 54)
+        {
+            if (sleeping % 6 == 0) return 1;
+            if (sleeping % 6 == 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep;
+        }
+        int spit = address - Spit;
+        if ((uint)spit < 20 && spit % 4 == 0) return 3;
+        if (spit == 20) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (spit == 22) return Spit;
         throw new InvalidDataException(
             $"Botwoon projectile mechanics pointer $86:{address:X4} is not compiled.");
+    }
+
+    internal static bool IsPresentationWord(ushort address)
+    {
+        if (TryBodyOffset(address, out int offset)) return offset < 16 && offset % 4 == 2;
+        int sleeping = address - TailUpFacingRight;
+        if ((uint)sleeping < 54) return sleeping % 6 == 2;
+        int spit = address - Spit;
+        return (uint)spit < 20 && spit % 4 == 2;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        foreach (BotwoonProjectileInstructionMechanicsWord word in Words)
-        {
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
+        ushort word = (ushort)(address & ~1);
+        // Body/tail programs start at odd addresses; spit starts even.
+        ushort bodyWord = unchecked((ushort)(((ushort)address - BodyUpLeft & ~1) + BodyUpLeft));
+        if (TryBodyOffset(bodyWord, out int offset))
+            return offset >= 16 || offset % 4 == 0;
+        int sleeping = bodyWord - TailUpFacingRight;
+        if ((uint)sleeping < 54) return sleeping % 6 != 2;
+        int spit = word - Spit;
+        return (uint)spit < 24 && (spit >= 20 || spit % 4 == 0);
     }
 
-    private static BotwoonProjectileInstructionMechanicsWord[] BuildMechanicsWords()
+    private static bool TryBodyOffset(ushort address, out int offset)
     {
-        var words = new List<BotwoonProjectileInstructionMechanicsWord>(73);
-        foreach (ushort program in LoopingBodyPrograms)
-        {
-            words.Add(new(program, 8));
-            words.Add(new(unchecked((ushort)(program + 4)), 8));
-            words.Add(new(unchecked((ushort)(program + 8)), 8));
-            words.Add(new(unchecked((ushort)(program + 12)), 8));
-            words.Add(new(unchecked((ushort)(program + 16)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY));
-            words.Add(new(unchecked((ushort)(program + 18)), program));
-        }
-        foreach (ushort program in SleepingBodyPrograms)
-        {
-            words.Add(new(program, 1));
-            words.Add(new(unchecked((ushort)(program + 4)),
-                EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
-        }
-        for (int frame = 0; frame < 5; frame++)
-            words.Add(new(unchecked((ushort)(Spit + frame * 4)), 3));
-        words.Add(new(0xebc2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY));
-        words.Add(new(0xebc4, Spit));
-        return [.. words];
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(46);
-        foreach (ushort program in LoopingBodyPrograms)
-        {
-            for (int frame = 0; frame < 4; frame++)
-                words.Add(unchecked((ushort)(program + frame * 4 + 2)));
-        }
-        foreach (ushort program in SleepingBodyPrograms)
-            words.Add(unchecked((ushort)(program + 2)));
-        for (int frame = 0; frame < 5; frame++)
-            words.Add(unchecked((ushort)(Spit + frame * 4 + 2)));
-        return [.. words];
+        int relative = address - BodyUpLeft;
+        offset = relative % 20;
+        return (uint)relative < 180 && relative / 20 != 3;
     }
 }

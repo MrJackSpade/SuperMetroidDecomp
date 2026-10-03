@@ -27,17 +27,8 @@ internal static partial class Program
     private static void VerifyFuneNamiheInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < FuneNamiheInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            FuneNamiheInstructionMechanicsWord definition =
-                FuneNamiheInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                ReadFuneNamiheProgramWord(rom, definition.Address),
-                $"Fune/Namihe mechanics word $A8:{definition.Address:X4}");
-        }
+        VerifyFuneNamiheMechanicsMapping(rom);
+        VerifyFuneNamihePresentationAddresses();
 
         var guarded = new FuneNamiheInstructionReadGuard(rom);
         FuneNamiheProgramCase[] programs =
@@ -80,16 +71,7 @@ internal static partial class Program
 
         AssertEqual(0, guarded.ObservedPresentationWords.Count,
             "all Fune/Namihe visual selectors are compiled, not reread from cartridge");
-        for (int index = 0;
-             index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadFuneNamiheProgramWord(rom, address),
-                EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
-                $"compiled Fune/Namihe selector $A8:{address:X4} matches cartridge");
-        }
+        VerifyFuneNamiheVisualSelectors(rom);
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Fune/Namihe mechanics byte");
 
@@ -125,6 +107,91 @@ internal static partial class Program
             "and visual-selector reads forbidden.");
     }
 
+    private static void VerifyFuneNamiheVisualSelectors(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0x939b, 0x93a1, 0x93a5, 0x93a9, 0x93ad, 0x93b5, 0x93b9, 0x93bd,
+            0x93c1, 0x93cb, 0x93d1, 0x93d5, 0x93d9, 0x93dd, 0x93e5, 0x93e9, 0x93ed, 0x93f1,
+            0x95bf, 0x95c5, 0x95c9, 0x95cd, 0x95d1, 0x95d5, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
+            0x95f3, 0x95f9, 0x95fd, 0x9601, 0x9605, 0x9609, 0x9611, 0x9615, 0x9619, 0x961d];
+        foreach (ushort address in addresses)
+        {
+            ushort expected = ReadFuneNamiheProgramWord(rom, address);
+            AssertEqual(expected, EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
+                "Fune/Namihe calculated pose matches native visual word");
+            AssertEqual((ushort)8, ReadFuneNamiheProgramWord(rom, expected),
+                "Fune/Namihe original map has eight OAM entries");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared),
+                "shared catalog dispatches Fune/Namihe operand");
+            AssertEqual(expected, shared, "shared Fune/Namihe pointer matches native word");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa80000 | address),
+                "Fune/Namihe selector is excluded from literal regeneration");
+        }
+        var known = addresses.ToHashSet();
+        for (int address = 0x9397; address <= 0x9626; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.FuneNamiheFrameAt((ushort)address),
+                    "Fune/Namihe visual resolver rejects control words and intervening artwork");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing),
+                    "shared Fune/Namihe interval holes are not selectors");
+                AssertEqual((ushort)0, missing, "missing shared selector clears output");
+            }
+        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
+            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
+                "Fune/Namihe visual resolver rejects distant addresses");
+    }
+    private static void VerifyFuneNamiheMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0x9399, 0x939d, 0x939f, 0x93a3, 0x93a7, 0x93ab, 0x93af, 0x93b1, 0x93b3, 0x93b7, 0x93bb, 0x93bf, 0x93c3, 0x93c5, 0x93c7, 0x93c9, 0x93cd, 0x93cf, 0x93d3, 0x93d7, 0x93db, 0x93df, 0x93e1, 0x93e3, 0x93e7, 0x93eb, 0x93ef, 0x93f3, 0x93f5, 0x93f7, 0x95bd, 0x95c1, 0x95c3, 0x95c7, 0x95cb, 0x95cf, 0x95d3, 0x95d7, 0x95d9, 0x95db, 0x95df, 0x95e3, 0x95e7, 0x95eb, 0x95ed, 0x95ef, 0x95f1, 0x95f5, 0x95f7, 0x95fb, 0x95ff, 0x9603, 0x9607, 0x960b, 0x960d, 0x960f, 0x9613, 0x9617, 0x961b, 0x961f, 0x9621, 0x9623];
+        AssertEqual(addresses.Length, FuneNamiheInstructionProgramDefinitions.MechanicsWordCount,
+            "Fune/Namihe independent native mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort expected = ReadFuneNamiheProgramWord(rom, address);
+            var word = FuneNamiheInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(address, word.Address, "Fune/Namihe native mechanics address");
+            AssertEqual(expected, word.Value, "Fune/Namihe enumerated native mechanics value");
+            AssertEqual(expected, FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "Fune/Namihe direct native mechanics value");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        var words = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), FuneNamiheInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address),
+                "Fune/Namihe full native byte ownership");
+            AssertEqual(bytes.Contains(address), FuneNamiheInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address),
+                "Fune/Namihe bank mask aliases");
+            AssertTrue(!FuneNamiheInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+                "Fune/Namihe other bank rejected");
+            if (address >= 0x9397 && address <= 0x9626 && !words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Fune/Namihe visual operands, odd words, intervening art and adjacent instructions rejected");
+        }
+        foreach (int index in new[] { int.MinValue, -1, 62, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheInstructionProgramDefinitions.MechanicsWord(index),
+                "Fune/Namihe mechanics ordinal bounds");
+    }
+
+    private static void VerifyFuneNamihePresentationAddresses()
+    {
+        ushort[] addresses = [0x939b, 0x93a1, 0x93a5, 0x93a9, 0x93ad, 0x93b5, 0x93b9, 0x93bd, 0x93c1, 0x93cb, 0x93d1, 0x93d5, 0x93d9, 0x93dd, 0x93e5, 0x93e9, 0x93ed, 0x93f1, 0x95bf, 0x95c5, 0x95c9, 0x95cd, 0x95d1, 0x95d5, 0x95dd, 0x95e1, 0x95e5, 0x95e9, 0x95f3, 0x95f9, 0x95fd, 0x9601, 0x9605, 0x9609, 0x9611, 0x9615, 0x9619, 0x961d];
+        AssertEqual(addresses.Length, FuneNamiheInstructionProgramDefinitions.PresentationWordCount,
+            "Fune/Namihe independent visual count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Fune/Namihe native visual operand address");
+        var expected = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(expected.Contains((ushort)address), FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "Fune/Namihe full visual membership domain");
+        foreach (int index in new[] { int.MinValue, -1, 38, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index),
+                "Fune/Namihe visual ordinal bounds");
+    }
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
         FuneNamiheInstructionReadGuard bus,
         FuneNamiheProgramCase program)

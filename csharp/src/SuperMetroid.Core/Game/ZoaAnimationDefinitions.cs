@@ -19,24 +19,17 @@ internal static class ZoaAnimationDefinitions
     /// Left-shooting, left-rising, right-shooting, and right-rising instruction lists at
     /// <c>$A3:B40D-$A3:B414</c>, indexed by <see cref="ZoaAnimationSelector"/>.
     /// </summary>
-    private static readonly ushort[] InstructionLists =
-    [
-        ZoaInstructionProgramDefinitions.FacingLeftShooting,
-        ZoaInstructionProgramDefinitions.FacingLeftRising,
-        ZoaInstructionProgramDefinitions.FacingRightShooting,
-        ZoaInstructionProgramDefinitions.FacingRightRising,
-    ];
+    internal const int ReferenceAddress = 0xa3b40d;
 
-    /// <summary>Returns the authored list for one facing/movement combination.</summary>
-    internal static ushort InstructionList(ZoaAnimationSelector selector)
+    /// <summary>Selects the native animation program by facing and movement flags.
+    /// Only the four documented combinations are valid; unsupported bits are rejected.</summary>
+    internal static ushort InstructionList(ZoaAnimationSelector selector) => selector switch
     {
-        int index = (int)selector;
-        if ((uint)index >= InstructionLists.Length)
-        {
-            throw new InvalidDataException(
-                $"Zoa animation selector ${index:X4} exceeds its four-entry table.");
-        }
-
-        return InstructionLists[index];
-    }
+        ZoaAnimationSelector.None => ZoaInstructionProgramDefinitions.FacingLeftShooting,
+        ZoaAnimationSelector.Rising => ZoaInstructionProgramDefinitions.FacingLeftRising,
+        ZoaAnimationSelector.FacingRight => ZoaInstructionProgramDefinitions.FacingRightShooting,
+        ZoaAnimationSelector.FacingRight | ZoaAnimationSelector.Rising => ZoaInstructionProgramDefinitions.FacingRightRising,
+        _ => throw new InvalidDataException(
+            $"Zoa animation selector ${(int)selector:X4} exceeds its four-entry table."),
+    };
 }

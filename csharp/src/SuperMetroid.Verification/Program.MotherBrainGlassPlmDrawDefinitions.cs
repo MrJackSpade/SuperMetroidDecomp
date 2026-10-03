@@ -11,8 +11,9 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         VerifyMotherBrainGlassPlmProgram(rom);
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        VerifyGlassLayoutGeometry(rom);
+        VerifyGlassLayoutCollision(rom);
+        VerifyGlassLayoutVisuals(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -36,39 +37,12 @@ internal static partial class Program
         shatter.Blocks[6] = originalWord;
         AssertEqual(11, lists.Length,
             "Mother Brain glass program selects eleven distinct physical draw lists");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            int cursor = 0x840000 | list.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
-            {
-                AssertEqual(run.DirectionAndCount, ReadWord(rom, cursor),
-                    $"glass draw ${list.Pointer:X4} direction/count at ${cursor:X6}");
-                for (int block = 0; block < run.LevelWords.Length; block++)
-                    AssertEqual(run.LevelWords.Span[block],
-                        ReadWord(rom, cursor + 2 + block * 2),
-                        $"glass draw ${list.Pointer:X4} physical block {block}");
-                ushort offset = (ushort)((byte)run.NextX | ((byte)run.NextY << 8));
-                AssertEqual(offset,
-                    ReadWord(rom, cursor + 2 + run.LevelWords.Length * 2),
-                    $"glass draw ${list.Pointer:X4} signed next-run offset");
-                cursor += 4 + run.LevelWords.Length * 2;
-            }
-        }
-
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x978f ? edited : null);
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmMotherBrainGlassVisualCatalog(entries.Skip(1)),
-            "glass catalog rejects missing frames");
-        shatter.Blocks[6] = 0xf057;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmMotherBrainGlassVisualCatalog(entries),
-            "glass catalog rejects collision bits in visual words");
-        shatter.Blocks[6] = originalWord;
         VerifyMotherBrainGlassVisualInstallation(rom);
         Console.WriteLine(
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -170,6 +144,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(
                 installation.RoomPlmMotherBrainGlassVisualDirectory);
+            VerifyMotherBrainGlassStockMapping(rom, installation.LoadRoomPlmMotherBrainGlassVisuals());
             string stockPath = Path.Combine(
                 installation.RoomPlmMotherBrainGlassVisualDirectory,
                 RoomPlmMotherBrainGlassVisualFiles.VisualFileName);

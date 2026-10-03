@@ -26,27 +26,38 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         internal const sbyte NextY = 0;
     }
 
-    private static readonly DrawList[] Lists =
-    [
-        new(Grapple, 0xe0b7),
-        new(BreakFrame0, 0x0053),
-        new(BreakFrame1, 0x0054),
-        new(BreakFrame2, 0x0055),
-        new(Blank, 0x00ff),
-    ];
-
-    internal static IEnumerable<DrawList> All => Lists;
+    internal static IEnumerable<DrawList> All
+    {
+        get
+        {
+            // Five adjacent six-byte records in the original publication order.
+            for (int frame = 0; frame < 5; frame++)
+            {
+                TryGet((ushort)(Grapple + 6 * frame), out DrawList draw);
+                yield return draw;
+            }
+        }
+    }
 
     internal static bool TryGet(ushort pointer, out DrawList definition)
     {
-        foreach (DrawList candidate in Lists)
+        if (pointer == Grapple)
         {
-            if (candidate.Pointer != pointer)
-                continue;
-            definition = candidate;
+            definition = new(pointer, 0xe0b7);
             return true;
         }
-
+        if (pointer == Blank)
+        {
+            definition = new(pointer, 0x00ff);
+            return true;
+        }
+        int relative = pointer - BreakFrame0;
+        if ((uint)relative < 3 * 6 && relative % 6 == 0)
+        {
+            // Three consecutive breakup tiles in six-byte one-block draw records.
+            definition = new(pointer, (ushort)(0x0053 + relative / 6));
+            return true;
+        }
         definition = default;
         return false;
     }

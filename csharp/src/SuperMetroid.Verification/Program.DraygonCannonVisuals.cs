@@ -25,15 +25,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(
                 installation.RoomPlmDraygonCannonVisualDirectory);
-            AssertEqual((ushort)0x0514,
-                installation.LoadRoomPlmDraygonCannonVisuals().GetWord(
-                    DraygonCannonPlmDrawDefinitions.RightShieldA, 0, 0),
-                "stock right cannon shield retains cartridge visual reference");
-            AssertThrows<InvalidDataException>(
-                () => new RoomPlmDraygonCannonVisualCatalog(
-                    [new RoomPlmDraygonCannonVisualEntry("right-shield-a",
-                        new ushort[4])]),
-                "cannon catalog rejects missing reachable frames");
+            VerifyDraygonCannonStockMapping(rom, installation.LoadRoomPlmDraygonCannonVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmDraygonCannonVisualDirectory,

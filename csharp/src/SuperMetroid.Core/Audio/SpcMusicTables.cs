@@ -3,95 +3,105 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Immutable lookup tables embedded in Super Metroid's uploaded music driver.</summary>
 internal static class SpcMusicTables
 {
-    /// <summary>Argument-byte count for opcodes $E0-$FE.</summary>
-    /// <remarks>
-    /// Issues #625 and #923 retain this 31-entry command-format catalog. The
-    /// pinned NTSC J/U v1.0 ROM at $CF:87A8 (file $2787A8) matches every byte
-    /// of kEffectByteLength in upstream-sm/src/spc_player.c and this array.
-    /// Each entry is the authored operand count for one opcode, not a sampled
-    /// numeric function: adjacent opcodes have unrelated semantics and arities.
-    /// The native decoder reads the first operand when the count is nonzero,
-    /// then individual handlers consume remaining operands; key-off lookahead
-    /// skips the entire count. A replacement must preserve all 31 mappings,
-    /// reject opcodes outside $E0-$FE, and retain those distinct read paths.
-    /// No shorter generator is supported by the command format evidence.
-    /// </remarks>
-    internal static readonly byte[] EffectByteLengths =
-    [
-        1, 1, 2, 3, 0, 1, 2, 1, 2, 1, 1, 3, 0, 1, 2, 3,
-        1, 3, 3, 0, 1, 3, 0, 3, 3, 3, 1, 2, 0, 0, 0,
-    ];
+    /// <summary>$CF:87A8 uploaded driver kEffectByteLength, opcode E0 through FE.</summary>
+    internal const int EffectLengthReferenceAddress = 0xcf87a8;
+    /// <summary>Number of contiguous native effect opcodes from SetInstrument through SetFastForward.</summary>
+    internal const int EffectCount = (int)SpcMusicEffect.SetFastForward - (int)SpcMusicEffect.SetInstrument + 1;
 
-    /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
+    /// <summary>Returns the operand count for the zero-based native effect index 0..30.</summary>
     /// <remarks>
-    /// Issues #625 and #924 retain the 22 authored samples. The pinned NTSC
-    /// J/U v1.0 ROM at $CF:8A25 (file $278A25) matches every byte of
-    /// kVolumeTable in upstream-sm/src/spc_player.c and this array. No
-    /// independently evidenced analytic or integer generator reproduces the
-    /// quantized curve, so a fitted function would only restate these samples.
-    /// The native driver interpolates adjacent entries using the low byte of
-    /// the pan position, then mirrors the position around $1400 for the other
-    /// stereo side. It deliberately reads SPC RAM beyond this local table for
-    /// integer positions 21 and above; those address-level reads are separate
-    /// from the 22-byte catalog and must not be replaced by clamping.
+    /// Independently reviewed for #1165 against all NTSC J/U v1.0 bytes, pinned
+    /// spc_player.c and decoder/codec/lookahead consumers. Named opcode cases express
+    /// command format directly; numerical fitting has no meaning here. The decoder
+    /// pre-reads one operand when count is nonzero, handlers consume the remainder,
+    /// and lookahead skips the whole count. SkipByte thus has count2, while the final
+    /// three commands have count0. Preserve IndexOutOfRangeException outside0..30;
+    /// callers with explicit InvalidDataException guards retain those guards.
     /// </remarks>
+    internal static byte EffectByteLength(int index)
+    {
+        if ((uint)index >= EffectCount) throw new IndexOutOfRangeException();
+        return (SpcMusicEffect)(index + (int)SpcMusicEffect.SetInstrument) switch
+        {
+            SpcMusicEffect.DisableVibrato or SpcMusicEffect.DisableTremolo or
+            SpcMusicEffect.DisablePitchEnvelope or SpcMusicEffect.DisableEcho or
+            SpcMusicEffect.CutKey or SpcMusicEffect.FastForwardForFrames or
+            SpcMusicEffect.SetFastForward => 0,
+            SpcMusicEffect.SetInstrument or SpcMusicEffect.SetPan or
+            SpcMusicEffect.SetMasterVolume or SpcMusicEffect.SetTempo or
+            SpcMusicEffect.SetGlobalTransposition or SpcMusicEffect.SetChannelTransposition or
+            SpcMusicEffect.SetChannelVolume or SpcMusicEffect.FadeVibrato or
+            SpcMusicEffect.SetFineTune or SpcMusicEffect.SetPercussionBase => 1,
+            SpcMusicEffect.FadePan or SpcMusicEffect.FadeMasterVolume or
+            SpcMusicEffect.FadeTempo or SpcMusicEffect.FadeChannelVolume or
+            SpcMusicEffect.SkipByte => 2,
+            SpcMusicEffect.EnableVibrato or SpcMusicEffect.EnableTremolo or
+            SpcMusicEffect.CallPattern or SpcMusicEffect.PitchEnvelopeTo or
+            SpcMusicEffect.PitchEnvelopeFrom or SpcMusicEffect.EnableEcho or
+            SpcMusicEffect.ConfigureEcho or SpcMusicEffect.FadeEchoVolume or
+            SpcMusicEffect.PitchSlide => 3,
+            _ => throw new IndexOutOfRangeException(),
+        };
+    }
+    /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
     internal static readonly byte[] PanVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
 
-    /// <summary>One-octave pitch basis plus the next C used for fractional interpolation.</summary>
-    /// <remarks>
-    /// Issues #625 and #918 exact formula: for semitone n=0..12,
-    /// floor(440*8.192*2^((n-9)/12)).
-    /// This is A440 equal temperament with the driver's pitch scaling, evaluated
-    /// BEFORE rounding the C basis. Using 2143*2^(n/12) instead fails at n=7/8.
-    /// csharp/tools/LookupTableResearch proves all 13 integers without floating
-    /// point: find the greatest k with k^12*1000^12*2^9 &lt;= (440*8192)^12*2^n.
-    /// It also proves k+1 fails that inequality. The oracle is kBaseNoteFreqs in
-    /// pinned upstream-sm/src/spc_player.c, independently matched to NTSC J/U v1.0
-    /// ROM $CF:8A6E (file $278A6E), and this array. A later bounded replacement
-    /// must reject n outside 0..12 and retain the driver's subsequent byte-sized
-    /// interpolation, octave shifts and instrument scaling. The integer-root proof
-    /// is research code, not a proposed hot-path implementation or benchmark.
-    /// </remarks>
-    internal static readonly ushort[] BaseNoteFrequencies =
-        [2143, 2270, 2405, 2548, 2700, 2860, 3030, 3211, 3402, 3604, 3818, 4045, 4286];
+    /// <summary>$CF:8A6E uploaded driver kBaseNoteFreqs, thirteen little-endian pitch words.</summary>
+    internal const int BaseNoteReferenceAddress = 0xcf8a6e;
 
-    /// <summary>Sixteen authored note-volume percentage selections, encoded as byte fractions.</summary>
+    /// <summary>Returns the one-octave pitch basis for semitone 0..12, including the next C.</summary>
     /// <remarks>
-    /// Issues #625 and #919 exact recipe: for index i=0..15 choose p=10*(i+1) for i&lt;4,
-    /// p=5*(i+5) for 4..14, and p=99 for i=15. Then return (255*p-1)/100
-    /// using integer division. This lower-side quantization is also reproduced by
-    /// truncating 255/100 to Q16 BEFORE multiplying: ((255*65536/100)*p)&gt;&gt;16.
-    /// The two recipes agree for every integer percentage 1..100. Ordinary
-    /// floor(255*p/100) is one too high at 20/40/60/80 percent. Thus finite
-    /// intermediate precision explains the discrepancies without individual sample
-    /// exceptions; Q16 is a verified model, not an identification of the authoring
-    /// hardware. LookupTableResearch checks all 16 values against kNoteVol in
-    /// pinned spc_player.c, NTSC ROM $CF:80F4, and this array, plus the entire
-    /// percentage domain. Keep the authored 99-percent endpoint and input bounds.
-    /// Runtime migration and performance checks are deferred.
+    /// Independently verified for #1165 against all original NTSC words and the native
+    /// WritePitchInner consumer. Floor(440*8.192*2^((n-9)/12)) explains every word.
+    /// Evaluate from A440 before quantizing; scaling an already-rounded C loses precision.
+    /// The decimal semitone ratio is the lower 28-place bound of the twelfth root of two,
+    /// independently bracketed by integer powers in VerifySpcPitchBasisAlgorithm.
+    /// Decimal multiplication/division is deterministic; at most nine steps are required.
+    /// All thirteen results remain between the same integer boundaries using either root
+    /// bound. Caller-owned byte-delta interpolation, octave shifts and scaling stay separate.
     /// </remarks>
-    internal static readonly byte[] NoteVolumes =
-        [25, 50, 76, 101, 114, 127, 140, 152, 165, 178, 191, 203, 216, 229, 242, 252];
-
-    /// <summary>Eight authored gate-length percentage selections, encoded as byte fractions.</summary>
-    /// <remarks>
-    /// Issues #625 and #920 exact recipe: validate i=0..7; p=20*(i+1) for i&lt;2,
-    /// p=10*(i+3) for 2..6, and p=99 for i=7. Return (255*p-1)/100.
-    /// The same Q16-before-multiply model described on NoteVolumes reproduces
-    /// all eight values, including the one-unit lower exact-multiple boundaries.
-    /// LookupTableResearch checks kNoteGateOffPct in pinned spc_player.c, NTSC
-    /// ROM $CF:80EC and this array. Do not replace the terminal 252 with 255 or
-    /// move the note-length multiplication before percentage quantization.
-    /// </remarks>
-    internal static readonly byte[] NoteGateOffPercentages =
-        [50, 101, 127, 152, 178, 203, 229, 252];
-
-    static SpcMusicTables()
+    internal static ushort BaseNoteFrequency(int semitone)
     {
-        if (EffectByteLengths.Length != 31 || BaseNoteFrequencies.Length != 13)
-        {
-            throw new InvalidDataException("One or more fixed SPC music tables have an invalid length.");
-        }
+        if ((uint)semitone > 12) throw new IndexOutOfRangeException();
+        const decimal semitoneRatio = 1.0594630943592952645618252949m;
+        decimal frequency = 440m * 8192m / 1000m;
+        for (int note = 9; note < semitone; note++) frequency *= semitoneRatio;
+        for (int note = semitone; note < 9; note++) frequency /= semitoneRatio;
+        return (ushort)frequency;
+    }
+    /// <summary>$CF:80F4 uploaded driver kNoteVol, sixteen unsigned volume fractions.</summary>
+    internal const int NoteVolumeReferenceAddress = 0xcf80f4;
+    /// <summary>$CF:80EC uploaded driver kNoteGateOffPct, eight unsigned gate fractions.</summary>
+    internal const int NoteGateReferenceAddress = 0xcf80ec;
+
+    /// <summary>Returns the exact volume byte for note-command low nibble 0..15.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against every NTSC J/U v1.0 byte, pinned
+    /// spc_player.c kNoteVol, and the decoder/scaling consumers. Percentages are
+    /// 10,20,30,40 then 45..95 by fives, ending at99. Quantize with (255*p-1)/100:
+    /// exact multiples round from below, consistent with truncating 2.55 to Q16
+    /// before multiplication. That explains the values without asserting the historical
+    /// generator. Preserve byte quantization before subsequent channel-volume scaling.
+    /// </remarks>
+    internal static byte NoteVolume(int index)
+    {
+        if ((uint)index >= 16) throw new IndexOutOfRangeException();
+        int percentage = index < 4 ? 10 * (index + 1) : index == 15 ? 99 : 5 * (index + 5);
+        return (byte)((255 * percentage - 1) / 100);
+    }
+
+    /// <summary>Returns the exact gate byte for note-command bits4..6, index0..7.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165 against every NTSC byte and pinned kNoteGateOffPct.
+    /// Percentages are20,40 then50..90 by tens, ending at99; use the same lower-side
+    /// (255*p-1)/100 quantization as NoteVolume. Decoder masking is caller-owned.
+    /// Keep the terminal252 and multiply by note ticks only after this quantization.
+    /// </remarks>
+    internal static byte NoteGateOffPercentage(int index)
+    {
+        if ((uint)index >= 8) throw new IndexOutOfRangeException();
+        int percentage = index < 2 ? 20 * (index + 1) : index == 7 ? 99 : 10 * (index + 3);
+        return (byte)((255 * percentage - 1) / 100);
     }
 }

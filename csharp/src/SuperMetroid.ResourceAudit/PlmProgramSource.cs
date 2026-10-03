@@ -45,10 +45,18 @@ internal sealed class PlmProgramSource
         foreach (InvocationExpressionSyntax call in draw.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
             if (call.Expression is not MemberAccessExpressionSyntax access ||
-                call.ArgumentList.Arguments.Count != 2 ||
+                call.ArgumentList.Arguments.Count < 2 ||
                 call.ArgumentList.Arguments[0].Expression.ToString() != "drawPointer" ||
-                access.Name.Identifier.Text is not ("TryGet" or "TryGetDraw")) continue;
-            drawProviders.Add(ResolveMethod(access.Expression.ToString(), access.Name.Identifier.Text));
+                call.ArgumentList.Arguments.Skip(1).Any(argument =>
+                    !argument.RefKindKeyword.IsKind(SyntaxKind.OutKeyword))) continue;
+            // Calculated draw providers may return multiple descriptor fields.
+            // Discover the production call and signature, not a list of method names.
+            drawProviders.Add(types[access.Expression.ToString()].GetMethods(
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Single(method =>
+                    method.Name == access.Name.Identifier.Text && method.ReturnType == typeof(bool) &&
+                    method.GetParameters().Length == call.ArgumentList.Arguments.Count &&
+                    method.GetParameters()[0].ParameterType == typeof(ushort) &&
+                    method.GetParameters().Skip(1).All(parameter => parameter.IsOut)));
         }
         foreach (BinaryExpressionSyntax comparison in draw.DescendantNodes().OfType<BinaryExpressionSyntax>())
         {
@@ -126,7 +134,11 @@ internal sealed class PlmProgramSource
     {
         if (draws.TryGetValue(pointer, out bool owned)) return owned;
         owned = directDraws.Contains(pointer) || drawProviders.Any(provider =>
-            (bool)provider.Invoke(null, [pointer, null])!);
+        {
+            object?[] arguments = new object?[provider.GetParameters().Length];
+            arguments[0] = pointer;
+            return (bool)provider.Invoke(null, arguments)!;
+        });
         draws.Add(pointer, owned);
         return owned;
     }
@@ -152,7 +164,7 @@ internal sealed class PlmProgramSource
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or
         "DrawPlmInstruction" or "TryIdentifyPermanentCollectible" or
-        "TryRunRoomPopulationSetup" or "SetupScrollSlot" or "TryStepScrollPlm" or
+        "TryRunRoomPopulationSetup" or "SetupScrollSlot" or "TryStepScrollPlm" or "FinishScrollMutation" or
         "SetupCollectibleSlot" or "TryStepCollectible" or "SetupStation" or "TryStepStation" or
         "TryStepWreckedShipTreadmill" or "SpawnEyeDoorProjectile" or "ConvertEyeToBlueDoor" ||
         method.Identifier.Text.StartsWith("TryExecute", StringComparison.Ordinal) ||

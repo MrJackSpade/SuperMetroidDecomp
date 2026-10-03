@@ -212,28 +212,18 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        for (int address = BombTorizoHandPlmProgramDefinitions.FirstAddress;
-             address <= BombTorizoHandPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(
-                checked((ushort)address), out byte compiled),
-                $"Bomb Torizo hand claims authored byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"Bomb Torizo hand program byte $84:{address:X4} matches ROM");
-            if (address == BombTorizoHandPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)address), out ushort compiledWord),
-                $"Bomb Torizo hand claims authored word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"Bomb Torizo hand program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(0xd3c6, out _),
-            "hand list refuses a word crossing into adjacent callback code");
-        AssertTrue(!BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(0xd3c7, out _),
-            "hand list does not claim the adjacent music callback code");
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Torizo hand oracle revision");
+        VerifyBombTorizoHandDrawGeometry(rom);
+        VerifyBombTorizoHandDrawCollision(rom);
+        VerifyBombTorizoHandDrawVisuals(rom);
+        VerifyHandProgramControls(rom);
+        VerifyHandProgramDraws(rom);
+        VerifyHandProgramCallback(rom);
+        VerifyHandProgramDebrisArguments(rom);
+        VerifyHandProgramTransferSize(rom);
+        VerifyHandProgramTransferSource(rom);
+        VerifyHandProgramTransferDestination(rom);
     }
 
     private sealed class BombTorizoHandProgramReadGuard(ISnesAddressSpace source)

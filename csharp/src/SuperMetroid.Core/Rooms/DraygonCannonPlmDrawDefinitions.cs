@@ -32,15 +32,104 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// <summary>Left damaged frame D at $84:A1A1.</summary>
     internal const ushort LeftDamagedD = 0xa1a1;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    /// <summary>
+    /// Twelve 2x2 cannon frames. Right lists have two horizontal rows; left lists
+    /// split the first row into origin and left cells, preserving native write order.
+    /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
+    /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
+    /// </summary>
+    internal readonly record struct Draw(ushort Pointer, bool Right, bool Shield, int Frame)
+    {
+        internal int RunCount => Right ? 2 : 3;
+        private void CheckRun(int run)
+        {
+            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+        }
+        internal int WordCount(int run)
+        {
+            CheckRun(run);
+            return Right || run == 2 ? 2 : 1;
+        }
+        internal sbyte NextX(int run)
+        {
+            CheckRun(run);
+            return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int cell)
+        {
+            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            int row = Right ? run : run == 2 ? 1 : 0;
+            bool core = Right ? cell == 0 : run == 0 || run == 2 && cell == 1;
+            if (!Shield && !core) return 0x00ff;
+            int tile = Shield ? 0x113 + Frame * 2 + (core ? 1 : 0) : 0x180 + Frame;
+            int collision = !core ? 0 : Shield ? 12 + row : 10;
+            return (ushort)(collision << 12 | (Right ? 0x400 : 0) | (tile + row * 32));
+        }
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        bool right, shield;
+        int offset, stride;
+        if (pointer >= RightShieldA && pointer <= RightShieldB)
+        { right = true; shield = true; offset = pointer - RightShieldA; stride = 16; }
+        else if (pointer >= RightDamagedA && pointer <= RightDamagedD)
+        { right = true; shield = false; offset = pointer - RightDamagedA; stride = 16; }
+        else if (pointer >= LeftShieldA && pointer <= LeftShieldB)
+        { right = false; shield = true; offset = pointer - LeftShieldA; stride = 20; }
+        else if (pointer >= LeftDamagedA && pointer <= LeftDamagedD)
+        { right = false; shield = false; offset = pointer - LeftDamagedA; stride = 20; }
+        else { draw = default; return false; }
+        bool owned = offset % stride == 0;
+        draw = owned ? new(pointer, right, shield, offset / stride) : default;
+        return owned;
+    }
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
-
+    private static IEnumerable<ushort> Pointers()
+    {
+        for (int frame = 0; frame < 2; frame++) yield return (ushort)(RightShieldA + frame * 16);
+        for (int frame = 0; frame < 4; frame++) yield return (ushort)(RightDamagedA + frame * 16);
+        for (int frame = 0; frame < 2; frame++) yield return (ushort)(LeftShieldA + frame * 20);
+        for (int frame = 0; frame < 4; frame++) yield return (ushort)(LeftDamagedA + frame * 20);
+    }
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            foreach (ushort pointer in Pointers())
+            {
+                TryGet(pointer, out var list);
+                yield return list;
+            }
+        }
+    }
+    // Temporary artwork DTOs. Runtime drawing calculates cells directly.
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, draw.NextX(run), draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
+    }
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (ushort pointer in Pointers())
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
+        list = default;
+        return false;
+    }
     internal static string VisualId(ushort pointer) => pointer switch
     {
         RightShieldA => "right-shield-a",
@@ -59,55 +148,4 @@ internal static class DraygonCannonPlmDrawDefinitions
             $"Draygon cannon draw ${pointer:X4} has no visual ID."),
     };
 
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
-        {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
-        new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
-        {
-            [RightShieldA] = Right(RightShieldA, 0xc514, 0x0513, 0xd534, 0x0533),
-            [RightShieldB] = Right(RightShieldB, 0xc516, 0x0515, 0xd536, 0x0535),
-            [RightDamagedA] = Right(RightDamagedA, 0xa580, 0x00ff, 0xa5a0, 0x00ff),
-            [RightDamagedB] = Right(RightDamagedB, 0xa581, 0x00ff, 0xa5a1, 0x00ff),
-            [RightDamagedC] = Right(RightDamagedC, 0xa582, 0x00ff, 0xa5a2, 0x00ff),
-            [RightDamagedD] = Right(RightDamagedD, 0xa583, 0x00ff, 0xa5a3, 0x00ff),
-            [LeftShieldA] = Left(LeftShieldA, 0xc114, 0x0113, 0x0133, 0xd134),
-            [LeftShieldB] = Left(LeftShieldB, 0xc116, 0x0115, 0x0135, 0xd136),
-            [LeftDamagedA] = Left(LeftDamagedA, 0xa180, 0x00ff, 0x00ff, 0xa1a0),
-            [LeftDamagedB] = Left(LeftDamagedB, 0xa181, 0x00ff, 0x00ff, 0xa1a1),
-            [LeftDamagedC] = Left(LeftDamagedC, 0xa182, 0x00ff, 0x00ff, 0xa1a2),
-            [LeftDamagedD] = Left(LeftDamagedD, 0xa183, 0x00ff, 0x00ff, 0xa1a3),
-        };
-
-    private static RoomPlmShotBlockDrawDefinitions.DrawList Right(
-        ushort pointer, ushort upperLeft, ushort upperRight,
-        ushort lowerLeft, ushort lowerRight) => new(pointer,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(2, new ushort[] { upperLeft, upperRight }, 0, 1),
-            new(2, new ushort[] { lowerLeft, lowerRight }, 0, 0),
-        });
-
-    private static RoomPlmShotBlockDrawDefinitions.DrawList Left(
-        ushort pointer, ushort upperRight, ushort upperLeft,
-        ushort lowerLeft, ushort lowerRight) => new(pointer,
-        new RoomPlmShotBlockDrawDefinitions.Run[]
-        {
-            new(1, new ushort[] { upperRight }, -1, 0),
-            new(1, new ushort[] { upperLeft }, -1, 1),
-            new(2, new ushort[] { lowerLeft, lowerRight }, 0, 0),
-        });
 }

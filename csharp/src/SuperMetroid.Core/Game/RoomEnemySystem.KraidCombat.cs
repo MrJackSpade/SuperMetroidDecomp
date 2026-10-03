@@ -275,7 +275,7 @@ public sealed partial class RoomEnemySystem
         int thresholdWordOffset = 14;
         while (thresholdWordOffset != 0 &&
             unchecked((short)(
-                body.Health - state.HealthEighthThresholds[thresholdWordOffset / 2])) < 0)
+                body.Health - state.HealthEighthThreshold(thresholdWordOffset / 2))) < 0)
         {
             thresholdWordOffset -= 2;
         }

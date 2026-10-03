@@ -12,52 +12,38 @@ internal static partial class Program
     private static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        if (!File.Exists(romPath))
-        {
-            Console.WriteLine(
-                "  Room-FX animated-tile mechanics: cartridge comparison skipped (private ROM absent).");
-            return;
-        }
-
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Animation frame oracle revision");
+        VerifySimpleAnimationObjectDomain();
+        VerifySimpleAnimationInstructionStarts(bus);
+        VerifySimpleAnimationTransferSizes(bus);
+        VerifySimpleAnimationVramDestinations(bus);
+        VerifySimpleAnimationFrameCursors(bus);
+        VerifySimpleAnimationFrameDurations(bus);
+        VerifySimpleAnimationArtworkSources(bus);
+        VerifyTreadmillArtworkSources(bus);
+        VerifyRoomFxAtlasSegmentSources(bus);
+        VerifyRoomFxAtlasSegmentSizes();
+        VerifyRoomFxAtlasSegmentRoles();
+        VerifyRoomFxLegacySheetSelection();
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in
                  RoomFxAnimatedTileMechanicsDefinitions.All)
         {
-            VerifyMechanicsWord(definition, bus, definition.ObjectPointer,
-                definition.InstructionPointer, "instruction-list pointer");
-            VerifyMechanicsWord(definition, bus,
-                unchecked((ushort)(definition.ObjectPointer + 2)),
-                definition.TransferByteCount, "transfer byte count");
-            VerifyMechanicsWord(definition, bus,
-                unchecked((ushort)(definition.ObjectPointer + 4)),
-                definition.EncodedVramDestination, "VRAM destination");
             mechanicsWordCount += 3;
 
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
             {
-                VerifyMechanicsWord(definition, bus, frame.InstructionPointer,
-                    frame.Duration, "frame duration");
                 AssertTrue(!definition.TryReadMechanicsWord(
                         frame.SourceOperandPointer, out _),
                     $"object $87:{definition.ObjectPointer:X4} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
-                int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
-                    definition, frame.InstructionPointer);
-                AssertEqual((ushort)sourceAddress,
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                        RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer),
-                    $"object $87:{definition.ObjectPointer:X4} compiled artwork-source identity");
                 mechanicsWordCount++;
                 frameCount++;
             }
 
-            VerifyMechanicsWord(definition, bus, definition.GotoInstructionPointer,
-                AnimatedTileInstructionCodes.Goto, "loop opcode");
-            VerifyMechanicsWord(definition, bus,
-                unchecked((ushort)(definition.GotoInstructionPointer + 2)),
-                definition.InstructionPointer, "loop target");
             mechanicsWordCount += 2;
 
             var guarded = new RoomFxAnimatedTileMechanicsForbiddenBus(bus, definition);
@@ -83,31 +69,13 @@ internal static partial class Program
                 $"object $87:{definition.ObjectPointer:X4} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count,
+        AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count(),
             "simple room-FX animated-tile object count");
         AssertEqual(30, frameCount, "simple room-FX animated-tile frame count");
         AssertEqual(65, mechanicsWordCount,
             "simple room-FX animated-tile compiled mechanics word count");
         Console.WriteLine(
             "  Room-FX animated tiles: 65 control words and 30 artwork-source identities across 7 objects are compiled.");
-    }
-
-    private static void VerifyMechanicsWord(
-        RoomFxAnimatedTileObjectDefinition definition,
-        ISnesAddressSpace bus,
-        ushort pointer,
-        ushort expected,
-        string label)
-    {
-        AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort actual),
-            $"object $87:{definition.ObjectPointer:X4} catalogs {label} $87:{pointer:X4}");
-        AssertEqual(expected, actual,
-            $"object $87:{definition.ObjectPointer:X4} compiled {label}");
-        AssertEqual(expected,
-            RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
-                RoomFxRomData.Banks.AnimatedTiles | pointer),
-            $"object $87:{definition.ObjectPointer:X4} cartridge {label}");
     }
 
     private sealed class RoomFxAnimatedTileMechanicsForbiddenBus(

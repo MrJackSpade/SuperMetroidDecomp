@@ -51,20 +51,9 @@ public sealed partial class RoomEnemySystem
         }
 
         state.CameraDistanceIndex = KraidCameraDefinitions.CameraDistanceIndex;
-        ApplyKraidScrolls(KraidCameraDefinitions.InitialScrolls);
+        ApplyKraidScrolls(grown: false);
         state.MinimumYPositionForEjection = 324;
-        ushort oneEighth = unchecked((ushort)(body.Health >> 3));
-        for (int index = 0; index < state.HealthEighthThresholds.Length; index++)
-        {
-            state.HealthEighthThresholds[index] = unchecked((ushort)(
-                oneEighth * (index + 1)));
-        }
-        ushort oneQuarter = unchecked((ushort)(body.Health >> 2));
-        for (int index = 0; index < state.HealthQuarterThresholds.Length; index++)
-        {
-            state.HealthQuarterThresholds[index] = unchecked((ushort)(
-                oneQuarter * (index + 1)));
-        }
+        state.InitialHealth = body.Health;
 
         // `$A7:AAC6` constructs the private WRAM tilemap which subsequent rise, head,
         // growth, and death functions upload in independently timed slices.
@@ -86,10 +75,12 @@ public sealed partial class RoomEnemySystem
         EarthquakeType = 5;
     }
 
-    private void ApplyKraidScrolls(ReadOnlySpan<RoomScrollState> scrolls)
+    private void ApplyKraidScrolls(bool grown)
     {
-        for (int index = 0; index < scrolls.Length; index++)
-            RequireSetRoomScrollState(index, scrolls[index]);
+        for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
+            RequireSetRoomScrollState(index, grown
+                ? KraidCameraDefinitions.GrownScroll(index)
+                : KraidCameraDefinitions.InitialScroll(index));
     }
 
     private void InitializeKraidArm(RoomEnemySlot arm)
@@ -238,7 +229,7 @@ public sealed partial class RoomEnemySystem
         {
             while (thresholdWordOffset != 0 &&
                 unchecked((short)(
-                    body.Health - state.HealthEighthThresholds[thresholdWordOffset / 2])) < 0)
+                    body.Health - state.HealthEighthThreshold(thresholdWordOffset / 2))) < 0)
             {
                 thresholdWordOffset -= 2;
             }

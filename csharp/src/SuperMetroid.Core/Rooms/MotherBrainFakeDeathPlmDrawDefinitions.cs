@@ -50,15 +50,12 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        Lists.Values;
+        BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        Lists.TryGetValue(pointer, out draw);
+        TryGetBackground(pointer, out draw) || TryGetRegular(pointer, out draw) || TryGetBoundary(pointer, out draw);
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -91,7 +88,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (string.Equals(VisualId(candidate.Pointer), id,
                     StringComparison.Ordinal))
@@ -104,99 +101,227 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return false;
     }
 
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
+    /// <summary>
+    /// Native 84:966D..9716: two thirteen-cell solid fill rows and six tube
+    /// clears. Tube interiors become blank FF; ceiling/floor endpoints restore
+    /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
+    /// clear one extra cell toward the center using signed origin-relative X.
+    /// </summary>
+    internal readonly record struct RegularDraw(ushort Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
     {
-        // Keep the complete native level words here. The draw consumer writes
-        // their collision nibble even when a later visual override changes the
-        // tile appearance; offsets are signed relative to the PLM origin.
-        var lists = new Dictionary<ushort,
-            RoomPlmShotBlockDrawDefinitions.DrawList>();
-        Add(FillWall,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8002,
-                new ushort[] { 0x8340, 0x830f }, 0, -1),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8001,
-                new ushort[] { 0x8b0f }, 0, 0));
-        Add(EscapeDoor,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x9222, 0xd1af, 0xd1d0, 0xd220 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x0223, 0x01eb, 0x01d0, 0x0221 }, 0, 0));
-        Add(BackgroundRow2,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x1241, 0x1242, 0x12fc, 0x12fc, 0x12fc, 0x1243, 0x1244, 0x12fc, 0x1245, 0x1642, 0x1241, 0x1241, 0x1246 }, 0, 0));
-        Add(BackgroundRow3,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x09ef, 0x01b2, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x09ef, 0x09ef, 0x01b2 }, 0, 0));
-        Add(BackgroundRow4,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x01d2, 0x01c6, 0x01c7, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x09ca, 0x060c, 0x05b1, 0x0a09 }, 0, 0));
-        Add(BackgroundRow5,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01d1, 0x01f2, 0x01a4, 0x01e7, 0x01a4, 0x0226, 0x0227, 0x01a5, 0x01a4, 0x020d, 0x0e09, 0x01b1, 0x01ab }, 0, 0));
-        Add(BackgroundRow6,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x0212, 0x01c4, 0x01c9, 0x01c4, 0x0206, 0x0207, 0x01c5, 0x01c4, 0x0628, 0x01ac, 0x01ec, 0x01ec }, 0, 0));
-        Add(BackgroundRow7,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01b1, 0x0a0c, 0x05ca, 0x0dc7, 0x01aa, 0x01a8, 0x01a8, 0x01a8, 0x01a8, 0x0628, 0x01ab, 0x01cd, 0x01cd }, 0, 0));
-        Add(BackgroundRow8,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01d1, 0x01d0, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a7, 0x0a0d, 0x0609, 0x01eb, 0x01d0 }, 0, 0));
-        Add(BackgroundRow9,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01eb, 0x01eb, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x00ff, 0x0a2c, 0x0609, 0x01ae }, 0, 0));
-        Add(BackgroundRowA,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01ec, 0x01af, 0x05ea, 0x05c7, 0x05c6, 0x0206, 0x0207, 0x01a8, 0x01a6, 0x01a8, 0x01a8, 0x05d2, 0x01ae }, 0, 0));
-        Add(BackgroundRowB,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x01ac, 0x01af, 0x01b2, 0x05e7, 0x01e5, 0x0226, 0x0227, 0x01e5, 0x01a6, 0x01e6, 0x01e5, 0x05b2, 0x01cd }, 0, 0));
-        Add(BackgroundRowC,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x060c, 0x01ef, 0x01b2, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x01ef }, 0, 0));
-        Add(BackgroundRowD,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x1248, 0x1249, 0x124a, 0x124b, 0x1339, 0x124c, 0x124d, 0x1339, 0x124e, 0x1339, 0x1339, 0x124f, 0x1249 }, 0, 0));
-        Add(BackgroundRowEUnused,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319, 0x8319 }, 0, 0));
-        Add(BackgroundRowFUnused,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x000d,
-                new ushort[] { 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044, 0x8044 }, 0, 0));
-        Add(ClearCeilingBlock,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8002,
-                new ushort[] { 0x12fc, 0x00ff }, 0, 0));
-        Add(ClearCeilingTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x12fc, 0x00ff, 0x00ff, 0x00ff, 0x00ff }, 0, 0));
-        Add(ClearBottomMiddleSideTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8004,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 0, 0));
-        Add(ClearBottomMiddleTubes,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8007,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8007,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 0, 0));
-        Add(ClearBottomLeftTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, 1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x0001,
-                new ushort[] { 0x00ff }, 0, 0));
-        Add(ClearBottomRightTube,
-            new RoomPlmShotBlockDrawDefinitions.Run(0x8005,
-                new ushort[] { 0x00ff, 0x00ff, 0x00ff, 0x00ff, 0x1339 }, -1, 0),
-            new RoomPlmShotBlockDrawDefinitions.Run(0x0001,
-                new ushort[] { 0x00ff }, 0, 0));
-        return lists;
-
-        void Add(ushort pointer,
-            params RoomPlmShotBlockDrawDefinitions.Run[] runs)
+        internal int RunCount => Width;
+        internal int Count(int run)
         {
-            if (!lists.TryAdd(pointer,
-                    new RoomPlmShotBlockDrawDefinitions.DrawList(pointer, runs)))
-                throw new InvalidDataException(
-                    $"Duplicate Mother Brain fake-death draw ${pointer:X4}.");
+            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            return Side != 0 && run == 1 ? 1 : Height;
         }
+        internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
+        internal sbyte NextX(int run)
+        {
+            Count(run);
+            return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
+        }
+        internal ushort WordAt(int run, int block)
+        {
+            int count = Count(run);
+            if ((uint)block >= count) throw new IndexOutOfRangeException();
+            if (Fill) return Pointer == BackgroundRowEUnused ? (ushort)0x8319 : (ushort)0x8044;
+            if (Side != 0 && run == 1) return 0x00ff;
+            return Ceiling ? (block == 0 ? (ushort)0x12fc : (ushort)0x00ff) :
+                (block == count - 1 ? (ushort)0x1339 : (ushort)0x00ff);
+        }
+    }
+
+    internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
+    {
+        draw = pointer switch
+        {
+            BackgroundRowEUnused or BackgroundRowFUnused => new(pointer, 13, 1, false, true, 0),
+            ClearCeilingBlock => new(pointer, 2, 1, true, false, 0),
+            ClearCeilingTube => new(pointer, 5, 1, true, false, 0),
+            ClearBottomMiddleSideTube => new(pointer, 4, 1, false, false, 0),
+            ClearBottomMiddleTubes => new(pointer, 7, 2, false, false, 0),
+            ClearBottomLeftTube => new(pointer, 5, 2, false, false, 1),
+            ClearBottomRightTube => new(pointer, 5, 2, false, false, -1),
+            _ => default,
+        };
+        return draw.Pointer != 0;
+    }
+
+    private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeRegular(pointer, out var shape)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.Count(run)];
+            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
+            runs[run] = new((ushort)(words.Length | (shape.Vertical(run) ? 0x8000 : 0)), words, shape.NextX(run), 0);
+        }
+        draw = new(pointer, runs);
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
+    {
+        // Each next record follows its counts, cells and two-byte continuation pairs.
+        for (int pointer = BackgroundRowEUnused; pointer < EndExclusive;)
+        {
+            TryGetRegular((ushort)pointer, out var draw);
+            yield return draw;
+            foreach (var run in draw.Runs.ToArray()) pointer += 4 + run.LevelWords.Length * 2;
+        }
+    }
+
+    /// <summary>
+    /// Retained picture composition, not numeric samples: 84:9505..966C places
+    /// this 13x12 Tourian pipe/panel mural at room (2,2), as shown by A9:8C87..8D10.
+    /// Tileset E (8F:E720) expands these cells into individually placed bends,
+    /// junctions, panels and gaps. Repeated pipe segments do not determine their
+    /// routing; a switch or fitted rule would merely re-encode that chosen picture.
+    /// Retain under #1165's nonsense exception. Geometry and collision are calculated
+    /// separately. Provenance and reconstruction are in motherBrainBackgroundArtworkReview.
+    /// </summary>
+    private static readonly ushort[][] BackgroundVisuals =
+    [
+        [0x0241, 0x0242, 0x02fc, 0x02fc, 0x02fc, 0x0243, 0x0244, 0x02fc, 0x0245, 0x0642, 0x0241, 0x0241, 0x0246],
+        [0x09ef, 0x01b2, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x09ef, 0x09ef, 0x01b2],
+        [0x01b1, 0x01d2, 0x01c6, 0x01c7, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x09ca, 0x060c, 0x05b1, 0x0a09],
+        [0x01d1, 0x01f2, 0x01a4, 0x01e7, 0x01a4, 0x0226, 0x0227, 0x01a5, 0x01a4, 0x020d, 0x0e09, 0x01b1, 0x01ab],
+        [0x01b1, 0x0212, 0x01c4, 0x01c9, 0x01c4, 0x0206, 0x0207, 0x01c5, 0x01c4, 0x0628, 0x01ac, 0x01ec, 0x01ec],
+        [0x01b1, 0x0a0c, 0x05ca, 0x0dc7, 0x01aa, 0x01a8, 0x01a8, 0x01a8, 0x01a8, 0x0628, 0x01ab, 0x01cd, 0x01cd],
+        [0x01d1, 0x01d0, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a7, 0x0a0d, 0x0609, 0x01eb, 0x01d0],
+        [0x01eb, 0x01eb, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x00ff, 0x0a2c, 0x0609, 0x01ae],
+        [0x01ec, 0x01af, 0x05ea, 0x05c7, 0x05c6, 0x0206, 0x0207, 0x01a8, 0x01a6, 0x01a8, 0x01a8, 0x05d2, 0x01ae],
+        [0x01ac, 0x01af, 0x01b2, 0x05e7, 0x01e5, 0x0226, 0x0227, 0x01e5, 0x01a6, 0x01e6, 0x01e5, 0x05b2, 0x01cd],
+        [0x060c, 0x01ef, 0x01b2, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x01ef],
+        [0x0248, 0x0249, 0x024a, 0x024b, 0x0339, 0x024c, 0x024d, 0x0339, 0x024e, 0x0339, 0x0339, 0x024f, 0x0249],
+    ];
+
+    /// <summary>
+    /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
+    /// bytes apart. Top/bottom rows retain collision type one; interior rows
+    /// are air. Visual bits remain independent from these physical boundaries.
+    /// </summary>
+    internal readonly record struct BackgroundDraw(int Row)
+    {
+        internal ushort WordAt(int column)
+        {
+            if ((uint)column >= 13) throw new IndexOutOfRangeException();
+            return (ushort)(BackgroundVisuals[Row][column] | (Row is 0 or 11 ? 0x1000 : 0));
+        }
+    }
+
+    internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
+    {
+        int offset = pointer - BackgroundRow2;
+        bool owned = offset >= 0 && pointer <= BackgroundRowD && offset % 30 == 0;
+        draw = owned ? new(offset / 30) : default;
+        return owned;
+    }
+
+    private static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeBackground(pointer, out var row)) return false;
+        var words = new ushort[13];
+        for (int column = 0; column < words.Length; column++) words[column] = row.WordAt(column);
+        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(13, words, 0, 0) });
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
+    {
+        for (int pointer = BackgroundRow2; pointer <= BackgroundRowD; pointer += 30)
+        {
+            TryGetBackground((ushort)pointer, out var draw);
+            yield return draw;
+        }
+    }
+
+    /// <summary>84:94B3/94BF: left tile of the two-wide broken upper edge (222/223).</summary>
+    private const ushort DoorUpperEdgeLeft = 0x222;
+    /// <summary>84:94B9/94C5: left tile of the two-wide broken lower edge (220/221).</summary>
+    private const ushort DoorLowerEdgeLeft = 0x220;
+    /// <summary>84:94B5: upper interior panel with its left vertical seam.</summary>
+    private const ushort DoorInteriorLeft = 0x1af;
+    /// <summary>84:94C1: upper interior panel without that left seam.</summary>
+    private const ushort DoorInteriorRight = 0x1eb;
+    /// <summary>84:94B7/94C3: repeated lower-interior strip across both columns.</summary>
+    private const ushort DoorLowerInterior = 0x1d0;
+
+    // Called only after validating the two-column/four-row door domain.
+    private static ushort EscapeDoorVisualAt(int column, int row) => row switch
+    {
+        0 => (ushort)(DoorUpperEdgeLeft + column),
+        1 => column == 0 ? DoorInteriorLeft : DoorInteriorRight,
+        2 => DoorLowerInterior,
+        3 => (ushort)(DoorLowerEdgeLeft + column),
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    /// <summary>
+    /// 84:94A3/94B1: a three-cell wall centered on the origin, or a two-column
+    /// four-cell door. Both use vertical runs. Wall caps mirror tile 30F around
+    /// center tile 340 and are solid. The door's first column has a door parent
+    /// above three vertical extensions; its second column is air.
+    /// </summary>
+    internal readonly record struct BoundaryDraw(ushort Pointer)
+    {
+        internal int Count(int run)
+        {
+            if ((uint)run >= 2) throw new IndexOutOfRangeException();
+            return Pointer == EscapeDoor ? 4 : 2 - run;
+        }
+        internal sbyte NextX(int run)
+        {
+            Count(run);
+            return Pointer == EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
+        }
+        internal sbyte NextY(int run)
+        {
+            Count(run);
+            return Pointer == FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int block)
+        {
+            if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
+            if (Pointer == FillWall)
+                return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
+            RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :
+                block == 0 ? RoomCollisionType.DoorBlock : RoomCollisionType.VerticalExtension;
+            return (ushort)(((int)collision << 12) | EscapeDoorVisualAt(run, block));
+        }
+    }
+
+    internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
+    {
+        bool owned = pointer is FillWall or EscapeDoor;
+        draw = owned ? new(pointer) : default;
+        return owned;
+    }
+
+    private static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        draw = default;
+        if (!TryDescribeBoundary(pointer, out var shape)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[2];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.Count(run)];
+            for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
+            runs[run] = new((ushort)(0x8000 | words.Length), words, shape.NextX(run), shape.NextY(run));
+        }
+        draw = new(pointer, runs);
+        return true;
+    }
+
+    private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
+    {
+        TryGetBoundary(FillWall, out var wall);
+        yield return wall;
+        TryGetBoundary(EscapeDoor, out var door);
+        yield return door;
     }
 }

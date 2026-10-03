@@ -18,52 +18,83 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static readonly KraidPlmRequest LiveDeathSpikes = new(0x05, 0x1b, RoomPlmHeaders.CrumbleKraidSpikes);
 
-    private static readonly KraidPlmRequest[] DefeatedRoomRequests =
-    [
-        new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling),
-        new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes),
-    ];
+    /// <summary>$A7:C168 SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
+    private static KraidPlmRequest ClearCeiling => new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling);
 
-    private static readonly KraidPlmRequest[] GrowthCeilingRequests =
-    [
-        new(0x06, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x0d, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x02, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1),
-        new(0x0a, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x05, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x0c, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-        new(0x03, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x0b, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2),
-        new(0x04, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
-    ];
+    /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
+    private static KraidPlmRequest ClearSpikes => new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes);
 
     /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
-    public static IReadOnlyList<KraidPlmRequest> GrowthCeiling => GrowthCeilingRequests;
+    public static IReadOnlyList<KraidPlmRequest> GrowthCeiling { get; } = new GrowthCeilingSequence();
 
     /// <summary>
     /// The hardcoded PLMs spawned by defeated-room initialization at
     /// <c>$A7:C168</c> (<c>Kraid_SpawnPlmToClearCeiling</c>) and <c>$A7:C171</c>
     /// (<c>Kraid_ClearSomeSpikes</c>), in native call order.
     /// </summary>
-    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom => DefeatedRoomRequests;
+    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
 
-    /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static KraidPlmRequest? ForSinkCallback(ushort callback) => callback switch
+    private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
     {
-        KraidSinkCallbacks.NoOperation => null,
-        KraidSinkCallbacks.CrumbleLeftPlatformLeft =>
-            new(0x07, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleRightPlatformMiddle =>
-            new(0x0f, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleRightPlatformLeft =>
-            new(0x0e, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        KraidSinkCallbacks.CrumbleLeftPlatformRight =>
-            new(0x09, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant1),
-        KraidSinkCallbacks.CrumbleLeftPlatformMiddle =>
-            new(0x08, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        KraidSinkCallbacks.CrumbleRightPlatformRight =>
-            new(0x10, 0x12, RoomPlmHeaders.CrumbleKraidPlatformVariant2),
-        _ => throw new InvalidDataException(
-            $"Kraid sinking callback $A7:{callback:X4} has no hardcoded PLM definition."),
-    };
+        public int Count => 2;
+        public KraidPlmRequest this[int index] => index switch
+        {
+            0 => ClearCeiling,
+            1 => ClearSpikes,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<KraidPlmRequest> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// $A7:ACC5 selects the ceiling callbacks at ACD7..AD3A. Each block lies
+    /// directly above its paired rock center; row18 is constant. Column2 uses
+    /// the left-edge background, then odd/even columns alternate variants2/3.
+    /// </summary>
+    private sealed class GrowthCeilingSequence : IReadOnlyList<KraidPlmRequest>
+    {
+        public int Count => 9;
+        public KraidPlmRequest this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                byte column = (byte)(KraidCeilingRockPositions.AtByteOffset(2 * index) >> 4);
+                ushort header = column == 2 ? RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1
+                    : (column & 1) == 0 ? RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3
+                    : RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2;
+                return new(column, 0x12, header);
+            }
+        }
+        public IEnumerator<KraidPlmRequest> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
+    public static KraidPlmRequest? ForSinkCallback(ushort callback)
+    {
+        if (callback == KraidSinkCallbacks.NoOperation) return null;
+        byte column = callback switch
+        {
+            KraidSinkCallbacks.CrumbleLeftPlatformLeft => 7,
+            KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 8,
+            KraidSinkCallbacks.CrumbleLeftPlatformRight => 9,
+            KraidSinkCallbacks.CrumbleRightPlatformLeft => 14,
+            KraidSinkCallbacks.CrumbleRightPlatformMiddle => 15,
+            KraidSinkCallbacks.CrumbleRightPlatformRight => 16,
+            _ => throw new InvalidDataException(
+                $"Kraid sinking callback $A7:{callback:X4} has no hardcoded PLM definition."),
+        };
+        // The surviving platforms share the ceiling row and alternate background
+        // blocks by column parity, as in the native C691..C714 inline arguments.
+        return new(column, 0x12, (column & 1) != 0
+            ? RoomPlmHeaders.CrumbleKraidPlatformVariant1
+            : RoomPlmHeaders.CrumbleKraidPlatformVariant2);
+    }
 }

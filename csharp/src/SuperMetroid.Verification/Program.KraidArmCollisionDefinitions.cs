@@ -6,43 +6,42 @@ internal static partial class Program
     private static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        AssertEqual(22, KraidArmCollisionDefinitions.FrameCount,
-            "Kraid arm physical frame count");
-        HashSet<ushort> hitboxPointers = [];
-        for (int frameIndex = 0; frameIndex < KraidArmCollisionDefinitions.FrameCount;
-             frameIndex++)
-        {
-            ushort pointer = KraidArmCollisionDefinitions.FramePointer(frameIndex);
-            AssertTrue(KraidArmCollisionDefinitions.TryGetComponents(
-                    pointer, out var compiled),
-                $"Kraid arm physical frame $A7:{pointer:X4} exists");
-            AssertEqual(rom.ReadByte(0xa70000 | pointer), compiled.Length,
-                $"Kraid arm physical component count $A7:{pointer:X4}");
-            for (int componentIndex = 0; componentIndex < compiled.Length;
-                 componentIndex++)
-            {
-                KraidArmCollisionComponent component = compiled.Span[componentIndex];
-                ushort record = unchecked((ushort)(pointer + 2 + componentIndex * 8));
-                AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
-                    component.X, $"Kraid arm component X $A7:{record:X4}");
-                AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 2)))),
-                    component.Y, $"Kraid arm component Y $A7:{record:X4}");
-                AssertEqual(ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 6))),
-                    component.HitboxPointer,
-                    $"Kraid arm hitbox pointer $A7:{record:X4}");
-                hitboxPointers.Add(component.HitboxPointer);
-            }
-        }
+        VerifyKraidArmComponentHitboxes(rom);
+        VerifyKraidArmTouchCallbacks(rom);
+        VerifyKraidArmShotCallbacks(rom);
+        VerifyKraidArmPhysicalFramePointers(rom);
+        HashSet<ushort> hitboxPointers = VerifyKraidArmPhysicalLayoutSelection(rom);
 
         AssertEqual(16, hitboxPointers.Count,
             "Kraid arm selected frames reference all 16 physical hitbox lists");
-        int hitboxCount = 0;
-        foreach (ushort pointer in hitboxPointers)
+        VerifyKraidArmHitboxListSelection(rom);
+        Console.WriteLine(
+            "Kraid arm physical definitions: 22 frame maps, 16 hitbox lists, " +
+            "and 24 rectangles/callback pairs match the retail ROM.");
+    }
+
+    private static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
+    {
+        // Native arm-list identities, independently transcribed from bank_A7.asm.
+        // Counts, ordering and selected geometry are checked against the ROM;
+        // the existing semantic case implementation supplies no expected values.
+        ushort[] original = [0x92d1, 0x92eb, 0x92f9, 0x9313, 0x9321, 0x933b,
+            0x9349, 0x9371, 0x937f, 0x9399, 0x93f7, 0x9411, 0x941f, 0x9439,
+            0x946f, 0x947d];
+        var selected = original.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            ReadOnlySpan<KraidArmCollisionHitbox> compiled =
+            ushort candidate = (ushort)pointer;
+            if (!selected.Contains(candidate))
+                AssertThrows<InvalidDataException>(() => KraidArmCollisionDefinitions.HitboxesAt(candidate),
+                    $"Non-arm-list identity {candidate:X4} is rejected");
+        }
+        int hitboxCount = 0;
+        foreach (ushort pointer in original)
+        {
+            KraidArmHitboxSequence compiled =
                 KraidArmCollisionDefinitions.HitboxesAt(pointer);
+            AssertEqual(hitboxCount, compiled.Start, "Arm slice starts after preceding selected native records");
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length,
                 $"Kraid arm hitbox count $A7:{pointer:X4}");
             for (int index = 0; index < compiled.Length; index++)
@@ -60,21 +59,15 @@ internal static partial class Program
                 AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom,
                         unchecked((ushort)(record + 6)))),
                     hitbox.Bottom, $"Kraid arm hitbox bottom $A7:{record:X4}");
-                AssertEqual(ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 8))),
-                    hitbox.TouchAi, $"Kraid arm touch AI $A7:{record:X4}");
-                AssertEqual(ReadKraidArmInstructionWord(rom,
-                        unchecked((ushort)(record + 10))),
-                    hitbox.ShotAi, $"Kraid arm shot AI $A7:{record:X4}");
                 hitboxCount++;
             }
+            AssertTrue(compiled.ToArray().SequenceEqual(Enumerable.Range(0, compiled.Length).Select(i => compiled[i])),
+                "Arm slice materialization preserves native rectangle order");
+            foreach (int invalid in new[] { int.MinValue, -1, compiled.Length, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => _ = compiled[invalid], "Arm slice rejects invalid ordinal");
         }
         AssertEqual(24, hitboxCount, "Kraid arm compiled physical rectangles");
-        AssertThrows<InvalidDataException>(
-            () => KraidArmCollisionDefinitions.HitboxesAt(0x8000).ToArray(),
-            "uncatalogued Kraid arm hitbox pointer fails loudly");
-        Console.WriteLine(
-            "Kraid arm physical definitions: 22 frame maps, 16 hitbox lists, " +
-            "and 24 rectangles/callback pairs match the retail ROM.");
+        AssertEqual(0, default(KraidArmHitboxSequence).ToArray().Length, "Default arm slice is empty");
+        AssertThrows<IndexOutOfRangeException>(() => _ = default(KraidArmHitboxSequence)[0], "Default arm slice has no rectangle");
     }
 }

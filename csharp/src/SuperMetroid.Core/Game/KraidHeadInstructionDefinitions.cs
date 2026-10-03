@@ -39,48 +39,71 @@ internal static class KraidHeadInstructionDefinitions
     /// <summary>Timer from the first dying record at $A7:9764.</summary>
     public const ushort DeathEntryTimer = 25;
 
-    private static readonly KraidHeadInstructionDefinition[] Definitions =
-    [
-        Frame(0x96d2, 0x000a, 0x97c8, 0x9788, 0xffff),
-        Frame(0x96da, 0x000a, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x96e2, 0x000a, 0x9dc8, 0x9798, 0x97b8),
-        Sound(0x96ea, KraidHeadInstructionKind.RoarSound, 0x002d),
-        Frame(0x96ec, 0x0040, OpenMouthTilemap, 0x97a0, 0x97c0),
-        Frame(0x96f4, 0x000a, 0x9dc8, 0x9798, 0x97b8),
-        Frame(0x96fc, 0x000a, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x9704, 0x000a, 0x97c8, 0x9788, 0xffff),
-        End(0x970c),
+    /// <summary>$A7:970E, InstList_Kraid_DyingRoar_0, the slower complete roar.</summary>
+    private const ushort DyingRoarInitial = 0x970e;
+    /// <summary>$A7:97C8, Tilemap_KraidHead_0; successive mouth stages occupy $300 bytes.</summary>
+    private const ushort ClosedMouthTilemap = 0x97c8;
+    /// <summary>$A7:9788, Hitbox_KraidMouth_0; four eight-byte vulnerable mouth shapes.</summary>
+    private const ushort VulnerableHitboxStart = 0x9788;
+    /// <summary>$A7:97B0, Hitbox_KraidMouth_5; first open-stage invulnerable shape.</summary>
+    private const ushort InvulnerableHitboxStart = 0x97b0;
 
-        Frame(0x970e, 0x0014, 0x97c8, 0x9788, 0xffff),
-        Frame(0x9716, 0x0014, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x971e, 0x0014, 0x9dc8, 0x9798, 0x97b8),
-        Sound(0x9726, KraidHeadInstructionKind.RoarSound, 0x002d),
-        Frame(0x9728, 0x00c0, OpenMouthTilemap, 0x97a0, 0x97c0),
-        Frame(0x9730, 0x0014, 0x9dc8, 0x9798, 0x97b8),
-        Frame(0x9738, 0x0014, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x9740, 0x0014, 0x97c8, 0x9788, 0xffff),
-        End(0x9748),
+    /// <summary>All 28 command records, calculated in native address order.</summary>
+    public static KraidHeadCommandSequence All => new(28);
 
-        Frame(0x974a, 0x0005, 0x97c8, 0x9788, 0xffff),
-        Frame(0x9752, 0x000a, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x975a, 0x0005, 0x97c8, 0x9788, 0xffff),
-        End(0x9762),
+    /// <summary>Calculates one command from its roar, glow, or death program role.</summary>
+    /// <remarks>
+    /// Independently checked for #1165 against pinned bank_A7.asm and every original
+    /// NTSC J/U v1.0 command. Roars open through stages 0..3 and close through 2..0;
+    /// death stops after opening, while glow uses stages 0,1,0. A two-byte sound
+    /// command precedes the fully open frame. Timed frames occupy eight bytes.
+    /// Tilemaps advance by $300 per stage and hitboxes by eight bytes; the closed
+    /// mouth has no invulnerable hitbox. No generated command cache is stored.
+    /// </remarks>
+    internal static KraidHeadInstructionDefinition Command(int index)
+    {
+        if ((uint)index >= 28) throw new IndexOutOfRangeException();
+        if (index < 18)
+        {
+            bool dyingRoar = index >= 9;
+            return OpeningCommand(dyingRoar ? DyingRoarInitial : RoarInitial,
+                index % 9, false, (ushort)(dyingRoar ? 20 : RoarEntryTimer),
+                (ushort)(dyingRoar ? 192 : 64));
+        }
+        if (index < 22)
+        {
+            int step = index - 18;
+            ushort pointer = (ushort)(EyeGlowInitial + 8 * step);
+            if (step == 3) return End(pointer);
+            int stage = 1 - Math.Abs(step - 1);
+            return MouthFrame(pointer, (ushort)(EyeGlowEntryTimer * (stage + 1)), stage);
+        }
+        return OpeningCommand(DeathInitial, index - 22, true, DeathEntryTimer, 64);
+    }
 
-        Frame(0x9764, 0x0019, 0x97c8, 0x9788, 0xffff),
-        Frame(0x976c, 0x0019, 0x9ac8, 0x9790, 0x97b0),
-        Frame(0x9774, 0x0019, 0x9dc8, 0x9798, 0x97b8),
-        Sound(0x977c, KraidHeadInstructionKind.DyingSound, 0x002e),
-        Frame(0x977e, 0x0040, OpenMouthTilemap, 0x97a0, 0x97c0),
-        End(0x9786),
-    ];
+    private static KraidHeadInstructionDefinition OpeningCommand(
+        ushort start, int step, bool death, ushort frameTimer, ushort openTimer)
+    {
+        // The sound occupies one command slot but only two bytes, unlike a frame.
+        ushort pointer = (ushort)(start + 8 * step - (step > 3 ? 6 : 0));
+        if (step == (death ? 5 : 8)) return End(pointer);
+        if (step == 3)
+            return Sound(pointer, death ? KraidHeadInstructionKind.DyingSound
+                : KraidHeadInstructionKind.RoarSound, (ushort)(death ? 0x2e : 0x2d));
+        int frame = step < 3 ? step : step - 1;
+        int stage = frame <= 3 ? frame : 6 - frame;
+        return MouthFrame(pointer, stage == 3 ? openTimer : frameTimer, stage);
+    }
 
-    /// <summary>All 28 aligned command records in native address order.</summary>
-    public static ReadOnlySpan<KraidHeadInstructionDefinition> All => Definitions;
+    private static KraidHeadInstructionDefinition MouthFrame(ushort pointer, ushort duration, int stage) =>
+        Frame(pointer, duration, (ushort)(ClosedMouthTilemap + 0x300 * stage),
+            (ushort)(VulnerableHitboxStart + 8 * stage),
+            stage == 0 ? ushort.MaxValue : (ushort)(InvulnerableHitboxStart + 8 * (stage - 1)));
 
     /// <summary>Resolves one exact private-program cursor and rejects adjacent data/code.</summary>
     public static KraidHeadInstructionDefinition Resolve(ushort pointer)
     {
-        foreach (KraidHeadInstructionDefinition definition in Definitions)
+        foreach (KraidHeadInstructionDefinition definition in All)
         {
             if (definition.Pointer == pointer)
                 return definition;
@@ -101,7 +124,7 @@ internal static class KraidHeadInstructionDefinitions
     public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        foreach (KraidHeadInstructionDefinition definition in Definitions)
+        foreach (KraidHeadInstructionDefinition definition in All)
         {
             if (definition.Pointer != pointer)
                 continue;
@@ -132,7 +155,7 @@ internal static class KraidHeadInstructionDefinitions
 
     /// <summary>
     /// Ports $A7:C029-$C04F's raw-word-dependent resume selection when Kraid crosses the
-    /// one-eighth-health growth boundary. The returned cursor names the next command,
+    /// seven-eighths-health growth boundary. The returned cursor names the next command,
     /// while the timer retains the current displayed head frame.
     /// </summary>
     public static KraidHeadResumeDefinition GrowthResume(ushort selectionWord) =>
@@ -176,9 +199,8 @@ internal static class KraidHeadInstructionDefinitions
         }
 
         int boundaryIndex = pointer - 0x8000;
-        ReadOnlySpan<byte> boundary = KraidMouthHitboxes.LowHalfBoundaryBytes;
         if ((uint)boundaryIndex < 3)
-            return boundary[boundaryIndex];
+            return KraidMouthHitboxes.LowHalfBoundaryByte(boundaryIndex);
 
         throw new InvalidDataException(
             $"Kraid low-half head frame crossed into uncompiled cartridge address $A7:{pointer:X4}.");
@@ -206,3 +228,22 @@ internal readonly record struct KraidHeadInstructionDefinition(
 
 /// <summary>Kraid head cursor/timer pair selected when the first phase ends.</summary>
 internal readonly record struct KraidHeadResumeDefinition(ushort Pointer, ushort Timer);
+
+/// <summary>Calculated native head commands with no stored lookup or startup cache.</summary>
+internal readonly record struct KraidHeadCommandSequence(int Length)
+{
+    public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
+    public KraidHeadInstructionDefinition[] ToArray()
+    {
+        var result = new KraidHeadInstructionDefinition[Length];
+        for (int index = 0; index < result.Length; index++) result[index] = this[index];
+        return result;
+    }
+    public Enumerator GetEnumerator() => new(this);
+    public struct Enumerator(KraidHeadCommandSequence sequence)
+    {
+        private int next;
+        public bool MoveNext() => next++ < sequence.Length;
+        public KraidHeadInstructionDefinition Current => KraidHeadInstructionDefinitions.Command(next - 1);
+    }
+}

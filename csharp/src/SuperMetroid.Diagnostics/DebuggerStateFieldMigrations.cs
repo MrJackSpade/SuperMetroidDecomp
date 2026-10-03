@@ -267,6 +267,14 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not "<PlantHeldY>k__BackingField").ToArray();
         }
         if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+ScrollPlmState" &&
+            count < current.Length && current.Any(field => field.Name == "<CompiledSource>k__BackingField"))
+        {
+            // Before direct retail scroll dispatch, decoded pairs (when present)
+            // were authoritative. Otherwise execution rebinds by room argument.
+            return SelectSerializedFields(type,
+                current.Where(field => field.Name != "<CompiledSource>k__BackingField").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+ScrollPlmState" &&
             count < current.Length && current.Any(field => field.Name == "<Program>k__BackingField"))
         {
             Console.Error.WriteLine(

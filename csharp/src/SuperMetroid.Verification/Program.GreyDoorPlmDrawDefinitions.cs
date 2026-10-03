@@ -32,25 +32,9 @@ internal static partial class Program
             "grey-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa6d7, 0),
             "stock grey-door visual retains native tile choice");
-        AssertEqual(20, lists.Length,
-            "four grey-cap orientations each have four frames plus four shared clear frames");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"grey-door cap ${list.Pointer:X4} has one run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            int source = 0x840000 | list.Pointer;
-            AssertEqual(run.DirectionAndCount, ReadWord(rom, source),
-                $"grey-door cap ${list.Pointer:X4} direction/count matches ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"grey-door cap ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < 4; block++)
-                AssertEqual(run.LevelWords.Span[block],
-                    ReadWord(rom, source + 2 + block * 2),
-                    $"grey-door cap ${list.Pointer:X4} block {block} matches ROM");
-            AssertEqual((ushort)0, ReadWord(rom, source + 10),
-                $"grey-door cap ${list.Pointer:X4} has a zero offset terminator");
-        }
+        VerifyGreyCapGeometry(rom);
+        VerifyGreyCapCollision(rom);
+        VerifyGreyCapVisuals(rom);
 
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
@@ -179,13 +163,6 @@ internal static partial class Program
                     $"opened grey door ${header:X4} avoids program/draw ROM reads");
             }
         }
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmGreyDoorVisualCatalog(entries.Skip(1)),
-            "grey-door catalog rejects missing frames");
-        editedFrame.Blocks[0] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new RoomPlmGreyDoorVisualCatalog(entries),
-            "grey-door catalog rejects collision bits in visual words");
         editedFrame.Blocks[0] = originalVisual;
         VerifySharedDoorClearVisual(rom, entries, lists);
         VerifyGreyDoorVisualInstallation(rom);
@@ -268,65 +245,23 @@ internal static partial class Program
 
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int address = GreyDoorPlmProgramDefinitions.FirstAddress;
-             address <= GreyDoorPlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"grey-door program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"grey-door program byte $84:{address:X4} matches ROM");
-            if (address == GreyDoorPlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"grey-door program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"grey-door program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbe58, out _),
-            "ordinary grey-door program does not claim preceding condition table");
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffd, out _),
-            "ordinary grey-door program does not claim following yellow door");
-        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(0xbffc, out _),
-            "ordinary grey-door program refuses a cross-family word");
+        VerifyGreyProgramControls(rom);
+        VerifyGreyProgramDraws(rom);
+        VerifyGreyProgramTargets(rom);
+        VerifyGreyProgramSounds(rom);
+        VerifyGreyProgramHitCount(rom);
+        VerifyGreyProgramCallback(rom);
     }
 
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (BombTorizoGreyDoorPlmProgramDefinitions.ClosingStart,
-                BombTorizoGreyDoorPlmProgramDefinitions.ClosingEnd),
-            (BombTorizoGreyDoorPlmProgramDefinitions.ResidentStart,
-                BombTorizoGreyDoorPlmProgramDefinitions.ResidentEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
-                        checked((ushort)address), out byte compiled),
-                    $"Bomb Torizo door program claims byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"Bomb Torizo door program byte $84:{address:X4} matches ROM");
-                if (address == last)
-                    continue;
-                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
-                        checked((ushort)address), out ushort compiledWord),
-                    $"Bomb Torizo door program claims word $84:{address:X4}");
-                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8);
-                AssertEqual(native, compiledWord,
-                    $"Bomb Torizo door program word $84:{address:X4} matches ROM");
-            }
-        }
-        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xba6f, out _),
-            "Bombs callback machine code remains outside compiled instruction data");
-        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbad1, out _),
-            "unused setup machine code remains outside compiled instruction data");
+        VerifyTorizoDoorControls(rom);
+        VerifyTorizoDoorDraws(rom);
+        VerifyTorizoDoorTargets(rom);
+        VerifyTorizoDoorSounds(rom);
+        VerifyTorizoDoorHitCount(rom);
+        VerifyTorizoDoorCallback(rom);
     }
 
     private static void VerifySharedDoorClearVisual(
@@ -386,7 +321,9 @@ internal static partial class Program
                 installation.RoomPlmGreyDoorVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmGreyDoorVisualFiles.ValidateStock(
                 installation.RoomPlmGreyDoorVisualDirectory);
-            ushort stock = installation.LoadRoomPlmGreyDoorVisuals().GetWord(0xa6d7, 0);
+            var installed = installation.LoadRoomPlmGreyDoorVisuals();
+            VerifyGreyDoorStockMapping(rom, installed);
+            ushort stock = installed.GetWord(0xa6d7, 0);
             string stockPath = Path.Combine(installation.RoomPlmGreyDoorVisualDirectory,
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))

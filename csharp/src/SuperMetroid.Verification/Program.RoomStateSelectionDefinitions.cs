@@ -1,83 +1,112 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyCompiledRoomStateSelectionDefinitions()
     {
-        string symbolPath = Path.GetFullPath(
-            Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        ushort[] roomPointers = File.ReadLines(symbolPath)
-            .Select(TryParseRoomHeaderPointer)
-            .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
-            .Distinct()
-            .Order()
-            .ToArray();
-        AssertEqual(RoomStateSelectionDefinitions.RetailRoomCount, roomPointers.Length,
-            "compiled room-state catalog contains every retail room");
-
-        RoomStateSelectionContext[] contexts = BuildRoomStateAuditContexts();
-        var statePointers = new HashSet<ushort>();
-        int comparisons = 0;
-        foreach (ushort roomPointer in roomPointers)
-        foreach (RoomStateSelectionContext context in contexts)
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Room selector oracle revision");
+        ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
+            .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
+            .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
+        AssertEqual(262, rooms.Length, "Original retail room selector identities");
+        var known = rooms.ToHashSet();
+        for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            CartridgeRoomHeader native = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context);
-            CartridgeRoomHeader compiled = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                roomPointer, context);
-            AssertEqual(native, compiled,
-                $"compiled room-state selection for $8F:{roomPointer:X4}");
-            statePointers.Add(compiled.State.Pointer);
-            comparisons++;
+            ushort pointer = (ushort)value;
+            if (known.Contains(pointer)) continue;
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelectionDefinitions.Select(pointer, default),
+                "Unknown room selector rejects before condition evaluation");
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelectionDefinitions.GetStatePointers(pointer),
+                "Unknown room variant enumeration rejects");
         }
 
-        AssertEqual(323, statePointers.Count, "compiled selectors reach all retail states");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomStateSelectionDefinitions.Select(0xe82c, default),
-            "compiled selectors reject the developer area-seven room");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomStateSelectionDefinitions.Select(0xffff, default),
-            "compiled selectors reject arbitrary pointers");
-
-        ushort ceresPointer = LoadStationDefinitions.Get(
-            SuperMetroid.Core.Game.AreaId.Ceres, 0).RoomPointer;
-        ushort ceresDefaultState = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
-        var guardedRuntime = new SuperMetroidRuntime(new RoomSelectorReadGuard(
-            bus,
-            RoomHeaderRomData.BankAddress |
-                unchecked((ushort)(ceresPointer + RoomHeaderRomData.FixedHeaderByteCount)),
-            RoomHeaderRomData.BankAddress | ceresDefaultState));
-        guardedRuntime.InitializeStartingCeresRoom();
-        AssertEqual(ceresDefaultState, guardedRuntime.ActiveRoom!.State.Pointer,
-            "production Ceres entry chooses its compiled default state");
-
-        Console.WriteLine(
-            $"Room state selectors: {comparisons} context comparisons reach " +
-            $"{statePointers.Count} states; production Ceres entry rejects selector-ROM reads.");
-    }
-
-    private sealed class RoomSelectorReadGuard(
-        ISnesAddressSpace source,
-        int blockedStart,
-        int blockedEnd) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        int conditional = 0, clauses = 0, comparisons = 0;
+        var reached = new HashSet<ushort>();
+        foreach (ushort room in rooms)
         {
-            if (address >= blockedStart && address < blockedEnd)
+            // Independently decode original executable selectors. Do not use the
+            // room importer: it delegates selection to the production implementation.
+            var native = new List<(ushort Code, byte Operand, ushort Target)>();
+            int address = 0x8f0000 | (room + 11);
+            ushort Word(int at) => (ushort)(rom.ReadByte(at) | rom.ReadByte(at + 1) << 8);
+            while (Word(address) != 0xe5e6)
             {
-                throw new InvalidOperationException(
-                    $"Production runtime read native room-selector data at ${address:X6}.");
+                AssertTrue(native.Count < 8, "Native selector has a bounded terminator");
+                ushort code = Word(address);
+                address += 2;
+                byte operand = code switch
+                {
+                    0xe612 or 0xe629 => rom.ReadByte(address++),
+                    0xe5ff => 1,
+                    0xe652 or 0xe669 => 0,
+                    _ => throw new InvalidDataException($"Unexpected native selector {code:X4}"),
+                };
+                native.Add((code, operand, Word(address)));
+                address += 2;
             }
+            ushort fallback = (ushort)(address + 2);
+            if (native.Count != 0) conditional++;
+            clauses += native.Count;
+            ushort[] expectedVariants = new[] { fallback }.Concat(native.Select(clause => clause.Target)).ToArray();
+            AssertTrue(RoomStateSelectionDefinitions.GetStatePointers(room).SequenceEqual(expectedVariants),
+                $"Room {room:X4} default and alternatives retain native order");
 
-            return source.ReadByte(address);
+            // All truth assignments of the predicates this native program actually
+            // reads cover every branch and simultaneous-match priority. Truncated
+            // event storage and irrelevant set bits exercise the caller boundary.
+            for (int assignment = 0; assignment < 1 << native.Count; assignment++)
+            foreach (int eventLength in new[] { 0, 1, 2, 3, 8 })
+            foreach (bool noise in new[] { false, true })
+            {
+                byte[] events = Enumerable.Repeat(noise ? (byte)255 : (byte)0, eventLength).ToArray();
+                byte bosses = noise ? (byte)255 : (byte)0;
+                bool morph = noise, powerBombs = noise;
+                for (int index = 0; index < native.Count; index++)
+                {
+                    var clause = native[index];
+                    bool enabled = (assignment & (1 << index)) != 0;
+                    if (clause.Code == 0xe612 && clause.Operand / 8 < events.Length)
+                    {
+                        int bit = 1 << (clause.Operand % 8);
+                        ref byte storage = ref events[clause.Operand / 8];
+                        storage = (byte)(enabled ? storage | bit : storage & ~bit);
+                    }
+                    else if (clause.Code is 0xe5ff or 0xe629)
+                        bosses = (byte)(enabled ? bosses | clause.Operand : bosses & ~clause.Operand);
+                    else if (clause.Code == 0xe652) morph = enabled;
+                    else if (clause.Code == 0xe669) powerBombs = enabled;
+                }
+                ushort expected = fallback;
+                foreach (var clause in native)
+                {
+                    bool matches = clause.Code switch
+                    {
+                        0xe612 => clause.Operand / 8 < events.Length &&
+                            (events[clause.Operand / 8] & (1 << (clause.Operand % 8))) != 0,
+                        0xe5ff or 0xe629 => (bosses & clause.Operand) != 0,
+                        0xe652 => morph,
+                        0xe669 => powerBombs,
+                        _ => false,
+                    };
+                    if (matches) { expected = clause.Target; break; }
+                }
+                var context = new RoomStateSelectionContext(events, (BossBits)bosses, morph, powerBombs);
+                AssertEqual(expected, RoomStateSelectionDefinitions.Select(room, context),
+                    $"Room {room:X4} native first-match/default selection");
+                AssertEqual(expected, CartridgeRoomHeader.LoadUsingCompiledSelection(room, context).State.Pointer,
+                    "Production room loading uses the selected compiled state without cartridge capability");
+                reached.Add(expected);
+                comparisons++;
+            }
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        AssertEqual(54, conditional, "All native conditional room programs");
+        AssertEqual(61, clauses, "All native conditional branch destinations");
+        AssertEqual(323, reached.Count, "All original selected room states reached by their predicate partitions");
+        Console.WriteLine($"Room selectors: 262 identities, 54 conditional programs, 61 ordered branches, 323 states and {comparisons} native predicate-partition comparisons pass.");
     }
 }

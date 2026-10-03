@@ -8,72 +8,58 @@ internal static partial class Program
 {
     private static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace bus, ushort address) =>
-            unchecked((ushort)(bus.ReadByte(0x840000 | address) |
-                bus.ReadByte(0x840000 | unchecked((ushort)(address + 1))) << 8));
+        VerifyElevatorPlatformControls(rom);
+        VerifyElevatorPlatformDrawSelection(rom);
+        VerifyElevatorPlatformLoopTarget(rom);
 
-        foreach ((ushort address, ushort value) in ElevatorPlatformPlmDefinitions.ProgramWords)
-        {
-            AssertEqual(Word(rom, address), value,
-                $"elevator platform program word $84:{address:X4} matches cartridge");
-            AssertTrue(ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
-                    address, out ushort installed) && installed == value,
-                $"elevator platform program word $84:{address:X4} is installed");
-        }
-        AssertTrue(!ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
-                unchecked((ushort)(ElevatorPlatformPlmDefinitions.InstructionLoop - 2)),
-                out _),
-            "elevator program does not claim preceding cartridge data");
-
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                 ElevatorPlatformPlmDefinitions.DrawLists)
-        {
-            ushort cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertEqual(Word(rom, cursor), run.DirectionAndCount,
-                    $"elevator draw ${draw.Pointer:X4} run count at ${cursor:X4}");
-                cursor += 2;
-                foreach (ushort levelWord in run.LevelWords.Span)
-                {
-                    AssertEqual(Word(rom, cursor), levelWord,
-                        $"elevator draw ${draw.Pointer:X4} level word at ${cursor:X4}");
-                    cursor += 2;
-                }
-                AssertEqual(rom.ReadByte(0x840000 | cursor),
-                    unchecked((byte)run.NextX),
-                    $"elevator draw ${draw.Pointer:X4} next X at ${cursor:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | unchecked((ushort)(cursor + 1))),
-                    unchecked((byte)run.NextY),
-                    $"elevator draw ${draw.Pointer:X4} next Y at ${cursor + 1:X4}");
-                cursor += 2;
-            }
-            AssertEqual((ushort)0, Word(rom, unchecked((ushort)(cursor - 2))),
-                $"elevator draw ${draw.Pointer:X4} terminates with a zero relative offset");
-        }
+        VerifyElevatorPlatformLayoutGeometry(rom);
+        VerifyElevatorPlatformLayoutCollision(rom);
+        VerifyElevatorPlatformLayoutVisuals(rom);
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
     }
 
-    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
+    private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
+
+    private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
+    {
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            byte direction = (byte)raw;
+            if (raw >= 12)
+            {
+                AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetDefinition(direction), "Fallback door rejected direction");
+                if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetHeader(direction), "Fallback door public rejected direction");
+                continue;
+            }
+            ushort header = ReadSamusEaterPlmWord(rom, 0x8fe68a + raw * 2);
+            var actual = DoorClosingPlmRomData.GetDefinition(direction);
+            if (list)
+                AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
+                    actual.InitialInstructionList, "Fallback original initial list or no-actor zero");
+            else
+            {
+                AssertEqual(header, actual.Header, "Fallback original direction header");
+                AssertEqual(header, DoorClosingPlmRomData.GetHeader(direction), "Fallback public original header");
+            }
+        }
+    }
+
+    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+        VerifyFallbackDoorHeaders(rom);
+        VerifyFallbackDoorLists(rom);
         for (byte direction = 0; direction < DoorClosingPlmRomData.DirectionCount; direction++)
         {
-            DoorClosingPlmDefinition definition =
-                DoorClosingPlmRomData.GetDefinition(direction);
             ushort expectedHeader = ReadWord(
                 rom,
                 DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort));
-            AssertEqual(expectedHeader, definition.Header,
-                $"door-closing direction {direction} header matches cartridge");
             ushort expectedList = expectedHeader == 0
                 ? (ushort)0
                 : ReadWord(rom, 0x840000 | unchecked((ushort)(expectedHeader + 2)));
-            AssertEqual(expectedList, definition.InitialInstructionList,
-                $"door-closing direction {direction} initial list matches cartridge");
-
             var plms = new RoomPlmSystem();
             RoomLevelData level = CreateRoom(
                 4,
@@ -108,6 +94,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
             "out-of-range door-closing direction fails loudly");
+        if (fallbackOnly) return;
         VerifyResidentDoorClosingDefinitions(rom);
         VerifyMotherBrainEscapeGateCompiledDefinitions(rom);
         VerifyEscapeGateVisuals(rom);
@@ -127,8 +114,17 @@ internal static partial class Program
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
         AssertEqual(ResidentDoorClosingDefinitions.Count,
-            ResidentDoorClosingDefinitions.All.Length,
+            ResidentDoorClosingDefinitions.All.Count(),
             "resident-door definition count");
+
+        ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
+            0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca];
+        AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => entry.Header).SequenceEqual(headers),
+            "Resident closing exact native header set and enumeration order");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            if (!headers.Contains((ushort)raw))
+                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((ushort)raw),
+                    "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
         foreach (ResidentDoorClosingDefinition definition in
@@ -207,54 +203,11 @@ internal static partial class Program
     private static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-
-        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
-        {
-            ushort address = checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2));
-            AssertTrue(SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"Speed Booster escape instruction ${address:X4} is compiled");
-            AssertEqual(ReadWord(rom, 0x840000 | address), compiled,
-                $"Speed Booster escape instruction ${address:X4} matches cartridge");
-        }
-        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start - 2)), out _),
-            "Speed Booster escape instruction owner excludes the preceding routine");
-        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start +
-                    SpeedBoosterEscapePlmProgramDefinitions.WordCount * 2)), out _),
-            "Speed Booster escape instruction owner excludes the following setup routine");
-
-        for (ushort offset = 0;
-             offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;
-             offset += SpeedBoosterEscapeStageDefinitions.RecordByteCount)
-        {
-            SpeedBoosterEscapeStageDefinition definition =
-                SpeedBoosterEscapeStageDefinitions.Resolve(offset)!.Value;
-            int source = SpeedBoosterEscapeStageDefinitions.TableAddress + offset;
-            AssertEqual(ReadWord(rom, source), definition.TargetSamusX,
-                $"Speed Booster escape stage ${offset:X2} target X matches cartridge");
-            AssertEqual(ReadWord(rom, source + 2), definition.MaximumFxY,
-                $"Speed Booster escape stage ${offset:X2} maximum FX Y matches cartridge");
-            AssertEqual(ReadWord(rom, source + 4), definition.PackedYVelocity,
-                $"Speed Booster escape stage ${offset:X2} velocity matches cartridge");
-        }
-
-        AssertEqual(SpeedBoosterEscapeStageDefinitions.Terminator,
-            ReadWord(rom, SpeedBoosterEscapeStageDefinitions.TableAddress +
-                SpeedBoosterEscapeStageDefinitions.TerminatorOffset),
-            "Speed Booster escape terminal word matches cartridge");
-        AssertTrue(SpeedBoosterEscapeStageDefinitions.Resolve(
-                SpeedBoosterEscapeStageDefinitions.TerminatorOffset) is null,
-            "Speed Booster escape terminal offset resolves to event completion");
-        AssertThrows<InvalidDataException>(
-            () => SpeedBoosterEscapeStageDefinitions.Resolve(1),
-            "unaligned Speed Booster escape stage offset fails loudly");
-        AssertThrows<InvalidDataException>(
-            () => SpeedBoosterEscapeStageDefinitions.Resolve(24),
-            "out-of-range Speed Booster escape stage offset fails loudly");
+        VerifySpeedEscapeProgramControls(rom);
+        VerifySpeedEscapeProgramCallbacks(rom);
+        VerifySpeedEscapeStageTargets(rom);
+        VerifySpeedEscapeStageHeights(rom);
+        VerifySpeedEscapeStageVelocities(rom);
 
         // This fresh bus contains the PLM program and FX fixture, but deliberately omits
         // $84:B876-$B889. The production controller must finish all three physical stages.
@@ -1138,56 +1091,11 @@ internal static partial class Program
     private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int address = MotherBrainEscapeGatePlmProgramDefinitions.FirstAddress;
-             address <= MotherBrainEscapeGatePlmProgramDefinitions.LastAddress; address++)
-        {
-            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                $"escape-gate program claims byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"escape-gate program byte $84:{address:X4} matches ROM");
-            if (address == MotherBrainEscapeGatePlmProgramDefinitions.LastAddress)
-                continue;
-            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                $"escape-gate program claims word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiledWord,
-                $"escape-gate program word $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb33, out _),
-            "escape-gate program excludes preceding PLM header");
-        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb52, out _),
-            "escape-gate program excludes following pre-instruction machine code");
-
-        AssertEqual(3, MotherBrainEscapeGatePlmDrawDefinitions.All.Count(),
-            "escape gate owns open, half-closed and closed physical draws");
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 MotherBrainEscapeGatePlmDrawDefinitions.All)
-        {
-            AssertEqual(1, list.Runs.Length,
-                $"escape-gate draw ${list.Pointer:X4} has one vertical run");
-            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
-            AssertEqual(run.DirectionAndCount,
-                (ushort)(rom.ReadByte(0x840000 | list.Pointer) |
-                    rom.ReadByte(0x840000 | (list.Pointer + 1)) << 8),
-                $"escape-gate draw ${list.Pointer:X4} direction and count match ROM");
-            AssertEqual(4, run.LevelWords.Length,
-                $"escape-gate draw ${list.Pointer:X4} has four physical words");
-            for (int block = 0; block < run.LevelWords.Length; block++)
-            {
-                int address = 0x840000 | (list.Pointer + 2 + block * 2);
-                ushort native = (ushort)(rom.ReadByte(address) |
-                    rom.ReadByte(address + 1) << 8);
-                AssertEqual(native, run.LevelWords.Span[block],
-                    $"escape-gate draw ${list.Pointer:X4} block {block} matches ROM");
-            }
-            int terminator = 0x840000 | (list.Pointer + 10);
-            AssertEqual((ushort)0,
-                (ushort)(rom.ReadByte(terminator) | rom.ReadByte(terminator + 1) << 8),
-                $"escape-gate draw ${list.Pointer:X4} has zero offset terminator");
-        }
+        VerifyEscapeGateProgramControls(rom);
+        VerifyEscapeGateProgramDraws(rom);
+        VerifyEscapeGateDrawGeometry(rom);
+        VerifyEscapeGateDrawCollision(rom);
+        VerifyEscapeGateDrawVisuals(rom);
     }
 
     private static void WriteVerticalPlmDraw(

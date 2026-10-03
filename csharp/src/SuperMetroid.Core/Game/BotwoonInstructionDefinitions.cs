@@ -16,103 +16,57 @@ internal static class BotwoonInstructionDefinitions
         BotwoonInstructionProgramDefinitions.Hidden;
 
     /// <summary>
-    /// The visible half of <c>InstListPointers_Botwoon</c> at <c>$B3:946B-$B3:947A</c>
-    /// paired with <c>InstListPointers_Botwoon_spit</c> at <c>$B3:948B-$B3:949A</c>.
-    /// Entries run clockwise from up-facing-right through up-left.
+    /// Computes <c>InstListPointers_Botwoon</c> at $B3:946B-$947A from the clockwise
+    /// octant and eight-byte movement-program layout.
     /// </summary>
-    private static readonly BotwoonHeadInstructionDefinition[] HeadInstructions =
-    [
-        new(BotwoonInstructionProgramDefinitions.MovingUp,
-            BotwoonInstructionProgramDefinitions.SpittingUp),
-        new(BotwoonInstructionProgramDefinitions.MovingUpRight,
-            BotwoonInstructionProgramDefinitions.SpittingUpRight),
-        new(BotwoonInstructionProgramDefinitions.MovingRight,
-            BotwoonInstructionProgramDefinitions.SpittingRight),
-        new(BotwoonInstructionProgramDefinitions.MovingDownRight,
-            BotwoonInstructionProgramDefinitions.SpittingDownRight),
-        new(BotwoonInstructionProgramDefinitions.MovingDown,
-            BotwoonInstructionProgramDefinitions.SpittingDown),
-        new(BotwoonInstructionProgramDefinitions.MovingDownLeft,
-            BotwoonInstructionProgramDefinitions.SpittingDownLeft),
-        new(BotwoonInstructionProgramDefinitions.MovingLeft,
-            BotwoonInstructionProgramDefinitions.SpittingLeft),
-        new(BotwoonInstructionProgramDefinitions.MovingUpLeft,
-            BotwoonInstructionProgramDefinitions.SpittingUpLeft),
-    ];
-
-    /// <summary>
-    /// <c>BotwoonsBodyTail_InstListPointers</c> at <c>$86:E9F1-$86:EA30</c>.
-    /// Its four eight-entry regions are visible body, hidden body, visible tail, and
-    /// hidden tail. Callers retain the native even byte offset in projectile variable zero.
-    /// </summary>
-    private static readonly ushort[] BodyInstructions =
-    [
-        BotwoonProjectileInstructionProgramDefinitions.BodyUpFacingRight,
-        BotwoonProjectileInstructionProgramDefinitions.BodyUpRight,
-        BotwoonProjectileInstructionProgramDefinitions.BodyRight,
-        BotwoonProjectileInstructionProgramDefinitions.BodyDownRight,
-        BotwoonProjectileInstructionProgramDefinitions.BodyDownFacingRight,
-        BotwoonProjectileInstructionProgramDefinitions.BodyDownLeft,
-        BotwoonProjectileInstructionProgramDefinitions.BodyLeft,
-        BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight,
-        BotwoonProjectileInstructionProgramDefinitions.TailUpRight,
-        BotwoonProjectileInstructionProgramDefinitions.TailRight,
-        BotwoonProjectileInstructionProgramDefinitions.TailDownRight,
-        BotwoonProjectileInstructionProgramDefinitions.TailDown,
-        BotwoonProjectileInstructionProgramDefinitions.TailDownLeft,
-        BotwoonProjectileInstructionProgramDefinitions.TailLeft,
-        BotwoonProjectileInstructionProgramDefinitions.TailUpLeft,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-        BotwoonProjectileInstructionProgramDefinitions.Hidden,
-    ];
-
-    /// <summary>Returns the visible head instruction selected by a cartridge angle.</summary>
     internal static ushort HeadMovementInstruction(byte angle) =>
-        HeadInstructions[angle >> 5].MovementInstruction;
+        HeadForOctant(angle >> 5).MovementInstruction;
 
     /// <summary>
     /// Returns the nearest-octant spit instruction selected after the native 16-step bias.
+    /// Replaces <c>InstListPointers_Botwoon_spit</c> at $B3:948B-$949A.
     /// </summary>
     internal static ushort HeadSpitInstruction(byte angle) =>
-        HeadInstructions[unchecked((byte)(angle + 16)) >> 5].SpitInstruction;
+        HeadForOctant(unchecked((byte)(angle + 16)) >> 5).SpitInstruction;
 
     /// <summary>Returns one visible head/spit pair by its zero-based angular octant.</summary>
     internal static BotwoonHeadInstructionDefinition HeadForOctant(int octant)
     {
-        if ((uint)octant >= HeadInstructions.Length)
+        if ((uint)octant >= 8)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(octant), octant, "Botwoon head octant must be zero through seven.");
         }
 
-        return HeadInstructions[octant];
+        int direction = PhysicalDirection(octant);
+        return new(
+            (ushort)(BotwoonInstructionProgramDefinitions.MovingUpLeft + 8 * direction),
+            (ushort)(BotwoonInstructionProgramDefinitions.SpittingUpLeft + 16 * direction));
     }
 
-    /// <summary>Returns the body/tail instruction at one native even byte offset.</summary>
+    /// <summary>
+    /// Computes <c>BotwoonsBodyTail_InstListPointers</c> at $86:E9F1-$EA30.
+    /// Four eight-entry regions select visible body, hidden body, visible tail and
+    /// hidden tail; visible program records occupy twenty and six bytes respectively.
+    /// </summary>
     internal static ushort BodyInstruction(ushort byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset >= BodyInstructions.Length * 2)
+        if ((byteOffset & 1) != 0 || byteOffset >= 64)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(byteOffset), byteOffset,
                 "Botwoon body instruction offset must be even and zero through 62.");
         }
 
-        return BodyInstructions[byteOffset >> 1];
+        // Each sixteen-entry region has eight visible and eight hidden directions.
+        int selector = byteOffset >> 1;
+        if ((selector & 8) != 0) return BotwoonProjectileInstructionProgramDefinitions.Hidden;
+        int octant = selector & 7;
+        if ((selector & 16) != 0)
+            return (ushort)(BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight + 6 * ((8 - octant) & 7));
+        return (ushort)(BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft + 20 * PhysicalDirection(octant));
     }
+    // Head and body programs run counterclockwise from up-left. Their physical
+    // layout includes an unused down-facing-left slot between down-left and down.
+    private static int PhysicalDirection(int octant) => 8 - octant - (octant >= 5 ? 1 : 0);
 }

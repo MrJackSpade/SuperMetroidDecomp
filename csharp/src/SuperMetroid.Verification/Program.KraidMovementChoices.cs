@@ -4,7 +4,35 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom)
+    private static void VerifyKraidMovementTargets(ushort[] positions,
+        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
+        VerifyKraidMovementField(positions, expected, value => value.TargetX);
+
+    private static void VerifyKraidMovementTimers(ushort[] positions,
+        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
+        VerifyKraidMovementField(positions, expected, value => value.ThinkTimer);
+
+    private static void VerifyKraidMovementField(ushort[] positions,
+        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
+        Func<(ushort TargetX, ushort ThinkTimer), ushort> field)
+    {
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            foreach (ushort position in positions)
+                AssertEqual(field(expected(position, (ushort)raw)),
+                    field(KraidMovementChoices.Select(position, (ushort)raw)),
+                    "Every RNG word in each native movement row");
+            for (int choice = 0; choice < 8; choice++)
+            {
+                ushort random = (ushort)(choice * 4);
+                AssertEqual(field(expected((ushort)raw, random)),
+                    field(KraidMovementChoices.Select((ushort)raw, random)),
+                    "Every position and weighted choice, including fallback");
+            }
+        }
+    }
+
+    private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var positions = new ushort[6];
@@ -28,6 +56,13 @@ internal static partial class Program
             int choice = Math.Min((random & 28) / 4, 4);
             return (targets[row, choice], timers[row, choice]);
         }
+        VerifyKraidMovementTargets(positions, Expected);
+        VerifyKraidMovementTimers(positions, Expected);
+        if (definitionsOnly)
+        {
+            Console.WriteLine("Kraid movement selectors: both fields, every RNG word per row and every position/choice pass native-data proofs.");
+            return;
+        }
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         var body = enemies.Slots[0];
@@ -46,8 +81,6 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, KraidPartState>>(enemies);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            foreach (ushort position in positions)
-                AssertEqual(Expected(position, (ushort)raw), KraidMovementChoices.Select(position, (ushort)raw), "All RNG words follow each native indirect row");
             body.XPosition = (ushort)raw;
             for (int choice = 0; choice < 8; choice++)
             {

@@ -9,38 +9,16 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        foreach ((ushort first, ushort last) in new[]
-        {
-            (DraygonCannonPlmProgramDefinitions.RightStart,
-                DraygonCannonPlmProgramDefinitions.RightEnd),
-            (DraygonCannonPlmProgramDefinitions.LeftStart,
-                DraygonCannonPlmProgramDefinitions.LeftEnd),
-        })
-        {
-            for (int address = first; address <= last; address++)
-            {
-                AssertTrue(DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(
-                    checked((ushort)address), out byte compiled),
-                    $"Draygon cannon claims program byte $84:{address:X4}");
-                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                    $"Draygon cannon program byte $84:{address:X4} matches ROM");
-                if (address == last)
-                    continue;
-                AssertTrue(DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(
-                    checked((ushort)address), out ushort compiledWord),
-                    $"Draygon cannon claims program word $84:{address:X4}");
-                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8);
-                AssertEqual(native, compiledWord,
-                    $"Draygon cannon program word $84:{address:X4} matches ROM");
-            }
-        }
-        AssertTrue(!DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(0xdd27, out _),
-            "unused diagonal cannon list is not claimed");
-        AssertTrue(!DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(0xdd26, out _),
-            "right list refuses a word crossing into diagonal data");
-        AssertTrue(!DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(0xde02, out _),
-            "left list does not claim adjacent diagonal data");
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Cannon oracle revision");
+        VerifyCannonControls(rom);
+        VerifyCannonDraws(rom);
+        VerifyCannonTargets(rom);
+        VerifyCannonCallback(rom);
+        VerifyCannonHitCount(rom);
+        VerifyCannonLayoutGeometry(rom);
+        VerifyCannonLayoutCollision(rom);
+        VerifyCannonLayoutVisuals(rom);
         VerifyDraygonCannonVisualInstallation(rom);
 
         var source = new TestAddressSpace();

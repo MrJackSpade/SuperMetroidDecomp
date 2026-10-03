@@ -9,50 +9,8 @@ internal static partial class Program
         ushort Word(int address) => unchecked((ushort)(
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
-        AssertEqual(28, KraidHeadInstructionDefinitions.All.Length,
-            "Kraid private head command count");
-        foreach (KraidHeadInstructionDefinition definition in
-            KraidHeadInstructionDefinitions.All)
-        {
-            int address = 0xa70000 | definition.Pointer;
-            ushort nativeWord = Word(address);
-            switch (definition.Kind)
-            {
-                case KraidHeadInstructionKind.Frame:
-                    AssertEqual(nativeWord, definition.Duration,
-                        $"Kraid head frame ${definition.Pointer:X4} duration");
-                    AssertEqual(Word(address + 2), definition.Tilemap,
-                        $"Kraid head frame ${definition.Pointer:X4} tilemap");
-                    AssertEqual(Word(address + 4), definition.VulnerableHitbox,
-                        $"Kraid head frame ${definition.Pointer:X4} vulnerable hitbox");
-                    AssertEqual(Word(address + 6), definition.InvulnerableHitbox,
-                        $"Kraid head frame ${definition.Pointer:X4} invulnerable hitbox");
-                    break;
-
-                case KraidHeadInstructionKind.RoarSound:
-                    AssertEqual((ushort)0xaf94, nativeWord,
-                        $"Kraid head roar callback ${definition.Pointer:X4}");
-                    AssertEqual(Word(0xa7af96), definition.SoundId,
-                        $"Kraid head roar sound ${definition.Pointer:X4}");
-                    break;
-
-                case KraidHeadInstructionKind.DyingSound:
-                    AssertEqual((ushort)0xaf9f, nativeWord,
-                        $"Kraid head dying callback ${definition.Pointer:X4}");
-                    AssertEqual(Word(0xa7afa1), definition.SoundId,
-                        $"Kraid head dying sound ${definition.Pointer:X4}");
-                    break;
-
-                case KraidHeadInstructionKind.Terminate:
-                    AssertEqual(ushort.MaxValue, nativeWord,
-                        $"Kraid head terminator ${definition.Pointer:X4}");
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        $"Unhandled Kraid head definition kind {definition.Kind}.");
-            }
-        }
+        VerifyKraidHeadCommandMapping(rom);
+        VerifyKraidGrowthResumeCases(rom);
 
         AssertEqual(Word(0xa796d2), KraidHeadInstructionDefinitions.RoarEntryTimer,
             "Native roar entry timer");
@@ -158,7 +116,7 @@ internal static partial class Program
         var combat = Method<Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?>>(
             "RunKraidCombatFunction");
         RoomEnemySlot body = enemies.Slots[0];
-        state.HealthEighthThresholds[6] = 875;
+        state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
@@ -184,7 +142,7 @@ internal static partial class Program
             guard.MutableTilemap = (ushort)raw;
             AssertTrue(growth(body, state), "Growth threshold admits timer setup");
             KraidHeadResumeDefinition expected =
-                KraidHeadInstructionDefinitions.GrowthResume((ushort)raw);
+                NativeKraidGrowthResume(rom, (ushort)raw);
             AssertEqual(expected.Timer, body.VariableC,
                 "Growth timer follows selected native resume row");
             AssertEqual(expected.Pointer, body.VariableB,

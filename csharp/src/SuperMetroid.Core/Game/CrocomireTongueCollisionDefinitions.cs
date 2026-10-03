@@ -15,36 +15,64 @@ internal static class CrocomireTongueCollisionDefinitions
     /// <summary>Native bank containing the selected Crocomire extended frames.</summary>
     internal const byte Bank = 0xa4;
 
-    private static readonly ushort[] FrameKeys =
-    [
-        0xc65e, 0xc668, 0xc672, 0xc67c,
-        0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6,
-    ];
-    private static readonly Dictionary<ushort, CrocomireTongueCollisionComponent> Frames = new()
+    /// <summary>$A4:C65E ExtendedSpritemap_Crocomire_10, first of four
+    /// one-component fight frames, each ten bytes long.</summary>
+    private const ushort FightFrameStart = 0xc65e;
+    /// <summary>$A4:CACE ExtendedSpritemap_Crocomire_2D, first melting pose.</summary>
+    private const ushort MeltingPose0 = 0xcace;
+    /// <summary>$A4:CAD8 ExtendedSpritemap_Crocomire_2E, second melting pose.</summary>
+    private const ushort MeltingPose1 = MeltingPose0 + 10;
+    /// <summary>$A4:CAE2 ExtendedSpritemap_Crocomire_2F, third melting pose.</summary>
+    private const ushort MeltingPose2 = MeltingPose0 + 20;
+    /// <summary>$A4:CAEC ExtendedSpritemap_Crocomire_30, fourth melting pose.</summary>
+    private const ushort MeltingPose3 = MeltingPose0 + 30;
+    /// <summary>$A4:CAF6 ExtendedSpritemap_Crocomire_31, final melting pose.</summary>
+    private const ushort MeltingPose4 = MeltingPose0 + 40;
+    /// <summary>$A4:CBB3 Hitbox_Crocomire_9, empty fight-tongue hitbox list.</summary>
+    private const ushort FightHitboxes = 0xcbb3;
+    /// <summary>$A4:CC3B Hitbox_Crocomire_11, empty melting-tongue hitbox list.</summary>
+    private const ushort MeltingHitboxes = 0xcc3b;
+
+    internal static int FrameCount => 9;
+
+    /// <summary>Four fight frames followed by five melting frames. The native
+    /// count word and one eight-byte component give a ten-byte frame stride.</summary>
+    internal static ushort FramePointer(int index)
     {
-        [0xc65e] = new(-32, -24, 0xcbb3),
-        [0xc668] = new(-32, -24, 0xcbb3),
-        [0xc672] = new(-32, -24, 0xcbb3),
-        [0xc67c] = new(-32, -24, 0xcbb3),
-        [0xcace] = new(1, 11, 0xcc3b),
-        [0xcad8] = new(0, 8, 0xcc3b),
-        [0xcae2] = new(1, 8, 0xcc3b),
-        [0xcaec] = new(0, 10, 0xcc3b),
-        [0xcaf6] = new(1, 12, 0xcc3b),
-    };
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 4 ? FightFrameStart + 10 * index : MeltingPose0 + 10 * (index - 4));
+    }
 
-    internal static ReadOnlySpan<ushort> FramePointers => FrameKeys;
-    internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+    internal static bool HasFrame(ushort frame) => IsFightFrame(frame) ||
+        frame is MeltingPose0 or MeltingPose1 or MeltingPose2 or MeltingPose3 or MeltingPose4;
 
-    internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame) =>
-        Frames.TryGetValue(frame, out CrocomireTongueCollisionComponent component)
-            ? component
-            : throw new InvalidDataException(
-                $"Crocomire tongue frame $A4:{frame:X4} has no compiled collision.");
+    private static bool IsFightFrame(ushort frame)
+    {
+        int offset = frame - FightFrameStart;
+        return offset >= 0 && offset <= 30 && offset % 10 == 0;
+    }
+
+    /// <summary>Fight frames share a single physical component. Melting frame
+    /// identities select their pose-specific offsets and common empty hitbox list.
+    /// OAM/artwork identity remains separate from this physical geometry.</summary>
+    internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame)
+    {
+        if (IsFightFrame(frame)) return new(-32, -24, FightHitboxes);
+        return frame switch
+        {
+            MeltingPose0 => new(1, 11, MeltingHitboxes),
+            MeltingPose1 => new(0, 8, MeltingHitboxes),
+            MeltingPose2 => new(1, 8, MeltingHitboxes),
+            MeltingPose3 => new(0, 10, MeltingHitboxes),
+            MeltingPose4 => new(1, 12, MeltingHitboxes),
+            _ => throw new InvalidDataException(
+                $"Crocomire tongue frame $A4:{frame:X4} has no compiled collision."),
+        };
+    }
 
     internal static int HitboxCountAt(ushort list) => list switch
     {
-        0xcbb3 or 0xcc3b => 0,
+        FightHitboxes or MeltingHitboxes => 0,
         _ => throw new InvalidDataException(
             $"Crocomire tongue hitbox list $A4:{list:X4} is not compiled."),
     };

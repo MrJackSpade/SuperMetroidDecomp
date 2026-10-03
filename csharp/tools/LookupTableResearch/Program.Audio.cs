@@ -15,22 +15,22 @@ internal static partial class Program
         FindRomArray(rom, gates, 1, "SPC gates");
         for (int i = 0; i < pitches.Length; i++)
         {
-            Equal(pitches[i], (int)SpcMusicTables.BaseNoteFrequencies[i], $"compiled pitch {i}");
+            Equal(pitches[i], (int)SpcMusicTables.BaseNoteFrequency(i), $"compiled pitch {i}");
             Equal(pitches[i], Pitch(i), $"A440 pitch {i}");
         }
         for (int i = 0; i < volumes.Length; i++)
         {
-            Equal(volumes[i], (int)SpcMusicTables.NoteVolumes[i], $"compiled note volume {i}");
+            Equal(volumes[i], (int)SpcMusicTables.NoteVolume(i), $"compiled note volume {i}");
             Equal(volumes[i], NoteVolume(i), $"quantized note volume {i}");
         }
         for (int i = 0; i < gates.Length; i++)
         {
-            Equal(gates[i], (int)SpcMusicTables.NoteGateOffPercentages[i], $"compiled gate {i}");
+            Equal(gates[i], (int)SpcMusicTables.NoteGateOffPercentage(i), $"compiled gate {i}");
             Equal(gates[i], NoteGate(i), $"quantized gate {i}");
         }
         for (int i = 0; i < rates.Length; i++)
         {
-            Equal(rates[i], (int)SnesDspTables.RateValues[i], $"compiled DSP rate {i}");
+            Equal(rates[i], (int)SnesDspTables.RatePeriod(i), $"compiled DSP rate {i}");
             Equal(rates[i], DspRate(i), $"counter DSP rate {i}");
         }
         // Test the quantization explanation over the entire percentage domain,

@@ -1,6 +1,17 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Exact NTSC shared enemy quadratic-speed records, including their authored truncation.</summary>
+/// <remarks>
+/// Independently reviewed for #1165 against both NTSC J/U v1.0 copies and pinned
+/// bank_A0.asm. For record i=0..94, t=i*(i+1)/2; positive velocity has whole=t&gt;&gt;8
+/// and fraction=((t&amp;255)*265)&amp;65535. Negate the assembled signed 16.16 value for
+/// the negative half, then serialize fraction first, little endian. This exactly matches
+/// the originals; the historical generator's provenance remains uncertain.
+/// Preserve all word windows 0..758 and displacement windows 0..756, including odd
+/// bytes crossing fields and records. These are views of one logical velocity table,
+/// not separate fitted curves. VerifyCompiledQuadraticEnemySpeeds checks every window
+/// against both original copies. No PAL extrapolation or adjacent-code reads are supported.
+/// </remarks>
 public static class EnemyQuadraticSpeedDefinitions
 {
     /// <summary>$A0:838F, CommonEnemySpeeds_QuadraticallyIncreasing, fraction/whole pairs of both signs.</summary>
@@ -38,8 +49,8 @@ public static class EnemyQuadraticSpeedDefinitions
     {
         int record = offset / RecordSize;
         int triangle = record * (record + 1) / 2;
-        // The cartridge's table generator lost the carry from the fractional
-        // multiplication. Preserve that discontinuity rather than smoothing gravity.
+        // The original values match discarded fractional carry. Preserve that
+        // observed discontinuity without claiming provenance for its generator.
         int velocity = (triangle >> 8 << 16) | ((triangle & 255) * FractionMultiplier & 65535);
         int component = offset % RecordSize;
         if (component >= 4)

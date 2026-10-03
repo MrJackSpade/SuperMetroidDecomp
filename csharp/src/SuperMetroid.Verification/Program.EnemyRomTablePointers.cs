@@ -82,35 +82,17 @@ internal static partial class Program
         AssertEqual(Word(EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers + 2),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(true),
             "Golden Torizo right reflected-Super list");
-        for (int parameter = 0; parameter < 4; parameter++)
-            AssertEqual(Word(EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + parameter * 2),
-                WorkRobotInitializationDefinitions.GetInitialInstruction(parameter),
-                $"deactivated Work Robot initial selector {parameter}");
+        VerifyWorkRobotInitialSelection(rom);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(Word(EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter),
                 TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(parameter),
                 $"Tourian entrance statue initial selector {parameter}");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => WorkRobotInitializationDefinitions.GetInitialInstruction(4),
-            "Work Robot selector rejects values beyond native accepted overread");
         AssertThrows<ArgumentOutOfRangeException>(
             () => TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = new EnemyInstructionSelectionReadGuard(rom);
         Type type = typeof(RoomEnemySystem);
-        MethodInfo noPowerRobot = type.GetMethod(
-            "InitializeWorkRobotNoPower", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        for (ushort parameter = 0; parameter < 4; parameter++)
-        {
-            var system = new RoomEnemySystem();
-            var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
-            noPowerRobot.Invoke(system, [slot, new WorkRobotEnemyState(slot)]);
-            AssertEqual(WorkRobotInitializationDefinitions.GetInitialInstruction(parameter),
-                slot.CurrentInstruction,
-                $"Work Robot production initializer {parameter} avoids selector ROM");
-        }
-
         MethodInfo statueInitializer = type.GetMethod(
             "InitializeTourianEntranceStatue", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })

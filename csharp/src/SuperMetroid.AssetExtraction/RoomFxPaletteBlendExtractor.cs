@@ -15,18 +15,22 @@ public static class RoomFxPaletteBlendExtractor
         var blends = new Dictionary<string, PaletteRgb5[]>();
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
         {
+            ushort? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxPaletteBlendDefinitions.SourceAddress(id),
-                RoomFxRomData.Layer3.PaletteBlendColorCount * sizeof(ushort));
+                (calculatedThird.HasValue ? 2 : RoomFxRomData.Layer3.PaletteBlendColorCount) * sizeof(ushort));
             var colors = new PaletteRgb5[RoomFxRomData.Layer3.PaletteBlendColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort)));
+                ushort word = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
+                    : BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort)));
+                int red = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, index == 0) ?? (word & 31) : word & 31;
+                int green = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, red, index == 0) ?? ((word >> 5) & 31) : RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(id) ?? ((word >> 5) & 31);
                 colors[index] = new PaletteRgb5
                 {
-                    Red = word & 31,
-                    Green = (word >> 5) & 31,
-                    Blue = (word >> 10) & 31,
+                    Red = red,
+                    Green = green,
+                    Blue = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, red, green, index == 0) ?? ((word >> 10) & 31) : RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(id, red) ?? ((word >> 10) & 31),
                 };
             }
             blends.Add(RoomFxPaletteBlendDefinitions.Key(id), colors);

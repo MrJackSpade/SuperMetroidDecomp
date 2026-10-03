@@ -114,9 +114,11 @@ public sealed class KraidEnemyState
     public ushort ThinkingTimer { get; internal set; }
     public ushort MinimumYPositionForEjection { get; internal set; }
     public ushort MouthFlags { get; internal set; }
-    public ushort[] HealthEighthThresholds { get; } = new ushort[8];
+    /// <summary>Health captured by the living initializer before combat can change it.</summary>
+    public ushort InitialHealth { get; internal set; }
+    public ushort HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
     public ushort TargetX { get; internal set; }
-    public ushort[] HealthQuarterThresholds { get; } = new ushort[4];
+    public ushort HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(InitialHealth, index);
     public ushort HurtFrame { get; internal set; }
     public ushort HurtFrameTimer { get; internal set; }
     public ushort CurrentHeadTilemap { get; internal set; }

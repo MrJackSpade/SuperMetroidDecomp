@@ -10,10 +10,10 @@ public sealed class SamusChargeColorCatalog
 {
     private readonly ushort[][][] chargedBeam;
     private readonly ushort[][][] pseudoScrew;
-    private readonly ushort[][] hyperShot;
+    private readonly SamusHyperBeamColorCatalog hyperShot;
 
     private SamusChargeColorCatalog(ushort[][][] chargedBeam,
-        ushort[][][] pseudoScrew, ushort[][] hyperShot)
+        ushort[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
         this.chargedBeam = chargedBeam;
         this.pseudoScrew = pseudoScrew;
@@ -32,9 +32,8 @@ public sealed class SamusChargeColorCatalog
 
     public ushort ResolveHyper(int frame, int color)
     {
-        if ((uint)frame >= hyperShot.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= hyperShot[frame].Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return hyperShot[frame][color];
+        if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
     }
 
     public void ApplyCharge(SnesCgram cgram, bool pseudo, int suit, int phase) =>
@@ -43,8 +42,9 @@ public sealed class SamusChargeColorCatalog
     public void ApplyHyper(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= hyperShot.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        Apply(cgram, hyperShot[frame]);
+        if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color, ResolveHyper(frame, color));
     }
 
     public static SamusChargeColorCatalog Load(Stream json)
@@ -118,16 +118,20 @@ public sealed class SamusChargeColorCatalog
         return result;
     }
 
-    private static ushort[][] CompileHyper(PaletteRgb5[][]? source)
+    /// <summary>Uses the same palette algorithms for the reverse Hyper-shot playback view.</summary>
+    /// <remarks>Original91D82B..D83D and91D99E..D9B0 contain the same
+    /// ten pointers. Shot playback decrements its table offset from20 to2,
+    /// reversing the full-body cycle. Inputs remain asset-local: edits to the
+    /// shot asset do not alter the separately supplied full-body cycle.</remarks>
+    private static SamusHyperBeamColorCatalog CompileHyper(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != SamusChargeColorFormat.HyperFrameCount)
             throw new InvalidDataException("Hyper shot requires ten frames.");
-        var result = new ushort[source.Length][];
+        var cycleOrder = new PaletteRgb5[source.Length][];
         for (int frame = 0; frame < source.Length; frame++)
-            result[frame] = CompileColors(source[frame], $"Hyper shot frame {frame}");
-        return result;
+            cycleOrder[source.Length - 1 - frame] = source[frame];
+        return SamusHyperBeamColorCatalog.FromFrames(cycleOrder);
     }
-
     private static ushort[] CompileColors(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.ColorsPerPalette)

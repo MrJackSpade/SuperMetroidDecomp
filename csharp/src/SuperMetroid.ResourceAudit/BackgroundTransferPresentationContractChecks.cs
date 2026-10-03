@@ -8,9 +8,11 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified complete BG2/effect/fragment and owned-length contracts using source fixtures.</summary>
 internal static class BackgroundTransferPresentationContractChecks
 {
-    internal static void Run()
+    internal static void Run(bool bg2Only = false)
     {
-        var trees = BackgroundTransferClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
+        var contracts = BackgroundTransferClosedContractDefinitions.All.Where(contract =>
+            !bg2Only || contract.Rule.EndsWith("-complete-bg2-membership", StringComparison.Ordinal));
+        var trees = contracts.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
@@ -46,6 +48,19 @@ internal static class BackgroundTransferPresentationContractChecks
                 }
             }
             """, path: "fixture-bg-transfer-consumer.cs");
+        if (bg2Only)
+            calls = CSharpSyntaxTree.ParseText("""
+                using SuperMetroid.Core.Assets;
+                class BackgroundConsumer {
+                    void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
+                        CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain) {
+                        phantoon.TryGet(0, out _);
+                        draygon.TryGet(0, out _);
+                        crocomire.TryGet(0, out _);
+                        motherBrain.TryGet(MotherBrainBodyVisualDefinitions.InitialDummyFrame, out _);
+                    }
+                }
+                """, path: "fixture-bg-transfer-consumer.cs");
         trees.Add(calls);
         // First.SourceAddress is an immutable record field, not a language constant.
         // Materialize its actual compiled value so the negative case tests constant correlation.
@@ -69,10 +84,10 @@ internal static class BackgroundTransferPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 19, "constructed calls must first expose the missing adapters");
-        Require(after.Classifications.Count == 13 && after.UnresolvedCount == 6 && after.MissingCount == 0 &&
-            after.Consumers.Count == 19, "complete owned sets/false queries qualify; bad selections and owned lengths fail");
-        Require(after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
+        Require(before.UnresolvedCount == (bg2Only ? 4 : 19), "constructed calls must first expose the missing adapters");
+        Require(after.Classifications.Count == (bg2Only ? 4 : 13) && after.UnresolvedCount == (bg2Only ? 0 : 6) && after.MissingCount == 0 &&
+            after.Consumers.Count == (bg2Only ? 4 : 19), "complete owned sets/false queries qualify; bad selections and owned lengths fail");
+        Require(bg2Only || after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
             item.Message.Contains("requires 1024 bytes", StringComparison.Ordinal)),
             "an owned source with a short length cannot borrow unsupported-source false behavior");
         const string sharedLoader = "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs";
@@ -80,9 +95,18 @@ internal static class BackgroundTransferPresentationContractChecks
             CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("document.Frames.Count != definitions.Length",
                 "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
         AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 9 && revoked.UnresolvedCount == 10 &&
+        Require(revoked.Classifications.Count == after.Classifications.Count - 4 && revoked.UnresolvedCount == after.UnresolvedCount + 4 &&
             revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
             "changed shared frame admission must revoke all four wrapper proofs");
+        const string sequence = "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs";
+        var changedSequence = trees.Select(tree => tree.FilePath == sequence ?
+            CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("generate(index)",
+                "generate(0)", StringComparison.Ordinal), path: tree.FilePath) : tree);
+        AuditReport revokedSequence = Inspect(Compile(changedSequence), true);
+        Require(revokedSequence.Classifications.Count == after.Classifications.Count - 4 &&
+            revokedSequence.UnresolvedCount == after.UnresolvedCount + 4 &&
+            revokedSequence.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
+            "changed generated frame selection must revoke all four wrapper proofs");
     }
 
     private static void Require(bool valid, string reason)

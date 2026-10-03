@@ -21,18 +21,14 @@ internal static class BombTorizoDormantInstructionProgramDefinitions
     /// <summary><c>WakeBT_WhenChozoIsCrumbled</c> at $AA:C6C6.</summary>
     internal const ushort WakeWhenHandCrumbles = 0xc6c6;
 
-    private static readonly BombTorizoDormantMechanicsWord[] Words =
-    [
-        new(Initial, TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState),
-        new(0xb87b, TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
-        new(0xb87d, 1),
-        new(0xb881, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xb883, WakeWhenHandCrumbles),
-        new(Sleep, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static BombTorizoDormantMechanicsWord MechanicsWord(int index) => Words[index];
+    internal static int MechanicsWordCount => 6;
+    internal static BombTorizoDormantMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(Initial + 2 * index + (index >= 3 ? 2 : 0));
+        _ = TryReadMechanicsWord(address, out ushort value);
+        return new(address, value);
+    }
     internal static int PresentationWordCount => 1;
     internal static ushort PresentationWordAddress(int index) => index == 0
         ? DormantFrameOperand
@@ -40,28 +36,25 @@ internal static class BombTorizoDormantInstructionProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (BombTorizoDormantMechanicsWord word in Words)
+        // Establish foot state and animation lock, show the dormant frame, then install
+        // the hand-crumble wake function and sleep. The interleaved frame is not control.
+        value = address switch
         {
-            if (word.Address == address)
-            {
-                value = word.Value;
-                return true;
-            }
-        }
-        value = 0;
-        return false;
+            Initial => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            Initial + 2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
+            Initial + 4 => 1,
+            DormantFrameOperand + 2 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            DormantFrameOperand + 4 => WakeWhenHandCrumbles,
+            Sleep => CommonEnemyInstructionCodes.Sleep,
+            _ => 0,
+        };
+        return value != 0;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (BombTorizoDormantMechanicsWord word in Words)
-        {
-            if (offset == word.Address || offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
+        if ((address & 0xff0000) != 0xaa0000) return false;
+        int offset = unchecked((ushort)address) - Initial;
+        return (uint)offset < 14 && (offset < 6 || offset >= 8);
     }
 }

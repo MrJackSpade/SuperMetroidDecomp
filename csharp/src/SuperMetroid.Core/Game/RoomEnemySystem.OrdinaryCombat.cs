@@ -1504,10 +1504,7 @@ public sealed partial class RoomEnemySystem
                     {
                         // Tripper's private tail runs after common shot AI and replaces the
                         // current frame with a direction-specific two-piece frozen map.
-                        enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
-                            PlatformHorizontalMovement.Left
-                                ? TripperFrozenMovingLeftSpritemap
-                                : TripperFrozenMovingRightSpritemap;
+                        enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(enemy).XMovement);
                     }
                     if (isBeetom)
                         ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
@@ -2143,10 +2140,7 @@ public sealed partial class RoomEnemySystem
                                 selectedShotAi == TripperShotAi &&
                                 enemy.FrozenTimer != 0)
                             {
-                                enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
-                                    PlatformHorizontalMovement.Left
-                                        ? TripperFrozenMovingLeftSpritemap
-                                        : TripperFrozenMovingRightSpritemap;
+                                enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(enemy).XMovement);
                             }
                             if (isSkree && enemy.Health == 0)
                             {
@@ -3059,7 +3053,7 @@ public sealed partial class RoomEnemySystem
         {
             // Kraid's foot art is replaceable, but each native extended frame
             // still places two physical components against one shared hitbox list.
-            foreach (KraidFootCollisionComponent component in footComponents.Span)
+            foreach (KraidFootCollisionComponent component in footComponents)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
@@ -3089,7 +3083,7 @@ public sealed partial class RoomEnemySystem
             // Kraid's arm art is editable, but the native extended spritemap
             // also carries a separate, ordered physical component stream.
             // Read that stream from the immutable cartridge definition catalog.
-            foreach (KraidArmCollisionComponent component in kraidComponents.Span)
+            foreach (KraidArmCollisionComponent component in kraidComponents)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));

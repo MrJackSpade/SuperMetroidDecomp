@@ -8,7 +8,7 @@ public sealed partial class RoomEnemySystem
 {
     private bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (unchecked((short)(body.Health - state.HealthEighthThresholds[6])) >= 0)
+        if (unchecked((short)(body.Health - state.HealthEighthThreshold(6))) >= 0)
             return false;
 
         body.VariableA = (ushort)KraidAiFunction.ProcessHeadInstructionAndTimer;
@@ -42,7 +42,7 @@ public sealed partial class RoomEnemySystem
         switch ((KraidAiFunction)body.VariableA)
         {
             case KraidAiFunction.GrowReleaseCamera:
-                ApplyKraidScrolls(KraidCameraDefinitions.GrownScrolls);
+                ApplyKraidScrolls(grown: true);
                 body.VariableA = (ushort)KraidAiFunction.GrowBreakCeilingPlatforms;
                 state.CameraReleasedForSecondPhase = true;
                 state.MinimumYPositionForEjection = 164;

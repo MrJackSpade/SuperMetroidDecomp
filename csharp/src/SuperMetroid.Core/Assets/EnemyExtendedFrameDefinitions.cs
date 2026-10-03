@@ -118,81 +118,7 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    // Every bank-$A5 Draygon extended frame selected by a compiled instruction
-    // that contains ordinary OAM components. The other 34 selected frames carry
-    // BG2 tilemap commands and require a separate presentation catalog.
-    private static readonly ushort[] DraygonOamPointers =
-    [
-        0xa2df, 0xa2e9, 0xa2f3, 0xa2fd, 0xa307, 0xa311,
-        0xa3c5, 0xa3cf, 0xa3d9, 0xa3e3,
-        0xa40b, 0xa41d, 0xa42f, 0xa441, 0xa453, 0xa465, 0xa477, 0xa489,
-        0xa4a3, 0xa4c5, 0xa4ef, 0xa521, 0xa55b, 0xa59d,
-        0xa607, 0xa611, 0xa61b, 0xa625, 0xa62f, 0xa639,
-        0xa6ed, 0xa6f7, 0xa701, 0xa70b,
-        0xa779, 0xa78b, 0xa79d, 0xa7af, 0xa7c1, 0xa7d3, 0xa7e5, 0xa7f7,
-        0xa811, 0xa833, 0xa85d, 0xa88f, 0xa8c9, 0xa90b,
-    ];
-
-    // These twelve bank-$A5 roots are selected by Spore Spawn's instruction
-    // programs, not Draygon. Version 6 accidentally published Draygon-prefixed
-    // author keys for them; the loader migrates those keys by physical pointer.
-    private static readonly ushort[] SporeSpawnOamPointers =
-    [
-        0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
-        0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
-    ];
-
-    // Distinct extended body frames selected by Ridley's bank-$A6 instruction
-    // programs at $A6:E53E-$E824. These physical identities cover the Ceres
-    // and Lower Norfair body poses; collision pointers stay in engine data.
-    private static readonly ushort[] RidleyBodyPointers =
-    [
-        0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
-        0xea4f, 0xea71, 0xea93, 0xeab5, 0xead7,
-    ];
-
-    private static readonly string[] WalkingNames =
-    [
-        "walking_pirate_flinch_left", "walking_pirate_flinch_right",
-        "walking_pirate_walk_left_0", "walking_pirate_walk_left_1",
-        "walking_pirate_walk_left_2", "walking_pirate_walk_left_3",
-        "walking_pirate_walk_left_4", "walking_pirate_walk_left_5",
-        "walking_pirate_walk_left_6", "walking_pirate_walk_left_7",
-        "walking_pirate_fire_left_0", "walking_pirate_fire_left_1",
-        "walking_pirate_fire_left_2", "walking_pirate_fire_left_3",
-        "walking_pirate_fire_left_4", "walking_pirate_fire_left_5",
-        "walking_pirate_look_left_0", "walking_pirate_look_left_1",
-        "walking_pirate_look_left_2", "walking_pirate_look_shared",
-        "walking_pirate_walk_right_0", "walking_pirate_walk_right_1",
-        "walking_pirate_walk_right_2", "walking_pirate_walk_right_3",
-        "walking_pirate_walk_right_4", "walking_pirate_walk_right_5",
-        "walking_pirate_walk_right_6", "walking_pirate_walk_right_7",
-        "walking_pirate_fire_right_0", "walking_pirate_fire_right_1",
-        "walking_pirate_fire_right_2", "walking_pirate_fire_right_3",
-        "walking_pirate_fire_right_4", "walking_pirate_fire_right_5",
-        "walking_pirate_look_right_0", "walking_pirate_look_right_1",
-        "walking_pirate_look_right_2",
-    ];
-
-    // First-seen order in the eight wall-Pirate instruction programs. The
-    // renderer's frame identity is the compiled selector's bank-local pointer;
-    // names are only stable keys for presentation overrides.
-    private static readonly string[] WallNames =
-    [
-        "wall_pirate_fire_jump_left_0", "wall_pirate_fire_jump_left_1",
-        "wall_pirate_fire_jump_left_2", "wall_pirate_fire_jump_left_3",
-        "wall_pirate_climb_left_0", "wall_pirate_climb_left_1",
-        "wall_pirate_climb_left_2", "wall_pirate_climb_left_3",
-        "wall_pirate_climb_left_4", "wall_pirate_fire_jump_right_0",
-        "wall_pirate_fire_jump_right_1", "wall_pirate_fire_jump_right_2",
-        "wall_pirate_fire_jump_right_3", "wall_pirate_climb_right_0",
-        "wall_pirate_climb_right_1", "wall_pirate_climb_right_2",
-        "wall_pirate_climb_right_3", "wall_pirate_climb_right_4",
-    ];
-
-    private static readonly EnemyExtendedFrameDefinition[] FrameDefinitions = Build();
-
-    internal static ReadOnlySpan<EnemyExtendedFrameDefinition> Frames => FrameDefinitions;
+    internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
     /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>
     internal static bool IsBg2Only(EnemyExtendedFrameDefinition frame) =>
@@ -204,10 +130,21 @@ internal static class EnemyExtendedFrameDefinitions
         CrocomireSkeletonVisualDefinitions.IsFrame(frame.Bank, frame.Pointer)
             ? CrocomireSkeletonVisualDefinitions.MaximumComponents : MaximumComponents;
 
-    private static EnemyExtendedFrameDefinition[] Build()
+    /// <summary>Emits the published schema order directly from each family.
+    /// Instruction-selected families keep first-seen identity order; local sets
+    /// deduplicate selection without caching frame definitions. Prefix counts
+    /// preserve legacy schema boundaries and are checked during enumeration.</summary>
+    internal static IEnumerable<EnemyExtendedFrameDefinition> EnumerateFrames()
     {
         var seen = new HashSet<ushort>();
-        var frames = new List<EnemyExtendedFrameDefinition>(ExpectedFrameCount);
+        int count = 0;
+        var torizoFrames = new HashSet<ushort>();
+        EnemyExtendedFrameDefinition Emit(EnemyExtendedFrameDefinition frame)
+        {
+            count++;
+            if (frame.Bank == TorizoInstructionProgramDefinitions.Bank) torizoFrames.Add(frame.Pointer);
+            return frame;
+        }
         for (int index = 0;
              index < WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -219,15 +156,14 @@ internal static class EnemyExtendedFrameDefinitions
                     $"Walking Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
-            if (frames.Count == WalkingNames.Length)
+            if (count == WalkingFrameCount)
                 throw new InvalidDataException("Walking Pirate has more frames than names.");
-            frames.Add(new EnemyExtendedFrameDefinition(Bank, pointer,
-                WalkingNames[frames.Count]));
+            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
+                PirateArtworkNameDefinitions.Walking(count)));
         }
-        if (frames.Count != WalkingFrameCount ||
-            WalkingNames.Length != WalkingFrameCount)
+        if (count != WalkingFrameCount)
             throw new InvalidDataException(
-                $"Walking Pirate has {frames.Count} distinct frames; expected {WalkingFrameCount}.");
+                $"Walking Pirate has {count} distinct frames; expected {WalkingFrameCount}.");
         int wallCount = 0;
         for (int index = 0;
              index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
@@ -240,13 +176,13 @@ internal static class EnemyExtendedFrameDefinitions
                     $"Wall Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
-            if (wallCount == WallNames.Length)
+            if (wallCount == WallFrameCount)
                 throw new InvalidDataException("Wall Pirate has more frames than names.");
-            frames.Add(new EnemyExtendedFrameDefinition(Bank, pointer,
-                WallNames[wallCount++]));
+            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
+                PirateArtworkNameDefinitions.Wall(wallCount++)));
         }
-        if (wallCount != WallFrameCount || WallNames.Length != WallFrameCount ||
-            frames.Count != WalkingFrameCount + WallFrameCount)
+        if (wallCount != WallFrameCount ||
+            count != WalkingFrameCount + WallFrameCount)
             throw new InvalidDataException(
                 $"Wall Pirate has {wallCount} distinct frames; expected {WallFrameCount}.");
         int ninjaCount = 0;
@@ -264,65 +200,77 @@ internal static class EnemyExtendedFrameDefinitions
             // Ninja programs reuse many selected frames in different attacks.
             // The bank-local frame identity is a stable, unambiguous author key
             // without assigning a possibly misleading attack-specific name.
-            frames.Add(new EnemyExtendedFrameDefinition(Bank, pointer,
+            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
                 $"ninja_pirate_{pointer:X4}"));
             ninjaCount++;
         }
-        if (ninjaCount != NinjaFrameCount || frames.Count != PirateFrameCount)
+        if (ninjaCount != NinjaFrameCount || count != PirateFrameCount)
             throw new InvalidDataException(
                 $"Ninja Pirate has {ninjaCount} distinct frames; expected {NinjaFrameCount}.");
-        if (RidleyBodyPointers.Length != RidleyFrameCount)
-            throw new InvalidDataException("Ridley extended-body frame count changed.");
-        foreach (ushort pointer in RidleyBodyPointers)
-            frames.Add(new EnemyExtendedFrameDefinition(0xa6, pointer,
+        for (int index = 0; index < RidleyFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.RidleyPointer(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(0xa6, pointer,
                 $"ridley_body_{pointer:X4}"));
-        if (frames.Count != PreDraygonFrameCount ||
-            DraygonOamPointers.Length != DraygonOamFrameCount ||
-            SporeSpawnOamPointers.Length != SporeSpawnOamFrameCount)
-            throw new InvalidDataException(
-                "Draygon/Spore Spawn OAM frame catalog prefix changed.");
-        foreach (ushort pointer in DraygonOamPointers)
-            frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
+        }
+        if (count != PreDraygonFrameCount)
+            throw new InvalidDataException("Draygon/Spore Spawn OAM frame catalog prefix changed.");
+        for (int index = 0; index < DraygonOamFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.DraygonPointer(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"draygon_oam_{pointer:X4}"));
-        foreach (ushort pointer in SporeSpawnOamPointers)
-            frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
+        }
+        for (int index = 0; index < SporeSpawnOamFrameCount; index++)
+        {
+            ushort pointer = BossOamFrameDefinitions.SporeSpawnPointer(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"spore_spawn_oam_{pointer:X4}"));
-        if (frames.Count != PreCeresSteamFrameCount ||
+        }
+        if (count != PreCeresSteamFrameCount ||
             CeresSteamCollisionDefinitions.FramePointers.Length != CeresSteamFrameCount)
             throw new InvalidDataException("Ceres steam extended-frame prefix changed.");
-        foreach (ushort pointer in CeresSteamCollisionDefinitions.FramePointers)
-            frames.Add(new EnemyExtendedFrameDefinition(CeresSteamCollisionDefinitions.Bank,
+        for (int index = 0; index < CeresSteamCollisionDefinitions.FramePointers.Length; index++)
+        {
+            ushort pointer = CeresSteamCollisionDefinitions.FramePointers[index];
+            yield return Emit(new EnemyExtendedFrameDefinition(CeresSteamCollisionDefinitions.Bank,
                 pointer, $"ceres_steam_oam_{pointer:X4}"));
-        if (frames.Count != PreOumFrameCount ||
+        }
+        if (count != PreOumFrameCount ||
             MaridiaLargeSnailCollisionDefinitions.FramePointers.Length != OumFrameCount)
             throw new InvalidDataException("Oum extended-frame prefix changed.");
-        foreach (ushort pointer in MaridiaLargeSnailCollisionDefinitions.FramePointers)
-            frames.Add(new EnemyExtendedFrameDefinition(
-                MaridiaLargeSnailCollisionDefinitions.Bank,
-                pointer, $"oum_oam_{pointer:X4}"));
-        if (frames.Count != PreCrocomireFrameCount ||
-            CrocomireTongueCollisionDefinitions.FramePointers.Length !=
+        for (int index = 0; index < MaridiaLargeSnailCollisionDefinitions.FramePointers.Length; index++)
+        {
+            ushort pointer = MaridiaLargeSnailCollisionDefinitions.FramePointers[index];
+            yield return Emit(new EnemyExtendedFrameDefinition(
+                MaridiaLargeSnailCollisionDefinitions.Bank, pointer, $"oum_oam_{pointer:X4}"));
+        }
+        if (count != PreCrocomireFrameCount ||
+            CrocomireTongueCollisionDefinitions.FrameCount !=
                 CrocomireOamFrameCount)
             throw new InvalidDataException("Crocomire OAM frame prefix changed.");
-        foreach (ushort pointer in CrocomireTongueCollisionDefinitions.FramePointers)
-            frames.Add(new EnemyExtendedFrameDefinition(
+        for (int index = 0; index < CrocomireTongueCollisionDefinitions.FrameCount; index++)
+        {
+            ushort pointer = CrocomireTongueCollisionDefinitions.FramePointer(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(
                 CrocomireTongueCollisionDefinitions.Bank,
                 pointer, $"crocomire_oam_{pointer:X4}"));
-        if (frames.Count != PreCrocomireBodyFrameCount)
+        }
+        if (count != PreCrocomireBodyFrameCount)
             throw new InvalidDataException("Crocomire body frame prefix changed.");
         foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)
-            frames.Add(new EnemyExtendedFrameDefinition(
+            yield return Emit(new EnemyExtendedFrameDefinition(
                 CrocomireBodyVisualDefinitions.Bank,
                 pointer, $"crocomire_body_oam_{pointer:X4}"));
-        if (frames.Count != PreBombTorizoFrameCount)
+        if (count != PreBombTorizoFrameCount)
             throw new InvalidDataException("Bomb Torizo extended-frame prefix changed.");
-        frames.Add(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
+        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
             "bomb_torizo_dormant"));
-        if (frames.Count != PreGoldenTorizoFrameCount)
+        if (count != PreGoldenTorizoFrameCount)
             throw new InvalidDataException("Golden Torizo extended-frame prefix changed.");
-        frames.Add(new EnemyExtendedFrameDefinition(0xaa, 0xaa30,
+        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0xaa30,
             "golden_torizo_initial"));
-        if (frames.Count != PreKraidArmFrameCount)
+        if (count != PreKraidArmFrameCount)
             throw new InvalidDataException("Kraid arm extended-frame prefix changed.");
         var kraidArmPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -336,14 +284,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Kraid arm visual operand $A7:{operand:X4} is not compiled.");
             if (kraidArmPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xa7, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xa7, pointer,
                     $"kraid_arm_oam_{pointer:X4}"));
         }
         if (kraidArmPointers.Count != KraidArmFrameCount)
             throw new InvalidDataException(
                 $"Kraid arm selects {kraidArmPointers.Count} distinct visual frames, " +
                 $"expected {KraidArmFrameCount}.");
-        if (frames.Count != PreGoldenTorizoAwakeningFrameCount)
+        if (count != PreGoldenTorizoAwakeningFrameCount)
             throw new InvalidDataException("Golden Torizo awakening extended-frame prefix changed.");
         var goldenAwakeningPointers = new HashSet<ushort> { 0xaa30 };
         for (int index = 0;
@@ -357,14 +305,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo awakening visual operand $AA:{operand:X4} is not compiled.");
             if (goldenAwakeningPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_awake_{pointer:X4}"));
         }
         if (goldenAwakeningPointers.Count - 1 != GoldenTorizoAwakeningFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo awakening selects {goldenAwakeningPointers.Count - 1} " +
                 $"new visual frames, expected {GoldenTorizoAwakeningFrameCount}.");
-        if (frames.Count != PreGoldenTorizoWalkingFrameCount)
+        if (count != PreGoldenTorizoWalkingFrameCount)
             throw new InvalidDataException("Golden Torizo walking extended-frame prefix changed.");
         var goldenWalkingPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -378,14 +326,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo walking visual operand $AA:{operand:X4} is not compiled.");
             if (goldenWalkingPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_walk_left_{pointer:X4}"));
         }
         if (goldenWalkingPointers.Count != GoldenTorizoWalkingFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo walking selects {goldenWalkingPointers.Count} " +
                 $"distinct visual frames, expected {GoldenTorizoWalkingFrameCount}.");
-        if (frames.Count != PreGoldenTorizoRightwardFrameCount)
+        if (count != PreGoldenTorizoRightwardFrameCount)
             throw new InvalidDataException("Golden Torizo rightward extended-frame prefix changed.");
         var goldenRightwardPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -399,14 +347,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo rightward visual operand $AA:{operand:X4} is not compiled.");
             if (goldenRightwardPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_rightward_{pointer:X4}"));
         }
         if (goldenRightwardPointers.Count != GoldenTorizoRightwardFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo rightward selects {goldenRightwardPointers.Count} " +
                 $"distinct visual frames, expected {GoldenTorizoRightwardFrameCount}.");
-        if (frames.Count != PreTorizoJumpBackFrameCount)
+        if (count != PreTorizoJumpBackFrameCount)
             throw new InvalidDataException("Torizo jump-back extended-frame prefix changed.");
         var jumpBackPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -420,14 +368,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Torizo jump-back visual operand $AA:{operand:X4} is not compiled.");
             if (jumpBackPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"torizo_jump_back_{pointer:X4}"));
         }
         if (jumpBackPointers.Count != TorizoJumpBackFrameCount)
             throw new InvalidDataException(
                 $"Torizo jump-back selects {jumpBackPointers.Count} " +
                 $"distinct visual frames, expected {TorizoJumpBackFrameCount}.");
-        if (frames.Count != PreGoldenTorizoRightOrbFrameCount)
+        if (count != PreGoldenTorizoRightOrbFrameCount)
             throw new InvalidDataException("Golden Torizo right-orb frame prefix changed.");
         var rightOrbPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -441,14 +389,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo right-orb visual operand $AA:{operand:X4} is not compiled.");
             if (rightOrbPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_right_orb_{pointer:X4}"));
         }
         if (rightOrbPointers.Count != GoldenTorizoRightOrbFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo right-orb selects {rightOrbPointers.Count} " +
                 $"distinct visual frames, expected {GoldenTorizoRightOrbFrameCount}.");
-        if (frames.Count != PreGoldenTorizoRightSonicFrameCount)
+        if (count != PreGoldenTorizoRightSonicFrameCount)
             throw new InvalidDataException("Golden Torizo right-sonic frame prefix changed.");
         // AC88 is already the orb attack's editable frame; the sonic list
         // intentionally reuses that identity instead of adding a duplicate.
@@ -464,14 +412,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo right-sonic visual operand $AA:{operand:X4} is not compiled.");
             if (rightSonicPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_right_sonic_{pointer:X4}"));
         }
         if (rightSonicPointers.Count - 1 != GoldenTorizoRightSonicFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo right-sonic selects {rightSonicPointers.Count - 1} " +
                 $"new visual frames, expected {GoldenTorizoRightSonicFrameCount}.");
-        if (frames.Count != PreTorizoFallingLeftFrameCount)
+        if (count != PreTorizoFallingLeftFrameCount)
             throw new InvalidDataException("Torizo falling-left extended-frame prefix changed.");
         ushort fallingLeftOperand = TorizoFallingLeftInstructionProgramDefinitions
             .PresentationWordAddress(0);
@@ -480,9 +428,9 @@ internal static class EnemyExtendedFrameDefinitions
             fallingLeftPointer != TorizoFallingLeftCollisionDefinitions.Frame)
             throw new InvalidDataException(
                 $"Torizo falling-left visual operand $AA:{fallingLeftOperand:X4} is not compiled.");
-        frames.Add(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,
+        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,
             $"torizo_falling_left_{fallingLeftPointer:X4}"));
-        if (frames.Count != PreGoldenTorizoLeftFootOrbFrameCount)
+        if (count != PreGoldenTorizoLeftFootOrbFrameCount)
             throw new InvalidDataException("Golden Torizo left-foot orb frame prefix changed.");
         // The opening ABEC pose is the sonic attack's existing editable frame.
         var leftFootOrbPointers = new HashSet<ushort> { 0xabec };
@@ -497,14 +445,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo left-foot orb visual operand $AA:{operand:X4} is not compiled.");
             if (leftFootOrbPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_left_foot_orb_{pointer:X4}"));
         }
         if (leftFootOrbPointers.Count - 1 != GoldenTorizoLeftFootOrbFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo left-foot orb selects {leftFootOrbPointers.Count - 1} " +
                 $"new visual frames, expected {GoldenTorizoLeftFootOrbFrameCount}.");
-        if (frames.Count != PreTorizoJumpBackLeftFrameCount)
+        if (count != PreTorizoJumpBackLeftFrameCount)
             throw new InvalidDataException("Left-facing Torizo jump-back frame prefix changed.");
         // B014 was installed earlier for the shared falling-left animation.
         var leftJumpBackPointers = new HashSet<ushort> { fallingLeftPointer };
@@ -519,14 +467,14 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Left-facing Torizo jump-back visual operand $AA:{operand:X4} is not compiled.");
             if (leftJumpBackPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"torizo_jump_back_left_{pointer:X4}"));
         }
         if (leftJumpBackPointers.Count - 1 != TorizoJumpBackLeftNewFrameCount)
             throw new InvalidDataException(
                 $"Left-facing Torizo jump-back selects {leftJumpBackPointers.Count - 1} " +
                 $"new visual frames, expected {TorizoJumpBackLeftNewFrameCount}.");
-        if (frames.Count != PreGoldenTorizoLeftOrbFrameCount)
+        if (count != PreGoldenTorizoLeftOrbFrameCount)
             throw new InvalidDataException("Golden Torizo left-orb frame prefix changed.");
         var leftOrbPointers = new HashSet<ushort>();
         for (int index = 0;
@@ -540,17 +488,15 @@ internal static class EnemyExtendedFrameDefinitions
                 throw new InvalidDataException(
                     $"Golden Torizo left-orb visual operand $AA:{operand:X4} is not compiled.");
             if (leftOrbPointers.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
                     $"golden_torizo_left_orb_{pointer:X4}"));
         }
         if (leftOrbPointers.Count != GoldenTorizoLeftOrbFrameCount)
             throw new InvalidDataException(
                 $"Golden Torizo left-orb selects {leftOrbPointers.Count} " +
                 $"visual frames, expected {GoldenTorizoLeftOrbFrameCount}.");
-        if (frames.Count != PreCompleteTorizoFrameCount)
+        if (count != PreCompleteTorizoFrameCount)
             throw new InvalidDataException("Complete Torizo extended-frame prefix changed.");
-        var torizoFrames = frames.Where(frame => frame.Bank == TorizoInstructionProgramDefinitions.Bank)
-            .Select(frame => frame.Pointer).ToHashSet();
         for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort operand = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -558,27 +504,35 @@ internal static class EnemyExtendedFrameDefinitions
                     operand, out ushort pointer))
                 throw new InvalidDataException($"Torizo frame operand $AA:{operand:X4} is not compiled.");
             if (torizoFrames.Add(pointer))
-                frames.Add(new EnemyExtendedFrameDefinition(TorizoInstructionProgramDefinitions.Bank,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoInstructionProgramDefinitions.Bank,
                     pointer, $"torizo_combat_{pointer:X4}"));
         }
-        if (frames.Count != PreMotherBrainBodyFrameCount)
+        if (count != PreMotherBrainBodyFrameCount)
             throw new InvalidDataException("Complete Torizo artwork coverage changed.");
-        frames.AddRange(MotherBrainBodyVisualDefinitions.Frames.ToArray());
-        if (frames.Count != PreBg2BossBindingsFrameCount)
+        for (int index = 0; index < MotherBrainBodyVisualDefinitions.FrameCount; index++)
+            yield return Emit(MotherBrainBodyVisualDefinitions.Frame(index));
+        if (count != PreBg2BossBindingsFrameCount)
             throw new InvalidDataException("Mother Brain body artwork coverage changed.");
-        frames.AddRange(PhantoonBg2FrameDefinitions.Frames.ToArray().Select(frame =>
-            new EnemyExtendedFrameDefinition(PhantoonBg2FrameDefinitions.Bank, frame.Pointer,
-                $"phantoon_bg2_{frame.Pointer:X4}")));
-        frames.AddRange(DraygonBg2FrameDefinitions.Frames.ToArray().Select(frame =>
-            new EnemyExtendedFrameDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name)));
-        if (frames.Count != PreCrocomireSkeletonFrameCount)
+        for (int index = 0; index < PhantoonBg2FrameDefinitions.FrameCount; index++)
+        {
+            var frame = PhantoonBg2FrameDefinitions.Frame(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(PhantoonBg2FrameDefinitions.Bank,
+                frame.Pointer, $"phantoon_bg2_{frame.Pointer:X4}"));
+        }
+        for (int index = 0; index < DraygonBg2FrameDefinitions.FrameCount; index++)
+        {
+            var frame = DraygonBg2FrameDefinitions.Frame(index);
+            yield return Emit(new EnemyExtendedFrameDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name));
+        }
+        if (count != PreCrocomireSkeletonFrameCount)
             throw new InvalidDataException("BG2-only boss display-binding coverage changed.");
-        frames.AddRange(CrocomireSkeletonVisualDefinitions.Frames.ToArray());
-        if (frames.Count != PreKraidFootFrameCount)
+        for (int index = 0; index < CrocomireSkeletonVisualDefinitions.FrameCount; index++)
+            yield return Emit(CrocomireSkeletonVisualDefinitions.Frames[index]);
+        if (count != PreKraidFootFrameCount)
             throw new InvalidDataException("Crocomire skeleton display-binding coverage changed.");
-        frames.AddRange(KraidFootVisualDefinitions.Frames.ToArray());
-        if (frames.Count != ExpectedFrameCount)
+        for (int index = 0; index < KraidFootVisualDefinitions.FrameCount; index++)
+            yield return Emit(KraidFootVisualDefinitions.Frames[index]);
+        if (count != ExpectedFrameCount)
             throw new InvalidDataException("Kraid foot display-binding coverage changed.");
-        return frames.ToArray();
     }
 }

@@ -18,7 +18,7 @@ internal static partial class Program
 
     private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int source = 0xa5a19f;
+        const int source = DraygonIntroDanceDefinitions.NativeMovementLatencyAddress;
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
         {
             int address = source + (slotIndex - 28) * 2;
@@ -34,10 +34,12 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => DraygonIntroDanceDefinitions.MovementLatencyForSlot(32),
             "Draygon intro Evir slot after native range");
+        Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyDraygonIntroDeleteSelection(rom);
         const int source = DraygonIntroDanceDefinitions.NativeMovementStreamAddress;
         for (ushort offset = 0;
              offset <= DraygonIntroDanceDefinitions.LastMovementStreamOffset;
@@ -49,8 +51,6 @@ internal static partial class Program
                 DraygonIntroDanceDefinitions.ResolveMovement(offset);
 
             bool expectedDelete = nativeX == 0x80 && nativeY == 0x80;
-            AssertEqual(expectedDelete, actual.DeletesSprite,
-                $"Draygon intro movement ${offset:X4} delete sentinel");
             AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeX), actual.XDelta,
                 $"Draygon intro movement ${offset:X4} X delta");
             AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeY), actual.YDelta,
@@ -64,6 +64,23 @@ internal static partial class Program
             () => DraygonIntroDanceDefinitions.ResolveMovement(
                 unchecked((ushort)(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4))),
             "Draygon intro rejects a restored stream index beyond the compiled route");
+    }
+
+    private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
+    {
+        int commands = 0;
+        for (int offset = 0; offset <= 0x113c; offset += 4)
+        {
+            bool expected = rom.ReadByte(0xa5ce07 + offset) == 0x80 &&
+                rom.ReadByte(0xa5ce08 + offset) == 0x80;
+            DraygonIntroMovement actual = DraygonIntroDanceDefinitions.ResolveMovement((ushort)offset);
+            AssertEqual(expected, actual.DeletesSprite, "Draygon original intro delete command selection");
+            if (expected) commands++;
+        }
+        AssertEqual(2, commands, "Draygon aligned intro has two native delete commands");
+        foreach (ushort offset in new ushort[] { 1, 0x0fb9, 0x0fba, 0x0fbb, 0x0fbd, 0x1140, 0xffff })
+            AssertThrows<InvalidDataException>(() => DraygonIntroDanceDefinitions.ResolveMovement(offset),
+                "Draygon command selection preserves alignment and outer bounds");
     }
 
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)

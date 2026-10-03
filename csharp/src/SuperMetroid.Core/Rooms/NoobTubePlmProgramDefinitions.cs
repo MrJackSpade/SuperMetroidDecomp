@@ -16,12 +16,6 @@ internal static class NoobTubePlmProgramDefinitions
     /// <summary>Already-broken room-state branch at $84:D521.</summary>
     private const ushort AlreadyBrokenStart = 0xd521;
 
-    private static readonly byte[] Main = Convert.FromHexString(
-        "2D880B0021D5248AE8D4C18626BD0100D198B486248AF2D4C186BFD4B486" +
-        "CA86E6D52CD53000D798010091990100E599108C1A43D536D56000DD983E88" +
-        "0B0025D5EED5BC86");
-    private static readonly byte[] AlreadyBroken = Convert.FromHexString("25D5BC86");
-
     internal static IEnumerable<ushort> MechanicsWordAddresses()
     {
         for (int offset = 0; offset <= 0x30; offset += 2)
@@ -37,35 +31,62 @@ internal static class NoobTubePlmProgramDefinitions
         yield return BreakSoundAddress;
     }
 
+    /// <summary>$84:D4E8: install the accepted-input wake callback after a power-bomb hit.</summary>
+    private const ushort WaitForInput = 0xd4e8;
+    /// <summary>$84:D4F2: lock Samus and begin the crack/break sequence.</summary>
+    private const ushort BreakTube = 0xd4f2;
+
+    /// <summary>
+    /// Semantic NTSC control cases preserve exactly thirty-six word starts and
+    /// the single packed sound byte. Preserve parity changes and reject the
+    /// unused D519..D520 draw branch; no overlapping word views are introduced.
+    /// No program blob or generated cache remains.
+    /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (IsEvenStep(address, MainStart, 0xd504))
-        {
-            int offset = address - MainStart;
-            value = (ushort)(Main[offset] | Main[offset + 1] << 8);
-            return true;
-        }
-        if (IsEvenStep(address, MainAfterSound, 0xd517))
-        {
-            int offset = address - MainStart;
-            value = (ushort)(Main[offset] | Main[offset + 1] << 8);
-            return true;
-        }
-        if (IsEvenStep(address, AlreadyBrokenStart, 0xd523))
-        {
-            int offset = address - AlreadyBrokenStart;
-            value = (ushort)(AlreadyBroken[offset] | AlreadyBroken[offset + 1] << 8);
-            return true;
-        }
         value = 0;
-        return false;
+        if (!IsEvenStep(address, MainStart, 0xd504) &&
+            !IsEvenStep(address, MainAfterSound, 0xd517) &&
+            !IsEvenStep(address, AlreadyBrokenStart, 0xd523)) return false;
+        value = address switch
+        {
+            0xd4d4 => RoomPlmInstructionCodes.GotoIfEventSet,
+            0xd4d6 or 0xd511 => (ushort)NoobTubePlmRomData.BrokenEvent,
+            0xd4d8 => AlreadyBrokenStart,
+            0xd4da or 0xd4e8 => RoomPlmInstructionCodes.LinkInstruction,
+            0xd4dc => WaitForInput,
+            0xd4de or 0xd4ec => RoomPlmInstructionCodes.InstallPreInstruction,
+            0xd4e0 => NoobTubePlmRomData.WakeOnPowerBombPreInstruction,
+            0xd4e2 or 0xd4fc or 0xd500 => 1,
+            0xd4e4 => NoobTubePlmDrawDefinitions.Intact,
+            0xd4e6 or 0xd4f0 => RoomPlmInstructionCodes.Sleep,
+            0xd4ea => BreakTube,
+            0xd4ee => NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
+            0xd4f2 => RoomPlmInstructionCodes.ClearPreInstruction,
+            0xd4f4 => RoomPlmInstructionCodes.LockSamus,
+            0xd4f6 => RoomPlmInstructionCodes.SpawnNoobTubeCrack,
+            0xd4f8 => 48,
+            0xd4fa => NoobTubePlmDrawDefinitions.Damaged,
+            0xd4fe => NoobTubePlmDrawDefinitions.OpenedRows,
+            0xd502 => NoobTubePlmDrawDefinitions.BrokenFull,
+            0xd504 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+            0xd507 => RoomPlmInstructionCodes.SpawnNoobTubeShardsAndBubbles,
+            0xd509 => RoomPlmInstructionCodes.TriggerNoobTubeEarthquake,
+            0xd50b => 96,
+            0xd50d => NoobTubePlmDrawDefinitions.Opened,
+            0xd50f => RoomPlmInstructionCodes.SetEvent,
+            0xd513 or AlreadyBrokenStart => RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics,
+            0xd515 => RoomPlmInstructionCodes.UnlockSamus,
+            _ => RoomPlmInstructionCodes.Delete, // D517 or D523.
+        };
+        return true;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == BreakSoundAddress)
         {
-            value = Main[address - MainStart];
+            value = NoobTubePlmRomData.BreakSound;
             return true;
         }
         value = 0;

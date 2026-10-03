@@ -62,13 +62,14 @@ internal static partial class Program
         Type scrollType = typeof(RoomPlmSystem).GetNestedType("ScrollPlmState", BindingFlags.NonPublic)!;
         FieldInfo[] fields = scrollType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
             .OrderBy(field => field.MetadataToken).ToArray();
-        foreach (int legacyCount in new[] { 1, 2 })
+        string[] historicalFields = ["<Triggered>k__BackingField", "<UseCompiledRetailProgram>k__BackingField", "<Program>k__BackingField"];
+        foreach (int legacyCount in new[] { 1, 2, 3 })
         {
             FieldInfo[] legacy = DebuggerStateFieldMigrations.SelectSerializedFields(scrollType, fields, legacyCount);
             AssertEqual(legacyCount, legacy.Length, "historical scroll state schema remains readable");
-            AssertTrue(legacy.All(field => field.Name != "<Program>k__BackingField"),
-                "historical scroll state leaves the missing decoded program available for compiled rebinding");
+            AssertTrue(legacy.Select(field => field.Name).SequenceEqual(historicalFields.Take(legacyCount)),
+                "historical scroll fields retain their serialized order and decoded pairs when present");
         }
-        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, bounded validation and both legacy scroll schemas pass.");
+        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, bounded validation and all three legacy scroll schemas pass.");
     }
 }

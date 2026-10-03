@@ -1,57 +1,55 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>
-/// Immutable bank-$88 scrolling-sky chunk pointers, including the native indexed
-/// reads beyond each declared table. No room frame needs the ROM for this lookup.
-/// </summary>
-/// <remarks>
-/// The native camera position is masked to $07F8 before the -16/+240 row probes,
-/// selecting only indexes 0..8 or 255. Land starts at $88:AD9C; ocean starts at
-/// $88:ADA6. Indexes 6..8 can read adjacent tables or wrapper instructions, while
-/// index 255 reaches $88:AF9A or $88:AFA4. Every listed word matches the pinned
-/// NTSC J/U v1.0 cartridge, including those out-of-table reads.
-/// </remarks>
+/// <summary>Computes bank-$88 sky chunk identities, including bounded adjacent-code reads.</summary>
+/// <remarks>Native camera arithmetic admits only indices0..8 and255. Five land
+/// pages advance by800 bytes fromB180. Land indices5..8 alias the first four ocean
+/// entries. Ocean has four shared pages, skips page4, then selects pages5/6.
+/// Its indices6..8 read adjacent instructions, not tilemap progression. Index255
+/// reads a separate instruction operand for each table. These compatibility cases
+/// are explicit; all other indices reject. Every result is independently verified
+/// against NTSC J/U v1.0 and pinned bank_88.asm
+/// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No pointer array or cache remains.</remarks>
 public static class ScrollingSkyChunkPointerDefinitions
 {
-    private static readonly ushort[] LandWords =
-    [
-        0xB180, 0xB980, 0xC180, 0xC980, 0xD180,
-        0xB180, 0xB980, 0xC180, 0xC980,
-    ];
+    /// <summary>First sky tilemap page at $8A:B180; native pages occupy800 bytes each.</summary>
+    private const int FirstPage = 0xb180;
+    private const int PageByteCount = 0x0800;
 
-    private static readonly ushort[] OceanWords =
-    [
-        0xB180, 0xB980, 0xC180, 0xC980, 0xD980,
-        0xE180, 0x30C2, 0x78AD, 0xF00A,
-    ];
+    /// <summary>$88:ADB2 REP #$30: ocean index6 reads opcode/operand as word30C2.</summary>
+    private const ushort OceanAdjacentStatusInstruction = 0x30c2;
+    /// <summary>$88:ADB4 LDA TimeIsFrozenFlag: ocean index7 reads opcode/address low byte.</summary>
+    private const ushort OceanAdjacentFreezeLoad = 0x78ad;
+    /// <summary>$88:ADB6 address high byte followed by BEQ: ocean index8 readsF00A.</summary>
+    private const ushort OceanAdjacentFreezeBranch = 0xf00a;
 
-    /// <summary>Land lookup words at $88:AD9C for reachable indexes zero through eight.</summary>
-    public static ReadOnlySpan<ushort> Land => LandWords;
+    /// <summary>$88:AF9A: land index255 reads the ocean wrapper's immediate table identity.</summary>
+    public const ushort LandWrappedTop = 0xada6;
+    /// <summary>$88:AFA4: ocean index255 reads the shared wrapper's TimeIsFrozenFlag address.</summary>
+    public const ushort OceanWrappedTop = 0x0a78;
 
-    /// <summary>Ocean lookup words at $88:ADA6 for reachable indexes zero through eight.</summary>
-    public static ReadOnlySpan<ushort> Ocean => OceanWords;
-
-    /// <summary>$88:AF9A, native land-table index 255 at the top of the room.</summary>
-    public const ushort LandWrappedTop = 0xADA6;
-
-    /// <summary>$88:AFA4, native ocean-table index 255 at the top of the room.</summary>
-    public const ushort OceanWrappedTop = 0x0A78;
-
-    /// <summary>Reads exactly the bounded indices selected by the native camera arithmetic.</summary>
+    /// <summary>Selects a page or native compatibility word for the exact supported domain.</summary>
     public static ushort Get(int pointerTable, int index)
     {
-        ReadOnlySpan<ushort> words = pointerTable switch
+        bool ocean = pointerTable switch
         {
-            RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress => LandWords,
-            RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress => OceanWords,
+            RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress => false,
+            RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress => true,
             _ => throw new ArgumentOutOfRangeException(nameof(pointerTable), pointerTable,
                 "Unknown scrolling-sky chunk pointer table."),
         };
-        if ((uint)index < words.Length) return words[index];
-        if (index == byte.MaxValue)
-            return pointerTable == RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress
-                ? LandWrappedTop : OceanWrappedTop;
-        throw new ArgumentOutOfRangeException(nameof(index), index,
-            "Camera row selected an unreachable scrolling-sky chunk index.");
+        if (index == byte.MaxValue) return ocean ? OceanWrappedTop : LandWrappedTop;
+        if ((uint)index >= 9)
+            throw new ArgumentOutOfRangeException(nameof(index), index,
+                "Camera row selected an unreachable scrolling-sky chunk index.");
+        if (!ocean)
+            return (ushort)(FirstPage + (index < 5 ? index : index - 5) * PageByteCount);
+        return index switch
+        {
+            < 4 => (ushort)(FirstPage + index * PageByteCount),
+            < 6 => (ushort)(FirstPage + (index + 1) * PageByteCount),
+            6 => OceanAdjacentStatusInstruction,
+            7 => OceanAdjacentFreezeLoad,
+            _ => OceanAdjacentFreezeBranch,
+        };
     }
 }

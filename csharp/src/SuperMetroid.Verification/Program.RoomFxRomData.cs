@@ -17,10 +17,8 @@ internal static partial class Program
             "room FX layer-three blend field");
         AssertEqual(15, RoomFxRomData.Record.PaletteBlendOffset,
             "room FX palette-blend field");
-        AssertEqual(23, RoomFxRomData.ScrollingSky.Sections.Length,
+        AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
             "scrolling-sky section count");
-        AssertEqual(6, RoomFxRomData.ScrollingSky.LandChunkOffsets.Length,
-            "scrolling-sky native land/ocean fall-through count");
 
         (RoomFxType Type, ushort NativeValue)[] representativeTypes =
         [
@@ -35,7 +33,6 @@ internal static partial class Program
         foreach ((RoomFxType type, ushort nativeValue) in representativeTypes)
             AssertEqual(nativeValue, (ushort)type, $"{type} native room-FX value");
 
-        VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
         VerifyAreaAnimatedTileObjectDefinitions();
         VerifyRoomFxAnimatedTileMechanicsDefinitions();
@@ -43,44 +40,90 @@ internal static partial class Program
         VerifyRoomFxLayer3Tilemaps();
         VerifyRoomFxPaletteBlends();
         VerifyRetailRoomFxInventory();
-        NotSupportedException unknown = AssertThrows<NotSupportedException>(
-            () => RoomFxTypes.FromCartridge(0x0e, "constructed FX record $9000"),
-            "null room-FX dispatcher entry fails loudly");
-        AssertTrue(unknown.Message.Contains("$0E", StringComparison.Ordinal) &&
-            unknown.Message.Contains("$9000", StringComparison.Ordinal),
-            "unknown room FX identifies value and record context");
-        NotSupportedException unknownBlend = AssertThrows<NotSupportedException>(
-            () => LayerBlendingConfigurations.FromCartridge(
-                0x36, "constructed FX record $9000"),
-            "past-table layer-blending configuration fails loudly");
-        AssertTrue(unknownBlend.Message.Contains("0036", StringComparison.Ordinal) &&
-            unknownBlend.Message.Contains("$9000", StringComparison.Ordinal),
-            "unknown layer blend identifies value and record context");
+        VerifyFxValidationBoundaries();
 
         Console.WriteLine(
             "  Room FX: shared record/table catalog, typed blending, liquid rise " +
             "sound/shake, sky, haze, Ceres, rain, and fog states agree.");
     }
 
-    private static void VerifyRoomFxRecordSelection()
+    private static void VerifyFxValidationBoundaries()
     {
-        RoomFxRecordDefinition[] records = RoomFxRecordDefinitions.All.ToArray();
-        var pair = records.Zip(records.Skip(1))
-            .First(pair => pair.First.DoorPointer is not (0 or RoomFxRomData.Record.TerminatorDoorPointer) &&
-                pair.Second.Pointer == pair.First.Pointer + RoomFxRomData.Record.ByteCount &&
-                pair.Second.DoorPointer == 0);
-        ushort list = pair.First.Pointer;
-        ushort matchingDoor = pair.First.DoorPointer;
-        AssertEqual(list, RoomFxRecordDefinitions.Select(list, matchingDoor),
-            "door-specific FX record wins");
-        AssertEqual(pair.Second.Pointer,
-            RoomFxRecordDefinitions.Select(list, 0),
-            "default FX record follows nonmatching door record");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX validation oracle revision");
+        VerifyRoomFxTypeValidation(rom);
+        VerifyLayerBlendValidation(rom);
+    }
 
-        ushort terminatedList = records.First(record =>
-            record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer).Pointer;
-        AssertEqual(0, RoomFxRecordDefinitions.Select(terminatedList, matchingDoor),
-            "FX terminator declines selection");
+    private static void VerifyRoomFxTypeValidation(ISnesAddressSpace rom)
+    {
+        // Original pre-conversion enum membership, independently cross-checked with
+        // the native function pointer table. Zero is deliberately named; the other
+        // entries targeting the same RTL were never accepted by this port boundary.
+        ushort[] original = [0, 2, 4, 6, 8, 10, 12, 32, 34, 36, 38, 40, 42, 44];
+        AssertTrue(Enum.GetValues<RoomFxType>().Select(x => (ushort)x).SequenceEqual(original),
+            "All named room FX identities retain their original values");
+        AssertEqual((ushort)0xac18, ReadVerificationWord(rom, 0x89ac49), "Native room FX dispatcher table operand");
+        for (int slot = 0; slot <= 44; slot += 2)
+        {
+            ushort pointer = ReadVerificationWord(rom, 0x83ac18 + slot);
+            AssertEqual(original.Contains((ushort)slot), slot == 0 || pointer != 0xb278,
+                "Original named membership matches native routines excluding unnamed RTL slots");
+        }
+        for (int value = 0; value <= byte.MaxValue; value++)
+        {
+            if (original.Contains((ushort)value))
+                AssertEqual((ushort)value, (ushort)RoomFxTypes.FromCartridge((byte)value, "record $9000"),
+                    "Room FX identity conversion preserves every accepted byte");
+            else
+            {
+                var error = AssertThrows<NotSupportedException>(
+                    () => RoomFxTypes.FromCartridge((byte)value, "record $9000"), "Undefined room FX rejected");
+                AssertTrue(error.Message.Contains($"${value:X2}", StringComparison.Ordinal) &&
+                    error.Message.Contains("$9000", StringComparison.Ordinal), "Room FX failure retains value/context");
+            }
+        }
+    }
+
+    private static void VerifyLayerBlendValidation(ISnesAddressSpace rom)
+    {
+        // Original pre-conversion enum membership, not generated by the new validator.
+        ushort[] original = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26,
+            28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52];
+        AssertTrue(Enum.GetValues<LayerBlendingConfiguration>().Select(x => (ushort)x).SequenceEqual(original),
+            "All named blend identities retain their original values");
+        AssertEqual((ushort)0x803e, ReadVerificationWord(rom, 0x88800e), "Native blending dispatcher operand");
+        AssertEqual((ushort)0x8074, ReadVerificationWord(rom, 0x88803e), "First target marks original table end");
+        foreach (ushort offset in original)
+        {
+            ushort target = ReadVerificationWord(rom, 0x88803e + offset);
+            AssertTrue(target >= 0x8074 && target <= 0x8156, "Native slot points into its blending routines");
+        }
+        for (int value = 0; value <= ushort.MaxValue; value++)
+        {
+            var configuration = (LayerBlendingConfiguration)value;
+            bool accepted = original.Contains((ushort)value);
+            if (accepted) LayerBlendingConfigurations.Validate(configuration, "blend");
+            else
+            {
+                var error = AssertThrows<ArgumentOutOfRangeException>(
+                    () => LayerBlendingConfigurations.Validate(configuration, "blend"), "Undefined host blend rejected");
+                AssertEqual("blend", error.ParamName!, "Host blend failure retains parameter name");
+                AssertEqual(configuration, (LayerBlendingConfiguration)error.ActualValue!, "Host blend failure retains value");
+            }
+            if (value > byte.MaxValue) continue;
+            if (accepted)
+                AssertEqual(configuration, LayerBlendingConfigurations.FromCartridge((byte)value, "record $9000"),
+                    "Cartridge blend preserves accepted identity");
+            else
+            {
+                var error = AssertThrows<NotSupportedException>(
+                    () => LayerBlendingConfigurations.FromCartridge((byte)value, "record $9000"), "Undefined cartridge blend rejected");
+                AssertTrue(error.Message.Contains($"{value:X4}", StringComparison.Ordinal) &&
+                    error.Message.Contains("$9000", StringComparison.Ordinal), "Cartridge blend failure retains value/context");
+            }
+        }
     }
 
     private static void VerifyRoomLayer3FxTypes()

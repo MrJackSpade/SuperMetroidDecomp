@@ -33,66 +33,45 @@ internal static class FakeKraidProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpikeRightSleep = 0x9dea;
 
-    private static readonly FakeKraidProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Spit, 0x7fff),
-        new(SpitSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SpikeLeft, 0x7fff),
-        new(SpikeLeftSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SpikeRight, 0x7fff),
-        new(SpikeRightSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-    ];
+    // Each pose occupies six bytes: duration, visual operand, terminal sleep.
+    internal static int MechanicsWordCount => 6;
+    internal static int PresentationWordCount => 3;
 
-    private static readonly ushort[] PresentationWords = [0x9ddc, 0x9de2, 0x9de8];
+    internal static FakeKraidProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        ushort address = (ushort)(Spit + 6 * (index / 2) + 4 * (index % 2));
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FakeKraidProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Spit + 6 * index + 2);
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.FakeKraidSpit or
         RoomEnemyProjectileKind.FakeKraidSpikeLeft or
         RoomEnemyProjectileKind.FakeKraidSpikeRight;
 
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            FakeKraidProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
+        Spit or SpikeLeft or SpikeRight => 0x7fff,
+        SpitSleep or SpikeLeftSleep or SpikeRightSleep =>
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+        _ => throw new InvalidDataException(
             $"Fake Kraid projectile instruction mechanics pointer $86:{address:X4} " +
-            "is not compiled.");
-    }
+            "is not compiled."),
+    };
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        int offset = (ushort)address - Spit;
+        return (uint)offset < 18 && offset % 6 is 0 or 1 or 4 or 5;
     }
 }

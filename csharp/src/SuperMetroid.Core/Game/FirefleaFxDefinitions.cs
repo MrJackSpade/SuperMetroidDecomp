@@ -7,42 +7,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class FirefleaFxDefinitions
 {
-    /// <summary>
-    /// <c>Fireflea_Flashing_Shades</c> at $88:B058: the twelve packed shade words
-    /// selected by the room effect's six-frame phase clock.
-    /// </summary>
-    /// <remarks>Issues #625 and #943 exact triangular wave: (6-abs(i-6))*256 for i=0..11.
-    /// LookupTableResearch verifies all twelve packed words against NTSC J/U v1.0 ROM,
-    /// pinned assembly, and this table. This describes the shades, not the caller's six-frame
-    /// timer or darkness addition. Runtime replacement remains deferred.</remarks>
-    private static ReadOnlySpan<ushort> FlashingShades =>
-    [
-        0x0000, 0x0100, 0x0200, 0x0300, 0x0400, 0x0500,
-        0x0600, 0x0500, 0x0400, 0x0300, 0x0200, 0x0100,
-    ];
-
-    /// <summary>
-    /// <c>Fireflea_Darkness_Shades</c> at $88:B070 plus the cartridge-visible
-    /// offset-twelve word at $88:B07C. Retail enemy logic advances the byte offset
-    /// through 0, 2, ... 12, so the final state intentionally observes the adjacent
-    /// <c>PHP/REP #$30</c> opcode bytes as packed shade $C208.
-    /// </summary>
-    /// <remarks>
-    /// Issues #625 and #944: for the six authored words at even byte offsets
-    /// 0..10, let i=offset/2 and return min(6*i,25)*256. This capped ramp
-    /// matches all six pinned NTSC J/U v1.0 ROM words at $88:B070 and bank-88
-    /// assembly. Offset 12 is not another formula input: native reads the
-    /// adjacent $88:B07C opcode word $C208, preserved as the seventh value.
-    /// A read-only probe checked all seven physical reads. The enemy death
-    /// counter can reach 12 even though ordinary retail rooms have five
-    /// Firefleas; odd offsets and 14 remain invalid. Preserve the caller's
-    /// 16-bit flashing-plus-darkness addition before extracting its high byte.
-    /// </remarks>
-    private static ReadOnlySpan<ushort> DarknessShades =>
-    [
-        0x0000, 0x0600, 0x0c00, 0x1200, 0x1800, 0x1900, 0xc208,
-    ];
-
+    /// <summary>$88:B058 Fireflea_Flashing_Shades, twelve packed unsigned words.</summary>
+    internal const int FlashReferenceAddress = 0x88b058;
+    /// <summary>$88:B070 Fireflea_Darkness_Shades, six words plus one opcode alias.</summary>
+    internal const int DarknessReferenceAddress = 0x88b070;
+    /// <summary>$88:B07C PHP / REP opcode bytes read at darkness offset twelve.</summary>
+    private const ushort AdjacentOpcodeShade = 0xc208;
     /// <summary>$88:B07F/$88:B0D5: six effect passes per flashing shade.</summary>
     internal const ushort FlashDuration = 6;
 
@@ -55,25 +25,35 @@ internal static class FirefleaFxDefinitions
     /// <summary>$88:B0E3: fixed flashing-table index used at maximum darkness.</summary>
     internal const ushort SteadyFlashIndex = 6;
 
+    /// <summary>Returns the packed triangular shade 256*(6-abs(index-6)), index 0..11.</summary>
+    /// <remarks>Independently checked for #1165 against every original NTSC J/U v1.0
+    /// word and pinned bank_88.asm. The six-frame timer and phase wrap are caller-owned;
+    /// this exact integer wave requires no sampled floating-point construction.</remarks>
     internal static ushort FlashingShade(ushort index)
     {
-        if (index >= FlashingShades.Length)
+        if (index >= FlashCount)
         {
             throw new InvalidDataException(
-                $"Fireflea flashing index {index} is outside the {FlashingShades.Length}-entry native cycle.");
+                $"Fireflea flashing index {index} is outside the {FlashCount}-entry native cycle.");
         }
 
-        return FlashingShades[index];
+        return (ushort)((6 - Math.Abs(index - 6)) << 8);
     }
 
+    /// <summary>Returns the capped six-step darkness ramp, plus the native offset-12 alias.</summary>
+    /// <remarks>Independently checked for #1165 against all seven original physical reads
+    /// and pinned bank_88.asm. Even byte offsets 0..10 use 256*min(3*offset,25).
+    /// Offset 12 reads PHP/REP opcode bytes, not an extrapolated ramp value. The death
+    /// counter permits that offset. Reject odd offsets and offsets above 12; retain the
+    /// caller's wrapped 16-bit flash-plus-darkness addition before taking the high byte.</remarks>
     internal static ushort DarknessShade(ushort byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset / 2 >= DarknessShades.Length)
+        if ((byteOffset & 1) != 0 || byteOffset > 12)
         {
             throw new InvalidDataException(
                 $"Fireflea darkness byte offset {byteOffset} is outside the retail 0-through-12 even domain.");
         }
 
-        return DarknessShades[byteOffset / 2];
+        return byteOffset == 12 ? AdjacentOpcodeShade : (ushort)(Math.Min(3 * byteOffset, 25) << 8);
     }
 }

@@ -56,9 +56,9 @@ public sealed partial class ManagedSpcPlayer
         byte note = unchecked((byte)((pitch >> 8) & 0x7f)); // allow(BitMask): seven-bit note number
         byte octave = unchecked((byte)(note / 12));
         byte semitone = unchecked((byte)(note % 12));
-        int delta = unchecked((byte)(SpcMusicTables.BaseNoteFrequencies[semitone + 1] -
-            SpcMusicTables.BaseNoteFrequencies[semitone]));
-        ushort frequency = unchecked((ushort)(SpcMusicTables.BaseNoteFrequencies[semitone] +
+        ushort basis = SpcMusicTables.BaseNoteFrequency(semitone);
+        int delta = unchecked((byte)(SpcMusicTables.BaseNoteFrequency(semitone + 1) - basis));
+        ushort frequency = unchecked((ushort)(basis +
             (delta * unchecked((byte)pitch) >> 8)));
         frequency = unchecked((ushort)(frequency * 2));
         while (octave != 6)
@@ -166,9 +166,9 @@ public sealed partial class ManagedSpcPlayer
     private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
-        if ((uint)tableIndex >= SpcMusicTables.EffectByteLengths.Length)
+        if ((uint)tableIndex >= SpcMusicTables.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
-        byte argument = SpcMusicTables.EffectByteLengths[tableIndex] != 0
+        byte argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
             ? ram[channel.PatternOrderPointer++]
             : (byte)0;
 
@@ -351,7 +351,7 @@ public sealed partial class ManagedSpcPlayer
                 if (command == (byte)SpcMusicEffect.CallPattern)
                     pointer = ReadWord(pointer);
                 else if (command >= SpcDriverData.Music.FirstEffect)
-                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLengths[command - SpcDriverData.Music.FirstEffect]);
+                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLength(command - SpcDriverData.Music.FirstEffect));
                 else
                     return true;
             }
@@ -627,9 +627,8 @@ public sealed partial class ManagedSpcPlayer
                         noteCommand = ram[channel.PatternOrderPointer++];
                         if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
                         {
-                            channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentages[
-                                (noteCommand >> 4) & 7];
-                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolumes[noteCommand & 0x0f]; // allow(BitMask): volume nibble
+                            channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentage((noteCommand >> 4) & 7);
+                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // allow(BitMask): volume nibble
                             noteCommand = ram[channel.PatternOrderPointer++];
                         }
                     }

@@ -11,8 +11,12 @@ public readonly record struct SpecialAirReactionDefinition(
     ushort SetupPointer);
 
 /// <summary>
-/// Compiled area-dependent special-air dispatch tables used by inside-body and movement
-/// collision probes. These are engine rules, not editable room or presentation assets.
+/// Area-dependent special-air dispatch expressed as named reaction cases, without stored tables.
+/// Bank-$94 pointers at $9B06 (inside) and $92D9 (collision) select sixteen entries for each
+/// of seven retail areas; each selected bank-$84 header supplies its setup callback.
+/// BTS callers clear bit seven before selection. Preserve distinct no-op header identities,
+/// repeated quicksand-surface cases, and rejection of non-retail areas or indexes above fifteen.
+/// These are engine dispatch rules, not editable room or presentation assets.
 /// </summary>
 public static class SpecialAirReactionDefinitions
 {
@@ -97,21 +101,55 @@ public static class SpecialAirReactionDefinitions
     /// <summary>Wrecked Ship Chozo-hand collision trigger at <c>$84:D6F2/$D620</c>.</summary>
     public static readonly SpecialAirReactionDefinition WreckedShipChozoHand = new(0xd6f2, 0xd620);
 
-    /// <summary>Resolves one authored inside-body reaction for a retail area and BTS index.</summary>
-    public static SpecialAirReactionDefinition ResolveInside(AreaId area, byte areaReactionIndex) =>
-        Resolve(inside, area, areaReactionIndex, "inside-body");
-
-    /// <summary>Resolves one authored movement-collision reaction for a retail area and BTS index.</summary>
-    public static SpecialAirReactionDefinition ResolveCollision(AreaId area, byte areaReactionIndex) =>
-        Resolve(collision, area, areaReactionIndex, "movement-collision");
-
-    private static SpecialAirReactionDefinition Resolve(
-        SpecialAirReactionDefinition[] table,
-        AreaId area,
-        byte areaReactionIndex,
-        string context)
+    /// <summary>Resolves the native inside-body header/setup for retail areas and indexes 0..15.</summary>
+    public static SpecialAirReactionDefinition ResolveInside(AreaId area, byte areaReactionIndex)
     {
-        int areaIndex = AreaIds.ToIndex(area);
+        Validate(area, areaReactionIndex, "inside-body");
+        return (area, areaReactionIndex) switch
+        {
+            (AreaId.Crateria, 0) => CrateriaIcePhysics,
+            (AreaId.Brinstar, 0) => BrinstarFloorPlant,
+            (AreaId.Brinstar, 1) => BrinstarCeilingPlant,
+            (AreaId.Norfair, 0) => NorfairInsideNothing80,
+            (AreaId.Norfair, 1) => NorfairInsideNothing81,
+            (AreaId.Norfair, 2) => NorfairInsideNothing82,
+            (AreaId.Maridia, 0) => QuicksandSurfaceInside,
+            (AreaId.Maridia, 1) => QuicksandSurfaceInside,
+            (AreaId.Maridia, 2) => QuicksandSurfaceInside,
+            (AreaId.Maridia, 3) => QuicksandSubmergingInside,
+            (AreaId.Maridia, 4) => QuicksandSlowFallInside,
+            (AreaId.Maridia, 5) => QuicksandFastFallInside,
+            _ => Nothing,
+        };
+    }
+
+    /// <summary>Resolves the native movement-collision header/setup for retail areas and indexes 0..15.</summary>
+    public static SpecialAirReactionDefinition ResolveCollision(AreaId area, byte areaReactionIndex)
+    {
+        Validate(area, areaReactionIndex, "movement-collision");
+        return (area, areaReactionIndex) switch
+        {
+            (AreaId.Brinstar, 0) => ClearCarry,
+            (AreaId.Brinstar, 1) => ClearCarry,
+            (AreaId.Brinstar, 2) => BrinstarSlowSpeedBlockRespawning,
+            (AreaId.Brinstar, 3) => BrinstarSlowSpeedBlockPermanent,
+            (AreaId.Brinstar, 4) => BrinstarDachoraSpeedBlock,
+            (AreaId.Brinstar, 5) => BrinstarSpeedBlockPermanent,
+            (AreaId.Norfair, 3) => LowerNorfairChozoHand,
+            (AreaId.WreckedShip, 0) => WreckedShipChozoHand,
+            (AreaId.Maridia, 0) => QuicksandSurfaceCollision,
+            (AreaId.Maridia, 1) => QuicksandSurfaceCollision,
+            (AreaId.Maridia, 2) => QuicksandSurfaceCollision,
+            (AreaId.Maridia, 3) => QuicksandSubmergingCollision,
+            (AreaId.Maridia, 4) => QuicksandSlowFallCollision,
+            (AreaId.Maridia, 5) => QuicksandFastFallCollision,
+            _ => Nothing,
+        };
+    }
+
+    private static void Validate(AreaId area, byte areaReactionIndex, string context)
+    {
+        _ = AreaIds.ToIndex(area);
         if (areaReactionIndex >= EntriesPerArea)
         {
             throw new ArgumentOutOfRangeException(
@@ -119,62 +157,5 @@ public static class SpecialAirReactionDefinitions
                 areaReactionIndex,
                 $"Special-air {context} BTS indexes are authored only from zero through fifteen.");
         }
-
-        return table[areaIndex * EntriesPerArea + areaReactionIndex];
     }
-
-    private static SpecialAirReactionDefinition[] CreateDefaultTable()
-    {
-        var table = new SpecialAirReactionDefinition[AreaIds.RetailCount * EntriesPerArea];
-        Array.Fill(table, Nothing);
-        return table;
-    }
-
-    private static void Set(
-        SpecialAirReactionDefinition[] table,
-        AreaId area,
-        int index,
-        SpecialAirReactionDefinition definition) =>
-        table[AreaIds.ToIndex(area) * EntriesPerArea + index] = definition;
-
-    private static SpecialAirReactionDefinition[] BuildInside()
-    {
-        SpecialAirReactionDefinition[] table = CreateDefaultTable();
-        Set(table, AreaId.Crateria, 0, CrateriaIcePhysics);
-        Set(table, AreaId.Brinstar, 0, BrinstarFloorPlant);
-        Set(table, AreaId.Brinstar, 1, BrinstarCeilingPlant);
-        Set(table, AreaId.Norfair, 0, NorfairInsideNothing80);
-        Set(table, AreaId.Norfair, 1, NorfairInsideNothing81);
-        Set(table, AreaId.Norfair, 2, NorfairInsideNothing82);
-        Set(table, AreaId.Maridia, 0, QuicksandSurfaceInside);
-        Set(table, AreaId.Maridia, 1, QuicksandSurfaceInside);
-        Set(table, AreaId.Maridia, 2, QuicksandSurfaceInside);
-        Set(table, AreaId.Maridia, 3, QuicksandSubmergingInside);
-        Set(table, AreaId.Maridia, 4, QuicksandSlowFallInside);
-        Set(table, AreaId.Maridia, 5, QuicksandFastFallInside);
-        return table;
-    }
-
-    private static SpecialAirReactionDefinition[] BuildCollision()
-    {
-        SpecialAirReactionDefinition[] table = CreateDefaultTable();
-        Set(table, AreaId.Brinstar, 0, ClearCarry);
-        Set(table, AreaId.Brinstar, 1, ClearCarry);
-        Set(table, AreaId.Brinstar, 2, BrinstarSlowSpeedBlockRespawning);
-        Set(table, AreaId.Brinstar, 3, BrinstarSlowSpeedBlockPermanent);
-        Set(table, AreaId.Brinstar, 4, BrinstarDachoraSpeedBlock);
-        Set(table, AreaId.Brinstar, 5, BrinstarSpeedBlockPermanent);
-        Set(table, AreaId.Norfair, 3, LowerNorfairChozoHand);
-        Set(table, AreaId.WreckedShip, 0, WreckedShipChozoHand);
-        Set(table, AreaId.Maridia, 0, QuicksandSurfaceCollision);
-        Set(table, AreaId.Maridia, 1, QuicksandSurfaceCollision);
-        Set(table, AreaId.Maridia, 2, QuicksandSurfaceCollision);
-        Set(table, AreaId.Maridia, 3, QuicksandSubmergingCollision);
-        Set(table, AreaId.Maridia, 4, QuicksandSlowFallCollision);
-        Set(table, AreaId.Maridia, 5, QuicksandFastFallCollision);
-        return table;
-    }
-
-    private static readonly SpecialAirReactionDefinition[] inside = BuildInside();
-    private static readonly SpecialAirReactionDefinition[] collision = BuildCollision();
 }

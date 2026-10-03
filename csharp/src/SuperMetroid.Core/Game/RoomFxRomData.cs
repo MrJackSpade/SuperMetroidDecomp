@@ -146,11 +146,21 @@ public static class RoomFxRomData
     {
         public const ushort VerticalVelocity = 0x0600;
 
-        /// <summary>
-        /// Signed 8.8 BG3 horizontal velocities selected from bits two and three of RNG.
-        /// </summary>
-        public static ReadOnlySpan<ushort> HorizontalVelocities =>
-            [0xfa00, 0x0600, 0xfc00, 0x0400];
+        /// <summary>Calculates rain's signed 8.8 horizontal velocity for selector 0..3.</summary>
+        /// <remarks>Native $88:D981 selects a word at $88:D992 using RNG bits two/three.
+        /// Selector bit one reduces the speed from six to four pixels/frame; bit zero
+        /// selects positive rather than negative motion. Multiply by256, then preserve
+        /// the two's-complement ushort representation. The four original values and
+        /// all ushort RNG inputs are independently verified against NTSC J/U v1.0 and
+        /// pinned bank_88.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Invalid selectors retain the former indexed span's rejection.</remarks>
+        public static ushort HorizontalVelocity(int selection)
+        {
+            if ((uint)selection >= 4)
+                throw new IndexOutOfRangeException();
+            int speed = (6 - (selection & 2)) << 8;
+            return unchecked((ushort)((selection & 1) == 0 ? -speed : speed));
+        }
     }
 
     /// <summary>FX type $08's literal scroll and source-blending operands.</summary>
@@ -184,12 +194,24 @@ public static class RoomFxRomData
         /// <summary>Number of signed words in the circular water displacement table.</summary>
         public const int WaveDisplacementCount = 16;
 
-        /// <summary>
-        /// Signed per-scanline offsets from <c>WaveDisplacementTable_Water</c> at
-        /// <c>$88:C46E</c>. The repeated eight-value waveform is intentional.
-        /// </summary>
-        public static ReadOnlySpan<short> WaveDisplacements =>
-            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+        /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
+        /// <remarks>The original $88:C46E waveform consists of two identical eight-sample
+        /// periods. Within each four-sample half-wave, reflect the integer ramp around
+        /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.
+        /// This is an exact integer triangular waveform, without a floating-point
+        /// generation claim. Water BG2/BG3 and the identical vertical lava/acid wave
+        /// share this mapping. All original words at C46E and B60A are independently
+        /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm
+        /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Reject outside the original sixteen-word span before periodic folding.</remarks>
+        public static short WaveDisplacement(int index)
+        {
+            if ((uint)index >= WaveDisplacementCount)
+                throw new IndexOutOfRangeException();
+            int position = index & 3;
+            int magnitude = Math.Min(position, 3 - position);
+            return (short)((index & 4) == 0 ? magnitude : -magnitude);
+        }
     }
 
     /// <summary>Bank-$88 lava/acid BG2 distortion data at <c>$88:B4D5-$B628</c>.</summary>
@@ -210,16 +232,26 @@ public static class RoomFxRomData
         /// <summary>Number of one-scanline entries in either circular HDMA waveform.</summary>
         public const int WaveDisplacementCount = 16;
 
-        /// <summary>
-        /// Signed BG2VOFS offsets read from <c>$88:B60A</c>. Ordinary Norfair records set
-        /// liquid-options bit one and therefore use this waveform as the visible heat haze.
-        /// </summary>
-        public static ReadOnlySpan<short> VerticalWaveDisplacements =>
-            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+        /// <summary>Calculates the vertical heat-haze displacement for index 0..15.</summary>
+        /// <remarks>Native $88:B60A is independently verified as the same mirrored,
+        /// sign-alternating integer wave as $88:C46E. Reuse that exact bounded mapping;
+        /// liquid-options bit one selects this BG2VOFS waveform.</remarks>
+        public static short VerticalWaveDisplacement(int index) => Water.WaveDisplacement(index);
 
-        /// <summary>Signed BG2HOFS offsets read from <c>$88:B589</c>.</summary>
-        public static ReadOnlySpan<short> HorizontalWaveDisplacements =>
-            [0, 0, 1, 1, 1, 1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0];
+        /// <summary>
+        /// Signed BG2HOFS displacement for index 0..15, matching $88:B589.
+        /// This pulse pair subtracts a four-sample unit pulse starting at eight
+        /// from the same pulse starting at two. The native $88:B53B consumer
+        /// rotates all sixteen samples; its two unequal zero gaps are preserved.
+        /// No sinusoidal interpolation or extrapolation is implied.
+        /// </summary>
+        public static short HorizontalWaveDisplacement(int index)
+        {
+            if ((uint)index >= WaveDisplacementCount) throw new IndexOutOfRangeException();
+            int positivePulse = (uint)(index - 2) < 4 ? 1 : 0;
+            int negativePulse = (uint)(index - 8) < 4 ? 1 : 0;
+            return (short)(positivePulse - negativePulse);
+        }
     }
 
     /// <summary>Shared water/lava/acid tide encoding consumed by <c>FxHandleTide</c>.</summary>
@@ -263,36 +295,35 @@ public static class RoomFxRomData
     /// <summary>Landing Site scrolling-sky table and circular tilemap layout.</summary>
     public static class ScrollingSky
     {
-        private static readonly SkyScrollSection[] SectionRows =
-        [
-            new(0x0000, 0x8000, 0x0000, 0),
-            new(0x0010, 0xc000, 0x0000, 1),
-            new(0x0038, 0x8000, 0x0000, 2),
-            new(0x00d0, 0xc000, 0x0000, 3),
-            new(0x00e0, 0x8000, 0x0000, 4),
-            new(0x0120, 0xc000, 0x0000, 5),
-            new(0x01a0, 0x8000, 0x0000, 6),
-            new(0x01d8, 0xc000, 0x0000, 7),
-            new(0x0238, 0x8000, 0x0000, 8),
-            new(0x0268, 0xc000, 0x0000, 9),
-            new(0x02a0, 0x8000, 0x0000, 10),
+        /// <summary>Twenty-three eight-byte sky-band records processed by $88:ADC2.</summary>
+        public const int SectionCount = 23;
 
-            // $02E0 deliberately targets slot eight again, making that strip advance
-            // twice per frame exactly as the bank-$88 table specifies.
-            new(0x02e0, 0xc000, 0x0000, 8),
-            new(0x0300, 0x8000, 0x0000, 12),
-            new(0x0320, 0xc000, 0x0000, 13),
-            new(0x0350, 0x8000, 0x0000, 14),
-            new(0x0378, 0xc000, 0x0000, 15),
-            new(0x03c8, 0x8000, 0x0000, 16),
-            new(0x0440, 0x7000, 0x0000, 17),
-            new(0x0460, 0xc000, 0x0000, 18),
-            new(0x0480, 0x8000, 0x0000, 19),
-            new(0x0490, 0x0000, 0x0000, 20),
-            new(0x04a8, 0x0000, 0x0000, 21),
-            new(0x04b8, 0x0000, 0x0000, 22),
-        ];
-
+        /// <summary>Selects a sky band's boundary, unsigned16.16 velocity and HDMA data slot.</summary>
+        /// <remarks>Native records at $88:AEC1 have fixed band geometry, so boundaries
+        /// are explicit configuration cases. Bands0..16 alternate fractional speeds
+        /// 8000/C000; band17 has its own7000 speed, bands18/19 resume C000/8000,
+        /// and the three bottom bands are stationary. Integer speed is always zero.
+        /// Data slots follow band indices except band11 targets slot8 again, giving it
+        /// two additions per frame. All four fields are independently verified against
+        /// supported NTSC J/U v1.0 and pinned bank_88.asm
+        /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Reject outside0..22 before computing fields; no row array/cache remains.</remarks>
+        public static SkyScrollSection GetSection(int index)
+        {
+            ushort top = index switch
+            {
+                0 => 0x0000, 1 => 0x0010, 2 => 0x0038, 3 => 0x00d0,
+                4 => 0x00e0, 5 => 0x0120, 6 => 0x01a0, 7 => 0x01d8,
+                8 => 0x0238, 9 => 0x0268, 10 => 0x02a0, 11 => 0x02e0,
+                12 => 0x0300, 13 => 0x0320, 14 => 0x0350, 15 => 0x0378,
+                16 => 0x03c8, 17 => 0x0440, 18 => 0x0460, 19 => 0x0480,
+                20 => 0x0490, 21 => 0x04a8, 22 => 0x04b8,
+                _ => throw new IndexOutOfRangeException(),
+            };
+            ushort subspeed = (ushort)(index < 17 ? 0x8000 + (index & 1) * 0x4000 :
+                index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
+            return new(top, subspeed, 0, index == 11 ? 8 : index);
+        }
         public const ushort Bg2TilemapBaseWord = 0x4800;
         public const int LandChunkPointerTableAddress = 0x88ad9c;
         /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
@@ -307,15 +338,7 @@ public static class RoomFxRomData
         public const ushort TilemapPositionMask = 0x01f8;
         public const ushort SourcePositionMask = 0x07f8;
 
-        /// <summary>
-        /// Five declared land chunks followed by the adjacent ocean table's first word.
-        /// The sixth entry is a deliberate native fall-through used near the room bottom.
-        /// </summary>
-        public static ReadOnlySpan<ushort> LandChunkOffsets =>
-            ScrollingSkyChunkPointerDefinitions.Land[..6];
 
-        /// <summary>The 23 eight-byte rows beginning at bank-$88 scrolling-sky data.</summary>
-        public static ReadOnlySpan<SkyScrollSection> Sections => SectionRows;
     }
 
     /// <summary>Bank-$A0 room-shake displacement data and type boundaries.</summary>
@@ -345,6 +368,16 @@ public static class RoomFxRomData
         /// Base delays paired with the eight <c>$46</c> entries at
         /// <c>$88:B256-$B276</c>. The live RNG low two bits are added at each emission.
         /// </summary>
+        /// <remarks>
+        /// Retained as the particular irregular rhythm of repeated identical rumble
+        /// sounds. The index advances chronologically by one emission, not by angle,
+        /// distance, intensity or a semantic sound choice. The complete cycle has
+        /// neither a ramp nor half-cycle reflection/repetition; equal delay values
+        /// have different successors. Live RNG supplies separate variation. Reciting
+        /// these eight choices in cases or fitting them would merely disguise the
+        /// same rhythmic content, while replacing the rhythm changes sound cadence.
+        /// This is the arbitrary-sequence/nonsense exception, not a cost or size exemption.
+        /// </remarks>
         public static ReadOnlySpan<ushort> RisingLiquidSoundBaseTimers =>
             [1, 3, 2, 1, 1, 2, 2, 1];
 
@@ -369,12 +402,14 @@ public static class RoomFxRomData
             /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
             public const ushort TourianEscape4 = 0xdede;
 
-            /// <summary>
-            /// Exact comparison set at <c>$88:82CD-$82E9</c>. Matching rooms initialize
-            /// the earthquake-sound timer to <c>$FFFF</c>.
-            /// </summary>
-            public static ReadOnlySpan<ushort> All =>
-                [BombTorizo, Climb, Ridley, Pillar, MotherBrain, TourianEscape4];
+            /// <summary>Whether room initialization disables earthquake sounds for this identity.</summary>
+            /// <remarks>Ports the six named comparisons at $88:82CD..82E9, whose shared
+            /// branch initializes the sound timer to FFFF. All other ushort identities,
+            /// including zero and unknown rooms, return false. Verified against original
+            /// NTSC J/U v1.0 instruction operands and pinned bank_88.asm
+            /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No stored membership list remains.</remarks>
+            public static bool Contains(ushort room) => room is
+                BombTorizo or Climb or Ridley or Pillar or MotherBrain or TourianEscape4;
         }
     }
 

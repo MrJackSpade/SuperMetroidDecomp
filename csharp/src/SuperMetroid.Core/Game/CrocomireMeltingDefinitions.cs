@@ -8,12 +8,15 @@ internal static class CrocomireMeltingDefinitions
     /// The cartridge uses this permutation to choose the next physical X column.
     /// </summary>
     /// <remarks>
-    /// All 49 bytes match the pinned NTSC J/U v1.0 ROM and permute X columns
-    /// 0..48 exactly once. Retain this bounded authored dissolve order: a
-    /// modular stride or simple block traversal does not reproduce it, and
-    /// a guessed shuffle would obscure the visual sequence. The separate
-    /// bitplane mask uses the chronological cursor's low three bits, not the
-    /// selected X column's. Investigation: #625 / #672.
+    /// Retained under #1165's arbitrary-sequence exception: these are the fixed shuffled
+    /// visitation identities of all columns 0..48, not samples of motion or geometry.
+    /// The erase routine consumes their chronological order and keeps height per selected
+    /// column; its separate pixel mask uses cursor modulo eight. The pinned C reference
+    /// names this kCrocoVlineRandomPos. Replacing this order with a new shuffle changes the
+    /// dissolve; a switch or fitted polynomial would only encode the same arbitrary choices.
+    /// Full native bytes, consumers, bounded-generator checks and the distinction from
+    /// an impossibility claim are recorded in crocomireColumnOrderRetentionReview in the
+    /// #1165 inventory. This exception does not cover the separately computed masks.
     /// </remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
@@ -37,10 +40,11 @@ internal static class CrocomireMeltingDefinitions
     /// results and the complete production erase silhouette. The cartridge
     /// selects the mask by chronological cursor, not by the separately selected
     /// X column. This proof covers only the masks, not that column permutation.
-    /// Investigation: #625 / #673.
+    /// Independently reviewed for #1165 against all original NTSC bytes and pinned
+    /// bank_A4.asm. Implement the exact bit-clear rule; keep cursor bounds and the
+    /// native chronological-index bug. No column permutation is inferred.
     /// </remarks>
-    private static ReadOnlySpan<byte> ColumnMasks =>
-        [0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe];
+    internal const int MaskReferenceAddress = 0xa49bbd;
 
     /// <summary>The number of authored physical columns in the melt permutation.</summary>
     public const int ColumnCount = 49;
@@ -61,6 +65,6 @@ internal static class CrocomireMeltingDefinitions
     {
         if ((uint)cursor >= ColumnCount)
             throw new ArgumentOutOfRangeException(nameof(cursor));
-        return ColumnMasks[cursor & 7];
+        return (byte)(0xff ^ (0x80 >> (cursor & 7)));
     }
 }

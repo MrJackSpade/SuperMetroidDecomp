@@ -4,53 +4,153 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static (ushort Start, int Frames, ushort End)[] SpeedBlockNativeLayouts() =>
+        [(0xc951,7,0xc974),(0xc974,7,0xc997),(0xc997,7,0xc9ba),(0xc9cf,4,0xc9e4),(0xc9e4,4,0xc9f9)];
+
+    private static void VerifySpeedBlockControlMapping(SuperMetroidAddressSpace rom)
+    {
+        var controls = new HashSet<ushort> {0xc928,0xc92c};
+        var ordered = new List<ushort> {0xc928,0xc92a,0xc92c};
+        foreach (var layout in SpeedBlockNativeLayouts())
+        {
+            controls.Add(layout.Start);
+            ordered.Add(layout.Start);
+            int cursor = layout.Start + 3;
+            for (int frame = 0; frame < layout.Frames; frame++, cursor += 4)
+            {
+                controls.Add((ushort)cursor);
+                ordered.Add((ushort)cursor);
+                ordered.Add((ushort)(cursor + 2));
+            }
+            for (; cursor < layout.End; cursor += 2)
+            {
+                controls.Add((ushort)cursor);
+                ordered.Add((ushort)cursor);
+            }
+        }
+        AssertEqual(74,ordered.Count,"speed native word extent");
+        AssertTrue(ordered.SequenceEqual(SpeedBoosterBlockPlmProgramDefinitions.MechanicsWordAddresses()),"speed complete native word enumeration");
+        var known = ordered.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
+            AssertEqual(known.Contains((ushort)address),found,"speed complete word domain including unused Screw Attack gaps");
+            if (!found) AssertEqual((ushort)0,value,"speed missing word cleared");
+            else if (controls.Contains((ushort)address))
+                AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address),value,"speed native delays, queue, clone/ordinary restore and deletion");
+        }
+    }
+
+    private static void VerifySpeedBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
+    {
+        var addresses = new List<ushort> {0xc92a};
+        foreach (var layout in SpeedBlockNativeLayouts())
+        for (int frame = 0; frame < layout.Frames; frame++)
+            addresses.Add((ushort)(layout.Start + 5 + frame * 4));
+        AssertEqual(30,addresses.Count,"speed native draw extent");
+        foreach (ushort address in addresses)
+        {
+            AssertTrue(SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address,out ushort value),"speed native draw operand owned");
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address),value,"speed native forward/reverse breakup and bomb reveal selection");
+        }
+    }
+
+    private static void VerifySpeedBlockSoundMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xc953,0xc976,0xc999,0xc9d1,0xc9e6];
+        AssertTrue(addresses.SequenceEqual(SpeedBoosterBlockPlmProgramDefinitions.MechanicsByteAddresses()),"speed native sound enumeration");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
+            AssertEqual(addresses.Contains((ushort)address),found,"speed complete packed sound domain");
+            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,value,"speed native sound byte and missing output");
+        }
+    }
+
+    private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
+    {
+        const ushort pointer = 0xa4f3;
+        var exported = SpeedBoosterBlockPlmDrawDefinitions.All.ToArray();
+        AssertEqual(1,exported.Length,"speed reveal export count");
+        AssertEqual(pointer,exported[0].Pointer,"speed reveal export identity");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool found = SpeedBoosterBlockPlmDrawDefinitions.TryGet((ushort)address,out var draw);
+            AssertEqual(address == pointer,found,"speed reveal full pointer domain");
+            if (!found)
+            {
+                AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
+                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDrawDefinitions.VisualId((ushort)address),"speed reveal rejects unknown visual identity");
+            }
+        }
+        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDrawDefinitions.VisualId(pointer),"speed reveal stable semantic ID");
+        AssertTrue(SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
+        {
+            AssertTrue(!SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
+            AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
+        }
+        ushort nativeWord = ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2));
+        AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,"speed reveal calculated physical word");
+        foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
+        {
+            AssertEqual(pointer,draw.Pointer,"speed reveal DTO identity");
+            AssertEqual(1,draw.Runs.Length,"speed reveal single run");
+            var run = draw.Runs.Span[0];
+            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
+            AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
+            AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.NextX,"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.NextY,"speed reveal native terminal Y");
+        }
+    }
+
+    private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
+        VerifySpeedBlockSelectionField(rom, instruction: false);
+
+    private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
+        VerifySpeedBlockSelectionField(rom, instruction: true);
+
+    private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
+    {
+        // Original bank-94 speed-entry locations, independent of named C# results.
+        (byte Bts, int Area, int Address)[] entries =
+            [(0x0e,-1,0x949155),(0x0f,-1,0x949157),(0x82,1,0x9491fd),
+             (0x83,1,0x9491ff),(0x84,1,0x949201),(0x85,1,0x949203)];
+        for (int area = 0; area <= byte.MaxValue; area++)
+        for (int bts = 0; bts <= byte.MaxValue; bts++)
+        {
+            int tableAddress = 0;
+            foreach (var entry in entries)
+                if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
+                    tableAddress = entry.Address;
+            bool found = SpeedBoosterBlockPlmDefinitions.TryResolve(new RoomBlockBehavior((byte)bts),
+                (AreaId)(byte)area,out var definition);
+            AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
+            if (!found)
+            {
+                AssertEqual(default(SpeedBoosterBlockPlmDefinition),definition,"speed selector missing definition cleared");
+                continue;
+            }
+            ushort header = ReadBotwoonInstructionWord(rom,tableAddress);
+            AssertEqual((ushort)0xcdea,ReadBotwoonInstructionWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
+            ushort expected = instruction ? ReadBotwoonInstructionWord(rom,0x840000 | (header + 2)) : header;
+            AssertEqual(expected,instruction ? definition.InstructionPointer : definition.HeaderPointer,
+                instruction ? "speed native selected instruction" : "speed native selected header");
+        }
+    }
+
     private static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] words = SpeedBoosterBlockPlmProgramDefinitions
-            .MechanicsWordAddresses().Order().ToArray();
-        ushort[] bytes = SpeedBoosterBlockPlmProgramDefinitions
-            .MechanicsByteAddresses().Order().ToArray();
-        AssertEqual(74, words.Length,
-            "five speed-block lists and bomb reveal have 74 compiled words");
-        AssertEqual(5, bytes.Length,
-            "five speed-block lists have five compiled sound operands");
-        AssertEqual(words.Length, words.Distinct().Count(),
-            "speed-block program word addresses are unique");
-        foreach (ushort pointer in words)
-        {
-            AssertTrue(SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(
-                    pointer, out ushort value),
-                $"speed-block control word $84:{pointer:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | pointer) |
-                    rom.ReadByte(0x840000 | (pointer + 1)) << 8),
-                value, $"speed-block control word $84:{pointer:X4} matches ROM");
-        }
-        foreach (ushort pointer in bytes)
-        {
-            AssertTrue(SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte(
-                    pointer, out byte value),
-                $"speed-block sound operand $84:{pointer:X4} is compiled");
-            AssertEqual(rom.ReadByte(0x840000 | pointer), value,
-                $"speed-block sound operand $84:{pointer:X4} matches ROM");
-        }
-        AssertTrue(!SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(
-                0xc9ba, out _),
-            "unused Screw Attack list remains outside the reachable Speed Booster domain");
+        VerifySpeedBlockHeaderSelection(rom);
+        VerifySpeedBlockInstructionSelection(rom);
+        VerifySpeedBlockControlMapping(rom);
+        VerifySpeedBlockDrawOperandMapping(rom);
+        VerifySpeedBlockSoundMapping(rom);
 
-        RoomPlmShotBlockDrawDefinitions.DrawList reveal =
-            SpeedBoosterBlockPlmDrawDefinitions.BombReveal;
-        AssertEqual((ushort)1, reveal.Runs.Span[0].DirectionAndCount,
-            "bombed speed-block reveal has one physical block");
-        AssertEqual((ushort)0xb0b6, reveal.Runs.Span[0].LevelWords.Span[0],
-            "bombed speed-block reveal retains native type-B collision");
-        ushort drawPointer = reveal.Pointer;
-        byte[] expectedDraw = [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00];
-        for (int offset = 0; offset < expectedDraw.Length; offset++)
-            AssertEqual(rom.ReadByte(0x840000 | (drawPointer + offset)),
-                expectedDraw[offset],
-                $"bombed speed-block draw byte {offset} matches ROM");
+        VerifySpeedBlockRevealDrawMapping(rom);
 
         var cases = new (RoomBlockBehavior Bts, AreaId Area, bool Respawns)[]
         {

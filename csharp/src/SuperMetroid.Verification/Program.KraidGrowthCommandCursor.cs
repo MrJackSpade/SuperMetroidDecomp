@@ -32,7 +32,7 @@ internal static partial class Program
         var body = enemies.Slots[0];
         var foot = enemies.Slots[5];
         body.EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
-        state.HealthEighthThresholds[6] = 875;
+        state.InitialHealth = 1000;
         body.Health = 874;
         body.VariableB = 0x96e2;
         execute(body, state);

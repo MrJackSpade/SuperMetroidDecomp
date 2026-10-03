@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -12,6 +13,10 @@ internal static partial class Program
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyBombTorizoStatueInitialDurations(rom);
+        VerifyStatueProgramControlLayout(rom);
+        VerifyStatueProgramPresentationLayout();
+        VerifyStatueFragmentVisualMapping(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount;
@@ -48,7 +53,7 @@ internal static partial class Program
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
             ushort program = BombTorizoStatueInstructionProgramDefinitions.Program(index);
             ushort initialDuration =
-                BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index * 6).Value;
+                (ushort)(rom.ReadByte(0x860000 | program) | rom.ReadByte(0x860000 | (program + 1)) << 8);
             AssertEqual(program, fragment.InstructionPointer,
                 $"Bomb Torizo statue fragment {index} uses compiled program");
 
@@ -56,6 +61,8 @@ internal static partial class Program
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
                 process.Invoke(enemies, [fragment, null, (ushort)0, (ushort)0]);
+                AssertEqual((ushort)(program + (frame <= initialDuration ? 2 : 13)), fragment.PresentationOperandAddress,
+                    "statue fragment presents the native operand on the exact delay/falling tick" );
                 AssertTrue(fragment.IsActive,
                     $"Bomb Torizo statue fragment {index} remains active through frame {frame}");
                 if (frame == initialDuration + 1)
@@ -75,9 +82,9 @@ internal static partial class Program
                 $"Bomb Torizo statue fragment {index} deletes after {visibleFrames} visible frames");
         }
 
-        AssertEqual(BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Bomb Torizo statue-fragment spritemaps remain cartridge reads");
+            "Bomb Torizo statue fragments use installed presentation operands without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Bomb Torizo statue mechanics byte");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -109,6 +116,105 @@ internal static partial class Program
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    private static void VerifyStatueFragmentVisualMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
+            0xa509,0xa514,0xa51a,0xa525,0xa52b,0xa536,0xa53c,0xa547,
+            0xa54d,0xa558,0xa55e,0xa569,0xa56f,0xa57a,0xa580,0xa58b,
+            0xa591,0xa59c,0xa5a2,0xa5ad,0xa5b3,0xa5be,0xa5c4,0xa5cf];
+        foreach (ushort operand in operands)
+        {
+            int address = 0x860000 | operand;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operand), "statue native sprite selector");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,operand,out ushort shared), "statue shared selector found");
+            AssertEqual(native, shared, "statue shared native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(address), "statue excluded from literal regeneration");
+        }
+        foreach (ushort pointer in new ushort[] {0x8dfb,0x8e02,0x8e09,0x8e10,0x8e17,0x8e1e,0x8e25,0x8e2c,
+            0x8e33,0x8e3a,0x8e41,0x8e48,0x8e4f,0x8e56,0x8e5d,0x8e64})
+            AssertEqual((ushort)1, (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8), "statue native one-entry sprite record");
+        var known = operands.ToHashSet();
+        for (int address = 0xa4c1; address <= 0xa5d4; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt((ushort)address), "statue visual resolver rejects controls, packed audio and other holes");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86,(ushort)address,out ushort missing), "statue shared holes rejected");
+                AssertEqual((ushort)0, missing, "statue missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(address), "statue distant invalid visual operand");
+    }
+    private static void VerifyStatueProgramControlLayout(SuperMetroidAddressSpace rom)
+    {
+        ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
+            0xa54b,0xa55c,0xa56d,0xa57e,0xa58f,0xa5a0,0xa5b1,0xa5c2];
+        // Native instruction encoding: duration at zero, sound opcode at four,
+        // packed sound byte at six, preinstruction opcode/argument at seven/nine,
+        // second duration at eleven and delete at fifteen.
+        int[] offsets = [0,4,7,9,11,15];
+        var words = new HashSet<ushort>();
+        var bytes = new HashSet<int>();
+        int index = 0;
+        foreach (ushort start in starts)
+        foreach (int offset in offsets)
+        {
+            ushort address = (ushort)(start + offset);
+            var actual = BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index++);
+            ushort native = (ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8);
+            AssertEqual(address, actual.Address, "statue native control layout order");
+            AssertEqual(native, actual.Value, "statue enumerated native control word");
+            AssertEqual(native, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue direct native control word");
+            words.Add(address); bytes.Add(address); bytes.Add(address + 1);
+        }
+        AssertEqual(index, BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount, "statue complete control count");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), BombTorizoStatueInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "statue full byte ownership excludes packed audio and visuals");
+            AssertEqual(bytes.Contains(address), BombTorizoStatueInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address), "statue existing high-bit alias");
+            AssertTrue(!BombTorizoStatueInstructionProgramDefinitions.IsCompiledMechanicsByte(0x870000 | address), "statue rejects other bank");
+        }
+        for (int address = 0xa4c1; address <= 0xa5d4; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "statue rejects non-control starts including packed sound bytes");
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue distant invalid control");
+    }
+    private static void VerifyStatueProgramPresentationLayout()
+    {
+        ushort[] expected = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
+            0xa509,0xa514,0xa51a,0xa525,0xa52b,0xa536,0xa53c,0xa547,
+            0xa54d,0xa558,0xa55e,0xa569,0xa56f,0xa57a,0xa580,0xa58b,
+            0xa591,0xa59c,0xa5a2,0xa5ad,0xa5b3,0xa5be,0xa5c4,0xa5cf];
+        AssertEqual(expected.Length, BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount, "statue native visual operand count");
+        for (int i = 0; i < expected.Length; i++)
+            AssertEqual(expected[i], BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(i), "statue native visual operand order");
+        var words = expected.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(words.Contains((ushort)address), BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address), "statue full visual membership excludes packed sound bytes");
+        foreach (int index in new[] {int.MinValue,-1,32,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index), "statue visual ordinal bounds");
+    }
+    private static void VerifyBombTorizoStatueInitialDurations(SuperMetroidAddressSpace rom)
+    {
+        ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
+            0xa54b,0xa55c,0xa56d,0xa57e,0xa58f,0xa5a0,0xa5b1,0xa5c2];
+        AssertEqual(starts.Length, BombTorizoStatueInstructionProgramDefinitions.ProgramCount, "statue native program count");
+        for (int i = 0; i < starts.Length; i++)
+        {
+            int address = 0x860000 | starts[i];
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(starts[i], BombTorizoStatueInstructionProgramDefinitions.Program(i), "statue native start position");
+            var enumerated = BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(i * 6);
+            AssertEqual(starts[i], enumerated.Address, "statue delay word position");
+            AssertEqual(native, enumerated.Value, "statue enumerated native initial duration");
+            AssertEqual(native, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(starts[i]), "statue direct native initial duration");
+        }
+        foreach (int index in new[] {int.MinValue,-1,16,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.Program(index), "statue initial duration program domain");
+        foreach (int index in new[] {int.MinValue,-1,96,int.MaxValue})
+            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index), "statue initial duration enumeration domain");
+    }
     private static int ProbeBombTorizoStatueInstructionMechanicsAllocation()
     {
         int checksum = 0;

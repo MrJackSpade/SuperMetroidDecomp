@@ -1,95 +1,117 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Complete bank-$84 physical level-word draw lists for the downward-gate column
-/// and its four left/right shot-trigger pairs. Gate actor sprites are bank-$86 art.
+/// Downward-gate physical draws at $84:A517..A56A and A5D7..A626. Six vertical
+/// five-cell frames fill one additional shootable row per step; the top tile is
+/// stationary at the endpoints and moving in between. Four trigger colors use
+/// consecutive descending tiles, mirrored on the right. Gameplay evaluates cells
+/// directly; temporary DTOs preserve the artwork import/export interface.
 /// </summary>
 internal static class DownwardGatePlmDrawDefinitions
 {
-    /// <summary>First five-block closed-gate column at $84:A517.</summary>
+    /// <summary>$84:A517: first five-block open-gate column, fourteen bytes per frame.</summary>
     private const ushort ResidentFirst = 0xa517;
-    /// <summary>First left-side gate-trigger draw at $84:A5D7.</summary>
+    /// <summary>$84:A5D7: blue-left trigger; color pairs occupy twenty bytes.</summary>
     private const ushort TriggerLeftFirst = 0xa5d7;
 
-    private static readonly Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-    private static readonly Dictionary<ushort, string> VisualIds = BuildVisualIds();
-
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
-
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        Lists.TryGetValue(pointer, out list);
-
-    internal static string VisualId(ushort pointer) =>
-        VisualIds.TryGetValue(pointer, out string? id)
-            ? id
-            : throw new InvalidDataException($"Downward gate draw list ${pointer:X4} has no visual ID.");
-
-    internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal readonly record struct Draw(ushort Pointer, bool Column, int Frame, bool Right)
     {
-        foreach ((ushort pointer, string candidate) in VisualIds)
-            if (string.Equals(id, candidate, StringComparison.Ordinal))
-                return Lists.TryGetValue(pointer, out list);
-        list = default;
+        internal int RunCount => Column || Right ? 1 : 2;
+        internal int WordCount(int run)
+        {
+            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            return Column ? 5 : Right ? 2 : 1;
+        }
+        internal ushort DirectionAndCount(int run) =>
+            (ushort)(WordCount(run) | (Column ? 0x8000 : 0));
+        internal sbyte NextX(int run)
+        {
+            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
+        }
+        internal ushort WordAt(int run, int word)
+        {
+            if ((uint)word >= WordCount(run)) throw new IndexOutOfRangeException();
+            if (Column)
+                return word == 0 ? (Frame is 0 or 5 ? (ushort)0xc0d6 : (ushort)0xc0d7) :
+                    (ushort)(0xff | (word <= Frame ? 0xc000 : 0));
+            if (run == 0 && word == 0) return 0x80d6;
+            return (ushort)(0xc0db - Frame + (Right ? 0x400 : 0));
+        }
+    }
+
+    /// <summary>Accepts only six column starts and eight trigger starts; gaps belong to upward gates.</summary>
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        draw = default;
+        int columnOffset = pointer - ResidentFirst;
+        if (columnOffset >= 0 && columnOffset <= 70 && columnOffset % 14 == 0)
+        {
+            draw = new(pointer, true, columnOffset / 14, false);
+            return true;
+        }
+        int triggerOffset = pointer - TriggerLeftFirst;
+        if (triggerOffset >= 0 && triggerOffset <= 72 && triggerOffset % 20 is 0 or 12)
+        {
+            draw = new(pointer, false, triggerOffset / 20, triggerOffset % 20 == 12);
+            return true;
+        }
         return false;
     }
 
-    private static Dictionary<ushort, string> BuildVisualIds()
+    private static IEnumerable<ushort> Pointers()
     {
-        var ids = new Dictionary<ushort, string>();
-        for (int frame = 0; frame < 6; frame++)
-            ids.Add(checked((ushort)(ResidentFirst + frame * 14)), $"column-frame-{frame}");
-        string[] colors = ["blue", "green", "red", "yellow"];
-        for (int color = 0; color < colors.Length; color++)
-        {
-            ushort left = checked((ushort)(TriggerLeftFirst + color * 20));
-            ids.Add(left, $"{colors[color]}-left-trigger");
-            ids.Add(checked((ushort)(left + 12)), $"{colors[color]}-right-trigger");
-        }
-        if (ids.Count != Lists.Count)
-            throw new InvalidDataException("Downward gate visual IDs do not cover all draw lists.");
-        return ids;
-    }
-
-    private static Dictionary<ushort,
-        RoomPlmShotBlockDrawDefinitions.DrawList> Build()
-    {
-        var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>();
-        for (int frame = 0; frame < 6; frame++)
-        {
-            ushort[] words = new ushort[5];
-            words[0] = frame is 0 or 5 ? (ushort)0xc0d6 : (ushort)0xc0d7;
-            for (int row = 1; row < words.Length; row++)
-                words[row] = row <= frame ? (ushort)0xc0ff : (ushort)0x00ff;
-            ushort pointer = checked((ushort)(ResidentFirst + frame * 14));
-            Add(lists, pointer,
-                new RoomPlmShotBlockDrawDefinitions.Run(0x8005, words, 0, 0));
-        }
-
+        for (int frame = 0; frame < 6; frame++) yield return (ushort)(ResidentFirst + frame * 14);
         for (int color = 0; color < 4; color++)
         {
-            ushort left = checked((ushort)(TriggerLeftFirst + color * 20));
-            ushort right = checked((ushort)(left + 12));
-            ushort sideWord = checked((ushort)(0xc0db - color));
-            Add(lists, left,
-                new(1, new ushort[] { 0x80d6 }, -1, 0),
-                new(1, new ushort[] { sideWord }, 0, 0));
-            Add(lists, right,
-                new RoomPlmShotBlockDrawDefinitions.Run(2,
-                    new ushort[] { 0x80d6, checked((ushort)(sideWord + 0x0400)) }, 0, 0));
+            yield return (ushort)(TriggerLeftFirst + color * 20);
+            yield return (ushort)(TriggerLeftFirst + color * 20 + 12);
         }
-
-        return lists;
     }
 
-    private static void Add(
-        Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList> lists,
-        ushort pointer,
-        params RoomPlmShotBlockDrawDefinitions.Run[] runs)
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
-        if (!lists.TryAdd(pointer, new(pointer, runs)))
-            throw new InvalidDataException($"Duplicate compiled gate draw list ${pointer:X4}.");
+        get
+        {
+            foreach (ushort pointer in Pointers())
+            {
+                TryGet(pointer, out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[draw.WordCount(run)];
+            for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
+            runs[run] = new(draw.DirectionAndCount(run), words, draw.NextX(run), 0);
+        }
+        list = new(pointer, runs);
+        return true;
+    }
+
+    internal static string VisualId(ushort pointer)
+    {
+        if (!TryDescribe(pointer, out var draw))
+            throw new InvalidDataException($"Downward gate draw list ${pointer:X4} has no visual ID.");
+        if (draw.Column) return $"column-frame-{draw.Frame}";
+        // Keep published artwork IDs: the historic green/red names differ from native order.
+        string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
+        return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
+    }
+
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (ushort pointer in Pointers())
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal))
+                return TryGet(pointer, out list);
+        list = default;
+        return false;
     }
 }

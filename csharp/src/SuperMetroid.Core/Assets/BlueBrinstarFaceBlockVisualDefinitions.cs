@@ -14,21 +14,26 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
 
     internal static EnemySpritemapDefinition[] Frames() =>
     [
-        new(Bank, 0xe92c, "face_block_neutral"),
-        new(Bank, 0xe942, "face_block_samus_left_1"),
-        new(Bank, 0xe958, "face_block_samus_left_2"),
-        new(Bank, 0xe96e, "face_block_samus_right_1"),
-        new(Bank, 0xe984, "face_block_samus_right_2"),
+        new(Bank, MapPointer(0), "face_block_neutral"),
+        new(Bank, MapPointer(1), "face_block_samus_left_1"),
+        new(Bank, MapPointer(2), "face_block_samus_left_2"),
+        new(Bank, MapPointer(3), "face_block_samus_right_1"),
+        new(Bank, MapPointer(4), "face_block_samus_right_2"),
     ];
 
     /// <summary>Only the seven visual operands in the three native programs.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
-        if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(
-                operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
+        if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        {
+            int offset = operandAddress - BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft;
+            if (offset >= 28) return MapPointer(0);
+            int frame = (offset % 14 - 2) / 4;
+            return MapPointer(frame == 0 ? 0 : frame + 2 * (offset / 14));
+        }
         throw new InvalidDataException(
             $"Face-block visual operand $A8:{operandAddress:X4} is not compiled.");
     }
+    // Two-byte count plus four five-byte OAM records per map.
+    private static ushort MapPointer(int pose) => (ushort)(0xe92c + 22 * pose);
 }

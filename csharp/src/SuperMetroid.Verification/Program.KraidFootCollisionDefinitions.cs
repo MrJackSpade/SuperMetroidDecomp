@@ -31,29 +31,11 @@ internal static partial class Program
             .. Enumerable.Range(0, KraidFootCollisionDefinitions.FrameCount)
                 .Select(KraidFootCollisionDefinitions.FramePointer),
         ];
-        foreach (ushort frame in frames)
-        {
-            AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(
-                    frame, out var components),
-                $"Kraid foot frame $A7:{frame:X4} has compiled physical components");
-            AssertEqual(2, components.Length,
-                $"Kraid foot frame $A7:{frame:X4} native component count");
-            AssertEqual(2, rom.ReadByte(0xa70000 | frame),
-                $"Kraid foot frame $A7:{frame:X4} native header");
-            for (int index = 0; index < components.Length; index++)
-            {
-                KraidFootCollisionComponent component = components.Span[index];
-                ushort record = unchecked((ushort)(frame + 2 + index * 8));
-                AssertEqual(unchecked((short)ReadWord(record)), component.X,
-                    $"Kraid foot frame $A7:{frame:X4} component {index} X");
-                AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(record + 2)))),
-                    component.Y,
-                    $"Kraid foot frame $A7:{frame:X4} component {index} Y");
-                AssertEqual(ReadWord(unchecked((ushort)(record + 6))),
-                    component.HitboxPointer,
-                    $"Kraid foot frame $A7:{frame:X4} component {index} hitbox list");
-            }
-        }
+        VerifyKraidFootFirstX(rom);
+        VerifyKraidFootFirstY(rom);
+        VerifyKraidFootSecondX(rom);
+        VerifyKraidFootSecondY(rom);
+        VerifyKraidFootSharedHitbox(rom);
 
         for (int index = 0;
              index < KraidFootInstructionProgramDefinitions.PresentationWordCount;
@@ -65,24 +47,9 @@ internal static partial class Program
                 $"Kraid foot instruction $A7:{address:X4} selects compiled physical frame");
         }
 
-        ReadOnlySpan<KraidFootCollisionHitbox> hitboxes =
+        KraidFootHitboxSequence hitboxes =
             KraidFootCollisionDefinitions.HitboxesAt(KraidFootCollisionDefinitions.HitboxList);
-        AssertEqual(1, hitboxes.Length, "Kraid foot shared physical hitbox count");
-        AssertEqual(1, ReadWord(KraidFootCollisionDefinitions.HitboxList),
-            "Kraid foot native shared hitbox count");
         KraidFootCollisionHitbox box = hitboxes[0];
-        ushort hitboxRecord = unchecked((ushort)(KraidFootCollisionDefinitions.HitboxList + 2));
-        AssertEqual(unchecked((short)ReadWord(hitboxRecord)), box.Left, "Kraid foot hitbox left");
-        AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(hitboxRecord + 2)))),
-            box.Top, "Kraid foot hitbox top");
-        AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(hitboxRecord + 4)))),
-            box.Right, "Kraid foot hitbox right");
-        AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(hitboxRecord + 6)))),
-            box.Bottom, "Kraid foot hitbox bottom");
-        AssertEqual(ReadWord(unchecked((ushort)(hitboxRecord + 8))),
-            box.TouchAi, "Kraid foot touch callback");
-        AssertEqual(ReadWord(unchecked((ushort)(hitboxRecord + 10))),
-            box.ShotAi, "Kraid foot shot callback");
 
         int probes = 0;
         foreach (ushort frame in frames)
@@ -96,7 +63,7 @@ internal static partial class Program
             nativeFoot.XPosition = installedFoot.XPosition = originX;
             nativeFoot.YPosition = installedFoot.YPosition = originY;
             KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
-            foreach (KraidFootCollisionComponent component in components.Span)
+            foreach (KraidFootCollisionComponent component in components)
             {
                 ushort componentX = unchecked((ushort)(originX + component.X));
                 ushort componentY = unchecked((ushort)(originY + component.Y));

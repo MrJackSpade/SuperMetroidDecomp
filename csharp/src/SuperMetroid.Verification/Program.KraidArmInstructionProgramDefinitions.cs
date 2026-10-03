@@ -14,20 +14,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         VerifyKraidArmCollisionDefinitions(rom);
-        AssertEqual(66, KraidArmInstructionProgramDefinitions.MechanicsWordCount,
-            "Kraid arm compiled mechanics word count");
-        AssertEqual(57, KraidArmInstructionProgramDefinitions.PresentationWordCount,
-            "Kraid arm live presentation word count");
-        for (int index = 0;
-             index < KraidArmInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            KraidArmInstructionMechanicsWord definition =
-                KraidArmInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadKraidArmInstructionWord(rom, definition.Address),
-                $"Kraid arm mechanics word $A7:{definition.Address:X4}");
-        }
+        VerifyKraidArmGeneratedMechanics(rom);
+        VerifyKraidArmGeneratedPresentation(rom);
 
         var guard = new KraidArmInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateKraidArmInstructionSystem(guard);
@@ -63,7 +51,7 @@ internal static partial class Program
             arm.CurrentInstruction,
             "Kraid arm dying/lunge program reaches terminal sleep");
 
-        body.Health = 49;
+        body.Health = 51;
         arm.CurrentInstruction = 0x8a3b;
         arm.InstructionTimer = 1;
         InvokeKraidArmInstructionProcessor(process, enemies, arm);
@@ -112,7 +100,7 @@ internal static partial class Program
             "_bus",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, bus);
         var state = new KraidEnemyState();
-        state.HealthEighthThresholds[3] = 50;
+        state.InitialHealth = 104;
         typeof(RoomEnemySystem).GetField(
             "_kraidState",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, state);

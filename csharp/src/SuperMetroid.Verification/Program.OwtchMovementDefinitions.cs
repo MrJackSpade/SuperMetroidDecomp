@@ -6,24 +6,10 @@ internal static partial class Program
 {
     private static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int distanceTable = 0xa2a3dd;
-        const int timerTable = 0xa2a3ed;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        for (byte index = 0; index < 8; index++)
-        {
-            int address = distanceTable + index * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-            AssertEqual(native, OwtchMovementDefinitions.TravelDistance(index),
-                $"compiled Owtch travel distance {index}");
-        }
-        for (byte index = 0; index < 6; index++)
-        {
-            int address = timerTable + index * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-            AssertEqual(native, OwtchMovementDefinitions.UndergroundTimer(index),
-                $"compiled Owtch underground timer {index}");
-        }
+        VerifyOwtchTravelDistanceAlgorithm(rom);
+        VerifyOwtchUndergroundTimerAlgorithm(rom);
 
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -59,17 +45,36 @@ internal static partial class Program
             }
         }
 
-        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(8),
-            "Owtch travel distance beyond authored table");
-        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(6),
-            "Owtch underground timer beyond authored table");
-        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(byte.MaxValue),
-            "Owtch restored travel selector does not read adjacent code");
-        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(byte.MaxValue),
-            "Owtch restored timer selector does not read adjacent code");
 
         Console.WriteLine(
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
+    }
+
+    private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(8), "Owtch distance upper bound");
+        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(byte.MaxValue), "Owtch distance maximum invalid input");
+        for (byte index = 0; index < 8; index++)
+        {
+            int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, OwtchMovementDefinitions.TravelDistance(index),
+                $"compiled Owtch travel distance {index}");
+        }
+    }
+
+    private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(6), "Owtch timer upper bound");
+        AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(byte.MaxValue), "Owtch timer maximum invalid input");
+        for (byte index = 0; index < 6; index++)
+        {
+            int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, OwtchMovementDefinitions.UndergroundTimer(index),
+                $"compiled Owtch underground timer {index}");
+        }
+
     }
 
     private sealed class OwtchMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

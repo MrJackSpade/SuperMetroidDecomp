@@ -5,23 +5,19 @@ internal static partial class Program
 {
     private static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = MotherBrainFakeDeathPlmProgramDefinitions
-            .NativeWordAddresses().ToArray();
-        AssertEqual(66, addresses.Length,
-            "Mother Brain fake death owns twenty-two three-word programs");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(MotherBrainFakeDeathPlmProgramDefinitions
-                    .TryReadMechanicsWord(address, out ushort compiled),
-                $"Mother Brain fake-death instruction ${address:X4} is compiled");
-            AssertEqual(ReadWord(rom, address), compiled,
-                $"Mother Brain fake-death instruction ${address:X4} matches ROM");
-        }
-        AssertTrue(!MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(
-                MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive, out _),
-            "following native region is not claimed as fake-death instructions");
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain mutation oracle revision");
+        VerifyMotherBrainMutationProgramControls(rom);
+        VerifyMotherBrainMutationProgramDraws(rom);
+        VerifyMotherBrainRegularDrawMapping(rom);
+        VerifyMotherBrainBackgroundGeometry(rom);
+        VerifyMotherBrainBackgroundCollision(rom);
+        VerifyMotherBrainBoundaryGeometry(rom);
+        VerifyMotherBrainBoundaryCollision(rom);
+        VerifyMotherBrainWallVisuals(rom);
+        VerifyMotherBrainDoorVisuals(rom);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
@@ -39,31 +35,6 @@ internal static partial class Program
                 MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out _),
                 $"Mother Brain program ${pointer - 2:X4} selects a compiled draw");
         }
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
-        {
-            int cursor = draw.Pointer;
-            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
-            {
-                AssertEqual(ReadWord(rom, cursor), run.DirectionAndCount,
-                    $"Mother Brain draw ${draw.Pointer:X4} direction/count at ${cursor:X4}");
-                cursor += 2;
-                foreach (ushort word in run.LevelWords.Span)
-                {
-                    AssertEqual(ReadWord(rom, cursor), word,
-                        $"Mother Brain draw ${draw.Pointer:X4} block at ${cursor:X4}");
-                    cursor += 2;
-                }
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
-                    $"Mother Brain draw ${draw.Pointer:X4} X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
-                    $"Mother Brain draw ${draw.Pointer:X4} Y offset");
-            }
-            AssertTrue(cursor <= MotherBrainFakeDeathPlmDrawDefinitions.EndExclusive,
-                $"Mother Brain draw ${draw.Pointer:X4} remains in its bounded region");
-        }
-
         (ushort Header, ushort Program)[] reachable =
         [
             (RoomPlmHeaders.FillMotherBrainsWall, RoomPlmInstructionLists.FillMotherBrainsWall),
@@ -93,9 +64,6 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(0x840000 | address) |
-                bus.ReadByte(0x840000 | (address + 1)) << 8);
     }
 
     private static void VerifyMotherBrainFakeDeathMutation(

@@ -28,17 +28,6 @@ internal static partial class Program
                 $"PLM instruction list {field.Name} uses readable bank-$84 space");
         }
 
-        AssertEqual(8, RoomPlmInstructionLists.CollisionBombByReactionIndex.Length,
-            "collision-bomb instruction table preserves all native reactions");
-        AssertEqual(8, RoomPlmInstructionLists.ReactionBombByReactionIndex.Length,
-            "reaction-bomb instruction table preserves all native reactions");
-        AssertEqual(4, RoomPlmInstructionLists.RespawningShotBySize.Length,
-            "respawning shot instruction table preserves all native sizes");
-        AssertEqual(4, RoomPlmInstructionLists.PermanentShotBySize.Length,
-            "permanent shot instruction table preserves all native sizes");
-        AssertEqual(4, RoomPlmInstructionLists.CrumbleRevealBySize.Length,
-            "crumble-reveal instruction table preserves all native sizes");
-
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {

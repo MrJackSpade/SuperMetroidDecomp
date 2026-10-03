@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -12,6 +13,9 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        VerifyBotwoonProjectileControlMapping(rom);
+        VerifyBotwoonProjectileOperandMapping(rom);
+        VerifyBotwoonProjectileProgramEnumeration();
         for (int index = 0;
              index < BotwoonProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -69,7 +73,7 @@ internal static partial class Program
             ushort program = BotwoonProjectileInstructionProgramDefinitions.BodyProgram(index);
             body.InstructionPointer = program;
             body.InstructionTimer = 1;
-            Run(body, 5);
+            Run(body, 5, program, index < 8 ? 4 : 1, index < 8 ? (ushort)8 : (ushort)1);
         }
 
         spawnSpit(head, 0x40, 0x0180);
@@ -78,13 +82,12 @@ internal static partial class Program
         AssertEqual(BotwoonProjectileInstructionProgramDefinitions.Spit,
             spit.InstructionPointer,
             "real Botwoon spit producer selects the compiled animation loop");
-        Run(spit, 6);
+        Run(spit, 6, 0xebae, 5, 3);
         AssertEqual((ushort)0x0003, spit.InstructionTimer,
             "Botwoon spit loop retains its three-frame cadence");
 
-        AssertEqual(BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Botwoon body, tail, hidden, and spit spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Botwoon body, tail, hidden, and spit selectors use installed definitions");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Botwoon projectile mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -104,16 +107,114 @@ internal static partial class Program
         Console.WriteLine(
             "Botwoon projectile instruction mechanics: seventy-three compiled words, " +
             "all seventeen body/tail programs and the real spit producer pass with " +
-            "forty-six live spritemap reads and mechanics bytes forbidden.");
+            "forty-six installed sprite selectors and mechanics bytes forbidden.");
 
-        void Run(RoomEnemyProjectileSlot projectile, int steps)
+        void Run(RoomEnemyProjectileSlot projectile, int steps, ushort program, int frames, ushort duration)
         {
             for (int step = 0; step < steps; step++)
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                AssertEqual((ushort)(program + 4 * (step % frames) + 2), projectile.PresentationOperandAddress,
+                    "Botwoon projectile exact frame order including loop and sleep");
+                AssertEqual(frames == 1 && step > 0 ? (ushort)0 : duration, projectile.InstructionTimer,
+                    "Botwoon projectile native duration or sleep timer");
             }
         }
+    }
+
+    private static void VerifyBotwoonProjectileProgramEnumeration()
+    {
+        ushort[] programs = [0xe80f,0xe823,0xe837,0xe85f,0xe873,0xe887,0xe89b,0xe8af,
+            0xe8c3,0xe8c9,0xe8cf,0xe8d5,0xe8db,0xe8e1,0xe8e7,0xe8ed,0xe8f3];
+        AssertEqual(programs.Length, BotwoonProjectileInstructionProgramDefinitions.BodyProgramCount, "Botwoon projectile program count");
+        for (int i = 0; i < programs.Length; i++)
+            AssertEqual(programs[i], BotwoonProjectileInstructionProgramDefinitions.BodyProgram(i), "Botwoon native program order excludes unused slot");
+        foreach (int index in new[] {int.MinValue,-1,17,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.BodyProgram(index), "Botwoon program ordinal domain");
+    }
+
+    private static void VerifyBotwoonProjectileControlMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] looping = [0xe80f,0xe823,0xe837,0xe85f,0xe873,0xe887,0xe89b,0xe8af];
+        ushort[] sleeping = [0xe8c3,0xe8c9,0xe8cf,0xe8d5,0xe8db,0xe8e1,0xe8e7,0xe8ed,0xe8f3];
+        var words = new List<ushort>();
+        foreach (ushort program in looping)
+        foreach (int offset in new[] {0,4,8,12,16,18}) words.Add((ushort)(program + offset));
+        foreach (ushort program in sleeping)
+        foreach (int offset in new[] {0,4}) words.Add((ushort)(program + offset));
+        words.AddRange(new ushort[] {0xebae,0xebb2,0xebb6,0xebba,0xebbe,0xebc2,0xebc4});
+        AssertEqual(words.Count, BotwoonProjectileInstructionProgramDefinitions.MechanicsWordCount, "Botwoon projectile native control count");
+        var owned = new HashSet<int>();
+        for (int i = 0; i < words.Count; i++)
+        {
+            ushort address = words[i];
+            var actual = BotwoonProjectileInstructionProgramDefinitions.MechanicsWord(i);
+            ushort native = ReadBotwoonInstructionWord(rom, 0x860000 | address);
+            AssertEqual(address, actual.Address, "Botwoon projectile control enumeration");
+            AssertEqual(native, actual.Value, "Botwoon projectile enumerated native control");
+            AssertEqual(native, BotwoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Botwoon projectile direct native control");
+            owned.Add(address); owned.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(owned.Contains(address), BotwoonProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Botwoon projectile byte ownership");
+            AssertEqual(owned.Contains(address), BotwoonProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address), "Botwoon projectile ownership high-bit aliases");
+            AssertTrue(!BotwoonProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x870000 | address), "Botwoon projectile other bank rejected");
+        }
+        for (int address = 0xe80d; address <= 0xebc7; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => BotwoonProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Botwoon projectile rejects visual words, odd starts, unused slot and adjacent programs");
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => BotwoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Botwoon projectile distant invalid control");
+        foreach (int index in new[] {int.MinValue,-1,73,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.MechanicsWord(index), "Botwoon control ordinal domain");
+    }
+
+    private static void VerifyBotwoonProjectileOperandMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] operands = [0xe811,0xe815,0xe819,0xe81d,0xe825,0xe829,0xe82d,0xe831,
+            0xe839,0xe83d,0xe841,0xe845,0xe861,0xe865,0xe869,0xe86d,
+            0xe875,0xe879,0xe87d,0xe881,0xe889,0xe88d,0xe891,0xe895,
+            0xe89d,0xe8a1,0xe8a5,0xe8a9,0xe8b1,0xe8b5,0xe8b9,0xe8bd,
+            0xe8c5,0xe8cb,0xe8d1,0xe8d7,0xe8dd,0xe8e3,0xe8e9,0xe8ef,0xe8f5,
+            0xebb0,0xebb4,0xebb8,0xebbc,0xebc0];
+        AssertEqual(operands.Length, BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount, "Botwoon projectile operand count");
+        for (int i = 0; i < operands.Length; i++)
+            AssertEqual(operands[i], BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress(i), "Botwoon projectile native operand enumeration");
+        var known = operands.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(known.Contains((ushort)address), BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Botwoon projectile full operand membership");
+        foreach (int index in new[] {int.MinValue,-1,46,int.MaxValue})
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress(index), "Botwoon operand ordinal domain");
+        VerifyBotwoonProjectileVisualMapping(rom, operands);
+    }
+
+    private static void VerifyBotwoonProjectileVisualMapping(SuperMetroidAddressSpace rom, ushort[] nativeOperands)
+    {
+        foreach (ushort operand in nativeOperands)
+        {
+            ushort native = ReadBotwoonInstructionWord(rom, 0x860000 | operand);
+            AssertEqual(native, EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(operand), "Botwoon projectile native sprite pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared), "Botwoon projectile shared selector exists");
+            AssertEqual(native, shared, "Botwoon projectile shared native pointer");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0x860000 | operand), "Botwoon projectile excluded from literal regeneration");
+            AssertEqual(operand == 0xe8f5 ? (ushort)0 : (ushort)1,
+                ReadBotwoonInstructionWord(rom, 0x8d0000 | native), "Botwoon visible single-piece and hidden empty record sizes");
+        }
+        // Unused fourth body direction still occupies four single-entry OAM records.
+        foreach (ushort pointer in new ushort[] {0xb682,0xb689,0xb690,0xb697})
+            AssertEqual((ushort)1, ReadBotwoonInstructionWord(rom, 0x8d0000 | pointer), "Botwoon unused physical map contributes seven bytes");
+        var known = nativeOperands.ToHashSet();
+        for (int address = 0xe80d; address <= 0xebc7; address++)
+            if (!known.Contains((ushort)address))
+            {
+                AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt((ushort)address), "Botwoon projectile visual rejects controls and gaps");
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x86, (ushort)address, out ushort missing), "Botwoon projectile shared gap rejected");
+                AssertEqual((ushort)0, missing, "Botwoon projectile missing output cleared");
+            }
+        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
+            AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(address), "Botwoon projectile distant invalid visual");
     }
 
     private static int ProbeBotwoonProjectileInstructionMechanicsAllocation()

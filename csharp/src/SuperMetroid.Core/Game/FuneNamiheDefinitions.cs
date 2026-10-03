@@ -21,27 +21,27 @@ internal static class FuneNamiheDefinitions
     /// <summary>Sound effect $1F in library two, queued when either actor spits.</summary>
     internal const ushort SpitSoundEffect = 0x001f;
 
-    /// <summary>$A8:96D3-$A8:96E2, active/idle and left/right instruction lists.</summary>
-    private static ReadOnlySpan<ushort> InstructionLists =>
-    [
-        FuneNamiheInstructionProgramDefinitions.FuneActiveLeft,
-        FuneNamiheInstructionProgramDefinitions.FuneActiveRight,
-        FuneNamiheInstructionProgramDefinitions.FuneIdleLeft,
-        FuneNamiheInstructionProgramDefinitions.FuneIdleRight,
-        FuneNamiheInstructionProgramDefinitions.NamiheActiveLeft,
-        FuneNamiheInstructionProgramDefinitions.NamiheActiveRight,
-        FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft,
-        FuneNamiheInstructionProgramDefinitions.NamiheIdleRight,
-    ];
-
+    /// <summary>$A8:96D3-$A8:96E2 selects species, activity and facing.
+    /// The cursor advances by two for right-facing and four for idle programs.</summary>
     internal static ushort InstructionList(ushort cursor)
     {
-        ushort offset = unchecked((ushort)(cursor - 0x96d3));
-        if ((offset & 1) != 0 || offset >= InstructionLists.Length * 2)
-        {
+        int offset = cursor - (FuneIdleLeftCursor - ActiveCursorDelta);
+        if ((uint)offset >= 16 || (offset & 1) != 0)
             throw new InvalidDataException(
                 $"Fune/Namihe instruction selector $A8:{cursor:X4} is not authored.");
-        }
-        return InstructionLists[offset >> 1];
+        bool namihe = offset >= 8;
+        bool idle = (offset & ActiveCursorDelta) != 0;
+        bool right = (offset & FacingRightCursorDelta) != 0;
+        return (namihe, idle, right) switch
+        {
+            (false, false, false) => FuneNamiheInstructionProgramDefinitions.FuneActiveLeft,
+            (false, false, true) => FuneNamiheInstructionProgramDefinitions.FuneActiveRight,
+            (false, true, false) => FuneNamiheInstructionProgramDefinitions.FuneIdleLeft,
+            (false, true, true) => FuneNamiheInstructionProgramDefinitions.FuneIdleRight,
+            (true, false, false) => FuneNamiheInstructionProgramDefinitions.NamiheActiveLeft,
+            (true, false, true) => FuneNamiheInstructionProgramDefinitions.NamiheActiveRight,
+            (true, true, false) => FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft,
+            (true, true, true) => FuneNamiheInstructionProgramDefinitions.NamiheIdleRight,
+        };
     }
 }

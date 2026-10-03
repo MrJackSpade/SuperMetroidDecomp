@@ -8,15 +8,13 @@ internal static partial class Program
     private static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         const int columnTable = 0xa49697;
-        const int maskTable = 0xa49bbd;
+        VerifyCrocomireMaskAlgorithm(rom);
         for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
         {
             AssertEqual(rom.ReadByte(columnTable + cursor),
                 CrocomireMeltingDefinitions.SelectColumn(cursor),
                 $"Crocomire melt column {cursor}");
-            AssertEqual(rom.ReadByte(maskTable + (cursor & 7)),
-                CrocomireMeltingDefinitions.SelectMask(cursor),
-                $"Crocomire melt mask {cursor}");
+
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => CrocomireMeltingDefinitions.SelectColumn(-1),
@@ -33,52 +31,104 @@ internal static partial class Program
             "and source-table read guards pass.");
     }
 
+    private static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int cursor = 0; cursor < 49; cursor++)
+            AssertEqual(rom.ReadByte(CrocomireMeltingDefinitions.MaskReferenceAddress + (cursor & 7)),
+                CrocomireMeltingDefinitions.SelectMask(cursor), $"Original chronological melt mask {cursor}");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(-1), "Mask negative cursor");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
+    }
+    private static ushort CrocomireMeltNativeWord(ISnesAddressSpace bus, int address) =>
+        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
-        static ushort NativeWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8));
+        VerifyCrocomireMeltHeaders(rom);
+        VerifyCrocomireMeltCopies(rom);
+        VerifyCrocomireMeltUploads(rom);
+        VerifyCrocomireMeltingGraphicsProduction(rom);
+    }
 
+    private static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
+    {
+        AssertEqual(2, CrocomireMeltingTransferDefinitions.Passes.Length, "two native melt passes");
+        int index = 0;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
+            AssertEqual((ushort)(index == 0 ? 0 : 0x54), pass.HeaderOffset, "native melt header identity");
+            AssertEqual(index == 0 ? 6 : 7, pass.ChunkCount, "native melt chunk count");
+            AssertEqual(pass, CrocomireMeltingTransferDefinitions.Passes[index++], "melt pass enumeration");
             int header = CrocomireMeltingTransferDefinitions.NativeSourceAddress +
                 pass.HeaderOffset;
-            AssertEqual(pass.MaximumAdjustedDestinationY, NativeWord(rom, header),
+            AssertEqual(pass.MaximumAdjustedDestinationY, CrocomireMeltNativeWord(rom, header),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} maximum Y");
-            AssertEqual(pass.DistortionEndY, NativeWord(rom, header + 2),
+            AssertEqual(pass.DistortionEndY, CrocomireMeltNativeWord(rom, header + 2),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} distortion end Y");
-            AssertEqual(pass.WordsToCopy, NativeWord(rom, header + 4),
+            AssertEqual(pass.WordsToCopy, CrocomireMeltNativeWord(rom, header + 4),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} copy word count");
             AssertEqual(pass.SourceBank, rom.ReadByte(header + 6),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} source bank");
 
+            AssertEqual(pass, CrocomireMeltingTransferDefinitions.Transfers(pass.TransferStartOffset), "melt transfer selector");
+        }
+        AssertEqual((ushort)0xb4, CrocomireMeltingTransferDefinitions.Passes[1].NextHeaderOffset, "native melt record extent");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[-1], "negative melt pass");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[2], "melt pass past end");
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Header(1), "invalid melt header");
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Transfers(0), "header is not transfer start");
+    }
+
+    private static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
+    {
+        foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
+        {
+            var pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
+            int header = 0xa49bc5 + headerOffset;
             for (int index = 0; index < pass.Copies.Length; index++)
             {
                 int source = header + 8 + index * 4;
-                CrocomireMeltingCopy copy = pass.Copies.Span[index];
-                AssertEqual(copy.SourceWord, NativeWord(rom, source),
+                CrocomireMeltingCopy copy = pass.Copies[index];
+                AssertEqual(copy.SourceWord, CrocomireMeltNativeWord(rom, source),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} source");
-                AssertEqual(copy.DestinationWord, NativeWord(rom, source + 2),
+                AssertEqual(copy.DestinationWord, CrocomireMeltNativeWord(rom, source + 2),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} destination");
             }
             int copyEnd = header + 8 + pass.Copies.Length * 4;
-            AssertEqual((ushort)0xffff, NativeWord(rom, copyEnd),
+            AssertEqual((ushort)0xffff, CrocomireMeltNativeWord(rom, copyEnd),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} copy terminator");
             AssertEqual(pass.TransferStartOffset,
                 (ushort)(copyEnd + 2 - CrocomireMeltingTransferDefinitions.NativeSourceAddress),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer start");
 
+            AssertEqual(pass.ChunkCount, pass.Copies.Length, "melt copy domain");
+            int enumerated = 0;
+            foreach (var copy in pass.Copies) AssertEqual(pass.Copies[enumerated++], copy, "melt copy enumeration");
+            AssertEqual(pass.ChunkCount, enumerated, "melt copy enumeration count");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
+        }
+    }
+
+    private static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
+    {
+        foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
+        {
+            var pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
+            int header = 0xa49bc5 + headerOffset;
             for (int index = 0; index < pass.Uploads.Length; index++)
             {
                 int offset = pass.TransferStartOffset + index * 8;
                 int source = CrocomireMeltingTransferDefinitions.NativeSourceAddress + offset;
-                CrocomireMeltingUpload upload = pass.Uploads.Span[index];
-                AssertEqual(upload.ByteCount, NativeWord(rom, source),
+                CrocomireMeltingUpload upload = pass.Uploads[index];
+                AssertEqual(upload.ByteCount, CrocomireMeltNativeWord(rom, source),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} size");
-                AssertEqual(upload.DestinationWord, NativeWord(rom, source + 2),
+                AssertEqual(upload.DestinationWord, CrocomireMeltNativeWord(rom, source + 2),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} destination");
                 AssertEqual(upload.SourceBank, rom.ReadByte(source + 4),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} bank");
-                AssertEqual(upload.SourceWord, NativeWord(rom, source + 6),
+                AssertEqual(upload.SourceWord, CrocomireMeltNativeWord(rom, source + 6),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} source");
                 AssertTrue(CrocomireMeltingTransferDefinitions.TryUpload(offset,
                     out CrocomireMeltingUpload selected) && selected == upload,
@@ -87,7 +137,7 @@ internal static partial class Program
             AssertEqual(pass.TransferEndOffset,
                 (ushort)(pass.TransferStartOffset + pass.Uploads.Length * 8),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer end");
-            AssertEqual((ushort)0xffff, NativeWord(rom,
+            AssertEqual((ushort)0xffff, CrocomireMeltNativeWord(rom,
                 CrocomireMeltingTransferDefinitions.NativeSourceAddress + pass.TransferEndOffset),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer terminator");
             AssertTrue(!CrocomireMeltingTransferDefinitions.TryUpload(
@@ -96,15 +146,19 @@ internal static partial class Program
             AssertEqual(pass.NextHeaderOffset, (ushort)(pass.TransferEndOffset + 2),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} next header");
         }
-        VerifyCrocomireMeltingGraphicsProduction(rom);
-        AssertEqual(CrocomireMeltingTransferDefinitions.NativeByteCount,
-            CrocomireMeltingTransferDefinitions.Passes[^1].NextHeaderOffset,
-            "Crocomire melt compiled table length");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireMeltingTransferDefinitions.TryUpload(0x0054, out _),
-            "Crocomire melt header cannot be used as an upload");
+        foreach (var pass in CrocomireMeltingTransferDefinitions.Passes)
+        {
+            int enumerated = 0;
+            foreach (var upload in pass.Uploads) AssertEqual(pass.Uploads[enumerated++], upload, "melt upload enumeration");
+            AssertEqual(pass.ChunkCount, enumerated, "melt upload enumeration count");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Uploads[-1], "negative melt upload");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Uploads[pass.ChunkCount], "melt upload past end");
+            AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(pass.TransferStartOffset + 1, out _), "misaligned melt upload");
+        }
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0x54, out _), "header is not an upload");
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
     }
-
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -137,7 +191,7 @@ internal static partial class Program
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} production transfer cursor");
 
             var expectedGraphics = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-            foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+            foreach (CrocomireMeltingCopy copy in pass.Copies)
             {
                 int destination = copy.DestinationWord - 0x4000;
                 for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
@@ -149,7 +203,7 @@ internal static partial class Program
             AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} production scratch graphics");
 
-            foreach (CrocomireMeltingUpload record in pass.Uploads.Span)
+            foreach (CrocomireMeltingUpload record in pass.Uploads)
             {
                 upload(state);
                 int source = record.SourceWord - 0x4000;
@@ -256,7 +310,7 @@ internal static partial class Program
         AssertEqual((ushort)2, state.DeathSequenceIndex,
             $"installed Crocomire melt pass ${pass.HeaderOffset:X4} phase timing");
         byte[] scratch = death.MeltingGraphics.ToArray();
-        foreach (CrocomireMeltingUpload record in pass.Uploads.Span)
+        foreach (CrocomireMeltingUpload record in pass.Uploads)
         {
             upload(state);
             int source = record.SourceWord - 0x4000;
@@ -338,7 +392,7 @@ internal static partial class Program
                     throw new InvalidOperationException(
                         $"Crocomire melting attempted installed tilemap read ${address:X6}.");
                 foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
-                foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+                foreach (CrocomireMeltingCopy copy in pass.Copies)
                 {
                     int start = (pass.SourceBank << 16) | copy.SourceWord;
                     if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)

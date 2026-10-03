@@ -2,8 +2,11 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Eight native floor/ceiling plant block layouts at $84:9E0D..9F24. Their
-/// complete level words and signed three-run geometry are immutable physical
-/// data; the visible word portion is supplied by replaceable assets.
+/// level words use consecutive tile pairs, horizontal mouth/foliage mirroring, and
+/// a ceiling vertical flip. Three signed runs draw the right mouth, left mouth and
+/// foliage. Idle alone restores the special-air parent and horizontal extension.
+/// Native unused records after each idle are excluded. No stored draw cache remains;
+/// replaceable assets continue to own the visible portion.
 /// </summary>
 internal static class SamusEaterPlmDrawDefinitions
 {
@@ -24,51 +27,86 @@ internal static class SamusEaterPlmDrawDefinitions
     /// <summary>Native ceiling-chew-3 draw list at $84:9F09.</summary>
     internal const ushort CeilingChew3 = 0x9f09;
 
-    private static readonly RoomPlmShotBlockDrawDefinitions.DrawList[] Lists =
-    [
-        new(FloorIdle, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x35a1, 0x85a0 }, -2, 0),
-            new(0x0002, new ushort[] { 0x81a0, 0x51a1 }, -2, -1),
-            new(0x0004, new ushort[] { 0x2180, 0x2181, 0x2581, 0x2580 }, 0, 0),
-        }),
-        new(FloorChew1, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x05a3, 0x85a2 }, -2, 0),
-            new(0x0002, new ushort[] { 0x81a2, 0x01a3 }, -2, -1),
-            new(0x0004, new ushort[] { 0x2182, 0x2183, 0x2583, 0x2582 }, 0, 0),
-        }),
-        new(FloorChew2, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x05a5, 0x85a4 }, -2, 0),
-            new(0x0002, new ushort[] { 0x81a4, 0x01a5 }, -2, -1),
-            new(0x0004, new ushort[] { 0x2184, 0x2185, 0x2585, 0x2584 }, 0, 0),
-        }),
-        new(FloorChew3, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x05a7, 0x85a6 }, -2, 0),
-            new(0x0002, new ushort[] { 0x81a6, 0x01a7 }, -2, -1),
-            new(0x0004, new ushort[] { 0x2186, 0x2187, 0x2587, 0x2586 }, 0, 0),
-        }),
-        new(CeilingIdle, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x3da1, 0x8da0 }, -2, 0),
-            new(0x0002, new ushort[] { 0x89a0, 0x59a1 }, -2, 1),
-            new(0x0004, new ushort[] { 0x2980, 0x2981, 0x2d81, 0x2d80 }, 0, 0),
-        }),
-        new(CeilingChew1, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x0da3, 0x8da2 }, -2, 0),
-            new(0x0002, new ushort[] { 0x89a2, 0x09a3 }, -2, 1),
-            new(0x0004, new ushort[] { 0x2982, 0x2983, 0x2d83, 0x2d82 }, 0, 0),
-        }),
-        new(CeilingChew2, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x0da5, 0x8da4 }, -2, 0),
-            new(0x0002, new ushort[] { 0x89a4, 0x09a5 }, -2, 1),
-            new(0x0004, new ushort[] { 0x2984, 0x2985, 0x2d85, 0x2d84 }, 0, 0),
-        }),
-        new(CeilingChew3, new RoomPlmShotBlockDrawDefinitions.Run[] {
-            new(0x0002, new ushort[] { 0x0da7, 0x8da6 }, -2, 0),
-            new(0x0002, new ushort[] { 0x89a6, 0x09a7 }, -2, 1),
-            new(0x0004, new ushort[] { 0x2986, 0x2987, 0x2d87, 0x2d86 }, 0, 0),
-        }),
-    ];
+    internal readonly record struct Draw(ushort Pointer, bool Ceiling, int Phase)
+    {
+        internal static int Count(int run) => run switch
+        {
+            0 or 1 => 2,
+            2 => 4,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        internal static sbyte NextX(int run) => run switch
+        {
+            0 or 1 => -2,
+            2 => 0,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        internal sbyte NextY(int run) => run switch
+        {
+            0 or 2 => 0,
+            1 => Ceiling ? (sbyte)1 : (sbyte)-1,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        internal ushort WordAt(int run, int block)
+        {
+            if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
+            int tile, collision, horizontalFlip;
+            if (run == 2)
+            {
+                // Four-wide foliage: two tiles followed by their mirrored pair.
+                tile = 0x180 + Phase * 2 + Math.Min(block, 3 - block);
+                collision = 0x2000;
+                horizontalFlip = block >= 2 ? 0x400 : 0;
+            }
+            else
+            {
+                // Right mouth half precedes the left half in native draw order.
+                tile = 0x1a0 + Phase * 2 + (run == 0 ? 1 - block : block);
+                horizontalFlip = run == 0 ? 0x400 : 0;
+                collision = (run, block) switch
+                {
+                    (0, 1) or (1, 0) => 0x8000,
+                    (0, 0) when Phase == 0 => 0x3000,
+                    (1, 1) when Phase == 0 => 0x5000,
+                    _ => 0,
+                };
+            }
+            return (ushort)(collision | tile | horizontalFlip | (Ceiling ? 0x800 : 0));
+        }
+    }
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists;
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        draw = pointer switch
+        {
+            FloorIdle => new(pointer, false, 0),
+            FloorChew1 => new(pointer, false, 1),
+            FloorChew2 => new(pointer, false, 2),
+            FloorChew3 => new(pointer, false, 3),
+            CeilingIdle => new(pointer, true, 0),
+            CeilingChew1 => new(pointer, true, 1),
+            CeilingChew2 => new(pointer, true, 2),
+            CeilingChew3 => new(pointer, true, 3),
+            _ => default,
+        };
+        return draw.Pointer != 0;
+    }
+
+    // Materialize temporary DTOs only for the existing artwork import/export interface.
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            for (int ceiling = 0; ceiling < 2; ceiling++)
+            for (int phase = 0; phase < 4; phase++)
+            {
+                ushort pointer = (ushort)((ceiling == 0 ? FloorIdle : CeilingIdle) +
+                    (phase == 0 ? 0 : (phase + 1) * 28));
+                TryGet(pointer, out var list);
+                yield return list;
+            }
+        }
+    }
 
     internal static string VisualId(ushort pointer) => pointer switch
     {
@@ -86,7 +124,7 @@ internal static class SamusEaterPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists)
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
         {
             if (!string.Equals(VisualId(candidate.Pointer), id,
                     StringComparison.Ordinal))
@@ -101,14 +139,19 @@ internal static class SamusEaterPlmDrawDefinitions
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists)
+        if (!TryDescribe(pointer, out Draw draw))
         {
-            if (candidate.Pointer != pointer)
-                continue;
-            list = candidate;
-            return true;
+            list = default;
+            return false;
         }
-        list = default;
-        return false;
+        var runs = new RoomPlmShotBlockDrawDefinitions.Run[3];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[Draw.Count(run)];
+            for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
+            runs[run] = new((ushort)words.Length, words, Draw.NextX(run), draw.NextY(run));
+        }
+        list = new(pointer, runs);
+        return true;
     }
 }

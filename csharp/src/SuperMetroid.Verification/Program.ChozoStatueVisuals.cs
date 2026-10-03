@@ -26,15 +26,7 @@ internal static partial class Program
                 SupportedCartridge.Sha256);
             RoomPlmChozoStatueVisualFiles.ValidateStock(
                 installation.RoomPlmChozoStatueVisualDirectory);
-            AssertEqual((ushort)0x012b,
-                installation.LoadRoomPlmChozoStatueVisuals().GetWord(
-                    ChozoStatuePlmDrawDefinitions.ClearSlopeAccess, 0, 0),
-                "stock clear-slope visual matches cartridge");
-            AssertThrows<InvalidDataException>(
-                () => new RoomPlmChozoStatueVisualCatalog(
-                    [new RoomPlmChozoStatueVisualEntry(
-                        "wrecked-ship-clear-slope-access", new ushort[1])]),
-                "Chozo catalog rejects incomplete layout set");
+            VerifyChozoStatueStockMapping(rom, installation.LoadRoomPlmChozoStatueVisuals());
 
             string stockPath = Path.Combine(
                 installation.RoomPlmChozoStatueVisualDirectory,

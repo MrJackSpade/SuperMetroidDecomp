@@ -21,13 +21,20 @@ public static class RoomFxLayer3TilemapExtractor
             if ((RoomFxRomData.Banks.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");
-            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
-                RoomFxLayer3TilemapFormat.PageByteCount);
+            byte[] native = type is RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water
+                ? RoomFxLiquidTilemapDefinitions.CreateTransfer(type)
+                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
+                    RoomFxLayer3TilemapFormat.PageByteCount);
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)
             {
-                var word = new SnesBgTilemapWord(
-                    BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort))));
+                ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)));
+                if (type == RoomFxType.Spores)
+                    raw = (ushort)((raw & 0x03ff) | RoomFxSporeTilemapDefinitions.Attributes(index));
+                if (type is RoomFxType.Rain or RoomFxType.Fog)
+                    raw = (ushort)((raw & ~RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type)) |
+                        RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index));
+                var word = new SnesBgTilemapWord(raw);
                 cells[index] = new RoomBackgroundTilemapCell
                 {
                     TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,

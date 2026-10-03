@@ -228,38 +228,14 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] wordAddresses = NoobTubePlmProgramDefinitions
-            .MechanicsWordAddresses().ToArray();
-        ushort[] byteAddresses = NoobTubePlmProgramDefinitions
-            .MechanicsByteAddresses().ToArray();
-        AssertEqual(36, wordAddresses.Length,
-            "n00b-tube program has 36 authored control/draw-selector words");
-        AssertEqual(1, byteAddresses.Length,
-            "n00b-tube program has one authored sound byte");
-        foreach (ushort address in wordAddresses)
-        {
-            AssertTrue(NoobTubePlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"n00b-tube program claims authored word $84:{address:X4}");
-            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
-                rom.ReadByte(0x840000 | (address + 1)) << 8);
-            AssertEqual(native, compiled,
-                $"n00b-tube program word $84:{address:X4} matches ROM");
-        }
-        foreach (ushort address in byteAddresses)
-        {
-            AssertTrue(NoobTubePlmProgramDefinitions.TryReadMechanicsByte(
-                    address, out byte compiled),
-                $"n00b-tube program claims authored byte $84:{address:X4}");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
-                $"n00b-tube program byte $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!NoobTubePlmProgramDefinitions.TryReadMechanicsWord(
-                0xd519, out _),
-            "n00b-tube program does not claim the adjacent bank-$84 gap");
-        AssertTrue(!NoobTubePlmProgramDefinitions.TryReadMechanicsByte(
-                0xd507, out _),
-            "n00b-tube program does not classify an opcode byte as a sound operand");
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube oracle revision");
+        VerifyTubeControls(rom);
+        VerifyTubeDraws(rom);
+        VerifyTubeTargets(rom);
+        VerifyTubeCallbacks(rom);
+        VerifyTubeEvents(rom);
+        VerifyTubeSound(rom);
     }
 
     /// <summary>
@@ -415,28 +391,11 @@ internal static partial class Program
     /// </summary>
     private static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
     {
-        const ushort record = 0x9600;
-        const ushort tilemap = 0x9800;
-        int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
-        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
-        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.BaseYPositionOffset, 0x0010);
-        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.TargetYPositionOffset,
-            ushort.MaxValue);
-        bus.WriteByte(recordAddress + RoomFxRomData.Record.TypeOffset, (byte)RoomFxType.Water);
-        bus.WriteByte(
-            recordAddress + RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset,
-            (byte)LayerBlendingConfiguration.LiquidOrFogAdditive);
-        bus.WriteByte(recordAddress + RoomFxRomData.Record.LiquidOptionsOffset,
-            (byte)(RoomFxRomData.LiquidTide.SmallTideOption |
-                RoomFxRomData.Water.PhysicsDisabledOption));
-        int typeIndex = ((byte)RoomFxType.Water) >> 1;
-        WriteTestWord(bus,
-            RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * sizeof(ushort),
-            tilemap);
-        SeedRoomFxAnimatedTileObject(bus, RoomFxType.Water);
-
-        var roomFx = new RoomLayer3FxState();
-        roomFx.Load(bus, new SnesVram(), new SnesCgram(), record, doorPointer: 0,
+        // FX mechanics now come from compiled records. Use the actual Glass Tunnel
+        // record and import its presentation dependencies at this verification boundary.
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var roomFx = CreateRetailFxState(rom);
+        roomFx.Load(bus, new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
             randomNumber: 0);
         return roomFx;
     }

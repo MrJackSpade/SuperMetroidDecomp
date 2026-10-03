@@ -10,8 +10,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Power Suit <c>$9B:9400</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9B80</c>; records 5 and 7 equal
     /// <c>$9B:9B60</c> and <c>$9B:9B40</c>. Each comparison covers all sixteen
-    /// colors. The bank-$8D duplicates remain live authored presentation data;
-    /// the shared control program supplies their replay schedule. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     PowerSuit,
@@ -22,8 +23,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Varia Suit <c>$9B:9520</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9D80</c>; records 5 and 7 equal
     /// <c>$9B:9D60</c> and <c>$9B:9D40</c>. Each comparison covers all sixteen
-    /// colors. The bank-$8D duplicates remain live authored presentation data;
-    /// the shared control program supplies their replay schedule. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     VariaSuit,
@@ -34,8 +36,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Gravity Suit <c>$9B:9800</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9F80</c>; records 5 and 7 equal
     /// <c>$9B:9F60</c> and <c>$9B:9F40</c>. Each comparison covers all sixteen
-    /// colors. The bank-$8D duplicates remain live authored presentation data;
-    /// the shared control program supplies their replay schedule. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     GravitySuit,
@@ -87,27 +90,66 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>Every suit-loading program lasts 265 frames.</summary>
     public const int CycleFrames = 265;
 
-    private static readonly ushort[] GroupStartOffsets = [0x0007, 0x0056, 0x00a5, 0x00f4];
+    /// <summary>Chosen replay chronology of the loading flash, retained under #1165's nonsense exception.</summary>
+    /// <remarks>Native $8D:DB66 and the following timer operands repeat each
+    /// six-frame palette pair 36, 3, 3, then 2 times. The first two pairs even
+    /// contain identical colors: their split is script chronology, not a color
+    /// interpolation parameter. $8D:C648 assigns each literal counter and
+    /// $C639 decrements it without a duration, position, or brightness input.
+    /// The separate fanfare at $92:ED24 counts to 360, not this program's 265.
+    /// These choices specify how long the flashes look; fitting the group index
+    /// or spelling the same numbers as cases would only disguise that timing.
+    /// Layout and repeated palette data are reviewed separately; this exception
+    /// covers only the four replay operands, not their surrounding tables.</remarks>
     private static readonly byte[] GroupTimerValues = [0x24, 0x03, 0x03, 0x02];
-    private static readonly SamusLoadingSuitPaletteFxProgramDefinition[] Definitions =
-    [
-        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, 0xe1f4, 0xdb62),
-        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, 0xe1f8, 0xdcc8),
-        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e),
-    ];
-    private static readonly IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
+    private static readonly SamusLoadingSuitPaletteFxProgramDefinition Power =
+        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, 0xe1f4, 0xdb62);
+    /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
+    private static readonly SamusLoadingSuitPaletteFxProgramDefinition Varia =
+        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, 0xe1f8, 0xdcc8);
+    /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
+    private static readonly SamusLoadingSuitPaletteFxProgramDefinition Gravity =
+        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e);
+    private static readonly IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    /// <remarks>Named program identities replace the former indexed descriptor array.
+    /// The view preserves original order/count/index rejection; runtime mechanics
+    /// dispatches directly to the same three named owners without enumeration.
+    /// Native header words and all program ownership are independently checked for1165.</remarks>
+    public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All => Programs;
 
+    private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
+    {
+        public int Count => 3;
+        public SamusLoadingSuitPaletteFxProgramDefinition this[int index] => index switch
+        {
+            0 => Power,
+            1 => Varia,
+            2 => Gravity,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<SamusLoadingSuitPaletteFxProgramDefinition> GetEnumerator()
+        {
+            yield return Power;
+            yield return Varia;
+            yield return Gravity;
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Returns the bank-local offset of one counted group.</summary>
+    /// <remarks>Native $8D:DB62/DCC8/DE2E programs have a four-byte color-index
+    /// setup and three-byte initial timer command, so the first record starts at7.
+    /// Each next group is two36-byte color records, four-byte loop command/target,
+    /// and three-byte timer command later: offset=7+79*group for group0..3.
+    /// Independently decoded from supported NTSC J/U v1.0 and pinned bank_8D.asm
+    /// for #1165. No stored group-offset array remains.</remarks>
     public static ushort GroupStartOffset(int group)
     {
         if ((uint)group >= GroupCount)
             throw new ArgumentOutOfRangeException(nameof(group));
-        return GroupStartOffsets[group];
+        return (ushort)(7 + group * (FramesPerGroup * FrameByteCount + 4 + 3));
     }
 
     /// <summary>Returns the cartridge-authored replay count of one group.</summary>
@@ -119,32 +161,17 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Resolves one compiled mechanics word across all three programs.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
-    {
-        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in Definitions)
-        {
-            if (definition.TryReadMechanicsWord(pointer, out value))
-                return true;
-        }
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
+        Power.TryReadMechanicsWord(pointer, out value) ||
+        Varia.TryReadMechanicsWord(pointer, out value) ||
+        Gravity.TryReadMechanicsWord(pointer, out value);
 
-        value = 0;
-        return false;
-    }
-
-    /// <summary>Resolves one compiled byte-sized group timer across all three programs.</summary>
-    public static bool TryReadMechanicsByte(ushort pointer, out byte value)
-    {
-        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in Definitions)
-        {
-            if (definition.TryReadMechanicsByte(pointer, out value))
-                return true;
-        }
-
-        value = 0;
-        return false;
-    }
+    /// <summary>Resolves one compiled byte-sized group timer across the named programs.</summary>
+    public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
+        Power.TryReadMechanicsByte(pointer, out value) ||
+        Varia.TryReadMechanicsByte(pointer, out value) ||
+        Gravity.TryReadMechanicsByte(pointer, out value);
 }
-
 /// <summary>One complete Samus-loading palette control program.</summary>
 public sealed class SamusLoadingSuitPaletteFxProgramDefinition
 {

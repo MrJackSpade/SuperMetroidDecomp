@@ -4,7 +4,7 @@ internal readonly record struct ElevatorInstructionMechanicsWord(ushort Address,
 
 /// <summary>
 /// Compiled engine-control words for the ordinary elevator's two-frame animation loop.
-/// Its two spritemap operands remain live cartridge presentation data.
+/// Its two spritemap operands resolve through compiled presentation selectors.
 /// </summary>
 internal static class ElevatorInstructionProgramDefinitions
 {
@@ -14,46 +14,37 @@ internal static class ElevatorInstructionProgramDefinitions
     /// <summary>The controller-input table immediately after the program, at $A3:94E2.</summary>
     internal const ushort FirstAdjacentMechanicsData = 0x94e2;
 
-    private static readonly ElevatorInstructionMechanicsWord[] Words =
-    [
-        new(Loop, 2),
-        new(0x94da, 2),
-        new(0x94de, CommonEnemyInstructionCodes.Goto),
-        new(0x94e0, Loop),
-    ];
-
-    private static readonly ushort[] PresentationWords = [0x94d8, 0x94dc];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ElevatorInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static int MechanicsWordCount => 4;
+    internal static int PresentationWordCount => 2;
+    internal static ElevatorInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(Loop + (index < 2 ? 4 * index : 8 + 2 * (index - 2)));
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Loop + 2 + 4 * index);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Loop + 2);
+        return (uint)offset < 8 && offset % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
+        int offset = address - Loop;
+        if (offset is 0 or 4) return 2;
+        if (offset == 8) return CommonEnemyInstructionCodes.Goto;
+        if (offset == 10) return Loop;
         throw new InvalidDataException(
             $"Elevator instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa30000) return false;
+        int offset = unchecked((ushort)address) - Loop;
+        return (uint)offset < 12 && (offset >= 8 || offset % 4 < 2);
     }
 }

@@ -7,7 +7,7 @@ internal readonly record struct KraidRockProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Kraid's rock projectiles and the initial Kago-bug pose they share.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select compiled presentation identities.
 /// </summary>
 internal static class KraidRockProjectileInstructionProgramDefinitions
 {
@@ -41,43 +41,37 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpitRockShotDelete = 0x9ca1;
 
-    private static readonly KraidRockProjectileInstructionMechanicsWord[] Words =
-    [
-        new(SharedRockAndKagoBug, 0x7fff),
-        new(SharedRockAndKagoBugSleep,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(RisingRockRight, 0x7fff),
-        new(RisingRockRightSleep,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SpitRockShot,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0x9c8b,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0),
-        new(0x9c8d, 0x0004),
-        new(0x9c91, 0x0004),
-        new(0x9c95, 0x0004),
-        new(0x9c99, 0x0004),
-        new(0x9c9d, 0x0004),
-        new(SpitRockShotDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    internal const int MechanicsWordCount = 12;
+    internal const int PresentationWordCount = 7;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9c7f,
-        0x9c85,
-        0x9c8f,
-        0x9c93,
-        0x9c97,
-        0x9c9b,
-        0x9c9f,
-    ];
+    /// <summary>Two fixed poses end in Sleep. The shot sequence installs its
+    /// palette pre-instruction, emits five four-tick frames, then deletes itself.</summary>
+    internal static KraidRockProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 4)
+        {
+            bool sleep = (index & 1) != 0;
+            return new((ushort)(SharedRockAndKagoBug + 6 * (index / 2) + (sleep ? 4 : 0)),
+                sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)0x7fff);
+        }
+        return index switch
+        {
+            4 => new(SpitRockShot, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+            5 => new(SpitRockShot + 2, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0),
+            < 11 => new((ushort)(SpitRockShot + 4 + 4 * (index - 6)), 4),
+            _ => new(SpitRockShotDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+        };
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KraidRockProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    /// <summary>Two fixed-pose operands followed by five shot-frame operands,
+    /// each two bytes after its duration; skip the pre-instruction command pair.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 2 ? SharedRockAndKagoBug + 6 * index + 2
+            : SpitRockShot + 6 + 4 * (index - 2));
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => kind switch
     {
         RoomEnemyProjectileKind.KraidSpitRock =>
@@ -92,11 +86,11 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            KraidRockProjectileInstructionMechanicsWord candidate = Words[middle];
+            KraidRockProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -116,9 +110,9 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

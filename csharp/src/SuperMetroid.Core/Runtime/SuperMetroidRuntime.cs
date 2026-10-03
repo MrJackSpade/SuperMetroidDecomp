@@ -1634,7 +1634,6 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleDrawingHandlerActive = false;
         LastGrappleBeamSpecificDrawingPath = false;
         LastGrappleFlareDrawn = false;
-        bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
 
         PrepareEnemyFrame();
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
@@ -4094,7 +4093,14 @@ public sealed partial class SuperMetroidRuntime
                 // stored shine instead of consuming it while Samus is stationary.
                 advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlAtFrameStart);
         }
-        if (EscapeTimer.IsActive)
+        // EnemyMain can install the gunship's $90:E902 beta handler on this frame.
+        // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM
+        // survives boarding, even though timer status stays active. Decide after the
+        // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
+        bool runEscapeTimerHandler = !Enemies.HasGunshipHealthHandler;
+        bool escapeTimerExpired = runEscapeTimerHandler &&
+            EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
+        if (runEscapeTimerHandler && EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam,
                 (MapPresentation ?? throw new InvalidOperationException(
                     "Escape timer requires installed presentation assets.")).EscapeTimer);

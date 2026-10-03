@@ -578,10 +578,13 @@ public static class SamusPaletteRomData
         /// Issue #891 / #625: the nine timer bytes at even offsets
         /// match the pinned NTSC J/U v1.0 ROM and native bank-$9B
         /// listing: <c>21,6,3,4,5,5,6,6,80</c> for explosion index
-        /// <c>0..8</c>. The 21- and 80-call endpoint holds and
-        /// irregular interior cadence encode authored timing policy;
-        /// retain the nine-byte bounded compiled sequence rather than
-        /// a formula with per-index exceptions. The caller decrements
+        /// <c>0..8</c>. Issue1165 independently traces these countdowns
+        /// to the nine fixed right/left drawings at92EDBE. Their entry,
+        /// per-drawing and final delays specify cinematic rhythm; a numeric
+        /// case list or fitted curve would recite those timing choices,not
+        /// derive a physical or functional quantity. The concrete authored-
+        /// animation/nonsense disposition is on SamusDeathExplosionTimingDefinitions.
+        /// The caller decrements
         /// the active timer before advancing, loads the next duration
         /// only for indices below nine, and terminates without a tenth
         /// explosion frame. Odd-offset palette-selector bytes are a

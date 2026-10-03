@@ -5,7 +5,7 @@ internal static class SamusColorClosedContractDefinitions
 {
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
-        "8CDA69E0630B7D021334750B8735DD18EE309008DD0982365D5A924F0E226EDC");
+        "E3ABE232AE6901DE0656576DF10C612529875E594E4831DD1F4E26E642C468D4");
 
     internal static readonly ClosedPresentationContract[] All =
     [

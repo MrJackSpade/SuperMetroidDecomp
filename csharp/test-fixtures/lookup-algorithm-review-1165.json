@@ -5381,4 +5381,19 @@
     "confirmation":"Source/component/consumer review establishes this disposition. No new retain-only test was added; the existing native selector comparison now covers exactly the still-independent bits, while separate component proofs cover calculated bits. This is not a gameplay or visual-bug acceptance claim.",
     "scope":"All72 components of these eight three-color palettes now have explicit converted or artistic-content dispositions. The wider maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "ceresDefaultTintReview": {
+    "status":"converted: two stored default RGB tint records removed",
+    "owners":"RoomFxPaletteBlendDefinitions.StockCeresHaze/StockCeresHazeBlue/StockCeresHazeRed",
+    "source":"Supported NTSC J/U v1.0 native88:DE10 LDA#0080 selects blue before Ridley's death;88:DE15 LDA#0020 selects red afterward. Fade-in88:DE42 compares counter16 and exits before writing again, so counter15 is the last written fully faded-in amplitude. Pinned bank_88.asm362be646929cf8e483f692b73a6561cfc2dc1d0d corroborates these instructions and the decrement/clamp table fill.",
+    "red":{"disposition":"converted semantic death-state channel selection","algorithm":"Dead selects FadeSteps-1; alive selects zero.","proof":"VerifyCeresDefaultRed"},
+    "green":{"disposition":"converted constant zero for both native channel selections","proof":"VerifyCeresDefaultGreen"},
+    "blue":{"disposition":"converted semantic death-state channel selection","algorithm":"Alive selects FadeSteps-1; dead selects zero.","proof":"VerifyCeresDefaultBlue"},
+    "amplitude":{"disposition":"existing fade-stop constant independently reviewed; tint now derives final written counter","proof":"VerifyCeresDefaultTintStructure reads the original CMP immediate and checks CeresHazeDefinitions.FadeSteps, plus absence of both former static backing records."},
+    "algorithm":"StockCeresHaze(bool) constructs the selected RGB axis from the native fade limit. Existing named blue/red properties delegate to it and never cache the result. Native setup supplies actual channel flags and the fade loop supplies amplitude; this is not an artistic-color retention case or a guessed intensity formula.",
+    "proofCoverage":"Each named component proof reads original channel-select immediates and the original stop-counter operand, then checks both boolean states through the function, named property aliases and imported catalog values. Existing default/legacy JSON and edited-tint rendering checks remain; no duplicate per-alias suite was introduced.",
+    "consumers":"Extractor, legacy optional-field defaults, renderer fallback and verification retain the named property API and identical RGB5 values. Custom Ceres tints remain supplied editable input. No gameplay fade-state or scanline behavior changes here.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-blends cover the three new native component proofs, existing haze overrides and all palette checks. Updated closed-contract source pin and maintained-source index.",
+    "scope":"Resolves the Ceres tint-default fields left pending in the blend palette entries, without retention. The separate existing Ceres scanline/fade algorithms still require their own maintained-source review. Full1165 audit remains active. Implementation record is this entry's commit."
+  }
 }

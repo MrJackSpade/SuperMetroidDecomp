@@ -18,6 +18,10 @@ internal static partial class Program
         VerifyFxBlendSourceAddresses(rom);
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(new BlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
+        VerifyCeresDefaultRed(rom, catalog);
+        VerifyCeresDefaultGreen(rom, catalog);
+        VerifyCeresDefaultBlue(rom, catalog);
+        VerifyCeresDefaultTintStructure(rom);
         VerifyFxBlendBlackRed(rom, catalog);
         VerifyFxBlendBlackGreen(rom, catalog);
         VerifyFxBlendBlackBlue(rom, catalog);

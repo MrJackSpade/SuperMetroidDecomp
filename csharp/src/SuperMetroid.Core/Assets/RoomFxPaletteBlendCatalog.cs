@@ -237,10 +237,21 @@ public static class RoomFxPaletteBlendDefinitions
     public const int Version = 1;
 
     /// <summary>Stock blue-channel fixed-color amplitude for Ceres haze.</summary>
-    public static PaletteRgb5 StockCeresHazeBlue { get; } = new() { Red = 0, Green = 0, Blue = 15 };
+    public static PaletteRgb5 StockCeresHazeBlue => StockCeresHaze(false);
     /// <summary>Stock red-channel fixed-color amplitude after Ceres Ridley.</summary>
-    public static PaletteRgb5 StockCeresHazeRed { get; } = new() { Red = 15, Green = 0, Blue = 0 };
+    public static PaletteRgb5 StockCeresHazeRed => StockCeresHaze(true);
 
+    /// <summary>
+    /// Native $88:DE10/DE15 selects COLDATA blue/red; DE42 stops fade-in at counter16,
+    /// after counter15 was the final written amplitude. Calculate that selected RGB
+    /// axis directly instead of retaining two default tint records.
+    /// </summary>
+    public static PaletteRgb5 StockCeresHaze(bool ridleyIsDead) => new()
+    {
+        Red = ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0,
+        Green = 0,
+        Blue = ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1,
+    };
     /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
     public const byte Lava = 0x02;
     /// <summary>FX-record selector $22, used by Landing Site rain.</summary>

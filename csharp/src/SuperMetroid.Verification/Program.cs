@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-map-indicator"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map indicator oracle revision");
+    VerifyMapIndicatorSprites(rom);
+    VerifyMapIndicatorDelays(rom);
+    Console.WriteLine("Map indicator: all native sprite/delay words, input bounds, first-tick order and two loop transitions pass.");
+    return 0;
+}
 if (args is ["--lookup-save-marker-coordinates"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

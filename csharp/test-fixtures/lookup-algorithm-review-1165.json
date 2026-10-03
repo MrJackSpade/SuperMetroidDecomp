@@ -6818,4 +6818,15 @@
     "consumers":"FileSelectStationMarker.BindPosition is the runtime point consumer and immediately copies immutable X/Y values; no caller depends on point object identity. Layout source documents are not retained. The extractor still reads original artwork coordinates, supplying an independent verification oracle rather than the replacement formula.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-save-marker-coordinates passes all68 original components,136 single-axis boundary edits, full independent custom layouts, unchanged serialized stock JSON bytes, guarded actual marker binding and invalid-coordinate/identity rejection. Source review finds no stored stock coordinate array or dictionary. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "mapIndicatorPulseReview": {
+    "status":"converted both four-phase lookup arrays",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs PauseMapIndicatorAnimation",
+    "source":"SHA-pinned supported ROM82:BA25..BA34 and pinned bank_82.asm Update_Samus_Position_Indicator_Animation82:B9FC. Original word-offset phase wraps at8; delays are8,4,8,4 and sprite IDs5F,60,61,60.",
+    "spriteField":{"disposition":"converted","algorithm":"For ordinal phase0..3, sprite=0x5F+2-abs(2-phase), a triangular rise and fall through three adjacent images.","proof":"VerifyMapIndicatorSprites compares all four results with original ROM words82:BA2D+2*phase and checks invalid int bounds."},
+    "delayField":{"disposition":"converted","algorithm":"8-4*(phase&1): eight ticks at either endpoint and four at each traversal of the middle image.","proof":"VerifyMapIndicatorDelays compares all four original words82:BA25+2*phase, checks original CPX wrap operand and invalid bounds, and compares actual FileSelectStationMarker against an independent native word-offset/timer model for49 ticks."},
+    "domain":"Both methods accept phases0..3 only and preserve IndexOutOfRangeException outside that range, guarding before arithmetic. No cache, array or ROM read remains in production.",
+    "consumers":"PauseMenuState and FileSelectStationMarker use direct functions and the shared four-phase count. Advance-before-load, same-tick decrement, initial phase and backing parity remain unchanged. The actual marker proof forbids cartridge reads and covers first-tick advancement plus two loop transitions.",
+    "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-map-indicator passes. Static reference review finds no old array consumers or source-owner hash pins. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

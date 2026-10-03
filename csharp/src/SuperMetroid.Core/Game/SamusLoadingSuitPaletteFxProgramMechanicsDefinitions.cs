@@ -10,8 +10,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Power Suit <c>$9B:9400</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9B80</c>; records 5 and 7 equal
     /// <c>$9B:9B60</c> and <c>$9B:9B40</c>. Each comparison covers all sixteen
-    /// colors. These historical equality observations are research inputs, not a
-    /// retention disposition under #1165; presentation review remains pending. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     PowerSuit,
@@ -22,8 +23,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Varia Suit <c>$9B:9520</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9D80</c>; records 5 and 7 equal
     /// <c>$9B:9D60</c> and <c>$9B:9D40</c>. Each comparison covers all sixteen
-    /// colors. These historical equality observations are research inputs, not a
-    /// retention disposition under #1165; presentation review remains pending. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     VariaSuit,
@@ -34,8 +36,9 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// 0, 2, 4, 6, 8 equal normal Gravity Suit <c>$9B:9800</c>; records 1 and 3
     /// equal speed-boost shade <c>$9B:9F80</c>; records 5 and 7 equal
     /// <c>$9B:9F60</c> and <c>$9B:9F40</c>. Each comparison covers all sixteen
-    /// colors. These historical equality observations are research inputs, not a
-    /// retention disposition under #1165; presentation review remains pending. Production
+    /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
+    /// owns calculated sharing/shades and the specific base-ink disposition;
+    /// LoadingPaletteInputView documents independent tint components. Production
     /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
     /// </remarks>
     GravitySuit,

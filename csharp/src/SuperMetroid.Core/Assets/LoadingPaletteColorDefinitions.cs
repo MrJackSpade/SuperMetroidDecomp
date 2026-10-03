@@ -5,8 +5,18 @@ namespace SuperMetroid.Core.Assets;
 /// sixteen-color records. Every even record repeats the normal palette; record3
 /// repeats record1. Records5 and7 contain distinct shades. The mapping is checked
 /// against complete original rows, including transparent entries, for #1165.
-/// This removes repeated rows, without assigning a retention disposition to
-/// the four remaining artwork rows or caching generated colors.</remarks>
+/// The remaining25 whole words are22 distinct normal sprite inks plus three
+/// transparent payloads ($3800/$0000/$2003). Opaque indices select categorical
+/// painted pixels, not a numerical brightness/time input; native $91:DD5B
+/// copies the same normal art from $9B:9400/9520/9800. An index formula would
+/// only recite those chosen inks, the #1165 nonsense exception. OBJ rendering
+/// skips index zero before palette lookup, so its differing source payloads
+/// have no functional color-generation basis either. All432 original loading
+/// words independently match their normal/speed-boost source art. Repeated
+/// rows, suit sharing, shade transforms and derived endpoint channels are
+/// calculated separately; LoadingPaletteInputView documents the nine retained
+/// tint components. No complete generated palette row is cached. Other
+/// full-body palette families still require their own review.</remarks>
 public static class LoadingPaletteColorDefinitions
 {
     /// <summary>Maps a color address to its earliest identical native row.</summary>
@@ -31,14 +41,14 @@ public static class LoadingPaletteColorDefinitions
     /// saturating each RGB5 channel at31. All33 original words independently
     /// confirm this channel transformation. Varia slots1/2 use the weaker green
     /// and stronger blue tint; slots10/11 share its middle and dim shades only.
-    /// Their brightest blue29 differs and remains a separate pending input.
+    /// Their brightest blue29 is a separate tint input in LoadingPaletteInputView.
     /// Original Power dim slots10/11 preserve normal red/green and share dim
     /// slot2's blue13. Slot9's dim follows the ordinary blue+10 tint; its middle
     /// preserves brightest blue21 while applying normal green+5. These four
     /// additional words use shared channels. Dim slot0 shares middle slot0.
     /// Independent endpoint components are documented by LoadingPaletteInputView.
-    /// Other slots have separate pending
-    /// artwork/channel reviews and are not silently forced into this rule.</remarks>
+    /// Remaining base inks and tint components have the specific dispositions
+    /// on this catalog and LoadingPaletteInputView; unrelated palettes are not exempt.</remarks>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
     {
         value = 0;
@@ -95,7 +105,7 @@ public static class LoadingPaletteColorDefinitions
     /// blue10/10 for bright/middle. Power slots2/10/11 and Varia slot12 add
     /// blue10/5; only Power slots10/11 also add green5/0. Red is unchanged,
     /// sums saturate at31. These14 words derive from seven editable dim
-    /// endpoints; this does not exempt those endpoints from further review.
+    /// endpoints whose independent channels are documented by LoadingPaletteInputView.
     /// Shade0/1 is bright/middle; greenPeak is an RGB5 additive amount.</remarks>
     internal static ushort BrightenDimColor(ushort dim, int shade, int greenPeak, bool bluePlateau)
     {

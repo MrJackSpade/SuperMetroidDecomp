@@ -15,7 +15,7 @@ internal static class SamusColorClosedContractDefinitions
             "Private construction follows validation of all four families, each with three suits and four sixteen-color shades. The loader compiles independent arrays at every guarded native selector pointer and rejects collisions. Apply/Resolve guard that complete sparse pointer set and color bounds; palette clocks and restored caller state are not certified."),
         new("SuperMetroid.Core.Assets.SamusSuitColorCatalog", "samus-suit-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusSuitColorCatalog.cs", "4A91825275DF64A15B821197C300CAAEE2900D7EB639D23049AD10CD37C877CE")],
+             new("csharp/src/SuperMetroid.Core/Assets/SamusSuitColorCatalog.cs", "A1E47A88B24A4E21282174E417E5C0C1A5CBF36FBB58F46F6891C8FC0C5D7DD4")],
             "The sole private-constructor loader requires three sixteen-color RGB5 suit inputs, stores the Power colors and only differing Varia/Gravity slots, preserving independent edits through explicit overrides. Apply/Resolve accept only even suit offsets zero/two/four and bounded color indices. Equipment priority and suit selection remain gameplay responsibilities."),
         new("SuperMetroid.Core.Assets.SamusChargeColorCatalog", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveCharge", "ResolveHyper"],
             [PaletteDefinitions,

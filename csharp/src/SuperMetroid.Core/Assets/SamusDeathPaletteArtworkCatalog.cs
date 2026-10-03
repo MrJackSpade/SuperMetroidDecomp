@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Assets;
 /// It replaces their different preceding shades; it is not another eighth
 /// step,which would produce full white31. This chosen foreground color is
 /// likewise retained as artwork,with neutral channels and all aliases derived.
-/// This disposition does not cover the separately indexed whiteout curve.
+/// The separately indexed whiteout curve is calculated by DefaultWhiteoutColor.
 /// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
@@ -370,57 +370,53 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private static ushort NeutralFromRed(ushort color) => (ushort)((color & 31) * 0x421);
     public ushort WhiteoutColor(int index) => whiteout.Resolve(index);
 
-    /// <summary>Two linear grayscale segments and an independently supplied transition shade.</summary>
-    /// <remarks>Original9BB835..B860 has a linear intensity ramp at indices0..6,
-    /// a separate shade at7 and a second linear ramp at8..21. Each RGB word is
-    /// neutral. Five endpoint/transition intensities remain independent inputs;
-    /// their own disposition is not established by this interpolation conversion.
-    /// Differing edited channels override the calculated grayscale. Interpolation
-    /// stays within RGB5 even when endpoints are independently edited.</remarks>
+    /// <summary>Independent edits to the calculated two-rate whiteout.</summary>
+    /// <remarks>Original9BB835..B860 needs no stored shade or anchor inputs.
+    /// Keep only channels differing from DefaultWhiteoutColor; edits to any
+    /// supplied shade remain independent of every other supplied shade.</remarks>
     private sealed class WhiteoutInputs
     {
-        private readonly int earlyStart, earlyEnd, transition, lateStart, lateEnd;
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
         internal WhiteoutInputs(ushort[] source)
         {
-            earlyStart = source[0] & 31;
-            earlyEnd = source[6] & 31;
-            transition = source[7] & 31;
-            lateStart = source[8] & 31;
-            lateEnd = source[21] & 31;
             for (int index = 0; index < source.Length; index++)
             {
-                ushort expected = Expected(index);
+                ushort expected = DefaultWhiteoutColor(index);
                 if (source[index] != expected) inputs.Add(index, new(source[index], expected));
             }
         }
 
         internal ushort Resolve(int index)
         {
-            if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new IndexOutOfRangeException();
-            ushort expected = Expected(index);
+            ushort expected = DefaultWhiteoutColor(index);
             return inputs.TryGetValue(index, out var channels) ? channels.Apply(expected) : expected;
-        }
-
-        private ushort Expected(int index)
-        {
-            int intensity = index <= 6 ? InterpolateWhiteoutIntensity(earlyStart, earlyEnd, index, 6) :
-                index == 7 ? transition : InterpolateWhiteoutIntensity(lateStart, lateEnd, index - 8, 13);
-            return (ushort)(intensity | intensity << 5 | intensity << 10);
         }
     }
 
-    /// <summary>Interpolates RGB5 intensity between whiteout segment endpoints, rounding down.</summary>
-    /// <remarks>Only native six-step and thirteen-step spans are supported.
-    /// Nonnegative weighted sums are bounded by403. Descending edited endpoints
-    /// remain valid; no extrapolation, saturation or signed division is required.</remarks>
-    internal static int InterpolateWhiteoutIntensity(int first, int last, int step, int steps)
+    /// <summary>Raises the background from the first nonblack shade to full white in two stages.</summary>
+    /// <remarks>Original9BB835..B860 contains22 neutral RGB5 shades.
+    /// Intensity rises1 to16 over indices0..7,then16 to31 over7..21:
+    /// the first half of the brightness rise takes seven intervals,the second
+    /// takes fourteen. First stage floors15*index/7 before adding1; second
+    /// floors the remaining distance15*(21-index)/14 before subtracting from31.
+    /// This preserves the native quantization at the shared half-brightness
+    /// boundary without special sample corrections. Numerators are at most210;
+    /// there is no wrap,saturation,extrapolation or generated lookup cache.
+    /// Native9BB710 skips explosion frame0,then reads counter0..20 before
+    /// incrementing and holds20. Terminal9BB772 selects21 explicitly. Preserve
+    /// all22 supported selectors and reject others with the former bounds exception.
+    /// This establishes an exact two-rate ramp,not the identity of its historical tool.</remarks>
+    internal static ushort DefaultWhiteoutColor(int index)
     {
-        if ((uint)first > 31 || (uint)last > 31) throw new ArgumentOutOfRangeException(nameof(first));
-        if (steps is not (6 or 13)) throw new ArgumentOutOfRangeException(nameof(steps));
-        if ((uint)step > steps) throw new ArgumentOutOfRangeException(nameof(step));
-        return (first * (steps - step) + last * step) / steps;
+        if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new IndexOutOfRangeException();
+        const int firstLitIntensity = 1, fullWhiteIntensity = 31;
+        const int halfBrightnessIndex = 7, completionIndex = 21;
+        const int halfRise = (fullWhiteIntensity - firstLitIntensity) / 2;
+        int intensity = index <= halfBrightnessIndex
+            ? firstLitIntensity + halfRise * index / halfBrightnessIndex
+            : fullWhiteIntensity - halfRise * (completionIndex - index) / (completionIndex - halfBrightnessIndex);
+        return NeutralFromRed((ushort)intensity);
     }
     /// <summary>Advances through death palettes while skipping the flash-only row.</summary>
     /// <remarks>Original odd bytes9BB824..B834 select0,2..9 for frame0..8.

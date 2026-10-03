@@ -372,29 +372,24 @@ internal static partial class Program
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(whiteoutInput)!;
         AssertEqual(0, whiteoutOverrides.Count, "Native whiteout has no interpolation or neutral-channel corrections");
         for (int index = 0; index < whiteout.Length; index++)
-            AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
-        for (int first = 0; first < 32; first++)
-        for (int last = 0; last < 32; last++)
-        foreach (int steps in new[] { 6, 13 })
-        for (int step = 0; step <= steps; step++)
         {
-            // Exact decimal quotient avoids a replacement integer-division oracle.
-            int expectedIntensity = (int)decimal.Floor(((decimal)first * (steps - step) + (decimal)last * step) / steps);
-            AssertEqual(expectedIntensity, SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(first, last, step, steps),
-                "All endpoint intensities and whiteout interpolation steps");
+            AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
+            AssertEqual(whiteout[index], SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(index), "Calculated two-rate whiteout matches original ROM");
+            for (int channel = 0; channel < 3; channel++)
+            for (int intensity = 0; intensity < 32; intensity++)
+            {
+                var shades = (ushort[])whiteout.Clone();
+                shades[index] = (ushort)((shades[index] & ~(31 << (channel * 5))) | intensity << (channel * 5));
+                var editedWhiteout = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, shades, selectors);
+                for (int other = 0; other < shades.Length; other++)
+                    AssertEqual(shades[other], editedWhiteout.WhiteoutColor(other), "Every whiteout shade/channel edit remains independent");
+            }
         }
         foreach (int invalid in new[] { -1, 22, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
-        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(invalid, 0, 0, 6), "Invalid first intensity");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, invalid, 0, 6), "Invalid last intensity");
+            AssertThrows<IndexOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
+            AssertThrows<IndexOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(invalid), "Invalid calculated whiteout selector");
         }
-        foreach (int steps in new[] { 6, 13 })
-        foreach (int invalid in new[] { -1, steps + 1, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, invalid, steps), "Invalid interpolation position");
-        foreach (int invalid in new[] { -1, 0, 7, 14, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, 0, invalid), "Unsupported whiteout span");
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)
         {

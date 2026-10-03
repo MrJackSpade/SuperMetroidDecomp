@@ -6796,4 +6796,14 @@
     "proof":"Reuse and extend the existing native mask check as VerifySaveMarkerEligibility: all96 ROM slots, ordered per-area enumeration, all34 full IDs, unused-slot rejection, all65536 used masks for each area, invalid index/area boundaries and immediate/error-precedence semantics. Expected validity comes from original marker bytes, not the compiled placement rule.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early --lookup-save-marker-eligibility and existing isolated --lookup-map-load-anchors both pass against the SHA-pinned ROM. The broader map-marker integration calls the same proof instead of keeping a duplicate mask proof. No exploratory gameplay or unrelated test campaign. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "fileSelectMapAreaCaseReview": {
+    "status":"converted native-menu to game-area identity mapping",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/FileSelectMapLoadAnchors.cs FileSelectMapAreaOrder",
+    "source":"Supported SHA-pinned six original words81:AAA0..AAAB and pinned bank_81.asm FileSelectMapArea_IndexTable. Native81:A398/ADC3 inversely find a menu identity for a game area;81:A9EC/A9FE resolve menu identities while drawing labels.",
+    "algorithm":"Explicit selector cases0..5 return named Crateria, WreckedShip, Tourian, Brinstar, Maridia and Norfair identities. This translates between two categorical area-numbering domains; no numeric curve is asserted. Remove the stored permutation array. FileSelectAreaMapGraphics retains its native label iteration/stacking order.",
+    "domain":"Six menu identities0..5, independently distinct from game AreaId values. All unsupported int inputs preserve ArgumentOutOfRangeException without masking, narrowing or extrapolation. No runtime cartridge access or cache.",
+    "proof":"Consolidate the existing original-word assertions into VerifyFileSelectMapAreaCases, covering all six direct ROM results and negative/upper/large rejected identities. The existing broad map integration calls the same proof; no duplicate rendering matrix added or run.",
+    "confirmation":"Verification build and early SHA-pinned --lookup-map-area-cases pass. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

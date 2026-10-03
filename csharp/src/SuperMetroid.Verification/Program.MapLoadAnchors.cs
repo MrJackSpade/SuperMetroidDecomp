@@ -50,6 +50,16 @@ internal static partial class Program
         (AreaId.Tourian, 8, 160, 96),
     ];
 
+    private static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
+    {
+        for (int displayIndex = 0; displayIndex < 6; displayIndex++)
+            AssertEqual(ReadVerificationWord(bus, 0x81aaa0 + displayIndex * 2),
+                (ushort)FileSelectMapAreaOrder.Get(displayIndex), "native menu-to-game area identity");
+        foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapAreaOrder.Get(invalid),
+                "unsupported menu area identity is not clamped or narrowed");
+    }
+
     private static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
     private static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
 
@@ -90,13 +100,12 @@ internal static partial class Program
     {
         VerifyMapLoadAnchorX(bus);
         VerifyMapLoadAnchorY(bus);
+        VerifyFileSelectMapAreaCases(bus);
         var guard = new ForbiddenMapBus();
         int anchors = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.DisplayAreaIndices + area * 2),
-                (ushort)FileSelectMapAreaOrder.Get(area), "compiled display order matches cartridge word");
             for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
             {
                 if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(stationIndex))
@@ -137,7 +146,6 @@ internal static partial class Program
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapAreaOrder.Get(6), "invalid display index not clamped");
         VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog);
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
             new CartridgeAudioState(), new SuperMetroidSaveRam(bus).ReadSlot(0)!, 0),

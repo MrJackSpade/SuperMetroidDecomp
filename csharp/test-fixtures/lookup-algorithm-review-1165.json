@@ -4748,5 +4748,16 @@
     "tooling":"The PLM population, room-scroll and library-background generators parse new(...) source lines. The explicit cases preserve exactly the323 original sixteen-field constructor lines and order, independently compared against the baseline, so those parsers keep their existing inputs.",
     "confirmation":"Verification and ResourceAudit builds and SHA-pinned --lookup-room-state-settings pass. No gameplay sweep or exploratory test campaign. Implementation record is the commit introducing this review entry.",
     "scope":"All15 selected room-state payload fields and the state-identity mapping are resolved without a retention exception. Room-header/state-condition selection and referenced assets/programs remain separate inventory owners; wider maintained-source audit stays active."
+  },
+  "retailRoomStateSourceViewsReview": {
+    "status":"converted: persistent generated layout/X-ray source-key arrays removed",
+    "owners":["csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutSourceDefinitions.cs","csharp/src/SuperMetroid.Core/Rooms/XrayRoomOverlaySourceDefinitions.cs"],
+    "relationship":"Derived views of the room-state level-source and XrayPointer fields, reviewed with those logical mappings rather than counted as unrelated new tables. No extra duplicate per-table proof is added.",
+    "source":"Original bank-8F state records from the supported SHA-pinned cartridge and the independently captured323-state roster used by retailRoomStateSettingsReview. Read both catalog definitions, every enumeration/index consumer and complete installation-admission loops.",
+    "levelSources":{"disposition":"converted","algorithm":"Lazily project CompressedLevelDataAddress, remove duplicates and enumerate ascending. Distinct/order temporary enumeration state is discarded; no process-lifetime generated key array remains.","proof":"Extend VerifyRoomStateCompressedLevelDataAddress with exact sorted source-domain equality against original imported state records and repeatable enumeration."},
+    "xraySources":{"disposition":"converted","algorithm":"Lazily project XrayPointer, omit zero (no room-specific overlay), remove duplicates and enumerate ascending. No persistent generated key array remains.","proof":"Extend VerifyRoomStateXrayPointer with exact nonzero sorted source-domain equality against original imported state records and repeatable enumeration."},
+    "consumers":"Production RoomVisualLayoutCatalog and XrayOverlayVisualCatalog completeness checks continue enumerating all required keys. ResourceAudit's two first-element consumers now use First() instead of indexing; remaining consumers already enumerate. Updated both source-contract SHA pins.",
+    "confirmation":"Verification and ResourceAudit builds pass. --lookup-room-state-settings passes the extended original-field proofs. Scoped ResourceAudit --room-source-contract-check reuses existing admission/static-ownership cases: missing required sources still reject, complete catalogs admit, ownership is defensive, and mismatched/null layout identities reject. No full audit sweep or gameplay campaign.",
+    "scope":"Both cached views are removed without a retention exception. This does not certify referenced layout/overlay artwork or other source inventories. Implementation record is the commit introducing this entry; wider1165 work remains active."
   }
 }

@@ -18,6 +18,13 @@ internal static partial class Program
                 AuditContractChecks.Run();
                 return 0;
             }
+            if (args is ["--room-source-contract-check"])
+            {
+                RoomLayoutPresentationContractChecks.Run();
+                XrayRoomOverlayPresentationContractChecks.Run();
+                Console.WriteLine("Derived room-layout and X-ray source admission contracts passed.");
+                return 0;
+            }
             if (args is ["--plm-program-self-check"])
             {
                 PlmProgramContractChecks.Run();

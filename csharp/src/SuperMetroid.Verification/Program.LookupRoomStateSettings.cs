@@ -74,7 +74,16 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress");
+    private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom)
+    {
+        VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress");
+        int[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).CompressedLevelDataAddress)
+            .Distinct().Order().ToArray();
+        AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
+            "Required layout-source view matches every distinct original state source in order");
+        AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
+            "Layout-source view is repeatable after complete enumeration");
+    }
     private static void VerifyRoomStateGraphicsSet(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.GraphicsSet, "GraphicsSet");
     private static void VerifyRoomStateMusicDataIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicDataIndex, "MusicDataIndex");
     private static void VerifyRoomStateMusicTrackIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicTrackIndex, "MusicTrackIndex");
@@ -84,7 +93,16 @@ internal static partial class Program
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2ScrollX, "Layer2ScrollX");
     private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2ScrollY, "Layer2ScrollY");
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
-    private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer");
+    private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom)
+    {
+        VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer");
+        ushort[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).XrayPointer)
+            .Where(pointer => pointer != 0).Distinct().Order().ToArray();
+        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+            "Required X-ray source view matches distinct original nonzero pointers in order");
+        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+            "X-ray source view is repeatable after complete enumeration");
+    }
     private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MainCodePointer, "MainCodePointer");
     private static void VerifyRoomStatePlmPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.PlmPointer, "PlmPointer");
     private static void VerifyRoomStateBackgroundDataPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");

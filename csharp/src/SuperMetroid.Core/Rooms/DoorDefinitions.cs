@@ -637,675 +637,6 @@ public static class DoorDefinitions
         new(0xABB8, 0xE06B, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x8000, 0x0000),
     ];
 
-    /// <summary>Room-specific native door pointers in BTS index order.</summary>
-    /// <remarks>
-    /// Issue #1054, Landing Site $8F:927B: four ROM words are $8916,
-    /// $8922, $892E, $893A. For normalized BTS index i=0..3, the exact
-    /// bounded pointer rule is $8916 + 12*i, the physical door-header
-    /// stride. Resolve masks BTS with $7F, so both high-bit forms select
-    /// the same entry; index 4 fails. The next word at $8F:9283 begins
-    /// room scroll data, not a fifth door. Direct pinned-ROM inspection
-    /// and the independent all-room door-list oracle agree on each entry,
-    /// both BTS forms, and the first invalid index. Other room lists
-    /// have independent lengths and require their own proofs.
-    /// Issue #1055, Gauntlet Entrance $8F:92F9: the two door words are
-    /// $8946 and $8952, exactly $8946 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches non-door word $0002 at $8F:92FD. The independent
-    /// ROM list oracle checks both entries, high-bit BTS aliases, and
-    /// this first invalid index.
-    /// Issue #1056, Parlor $8F:9362: seven door words are $895E through
-    /// $89A6 in twelve-byte steps, exactly $895E + 12*i for normalized
-    /// BTS i=0..6. Index 7 reaches non-door word $0100 at $8F:9370.
-    /// The independent ROM list oracle checks all seven entries, both
-    /// BTS high-bit forms, and this first invalid index.
-    /// Issue #1057, Crateria Power Bomb room $8F:93D1: its sole door
-    /// word is $89B2. Normalized BTS index 0 selects that constant;
-    /// index 1 reaches scroll word $0101 at $8F:93D3 and fails. The
-    /// independent ROM list oracle checks both BTS high-bit forms and
-    /// the one-entry boundary.
-    /// Issue #1058, Crateria Save $8F:93FC: its sole door word is $89BE.
-    /// Normalized BTS index 0 selects that constant; index 1 reaches
-    /// the next room header word $0005 at $8F:93FE and fails. The
-    /// independent ROM list oracle checks both BTS high-bit forms and
-    /// the one-entry boundary.
-    /// Issue #1059, West Ocean $8F:9425: six door words are $89CA
-    /// through $8A06 in twelve-byte steps, exactly $89CA + 12*i for
-    /// normalized BTS i=0..5. Index 6 reaches scroll word $0202 at
-    /// $8F:9431. The independent ROM list oracle checks all six entries,
-    /// both high-bit forms, and this first invalid index.
-    /// Issue #1060, Bowling Alley Path $8F:9488: two door words are
-    /// $8A12, $8A1E, exactly $8A12 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches non-door word $0007 at $8F:948C. The independent
-    /// ROM list oracle checks both entries and the invalid boundary.
-    /// Issue #1061, Crateria Kihunter $8F:94B3: three door words are
-    /// $8A2A, $8A36, $8A42, exactly $8A2A + 12*i for normalized BTS
-    /// i=0..2. Index 3 reaches scroll word $0101 at $8F:94B9. The
-    /// independent ROM list oracle checks all entries and the boundary.
-    /// Issue #1062, Forgotten Highway Elevator $8F:94F3: normalized BTS
-    /// i=0..1 selects $8A4E + 12*i, while i=2 selects the shared elevator
-    /// pseudo-door $88FC. The native third entry deliberately breaks the
-    /// physical-header progression. Index 3 reaches scroll word $0001
-    /// at $8F:94F9 and fails. The ROM oracle checks this exception and
-    /// both high-bit BTS forms without reading the adjacent scroll byte.
-    /// Issue #1063, East Ocean $8F:9524: two door words are $8A66 and
-    /// $8A72, exactly $8A66 + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches scroll word $0000 at $8F:9528. The independent ROM list
-    /// oracle checks both entries, high-bit aliases, and the boundary.
-    /// Issue #1064, Forgotten Highway Kagos $8F:9579: two door words
-    /// are $8A7E and $8A8A, exactly $8A7E + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches the next room header word $000B at
-    /// $8F:957D. The independent ROM list oracle checks both entries,
-    /// high-bit aliases, and this first invalid index.
-    /// Issue #1065, Crab Maze $8F:95A4: two words are $8A96 and $8AAE,
-    /// exactly $8A96 + 24*i for normalized BTS i=0..1. Bank $83
-    /// interleaves Forgotten Highway Elbow's door headers. Index 2
-    /// reaches next room header $000C at $8F:95A8. The independent ROM
-    /// oracle checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1066, Forgotten Highway Elbow $8F:95CF: two words are
-    /// $8AA2 and $8ABA, exactly $8AA2 + 24*i for normalized BTS i=0..1.
-    /// Bank $83 interleaves Crab Maze's door headers. Index 2 reaches
-    /// scroll data $0D02 at $8F:95D3. The ROM oracle checks both entries,
-    /// high-bit aliases, and this first invalid index.
-    /// Issue #1067, Crateria Tube $8F:95FB: two words are $8AC6 and
-    /// $8AD2, exactly $8AC6 + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches next room header $000E at $8F:95FF. The ROM oracle checks
-    /// both entries, high-bit aliases, and this first invalid index.
-    /// Issue #1068, Moat $8F:9626: two words are $8ADE and $8AEA,
-    /// exactly $8ADE + 12*i for normalized BTS i=0..1. Index 2 reaches
-    /// next room header $000F at $8F:962A. The ROM oracle checks both
-    /// entries, high-bit aliases, and this first invalid index.
-    /// Issue #1069, Red Brinstar Elevator $8F:9651: normalized BTS i=0..1
-    /// uses $8AF6 + 12*i; i=2 names the shared elevator pseudo-door
-    /// $88FC, so the list is not one linear progression. Index 3 reaches
-    /// scroll data $0001 at $8F:9657. The ROM oracle checks all three
-    /// entries, high-bit aliases, and this first invalid index.
-    /// Issue #1070, Gauntlet E-Tank $8F:9682: two words are $8B0E and
-    /// $8B1A, exactly $8B0E + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches scroll data $0101 at $8F:9686. The independent ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1071, Pre-Bowling $8F:96B6: two words are $8B26 and
-    /// $8B32, exactly $8B26 + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches next room header $0012 at $8F:96BA. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1072, Climb $8F:971F: five words are $8B3E, $8B4A,
-    /// $8B56, $8B62, and $8B6E, exactly $8B3E + 12*i for normalized
-    /// BTS i=0..4. Index 5 reaches scroll data $0200 at $8F:9729.
-    /// The ROM oracle checks all entries, high-bit aliases, and boundary.
-    /// Issue #1073, Pit $8F:97A1: two words are $8B7A and $8B86,
-    /// exactly $8B7A + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches scroll data $0101 at $8F:97A5. The ROM oracle checks
-    /// both entries, high-bit aliases, and this first invalid index.
-    /// Issue #1074, Elevator to Blue Brinstar $8F:97FA: normalized BTS
-    /// i=0..1 uses $8B92 + 12*i; i=2 names the shared elevator
-    /// pseudo-door $88FC. Index 3 reaches scroll data $0001 at
-    /// $8F:9800. The ROM oracle checks all entries, high-bit aliases,
-    /// and this first invalid index.
-    /// Issue #1075, Bomb Torizo $8F:9869: the sole valid normalized BTS
-    /// index i=0 resolves to $8BAA; no stride is inferred from one word.
-    /// Index 1 reaches room-variable bytes $0A0F at $8F:986B. The ROM
-    /// oracle checks the word, both high-bit forms, and this boundary.
-    /// Issue #1076, Flyway $8F:98DE: two words are $8BB6 and $8BC2,
-    /// exactly $8BB6 + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches next room header $0017 at $8F:98E2. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1077, Pre-Map Flyway $8F:9909: two words are $8BCE
-    /// and $8BDA, exactly $8BCE + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $0018 at $8F:990D. The ROM
-    /// oracle checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1078, Terminator $8F:9934: two words are $8BE6 and
-    /// $8BF2, exactly $8BE6 + 12*i for normalized BTS i=0..1. Index 2
-    /// reaches next room header $0019 at $8F:9938. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1079, Green Brinstar Elevator $8F:995F: normalized BTS
-    /// i=0..1 uses $8BFE + 12*i; i=2 names the shared elevator
-    /// pseudo-door $88FC. Index 3 reaches scroll data $0001 at
-    /// $8F:9965. The ROM oracle checks all entries, high-bit aliases,
-    /// and this first invalid index.
-    /// Issue #1080, Lower Mushrooms $8F:9990: two words are $8C16
-    /// and $8C22, exactly $8C16 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $001B at $8F:9994. The ROM
-    /// oracle checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1081, Crateria Map $8F:99BB: sole valid normalized BTS
-    /// i=0 resolves to $8C2E; no stride follows from one word. Index 1
-    /// reaches next room header $001C at $8F:99BD. The ROM oracle
-    /// checks the entry, both high-bit forms, and this boundary.
-    /// Issue #1082, Green Pirates Shaft $8F:99E4: four words are $8C3A,
-    /// $8C46, $8C52, and $8C5E, exactly $8C3A + 12*i for normalized
-    /// BTS i=0..3. Index 4 reaches scroll data $0202 at $8F:99EC.
-    /// The ROM oracle checks all entries, aliases, and this boundary.
-    /// Issue #1083, Crateria Super $8F:9A20: two words are $8C6A and
-    /// $8C76, exactly $8C6A + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches scroll data $0101 at $8F:9A24. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1084, Final Missile Bombway $8F:9A8A: two words are
-    /// $8C82 and $8C8E, exactly $8C82 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches scroll data $0101 at $8F:9A8E.
-    /// The ROM oracle checks both entries, aliases, and this boundary.
-    /// Issue #1085, Final Missile $8F:9AD6: sole valid normalized BTS
-    /// i=0 resolves to $8C9A; no stride follows from one word. Index 1
-    /// reaches scroll data $0001 at $8F:9AD8. The ROM oracle checks
-    /// the entry, both high-bit forms, and this boundary.
-    /// Issue #1086, Green Brinstar Main Shaft $8F:9B00: normalized BTS
-    /// i=0..8 uses $8CA6 + 12*i; i=9 is the shared elevator
-    /// pseudo-door $88FC; i=10 resumes physical headers at $8D12
-    /// (= $8CA6 + 12*9). Index 11 reaches scroll data $0002 at
-    /// $8F:9B16. The ROM oracle checks all eleven entries and aliases.
-    /// Issue #1087, Spore Spawn Super $8F:9B82: two words are $8D1E
-    /// and $8D2A, exactly $8D1E + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches scroll data $0201 at $8F:9B86. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1088, Brinstar Pre-Map $8F:9BC4: two words are $8D36
-    /// and $8D42, exactly $8D36 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $0103 at $8F:9BC8. The ROM
-    /// oracle checks both entries, high-bit aliases, and boundary.
-    /// Issue #1089, Early Supers $8F:9BEF: two words are $8D4E and
-    /// $8D5A, exactly $8D4E + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches scroll data $0000 at $8F:9BF3. The ROM oracle
-    /// checks both entries, high-bit aliases, and this boundary.
-    /// Issue #1090, Brinstar Reserve Tank $8F:9C2E: sole valid
-    /// normalized BTS i=0 resolves to $8D66; no stride follows from
-    /// one word. Index 1 reaches scroll data $0001 at $8F:9C30.
-    /// The ROM oracle checks the entry, both aliases, and boundary.
-    /// Issue #1091, Green Brinstar Map $8F:9C5C: sole valid
-    /// normalized BTS i=0 resolves to $8D72; no stride follows from
-    /// one word. Index 1 reaches next room header $0106 at $8F:9C5E.
-    /// The ROM oracle checks the entry, both aliases, and boundary.
-    /// Issue #1092, Green Brinstar Firefleas $8F:9C85: two words
-    /// are $8D7E and $8D8A, exactly $8D7E + 12*i for normalized
-    /// BTS i=0..1. Index 2 reaches next room header $0107 at
-    /// $8F:9C89. The ROM oracle checks entries, aliases, and boundary.
-    /// Issue #1093, Green Brinstar Missile Refill $8F:9CB0: sole
-    /// valid normalized BTS i=0 resolves to $8D96. Index 1 reads
-    /// $0801 at $8F:9CB2: scroll byte $01, then next room header
-    /// byte $08. The ROM oracle checks the entry, aliases, and bound.
-    /// Issue #1094, Dachora $8F:9CDA: three words are $8DA2,
-    /// $8DAE, and $8DBA, exactly $8DA2 + 12*i for normalized
-    /// BTS i=0..2. Index 3 reaches scroll data $0101 at $8F:9CE0.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1095, Big Pink $8F:9D40: nine words run from $8DC6
-    /// through $8E26, exactly $8DC6 + 12*i for normalized BTS
-    /// i=0..8. Index 9 reaches scroll data $0000 at $8F:9D52.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1096, Spore Spawn Kihunters $8F:9DC3: two words are
-    /// $8E32 and $8E3E, exactly $8E32 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches next room header $010B at $8F:9DC7.
-    /// The ROM oracle checks entries, aliases, and boundary.
-    /// Issue #1097, Spore Spawn $8F:9E0D: two words are $8E4A
-    /// and $8E56, exactly $8E4A + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $010C at $8F:9E11. The ROM
-    /// oracle checks both entries, high-bit aliases, and boundary.
-    /// Issue #1098, Pink Brinstar Power Bombs $8F:9E38: two words
-    /// are $8E62 and $8E6E, exactly $8E62 + 12*i for normalized
-    /// BTS i=0..1. Index 2 reaches scroll data $0101 at $8F:9E3C.
-    /// The ROM oracle checks entries, aliases, and boundary.
-    /// Issue #1099, Green Hill Zone $8F:9E79: three words are $8E7A,
-    /// $8E86, and $8E92, exactly $8E7A + 12*i for normalized BTS
-    /// i=0..2. Index 3 reaches scroll data $0202 at $8F:9E7F.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1100, Morph Ball $8F:9EE5: normalized BTS i=0..2
-    /// uses $8E9E + 12*i; i=3 names shared elevator pseudo-door
-    /// $88FC. Index 4 reaches scroll data $0000 at $8F:9EED. The
-    /// ROM oracle checks all entries, aliases, and this boundary.
-    /// Issue #1101, Construction Zone $8F:9F57: three words are
-    /// $8EC2, $8ECE, and $8EDA, exactly $8EC2 + 12*i for normalized
-    /// BTS i=0..2. Index 3 reaches scroll data $0001 at $8F:9F5D.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1102, Blue Brinstar E-Tank $8F:9FAA: two words are
-    /// $8EE6 and $8EF2, exactly $8EE6 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches scroll data $0000 at $8F:9FAE.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1103, Noob Bridge $8F:9FE1: two words are $8EFE and
-    /// $8F0A, exactly $8EFE + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $0112 at $8F:9FE5. The ROM
-    /// oracle checks both entries, aliases, and boundary.
-    /// Issue #1104, Green Brinstar Beetoms $8F:A00C: two words are
-    /// $8F16 and $8F22, exactly $8F16 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reads $1301 at $8F:A010: scroll byte $01,
-    /// then next room header byte $13. The ROM oracle checks bounds.
-    /// Issue #1105, Etecoon E-Tank $8F:A038: four words are $8F2E,
-    /// $8F3A, $8F46, and $8F52, exactly $8F2E + 12*i for normalized
-    /// BTS i=0..3. Index 4 reaches scroll data $0101 at $8F:A040.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1106, Etecoon Super $8F:A078: sole valid normalized
-    /// BTS i=0 resolves to $8F5E; no stride follows from one word.
-    /// Index 1 reads $1501 at $8F:A07A: scroll byte $01, then next
-    /// room header byte $15. The ROM oracle checks aliases and bound.
-    /// Issue #1107, Dachora Energy Refill $8F:A0A2: sole valid
-    /// normalized BTS i=0 resolves to $8F6A; no stride follows from
-    /// one word. Index 1 reaches next room header $0116 at $8F:A0A4.
-    /// The ROM oracle checks the entry, aliases, and boundary.
-    /// Issue #1108, Spore Spawn Farming $8F:A0CB: two words are
-    /// $8F76 and $8F82, exactly $8F76 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches scroll data $0101 at $8F:A0CF.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1109, Waterway E-Tank $8F:A0F9: two words are $8F8E
-    /// and $8F9A, exactly $8F8E + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches scroll data $0100 at $8F:A0FD. The ROM oracle
-    /// checks both entries, high-bit aliases, and boundary.
-    /// Issue #1110, First Missile $8F:A12E: sole valid normalized
-    /// BTS i=0 resolves to $8FA6; no stride follows from one word.
-    /// Index 1 reaches next room header $0119 at $8F:A130. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1111, Pink Brinstar Hoppers $8F:A157: two words are
-    /// $8FB2 and $8FBE, exactly $8FB2 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches next room header $011A at $8F:A15B.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1112, Hopper E-Tank $8F:A182: sole valid normalized
-    /// BTS i=0 resolves to $8FCA; no stride follows from one word.
-    /// Index 1 reaches next room header $011B at $8F:A184. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1113, Big Pink Save Room $8F:A1AB: sole valid
-    /// normalized BTS i=0 resolves to $8FD6; no stride follows from
-    /// one word. Index 1 reaches next room header $011C at $8F:A1AD.
-    /// The ROM oracle checks the entry, aliases, and boundary.
-    /// Issue #1114, Blue Brinstar Boulders $8F:A1D4: two words are
-    /// $8FE2 and $8FEE, exactly $8FE2 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches next room header $011D at $8F:A1D8.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1115, Billy Mays $8F:A1FF: sole valid normalized BTS
-    /// i=0 resolves to $8FFA; no stride follows from one word.
-    /// Index 1 reaches next room header $011E at $8F:A201. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1116, Green Brinstar Save $8F:A228: sole valid
-    /// normalized BTS i=0 resolves to $9006; no stride follows from
-    /// one word. Index 1 reaches next room header $011F at $8F:A22A.
-    /// The ROM oracle checks the entry, aliases, and boundary.
-    /// Issue #1117, Etecoon Save $8F:A251: sole valid normalized
-    /// BTS i=0 resolves to $9012; no stride follows from one word.
-    /// Index 1 reaches next room header $0120 at $8F:A253. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1118, Red Tower $8F:A27A: five words run from $901E
-    /// through $904E, exactly $901E + 12*i for normalized BTS
-    /// i=0..4. Index 5 reaches scroll data $0202 at $8F:A284.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1119, Red Brinstar Firefleas $8F:A2BA: two words
-    /// are $905A and $9066, exactly $905A + 12*i for normalized
-    /// BTS i=0..1. Index 2 reaches scroll data $0202 at $8F:A2BE.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1120, X-ray Scope $8F:A2F5: sole valid normalized BTS
-    /// i=0 resolves to $9072; no stride follows from one word.
-    /// Index 1 reaches next room header $0123 at $8F:A2F7. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1121, Hellway $8F:A31E: two words are $907E and
-    /// $908A, exactly $907E + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $0124 at $8F:A322. The ROM
-    /// oracle checks both entries, aliases, and this boundary.
-    /// Issue #1122, Caterpillar $8F:A349: normalized BTS i=0..4
-    /// uses $9096 + 12*i; i=5 is shared elevator pseudo-door
-    /// $88FC; i=6 resumes physical headers at $90D2. Index 7
-    /// reaches scroll data $0002 at $8F:A357. The ROM oracle checks
-    /// all seven entries, high-bit aliases, and this boundary.
-    /// Issue #1123, Beta Power Bomb $8F:A3A3: sole valid normalized
-    /// BTS i=0 resolves to $90DE; no stride follows from one word.
-    /// Index 1 reaches scroll data $0101 at $8F:A3A5. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1124, Alpha Power Bomb $8F:A3D5: sole valid normalized
-    /// BTS i=0 resolves to $90EA; no stride follows from one word.
-    /// Index 1 reaches scroll data $0100 at $8F:A3D7. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1125, Skree Boost $8F:A404: two words are $90F6 and
-    /// $9102, exactly $90F6 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $0128 at $8F:A408. The ROM
-    /// oracle checks both entries, aliases, and this boundary.
-    /// Issue #1126, Below Spazer $8F:A42F: three words are $910E,
-    /// $911A, and $9126, exactly $910E + 12*i for normalized BTS
-    /// i=0..2. Index 3 reaches scroll data $0000 at $8F:A435.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1127, Spazer $8F:A46E: sole valid normalized BTS i=0
-    /// resolves to $9132; no stride follows from one word. Index 1
-    /// reads $2A01 at $8F:A470: scroll byte $01, then next room
-    /// header byte $2A. The ROM oracle checks aliases and bound.
-    /// Issue #1128, Warehouse Zeela $8F:A498: three words are
-    /// $913E, $914A, and $9156, exactly $913E + 12*i for normalized
-    /// BTS i=0..2. Index 3 reaches scroll data $0001 at $8F:A49E.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1129, Warehouse E-Tank $8F:A4D8: sole valid
-    /// normalized BTS i=0 resolves to $9162; no stride follows from
-    /// one word. Index 1 reaches next room header $012C at $8F:A4DA.
-    /// The ROM oracle checks the entry, aliases, and boundary.
-    /// Issue #1130, Warehouse Kihunter $8F:A501: three words are
-    /// $916E, $917A, and $9186, exactly $916E + 12*i for normalized
-    /// BTS i=0..2. Index 3 reaches scroll data $0102 at $8F:A507.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1131, Mini Kraid $8F:A567: two words are $9192 and
-    /// $919E, exactly $9192 + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches next room header $012E at $8F:A56B. The ROM
-    /// oracle checks both entries, aliases, and this boundary.
-    /// Issue #1132, Kraid Eye Door $8F:A592: three words are
-    /// $91AA, $91B6, and $91C2, exactly $91AA + 12*i for normalized
-    /// BTS i=0..2. Index 3 reaches scroll data $0000 at $8F:A598.
-    /// The ROM oracle checks all entries, aliases, and boundary.
-    /// Issue #1133, Kraid $8F:A5E5: two words are $91CE and
-    /// $91DA, exactly $91CE + 12*i for normalized BTS i=0..1.
-    /// Index 2 reaches scroll data $0202 at $8F:A5E9. The ROM
-    /// oracle checks both entries, aliases, and this boundary.
-    /// Issue #1134, Statues Hallway $8F:A614: two words are
-    /// $91E6 and $91F2, exactly $91E6 + 12*i for normalized BTS
-    /// i=0..1. Index 2 reaches next room header $0131 at $8F:A618.
-    /// The ROM oracle checks both entries, aliases, and boundary.
-    /// Issue #1135, Red Tower Refill $8F:A63F: sole valid normalized
-    /// BTS i=0 resolves to $91FE; no stride follows from one word.
-    /// Index 1 reaches next room header $0132 at $8F:A641. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1136, Kraid Refill $8F:A668: sole valid normalized
-    /// BTS i=0 resolves to $920A; no stride follows from one word.
-    /// Index 1 reaches next room header $0033 at $8F:A66A. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1137, Statues $8F:A691: normalized BTS i=0..1 uses
-    /// $9216 + 12*i; i=2 names shared elevator pseudo-door $88FC.
-    /// Index 3 reaches scroll data $0001 at $8F:A697. The ROM
-    /// oracle checks all entries, aliases, and this boundary.
-    /// Issue #1138, Warehouse Entrance $8F:A6C8: normalized BTS
-    /// i=0..2 uses $922E + 12*i; i=3 names shared elevator
-    /// pseudo-door $88FC. Index 4 reaches scroll data $0001 at
-    /// $8F:A6D0. The ROM oracle checks entries, aliases, and bound.
-    /// Issue #1139, Varia Suit $8F:A709: sole valid normalized BTS
-    /// i=0 resolves to $9252; no stride follows from one word.
-    /// Index 1 reaches next room header $0136 at $8F:A70B. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1140, Warehouse Save $8F:A732: sole valid normalized
-    /// BTS i=0 resolves to $925E; no stride follows from one word.
-    /// Index 1 reaches next room header $0137 at $8F:A734. The ROM
-    /// oracle checks the entry, both aliases, and this boundary.
-    /// Issue #1141, Red Brinstar Save $8F:A75B: sole valid
-    /// normalized BTS i=0 resolves to $926A; no stride follows from
-    /// one word. Index 1 reaches next room header $0200 at $8F:A75D.
-    /// The ROM oracle checks the entry, aliases, and boundary.
-    /// Issue #1142, Ice Beam Acid $8F:A784: normalized BTS i=0..1
-    /// selects $9276 + 12*i. Index 2 reaches next room header $0201
-    /// at $8F:A788. The ROM oracle checks entries, aliases, and bound.
-    /// Issue #1143, Cathedral $8F:A7AF: normalized BTS i=0..1
-    /// selects $928E + 12*i. Index 2 reaches next room header $0202
-    /// at $8F:A7B3. The ROM oracle checks entries, aliases, and bound.
-    /// Issue #1144, Cathedral Entrance $8F:A7DA: normalized BTS
-    /// i=0..1 selects $92A6 + 12*i. Index 2 reaches next room header
-    /// $0203 at $8F:A7DE. The ROM oracle checks entries and aliases.
-    /// Issue #1145, Business Center $8F:A805: normalized BTS i=0..4
-    /// selects $92BE + 12*i; i=5 selects shared elevator pseudo-door
-    /// $88FC; i=6..7 selects $92BE + 12*(i-1). Index 8 reaches next
-    /// room header $0204 at $8F:A815. The ROM oracle checks all eight
-    /// entries, high-bit aliases, and the first rejected index.
-    /// Issue #1146, Ice Beam Gate $8F:A83C: normalized BTS i=0..3
-    /// selects $9312 + 12*i. Index 4 reaches scroll data $0000 at
-    /// $8F:A844. The ROM oracle checks entries, aliases, and bound.
-    /// Issue #1147, Ice Beam Tutorial $8F:A88C: normalized BTS i=0..1
-    /// selects $9342 + 12*i. Index 2 reaches next room header $0206
-    /// at $8F:A890. The ROM oracle checks entries, aliases, and bound.
-    /// Issue #1148, Ice Beam $8F:A8B7: sole valid normalized BTS i=0
-    /// selects $935A; no stride follows from one word. Index 1 reaches
-    /// next room header $0207 at $8F:A8B9. The ROM oracle checks the
-    /// entry, high-bit alias, and first rejected index.
-    /// Issue #1149, Ice Beam Snake $8F:A8E0: normalized BTS i=0..2
-    /// selects $9366 + 12*i. Index 3 reaches scroll data $0002 at
-    /// $8F:A8E6. The ROM oracle checks all entries, high-bit aliases,
-    /// and the first rejected index.
-    /// </remarks>
-    private static readonly DoorListDefinition[] lists =
-    [
-        new(0x927B, [0x8916, 0x8922, 0x892E, 0x893A]),
-        new(0x92F9, [0x8946, 0x8952]),
-        new(0x9362, [0x895E, 0x896A, 0x8976, 0x8982, 0x898E, 0x899A, 0x89A6]),
-        new(0x93D1, [0x89B2]),
-        new(0x93FC, [0x89BE]),
-        new(0x9425, [0x89CA, 0x89D6, 0x89E2, 0x89EE, 0x89FA, 0x8A06]),
-        new(0x9488, [0x8A12, 0x8A1E]),
-        new(0x94B3, [0x8A2A, 0x8A36, 0x8A42]),
-        new(0x94F3, [0x8A4E, 0x8A5A, 0x88FC]),
-        new(0x9524, [0x8A66, 0x8A72]),
-        new(0x9579, [0x8A7E, 0x8A8A]),
-        new(0x95A4, [0x8A96, 0x8AAE]),
-        new(0x95CF, [0x8AA2, 0x8ABA]),
-        new(0x95FB, [0x8AC6, 0x8AD2]),
-        new(0x9626, [0x8ADE, 0x8AEA]),
-        new(0x9651, [0x8AF6, 0x8B02, 0x88FC]),
-        new(0x9682, [0x8B0E, 0x8B1A]),
-        new(0x96B6, [0x8B26, 0x8B32]),
-        new(0x971F, [0x8B3E, 0x8B4A, 0x8B56, 0x8B62, 0x8B6E]),
-        new(0x97A1, [0x8B7A, 0x8B86]),
-        new(0x97FA, [0x8B92, 0x8B9E, 0x88FC]),
-        new(0x9869, [0x8BAA]),
-        new(0x98DE, [0x8BB6, 0x8BC2]),
-        new(0x9909, [0x8BCE, 0x8BDA]),
-        new(0x9934, [0x8BE6, 0x8BF2]),
-        new(0x995F, [0x8BFE, 0x8C0A, 0x88FC]),
-        new(0x9990, [0x8C16, 0x8C22]),
-        new(0x99BB, [0x8C2E]),
-        new(0x99E4, [0x8C3A, 0x8C46, 0x8C52, 0x8C5E]),
-        new(0x9A20, [0x8C6A, 0x8C76]),
-        new(0x9A8A, [0x8C82, 0x8C8E]),
-        new(0x9AD6, [0x8C9A]),
-        new(0x9B00, [0x8CA6, 0x8CB2, 0x8CBE, 0x8CCA, 0x8CD6, 0x8CE2, 0x8CEE, 0x8CFA, 0x8D06, 0x88FC, 0x8D12]),
-        new(0x9B82, [0x8D1E, 0x8D2A]),
-        new(0x9BC4, [0x8D36, 0x8D42]),
-        new(0x9BEF, [0x8D4E, 0x8D5A]),
-        new(0x9C2E, [0x8D66]),
-        new(0x9C5C, [0x8D72]),
-        new(0x9C85, [0x8D7E, 0x8D8A]),
-        new(0x9CB0, [0x8D96]),
-        new(0x9CDA, [0x8DA2, 0x8DAE, 0x8DBA]),
-        new(0x9D40, [0x8DC6, 0x8DD2, 0x8DDE, 0x8DEA, 0x8DF6, 0x8E02, 0x8E0E, 0x8E1A, 0x8E26]),
-        new(0x9DC3, [0x8E32, 0x8E3E]),
-        new(0x9E0D, [0x8E4A, 0x8E56]),
-        new(0x9E38, [0x8E62, 0x8E6E]),
-        new(0x9E79, [0x8E7A, 0x8E86, 0x8E92]),
-        new(0x9EE5, [0x8E9E, 0x8EAA, 0x8EB6, 0x88FC]),
-        new(0x9F57, [0x8EC2, 0x8ECE, 0x8EDA]),
-        new(0x9FAA, [0x8EE6, 0x8EF2]),
-        new(0x9FE1, [0x8EFE, 0x8F0A]),
-        new(0xA00C, [0x8F16, 0x8F22]),
-        new(0xA038, [0x8F2E, 0x8F3A, 0x8F46, 0x8F52]),
-        new(0xA078, [0x8F5E]),
-        new(0xA0A2, [0x8F6A]),
-        new(0xA0CB, [0x8F76, 0x8F82]),
-        new(0xA0F9, [0x8F8E, 0x8F9A]),
-        new(0xA12E, [0x8FA6]),
-        new(0xA157, [0x8FB2, 0x8FBE]),
-        new(0xA182, [0x8FCA]),
-        new(0xA1AB, [0x8FD6]),
-        new(0xA1D4, [0x8FE2, 0x8FEE]),
-        new(0xA1FF, [0x8FFA]),
-        new(0xA228, [0x9006]),
-        new(0xA251, [0x9012]),
-        new(0xA27A, [0x901E, 0x902A, 0x9036, 0x9042, 0x904E]),
-        new(0xA2BA, [0x905A, 0x9066]),
-        new(0xA2F5, [0x9072]),
-        new(0xA31E, [0x907E, 0x908A]),
-        new(0xA349, [0x9096, 0x90A2, 0x90AE, 0x90BA, 0x90C6, 0x88FC, 0x90D2]),
-        new(0xA3A3, [0x90DE]),
-        new(0xA3D5, [0x90EA]),
-        new(0xA404, [0x90F6, 0x9102]),
-        new(0xA42F, [0x910E, 0x911A, 0x9126]),
-        new(0xA46E, [0x9132]),
-        new(0xA498, [0x913E, 0x914A, 0x9156]),
-        new(0xA4D8, [0x9162]),
-        new(0xA501, [0x916E, 0x917A, 0x9186]),
-        new(0xA567, [0x9192, 0x919E]),
-        new(0xA592, [0x91AA, 0x91B6, 0x91C2]),
-        new(0xA5E5, [0x91CE, 0x91DA]),
-        new(0xA614, [0x91E6, 0x91F2]),
-        new(0xA63F, [0x91FE]),
-        new(0xA668, [0x920A]),
-        new(0xA691, [0x9216, 0x9222, 0x88FC]),
-        new(0xA6C8, [0x922E, 0x923A, 0x9246, 0x88FC]),
-        new(0xA709, [0x9252]),
-        new(0xA732, [0x925E]),
-        new(0xA75B, [0x926A]),
-        new(0xA784, [0x9276, 0x9282]),
-        new(0xA7AF, [0x928E, 0x929A]),
-        new(0xA7DA, [0x92A6, 0x92B2]),
-        new(0xA805, [0x92BE, 0x92CA, 0x92D6, 0x92E2, 0x92EE, 0x88FC, 0x92FA, 0x9306]),
-        new(0xA83C, [0x9312, 0x931E, 0x932A, 0x9336]),
-        new(0xA88C, [0x9342, 0x934E]),
-        new(0xA8B7, [0x935A]),
-        new(0xA8E0, [0x9366, 0x9372, 0x937E]),
-        new(0xA91F, [0x938A, 0x9396]),
-        new(0xA94A, [0x93A2, 0x93AE, 0x93BA, 0x93C6, 0x93D2]),
-        new(0xA9D3, [0x93DE, 0x93EA]),
-        new(0xAA0C, [0x93F6]),
-        new(0xAA35, [0x9402, 0x940E]),
-        new(0xAA68, [0x941A, 0x9426]),
-        new(0xAAA9, [0x9432, 0x943E, 0x944A, 0x9456]),
-        new(0xAADC, [0x9462]),
-        new(0xAB05, [0x946E]),
-        new(0xAB2E, [0x947A, 0x9486, 0x9492, 0x949E]),
-        new(0xAB62, [0x94AA]),
-        new(0xAB8B, [0x94B6, 0x94C2]),
-        new(0xABB6, [0x94CE, 0x94DA]),
-        new(0xABF9, [0x94E6, 0x94F2]),
-        new(0xAC27, [0x94FE, 0x950A]),
-        new(0xAC52, [0x9516, 0x9522]),
-        new(0xAC81, [0x952E]),
-        new(0xACAA, [0x953A, 0x9546]),
-        new(0xACDA, [0x9552, 0x955E, 0x956A, 0x9576, 0x9582, 0x958E, 0x959A]),
-        new(0xAD17, [0x95A6, 0x95B2]),
-        new(0xAD5C, [0x95BE]),
-        new(0xAD85, [0x95CA, 0x95D6, 0x95E2, 0x95EE, 0x95FA]),
-        new(0xADD4, [0x9606, 0x9612, 0x961E]),
-        new(0xAE05, [0x962A]),
-        new(0xAE2E, [0x9636, 0x9642]),
-        new(0xAE59, [0x964E, 0x965A]),
-        new(0xAE9B, [0x9666, 0x9672, 0x967E, 0x968A]),
-        new(0xAEDB, [0x9696, 0x96A2]),
-        new(0xAF06, [0x96AE, 0x96BA, 0x96C6]),
-        new(0xAF3B, [0x96D2, 0x96DE]),
-        new(0xAF66, [0x96EA, 0x96F6, 0x88FC, 0x9702]),
-        new(0xAF99, [0x970E, 0x971A, 0x9726]),
-        new(0xAFCA, [0x9732, 0x973E]),
-        new(0xAFF5, [0x974A, 0x9756, 0x9762]),
-        new(0xB022, [0x976E, 0x977A]),
-        new(0xB04D, [0x9786, 0x9792]),
-        new(0xB078, [0x979E]),
-        new(0xB0A1, [0x97AA, 0x97B6]),
-        new(0xB0DB, [0x97C2]),
-        new(0xB104, [0x97CE]),
-        new(0xB12D, [0x97DA, 0x97E6]),
-        new(0xB160, [0x97F2, 0x97FE]),
-        new(0xB18E, [0x980A, 0x9816]),
-        new(0xB1B9, [0x9822]),
-        new(0xB1E2, [0x982E]),
-        new(0xB20C, [0x983A, 0x9846]),
-        new(0xB25D, [0x9852, 0x985E, 0x986A, 0x88FC]),
-        new(0xB2C9, [0x9876, 0x9882]),
-        new(0xB301, [0x988E, 0x989A]),
-        new(0xB32C, [0x98A6]),
-        new(0xB374, [0x98B2, 0x98BE]),
-        new(0xB3A1, [0x98CA, 0x98D6]),
-        new(0xB3CC, [0x98E2, 0x98EE, 0x98FA, 0x9906, 0x9912]),
-        new(0xB408, [0x991E]),
-        new(0xB431, [0x992A, 0x9936]),
-        new(0xB47E, [0x9942, 0x994E]),
-        new(0xB4A9, [0x995A, 0x9966]),
-        new(0xB4D4, [0x9972, 0x997E, 0x998A]),
-        new(0xB50C, [0x9996, 0x99A2]),
-        new(0xB537, [0x99AE, 0x99BA, 0x99C6]),
-        new(0xB581, [0x99D2, 0x99DE]),
-        new(0xB5AC, [0x99EA, 0x99F6, 0x9A02, 0x9A0E]),
-        new(0xB5FC, [0x9A1A, 0x9A26]),
-        new(0xB652, [0x9A32, 0x9A3E]),
-        new(0xB67D, [0x9A4A, 0x9A56]),
-        new(0xB6BF, [0x9A62]),
-        new(0xB6E8, [0x9A6E, 0x9A7A, 0x9A86]),
-        new(0xB715, [0x9A92, 0x9A9E, 0x9AAA]),
-        new(0xB768, [0x9AB6]),
-        new(0xC9D4, [0xA18C, 0xA198, 0xA1A4]),
-        new(0xCA4E, [0xA1B0, 0xA1BC]),
-        new(0xCA98, [0xA1C8, 0xA1D4, 0xA1E0]),
-        new(0xCAF4, [0xA1EC]),
-        new(0xCB3C, [0xA1F8, 0xA204, 0xA210, 0xA21C, 0xA228, 0xA234, 0xA240]),
-        new(0xCBD1, [0xA24C, 0xA258]),
-        new(0xCC1B, [0xA264, 0xA270, 0xA27C]),
-        new(0xCC6D, [0xA288]),
-        new(0xCCB5, [0xA294, 0xA2A0, 0xA2AC]),
-        new(0xCD11, [0xA2B8]),
-        new(0xCD59, [0xA2C4]),
-        new(0xCDA2, [0xA2D0, 0xA2DC]),
-        new(0xCDEE, [0xA2E8]),
-        new(0xCE37, [0xA2F4]),
-        new(0xCE86, [0xA300, 0xA30C]),
-        new(0xCED0, [0xA318]),
-        new(0xCEF9, [0xA324]),
-        new(0xCF41, [0xA330, 0xA33C, 0xA348, 0xA354]),
-        new(0xCF7B, [0xA360, 0xA36C]),
-        new(0xCFA7, [0xA378, 0xA384, 0xA390]),
-        new(0xCFF0, [0xA39C, 0xA3A8, 0xA3B4, 0xA3C0, 0xA3CC]),
-        new(0xD03E, [0xA3D8, 0xA3E4, 0xA3F0, 0xA3FC]),
-        new(0xD07C, [0xA408]),
-        new(0xD0B1, [0xA414, 0xA420]),
-        new(0xD0E0, [0xA42C, 0xA438, 0xA444, 0xA450, 0xA45C, 0xA468]),
-        new(0xD12B, [0xA474, 0xA480]),
-        new(0xD162, [0xA48C]),
-        new(0xD194, [0xA498, 0xA4A4]),
-        new(0xD1CA, [0xA4B0, 0xA4BC, 0xA4C8]),
-        new(0xD204, [0xA4D4, 0xA4E0, 0xA4EC]),
-        new(0xD243, [0xA4F8, 0xA504, 0xA510, 0xA51C]),
-        new(0xD279, [0xA528, 0xA534]),
-        new(0xD2A5, [0xA540, 0xA54C]),
-        new(0xD2D1, [0xA558]),
-        new(0xD300, [0xA564, 0xA570]),
-        new(0xD332, [0xA57C, 0xA588, 0xA594]),
-        new(0xD367, [0xA5A0, 0xA5AC, 0xA5B8, 0xA5C4]),
-        new(0xD3AE, [0xA5D0, 0xA5DC]),
-        new(0xD3DD, [0xA5E8]),
-        new(0xD406, [0xA5F4]),
-        new(0xD42F, [0xA600, 0xA60C]),
-        new(0xD45A, [0xA618, 0xA624, 0xA630]),
-        new(0xD488, [0xA63C, 0xA648, 0xA654]),
-        new(0xD4B5, [0xA660, 0xA66C, 0xA678]),
-        new(0xD4E9, [0xA684, 0xA690, 0xA69C]),
-        new(0xD516, [0xA6A8, 0xA6B4]),
-        new(0xD545, [0xA6C0, 0xA6CC]),
-        new(0xD574, [0xA6D8, 0xA6E4]),
-        new(0xD5A1, [0xA6F0, 0xA6FC]),
-        new(0xD5CE, [0xA708, 0xA714, 0xA720, 0xA72C, 0xA738, 0xA744]),
-        new(0xD613, [0xA750, 0xA75C]),
-        new(0xD63E, [0xA768, 0xA774]),
-        new(0xD66D, [0xA780, 0xA78C, 0xA798, 0xA7A4]),
-        new(0xD6C1, [0xA7B0, 0xA7BC]),
-        new(0xD6F7, [0xA7C8]),
-        new(0xD724, [0xA7D4]),
-        new(0xD751, [0xA7E0, 0xA7EC, 0xA7F8]),
-        new(0xD78C, [0xA828]),
-        new(0xD7D5, [0xA834, 0xA840]),
-        new(0xD80B, [0xA84C, 0xA858, 0xA864, 0xA870]),
-        new(0xD841, [0xA87C, 0xA888]),
-        new(0xD86C, [0xA894]),
-        new(0xD895, [0xA8A0]),
-        new(0xD8BF, [0xA8AC, 0xA8B8]),
-        new(0xD90B, [0xA8C4, 0xA8D0]),
-        new(0xD93A, [0xA8DC, 0xA8E8, 0xA8F4, 0xA900]),
-        new(0xD9A4, [0xA90C, 0xA918]),
-        new(0xD9D1, [0xA924]),
-        new(0xD9FB, [0xA930]),
-        new(0xDA25, [0xA93C, 0xA948]),
-        new(0xDA52, [0xA954, 0xA960]),
-        new(0xDAA6, [0xA96C, 0xA978]),
-        new(0xDAD5, [0xA984, 0xA990]),
-        new(0xDB27, [0xA9A8, 0xA9B4]),
-        new(0xDB77, [0xA9C0, 0xA9CC]),
-        new(0xDBC3, [0xA9D8, 0xA9E4]),
-        new(0xDC13, [0xA9F0, 0xA9FC]),
-        new(0xDC5F, [0xAA08, 0xAA14]),
-        new(0xDCAB, [0xAA20, 0xAA2C]),
-        new(0xDCF7, [0xAA38, 0xAA44]),
-        new(0xDD26, [0xAA50, 0xAA5C, 0xAA68]),
-        new(0xDD55, [0xAA74]),
-        new(0xDDBC, [0xAA80, 0xAA8C]),
-        new(0xDDEB, [0xAA98, 0xAAA4]),
-        new(0xDE1A, [0xAAB0, 0xAABC, 0xAAC8]),
-        new(0xDE4A, [0xAAD4]),
-        new(0xDE74, [0xAAE0, 0xAAEC]),
-        new(0xDEA1, [0xAAF8, 0xAB04]),
-        new(0xDECE, [0xAB10, 0xAB1C]),
-        new(0xDF05, [0xAB28, 0xAB34]),
-        new(0xDF42, [0xAB40]),
-        new(0xDF8B, [0xAB4C]),
-        new(0xDFD3, [0xAB58, 0xAB64]),
-        new(0xE01D, [0xAB70, 0xAB7C]),
-        new(0xE067, [0xAB88, 0xAB94]),
-        new(0xE0B1, [0xABA0, 0xABAC]),
-        new(0xE0FB, [0xABB8]),
-    ];
-
     /// <summary>Number of physical door records across the two native bank-$83 blocks.</summary>
     public const int HeaderCount = 597;
 
@@ -1315,29 +646,7 @@ public static class DoorDefinitions
     /// <summary>Number of door references addressable by retail room BTS indexes.</summary>
     public const int RoomDoorReferenceCount = 603;
 
-    static DoorDefinitions()
-    {
-        ValidateSortedPointers();
-        int referenceCount = 0;
-        foreach (DoorListDefinition list in lists)
-        {
-            if (list.DoorPointers.Length == 0)
-            {
-                throw new InvalidOperationException(
-                    $"Compiled door list $8F:{list.Pointer:X4} contains no doors.");
-            }
-
-            referenceCount += list.DoorPointers.Length;
-            foreach (ushort doorPointer in list.DoorPointers.Span)
-                _ = Get(doorPointer);
-        }
-
-        if (referenceCount != RoomDoorReferenceCount)
-        {
-            throw new InvalidOperationException(
-                $"Compiled room door lists contain {referenceCount} references, not {RoomDoorReferenceCount}.");
-        }
-    }
+    static DoorDefinitions() => ValidateSortedPointers();
 
     /// <summary>Returns a compiled physical or shared elevator door by its bank-$83 pointer.</summary>
     public static CartridgeDoorHeader Get(ushort doorPointer)
@@ -1363,45 +672,312 @@ public static class DoorDefinitions
             "Pointer is not a physical retail door header or the shared elevator pseudo-door.");
     }
 
-    /// <summary>Resolves a type-$9 BTS through the compiled list for its owning room.</summary>
+    /// <summary>Resolves type-$9 BTS through the room's bounded physical-header progression.</summary>
     public static CartridgeDoorHeader Resolve(ushort doorListPointer, byte behavior)
     {
-        DoorListDefinition list = GetList(doorListPointer);
-        int index = behavior & 0x7f;
-        if ((uint)index >= (uint)list.DoorPointers.Length)
-        {
-            throw new InvalidDataException(
-                $"Door BTS 0x{behavior:X2} indexes entry {index} outside the " +
-                $"{list.DoorPointers.Length}-entry list $8F:{doorListPointer:X4}.");
-        }
-
-        return Get(list.DoorPointers.Span[index]);
+        DoorListLayout layout = ListLayout(doorListPointer);
+        return Get(PointerAt(doorListPointer, layout, behavior & 0x7f));
     }
 
-    /// <summary>Returns the compiled BTS-index ordering for one retail room door list.</summary>
+    /// <summary>Materializes an immutable caller-owned view of the calculated native BTS order.</summary>
     public static DoorListDefinition GetList(ushort doorListPointer)
     {
-        int low = 0;
-        int high = lists.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            int comparison = lists[middle].Pointer.CompareTo(doorListPointer);
-            if (comparison == 0)
-                return lists[middle];
-            if (comparison < 0)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(doorListPointer), doorListPointer,
-            "Pointer is not one of the 262 retail room door lists.");
+        DoorListLayout layout = ListLayout(doorListPointer);
+        var pointers = new ushort[layout.Count];
+        for (int index = 0; index < pointers.Length; index++)
+            pointers[index] = PointerAt(doorListPointer, layout, index);
+        return new DoorListDefinition(doorListPointer, pointers);
     }
+
+    private static ushort PointerAt(ushort listPointer, DoorListLayout layout, int index)
+    {
+        if ((uint)index >= (uint)layout.Count)
+            throw new InvalidDataException($"Door index {index} is outside the {layout.Count}-entry list $8F:{listPointer:X4}.");
+        if (index == layout.ElevatorIndex) return DoorHeaderRomData.ElevatorPseudoDoorPointer;
+        int physicalIndex = index - (layout.ElevatorIndex >= 0 && index > layout.ElevatorIndex ? 1 : 0);
+        return checked((ushort)(layout.First + layout.Stride * physicalIndex));
+    }
+
+    private readonly record struct DoorListLayout(ushort First, int Count, int Stride = 12, int ElevatorIndex = -1);
+
+    /// <summary>Each room selects its first physical header, bounded list length and optional elevator slot.</summary>
+    /// <remarks>Independently reviewed against all603 native bank-$8F words for #1165.
+    /// Physical headers occupy twelve-byte records in bank $83. Crab Maze and
+    /// Forgotten Highway Elbow alternate records, so their stride is24; all other
+    /// physical lists use12. Twelve lists insert shared pseudo-door $88FC without
+    /// consuming a physical record, including interior insertions. No stored door
+    /// reference array or generated cache remains. Unknown list identities reject.</remarks>
+    private static DoorListLayout ListLayout(ushort doorListPointer) => doorListPointer switch
+    {
+        0x927B => new(0x8916, 4),
+        0x92F9 => new(0x8946, 2),
+        0x9362 => new(0x895E, 7),
+        0x93D1 => new(0x89B2, 1),
+        0x93FC => new(0x89BE, 1),
+        0x9425 => new(0x89CA, 6),
+        0x9488 => new(0x8A12, 2),
+        0x94B3 => new(0x8A2A, 3),
+        0x94F3 => new(0x8A4E, 3, ElevatorIndex: 2),
+        0x9524 => new(0x8A66, 2),
+        0x9579 => new(0x8A7E, 2),
+        0x95A4 => new(0x8A96, 2, Stride: 24),
+        0x95CF => new(0x8AA2, 2, Stride: 24),
+        0x95FB => new(0x8AC6, 2),
+        0x9626 => new(0x8ADE, 2),
+        0x9651 => new(0x8AF6, 3, ElevatorIndex: 2),
+        0x9682 => new(0x8B0E, 2),
+        0x96B6 => new(0x8B26, 2),
+        0x971F => new(0x8B3E, 5),
+        0x97A1 => new(0x8B7A, 2),
+        0x97FA => new(0x8B92, 3, ElevatorIndex: 2),
+        0x9869 => new(0x8BAA, 1),
+        0x98DE => new(0x8BB6, 2),
+        0x9909 => new(0x8BCE, 2),
+        0x9934 => new(0x8BE6, 2),
+        0x995F => new(0x8BFE, 3, ElevatorIndex: 2),
+        0x9990 => new(0x8C16, 2),
+        0x99BB => new(0x8C2E, 1),
+        0x99E4 => new(0x8C3A, 4),
+        0x9A20 => new(0x8C6A, 2),
+        0x9A8A => new(0x8C82, 2),
+        0x9AD6 => new(0x8C9A, 1),
+        0x9B00 => new(0x8CA6, 11, ElevatorIndex: 9),
+        0x9B82 => new(0x8D1E, 2),
+        0x9BC4 => new(0x8D36, 2),
+        0x9BEF => new(0x8D4E, 2),
+        0x9C2E => new(0x8D66, 1),
+        0x9C5C => new(0x8D72, 1),
+        0x9C85 => new(0x8D7E, 2),
+        0x9CB0 => new(0x8D96, 1),
+        0x9CDA => new(0x8DA2, 3),
+        0x9D40 => new(0x8DC6, 9),
+        0x9DC3 => new(0x8E32, 2),
+        0x9E0D => new(0x8E4A, 2),
+        0x9E38 => new(0x8E62, 2),
+        0x9E79 => new(0x8E7A, 3),
+        0x9EE5 => new(0x8E9E, 4, ElevatorIndex: 3),
+        0x9F57 => new(0x8EC2, 3),
+        0x9FAA => new(0x8EE6, 2),
+        0x9FE1 => new(0x8EFE, 2),
+        0xA00C => new(0x8F16, 2),
+        0xA038 => new(0x8F2E, 4),
+        0xA078 => new(0x8F5E, 1),
+        0xA0A2 => new(0x8F6A, 1),
+        0xA0CB => new(0x8F76, 2),
+        0xA0F9 => new(0x8F8E, 2),
+        0xA12E => new(0x8FA6, 1),
+        0xA157 => new(0x8FB2, 2),
+        0xA182 => new(0x8FCA, 1),
+        0xA1AB => new(0x8FD6, 1),
+        0xA1D4 => new(0x8FE2, 2),
+        0xA1FF => new(0x8FFA, 1),
+        0xA228 => new(0x9006, 1),
+        0xA251 => new(0x9012, 1),
+        0xA27A => new(0x901E, 5),
+        0xA2BA => new(0x905A, 2),
+        0xA2F5 => new(0x9072, 1),
+        0xA31E => new(0x907E, 2),
+        0xA349 => new(0x9096, 7, ElevatorIndex: 5),
+        0xA3A3 => new(0x90DE, 1),
+        0xA3D5 => new(0x90EA, 1),
+        0xA404 => new(0x90F6, 2),
+        0xA42F => new(0x910E, 3),
+        0xA46E => new(0x9132, 1),
+        0xA498 => new(0x913E, 3),
+        0xA4D8 => new(0x9162, 1),
+        0xA501 => new(0x916E, 3),
+        0xA567 => new(0x9192, 2),
+        0xA592 => new(0x91AA, 3),
+        0xA5E5 => new(0x91CE, 2),
+        0xA614 => new(0x91E6, 2),
+        0xA63F => new(0x91FE, 1),
+        0xA668 => new(0x920A, 1),
+        0xA691 => new(0x9216, 3, ElevatorIndex: 2),
+        0xA6C8 => new(0x922E, 4, ElevatorIndex: 3),
+        0xA709 => new(0x9252, 1),
+        0xA732 => new(0x925E, 1),
+        0xA75B => new(0x926A, 1),
+        0xA784 => new(0x9276, 2),
+        0xA7AF => new(0x928E, 2),
+        0xA7DA => new(0x92A6, 2),
+        0xA805 => new(0x92BE, 8, ElevatorIndex: 5),
+        0xA83C => new(0x9312, 4),
+        0xA88C => new(0x9342, 2),
+        0xA8B7 => new(0x935A, 1),
+        0xA8E0 => new(0x9366, 3),
+        0xA91F => new(0x938A, 2),
+        0xA94A => new(0x93A2, 5),
+        0xA9D3 => new(0x93DE, 2),
+        0xAA0C => new(0x93F6, 1),
+        0xAA35 => new(0x9402, 2),
+        0xAA68 => new(0x941A, 2),
+        0xAAA9 => new(0x9432, 4),
+        0xAADC => new(0x9462, 1),
+        0xAB05 => new(0x946E, 1),
+        0xAB2E => new(0x947A, 4),
+        0xAB62 => new(0x94AA, 1),
+        0xAB8B => new(0x94B6, 2),
+        0xABB6 => new(0x94CE, 2),
+        0xABF9 => new(0x94E6, 2),
+        0xAC27 => new(0x94FE, 2),
+        0xAC52 => new(0x9516, 2),
+        0xAC81 => new(0x952E, 1),
+        0xACAA => new(0x953A, 2),
+        0xACDA => new(0x9552, 7),
+        0xAD17 => new(0x95A6, 2),
+        0xAD5C => new(0x95BE, 1),
+        0xAD85 => new(0x95CA, 5),
+        0xADD4 => new(0x9606, 3),
+        0xAE05 => new(0x962A, 1),
+        0xAE2E => new(0x9636, 2),
+        0xAE59 => new(0x964E, 2),
+        0xAE9B => new(0x9666, 4),
+        0xAEDB => new(0x9696, 2),
+        0xAF06 => new(0x96AE, 3),
+        0xAF3B => new(0x96D2, 2),
+        0xAF66 => new(0x96EA, 4, ElevatorIndex: 2),
+        0xAF99 => new(0x970E, 3),
+        0xAFCA => new(0x9732, 2),
+        0xAFF5 => new(0x974A, 3),
+        0xB022 => new(0x976E, 2),
+        0xB04D => new(0x9786, 2),
+        0xB078 => new(0x979E, 1),
+        0xB0A1 => new(0x97AA, 2),
+        0xB0DB => new(0x97C2, 1),
+        0xB104 => new(0x97CE, 1),
+        0xB12D => new(0x97DA, 2),
+        0xB160 => new(0x97F2, 2),
+        0xB18E => new(0x980A, 2),
+        0xB1B9 => new(0x9822, 1),
+        0xB1E2 => new(0x982E, 1),
+        0xB20C => new(0x983A, 2),
+        0xB25D => new(0x9852, 4, ElevatorIndex: 3),
+        0xB2C9 => new(0x9876, 2),
+        0xB301 => new(0x988E, 2),
+        0xB32C => new(0x98A6, 1),
+        0xB374 => new(0x98B2, 2),
+        0xB3A1 => new(0x98CA, 2),
+        0xB3CC => new(0x98E2, 5),
+        0xB408 => new(0x991E, 1),
+        0xB431 => new(0x992A, 2),
+        0xB47E => new(0x9942, 2),
+        0xB4A9 => new(0x995A, 2),
+        0xB4D4 => new(0x9972, 3),
+        0xB50C => new(0x9996, 2),
+        0xB537 => new(0x99AE, 3),
+        0xB581 => new(0x99D2, 2),
+        0xB5AC => new(0x99EA, 4),
+        0xB5FC => new(0x9A1A, 2),
+        0xB652 => new(0x9A32, 2),
+        0xB67D => new(0x9A4A, 2),
+        0xB6BF => new(0x9A62, 1),
+        0xB6E8 => new(0x9A6E, 3),
+        0xB715 => new(0x9A92, 3),
+        0xB768 => new(0x9AB6, 1),
+        0xC9D4 => new(0xA18C, 3),
+        0xCA4E => new(0xA1B0, 2),
+        0xCA98 => new(0xA1C8, 3),
+        0xCAF4 => new(0xA1EC, 1),
+        0xCB3C => new(0xA1F8, 7),
+        0xCBD1 => new(0xA24C, 2),
+        0xCC1B => new(0xA264, 3),
+        0xCC6D => new(0xA288, 1),
+        0xCCB5 => new(0xA294, 3),
+        0xCD11 => new(0xA2B8, 1),
+        0xCD59 => new(0xA2C4, 1),
+        0xCDA2 => new(0xA2D0, 2),
+        0xCDEE => new(0xA2E8, 1),
+        0xCE37 => new(0xA2F4, 1),
+        0xCE86 => new(0xA300, 2),
+        0xCED0 => new(0xA318, 1),
+        0xCEF9 => new(0xA324, 1),
+        0xCF41 => new(0xA330, 4),
+        0xCF7B => new(0xA360, 2),
+        0xCFA7 => new(0xA378, 3),
+        0xCFF0 => new(0xA39C, 5),
+        0xD03E => new(0xA3D8, 4),
+        0xD07C => new(0xA408, 1),
+        0xD0B1 => new(0xA414, 2),
+        0xD0E0 => new(0xA42C, 6),
+        0xD12B => new(0xA474, 2),
+        0xD162 => new(0xA48C, 1),
+        0xD194 => new(0xA498, 2),
+        0xD1CA => new(0xA4B0, 3),
+        0xD204 => new(0xA4D4, 3),
+        0xD243 => new(0xA4F8, 4),
+        0xD279 => new(0xA528, 2),
+        0xD2A5 => new(0xA540, 2),
+        0xD2D1 => new(0xA558, 1),
+        0xD300 => new(0xA564, 2),
+        0xD332 => new(0xA57C, 3),
+        0xD367 => new(0xA5A0, 4),
+        0xD3AE => new(0xA5D0, 2),
+        0xD3DD => new(0xA5E8, 1),
+        0xD406 => new(0xA5F4, 1),
+        0xD42F => new(0xA600, 2),
+        0xD45A => new(0xA618, 3),
+        0xD488 => new(0xA63C, 3),
+        0xD4B5 => new(0xA660, 3),
+        0xD4E9 => new(0xA684, 3),
+        0xD516 => new(0xA6A8, 2),
+        0xD545 => new(0xA6C0, 2),
+        0xD574 => new(0xA6D8, 2),
+        0xD5A1 => new(0xA6F0, 2),
+        0xD5CE => new(0xA708, 6),
+        0xD613 => new(0xA750, 2),
+        0xD63E => new(0xA768, 2),
+        0xD66D => new(0xA780, 4),
+        0xD6C1 => new(0xA7B0, 2),
+        0xD6F7 => new(0xA7C8, 1),
+        0xD724 => new(0xA7D4, 1),
+        0xD751 => new(0xA7E0, 3),
+        0xD78C => new(0xA828, 1),
+        0xD7D5 => new(0xA834, 2),
+        0xD80B => new(0xA84C, 4),
+        0xD841 => new(0xA87C, 2),
+        0xD86C => new(0xA894, 1),
+        0xD895 => new(0xA8A0, 1),
+        0xD8BF => new(0xA8AC, 2),
+        0xD90B => new(0xA8C4, 2),
+        0xD93A => new(0xA8DC, 4),
+        0xD9A4 => new(0xA90C, 2),
+        0xD9D1 => new(0xA924, 1),
+        0xD9FB => new(0xA930, 1),
+        0xDA25 => new(0xA93C, 2),
+        0xDA52 => new(0xA954, 2),
+        0xDAA6 => new(0xA96C, 2),
+        0xDAD5 => new(0xA984, 2),
+        0xDB27 => new(0xA9A8, 2),
+        0xDB77 => new(0xA9C0, 2),
+        0xDBC3 => new(0xA9D8, 2),
+        0xDC13 => new(0xA9F0, 2),
+        0xDC5F => new(0xAA08, 2),
+        0xDCAB => new(0xAA20, 2),
+        0xDCF7 => new(0xAA38, 2),
+        0xDD26 => new(0xAA50, 3),
+        0xDD55 => new(0xAA74, 1),
+        0xDDBC => new(0xAA80, 2),
+        0xDDEB => new(0xAA98, 2),
+        0xDE1A => new(0xAAB0, 3),
+        0xDE4A => new(0xAAD4, 1),
+        0xDE74 => new(0xAAE0, 2),
+        0xDEA1 => new(0xAAF8, 2),
+        0xDECE => new(0xAB10, 2),
+        0xDF05 => new(0xAB28, 2),
+        0xDF42 => new(0xAB40, 1),
+        0xDF8B => new(0xAB4C, 1),
+        0xDFD3 => new(0xAB58, 2),
+        0xE01D => new(0xAB70, 2),
+        0xE067 => new(0xAB88, 2),
+        0xE0B1 => new(0xABA0, 2),
+        0xE0FB => new(0xABB8, 1),
+        _ => throw new ArgumentOutOfRangeException(nameof(doorListPointer), doorListPointer,
+            "Pointer is not one of the 262 retail room door lists."),
+    };
 
     private static void ValidateSortedPointers()
     {
-        if (headers.Length != HeaderCount || lists.Length != DoorListCount)
+        if (headers.Length != HeaderCount)
         {
             throw new InvalidOperationException(
                 "Compiled door header/list catalog cardinality is inconsistent.");
@@ -1413,10 +989,5 @@ public static class DoorDefinitions
                 throw new InvalidOperationException("Compiled door-header pointers must be unique and sorted.");
         }
 
-        for (int index = 1; index < lists.Length; index++)
-        {
-            if (lists[index - 1].Pointer >= lists[index].Pointer)
-                throw new InvalidOperationException("Compiled room door-list pointers must be unique and sorted.");
-        }
     }
 }

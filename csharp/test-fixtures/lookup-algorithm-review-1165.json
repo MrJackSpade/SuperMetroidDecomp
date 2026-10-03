@@ -5336,4 +5336,19 @@
     "pending":"The remaining independent intensity/color components and Ceres tint defaults still require their own dispositions. This conversion grants no retention exemption for them.",
     "scope":"Fourteen additional native components calculated without retained duplicates. Full maintained-source audit remains active under1165. Implementation record is this entry's commit."
   }
+,
+  "roomFxSharedWaterPrimaryReview": {
+    "status":"converted eight additional components of the shared Maridia dark-blue primary",
+    "owners":"RoomFxPaletteBlendDefinitions.CalculatedPairRed/Green/Blue; RoomFxPairColor primary role; RoomFxPaletteBlendExtractor",
+    "source":"Supported NTSC J/U v1.0 selectors42/E2/EE primary words89:AA44/AAE4/AAF0 all0400, RGB5(0,0,1). Pinned bank_89.asm362be646929cf8e483f692b73a6561cfc2dc1d0d and complete direct palette inspection.",
+    "red":{"disposition":"converted common primary zero for MaridiaA/B/D","proof":"Extend VerifyFxPairRed to these three native components."},
+    "green":{"disposition":"converted common primary zero for MaridiaB/D; MaridiaA primary previously derived from red now uses the same shared primary rule","proof":"Extend VerifyFxPairGreen; the existing MaridiaA component remains covered once."},
+    "blue":{"disposition":"converted common primary unit-blue for MaridiaA/B/D","proof":"Extend VerifyFxPairBlue to these three native components."},
+    "algorithm":"The three named Maridia themes share primary RGB(0,0,1); their secondary shades remain independent. Explicit primary/secondary role selects this common rule before the existing paired tint rules. Neither a duplicated primary word nor its components are retained. Stock green for MaridiaA was already calculated, so this adds eight newly calculated components rather than counting nine as new work.",
+    "evidence":"These three complete primary colors are identical while their secondary hues differ. The shared dark-blue ink is an explicit reusable palette role, not an interpolation or correction list. Independent secondary values are not inferred from the common primary.",
+    "proofCoverage":"Existing per-component proofs and independent masks now include the full three shared primaries. DerivedBlendSourceGuard clears these source bits before extraction, so original native comparisons establish reconstruction without importing the duplicate values. Storage checks cover all new null component overrides. Full32768-word RGB5 round-trip confirmation now runs for both primary and secondary roles of all eight themes; both roles also cover invalid selector and intensity domains.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-blends, including source-bit clearing, black-word read guards, all component proofs, custom edits and guarded installed load/reload paths. Updated source pin and maintained-source index.",
+    "pending":"Remaining independent palette shades/components and Ceres tint defaults still require dispositions. No retention exception is granted by this shared-primary conversion.",
+    "scope":"Shared Maridia primary resolved without lookup retention; full1165 maintained-source audit remains active. Implementation record is this entry's commit."
+  }
 }

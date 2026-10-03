@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     // Independent reviewed fields, not the production rule's reported coverage.
-    private static int OriginalFxPairCalculatedMask(byte id) => id switch
+    private static int OriginalFxPairCalculatedMask(byte id, int color) => color == 0 && id is (0x42 or 0xe2 or 0xee) ? 0x7fff : id switch
     {
         0x02 => 0x7c1f,
         0x22 or 0x62 => 0x7fe0,
@@ -23,14 +23,14 @@ internal static partial class Program
         foreach (byte id in OriginalFxBlendIds())
         for (int color = 0; color < 2; color++)
         {
-            if ((OriginalFxPairCalculatedMask(id) & (31 << shift)) == 0) continue;
+            if ((OriginalFxPairCalculatedMask(id, color) & (31 << shift)) == 0) continue;
             ushort native = ReadVerificationWord(rom, 0x89aa02 + id + color * 2);
             int expected = (native >> shift) & 31;
             int? calculated = shift switch
             {
-                0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id),
-                5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, native & 31),
-                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31),
+                0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, color == 0),
+                5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, native & 31, color == 0),
+                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31, color == 0),
             };
             AssertEqual(expected, calculated!.Value, "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve(id)[color] >> shift) & 31, "Installed paired-color component");
@@ -46,11 +46,11 @@ internal static partial class Program
         {
             for (int color = 0; color < 2; color++)
             {
-                var owner = new RoomFxPairColor(id, ReadVerificationWord(rom, 0x89aa02 + id + color * 2));
+                var owner = new RoomFxPairColor(id, ReadVerificationWord(rom, 0x89aa02 + id + color * 2), color == 0);
                 foreach (var field in new[] { (Name: "redOverride", Shift: 0), (Name: "greenOverride", Shift: 5), (Name: "blueOverride", Shift: 10) })
                 {
                     var info = typeof(RoomFxPairColor).GetField(field.Name, BindingFlags.Instance | BindingFlags.NonPublic)!;
-                    bool stored = (OriginalFxPairCalculatedMask(id) & (31 << field.Shift)) == 0;
+                    bool stored = (OriginalFxPairCalculatedMask(id, color) & (31 << field.Shift)) == 0;
                     AssertEqual(stored, info.GetValue(owner) is not null, "Stock derived component is not stored");
                     _ = owner.CreateColor();
                     AssertEqual(stored, info.GetValue(owner) is not null, "Output creates no component cache");
@@ -58,21 +58,26 @@ internal static partial class Program
             }
             // Exact property: every externally valid RGB5 edit round-trips unchanged,
             // including intensities above the stock tint's range and saturated values.
+            foreach (bool isPrimary in new[] { false, true })
             for (int word = 0; word < 0x8000; word++)
-                AssertEqual((ushort)word, new RoomFxPairColor(id, (ushort)word).CreateColor(), "All RGB5 edits round-trip");
+                AssertEqual((ushort)word, new RoomFxPairColor(id, (ushort)word, isPrimary).CreateColor(), "All RGB5 edits round-trip");
+            foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, invalid), "Green rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, invalid), "Blue rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, invalid, isPrimary), "Green rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, invalid, isPrimary), "Blue rule RGB5 bounds");
             }
         }
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (OriginalFxBlendIds().Contains(id)) continue;
-            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id), "Unknown red rule selector rejects");
-            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, 0), "Unknown green rule selector rejects");
-            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0), "Unknown blue rule selector rejects");
+            foreach (bool isPrimary in new[] { false, true })
+            {
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, isPrimary), "Unknown red rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, 0, isPrimary), "Unknown green rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, isPrimary), "Unknown blue rule selector rejects");
+            }
         }
     }
 
@@ -85,7 +90,7 @@ internal static partial class Program
             {
                 int delta = address - (0x89aa02 + id);
                 if ((uint)delta < 4)
-                    return (byte)(original & ~(OriginalFxPairCalculatedMask(id) >> (8 * (delta & 1))));
+                    return (byte)(original & ~(OriginalFxPairCalculatedMask(id, delta / 2) >> (8 * (delta & 1))));
             }
             return original;
         }

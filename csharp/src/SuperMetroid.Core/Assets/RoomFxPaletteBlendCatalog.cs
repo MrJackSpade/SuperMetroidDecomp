@@ -163,8 +163,8 @@ internal sealed class RoomFxBlendColors
 
     public RoomFxBlendColors(byte selection, ushort primary, ushort secondary, ushort third)
     {
-        this.primary = new(selection, primary);
-        this.secondary = new(selection, secondary);
+        this.primary = new(selection, primary, true);
+        this.secondary = new(selection, secondary, false);
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : third;
     }
 
@@ -175,24 +175,26 @@ internal sealed class RoomFxBlendColors
 internal sealed class RoomFxPairColor
 {
     private readonly byte selection;
+    private readonly bool isPrimary;
     private readonly int? redOverride;
     private readonly int? greenOverride;
     private readonly int? blueOverride;
 
-    public RoomFxPairColor(byte selection, ushort color)
+    public RoomFxPairColor(byte selection, ushort color, bool isPrimary)
     {
         this.selection = selection;
+        this.isPrimary = isPrimary;
         int red = color & 31, green = (color >> 5) & 31, blue = (color >> 10) & 31;
-        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection) == red ? null : red;
-        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red) == green ? null : green;
-        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red) == blue ? null : blue;
+        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) == red ? null : red;
+        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary) == green ? null : green;
+        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, isPrimary) == blue ? null : blue;
     }
 
     public ushort CreateColor()
     {
-        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection)!.Value;
-        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red)!.Value;
-        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red)!.Value;
+        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary)!.Value;
+        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary)!.Value;
+        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, isPrimary)!.Value;
         return (ushort)(red | green << 5 | blue << 10);
     }
 }
@@ -267,30 +269,34 @@ public static class RoomFxPaletteBlendDefinitions
         LandingSiteRain or Fog => null,
         _ => throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued."),
     };
-    /// <summary>The first two lava colors share full red; other red intensities are independent.</summary>
-    public static int? CalculatedPairRed(byte id)
+    /// <summary>Lava shares full red; Maridia A/B/D share a zero-red dark-blue primary.</summary>
+    public static int? CalculatedPairRed(byte id, bool isPrimary)
     {
         _ = Key(id);
+        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 0;
         return id == Lava ? 31 : null;
     }
 
-    /// <summary>Rain, fog and Maridia A use equal red/green in their first two colors.</summary>
-    public static int? CalculatedPairGreen(byte id, int red)
+    /// <summary>Rain, fog and Maridia A share red/green intensity; Maridia A/B/D primary green is zero.</summary>
+    public static int? CalculatedPairGreen(byte id, int red, bool isPrimary)
     {
         _ = Key(id);
         if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
+        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 0;
         return id is LandingSiteRain or Fog or MaridiaWaterA ? red : null;
     }
 
     /// <summary>
-    /// Lava's first two colors share blue3. Rain and fog tint their red/green intensity
+    /// Maridia A/B/D share primary blue1; lava's first two colors share blue3.
+    /// Rain and fog tint their red/green intensity
     /// with blue+2/+3. Saturation defines the RGB5 extension for custom intensities;
     /// stock intensities do not saturate, and differing user components remain overrides.
     /// </summary>
-    public static int? CalculatedPairBlue(byte id, int red)
+    public static int? CalculatedPairBlue(byte id, int red, bool isPrimary)
     {
         _ = Key(id);
         if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
+        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 1;
         return id switch
         {
             Lava => 3,

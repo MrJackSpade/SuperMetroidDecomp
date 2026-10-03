@@ -24,12 +24,12 @@ public static class RoomFxPaletteBlendExtractor
             {
                 ushort word = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
                     : BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * sizeof(ushort)));
-                int red = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairRed(id) ?? (word & 31) : word & 31;
+                int red = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, index == 0) ?? (word & 31) : word & 31;
                 colors[index] = new PaletteRgb5
                 {
                     Red = red,
-                    Green = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, red) ?? ((word >> 5) & 31) : (word >> 5) & 31,
-                    Blue = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, red) ?? ((word >> 10) & 31) : (word >> 10) & 31,
+                    Green = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, red, index == 0) ?? ((word >> 5) & 31) : (word >> 5) & 31,
+                    Blue = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, red, index == 0) ?? ((word >> 10) & 31) : (word >> 10) & 31,
                 };
             }
             blends.Add(RoomFxPaletteBlendDefinitions.Key(id), colors);

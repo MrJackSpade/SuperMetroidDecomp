@@ -5,6 +5,18 @@ namespace SuperMetroid.Core.Rendering;
 
 public static partial class SnesGameplayFrameRenderer
 {
+    /// <summary>Composes native configuration $16 with both BG2 and BG3 on the subscreen.</summary>
+    public static GameplayColorMathRenderLayer CaptureWaterfall(OrdinaryGameplayRenderLayer gameplay,
+        RoomLayer3FxRenderSnapshot fx)
+    {
+        if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
+            throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
+        var windows = new XrayWindowLine[Height];
+        Array.Fill(windows, new XrayWindowLine(255, 0));
+        return new(gameplay, windows, false, WaterfallRoomDisplayRules.ColorMath,
+            true, 0, 0, 0, CaptureRoomLayer3Fx(fx), subscreenUsesBg2: true);
+    }
+
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
     public static Bg2BppColorMathRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx)
     {

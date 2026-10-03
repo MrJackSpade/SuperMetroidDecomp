@@ -36,6 +36,12 @@ public static partial class GameplayDisplayCapture
                         throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = SnesGameplayFrameRenderer.CaptureSpores(ordinary, fx);
                 }
+                else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+                {
+                    if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+                        throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
+                    layers[0] = SnesGameplayFrameRenderer.CaptureWaterfall(ordinary, fx);
+                }
                 else AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
             }
             if (runtime.CeresHaze.Enabled)

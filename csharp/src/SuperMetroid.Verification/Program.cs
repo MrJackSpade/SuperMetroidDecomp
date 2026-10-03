@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--waterfall-rooms"])
+{
+    VerifyWaterfallRooms();
+    return 0;
+}
 if (args is ["--gunship-entry-sound"])
 {
     VerifyPostCeresGunshipLanding(entrySoundOnly: true);

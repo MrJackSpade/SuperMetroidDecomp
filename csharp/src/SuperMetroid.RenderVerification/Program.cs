@@ -5,6 +5,16 @@ using SuperMetroid.Rendering.Direct3D11;
 try
 {
     NativeConsoleErrors.DisableDialogs();
+    if (args is ["--waterfall"])
+    {
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            WaterfallTests.Run(device, renderer);
+        }
+        return;
+    }
     if (args is ["--installed-spores", var sporesRoot, var previousSporeRoot, var nativeSporeArt])
     {
         InstalledSporesTests.Run(sporesRoot, previousSporeRoot, nativeSporeArt);

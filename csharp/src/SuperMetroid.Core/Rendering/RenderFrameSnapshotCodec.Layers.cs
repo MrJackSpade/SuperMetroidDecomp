@@ -194,6 +194,8 @@ public static partial class RenderFrameSnapshotCodec
             sub = ReadBgColorMath(reader);
         }
         bool bg2 = version >= RenderPacketFormat.Bg2GameplaySubscreenVersion && ReadBoolean(reader);
+        if (bg2 && sub is not null && version < RenderPacketFormat.CombinedGameplaySubscreenVersion)
+            throw new InvalidDataException("Combined BG2/BG3 subscreen requires display fixture version 27.");
         return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub, bg2);
     }
 

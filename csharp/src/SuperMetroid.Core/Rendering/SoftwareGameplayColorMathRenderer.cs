@@ -106,7 +106,12 @@ public static class SoftwareGameplayColorMathRenderer
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {
                     BackgroundLineScroll scroll = bg3.Scrolls[y];
-                    sub = subSampler!.Sample(x + scroll.X, y + scroll.Y).Color;
+                    var pixel = subSampler!.Sample(x + scroll.X, y + scroll.Y);
+                    // Gameplay uses Mode 1 with BG3 priority: high BG3 beats both
+                    // BG2 priorities; low BG3 is behind both. Transparent pixels
+                    // never replace an opaque operand on the same subscreen.
+                    if (pixel.Color.A != 0 && (pixel.High || sub.A == 0))
+                        sub = pixel.Color;
                 }
                 bool useSub = layer.AddSubscreen && sub.A != 0;
                 // A transparent subscreen falls back to COLDATA but disables halving.

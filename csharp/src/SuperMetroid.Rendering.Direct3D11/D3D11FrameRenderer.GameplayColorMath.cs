@@ -29,7 +29,9 @@ public sealed partial class D3D11FrameRenderer
         if (layer.SubscreenUsesBg2) data[15] = (uint)D3D11GameplaySubscreenKind.GameplayBg2;
         if (layer.Subscreen is { } sub)
         {
-            data[15] = (uint)D3D11GameplaySubscreenKind.CapturedBg3;
+            data[15] = (uint)(layer.SubscreenUsesBg2
+                ? D3D11GameplaySubscreenKind.GameplayBg2AndCapturedBg3
+                : D3D11GameplaySubscreenKind.CapturedBg3);
             data[18] = sub.TilemapWord; data[19] = sub.CharacterWord;
             data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
         }

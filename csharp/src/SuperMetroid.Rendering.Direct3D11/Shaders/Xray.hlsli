@@ -6,6 +6,7 @@ static const uint XrayGameplayHudMapWord = 22528;
 // D3D11GameplaySubscreenKind header contract.
 static const uint SubscreenCapturedBg3 = 1;
 static const uint SubscreenGameplayBg2 = 2;
+static const uint SubscreenGameplayBg2AndCapturedBg3 = 3;
 uint2 XrayBackground(uint map, uint chars, uint2 size, uint2 position, bool fourBit, bool opaqueZero)
 {
     position &= size * 8 - 1;
@@ -64,11 +65,14 @@ uint XrayGameplay(uint2 screen)
     if (!inside && (Level & source) != 0)
     {
         uint sub = 0;
-        if (OffsetX != 0 && Reserved3 == SubscreenGameplayBg2)
+        if (OffsetX != 0 && (Reserved3 == SubscreenGameplayBg2 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3))
             sub = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false).x;
-        if (OffsetX != 0 && Reserved3 == SubscreenCapturedBg3 && screen.y >= (uint)CenterY)
-            sub = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
-                screen + uint2(scan.w & 65535, scan.w >> 16), false, false).x;
+        if (OffsetX != 0 && (Reserved3 == SubscreenCapturedBg3 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3) && screen.y >= (uint)CenterY)
+        {
+            uint2 bg3 = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
+                screen + uint2(scan.w & 65535, scan.w >> 16), false, false);
+            if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
+        }
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;
         int3 other = useSub ? int3(Unpack(sub) >> 3) : int3(AddR,AddG,AddB);
         int3 value = int3(Unpack(winner) >> 3);

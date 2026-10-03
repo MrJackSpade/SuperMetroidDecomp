@@ -21,7 +21,7 @@ internal static class SamusColorClosedContractDefinitions
             "The sole private-constructor loader requires three sixteen-color RGB5 suit inputs, stores the Power colors and only differing Varia/Gravity slots, preserving independent edits through explicit overrides. Apply/Resolve accept only even suit offsets zero/two/four and bounded color indices. Equipment priority and suit selection remain gameplay responsibilities."),
         new("SuperMetroid.Core.Assets.SamusChargeColorCatalog", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveCharge", "ResolveHyper"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "D34964681B1E9166B5FB3754961A6FF0E204BB57D8D66552A0EF3F518CBBA291"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "3422CF5F09FEFAAE9AE4178D4FC6A932411239BC3EE8D0A1C316B9C2B633E52C"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "4CBE656DC00C6CF33257B12449042328AB3C97DA6DD1901816F82B138BBC7C23"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "BDC26DD20D599391AF76A2DFBF81310E273AA8995826918A453F40E130C2CCBC"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9")],

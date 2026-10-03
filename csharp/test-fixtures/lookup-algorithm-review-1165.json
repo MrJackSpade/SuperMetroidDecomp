@@ -6255,4 +6255,15 @@
     "scope":"Only supported linear and neutral-channel relationships are resolved. The five endpoint/transition intensities and their temporal arrangement remain independent inputs under review; this entry does not use the segmented fit or small size as a retention justification. Death root/base colors and separately indexed explosion durations remain pending.",
     "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed closed-contract source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "samusChargeDeathSharedSuitInksReview": {
+    "status":"converted common suit inks in charge,pseudo-Screw and death inputs",
+    "owners":"SamusChargeColorCatalog.ChargeInputs; SamusDeathPaletteArtworkCatalog.SuitedColor",
+    "source":"Supported NTSC J/U v1.0 and disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Charge/death bases9B9820/9920/9A20 differ from Power only at Varia inks2/10/11 and Gravity0/1/2/10/11/12. Pseudo-Screw pointers91D805/D811/D81D select bright and normal rows: bright Varia/Gravity differ at1/2/9/10/11/12; normal Varia differs0/2/10/11 and Gravity2/10/11/12. These are the same categorical sprite-ink slots across suits,not numeric samples to fit.",
+    "algorithm":"For each canonical charge/pseudo-Screw phase,share a secondary suit's supplied color with the corresponding Power input only when equal. Death base rows use the same sharing. Resolve explicit suit differences first; otherwise select the Power ink. Charge whitening still starts from each suit's resolved base,and repeated phases still use their own canonical row. No generated cache or runtime ROM reads.",
+    "storage":"Stock charge inputs48 to25,pseudo-Screw96 to52,suited death49 to26:90 duplicated words removed. Distinct suit colors remain independently supplied; no disposition is inferred for their numerical values. Full-body,charge and death assets remain separately editable.",
+    "proof":"Extend VerifySamusChargeColorPhases with original per-ink ownership comparisons across suits and revised storage counts. All1216 original charge/death words,all36 guarded charge phases,whiteout/selector checks and content identities still pass. Add Power-only edits for charge/pseudo-Screw and Power-base-only death edits to prove secondary inputs remain unchanged when supplied independently.",
+    "scope":"Only shared-suit ownership is resolved. Remaining base ink/channel dispositions,pseudo-Screw color generation,whiteout intensity choices and explosion duration content are still pending. No new retention exception.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed both owner source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

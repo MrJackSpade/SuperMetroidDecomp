@@ -42,6 +42,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         {
             int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
             ushort value = suited[suit][palette][color];
+            if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
             if (palette == 9 && value == suitless[9][0]) continue;
             if (palette is >= 2 and <= 8)
@@ -100,7 +101,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// Original flash9B9420 repeats one yellow color across all sixteen inks
     /// and suits; final9BA220 repeats one gray color shared with suitless.
     /// They each use one editable color input, with independent edits overriding
-    /// sharing. Base inputs remain separate; differing edited fade channels
+    /// sharing. Base rows9820/9920/9A20 share the common Power Suit inks;
+    /// Varia differs at2/10/11,Gravity at0/1/2/10/11/12. Independently supplied
+    /// differences remain inputs,including source-only edits. Differing fade channels
     /// override shared arithmetic. Preserve the former array bounds exception.</remarks>
     public ushort SuitedColor(int suit, int palette, int color)
     {
@@ -108,6 +111,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
         if (suited.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0) return SuitedColor(0, 0, color);
         if (palette == 1) return SuitedColor(0, 1, 0);
         if (palette == 9) return SuitlessColor(9, 0);
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitedColor(suit, 0, color), palette - 1);

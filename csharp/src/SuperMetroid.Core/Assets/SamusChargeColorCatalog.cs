@@ -81,7 +81,12 @@ public sealed class SamusChargeColorCatalog
     /// D805/D811/D81D select the same pseudo-Screw row for phases0..2 and
     /// the normal row for3..5. Each differing supplied color remains independent.
     /// Charge shades1..3 use the shared eighth-step whitening calculation; differing
-    /// channels remain editable inputs. Pseudo-Screw color generation remains under review.</remarks>
+    /// channels remain editable inputs. Common base/pseudo-Screw inks share
+    /// the corresponding Power Suit input; each suit-specific or edited value
+    /// stays independent. Original charge bases9820/9920/9A20 differ only at
+    /// Varia inks2/10/11 and Gravity0/1/2/10/11/12. Pseudo-Screw holds select
+    /// bright and normal rows through91D805/D811/D81D. Their distinct color
+    /// generation remains under review.</remarks>
     private sealed class ChargeInputs
     {
         private readonly bool pseudo;
@@ -98,6 +103,7 @@ public sealed class SamusChargeColorCatalog
                 int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
                 ushort value = source[suit][phase][color];
                 if (phase != canonical && value == source[suit][canonical][color]) continue;
+                if (suit != 0 && phase == canonical && (pseudo || phase == 0) && value == source[0][phase][color]) continue;
                 int key = (suit * 6 + phase) * 16 + color;
                 if (!pseudo && phase == canonical && phase != 0)
                 {
@@ -116,6 +122,7 @@ public sealed class SamusChargeColorCatalog
             int key = (suit * 6 + phase) * 16 + color;
             if (colors.TryGetValue(key, out ushort value)) return value;
             if (phase != canonical) return Resolve(suit, canonical, color);
+            if (suit != 0 && (pseudo || phase == 0)) return Resolve(0, phase, color);
             ushort expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
             return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
         }

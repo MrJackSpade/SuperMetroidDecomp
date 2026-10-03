@@ -147,7 +147,7 @@ internal static partial class Program
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
             var stored = (Dictionary<int, ushort>)input.GetType().GetField("colors",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
-            AssertEqual(family == 0 ? 48 : 96, stored.Count, "Charge catalog stores each native phase input once");
+            AssertEqual(family == 0 ? 25 : 52, stored.Count, "Charge catalog stores each native phase input once");
             for (int suit = 0; suit < 3; suit++)
             {
                 int table = family == 0 ? SamusProjectileRomData.Palettes.BeamChargePointers : SamusProjectileRomData.Palettes.PseudoScrewPointers;
@@ -170,7 +170,7 @@ internal static partial class Program
                         ushort native = Word(0x9b0000 | (pointer + color * 2));
                         expected[family, suit, phase, color] = native;
                         AssertEqual(native, catalog.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
-                        AssertEqual(family == 0 ? phase == 0 : phase == firstPhase, stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
+                        AssertEqual((family == 0 ? phase == 0 : phase == firstPhase) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
                     }
                     for (int index = 0; index < 256; index++)
                         AssertEqual(index is >= 192 and < 208 ? expected[family, suit, phase, index - 192] : (ushort)0x1234,
@@ -205,7 +205,7 @@ internal static partial class Program
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
         }
-        foreach (var (fieldName, count) in new[] { ("suited", 49), ("suitless", 17), ("explosionPaletteIndices", 0) })
+        foreach (var (fieldName, count) in new[] { ("suited", 26), ("suitless", 17), ("explosionPaletteIndices", 0) })
         {
             var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -240,7 +240,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, invalid, steps), "Invalid interpolation position");
         foreach (int invalid in new[] { -1, 0, 7, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.InterpolateWhiteoutIntensity(0, 31, 0, invalid), "Unsupported whiteout span");
-        for (int scope = 0; scope < 4; scope++)
+        for (int scope = 0; scope < 5; scope++)
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
             ushort[][] suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
@@ -259,6 +259,12 @@ internal static partial class Program
                 suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
                 suited[0][1][0] ^= 0x421;
                 suitless[9][0] ^= 0x421;
+            }
+            if (scope == 4)
+            {
+                suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+                suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+                for (int color = 0; color < 16; color++) suited[0][0][color] ^= 0x421;
             }
             ushort[] editedSelectors = (ushort[])selectors.Clone();
             if (scope != 0)
@@ -325,7 +331,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
         // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
-        for (int editScope = 0; editScope < 3; editScope++)
+        for (int editScope = 0; editScope < 4; editScope++)
         {
             var document = JsonSerializer.Deserialize<SamusChargeColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
             for (int family = 0; family < 2; family++)
@@ -334,7 +340,7 @@ internal static partial class Program
             for (int color = 0; color < 16; color++)
             {
                 bool isSource = family == 0 ? phase < 4 : phase is 0 or 3;
-                if (editScope == 1 && !isSource || editScope == 2 && isSource) continue;
+                if (editScope == 1 && !isSource || editScope == 2 && isSource || editScope == 3 && suit != 0) continue;
                 var rows = family == 0 ? document.ChargedBeam : document.PseudoScrew;
                 ushort value = expected[family, suit, phase, color];
                 int delta = 1 + (suit * 6 + phase) % 31;

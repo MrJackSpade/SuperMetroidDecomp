@@ -36,6 +36,8 @@ public static class AnimatedTileInstructionCodes
 /// <summary>Bank-$87 object headers selected directly by translated room setup code.</summary>
 public static class AnimatedTileObjectPointers
 {
+    /// <summary>AnimatedTilesObjects_FX_horizontalSpikes, $87:8257; four eight-tick instructions at $87:817E.</summary>
+    public const ushort HorizontalSpikes = 0x8257;
     /// <summary>kAnimtiles_MaridiaSandCeiling, $87:8287, selected by room FX animation bits.</summary>
     public const ushort MaridiaSandCeiling = 0x8287;
     /// <summary>kAnimtiles_MaridiaSandFalling, $87:828D, selected by room FX animation bits.</summary>

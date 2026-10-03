@@ -15,6 +15,12 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     private static readonly RoomFxAnimatedTileObjectDefinition[] Definitions =
     [
         new(
+            AnimatedTileObjectPointers.HorizontalSpikes,
+            instructionPointer: 0x817e,
+            transferByteCount: 0x0080,
+            encodedVramDestination: 0x3d60,
+            [new(0x817e, 8), new(0x8182, 8), new(0x8186, 8), new(0x818a, 8)]),
+        new(
             AnimatedTileObjectPointers.MaridiaSandCeiling,
             instructionPointer: 0x8221,
             transferByteCount: 0x0040,
@@ -82,7 +88,7 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     private static readonly IReadOnlyList<RoomFxAnimatedTileObjectDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
-    /// <summary>The six simple retail objects translated by this owner.</summary>
+    /// <summary>The simple retail objects translated by this owner.</summary>
     public static IReadOnlyList<RoomFxAnimatedTileObjectDefinition> All => ReadOnlyDefinitions;
 
     /// <summary>Resolves a bank-$87 object header selected by translated room setup.</summary>

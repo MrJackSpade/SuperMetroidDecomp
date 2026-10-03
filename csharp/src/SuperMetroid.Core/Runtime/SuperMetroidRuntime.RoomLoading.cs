@@ -804,6 +804,8 @@ public sealed partial class SuperMetroidRuntime
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
             room.AreaIndex);
+        RoomSpikes.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
+            room.AreaIndex);
         RoomTreadmills.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
             room.AreaIndex);
         if (Samus is not null)

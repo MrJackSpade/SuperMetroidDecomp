@@ -43,8 +43,9 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
         {
             // Preserve previous user-edited PNGs from before the treadmill,
-            // statue or spores extension; inherit only the newly introduced tail.
+            // statue, spores or spike extension; inherit only the newly introduced tail.
             foreach (int width in new[] {
+                RoomFxAnimatedTileAtlasFormat.PreSpikesWidth,
                 RoomFxAnimatedTileAtlasFormat.PreSporesWidth,
                 RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
                 RoomFxAnimatedTileAtlasFormat.LegacyWidth })
@@ -122,17 +123,20 @@ public static class RoomFxAnimatedTileAtlasFormat
     public const int StatueTileCount = TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount / 16;
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
     public const int SporesTileCount = 9;
-    public const int TileCount = PreSporesTileCount + SporesTileCount;
+    public const int PreSpikesTileCount = PreSporesTileCount + SporesTileCount;
+    public const int SpikeTileCount = 24;
+    public const int TileCount = PreSpikesTileCount + SpikeTileCount;
     public const int LegacyWidth = LegacyTileCount * 8;
     public const int PreStatueWidth = PreStatueTileCount * 8;
     public const int PreSporesWidth = PreSporesTileCount * 8;
+    public const int PreSpikesWidth = PreSpikesTileCount * 8;
     public const int Width = TileCount * 8;
     public const int Height = 8;
     public const int TotalByteCount = TileCount * 16;
 
     /// <summary>
     /// Stable PNG strip order shared by importer and runtime: existing simple frames,
-    /// treadmills, the statue strip, then the new spores tail. Never insert new frames
+    /// treadmills, the statue strip, spores, then spikes. Never insert new frames
     /// into the historical prefix or older replacements would shift unrelated art.
     /// </summary>
     public static IReadOnlyList<RoomFxAtlasSegment> Segments { get; } = BuildSegments();
@@ -141,7 +145,8 @@ public static class RoomFxAnimatedTileAtlasFormat
     {
         var result = new List<RoomFxAtlasSegment>();
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
-            if (definition.ObjectPointer != AnimatedTileObjectPointers.Spores) AddFrames(definition);
+            if (definition.ObjectPointer is not (AnimatedTileObjectPointers.Spores or
+                AnimatedTileObjectPointers.HorizontalSpikes)) AddFrames(definition);
         for (int frame = 0; frame < TreadmillFrameCount; frame++)
             result.Add(new(WreckedShipTreadmillRomData.FrameSource(frame),
                 WreckedShipTreadmillRomData.TransferByteCount, true));
@@ -149,6 +154,8 @@ public static class RoomFxAnimatedTileAtlasFormat
             TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false));
         AddFrames(RoomFxAnimatedTileMechanicsDefinitions.All.Single(
             definition => definition.ObjectPointer == AnimatedTileObjectPointers.Spores));
+        AddFrames(RoomFxAnimatedTileMechanicsDefinitions.All.Single(
+            definition => definition.ObjectPointer == AnimatedTileObjectPointers.HorizontalSpikes));
         if (result.Sum(segment => segment.ByteCount) != TotalByteCount)
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
         return result.AsReadOnly();
@@ -156,8 +163,11 @@ public static class RoomFxAnimatedTileAtlasFormat
         void AddFrames(RoomFxAnimatedTileObjectDefinition definition)
         {
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
-                result.Add(new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
-                    definition.TransferByteCount, true));
+            {
+                int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer);
+                if (!result.Any(segment => segment.SourceAddress == source))
+                    result.Add(new(source, definition.TransferByteCount, true));
+            }
         }
     }
 }

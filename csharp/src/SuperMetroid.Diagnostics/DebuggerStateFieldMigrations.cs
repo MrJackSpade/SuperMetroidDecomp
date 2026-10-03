@@ -21,6 +21,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            current.Any(field => field.Name == "_roomSpikes"))
+        {
+            Console.Error.WriteLine("WARNING: Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_roomSpikes").ToArray(), count);
+        }
         if (type == typeof(SamusHorizontalSpeedState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<EchoSoundFlag>k__BackingField"))
         {

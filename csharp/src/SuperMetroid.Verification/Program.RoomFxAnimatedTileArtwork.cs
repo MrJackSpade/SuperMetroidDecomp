@@ -66,7 +66,7 @@ internal static partial class Program
                 frameCount++;
             }
         }
-        AssertEqual(23, frameCount, "all simple room-FX frames are covered");
+        AssertEqual(30, frameCount, "all simple room-FX frames are covered");
         foreach (WreckedShipTreadmillDirection direction in
                  Enum.GetValues<WreckedShipTreadmillDirection>())
         {
@@ -107,7 +107,7 @@ internal static partial class Program
             "artwork cannot change the native transfer byte count");
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
-        Console.WriteLine("  Room-FX animation artwork: 23 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
+        Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
     private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,

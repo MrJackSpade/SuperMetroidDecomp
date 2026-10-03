@@ -78,6 +78,9 @@ public sealed class BackgroundScrollState
         Bg2VerticalScroll = vertical;
     }
 
+    /// <summary>Publishes a room-main write to the BG1VOFS mirror without moving the camera or streaming origin.</summary>
+    public void SetBg1VerticalScrollRegister(ushort vertical) => Bg1VerticalScroll = vertical;
+
     /// <summary>
     /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
     /// layer-one coordinate. BG1 retains the source-room PPU scroll while state $0B clears

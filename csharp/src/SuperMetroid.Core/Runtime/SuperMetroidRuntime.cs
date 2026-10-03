@@ -419,6 +419,24 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
+    private RoomSpikeAnimatedTilesState? _roomSpikes;
+
+    /// <summary>FX-selected horizontal spikes; older debugger states restart the absent owner at frame zero.</summary>
+    public RoomSpikeAnimatedTilesState RoomSpikes
+    {
+        get
+        {
+            if (_roomSpikes is null)
+            {
+                _roomSpikes = new();
+                if (ActiveRoom is { } room)
+                    _roomSpikes.LoadRoom(_addressSpace, room.State.FxPointer,
+                        ActiveDoor?.Pointer ?? 0, room.AreaIndex);
+            }
+            return _roomSpikes;
+        }
+    }
+
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
 
@@ -4115,6 +4133,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus?.Xray.AreAnimatedTilesSuspended != true)
         {
             SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+            RoomSpikes.Step(_addressSpace, Vram, VramWrites);
             if (ActiveRoom is not null)
                 RoomTreadmills.Step(_addressSpace,
                     System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
@@ -4162,6 +4181,7 @@ public sealed partial class SuperMetroidRuntime
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
 
         RunCeresFallingDebrisRoomMain();
+        RunCrocomireComebackRoomMain();
 
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the

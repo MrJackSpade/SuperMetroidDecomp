@@ -87,6 +87,17 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>Every suit-loading program lasts 265 frames.</summary>
     public const int CycleFrames = 265;
 
+    /// <summary>Chosen replay chronology of the loading flash, retained under #1165's nonsense exception.</summary>
+    /// <remarks>Native $8D:DB66 and the following timer operands repeat each
+    /// six-frame palette pair 36, 3, 3, then 2 times. The first two pairs even
+    /// contain identical colors: their split is script chronology, not a color
+    /// interpolation parameter. $8D:C648 assigns each literal counter and
+    /// $C639 decrements it without a duration, position, or brightness input.
+    /// The separate fanfare at $92:ED24 counts to 360, not this program's 265.
+    /// These choices specify how long the flashes look; fitting the group index
+    /// or spelling the same numbers as cases would only disguise that timing.
+    /// Layout and repeated palette data are reviewed separately; this exception
+    /// covers only the four replay operands, not their surrounding tables.</remarks>
     private static readonly byte[] GroupTimerValues = [0x24, 0x03, 0x03, 0x02];
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxProgramDefinition Power =

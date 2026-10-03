@@ -5607,4 +5607,15 @@
     "scope":"Resolves the roster pending in suitLoadingGroupLayoutReview. Replay counts and loading artwork remain separate unfinished reviews; no retention rationale is asserted for them. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-layout, refreshed maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingReplayChronologyReview": {
+    "status":"retain four animation replay counts under the concrete nonsense exception",
+    "owner":"SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupTimerValues/GroupTimerValue",
+    "source":"Native loading programs 8D:DB62/DCC8/DE2E; timer assignment 8D:C648 and decrement/goto 8D:C639; setup 90:F23C..F28C; independent fanfare 92:ED24..ED79. Supported NTSC J/U v1.0, pinned disassembly 362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "evidence":"All three suits repeat their six-frame normal/bright pair 36,3,3,2 times, giving stage durations216,18,18,12 and final normal hold1. The first two groups have identical palette pairs yet distinct explicit loop counters. The native timer instruction loads each script byte; the loop decrements it. There is no interpolation, velocity, brightness or externally supplied duration that determines the split. Setup spawns this autonomous palette program and clears the separate fanfare timer; the fanfare counts to360, so that counter does not derive the265-frame palette choreography. These four operands define the chosen flashing rhythm itself. An index polynomial, packed constants or cases would merely recite those artistic timing choices, while selecting different counts changes the effect.",
+    "domain":"Group indices0..3, byte replay counts, strict invalid-int rejection. Only these independent chronology operands are retained; calculated cursor layout, named suit dispatch and palette relationships have separate dispositions.",
+    "proof":"No new retain-only test. Existing consolidated loading proof already compares all12 original timer operands, all65536 byte ownership addresses per suit and three guarded265-frame executions. This change adds the source/consumer rationale without altering runtime behavior.",
+    "reconciliation":"Resolves the replay-count pending item from suitLoadingGroupLayoutReview and suitLoadingProgramRosterReview. Loading colors and shared normal/speed-boost artwork remain pending implementation/review. Full1165 audit remains active.",
+    "confirmation":"Source inspection of the timer consumer, all three native scripts and independent fanfare; JSON validation and refreshed maintained-source index. No behavioral change. Record is this entry's commit."
+  }
 }

@@ -53,6 +53,11 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--lookup-animated-frames"])
+{
+    VerifyRoomFxAnimatedTileMechanicsDefinitions();
+    return 0;
+}
 if (args is ["--area-animated-tile-definitions"])
 {
     VerifyAreaAnimatedTileObjectDefinitions();

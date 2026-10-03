@@ -19,65 +19,37 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
             instructionPointer: 0x8221,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x1000,
-            [
-                new(0x8221, 0x000a),
-                new(0x8225, 0x000a),
-                new(0x8229, 0x000a),
-                new(0x822d, 0x000a),
-            ]),
+            frameCount: 4, frameDuration: 0x000a),
         new(
             AnimatedTileObjectPointers.MaridiaSandFalling,
             instructionPointer: 0x8235,
             transferByteCount: 0x0020,
             encodedVramDestination: 0x1020,
-            [
-                new(0x8235, 0x000a),
-                new(0x8239, 0x000a),
-                new(0x823d, 0x000a),
-                new(0x8241, 0x000a),
-            ]),
+            frameCount: 4, frameDuration: 0x000a),
         new(
             AnimatedTileObjectPointers.Lava,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
-            [
-                new(0x8293, 0x000d),
-                new(0x8297, 0x000d),
-                new(0x829b, 0x000d),
-                new(0x829f, 0x000d),
-                new(0x82a3, 0x000d),
-            ]),
+            frameCount: 5, frameDuration: 0x000d),
         new(
             AnimatedTileObjectPointers.Acid,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
-            [
-                new(0x82b1, 0x000a),
-                new(0x82b5, 0x000a),
-                new(0x82b9, 0x000a),
-                new(0x82bd, 0x000a),
-                new(0x82c1, 0x000a),
-            ]),
+            frameCount: 5, frameDuration: 0x000a),
         new(
             AnimatedTileObjectPointers.Rain,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.RainDestinationWord,
-            [
-                new(0x82cf, 0x000a),
-                new(0x82d3, 0x000a),
-                new(0x82d7, 0x000a),
-                new(0x82db, 0x000a),
-                new(0x82df, 0x000a),
-            ]),
+            frameCount: 5, frameDuration: 0x000a),
         new(
             AnimatedTileObjectPointers.Spores,
             instructionPointer: 0x82ed,
             transferByteCount: 0x0030,
             encodedVramDestination: 0x4280,
-            [new(0x82ed, 10), new(0x82f1, 10), new(0x82f5, 10)]),
+            frameCount: 3, frameDuration: 10),
     ];
     private static readonly IReadOnlyList<RoomFxAnimatedTileObjectDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
@@ -107,27 +79,51 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
 /// <summary>One engine-owned bank-$87 animated-tile object header and loop skeleton.</summary>
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
-    private readonly RoomFxAnimatedTileFrameDefinition[] frames;
-    private readonly IReadOnlyList<RoomFxAnimatedTileFrameDefinition> readOnlyFrames;
+    private readonly CalculatedFrames frames;
 
     internal RoomFxAnimatedTileObjectDefinition(
         ushort objectPointer,
         ushort instructionPointer,
         ushort transferByteCount,
         ushort encodedVramDestination,
-        RoomFxAnimatedTileFrameDefinition[] frames)
+        int frameCount,
+        ushort frameDuration)
     {
-        if (frames.Length == 0)
-            throw new ArgumentException("An animated-tile object requires at least one frame.", nameof(frames));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
 
         ObjectPointer = objectPointer;
         InstructionPointer = instructionPointer;
         TransferByteCount = transferByteCount;
         EncodedVramDestination = encodedVramDestination;
-        this.frames = frames;
-        readOnlyFrames = Array.AsReadOnly(frames);
+        frames = new CalculatedFrames(instructionPointer, frameCount, frameDuration);
     }
 
+    /// <summary>Bounded four-byte frame cursors with one native duration per object.</summary>
+    /// <remarks>The six simple native loops at $87:8221,8235,8293,82B1,82CF,82ED
+    /// have counts4,4,5,5,5,3. Lava waits13 ticks; all others wait10.
+    /// Native timed entries consist of duration then artwork-source operand; goto
+    /// follows the last entry. Both cursor and duration mappings are independently
+    /// verified against NTSC J/U v1.0 and pinned bank_87.asm
+    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
+    /// never a generated frame table. Index bounds match the former read-only list.</remarks>
+    private sealed class CalculatedFrames(ushort first, int count, ushort duration)
+        : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
+    {
+        public int Count => count;
+        public RoomFxAnimatedTileFrameDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)count) throw new ArgumentOutOfRangeException(nameof(index));
+                return new(unchecked((ushort)(first + index * 4)), duration);
+            }
+        }
+        public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The object-header address within bank $87.</summary>
     public ushort ObjectPointer { get; }
 
@@ -141,11 +137,11 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     public ushort EncodedVramDestination { get; }
 
     /// <summary>The timed frame-control records in cartridge execution order.</summary>
-    public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => readOnlyFrames;
+    public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
 
     /// <summary>The address of the terminal <c>goto</c> command after the final frame.</summary>
     public ushort GotoInstructionPointer =>
-        unchecked((ushort)(frames[^1].InstructionPointer + 4));
+        unchecked((ushort)(InstructionPointer + frames.Count * 4));
 
     /// <summary>
     /// Reads one immutable mechanics word. Frame source operands are intentionally absent.

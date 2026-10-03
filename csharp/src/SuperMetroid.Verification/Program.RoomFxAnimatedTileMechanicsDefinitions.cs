@@ -12,14 +12,11 @@ internal static partial class Program
     private static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        if (!File.Exists(romPath))
-        {
-            Console.WriteLine(
-                "  Room-FX animated-tile mechanics: cartridge comparison skipped (private ROM absent).");
-            return;
-        }
-
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Animation frame oracle revision");
+        VerifySimpleAnimationFrameCursors(bus);
+        VerifySimpleAnimationFrameDurations(bus);
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in
@@ -37,8 +34,6 @@ internal static partial class Program
 
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
             {
-                VerifyMechanicsWord(definition, bus, frame.InstructionPointer,
-                    frame.Duration, "frame duration");
                 AssertTrue(!definition.TryReadMechanicsWord(
                         frame.SourceOperandPointer, out _),
                     $"object $87:{definition.ObjectPointer:X4} leaves source operand " +
@@ -53,11 +48,6 @@ internal static partial class Program
                 frameCount++;
             }
 
-            VerifyMechanicsWord(definition, bus, definition.GotoInstructionPointer,
-                AnimatedTileInstructionCodes.Goto, "loop opcode");
-            VerifyMechanicsWord(definition, bus,
-                unchecked((ushort)(definition.GotoInstructionPointer + 2)),
-                definition.InstructionPointer, "loop target");
             mechanicsWordCount += 2;
 
             var guarded = new RoomFxAnimatedTileMechanicsForbiddenBus(bus, definition);

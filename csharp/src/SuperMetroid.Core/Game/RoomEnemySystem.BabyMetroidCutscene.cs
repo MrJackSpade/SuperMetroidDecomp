@@ -182,7 +182,10 @@ public sealed partial class RoomEnemySystem
         BabyMetroidCutsceneStepResult step)
     {
         if (step.FatalBlowStarted)
+        {
             QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
+            SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_cgram!);
+        }
         if (step.LatchSoundQueued)
             state.LastSoundEffectLibrary1 = 0x0040;
         if (step.AmbientCrySoundQueued)

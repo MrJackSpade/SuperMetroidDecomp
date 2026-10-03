@@ -35,12 +35,12 @@ public sealed partial class FileSelectMenuState
     {
         if ((pressed & SnesButton.Up) != 0)
         {
-            MoveMainSelection(-1);
+            MoveMainSelection(down: false);
             QueueCursorSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            MoveMainSelection(1);
+            MoveMainSelection(down: true);
             QueueCursorSound();
         }
 
@@ -81,14 +81,8 @@ public sealed partial class FileSelectMenuState
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
     }
 
-    private void MoveMainSelection(int direction)
-    {
-        int[] selectable = HasAnySave ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 5];
-        int current = Array.IndexOf(selectable, SelectedItem);
-        if (current < 0)
-            throw new InvalidDataException($"File-select item {SelectedItem} is not currently visible.");
-        SelectedItem = selectable[(current + direction + selectable.Length) % selectable.Length];
-    }
+    private void MoveMainSelection(bool down) =>
+        SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, down);
 
     private void StepDataManagementFade()
     {

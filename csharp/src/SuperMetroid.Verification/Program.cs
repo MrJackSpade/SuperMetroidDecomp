@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-navigation"])
+{
+    VerifyFileSelectMainNavigation();
+    return 0;
+}
 if (args is ["--lookup-map-window-motion"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

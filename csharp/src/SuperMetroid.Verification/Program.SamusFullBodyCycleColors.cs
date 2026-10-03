@@ -14,7 +14,7 @@ internal static partial class Program
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = (Dictionary<int, ushort>)typeof(SamusFullBodyCycleColorCatalog)
             .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
-        AssertEqual(633, stored.Count, "Full-body base sharing removes135 duplicate words");
+        AssertEqual(589, stored.Count, "Full-body base and transparent sharing removes179 duplicate words");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -36,6 +36,8 @@ internal static partial class Program
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
                 AssertEqual(expected, native.Resolve(pointer, color), "Every original full-body palette word");
                 ushort sourcePointer = color != 0 && originalBases.TryGetValue(pointer, out ushort basePointer) ? basePointer : pointer;
+                if (color == 0)
+                    sourcePointer = originalPointers.First(candidate => ReadVerificationWord(rom, 0x9b0000 | candidate) == expected);
                 AssertEqual(expected, ReadVerificationWord(rom, 0x9b0000 | (sourcePointer + 2 * color)), "Native base-row equality is independent of the alias formula");
                 int paletteIndex = ordinal - 1;
                 int sourceIndex = originalPointers.ToList().IndexOf(sourcePointer) * 16 + color;

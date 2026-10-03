@@ -5751,4 +5751,15 @@
     "scope":"Remaining633 words and their cross-suit, transparent, shade and channel relationships require further review. This entry provides no retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-full-body-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyTransparentSharingReview": {
+    "status":"converted44 duplicate transparent entries to calculated source aliases",
+    "owners":"SamusFullBodyCycleColorFormat.CanonicalColorIndex; SamusFullBodyCycleColorCatalog",
+    "source":"All48 original palette-zero words in9B:9B20..A11F, selected independently through bank91 family/suit lists. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Speed Booster has0000/2003/2003/0000 for Power/Varia and14E0/2003/2003/0000 for Gravity; stored shine is0000 throughout; active shine/Screw Attack are3800 throughout.",
+    "algorithm":"For color0, preserve Gravity Speed Booster base as its own input. Within the sixteen-row suit allocation, rows8..15 share Power active-shine base; Speed Booster rows1/2 share Power Speed Booster row1; remaining rows share Power Speed Booster base. The four payload values are loaded inputs, not recited constants in the mapping. Combined with opaque base sharing, stock stores589 words instead of768.",
+    "ownership":"Only equal supplied colors collapse to the calculated source. Every independently edited transparent entry keeps its own value. Changing a shared source alone preserves unchanged supplied entries as overrides. No generated color cache or runtime cartridge read.",
+    "proof":"Extend the same full-body proof: for each original transparent word, independently locate the earliest native palette with the same payload and compare its index with the formula. Existing all768 native values, complete pointer/color bounds, every storage/alias identity, all-color edits, source-only edits and48 live palette writes remain checked; expected stock count is589.",
+    "scope":"The four distinct transparent payload inputs and remaining opaque shade/channel relationships still require their specific dispositions. No new retention exception is asserted here. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-full-body-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

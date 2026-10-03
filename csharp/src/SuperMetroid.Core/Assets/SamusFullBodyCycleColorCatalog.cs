@@ -170,12 +170,23 @@ public static class SamusFullBodyCycleColorFormat
     /// opaque slots, and the same holds512/1024 bytes later for Varia/Gravity.
     /// Every fourth row is a family base; each suit occupies16 rows. Therefore
     /// a base-row opaque color resolves to row16*(palette/16), same color.
-    /// Transparent entries and later shades retain their own identities.
+    /// Transparent entries share four source payloads: Speed Booster's middle
+    /// shades share Power shade1; other Speed Booster and stored-shine entries
+    /// share Power shade0, except Gravity Speed Booster shade0's distinct
+    /// payload. All active-shine/Screw Attack entries share Power active-shine
+    /// shade0. The payload values remain inputs, not encoded constants.
     /// Explicit differing asset values override this alias, including base edits.</remarks>
     internal static int CanonicalColorIndex(int palette, int color)
     {
         if ((uint)palette >= PaletteCount) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
+        if (color == 0)
+        {
+            if (palette == 32) return palette * ColorsPerPalette;
+            int row = palette % 16;
+            int transparentSource = row >= 8 ? 8 : row is 1 or 2 ? 1 : 0;
+            return transparentSource * ColorsPerPalette;
+        }
         int source = palette % ShadesPerSuit == 0 && color != 0 ? palette / 16 * 16 : palette;
         return source * ColorsPerPalette + color;
     }

@@ -260,7 +260,7 @@ public sealed partial class FileSelectMenuState
         // Native `ClearMenuTilemap` fills every word with character $00F (blank).
         Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
         LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemaps.SamusData);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SamusA);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
         // `$81:A08E-$81:A096` adds one complete $40-byte tilemap row to the slot's
         // energy-field origin before loading NO DATA. The leading blank word in the ROM
         // string then places N at column 15. Using $01BC here would instead begin at column
@@ -273,7 +273,7 @@ public sealed partial class FileSelectMenuState
         // `$81:9F3D-$81:9F43` tilemap load is unconditional, so the static TIME caption
         // remains visible even when slot A is empty and its numeric fields are omitted.
         LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SamusB);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(1));
         DrawFileSlot(
             saveSlots[1],
             FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
@@ -281,7 +281,7 @@ public sealed partial class FileSelectMenuState
         // Slot B repeats the same native split between conditional digits and an
         // unconditional ROM-authored caption (`$81:9F70-$81:9F79`).
         LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SamusC);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(2));
         DrawFileSlot(
             saveSlots[2],
             FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Energy),

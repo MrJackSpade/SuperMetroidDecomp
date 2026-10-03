@@ -196,9 +196,9 @@ static void VerifyFileSelectFreshSaveTilemap()
     int[] unusedLabelAddresses =
     [
         0x810000 | FileSelectTilemaps.SamusData,
-        0x810000 | FileSelectTilemaps.SamusA,
-        0x810000 | FileSelectTilemaps.SamusB,
-        0x810000 | FileSelectTilemaps.SamusC,
+        0x810000 | FileSelectTilemaps.SlotLabel(0),
+        0x810000 | FileSelectTilemaps.SlotLabel(1),
+        0x810000 | FileSelectTilemaps.SlotLabel(2),
         0x810000 | FileSelectTilemaps.Exit,
         0x810000 | FileSelectTilemaps.DataCopyMode,
         0x810000 | FileSelectTilemaps.DataClearMode,

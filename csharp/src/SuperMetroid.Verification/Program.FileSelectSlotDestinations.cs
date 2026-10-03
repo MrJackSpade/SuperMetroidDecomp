@@ -10,6 +10,7 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slot field oracle revision");
+        VerifyFileSelectSlotLabelSources(rom);
         byte[] json = FileSelectPresentationExtractor.Extract(rom);
         _ = FileSelectPresentation.Load(new MemoryStream(json));
         FileSelectPresentationDocument document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
@@ -60,5 +61,21 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => destination(0, (FileSelectSlotField)invalid), "slot field bounds");
         }
+    }
+
+    private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
+    {
+        int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];
+        foreach (int[] view in loadInstructions)
+        for (int slot = 0; slot < 3; slot++)
+        {
+            AssertEqual((byte)0xa0, rom.ReadByte(view[slot]), "native slot label LDY");
+            ushort source = ReadVerificationWord(rom, view[slot] + 1);
+            AssertEqual(source, FileSelectTilemaps.SlotLabel(slot), "original slot label source");
+            AssertEqual((ushort)0xffff, ReadVerificationWord(rom, 0x810000 | (source + 30)),
+                "slot label record includes terminal word");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemaps.SlotLabel(invalid), "slot label source bounds");
     }
 }

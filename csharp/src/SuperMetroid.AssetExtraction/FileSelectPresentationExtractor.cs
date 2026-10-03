@@ -173,11 +173,11 @@ public static class FileSelectPresentationExtractor
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemaps.SamusData), FileSelectLayout.SamusDataDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusA), FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(0)), FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemaps.SamusB), FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(1)), FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemaps.SamusC), FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(2)), FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
             if (includeDataCommands)
             {
@@ -194,11 +194,11 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(mode), modeDestination);
             Apply(page, Patch(prompt), promptDestination);
             Apply(page, Patch(FileSelectTilemaps.Exit), FileSelectLayout.ExitDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusA), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(0)), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemaps.SamusB), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(1)), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemaps.SamusC), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(2)), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label));
             Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
             return page;
         }

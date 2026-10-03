@@ -35,7 +35,7 @@ if (args is ["--lookup-options-pages"])
 if (args is ["--lookup-file-select-slot-fields"])
 {
     VerifyFileSelectSlotDestinations();
-    Console.WriteLine("File-select slot fields: all 24 original destinations, extracted anchors/text and bounded selectors pass.");
+    Console.WriteLine("File-select slot fields: all 24 original destinations, both slot-label source views, extracted anchors/text and bounds pass.");
     return 0;
 }
 if (args is ["--lookup-file-select-helmet"])

@@ -6718,4 +6718,14 @@
     "proof":"One VerifyGameOptionsPageCases proof reads both native LDA opcodes and operand words for all five calls, reconstructs each independent24-bit address and compares the production case. It decompresses the independently selected original resource and checks every byte against the named extracted/loaded page, preserves diagnostic names and checks rejected enum boundaries. Replaces the old pages-count/uniqueness smoke assertions rather than adding duplicate resource proofs.",
     "confirmation":"Verification and ResourceAudit builds pass. Early --lookup-options-pages passes five source pairs and all five0x800-byte pages. Existing isolated --game-options-language-palettes confirms both languages and four highlight regions through the installed runtime after constructor simplification. Owner dependency hash and maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "fileSelectSlotLabelSourceReview": {
+    "status":"converted three per-slot source constants to bounded record addressing",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/FileSelectTilemaps.cs",
+    "source":"Supported SHA-pinned original labels81:B436/B456/B476 and pinned bank_81.asm. Main-page LDY instructions9F13/9F46/9F7C and data-page instructions9636/9666/9696 independently select the same three records.",
+    "algorithm":"Slot0..2 selects B436+32*slot in bank81. The equal-sized label records include their terminal word; the last record stays inside the original region. Remove SamusA/B/C source constants and migrate all runtime fallback, extractor and synthetic-fixture references to SlotLabel. No stored address list or generated cache.",
+    "domain":"Three native save slots. Reject negative and other unsupported int indices with IndexOutOfRangeException before multiplying; no unchecked narrowing, wrapping or extrapolation. Main/Copy/Clear views are aliases of the same logical source mapping.",
+    "proof":"VerifyFileSelectSlotLabelSources compares all three computed pointers against both original LDY views, checks immediate opcodes, original terminal words at record+30 and rejected int boundaries. It runs inside the existing --lookup-file-select-slot-fields proof, which also confirms real extraction/loading, text placement and24 destination operands after source migration.",
+    "confirmation":"Verification build and isolated --lookup-file-select-slot-fields pass. Static search finds no old SamusA/B/C pointer references. Maintained-source index refreshed. Implementation commit is the commit adding this entry. The label artwork and other named text resources are separate logical data; this record addresses source selection only."
+  }
 }

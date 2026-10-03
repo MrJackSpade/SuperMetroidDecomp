@@ -6,14 +6,15 @@ internal static class FileSelectTilemaps
     /// <summary>SAMUS DATA heading at $81:B40A.</summary>
     public const ushort SamusData = 0xb40a;
 
-    /// <summary>SAMUS A slot label at $81:B436.</summary>
-    public const ushort SamusA = 0xb436;
-
-    /// <summary>SAMUS B slot label at $81:B456.</summary>
-    public const ushort SamusB = 0xb456;
-
-    /// <summary>SAMUS C slot label at $81:B476.</summary>
-    public const ushort SamusC = 0xb476;
+    /// <summary>SAMUS A/B/C label streams at $81:B436, B456 and B476.</summary>
+    /// <remarks>Slots 0..2 select three consecutive 32-byte records. Main and
+    /// copy/clear LDY operands independently identify the same sources. The record
+    /// size includes its terminator; calculation is bounded before multiplication.</remarks>
+    public static ushort SlotLabel(int slot)
+    {
+        if ((uint)slot >= FileSelectLayout.SaveSlotCount) throw new IndexOutOfRangeException();
+        return (ushort)(0xb436 + slot * 32);
+    }
 
     /// <summary>ENERGY label at $81:B496.</summary>
     public const ushort Energy = 0xb496;

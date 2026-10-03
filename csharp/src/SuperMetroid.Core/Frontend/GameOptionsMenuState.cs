@@ -476,11 +476,9 @@ public sealed class GameOptionsMenuState
 
     private (ushort X, ushort Y) CursorPosition()
     {
-        // These transitions have null entries in the native cursor-position table.
-        // Preserve the cursor actor in OAM but move it offscreen until selection resumes.
-        if (Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
-            GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
-            GameOptionsPhase.FadeOutToIntro)
+        GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
+        // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
+        if (cursorPage is null)
         {
             MapLabelPoint hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
@@ -489,7 +487,7 @@ public sealed class GameOptionsMenuState
         }
         MapLabelPoint point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
-            .GameOptions.CursorPosition(PresentationPageName(page), SelectedItem);
+            .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked((ushort)point.X), checked((ushort)point.Y));
     }
 

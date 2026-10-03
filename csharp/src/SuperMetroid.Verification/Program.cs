@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--game-options-cursor-phases"])
+{
+    VerifyGameOptionsCursorPhases();
+    return 0;
+}
 if (args is ["--lookup-options-pages"])
 {
     VerifyGameOptionsPageCases();
@@ -2161,11 +2166,7 @@ if (args is ["--samus-hurt-colors"])
 
 
 
-if (args is ["--game-options-cursor-phases"])
-{
-    VerifyGameOptionsCursorPhases();
-    return 0;
-}
+
 if (args is ["--normal-suit-palette-pointers"])
 {
     VerifyNormalSuitPalettePointers();

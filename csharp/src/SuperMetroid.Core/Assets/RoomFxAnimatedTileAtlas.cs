@@ -7,21 +7,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] transfer;
-    private readonly Dictionary<int, (int Offset, int ByteCount)> frames;
 
     private RoomFxAnimatedTileAtlas(byte[] transfer)
     {
         this.transfer = transfer;
-        frames = new();
         int offset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
-        {
-            // Statue source pointers name overlapping partial windows of one strip;
-            // its alias resolver below supplies their compiled transfer geometry.
-            if (segment.IsFrame && !frames.TryAdd(segment.SourceAddress, (offset, segment.ByteCount)))
-                throw new InvalidDataException($"Duplicate room-FX artwork source ${segment.SourceAddress:X6}.");
             offset += segment.ByteCount;
-        }
         if (offset != transfer.Length)
             throw new InvalidDataException(
                 $"Room-FX artwork has {transfer.Length} bytes, expected {offset}.");
@@ -71,31 +63,37 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
     /// <summary>Returns one complete native frame, rejecting altered transfer geometry.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        if (!frames.TryGetValue(sourceAddress, out var frame))
+        int frameOffset = 0;
+        foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition definition in
-                     TourianStatueAnimatedTileMechanicsDefinitions.All)
-            foreach (ushort operand in definition.SourceOperandPointers)
+            if (segment.IsFrame && segment.SourceAddress == sourceAddress)
             {
-                if (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition,
-                        operand) != sourceAddress)
-                    continue;
-                if (byteCount != definition.TransferByteCount)
+                if (byteCount != segment.ByteCount)
                     throw new InvalidDataException(
-                        $"Tourian statue art ${sourceAddress:X6} requires {definition.TransferByteCount} bytes, not {byteCount}.");
-                int offset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                    sourceAddress - TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
-                data = transfer.AsMemory(offset, byteCount);
+                        $"Room-FX artwork source ${sourceAddress:X6} requires {segment.ByteCount} bytes, not {byteCount}.");
+                data = transfer.AsMemory(frameOffset, byteCount);
                 return true;
             }
-            data = default;
-            return false;
+            frameOffset += segment.ByteCount;
         }
-        if (byteCount != frame.ByteCount)
-            throw new InvalidDataException(
-                $"Room-FX artwork source ${sourceAddress:X6} requires {frame.ByteCount} bytes, not {byteCount}.");
-        data = transfer.AsMemory(frame.Offset, frame.ByteCount);
-        return true;
+        // Statue operands name overlapping windows of the shared strip.
+        foreach (TourianStatueAnimatedTileProgramDefinition definition in
+                 TourianStatueAnimatedTileMechanicsDefinitions.All)
+        foreach (ushort operand in definition.SourceOperandPointers)
+        {
+            if (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition,
+                    operand) != sourceAddress)
+                continue;
+            if (byteCount != definition.TransferByteCount)
+                throw new InvalidDataException(
+                    $"Tourian statue art ${sourceAddress:X6} requires {definition.TransferByteCount} bytes, not {byteCount}.");
+            int offset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
+                sourceAddress - TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
+            data = transfer.AsMemory(offset, byteCount);
+            return true;
+        }
+        data = default;
+        return false;
     }
 
     /// <summary>Publishes a selected installed frame through the synchronous liquid/rain owner.</summary>
@@ -135,29 +133,41 @@ public static class RoomFxAnimatedTileAtlasFormat
     /// treadmills, the statue strip, then the new spores tail. Never insert new frames
     /// into the historical prefix or older replacements would shift unrelated art.
     /// </summary>
-    public static IReadOnlyList<RoomFxAtlasSegment> Segments { get; } = BuildSegments();
+    public static IEnumerable<RoomFxAtlasSegment> Segments => EnumerateSegments();
 
-    private static System.Collections.ObjectModel.ReadOnlyCollection<RoomFxAtlasSegment> BuildSegments()
+    private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
-        var result = new List<RoomFxAtlasSegment>();
+        int total = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
-            if (definition.ObjectPointer != AnimatedTileObjectPointers.Spores) AddFrames(definition);
+            if (definition.ObjectPointer != AnimatedTileObjectPointers.Spores)
+                foreach (var segment in Frames(definition))
+                {
+                    total += segment.ByteCount;
+                    yield return segment;
+                }
         for (int frame = 0; frame < TreadmillFrameCount; frame++)
-            result.Add(new(WreckedShipTreadmillRomData.FrameSource(frame),
-                WreckedShipTreadmillRomData.TransferByteCount, true));
-        result.Add(new(TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
-            TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false));
-        AddFrames(RoomFxAnimatedTileMechanicsDefinitions.All.Single(
-            definition => definition.ObjectPointer == AnimatedTileObjectPointers.Spores));
-        if (result.Sum(segment => segment.ByteCount) != TotalByteCount)
+        {
+            total += WreckedShipTreadmillRomData.TransferByteCount;
+            yield return new(WreckedShipTreadmillRomData.FrameSource(frame),
+                WreckedShipTreadmillRomData.TransferByteCount, true);
+        }
+        total += TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount;
+        yield return new(TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
+            TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false);
+        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObjectPointers.Spores, out var spores);
+        foreach (var segment in Frames(spores))
+        {
+            total += segment.ByteCount;
+            yield return segment;
+        }
+        if (total != TotalByteCount)
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
-        return result.AsReadOnly();
 
-        void AddFrames(RoomFxAnimatedTileObjectDefinition definition)
+        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileObjectDefinition definition)
         {
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
-                result.Add(new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
-                    definition.TransferByteCount, true));
+                yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
+                    definition.TransferByteCount, true);
         }
     }
 }

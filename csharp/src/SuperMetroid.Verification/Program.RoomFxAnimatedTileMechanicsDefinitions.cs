@@ -22,6 +22,9 @@ internal static partial class Program
         VerifySimpleAnimationFrameCursors(bus);
         VerifySimpleAnimationFrameDurations(bus);
         VerifySimpleAnimationArtworkSources(bus);
+        VerifyRoomFxAtlasSegmentSources(bus);
+        VerifyRoomFxAtlasSegmentSizes();
+        VerifyRoomFxAtlasSegmentRoles();
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in

@@ -22,13 +22,13 @@ public readonly record struct ControllerBindings(
 {
     /// <summary>The literal bindings installed by <c>NewSaveFile</c> at <c>$81:B2CB</c>.</summary>
     /// <remarks>
-    /// Issues #625 and #953: pinned NTSC J/U v1.0 ROM and bank_81.asm agree on all
+    /// Independently reviewed for #1165: NTSC J/U v1.0 ROM and bank_81.asm agree on all
     /// seven immediate/store pairs: Shoot=X/$09B2, Jump=A/$09B4, Dash=B/$09B6,
     /// ItemSelect=Select/$09BA, ItemCancel=Y/$09B8, AimUp=R/$09BE, and
     /// AimDown=L/$09BC. The constructor and action indexer use menu row order
     /// 0..6, which differs from WRAM address order for the final four fields.
-    /// This is authored control policy, not a numeric progression; retain the
-    /// explicit action mapping and its bounded indexer.
+    /// These are named action-to-button cases. The existing constructor and bounded
+    /// action indexer already express that mapping without a stored lookup table.
     /// </remarks>
     public static ControllerBindings Default => new(
         Shoot: (ushort)SnesButton.X,
@@ -40,32 +40,53 @@ public readonly record struct ControllerBindings(
         AimDown: (ushort)SnesButton.L);
 
     /// <summary>
-    /// Physical buttons admitted by <c>GameOptions_ControllerSettings_SetBinding</c>, in the same order
+    /// Number of physical buttons admitted by <c>GameOptions_ControllerSettings_SetBinding</c>.
+    /// </summary>
+    public const int AssignableButtonCount = 7;
+
+    /// <summary>
+    /// Physical button admitted by <c>GameOptions_ControllerSettings_SetBinding</c>, in the same order
     /// as ROM table <c>$82:F575</c>. Its final Left/Right entries are not examined by that
     /// routine; only these first seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #952: pinned NTSC J/U v1.0 ROM and Controller_Input_Bitmasks in
+    /// Independently reviewed for #1165: NTSC J/U v1.0 ROM and Controller_Input_Bitmasks in
     /// bank_82.asm agree on all nine little-endian words: X, A, B, Select, Y, L, R,
     /// Left, Right. The managed seven-word prefix matches exactly; the final two words
     /// remain adjacent ROM data, not assignable actions. Native set-binding starts at
     /// byte offset 12 and scans backward to zero; Save_GameOptionsMenu_ControllerBindings
-    /// indexes the same seven choices. The managed menu scans this span backward and
-    /// AssignAndSwap validates membership. These are authored menu choices in irregular
-    /// order, so an enum arithmetic rule would obscure their policy and boundaries.
-    /// Retain the named seven-entry span. The former $82:F558 citation names the save
-    /// routine, not the table.
+    /// indexes the same seven choices. The managed menu scans these cases backward and
+    /// AssignAndSwap validates membership through the inverse mapping. Each case selects
+    /// a named hardware button, so no numerical curve or stored span is needed.
+    /// Only indices 0..6 are supported; preserve the former span's IndexOutOfRangeException.
     /// </remarks>
-    public static ReadOnlySpan<ushort> AssignableButtons =>
-    [
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.A,
-        (ushort)SnesButton.B,
-        (ushort)SnesButton.Select,
-        (ushort)SnesButton.Y,
-        (ushort)SnesButton.L,
-        (ushort)SnesButton.R,
-    ];
+    public static ushort AssignableButton(int index) => index switch
+    {
+        0 => (ushort)SnesButton.X,
+        1 => (ushort)SnesButton.A,
+        2 => (ushort)SnesButton.B,
+        3 => (ushort)SnesButton.Select,
+        4 => (ushort)SnesButton.Y,
+        5 => (ushort)SnesButton.L,
+        6 => (ushort)SnesButton.R,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    /// <summary>
+    /// Inverse of <see cref="AssignableButton"/>; returns -1 for every other ushort,
+    /// including combinations of valid buttons, directions, Start, and zero.
+    /// </summary>
+    public static int AssignableButtonIndex(ushort button) => (SnesButton)button switch
+    {
+        SnesButton.X => 0,
+        SnesButton.A => 1,
+        SnesButton.B => 2,
+        SnesButton.Select => 3,
+        SnesButton.Y => 4,
+        SnesButton.L => 5,
+        SnesButton.R => 6,
+        _ => -1,
+    };
 
     /// <summary>Returns one action word using the controller-menu row order.</summary>
     public ushort this[int action]
@@ -92,7 +113,7 @@ public readonly record struct ControllerBindings(
     {
         if ((uint)action >= 7)
             throw new ArgumentOutOfRangeException(nameof(action));
-        if (AssignableButtons.IndexOf(physicalButton) < 0)
+        if (AssignableButtonIndex(physicalButton) < 0)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
@@ -141,7 +162,7 @@ public readonly record struct ControllerBindings(
             for (int action = 0; action < 7; action++)
             {
                 ushort button = this[action];
-                if (AssignableButtons.IndexOf(button) < 0 || seen[..action].Contains(button))
+                if (AssignableButtonIndex(button) < 0 || seen[..action].Contains(button))
                     return false;
                 seen[action] = button;
             }

@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-controller-buttons"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Controller button oracle revision");
+    VerifyAssignableControllerButtons(rom);
+    VerifyDefaultControllerButtons(rom);
+    Console.WriteLine("Controller buttons: native choices, inverse domain, swaps, rejection and default action mappings pass.");
+    return 0;
+}
 if (args is ["--hyper-beam-fx-colors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

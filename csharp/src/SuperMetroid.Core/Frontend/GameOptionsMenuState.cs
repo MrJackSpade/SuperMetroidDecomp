@@ -339,12 +339,12 @@ public sealed class GameOptionsMenuState
         QueueSelectSound();
         if (SelectedItem < GameOptionsRomData.Rows.ControllerActionCount)
         {
-            ReadOnlySpan<ushort> allowed = Input.ControllerBindings.AssignableButtons;
-            for (int button = allowed.Length - 1; button >= 0; button--)
+            for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
             {
-                if (((ushort)pressed & allowed[button]) == 0)
+                ushort physicalButton = Input.ControllerBindings.AssignableButton(button);
+                if (((ushort)pressed & physicalButton) == 0)
                     continue;
-                ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, allowed[button]);
+                ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
                 ApplyControllerLabels();
                 LoadVisiblePage();
                 break;
@@ -477,7 +477,7 @@ public sealed class GameOptionsMenuState
             "Controller labels require installed presentation assets.");
         for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
         {
-            int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
+            int button = Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]);
             content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
                 button < 0 ? 0 : button);
         }

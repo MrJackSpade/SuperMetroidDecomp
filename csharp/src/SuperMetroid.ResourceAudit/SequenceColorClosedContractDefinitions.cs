@@ -32,7 +32,7 @@ internal static class SequenceColorClosedContractDefinitions
             "Load compiles the full 256-color initial image and sixteen common sprite colors before private construction. Projectile colors are the installed initial-image slice 208..223. Destination arguments select CGRAM placement, never another resource identity."),
         new("SuperMetroid.Core.Assets.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "E15DF5E6F33B69ED8128413D979D3CC3FAD1D3EF7DE6A6F8D54AC6A9DAB62B70"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "3348D28C884FFF54D1F76923EAA34C07C0D981B201AB44FB447B3A25947EF14F"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "4CBE656DC00C6CF33257B12449042328AB3C97DA6DD1901816F82B138BBC7C23"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "E3ABE232AE6901DE0656576DF10C612529875E594E4831DD1F4E26E642C468D4"),

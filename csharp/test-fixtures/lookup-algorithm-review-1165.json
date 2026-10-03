@@ -6348,4 +6348,15 @@
     "supersedes":"Resolves the pending death-explosion duration field and replaces the earlier891 annotation's bare authored-policy claim with this concrete consumer-based disposition. It does not exempt other timing fields,whiteout choices,suitless color inputs or remaining1165 owners.",
     "confirmation":"Documentation/disposition slice; ResourceAudit build,refreshed source hashes and maintained-source index. No behavior change. Implementation record is this entry's commit."
   }
+,
+  "samusSuitlessTintMidpointReview": {
+    "status":"converted the center suitless tint intensity and RGB shade",
+    "owner":"SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint/SuitlessColor/tintShadeInputs",
+    "source":"Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Original9BA12E..A133 inks7/8/9 form consecutive equally spaced RGB shades:25/20/15 red,16/13/10 green,10/7/4 blue. This is the center of the already reviewed ordered tint run,not an unrelated categorical ink alias.",
+    "algorithm":"Calculate ink8 as the per-channel midpoint of supplied inks7/9. Native sums are even,so historical tie rounding is not asserted. Edited odd sums use downward rounding; sums<=62 and RGB5 packing has no saturation,wrap or cross-channel carry. Reject high-bit endpoint words. Independently supplied middle channels override calculation; no generated palette cache.",
+    "storage":"Stock tint intensity inputs three to two:inks7/9. Ink8 stores no value or correction. Remaining whole suitless inputs and other neutral roots are unchanged. Source-only and midpoint-only edits preserve every independently supplied color,including temporal fades.",
+    "proof":"Extend the existing single charge/death palette proof. All original1216 colors remain compared to the supported ROM; verify two stock tint inputs,all32x32 endpoint pairs in each channel,invalid endpoint words,and existing exhaustive single-channel edits to inks6..10 across every suitless palette. Native midpoint is confirmed against original bytes rather than generated expectations.",
+    "scope":"Resolves the center intensity left pending by samusSuitlessTintBalanceReview. Remaining endpoints,neutral root choices,whiteout inputs and the broader1165 inventory still need independent dispositions. No retention exception is introduced.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-charge-phases; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

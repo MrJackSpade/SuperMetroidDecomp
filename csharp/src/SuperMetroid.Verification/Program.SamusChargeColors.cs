@@ -225,12 +225,23 @@ internal static partial class Program
         }
         var deathTintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("tintShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-        AssertEqual(3, deathTintInputs.Count, "Three middle tint intensities remain independently supplied");
+        AssertEqual(2, deathTintInputs.Count, "Only the two tint intensities surrounding the midpoint remain supplied");
         foreach (var entry in deathTintInputs)
         {
-            AssertTrue(entry.Key is >= 7 and <= 9, "Only native middle tint inks have intensity inputs");
+            AssertTrue(entry.Key is 7 or 9, "Only the two tint endpoint inks have intensity inputs");
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only blue intensity stored for each native middle tint");
+        }
+        for (int first = 0; first < 32; first++)
+        for (int last = 0; last < 32; last++)
+        for (int channel = 0; channel < 3; channel++)
+            AssertEqual((ushort)((int)decimal.Floor((first + last) / 2m) << (channel * 5)),
+                SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint((ushort)(first << (channel * 5)), (ushort)(last << (channel * 5))),
+                "Suitless tint midpoint floors each independent RGB5 channel");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(invalid, 0), "Invalid midpoint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(0, invalid), "Invalid midpoint last endpoint");
         }
         foreach (int ink in new[] { 6, 7, 8, 9, 10 })
         for (int channel = 0; channel < 3; channel++)

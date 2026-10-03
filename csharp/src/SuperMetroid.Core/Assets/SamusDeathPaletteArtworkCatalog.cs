@@ -72,7 +72,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
             ushort value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
-            if (palette == 0 && color is >= 7 and <= 9)
+            if (palette == 0 && color == 8)
+            {
+                ushort expected = SuitlessTintMidpoint(suitless[0][7], suitless[0][9]);
+                if (value != expected) tintShadeInputs.Add(key, new(value, expected));
+                continue;
+            }
+            if (palette == 0 && color is 7 or 9)
             {
                 if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value >> 10, color, out ushort expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 4));
@@ -164,6 +170,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (palette == 0 && color == 8)
+        {
+            ushort middle = SuitlessTintMidpoint(SuitlessColor(0, 7), SuitlessColor(0, 9));
+            return tintShadeInputs.TryGetValue(key, out var middleInput) ? middleInput.Apply(middle) : middle;
+        }
         if (tintShadeInputs.TryGetValue(key, out var tint))
         {
             if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(0) >> 10, color, out ushort expectedTint))
@@ -187,13 +198,29 @@ public sealed class SamusDeathPaletteArtworkCatalog
         ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
+    /// <summary>Calculates the central suitless tint between its neighboring shades.</summary>
+    /// <remarks>Native9BA12E..A133 inks7/8/9 form an evenly spaced RGB run:
+    /// red25/20/15,green16/13/10,blue10/7/4. Ink8 is the exact channel
+    /// midpoint of7/9. For edited endpoints,round each nonnegative half sum
+    /// down; sums are at most62 with no saturation,wrap or cross-channel carry.
+    /// Independently supplied middle channels override the result. This removes
+    /// the middle intensity input,not the remaining endpoint choices.</remarks>
+    internal static ushort SuitlessTintMidpoint(ushort first, ushort last)
+    {
+        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
+        int red = ((first & 31) + (last & 31)) / 2;
+        int green = ((first >> 5 & 31) + (last >> 5 & 31)) / 2;
+        int blue = ((first >> 10) + (last >> 10)) / 2;
+        return (ushort)(red | green << 5 | blue << 10);
+    }
     /// <summary>Interpolates tint balance while preserving a supplied middle-shade intensity.</summary>
     /// <remarks>Original suitless inks6..10 at9BA12C..A135 have middle
     /// RGB offsets matching a quarter-step endpoint gradient. Interpolate each
     /// endpoint channel downward,then shift RGB equally so blue equals the
     /// independently supplied middle blue. Thus green-blue remains6 and
-    /// red-blue descends17,15,13,11,9. The middle blue choices themselves
-    /// remain under review; this does not substitute fixed correction values.
+    /// red-blue descends17,15,13,11,9. Blue choices at7/9 remain under review;
+    /// ink8 is independently resolved by SuitlessTintMidpoint. This does not
+    /// substitute fixed correction values.
     /// Edited endpoints/intensities may place calculated red/green outside RGB5.
     /// Return false so import preserves that supplied whole color,without
     /// clamping or wrapping. Inputs outside RGB5 or inks7..9 are rejected.</remarks>

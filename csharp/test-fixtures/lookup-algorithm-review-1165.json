@@ -5490,4 +5490,15 @@
     "scope":"Resolves cross-suit duplicate storage only. The106 remaining independent words still need their RGB component/formula/artistic-content review; no retain decision is made here. Original document schema and importer behavior remain unchanged. Full1165 audit remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "heatPaletteSharedRedReview": {
+    "status":"converted52 additional complete stock colors from shared red-channel arithmetic",
+    "owners":"HeatPaletteColorDefinitions.TrySharedRed; RoomPaletteFxPresentation.Load/TryReadColor",
+    "source":"Full original five-row RGB decomposition for all three heat palettes at8D:E468/E694/E8C0, supported NTSC J/U v1.0, pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Power slot3 has red0,1,2,3,5 across the five rows. Power slots0,2,6,7,9,10,11,12,13,14 each apply that exact red increase to their independent row-zero color while green/blue remain unchanged. Varia slot10 and Gravity slots9/10 use the same increase. All corresponding original component values were inspected; the previous cross-suit aliases account for the other shared slots.",
+    "algorithm":"For each qualifying noninitial canonical row, preserve base green/blue and add the difference between that row's Power slot3 red and its row-zero red to the independent base red. Native stock values remain in RGB5 range. If edited inputs make the result negative or greater than31, do not clamp or wrap: decline calculation and preserve the supplied color. This is a shared channel transformation, not an invented generator for the still-independent slot3 amplitude samples.",
+    "implementation":"After existing alias compilation, remove a qualifying stock/custom word only if it equals the calculated result. Runtime honors explicit values first, then canonical aliases and the shared-red calculation. All base colors and amplitude inputs remain stored, so calculated words never depend on another removed calculated word. No cache/array of generated colors.52 additional stock words are removed, leaving54 from the original720.",
+    "proof":"Extend the existing heat-color proof: every calculated canonical color matches its original ROM word and is absent from runtime storage; every noncalculated canonical input remains present. Exact stored heat count is54. Existing every-ushort alias ownership, all720 native outputs,720 separately edited colors and three guarded palette interpreter comparisons remain in the same focused --lookup-heat-colors run.",
+    "scope":"Base colors, shared amplitude samples and the54 remaining independent words still require component-level review. This entry does not retain them as arbitrary art or claim an algorithm for their values. Full1165 audit remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-heat-colors, refreshed interface source pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

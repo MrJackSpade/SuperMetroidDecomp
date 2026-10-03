@@ -36,4 +36,41 @@ internal static class HeatPaletteColorDefinitions
         return true;
 
     }
-}
+    /// <summary>Reconstructs shared red heating while preserving the base green/blue.</summary>
+    /// <remarks>Across all five original rows, Power slots0,2,6,7,9..14,
+    /// Varia slot10 and Gravity slots9,10 add the same red delta as Power slot3.
+    /// Base colors and the slot3 samples remain independently owned inputs. No claim
+    /// about their generation follows from this channel-sharing rule. Only canonical
+    /// noninitial rows qualify. Nonrepresentable edited deltas return false so the
+    /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
+    internal static bool TrySharedRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    {
+        value = 0;
+        if (!TryCanonicalPointer(pointer, out ushort canonical) || pointer != canonical) return false;
+        int powerFirst = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 2;
+        int first;
+        int index;
+        if (pointer >= powerFirst && pointer < powerFirst + 16 * 34)
+        {
+            first = powerFirst;
+            index = (pointer - first) % 34 / 2;
+            if (index is not (0 or 2 or 6 or 7 or 9 or 10 or 11 or 12 or 13 or 14)) return false;
+        }
+        else
+        {
+            int variaFirst = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Varia, 0) + 2;
+            first = pointer < variaFirst + 16 * 34 ? variaFirst :
+                PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 0) + 2;
+            index = (pointer - first) % 34 / 2;
+            if (first == variaFirst ? index != 10 : index is not (9 or 10)) return false;
+        }
+        int phase = (pointer - first) / 34;
+        if (phase == 0) return false;
+        if (!colors.TryGetValue((ushort)(first + index * 2), out ushort original) ||
+            !colors.TryGetValue((ushort)(powerFirst + 6), out ushort baseline) ||
+            !colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out ushort heated)) return false;
+        int red = (original & 31) + (heated & 31) - (baseline & 31);
+        if ((uint)red > 31) return false;
+        value = (ushort)((original & 0x7fe0) | red);
+        return true;
+    }}

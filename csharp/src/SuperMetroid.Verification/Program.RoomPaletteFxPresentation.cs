@@ -395,7 +395,7 @@ internal static partial class Program
                 if (first != 0xe468 && ReadVerificationWord(bus, 0x8d0000 | canonical) ==
                     ReadVerificationWord(bus, 0x8d0000 | power)) canonical = power;
                 expectedAliases.Add(pointer, canonical);
-                AssertEqual(pointer == canonical, stored.ContainsKey(pointer), "Stock stores only distinct row/suit colors");
+
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -405,7 +405,28 @@ internal static partial class Program
                 "Every native color pointer/odd/control exclusion");
             AssertEqual(expected, actual, "Original repeated-row alias or unowned zero");
         }
-        AssertEqual(106, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly106 distinct row/suit stock colors stored");
+        AssertEqual(54, expectedAliases.Keys.Count(stored.ContainsKey), "Exactly54 independent heat words remain after shared-red conversion");
+        foreach (ushort pointer in expectedAliases.Values.Distinct())
+        {
+            if (!HeatPaletteColorDefinitions.TrySharedRed(pointer, stored, out ushort calculated))
+            {
+                AssertTrue(stored.ContainsKey(pointer), "Independent canonical input remains installed");
+                continue;
+            }
+            AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");
+            AssertTrue(!stored.ContainsKey(pointer), "Calculated shared-red word is not cached");
+        }
+        foreach (bool overflow in new[] { false, true })
+        {
+            var editedSeeds = new Dictionary<ushort, ushort>
+            {
+                [0xe468] = overflow ? (ushort)31 : (ushort)0,
+                [0xe46e] = overflow ? (ushort)0 : (ushort)31,
+                [0xe490] = overflow ? (ushort)31 : (ushort)0,
+            };
+            AssertTrue(!HeatPaletteColorDefinitions.TrySharedRed(0xe48a, editedSeeds, out _),
+                "Edited red underflow/overflow requires an explicit supplied color, never clamping");
+        }
         AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)

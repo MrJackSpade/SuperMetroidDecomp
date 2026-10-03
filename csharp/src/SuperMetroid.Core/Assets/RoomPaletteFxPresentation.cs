@@ -18,7 +18,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     public bool TryReadColor(ushort pointer, out ushort color) =>
         colors.TryGetValue(pointer, out color) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
-         colors.TryGetValue(canonical, out color));
+         (colors.TryGetValue(canonical, out color) ||
+          HeatPaletteColorDefinitions.TrySharedRed(canonical, colors, out color)));
 
     /// <summary>
     /// Installed identities, including shared-color aliases, for the development
@@ -476,6 +477,15 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ushort pointer = (ushort)(frame.FirstColorPointer + 2 * index);
             if (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
                 canonical != pointer && colors[pointer] == colors[canonical]) colors.Remove(pointer);
+        }
+        foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
+        foreach (var frame in program.Frames)
+        for (int index = 0; index < 15; index++)
+        {
+            ushort pointer = (ushort)(frame.FirstColorPointer + 2 * index);
+            if (colors.TryGetValue(pointer, out ushort supplied) &&
+                HeatPaletteColorDefinitions.TrySharedRed(pointer, colors, out ushort calculated) && supplied == calculated)
+                colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);
     }

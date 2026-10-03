@@ -6482,4 +6482,16 @@
     "supersedes":"Resolves pending highlight components1/7/R,4/7/B,8/7/G in hyperBeamEndpointArtworkDisposition and subsequent progress entries. Seven intermediate adjustments remain pending:0/3/R,0/11/G,2/3/B,2/11/RG,6/11/R,8/11/B. Endpoint artwork and transparent payloads retain their separate dispositions. Full1165 remains unfinished.",
     "confirmation":"Documentation-only slice; ResourceAudit build,all owner/dependency pins and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamGreenYellowShadowRampReview": {
+    "status":"converted the upper green-yellow shadow red component",
+    "owner":"SamusHyperBeamColorFormat.TryGreenYellowHighShadow; SamusHyperBeamColorCatalog.Resolve/constructor; shared Hyper-shot representation",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Frame6 starts9BA2A0. Shadow inks3/13/11 atA2A6/A2BA/A2B6 have red11/12/13,forming an evenly spaced shade run. Upper shadow green23/blue1 match green frame5 ink11. Brighter inks1/8 already derive from that upper shadow.",
+    "algorithm":"Set upper red=2*middleRed-lowRed,extending the existing shade interval once. Copy green/blue from the green hue source as before. If edited endpoints put red outsideRGB5,return false and preserve the independently supplied whole target instead of clamping. For representable values,store only differing supplied channels. This removes the old red correction to a temporal hue midpoint by using the within-frame shade relationship.",
+    "storage":"Stock intermediate entries six to five and components seven to six; no stored6/11/R remains. Other whole,endpoint and highlight inputs are unchanged. No generated color cache or restored ROM read.",
+    "domain":"RGB5 input words only; reject high bits. Signed red intermediate spans-31..62; success requires0..31. Green/blue copy without rounding or carry. Existing public frame0..9/ink0..15 bounds remain unchanged. Dependencies are acyclic:frame6 middle13 derives from green-frame sources,not upper11 in frame6.",
+    "proof":"Extend the single Hyper Beam proof's all160 original-word comparisons in both views,exact stock ownership,all32x32 red endpoint combinations with equal-step/bounds assertions,and invalid-word checks. Extend every-channel source/middle/target edits to frame6,including imports whose calculated red would underflow or overflow. Existing edited green sources,independent reversed view,bounds and guarded playback cycles remain covered.",
+    "supersedes":"Resolves pending6/11/R. Six intermediate components remain pending:0/3/R,0/11/G,2/3/B,2/11/RG,8/11/B. Previously documented endpoint/highlight artwork and transparent payloads keep their separate dispositions; full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; all owner/dependency pins and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

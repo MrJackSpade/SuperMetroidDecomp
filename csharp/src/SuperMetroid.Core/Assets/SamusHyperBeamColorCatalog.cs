@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Assets;
 /// no runtime lighting quantity selects it. Per-phase numeric corrections or
 /// fitted coefficients would only recite those particular color-design choices.
 /// Retain these three inputs under the specific artwork/nonsense exception.
-/// This does not dispose of the remaining seven intermediate adjustments.</remarks>
+/// This does not dispose of the remaining six intermediate adjustments.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
@@ -63,6 +63,15 @@ public sealed class SamusHyperBeamColorCatalog
             }
             if (source == index && frame == 7 && color != 0 &&
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
+            if (frame == 6 && color == 11)
+            {
+                if (SamusHyperBeamColorFormat.TryGreenYellowHighShadow(frames[6][3], frames[6][13], frames[5][11], out ushort expected))
+                {
+                    if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
+                }
+                else colors.Add(index, frames[frame][color]);
+                continue;
+            }
             if (source == index && color != 0 && (frame & 1) == 0 && !(frame == 2 && color == 13))
             {
                 ushort expected = frame == 6 ?
@@ -186,6 +195,12 @@ public sealed class SamusHyperBeamColorCatalog
         {
             ushort middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, 3), Resolve(frame, 11), roundUp: frame == 3);
             return intermediateInputs.TryGetValue(frame * 16 + color, out var middleInput) ? middleInput.Apply(middle) : middle;
+        }
+        if (frame == 6 && color == 11)
+        {
+            if (!SamusHyperBeamColorFormat.TryGreenYellowHighShadow(Resolve(6, 3), Resolve(6, 13), Resolve(5, 11), out ushort high))
+                throw new InvalidOperationException("Validated Hyper Beam shadow exceeds RGB5.");
+            return intermediateInputs.TryGetValue(frame * 16 + color, out var highInput) ? highInput.Apply(high) : high;
         }
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
         ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
@@ -341,11 +356,28 @@ public static class SamusHyperBeamColorFormat
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
     /// <remarks>Original frame6 ($9B:A2A0) preserves frame5 green/blue;
     /// nine canonical opaque inks also have red=ceil((red5+green5)/2).
-    /// Slots1/8/11 supply differing red components pending further review;
-    /// their matching green/blue channels are calculated. The numerator is at most63; no saturation or
+    /// Ink11 instead follows the within-frame red shadow ramp,with inks1/8
+    /// deriving their brighter shades from it. Green/blue remain shared.
+    /// The numerator is at most63; no saturation or
     /// overflow is needed. This reuses the green-frame input, not a generated cache.</remarks>
     internal static ushort GreenYellowMidpoint(ushort green) =>
         (ushort)((green & 0x7fe0) | ((green & 31) + (green >> 5 & 31) + 1) / 2);
+
+    /// <summary>Extends the green-yellow red shadow ramp by its existing equal step.</summary>
+    /// <remarks>Native frame6 inks3/13/11 at9BA2A6/A2BA/A2B6 have red11/12/13.
+    /// Calculate the upper red as2*middle-low; green23/blue1 remain those of
+    /// green frame5 ink11. This preserves the spatial shade ramp instead of
+    /// storing a red correction to the temporal midpoint. RGB5 inputs only.
+    /// Edited shadow endpoints may yield red-31..62; return false outside0..31
+    /// so import keeps the independently supplied whole target,without clamping.</remarks>
+    internal static bool TryGreenYellowHighShadow(ushort low, ushort middle, ushort green, out ushort value)
+    {
+        if (low > 0x7fff || middle > 0x7fff || green > 0x7fff) throw new ArgumentOutOfRangeException(nameof(low));
+        int red = 2 * (middle & 31) - (low & 31);
+        if ((uint)red > 31) { value = 0; return false; }
+        value = (ushort)((green & 0x7fe0) | red);
+        return true;
+    }
 
     /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
     /// <remarks>Every opaque original frame7 word ($9B:A280) equals frame5

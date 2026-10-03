@@ -32,13 +32,14 @@ internal static partial class Program
         AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(6, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
+        AssertEqual(5, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
         AssertTrue(!componentInputs.ContainsKey(2 * 16 + 13), "Magenta-cyan middle shadow needs no stored correction");
+        AssertTrue(!componentInputs.ContainsKey(6 * 16 + 11), "Green-yellow upper shadow needs no stored correction");
         int componentCount = 0;
         foreach (var entry in componentInputs.Values)
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) componentCount++;
-        AssertEqual(7, componentCount, "Seven independently supplied intermediate components remain under review");
+        AssertEqual(6, componentCount, "Six independently supplied intermediate components remain under review");
         var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(3, shadeInputs.Count, "Only three original colors have differing shade channels");
@@ -133,7 +134,7 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
-                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index && !(frame == 2 && index == 13))
+                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index && !(frame == 2 && index == 13) && !(frame == 6 && index == 11))
                 {
                     ushort before = ReadVerificationWord(rom, 0x91d99e + ((frame + 9) % 10) * 2);
                     ushort after = ReadVerificationWord(rom, 0x91d99e + (frame + 1) * 2);
@@ -227,7 +228,26 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, invalid, 0), "Invalid low shadow input");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, 0, invalid), "Invalid high shadow input");
         }
-        foreach (int shadowFrame in new[] { 1, 2, 3, 5, 9 })
+        for (int low = 0; low < 32; low++)
+        for (int middle = 0; middle < 32; middle++)
+        {
+            ushort green = (ushort)(low | middle << 5 | (31 - middle) << 10);
+            bool valid = SamusHyperBeamColorFormat.TryGreenYellowHighShadow((ushort)low, (ushort)middle, green, out ushort result);
+            AssertEqual(middle - low >= -middle && middle - low <= 31 - middle, valid, "Equal shadow step accepts precisely RGB5 red results");
+            if (valid)
+            {
+                AssertEqual(middle - low, (result & 31) - middle, "Both red shadow intervals are equal");
+                AssertEqual(green & 0x7fe0, result & 0x7fe0, "Green-yellow upper shadow preserves green/blue");
+            }
+            else AssertEqual((ushort)0, result, "Unrepresentable shadow is not clamped or wrapped");
+        }
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(invalid, 0, 0, out _), "Invalid lower shadow");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(0, invalid, 0, out _), "Invalid middle shadow");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(0, 0, invalid, out _), "Invalid green source");
+        }
+        foreach (int shadowFrame in new[] { 1, 2, 3, 5, 6, 9 })
         foreach (int ink in new[] { 3, 11, 13 })
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)

@@ -5963,4 +5963,15 @@
     "scope":"Three differing red components and all other remaining hue/shade inputs still require review. No retained-input disposition inferred from these differences. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamCyanGreenMidpointReview": {
+    "status":"converted eleven canonical cyan-green intermediate hue words",
+    "owners":"SamusHyperBeamColorCatalog; SamusHyperBeamColorFormat.HueMidpoint",
+    "source":"Original frame4 at9B:A2E0 between frame3 atA300 andframe5 atA2C0,selected by native91D99E operands. Eleven canonical opaque inks equal upward-rounded per-channel midpoints. Slot7 differs in blue and remains pending. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"For each independentRGB5 channel compute(first+second+1)/2. Numerator0..63; no saturation or wrap. Exclude transparent andslot7. Stock103 to92 whole inputs; no generated intermediate cache.",
+    "ownership":"Only matching canonical supplied words collapse. Source-frame-only edits preserve all supplied intermediate and other-frame values via explicit overrides. Keep existing all-color/source-slot edit guarantees.",
+    "proof":"Extend existing Hyper Beam proof with every original cyan/green pair and target via native pointers,92-word storage,all32768 first RGB5 colors crossed with every0..31 second-channel value. This covers every channel pair with varied surrounding channels. Expand source-frame-only fixture to both3 and5. Existing all160 native outputs,aliases,bounds and22-call guarded cycle remain.",
+    "scope":"Differing slot7 blue and other remaining hue/shade inputs still require independent review; no retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

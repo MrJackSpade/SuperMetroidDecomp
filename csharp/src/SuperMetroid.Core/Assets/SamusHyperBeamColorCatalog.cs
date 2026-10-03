@@ -20,6 +20,8 @@ public sealed class SamusHyperBeamColorCatalog
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
             if (source == index && frame == 6 && color != 0 && color is not (1 or 8 or 11) &&
                 frames[frame][color] == SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color])) continue;
+            if (source == index && frame == 4 && color is not (0 or 7) &&
+                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[3][color], frames[5][color])) continue;
             colors.Add(index, frames[frame][color]);
         }
     }
@@ -81,6 +83,7 @@ public sealed class SamusHyperBeamColorCatalog
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
         if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
+        if (frame == 4) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, color), Resolve(5, color));
         return frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
     }
@@ -114,6 +117,19 @@ public static class SamusHyperBeamColorFormat
     public const int Version = 1;
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+
+    /// <summary>Interpolates two RGB5 hue endpoints by half, rounding each channel upward.</summary>
+    /// <remarks>Eleven canonical opaque words of original frame4 ($9B:A2E0)
+    /// are midpoints of frames3/5 ($A300/$A2C0). Slot7 differs in blue and
+    /// remains outside this whole-word mapping pending component review.
+    /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
+    internal static ushort HueMidpoint(ushort first, ushort second)
+    {
+        int red = ((first & 31) + (second & 31) + 1) / 2;
+        int green = ((first >> 5 & 31) + (second >> 5 & 31) + 1) / 2;
+        int blue = ((first >> 10 & 31) + (second >> 10 & 31) + 1) / 2;
+        return (ushort)(red | green << 5 | blue << 10);
+    }
 
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
     /// <remarks>Original frame6 ($9B:A2A0) preserves frame5 green/blue;

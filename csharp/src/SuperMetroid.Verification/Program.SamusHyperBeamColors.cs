@@ -21,7 +21,7 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(103, stored.Count, "Hyper Beam aliases and hue interpolation remove57 words");
+        AssertEqual(92, stored.Count, "Hyper Beam aliases and hue interpolation remove68 words");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -64,7 +64,15 @@ internal static partial class Program
                     AssertEqual(native, SamusHyperBeamColorFormat.GreenYellowMidpoint(ReadVerificationWord(rom,
                         0x9b0000 | (greenPointer + 2 * index))), "Every original regular midpoint color");
                 }
-                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                bool cyanGreen = frame == 4 && index is not (0 or 7);
+                if (cyanGreen)
+                {
+                    ushort cyanPointer = ReadVerificationWord(rom, 0x91d9a4), greenPointer = ReadVerificationWord(rom, 0x91d9a8);
+                    AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
+                        ReadVerificationWord(rom, 0x9b0000 | (cyanPointer + 2 * index)),
+                        ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index))), "Every original cyan-green midpoint word");
+                }
+                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint && !cyanGreen, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
@@ -81,6 +89,12 @@ internal static partial class Program
             AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen((ushort)rgb), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
             AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint((ushort)rgb), "Complete RGB5 hue midpoint domain");
+            for (int other = 0; other < 32; other++)
+            {
+                int expected = (int)Math.Ceiling((rgb % 32 + other) / 2.0) +
+                    32 * (int)Math.Ceiling((green + other) / 2.0) + 1024 * (int)Math.Ceiling((blue + other) / 2.0);
+                AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057)), "All RGB5 first colors and all independent per-channel midpoint pairs");
+            }
         }
         foreach (bool sourcesOnly in new[] { false, true })
         {
@@ -103,18 +117,21 @@ internal static partial class Program
             }
         }
 
+        foreach (int sourceFrame in new[] { 3, 5 })
+        {
         var greenEdit = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
-        for (int color = 0; color < 16; color++) greenEdit.Frames[5][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };
+        for (int color = 0; color < 16; color++) greenEdit.Frames[sourceFrame][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };
         var greenEdited = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(greenEdit)));
         for (int frame = 0; frame < 10; frame++)
         for (int color = 0; color < 16; color++)
         {
             ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-            ushort expected = frame == 5 ? (ushort)(color | (31 - color) << 5 | (color + 1) << 10) :
+            ushort expected = frame == sourceFrame ? (ushort)(color | (31 - color) << 5 | (color + 1) << 10) :
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + color * 2));
-            AssertEqual(expected, greenEdited.Resolve(frame, color), "Green-only edits preserve supplied yellow and all other frames");
+            AssertEqual(expected, greenEdited.Resolve(frame, color), "Hue-source-only edits preserve supplied intermediate and all other frames");
         }
 
+        }
         var installedSamus = new SamusState();
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog;

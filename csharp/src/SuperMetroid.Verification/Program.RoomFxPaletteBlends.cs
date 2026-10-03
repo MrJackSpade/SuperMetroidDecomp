@@ -26,6 +26,8 @@ internal static partial class Program
         VerifyFxPairGreen(rom, catalog);
         VerifyFxPairBlue(rom, catalog);
         VerifyFxPairStorageAndEdits(rom);
+        VerifyFxWeatherThirdGreen(rom, catalog);
+        VerifyFxWeatherThirdBlue(rom, catalog);
         VerifyFxBlendPageDispatch(rom, catalog);
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));

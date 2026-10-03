@@ -11,6 +11,7 @@ internal static partial class Program
         0x02 => 0x7c1f,
         0x22 or 0x62 => 0x7fe0,
         0x42 => 0x03e0,
+        0xe8 => 0x7fe0,
         _ => 0,
     };
 
@@ -30,7 +31,7 @@ internal static partial class Program
             {
                 0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, color == 0),
                 5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, native & 31, color == 0),
-                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31, color == 0),
+                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31, (native >> 5) & 31, color == 0),
             };
             AssertEqual(expected, calculated!.Value, "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve(id)[color] >> shift) & 31, "Installed paired-color component");
@@ -65,7 +66,8 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, invalid, isPrimary), "Green rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, invalid, isPrimary), "Blue rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, invalid, 0, isPrimary), "Blue rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, invalid, isPrimary), "Blue rule green-input bounds" );
             }
         }
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -76,7 +78,7 @@ internal static partial class Program
             {
                 AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, isPrimary), "Unknown red rule selector rejects");
                 AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, 0, isPrimary), "Unknown green rule selector rejects");
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, isPrimary), "Unknown blue rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, 0, isPrimary), "Unknown blue rule selector rejects");
             }
         }
     }
@@ -91,6 +93,8 @@ internal static partial class Program
                 int delta = address - (0x89aa02 + id);
                 if ((uint)delta < 4)
                     return (byte)(original & ~(OriginalFxPairCalculatedMask(id, delta / 2) >> (8 * (delta & 1))));
+                if (delta is 4 or 5 && id is 0x22 or 0x62)
+                    return (byte)(original & ~(0x7fe0 >> (8 * (delta & 1))));
             }
             return original;
         }

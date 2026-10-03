@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusHyperBeamColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
 
     private SamusHyperBeamColorCatalog(ushort[][] frames)
     {
@@ -18,16 +19,15 @@ public sealed class SamusHyperBeamColorCatalog
             if (source != index && frames[frame][color] == frames[source / 16][source % 16]) continue;
             if (source == index && frame == 7 && color != 0 &&
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
-            if (source == index && frame == 6 && color != 0 && color is not (1 or 8 or 11) &&
-                frames[frame][color] == SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color])) continue;
-            if (source == index && frame == 4 && color is not (0 or 7) &&
-                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[3][color], frames[5][color])) continue;
-            if (source == index && frame == 8 && color is not (0 or 1 or 7 or 8 or 11) &&
-                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[7][color], frames[9][color])) continue;
-            if (source == index && frame == 0 && color is 4 or 5 or 9 or 13 &&
-                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[9][color], frames[1][color])) continue;
-            if (source == index && frame == 2 && color == 7 &&
-                frames[frame][color] == SamusHyperBeamColorFormat.HueMidpoint(frames[1][color], frames[3][color])) continue;
+            if (source == index && color != 0 && (frame & 1) == 0)
+            {
+                ushort expected = frame == 6 ?
+                    SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color]) :
+                    SamusHyperBeamColorFormat.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
+                if (frames[frame][color] != expected)
+                    intermediateInputs.Add(index, new(frames[frame][color], expected));
+                continue;
+            }
             colors.Add(index, frames[frame][color]);
         }
     }
@@ -89,12 +89,10 @@ public sealed class SamusHyperBeamColorCatalog
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
         if (colors.TryGetValue(frame * 16 + color, out ushort value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
-        if (frame == 4) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, color), Resolve(5, color));
-        if (frame == 8) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(7, color), Resolve(9, color));
-        if (frame == 0) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(9, color), Resolve(1, color));
-        if (frame == 2) return SamusHyperBeamColorFormat.HueMidpoint(Resolve(1, color), Resolve(3, color));
-        return frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
-            SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
+        if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
+        ushort expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
+            SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
+        return intermediateInputs.TryGetValue(frame * 16 + color, out var inputs) ? inputs.Apply(expected) : expected;
     }
 
     private static void RejectDuplicates(JsonElement value)
@@ -128,13 +126,11 @@ public static class SamusHyperBeamColorFormat
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
 
     /// <summary>Interpolates two RGB5 hue endpoints by half, rounding each channel upward.</summary>
-    /// <remarks>Eleven canonical opaque words of original frame4 ($9B:A2E0)
-    /// are midpoints of frames3/5 ($A300/$A2C0). Slot7 differs in blue and
-    /// remains outside this whole-word mapping pending component review.
-    /// Eight canonical frame8 words ($A260) likewise interpolate frames7/9
-    /// ($A280/$A240); slots1/7/8/11 have differing components under review.
-    /// Frame0 inks4/5/9/13 interpolate frames9/1 across the cycle boundary;
-    /// frame2 ink7 interpolates frames1/3. Other components remain under review.
+    /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
+    /// frame0 wrapping between9/1. Frame6 uses the green-to-yellow red ramp.
+    /// Only independently supplied channels differing from this calculation
+    /// are stored. Their derivation/disposition remains under review in1165;
+    /// matching channels are always calculated, never stored as generated words.
     /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
     internal static ushort HueMidpoint(ushort first, ushort second)
     {
@@ -147,8 +143,8 @@ public static class SamusHyperBeamColorFormat
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
     /// <remarks>Original frame6 ($9B:A2A0) preserves frame5 green/blue;
     /// nine canonical opaque inks also have red=ceil((red5+green5)/2).
-    /// Slots1/8/11 differ in red and remain outside this whole-word conversion
-    /// pending component review. The numerator is at most63; no saturation or
+    /// Slots1/8/11 supply differing red components pending further review;
+    /// their matching green/blue channels are calculated. The numerator is at most63; no saturation or
     /// overflow is needed. This reuses the green-frame input, not a generated cache.</remarks>
     internal static ushort GreenYellowMidpoint(ushort green) =>
         (ushort)((green & 0x7fe0) | ((green & 31) + (green >> 5 & 31) + 1) / 2);

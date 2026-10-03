@@ -21,7 +21,15 @@ internal static partial class Program
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         var stored = (Dictionary<int, ushort>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(79, stored.Count, "Hyper Beam aliases and hue interpolation remove81 words");
+        AssertEqual(52, stored.Count, "Hyper Beam whole-word inputs after intermediate component separation");
+        var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
+            .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(27, componentInputs.Count, "Only differing intermediate colors carry component inputs");
+        int componentCount = 0;
+        foreach (var entry in componentInputs.Values)
+            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                if (field.GetValue(entry) is not null) componentCount++;
+        AssertEqual(30, componentCount, "Thirty independently supplied intermediate components remain under review");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
@@ -89,7 +97,30 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
-                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !midpoint && !cyanGreen && !yellowRed && !remainingMidpoint, stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
+                if (index != 0 && (frame & 1) == 0 && source == frame * 16 + index)
+                {
+                    ushort before = ReadVerificationWord(rom, 0x91d99e + ((frame + 9) % 10) * 2);
+                    ushort after = ReadVerificationWord(rom, 0x91d99e + (frame + 1) * 2);
+                    ushort first = ReadVerificationWord(rom, 0x9b0000 | (before + 2 * index));
+                    ushort second = ReadVerificationWord(rom, 0x9b0000 | (after + 2 * index));
+                    int expected = 0;
+                    for (int shift = 0; shift < 15; shift += 5)
+                        expected |= (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0) << shift;
+                    AssertEqual(native != expected, componentInputs.ContainsKey(frame * 16 + index), "Original differing channel ownership");
+                    if (componentInputs.TryGetValue(frame * 16 + index, out var inputs))
+                    {
+                        string[] names = ["red", "green", "blue"];
+                        for (int channel = 0; channel < 3; channel++)
+                        {
+                            int shift = channel * 5;
+                            object? actual = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
+                                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(inputs);
+                            int? wanted = (native >> shift & 31) == (expected >> shift & 31) ? null : native >> shift & 31;
+                            AssertTrue(Equals(wanted, actual), "Only original differing components are stored");
+                        }
+                    }
+                }
+                AssertEqual(source == frame * 16 + index && !(frame == 7 && index != 0) && !(index != 0 && (frame & 1) == 0), stored.ContainsKey(frame * 16 + index), "Hyper Beam input ownership");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>

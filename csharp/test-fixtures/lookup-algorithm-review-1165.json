@@ -5996,4 +5996,15 @@
     "scope":"Other intermediate channel differences and endpoint hue/shade relationships still require review. No retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamIntermediateComponentReview": {
+    "status":"converted matching channels of all remaining intermediate colors; differing component dispositions remain pending",
+    "owners":"SamusHyperBeamColorCatalog constructor/Resolve; shared LoadingPaletteInputView.Channels",
+    "source":"All160 original RGB5 words selected by91D99E, ten rows9B:A360..A240. Even opaque rows interpolate odd endpoints across the cycle; frame6 uses green-to-yellow. Twenty-seven canonical intermediate words differ in thirty channels. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"Remove whole-word exclusions from midpoint reconstruction. Store only independently supplied channels differing from the calculated midpoint; all matching channels compute at Resolve. Reuse the existing nullable-channel input type. Stock79 whole words becomes52 whole inputs plus30 supplied components across27 intermediate colors. No generated color cache or numeric correction constants.",
+    "ownership":"Compare supplied target with supplied endpoint values during validated import. Preserve all independently supplied RGB5 values, including source-only changes, through explicit differing channel inputs. Same-frame ink aliases remain bounded and independent edits stay explicit.",
+    "proof":"Extend the single existing Hyper Beam proof with original-ROM per-channel ownership and exact52-word/30-component counts. Reuse original160-word comparison,complete RGB5 midpoint arithmetic,all/source-slot/source-frame-only edits,bounds and22-call guarded CGRAM cycle.",
+    "scope":"This supersedes earlier whole-word exclusions only. The30 differing components and all remaining endpoint/shade relationships still require review. No retention exception has been claimed. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors; updated source/dependency pins and maintained-source index. Implementation record is this entry's commit."
+  }
 }

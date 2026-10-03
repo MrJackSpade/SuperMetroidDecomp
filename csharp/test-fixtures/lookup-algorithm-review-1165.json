@@ -5673,4 +5673,15 @@
     "scope":"Remaining39 inputs and their channel relationships still require disposition; no new retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingSharedChannelsReview": {
+    "status":"converted four additional loading words through shared channels",
+    "owners":"LoadingPaletteColorDefinitions.TryCalculatedColor",
+    "source":"Power normal and shade records in original8D:DB62, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Native dim slots2/10/11 all use blue13; slot9 normal/bright/middle/dim is RGB(27,5,0)/(27,20,21)/(27,10,21)/(27,5,10).",
+    "algorithm":"Dim slots10/11 preserve their own normal red/green and share dim slot2 blue. Slot9 dim uses the previously established normal-color blue+10 tint; its middle uses normal red, saturated green+5 and the brightest blue. Four whole words become calculated, leaving35 loading inputs. The existing dim-endpoint brightening automatically consumes calculated dim slots10/11 without caching them.",
+    "ownership":"Explicit custom colors retain priority. Each selected blue comes from its own installed input, without replacing that input with a numerical recitation. Equality-gated compilation preserves supplied dependent colors when their sources are independently edited. This adds no retention disposition for the blue magnitudes or normal artwork.",
+    "proof":"Extend the same loading-color proof: all432 native words,61 calculated roots and complete ushort calculation/alias domains are checked. Focused constructed input dictionaries sweep all32 blue inputs with varied red/green to confirm exact channel ownership; existing complete RGB5 tint proofs cover the reused dim/green saturation. Reuse independent full/base/endpoint edit cases and guarded native/installed animation execution, plus the affected heat-color checks.",
+    "scope":"The35 remaining inputs and component relationships remain pending. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed dependency pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

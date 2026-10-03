@@ -32,6 +32,11 @@ public static class LoadingPaletteColorDefinitions
     /// confirm this channel transformation. Varia slots1/2 use the weaker green
     /// and stronger blue tint; slots10/11 share its middle and dim shades only.
     /// Their brightest blue29 differs and remains a separate pending input.
+    /// Original Power dim slots10/11 preserve normal red/green and share dim
+    /// slot2's blue13. Slot9's dim follows the ordinary blue+10 tint; its middle
+    /// preserves brightest blue21 while applying normal green+5. These four
+    /// additional words use shared channels; the blue source inputs remain
+    /// editable and pending their own disposition.
     /// Other slots have separate pending
     /// artwork/channel reviews and are not silently forced into this rule.</remarks>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
@@ -45,6 +50,25 @@ public static class LoadingPaletteColorDefinitions
         if (group == 1 || (uint)within >= 32 || (within & 1) != 0) return false;
         int slot = within / 2;
         int shade = group == 0 ? 0 : group - 1;
+        if (first == 0xdb6b && group == 3 && slot is 10 or 11)
+        {
+            if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort normal) ||
+                !TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * 2), colors, out ushort blueSource)) return false;
+            value = (ushort)((normal & 0x03ff) | (blueSource & 0x7c00));
+            return true;
+        }
+        if (first == 0xdb6b && slot == 9 && group != 0)
+        {
+            if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort normal)) return false;
+            ushort tint = TintColor(normal, shade);
+            if (group == 2)
+            {
+                if (!TryReadColor((ushort)(first + 36 + 2 * slot), colors, out ushort bright)) return false;
+                tint = (ushort)((tint & 0x03ff) | (bright & 0x7c00));
+            }
+            value = tint;
+            return true;
+        }
         // These tracks brighten an independently chosen dim tint, rather than
         // the normal suit color. The dim endpoint remains an editable input.
         if (group != 3 && (first == 0xdb6b ? slot is 1 or 2 or 10 or 11 or 12 :

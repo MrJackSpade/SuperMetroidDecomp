@@ -396,6 +396,11 @@ internal static partial class Program
             foreach (int rowIndex in new[] { 1, 5 })
             foreach (int slot in start == 0xdb62 ? new[] { 1, 2, 10, 11, 12 } : start == 0xdcc8 ? new[] { 12 } : new[] { 2 })
                 tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
+            if (start == 0xdb62)
+            {
+                foreach (int slot in new[] { 9, 10, 11 }) tinted.Add((ushort)(rows[7].Pointer + 2 * slot));
+                tinted.Add((ushort)(rows[5].Pointer + 2 * 9));
+            }
             foreach (var row in rows)
             {
                 var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
@@ -413,8 +418,8 @@ internal static partial class Program
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(57, tinted.Count, "Base tints and dim-endpoint brightening words");
-        AssertEqual(39, aliases.Keys.Count(stored.ContainsKey), "Tint conversions remove57 stored words");
+        AssertEqual(61, tinted.Count, "Base tints, endpoint brightening and shared channels");
+        AssertEqual(35, aliases.Keys.Count(stored.ContainsKey), "Tint and channel conversions remove61 stored words");
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 3; shade++)
         {
@@ -447,6 +452,23 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(0, invalid, 0, false), "Dim brightening rejects invalid shade");
         foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.BrightenDimColor(0, 0, invalid, false), "Dim brightening rejects invalid green peak");
+        for (int blue = 0; blue < 32; blue++)
+        foreach (ushort normal in new ushort[] { 0, 0x7fff, 0x1234, 0x4321 })
+        {
+            var input = new Dictionary<ushort, ushort>
+            {
+                [0xdb7d] = normal, [0xdb7f] = normal, [0xdb81] = normal,
+                [0xdc80] = (ushort)(blue * 1024), [0xdba1] = (ushort)(blue * 1024),
+            };
+            foreach (ushort pointer in new ushort[] { 0xdc90, 0xdc92 })
+            {
+                AssertTrue(LoadingPaletteColorDefinitions.TryCalculatedColor(pointer, input, out ushort actual), "Dim shared-blue word resolves independently edited inputs");
+                AssertEqual((ushort)(normal % 1024 + blue * 1024), actual, "Dim blue source cannot overwrite normal red/green");
+            }
+            AssertTrue(LoadingPaletteColorDefinitions.TryCalculatedColor(0xdc3f, input, out ushort middle), "Middle shared-blue word resolves independently edited inputs");
+            int expected = (normal & 31) + Math.Min(31, (normal >> 5 & 31) + 5) * 32 + blue * 1024;
+            AssertEqual((ushort)expected, middle, "Middle tint preserves independently selected bright blue");
+        }
         AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {

@@ -15,12 +15,12 @@ public sealed class GameOverPresentation
 {
     private readonly byte[] tilemap;
     private readonly Dictionary<string, SpriteComposition> sprites;
-    private readonly Dictionary<string, ushort[]> babyPalettes;
+    private readonly GameOverBabyColorCatalog babyPalettes;
 
     private GameOverPresentation(
         byte[] tilemap,
         Dictionary<string, SpriteComposition> sprites,
-        Dictionary<string, ushort[]> babyPalettes,
+        GameOverBabyColorCatalog babyPalettes,
         GameOverPresentationDocument document,
         string contentIdentity)
     {
@@ -73,9 +73,10 @@ public sealed class GameOverPresentation
 
     public void ApplyBabyPalette(SnesCgram cgram, GameOverBabyPalette palette)
     {
-        ushort[] colors = babyPalettes[GameOverPresentationDefinitions.BabyPaletteName(palette)];
-        for (int index = 0; index < colors.Length; index++)
-            cgram.SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index, colors[index]);
+        _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
+        for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)
+            cgram.SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index,
+                babyPalettes.Read(palette, index));
     }
 
     public static GameOverPresentation Load(Stream source)
@@ -156,10 +157,10 @@ public sealed class GameOverPresentation
                 colors.Any(color => color > 0x7fff))
                 throw new InvalidDataException(
                     $"Game-over Baby palette {name} requires sixteen SNES BGR555 colors.");
-            palettes.Add(name, (ushort[])colors.Clone());
+            palettes.Add(name, colors);
         }
 
-        return new(tilemap, sprites, palettes, document,
+        return new(tilemap, sprites, new GameOverBabyColorCatalog(palettes), document,
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 

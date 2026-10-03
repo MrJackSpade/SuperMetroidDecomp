@@ -6605,4 +6605,16 @@
     "reopenedBabyPalettePayload":{"status":"pending, not accepted retention","identity":"Four16-word Baby palettes82:BD97..BE16","reason":"Removed the old retention conclusion based on nonmonotonic channels and failure of a uniform fade/common tint. Those observations do not establish impossibility or nonsense. Independently derive the actual channel/phase relationships or establish a specific qualifying exception; all64 source colors remain in scope. This text mapping conversion supplies no palette disposition."},
     "remainingScope":"Baby animation/color payload, cry dispatch, sprite/position identities and other game-over mappings require separate review."
   }
+,
+  "gameOverBabyCryBrightnessReview": {
+    "status":"converted cry brightness and transparent aliases; remaining inputs pending independent review",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs","csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs"],
+    "source":"Supported SHA-pinned NTSC ROM four sixteen-word palettes82:BD97..BE16; pinned bank_82.asm GameOver_BabyMetroid_Palettes. Native animation selects Idle/ClosedCry/MiddleCry/OpenCry.",
+    "algorithm":"MiddleCry and OpenCry brighten the preceding cry phase by three RGB5 levels, independently saturated at31. Color zero instead aliases Idle color zero in all phases. Import captures only differing channels and base inputs; no generated palette cache or runtime ROM access. Values are unsigned15-bit words, each channel0..31; no carry between channels. Phase enum rejects outside0..3, ink outside0..15 throws IndexOutOfRangeException.",
+    "storage":"Stock31 base words and four differing channels across three targets: MiddleCry ink11 red24, ink12 red18; OpenCry ink13 green30 and blue30. These are NOT accepted exceptions; all roots and differing values remain pending derivation or concrete nonsense/impossibility evidence. This replaces the prior full64-word retained runtime palette copy.",
+    "editableAssets":"Derive expected values from independently supplied preceding-phase words during import and from reconstructed values during reads. Nullable differing channels preserve every independent source/target edit, including saturation and transparent aliases. Loader validation and original JSON content hash remain unchanged.",
+    "proof":"One consolidated VerifyGameOverBabyColors compares all64 words directly with supported original ROM, exercises extractor/loader/CGRAM application, checks exact JSON ContentIdentity and rejected selectors. It also applies each of6144 single-component edits and confirms all64 supplied outputs remain exact. Isolated --lookup-game-over-baby-colors passes; Verification and ResourceAudit builds pass.",
+    "remainingScope":"Review all31 base words and four differing components. In particular, Idle/Closed green inks2/3/4 have a five-level ramp that remains to be converted. No retain decision has been made for the unresolved values.",
+    "confirmation":"Menu closed-contract dependency hashes updated; maintained-source index refreshed. Implementation commit is the commit adding this entry. No exploratory gameplay or whole-game validation."
+  }
 }

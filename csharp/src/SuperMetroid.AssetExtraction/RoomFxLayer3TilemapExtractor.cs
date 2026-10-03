@@ -28,8 +28,10 @@ public static class RoomFxLayer3TilemapExtractor
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)
             {
-                var word = new SnesBgTilemapWord(
-                    BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort))));
+                ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)));
+                if (type == RoomFxType.Spores)
+                    raw = (ushort)((raw & 0x03ff) | RoomFxSporeTilemapDefinitions.Attributes(index));
+                var word = new SnesBgTilemapWord(raw);
                 cells[index] = new RoomBackgroundTilemapCell
                 {
                     TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,

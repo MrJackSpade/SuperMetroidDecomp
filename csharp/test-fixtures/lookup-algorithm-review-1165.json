@@ -5184,4 +5184,25 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-fx-tilemap-sources. Extraction runs with all three original payload ranges forbidden; independent proofs read the original ROM separately. Existing six-page dispatch/custom-edit proof and five guarded installed loads also pass. Added the new definition source to the ResourceAudit closed contract pins.",
     "scope":"All five independent fields of the three stock liquid pages resolved without stock lookup retention. Remaining atmosphere pages and broader maintained-source audit stay active under1165. Implementation record is this entry's commit."
   }
+,
+  "sporeTilemapFieldReview": {
+    "status":"split disposition: retained graphical character placement; converted all four stock attribute fields",
+    "owners":"RoomFxSporeTilemapDefinitions.Attributes; RoomFxSporeTilemap; RoomFxLayer3TilemapCatalog; RoomFxLayer3TilemapExtractor",
+    "source":"Supported NTSC J/U v1.0 page8A:98C0..A0FF,1056 words. Pinned bank_8A.asm and bank_87.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identify the spore tilemap and three animated particle characters. Complete direct ROM inspection includes all33 rows and yields a single attribute value1800.",
+    "characters":{
+      "disposition":"retained under arbitrary-art/nonsense exception",
+      "evidence":"Full32x33 composition contains40 isolated particle cells: four character50, sixteen51, twenty52, plus1016 blank4E cells. Inspection of every coordinate shows irregular scattering with unequal gaps and particle choices, rather than a tiling grid, mirrored motif, arithmetic placement progression or motion trajectory. Native animation changes the three character pictures; scrolling moves this fixed composition as a whole, not by indexing a mathematical particle path.",
+      "generationAssessment":"Regular rectangular tiling, row/column repetition and mirrored-placement interpretations do not describe the complete placement. A historical random scatter generator could have helped author the image, but inventing a seed/PRNG or fitting coordinates merely to reproduce these particular marks would encode the same graphical choices without an independently supported generation rule. This is not a claim that every conceivable generator is impossible.",
+      "whyPortIsNonsense":"The actual lookup content is a drawing of scattered particles. A coordinate switch or fitted function would only recite its exact mark positions; substituting another distribution changes the image. Retention is for this specific graphical composition, not because it is small, complicated, slow to compute or of unknown provenance.",
+      "verification":"Reuse the existing VerifyFxTilemapPageDispatch native comparison for the character bits of every cell. No new per-table test is added solely for this retained field. The original 33rd-row particles are preserved."
+    },
+    "palette":{"disposition":"converted constant6 for all1056 cells","proof":"VerifySporeTilePalette"},
+    "priority":{"disposition":"converted constant clear for all1056 cells","proof":"VerifySporeTilePriority"},
+    "horizontalFlip":{"disposition":"converted constant clear for all1056 cells","proof":"VerifySporeTileHorizontalFlip"},
+    "verticalFlip":{"disposition":"converted constant clear for all1056 cells","proof":"VerifySporeTileVerticalFlip"},
+    "implementation":"Importer retains character bits from original graphical data and supplies stock attributes from the bounded constant function. Loaded page storage separates characters from attributes; only explicitly differing custom attributes are stored, keyed by edited cell. Stock has no attribute dictionary. Resolve composes a fresh transfer and never caches reconstructed attributes or packed stock words. External arbitrary custom edits remain data, not a fixed lookup exemption.",
+    "proofCoverage":"Each attribute field's single named proof reads all1056 native words and compares both the production attribute function and installed Resolve view. Original aggregate stock comparisons now cover character bits only, avoiding duplicate attribute proofs. VerifySporeAttributeStorageAndEdits checks stock storage before/after resolve, exact cell bounds, invalid page lengths, one attribute edit at every cell spanning palette/priority/flip fields, and input-copy isolation. Existing six distinct edited-page dispatch checks also pass through the new page owner.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-fx-tilemap-sources, including liquid/source/type proofs and five guarded installed loads. Updated/extended the closed presentation source pins. No renderer sweep or gameplay run.",
+    "scope":"Every independent field of the spore page has an explicit disposition; only particle composition uses the nonsense exception. Rain/fog and the larger maintained-source audit remain unfinished under1165. Implementation record is this entry's commit."
+  }
 }

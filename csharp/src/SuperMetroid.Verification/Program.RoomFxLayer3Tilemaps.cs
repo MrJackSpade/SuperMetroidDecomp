@@ -17,6 +17,7 @@ internal static partial class Program
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(new LiquidTilemapSourceGuard(rom));
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
         VerifyLiquidTilemaps(rom, catalog);
+        VerifySporeTilemapAttributes(rom, catalog);
         VerifyFxTilemapPageDispatch(rom, catalog);
         RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));

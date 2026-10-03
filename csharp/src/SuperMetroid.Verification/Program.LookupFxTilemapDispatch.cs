@@ -30,8 +30,16 @@ internal static partial class Program
             var type = (RoomFxType)value;
             if (native.TryGetValue(type, out byte[]? expected))
             {
-                if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))
+                if (type is RoomFxType.Rain or RoomFxType.Fog)
                     AssertTrue(expected.AsSpan().SequenceEqual(stock.Resolve(type).Span), "Every original non-liquid page byte selects correctly");
+                if (type == RoomFxType.Spores)
+                {
+                    ReadOnlySpan<byte> compiled = stock.Resolve(type).Span;
+                    for (int offset = 0; offset < expected.Length; offset += 2)
+                        AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(offset)) & 0x3ff,
+                            BinaryPrimitives.ReadUInt16LittleEndian(compiled[offset..]) & 0x3ff,
+                            "Retained spore character composition matches original");
+                }
                 ReadOnlySpan<byte> actual = edited.Resolve(type).Span;
                 AssertEqual(expected.Length, actual.Length, "Edited page retains full transfer length");
                 for (int offset = 0; offset < actual.Length; offset += 2)

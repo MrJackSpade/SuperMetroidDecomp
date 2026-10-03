@@ -11,7 +11,7 @@ public sealed class RoomFxLayer3TilemapCatalog
 {
     private readonly byte[]? lava, acid, water;
     private readonly RoomFxSporeTilemap spores;
-    private readonly byte[] rain, fog;
+    private readonly RoomFxAtmosphereTilemap rain, fog;
 
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
         byte[] spores, byte[] rain, byte[] fog)
@@ -20,7 +20,8 @@ public sealed class RoomFxLayer3TilemapCatalog
         this.acid = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Acid, acid) ? null : acid;
         this.water = RoomFxLiquidTilemapDefinitions.Matches(RoomFxType.Water, water) ? null : water;
         this.spores = new RoomFxSporeTilemap(spores);
-        (this.rain, this.fog) = (rain, fog);
+        this.rain = new RoomFxAtmosphereTilemap(RoomFxType.Rain, rain);
+        this.fog = new RoomFxAtmosphereTilemap(RoomFxType.Fog, fog);
     }
 
     /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
@@ -88,8 +89,8 @@ public sealed class RoomFxLayer3TilemapCatalog
         RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
         RoomFxType.Water => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
         RoomFxType.Spores => spores.CreateTransfer(),
-        RoomFxType.Rain => rain,
-        RoomFxType.Fog => fog,
+        RoomFxType.Rain => rain.CreateTransfer(),
+        RoomFxType.Fog => fog.CreateTransfer(),
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 

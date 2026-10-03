@@ -18,6 +18,7 @@ internal static partial class Program
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
         VerifyLiquidTilemaps(rom, catalog);
         VerifySporeTilemapAttributes(rom, catalog);
+        VerifyAtmosphereTilemapFields(rom, catalog);
         VerifyFxTilemapPageDispatch(rom, catalog);
         RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));

@@ -31,7 +31,14 @@ internal static partial class Program
             if (native.TryGetValue(type, out byte[]? expected))
             {
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
-                    AssertTrue(expected.AsSpan().SequenceEqual(stock.Resolve(type).Span), "Every original non-liquid page byte selects correctly");
+                {
+                    int preservedMask = type == RoomFxType.Rain ? 0xe3ff : 0xc3ff;
+                    ReadOnlySpan<byte> compiled = stock.Resolve(type).Span;
+                    for (int offset = 0; offset < expected.Length; offset += 2)
+                        AssertEqual(BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(offset)) & preservedMask,
+                            BinaryPrimitives.ReadUInt16LittleEndian(compiled[offset..]) & preservedMask,
+                            "Other atmosphere fields preserve their original values during separate review");
+                }
                 if (type == RoomFxType.Spores)
                 {
                     ReadOnlySpan<byte> compiled = stock.Resolve(type).Span;

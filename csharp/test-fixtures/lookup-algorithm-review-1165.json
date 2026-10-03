@@ -5205,4 +5205,20 @@
     "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-fx-tilemap-sources, including liquid/source/type proofs and five guarded installed loads. Updated/extended the closed presentation source pins. No renderer sweep or gameplay run.",
     "scope":"Every independent field of the spore page has an explicit disposition; only particle composition uses the nonsense exception. Rain/fog and the larger maintained-source audit remain unfinished under1165. Implementation record is this entry's commit."
   }
+,
+  "atmosphereRegularTileFieldsReview": {
+    "status":"converted three regular fields; other rain/fog fields remain explicitly pending",
+    "owners":"RoomFxAtmosphereTilemapDefinitions; RoomFxAtmosphereTilemap; RoomFxLayer3TilemapCatalog; RoomFxLayer3TilemapExtractor",
+    "source":"Supported NTSC J/U v1.0 rain8A:A100..A93F and fogA940..B17F,1056 cells each. Pinned bank_8A.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d and complete direct SHA-pinned ROM field inspection.",
+    "rainPalette":{"disposition":"converted","algorithm":"The first32-cell padding row uses palette0; all remaining1024 cells use palette6.","proof":"VerifyRainTilePalette"},
+    "fogPalette":{"disposition":"converted constant6 across all1056 cells","proof":"VerifyFogTilePalette"},
+    "fogPriority":{"disposition":"converted constant clear across all1056 cells","proof":"VerifyFogTilePriority"},
+    "evidence":"The complete rain palette changes exactly once at the row boundary. Fog palette and priority are uniform across the entire native transfer. These fields have simple bounded layout/constant rules independent of the graphical character choices and orientations.",
+    "implementation":"Importer supplies reviewed fields from their functions while preserving other original bits. Runtime page storage masks out the converted fields, stores arbitrary differing custom fields separately, and composes transfers without caching the calculated stock values. Rain removes bits10..12; fog removes bits10..13. All other bits remain unchanged pending their own dispositions.",
+    "proofCoverage":"One named proof per converted field reads every native word and checks both the actual field function and installed transfer view. The old page-dispatch comparison now covers only the other bits, avoiding duplicate field proofs. VerifyAtmosphereTilemapDomainAndEdits checks allushort type identities, exact masks, signed/adjacent cell bounds, page-length bounds, stock fields absent from every stored word and custom dictionary before/after transfer, edits at every cell and input-copy ownership. Existing distinct edited-page dispatch checks are reused.",
+    "consumers":"RoomFxLayer3TilemapCatalog retains Load/Write/Resolve; rain/fog output now comes from named page owners. Imported and runtime attribute paths share the bounded definitions. Extended the ResourceAudit closed-contract source pins.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-fx-tilemap-sources, including earlier type/source/liquid/spore/dispatch checks and five guarded installed loads. No exploratory gameplay or unrelated tests.",
+    "pending":"Rain character, priority, horizontal flip and vertical flip mappings remain unreviewed. Fog character and both flip fields remain unreviewed. Their irregularity alone is not recorded as a retain decision. This commit does not assert completion of those pages.",
+    "scope":"Three fields resolved without retention. The separately named pending fields and broader maintained-source inventory remain active under1165. Implementation record is this entry's commit."
+  }
 }

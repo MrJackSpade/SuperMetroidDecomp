@@ -5154,4 +5154,17 @@
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-fx-tilemap-sources run both named proofs and the existing six complete page comparisons/five guarded installed loads. Missing ROM no longer silently skips this verifier. No gameplay traversal or unrelated tests.",
     "scope":"Only type identities and source-page addressing are resolved here, without retention. Editable tile cells, catalog storage and other FX mappings remain separate owners for the maintained-source audit. Implementation record is this entry's commit."
   }
+,
+  "fxLayer3PageDispatchReview": {
+    "status":"converted: runtime type-to-page dictionary removed",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/RoomFxLayer3TilemapCatalog.cs: constructor, Load, Resolve",
+    "source":"Six supported native page selections at83:ABF2..ABFC and their8A payloads, supported NTSC J/U v1.0. Independently captured pre-conversion type order is verification-only. The editable document is the source of custom page data.",
+    "algorithm":"Load compiles Lava, Acid, Water, Spores, Rain and Fog in the same original order into six named fields. Resolve dispatches with named RoomFxType cases; every other ushort identity preserves InvalidDataException. No runtime dictionary, indexed pointer roster or generated dispatch cache remains.",
+    "evidence":"Each key identifies a distinct named presentation resource, so this is semantic dispatch. Its loaded contents may change independently through the existing JSON contract. Cases select those actual loaded fields, rather than substituting stock artwork or reconstructing a hidden lookup.",
+    "domain":"All65536 underlying ushort enum values: six valid identities and all others rejected. Successful construction still requires six exact names with complete32x33 valid cells. Compile and invalid-page validation order remain Lava/Acid/Water/Spores/Rain/Fog.",
+    "proof":"VerifyFxTilemapPageDispatch consolidates the old native page-byte comparison. It reads each original pointer and all6336 native words directly, verifies stock Resolve for every supported type, then verifies six distinct constructed edited pages through the actual Load/Resolve path. All65536 identities are checked on both stock and edited catalogs; each named key is replaced in turn by an unknown sixth key to prove no required field is silently omitted. Existing installed-VRAM checks reuse these loaded fields.",
+    "consumers":"RoomLayer3FxState, extraction/write validation, ResourceAudit and verification keep the public Load/Write/Resolve contract. The document's string dictionary remains its external JSON representation, not a retained fixed runtime dispatch table. Existing payload bytes remain editable presentation data; this conversion makes no blanket retention decision about stock cell patterns.",
+    "confirmation":"Verification and ResourceAudit builds plus --lookup-fx-tilemap-sources cover the new dispatch proof, existing type/source proofs and five guarded installed loads. Updated the BackgroundTransferClosedContractDefinitions source hash. No unrelated JSON suite or gameplay sweep.",
+    "scope":"The remaining fixed page-dispatch mapping is resolved without retention. Stock tile-cell structure and other maintained mappings remain separate audit work under1165. Implementation record is this entry's commit."
+  }
 }

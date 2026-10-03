@@ -9,9 +9,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
-    private readonly Dictionary<RoomFxType, byte[]> pages;
+    private readonly byte[] lava, acid, water, spores, rain, fog;
 
-    private RoomFxLayer3TilemapCatalog(Dictionary<RoomFxType, byte[]> pages) => this.pages = pages;
+    private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
+        byte[] spores, byte[] rain, byte[] fog) =>
+        (this.lava, this.acid, this.water, this.spores, this.rain, this.fog) =
+        (lava, acid, water, spores, rain, fog);
 
     /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
@@ -25,8 +28,10 @@ public sealed class RoomFxLayer3TilemapCatalog
             throw new InvalidDataException(
                 "Room-FX BG3 tilemaps require the supported version and six named pages.");
 
-        var pages = new Dictionary<RoomFxType, byte[]>();
-        foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
+        return new(Compile(RoomFxType.Lava), Compile(RoomFxType.Acid), Compile(RoomFxType.Water),
+            Compile(RoomFxType.Spores), Compile(RoomFxType.Rain), Compile(RoomFxType.Fog));
+
+        byte[] Compile(RoomFxType type)
         {
             if (!document.Pages.TryGetValue(type.ToString(), out RoomBackgroundTilemapCell[]? cells) ||
                 cells is null || cells.Length != RoomFxLayer3TilemapFormat.CellsPerPage)
@@ -50,9 +55,8 @@ public sealed class RoomFxLayer3TilemapCatalog
                     value.Palette, value.Priority, flips).Raw;
                 BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * sizeof(ushort)), word);
             }
-            pages.Add(type, bytes);
+            return bytes;
         }
-        return new(pages);
     }
 
     /// <summary>Validates and writes a complete editable tilemap document.</summary>
@@ -64,10 +68,22 @@ public sealed class RoomFxLayer3TilemapCatalog
         json.Write(bytes);
     }
 
-    /// <summary>Returns the full 33-row native transfer for one room-FX type.</summary>
-    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => pages.TryGetValue(type, out byte[]? bytes)
-        ? bytes
-        : throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page.");
+    /// <summary>
+    /// Selects one of the six named editable 33-row resources directly. The six
+    /// even identities $02..0C match the original $83:ABF2..ABFC page dispatch;
+    /// their payload is compiled from the supplied document, not stock-only data.
+    /// Other ushort type identities throw InvalidDataException.
+    /// </summary>
+    public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
+    {
+        RoomFxType.Lava => lava,
+        RoomFxType.Acid => acid,
+        RoomFxType.Water => water,
+        RoomFxType.Spores => spores,
+        RoomFxType.Rain => rain,
+        RoomFxType.Fog => fog,
+        _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
+    };
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

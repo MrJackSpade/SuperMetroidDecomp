@@ -16,6 +16,7 @@ internal static partial class Program
         VerifyFxTilemapSourceAddresses(rom);
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(rom);
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
+        VerifyFxTilemapPageDispatch(rom, catalog);
         RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
@@ -23,8 +24,6 @@ internal static partial class Program
             int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
-            AssertTrue(catalog.Resolve(type).Span.SequenceEqual(native),
-                $"room-FX {type} preserves every bank-$8A tilemap word");
             if (type == RoomFxType.Spores) continue;
             SnesVram vram = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
                 out ForbiddenRoomFxTilemapBus guarded);

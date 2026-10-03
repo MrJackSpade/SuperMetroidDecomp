@@ -27,18 +27,18 @@ internal static partial class Program
         fractional.Step();
         AssertEqual(2, fractional.Left, "completed map window remains stable");
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(fake, 6), "Ceres has no area-select window record");
-        foreach (int invalidArea in new[] { -1, 6, 256 })
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.Get(invalidArea),
-                "compiled window lookup rejects unsupported areas without byte truncation");
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        VerifyMapWindowLeftVelocities(bus);
+        VerifyMapWindowRightVelocities(bus);
+        VerifyMapWindowTopVelocities(bus);
+        VerifyMapWindowBottomVelocities(bus);
+        VerifyMapWindowTimers(bus);
         int[] durations = [52, 54, 46, 52, 52, 35];
         int[] labelX = [91, 42, 94, 206, 206, 135];
         int[] labelY = [50, 127, 181, 80, 159, 139];
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            AssertEqual(ReadCartridgeMapWindowMotion(bus, area), FileSelectMapWindowMotions.Get(area),
-                "all compiled map-window timing and fixed-point velocity words match cartridge");
             var window = new FileSelectMapWindow(bus, area);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");

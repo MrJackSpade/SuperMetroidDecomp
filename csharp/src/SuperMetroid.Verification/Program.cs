@@ -26,6 +26,19 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-map-window-motion"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map window motion oracle revision");
+    VerifyMapWindowLeftVelocities(rom);
+    VerifyMapWindowRightVelocities(rom);
+    VerifyMapWindowTopVelocities(rom);
+    VerifyMapWindowBottomVelocities(rom);
+    VerifyMapWindowTimers(rom);
+    Console.WriteLine("Map window motion: all 24 original signed16.16 velocities, six timers, stock origins and rejected areas pass.");
+    return 0;
+}
 if (args is ["--lookup-file-select-geometry"])
 {
     VerifyFileSelectGeometryLookups();

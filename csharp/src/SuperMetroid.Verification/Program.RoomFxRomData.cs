@@ -17,7 +17,7 @@ internal static partial class Program
             "room FX layer-three blend field");
         AssertEqual(15, RoomFxRomData.Record.PaletteBlendOffset,
             "room FX palette-blend field");
-        AssertEqual(23, RoomFxRomData.ScrollingSky.Sections.Length,
+        AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
             "scrolling-sky section count");
         AssertEqual(6, RoomFxRomData.ScrollingSky.LandChunkOffsets.Length,
             "scrolling-sky native land/ocean fall-through count");

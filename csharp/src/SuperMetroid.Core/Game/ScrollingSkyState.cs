@@ -76,17 +76,16 @@ public sealed class ScrollingSkyState
         if (!HdmaEnabled)
             return result;
 
-        ReadOnlySpan<SkyScrollSection> sections = RoomFxRomData.ScrollingSky.Sections;
         for (int line = 0; line < lineCount; line++)
         {
             ushort worldY = unchecked((ushort)(
                 layer1YPosition + RoomFxRomData.ScrollingSky.GameplayFirstScanline + line));
-            int sectionIndex = FindSection(worldY, sections);
+            int sectionIndex = FindSection(worldY);
 
             // The assembly's fallback entries point at direct-page BG2HOFS ($00B5). Its
             // ordinary value is zero for Landing Site; all positions >=$500 use that path.
             result[line] = sectionIndex >= 0
-                ? GetDataSlotPosition(sections[sectionIndex].DataSlot)
+                ? GetDataSlotPosition(RoomFxRomData.ScrollingSky.GetSection(sectionIndex).DataSlot)
                 : (ushort)0;
         }
         return result;
@@ -94,8 +93,9 @@ public sealed class ScrollingSkyState
 
     private void AdvanceHorizontalScrolls()
     {
-        foreach (SkyScrollSection section in RoomFxRomData.ScrollingSky.Sections)
+        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
         {
+            SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(index);
             uint velocity = ((uint)section.Speed << 16) | section.Subspeed;
             _fixedHorizontalScrolls[section.DataSlot] = unchecked(
                 _fixedHorizontalScrolls[section.DataSlot] + velocity);
@@ -154,14 +154,14 @@ public sealed class ScrollingSkyState
                 lowerDestination + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount)));
     }
 
-    private static int FindSection(ushort worldY, ReadOnlySpan<SkyScrollSection> sections)
+    private static int FindSection(ushort worldY)
     {
-        for (int index = 0; index < sections.Length; index++)
+        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
         {
-            ushort nextTop = index + 1 < sections.Length
-                ? sections[index + 1].TopPosition
+            ushort nextTop = index + 1 < RoomFxRomData.ScrollingSky.SectionCount
+                ? RoomFxRomData.ScrollingSky.GetSection(index + 1).TopPosition
                 : RoomFxRomData.ScrollingSky.WorldEndPosition;
-            if (worldY >= sections[index].TopPosition && worldY < nextTop)
+            if (worldY >= RoomFxRomData.ScrollingSky.GetSection(index).TopPosition && worldY < nextTop)
                 return index;
         }
         return -1;

@@ -284,36 +284,35 @@ public static class RoomFxRomData
     /// <summary>Landing Site scrolling-sky table and circular tilemap layout.</summary>
     public static class ScrollingSky
     {
-        private static readonly SkyScrollSection[] SectionRows =
-        [
-            new(0x0000, 0x8000, 0x0000, 0),
-            new(0x0010, 0xc000, 0x0000, 1),
-            new(0x0038, 0x8000, 0x0000, 2),
-            new(0x00d0, 0xc000, 0x0000, 3),
-            new(0x00e0, 0x8000, 0x0000, 4),
-            new(0x0120, 0xc000, 0x0000, 5),
-            new(0x01a0, 0x8000, 0x0000, 6),
-            new(0x01d8, 0xc000, 0x0000, 7),
-            new(0x0238, 0x8000, 0x0000, 8),
-            new(0x0268, 0xc000, 0x0000, 9),
-            new(0x02a0, 0x8000, 0x0000, 10),
+        /// <summary>Twenty-three eight-byte sky-band records processed by $88:ADC2.</summary>
+        public const int SectionCount = 23;
 
-            // $02E0 deliberately targets slot eight again, making that strip advance
-            // twice per frame exactly as the bank-$88 table specifies.
-            new(0x02e0, 0xc000, 0x0000, 8),
-            new(0x0300, 0x8000, 0x0000, 12),
-            new(0x0320, 0xc000, 0x0000, 13),
-            new(0x0350, 0x8000, 0x0000, 14),
-            new(0x0378, 0xc000, 0x0000, 15),
-            new(0x03c8, 0x8000, 0x0000, 16),
-            new(0x0440, 0x7000, 0x0000, 17),
-            new(0x0460, 0xc000, 0x0000, 18),
-            new(0x0480, 0x8000, 0x0000, 19),
-            new(0x0490, 0x0000, 0x0000, 20),
-            new(0x04a8, 0x0000, 0x0000, 21),
-            new(0x04b8, 0x0000, 0x0000, 22),
-        ];
-
+        /// <summary>Selects a sky band's boundary, unsigned16.16 velocity and HDMA data slot.</summary>
+        /// <remarks>Native records at $88:AEC1 have fixed band geometry, so boundaries
+        /// are explicit configuration cases. Bands0..16 alternate fractional speeds
+        /// 8000/C000; band17 has its own7000 speed, bands18/19 resume C000/8000,
+        /// and the three bottom bands are stationary. Integer speed is always zero.
+        /// Data slots follow band indices except band11 targets slot8 again, giving it
+        /// two additions per frame. All four fields are independently verified against
+        /// supported NTSC J/U v1.0 and pinned bank_88.asm
+        /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+        /// Reject outside0..22 before computing fields; no row array/cache remains.</remarks>
+        public static SkyScrollSection GetSection(int index)
+        {
+            ushort top = index switch
+            {
+                0 => 0x0000, 1 => 0x0010, 2 => 0x0038, 3 => 0x00d0,
+                4 => 0x00e0, 5 => 0x0120, 6 => 0x01a0, 7 => 0x01d8,
+                8 => 0x0238, 9 => 0x0268, 10 => 0x02a0, 11 => 0x02e0,
+                12 => 0x0300, 13 => 0x0320, 14 => 0x0350, 15 => 0x0378,
+                16 => 0x03c8, 17 => 0x0440, 18 => 0x0460, 19 => 0x0480,
+                20 => 0x0490, 21 => 0x04a8, 22 => 0x04b8,
+                _ => throw new IndexOutOfRangeException(),
+            };
+            ushort subspeed = (ushort)(index < 17 ? 0x8000 + (index & 1) * 0x4000 :
+                index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
+            return new(top, subspeed, 0, index == 11 ? 8 : index);
+        }
         public const ushort Bg2TilemapBaseWord = 0x4800;
         public const int LandChunkPointerTableAddress = 0x88ad9c;
         /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
@@ -335,8 +334,6 @@ public static class RoomFxRomData
         public static ReadOnlySpan<ushort> LandChunkOffsets =>
             ScrollingSkyChunkPointerDefinitions.Land[..6];
 
-        /// <summary>The 23 eight-byte rows beginning at bank-$88 scrolling-sky data.</summary>
-        public static ReadOnlySpan<SkyScrollSection> Sections => SectionRows;
     }
 
     /// <summary>Bank-$A0 room-shake displacement data and type boundaries.</summary>

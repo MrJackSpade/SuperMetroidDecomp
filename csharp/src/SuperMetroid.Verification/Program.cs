@@ -53,6 +53,19 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--lookup-sky-sections"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Sky sections oracle revision");
+    VerifySkySectionTopPositions(rom);
+    VerifySkySectionSubspeeds(rom);
+    VerifySkySectionSpeeds(rom);
+    VerifySkySectionDataSlots(rom);
+    VerifyScrollingSkyState();
+    Console.WriteLine("Sky sections: four native fields, bounds, complete world-Y projection and existing integration pass.");
+    return 0;
+}
 if (args is ["--lookup-quake-suppression"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

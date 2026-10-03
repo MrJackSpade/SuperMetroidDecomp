@@ -19,7 +19,7 @@ internal static class RoomArtworkClosedContractDefinitions
         new("SuperMetroid.Core.Assets.RoomSkyTilemapCatalog", "room-complete-seven-page-sky-transfer-store", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "76A235967E736A9B6FDC9CA2E67B26FEC0DBE71074D63F83A901608AC7E48ABA"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "9FA2182B31CC5B874EC8DD279E72208D7EAA60147C92BF6099B21DCF99863A07"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "652021F52897FA524DA5E6C3DF29DB4121750E8170CEA135DA199446EED65DD0")],
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "9D86D60BB14FC72EA315534A134EF5C4AF55A281374F6D7049BEB210CFE0A1BF")],
             "Public construction copies every byte of all seven complete ordered sky pages. Resolve accepts only aligned full pages or even-addressed complete 64-byte rows inside that store; unowned sources return false. Known source/length correlations are checked without imposing page alignment on native mid-page row overreads. Camera arithmetic, sky ordering, VRAM handoff and pixels are not certified."),
     ];
 }

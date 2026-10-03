@@ -4920,5 +4920,22 @@
     "consumers":"Migrated the sole production membership check in RoomLayer3FxState.Load. No SoundSuppressedRooms.All code references remain. Updated three ResourceAudit ownership hashes for RoomFxRomData.",
     "confirmation":"Verification and ResourceAudit builds and early SHA-pinned --lookup-quake-suppression pass. No exploratory gameplay or defect search.",
     "scope":"Room-based quake sound suppression fully resolved without retention. The separate eight-entry sound timing sequence and wider maintained-source inventory remain within1165. Implementation record is the commit introducing this entry."
+  },
+  "scrollingSkySectionsReview": {
+    "status":"converted:23 stored eight-byte section records removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs: ScrollingSky.GetSection",
+    "source":"Supported NTSC J/U v1.0 $88:AEC1..AF78 sky records, loop boundB8 atADEF and end boundary0500 atAF79. Pinned bank_88.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identifies top position, fractional speed, integer speed and HDMA slot pointer; ADC2 adds all rows and clears final slot22.",
+    "domain":"Indices0..22 selected directly. Other int values retain the former indexed span's IndexOutOfRangeException. The native unused continuation after the0500 boundary is not admitted by the existing23-row API. SectionCount is separate from mutable DataSlotCount even though both are23.",
+    "fields":[
+      {"field":"TopPosition","disposition":"converted explicit configuration cases for the vertical band geometry","proof":"VerifySkySectionTopPositions"},
+      {"field":"Subspeed","disposition":"converted alternating8000/C000 for bands0..16, explicit slower band17=7000, resumed C000/8000 at18/19, and stationary bottom bands20..22","proof":"VerifySkySectionSubspeeds"},
+      {"field":"Speed","disposition":"converted constant zero integer velocity for every accepted band","proof":"VerifySkySectionSpeeds"},
+      {"field":"DataSlot","disposition":"converted identity index except native band11 alias to slot8","proof":"VerifySkySectionDataSlots"}
+    ],
+    "evidence":"Band identities select spatial configuration, not arbitrary chronology. Fractional speeds express alternating parallax motion with the native bounded lower-band transition and stationary bottom. Slot identity follows the four-byte native data layout except the independently visible duplicate9FA0 pointer in band11; it causes a second addition to slot8 and is preserved. No lookup cache or fitted numerical sequence is introduced.",
+    "proofCoverage":"One named proof per independent field reads all23 original native values. Top-position proof also derives the native loop count, checks invalid bounds and extends to the existing production world-Y projection over all65536 coordinates, using original boundaries/velocities/slot pointers after16 fixed updates. That projection check preserves the current unsigned interval and camera-wrap contract; it does not claim independent equivalence to every native HDMA branch at arbitrary out-of-room coordinates. Existing integration confirms the slot8 double addition, frozen-frame behavior, circular transfers and Y=0 bounded pointer overread.",
+    "consumers":"ScrollingSkyState now uses indexed GetSection for accumulation and band selection instead of a stored span. Mutable per-frame scroll accumulators remain runtime state, not lookup caches. Removed SectionRows and Sections references, updated the existing schema count check and three ResourceAudit source-ownership hashes.",
+    "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-sky-sections pass all four field proofs and existing scrolling-sky integration. Static source review chose this conversion; no gameplay sweep or defect search.",
+    "scope":"All four section-record fields resolved without retention. Chunk-pointer mappings, other sky algorithms and wider maintained-source inventory remain subject to independent review. Implementation record is the commit introducing this entry."
   }
 }

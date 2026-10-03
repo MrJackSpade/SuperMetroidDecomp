@@ -22,8 +22,8 @@ public sealed class SamusFullBodyCycleColorCatalog
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
     /// <summary>Active-shinespark blue inputs at9C64/9C84/9E84 and9C50; all other channels derive from base ramps.</summary>
     private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activeVariaBright2, activePowerDim8;
-    /// <summary>Screw Attack endpoint components at9CC8/9CE8/9D14/9D1E/9F04.</summary>
-    private readonly LoadingPaletteInputView.Channels screwPowerDim4, screwPowerMiddle4, screwPowerBright10, screwPowerBright15, screwVariaBright2;
+    /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
+    private readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
     private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
     {
@@ -69,8 +69,6 @@ public sealed class SamusFullBodyCycleColorCatalog
         activePowerBright2 = CaptureActive(11, 2);
         activeVariaBright2 = CaptureActive(27, 2);
         activePowerDim8 = CaptureActive(9, 8);
-        screwPowerDim4 = CaptureScrew(13, 4);
-        screwPowerMiddle4 = CaptureScrew(14, 4);
         screwPowerBright10 = CaptureScrew(15, 10);
         screwPowerBright15 = CaptureScrew(15, 15);
         screwVariaBright2 = CaptureScrew(31, 2);
@@ -137,8 +135,6 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 178: return activePowerBright2.Apply(ActiveGoldExpected(11));
             case 434: return activeVariaBright2.Apply(ActiveGoldExpected(27));
             case 152: return activePowerDim8.Apply(SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex(136), 1));
-            case 212: return screwPowerDim4.Apply(ScrewExpected(13, 4));
-            case 228: return screwPowerMiddle4.Apply(ScrewExpected(14, 4));
             case 250: return screwPowerBright10.Apply(ScrewExpected(15, 10));
             case 255: return screwPowerBright15.Apply(ScrewExpected(15, 15));
             case 498: return screwVariaBright2.Apply(ScrewExpected(31, 2));
@@ -355,7 +351,9 @@ public static class SamusFullBodyCycleColorFormat
     /// with unchanged blue. Power10 uses that slower ramp, with its final red stored independently.
     /// Red stays unchanged and channel additions saturate at31. Original rows
     ///9CC0/9CE0/9D00 and suit offsets512/1024 establish these shared operations.
-    /// Other slots/components remain outside this mapping for independent review.</remarks>
+    /// Power slot4 blue ramps through quarter/half/full of the same ten-unit increment:
+    /// floor(10/2^(3-shade)), producing2/5/10 before saturation. Other
+    /// slots/components remain outside this mapping for independent review.</remarks>
     internal static bool TryScrewAttackTint(int palette, int color, ushort basis, out ushort value)
     {
         value = 0;
@@ -367,7 +365,8 @@ public static class SamusFullBodyCycleColorFormat
             suit == 1 && color is 10 or 11 or 12;
         if (!fast && !slow) return false;
         int green = Math.Min(31, (basis >> 5 & 31) + (fast ? 10 : 5) * shade);
-        int blue = Math.Min(31, (basis >> 10 & 31) + (fast && shade == 3 ? 10 : 0));
+        int blueAdd = suit == 0 && color == 4 ? 10 >> (3 - shade) : fast && shade == 3 ? 10 : 0;
+        int blue = Math.Min(31, (basis >> 10 & 31) + blueAdd);
         value = (ushort)((basis & 31) | green << 5 | blue << 10);
         return true;
     }

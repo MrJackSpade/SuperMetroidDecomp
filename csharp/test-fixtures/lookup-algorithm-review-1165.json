@@ -5905,4 +5905,15 @@
     "scope":"Five new endpoint components and prior components still require explicit dispositions. Twenty-five whole base/transparent inputs also remain under review. No new retention exemption. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors and --lookup-loading-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "fullBodyScrewBlueRampReview": {
+    "status":"converted Power Screw slot4 intermediate blue inputs to quarter/half/full tint intensity",
+    "owners":"SamusFullBodyCycleColorFormat.TryScrewAttackTint; SamusFullBodyCycleColorCatalog",
+    "source":"Original9CA8/9CC8/9CE8/9D08 blue14/16/19/24,red0 andgreen31. Relative blue offsets0/2/5/10 represent quarter/half/full of the same ten-unit increment used by the final Screw tint. Supported NTSC J/U v1.0 and pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+    "algorithm":"For shades1..3 add floor(10/2^(3-shade)) to base blue and saturate31; existing red/green formula is unchanged. Integer right shift implements floor exactly with shift2/1/0. Remove two nullable channel records; whole inputs remain25 and components18 to16. No payload recitation,polynomial correction or cached generated colors.",
+    "ownership":"Matching supplied words calculate on demand; differing edits remain ordinary complete-word overrides,including source-base-only edits. No change to independently supplied palette ownership.",
+    "proof":"Existing original-word checks now compare complete slot4 colors instead of masking blue. Extend shared Screw tint fullRGB5 checks to slot4 with independent fractional-intensity rounding,allthree shades and saturation. Existing all768 native values,base-only and independent edits remain in the same proof; stock count confirms two components removed.",
+    "scope":"Remaining sixteen components and25 base/transparent words still require dispositions. This relationship supersedes the pending intermediate-blue input classification; no retention exception. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --lookup-full-body-colors; refreshed source pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

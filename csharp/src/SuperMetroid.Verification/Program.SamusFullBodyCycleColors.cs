@@ -20,7 +20,7 @@ internal static partial class Program
             if (field.FieldType == typeof(LoadingPaletteInputView.Channels))
                 foreach (var channel in field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                     if (channel.GetValue(field.GetValue(native)) is not null) endpointComponents++;
-        AssertEqual(18, endpointComponents, "Full-body shade endpoints store eighteen independent channels");
+        AssertEqual(16, endpointComponents, "Full-body shade endpoints store sixteen independent channels");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)
         {
@@ -134,7 +134,7 @@ internal static partial class Program
                 AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, screwBase, out ushort screw), "Every Screw Attack tint domain member");
                                 if (screwTint)
                 {
-                    int mask = (pointer + 2 * color) switch { 0x9cc8 or 0x9ce8 => 0x03ff, 0x9d14 => 0x7fe0, 0x9d1e => 0x7c1f, _ => 0x7fff };
+                    int mask = (pointer + 2 * color) switch { 0x9d14 => 0x7fe0, 0x9d1e => 0x7c1f, _ => 0x7fff };
                     AssertEqual(expected & mask, screw & mask, "Every original calculated Screw Attack channel");
                 }
                 bool variaScrew = pointer + 2 * color is 0x9ec4 or 0x9ee4 or 0x9f04;
@@ -145,7 +145,7 @@ internal static partial class Program
                 AssertEqual(powerInk, SamusFullBodyCycleColorFormat.TryScrewPowerInk(paletteIndex, color,
                     ReadVerificationWord(rom, 0x9b9ca0 + 2 * color), ReadVerificationWord(rom, 0x9b9b58), out ushort ink), "Every Power Screw ink domain member");
                 if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
-                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9e84 or 0x9c50 or 0x9cc8 or 0x9ce8 or 0x9d14 or 0x9d1e or 0x9f04;
+                bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9e84 or 0x9c50 or 0x9d14 or 0x9d1e or 0x9f04;
                 bool gravityShared = pointer + 2 * color is 0x9f22 or 0x9f38;
                 if (gravityShared)
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(
@@ -224,10 +224,10 @@ internal static partial class Program
                         1024 * Math.Clamp(baseBlue + (shade == 3 ? 10 : 0), 0, 31);
                     AssertEqual((ushort)sharedExpected, sharedInk, "Shared source RGB5 and blue saturation boundaries");
                 }
-                foreach (int slot in new[] { 1, 3 })
+                foreach (int slot in new[] { 1, 3, 4 })
                 {
-                    int green = Math.Clamp((basis >> 5 & 31) + (slot == 3 ? 10 : 5) * shade, 0, 31);
-                    int blueChannel = Math.Clamp((basis >> 10) + (slot == 3 && shade == 3 ? 10 : 0), 0, 31);
+                    int green = Math.Clamp((basis >> 5 & 31) + (slot != 1 ? 10 : 5) * shade, 0, 31);
+                    int blueChannel = Math.Clamp((basis >> 10) + (slot == 4 ? (int)Math.Floor(10 * Math.Pow(2, shade - 3)) : slot == 3 && shade == 3 ? 10 : 0), 0, 31);
                     AssertTrue(SamusFullBodyCycleColorFormat.TryScrewAttackTint(12 + shade, slot, (ushort)basis, out ushort screw), "Screw tint operation selected");
                     AssertEqual((ushort)((basis & 31) + 32 * green + 1024 * blueChannel), screw, "Complete RGB5 Screw tint/saturation domain");
                 }

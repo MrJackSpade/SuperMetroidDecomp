@@ -53,6 +53,16 @@ if (args is ["--dynamic-collectible-graphics"])
     Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
     return 0;
 }
+if (args is ["--lookup-palette-fx-areas"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Palette-FX area oracle revision");
+    VerifyPaletteFxAreaListPointers(rom);
+    VerifyPaletteFxAreaSelections(rom);
+    Console.WriteLine("Palette-FX areas: eight original list identities, all64 selections and rejection domains pass.");
+    return 0;
+}
 if (args is ["--lookup-palette-fx-dispatch"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

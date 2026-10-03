@@ -33,26 +33,17 @@ internal static class RoomPaletteFxDefinitions
     internal const int AreaCount = 8;
     internal const int DefinitionsPerArea = 8;
 
-    private static readonly ushort[] AreaListPointers =
-        [0xac66, 0xac86, 0xaca6, 0xacc6, 0xace6, 0xad06, 0xad26, 0xad46];
-
-    /// <summary>
-    /// Bank-$83 area-list identities selected by <c>$83:AC46-$83:AC55</c>. Retained for
-    /// cartridge diagnostics; production selection uses the compiled matrix below.
-    /// </summary>
-    internal static ReadOnlySpan<ushort> NativeAreaListPointers => AreaListPointers;
-
-    private static readonly ushort[] AreaDefinitions =
-    [
-        0xF765, 0xFFE5, 0xFFE9, 0xFFD9, 0xFFDD, 0xFFE1, 0xFFED, 0xF781,
-        0xF775, 0xF77D, 0xF781, 0xF779, 0xF745, 0xF745, 0xF745, 0xF745,
-        0xF761, 0xF785, 0xF789, 0xF78D, 0xF791, 0xF745, 0xF745, 0xF745,
-        0xF76D, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745,
-        0xF795, 0xF799, 0xF79D, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745,
-        0xF761, 0xF7A1, 0xF7A5, 0xFFC9, 0xFFCD, 0xFFD1, 0xFFD5, 0xF745,
-        0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745,
-        0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745, 0xF745,
-    ];
+    /// <summary>Calculates a native palette-FX area-list identity for index0..7.</summary>
+    /// <remarks>$83:AC46 has eight pointers to AC66+20h*area. Each area owns an
+    /// eight-word palette list followed by an eight-word animated-tile list.
+    /// Includes the debug area; invalid indices retain the former span rejection.
+    /// Independently verified against NTSC J/U v1.0 and pinned bank_83.asm
+    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
+    internal static ushort NativeAreaListPointer(int areaIndex)
+    {
+        if ((uint)areaIndex >= AreaCount) throw new IndexOutOfRangeException();
+        return (ushort)(0xac66 + areaIndex * 0x20);
+    }
 
     /// <summary>Selects setup callback and initial program by native palette-FX object identity.</summary>
     /// <remarks>The 63 aligned objects occupy E194..E200, F745..F7A5 and FFC9..FFED
@@ -130,14 +121,49 @@ internal static class RoomPaletteFxDefinitions
         _ => throw new InvalidDataException(
             $"Palette-FX definition $8D:{pointer:X4} is outside the compiled retail domain."),
     };
-    /// <summary>Returns the palette-FX definition selected by one area bit.</summary>
+    /// <summary>Selects the palette-FX object enabled by one area's effect bit.</summary>
+    /// <remarks>Direct semantic area/bit dispatch for all eight areas and eight bits.
+    /// Unused selections (including Ceres/debug) select the native empty object.
+    /// Validate area before bit, preserving both rejection domains and precedence.
+    /// All64 native words are independently verified; no selection matrix remains.</remarks>
     internal static ushort GetAreaDefinition(int areaIndex, int bitIndex)
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
         if ((uint)bitIndex >= DefinitionsPerArea)
             throw new ArgumentOutOfRangeException(nameof(bitIndex));
-        return AreaDefinitions[areaIndex * DefinitionsPerArea + bitIndex];
+        return ((AreaId)areaIndex, bitIndex) switch
+        {
+            (AreaId.Crateria, 0) => 0xF765,
+            (AreaId.Crateria, 1) => 0xFFE5,
+            (AreaId.Crateria, 2) => 0xFFE9,
+            (AreaId.Crateria, 3) => 0xFFD9,
+            (AreaId.Crateria, 4) => 0xFFDD,
+            (AreaId.Crateria, 5) => 0xFFE1,
+            (AreaId.Crateria, 6) => 0xFFED,
+            (AreaId.Crateria, 7) => 0xF781,
+            (AreaId.Brinstar, 0) => 0xF775,
+            (AreaId.Brinstar, 1) => 0xF77D,
+            (AreaId.Brinstar, 2) => 0xF781,
+            (AreaId.Brinstar, 3) => 0xF779,
+            (AreaId.Norfair, 0) => 0xF761,
+            (AreaId.Norfair, 1) => 0xF785,
+            (AreaId.Norfair, 2) => 0xF789,
+            (AreaId.Norfair, 3) => 0xF78D,
+            (AreaId.Norfair, 4) => 0xF791,
+            (AreaId.WreckedShip, 0) => 0xF76D,
+            (AreaId.Maridia, 0) => 0xF795,
+            (AreaId.Maridia, 1) => 0xF799,
+            (AreaId.Maridia, 2) => 0xF79D,
+            (AreaId.Tourian, 0) => 0xF761,
+            (AreaId.Tourian, 1) => 0xF7A1,
+            (AreaId.Tourian, 2) => 0xF7A5,
+            (AreaId.Tourian, 3) => 0xFFC9,
+            (AreaId.Tourian, 4) => 0xFFCD,
+            (AreaId.Tourian, 5) => 0xFFD1,
+            (AreaId.Tourian, 6) => 0xFFD5,
+            _ => PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition,
+        };
     }
 
 }

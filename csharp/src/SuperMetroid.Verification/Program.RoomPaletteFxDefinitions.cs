@@ -56,26 +56,20 @@ internal static partial class Program
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
 
-        ReadOnlySpan<ushort> areaLists = RoomPaletteFxDefinitions.NativeAreaListPointers;
-        AssertEqual(RoomPaletteFxDefinitions.AreaCount, areaLists.Length,
-            "palette-FX area-list count");
+        VerifyPaletteFxAreaListPointers(rom);
+        VerifyPaletteFxAreaSelections(rom);
         for (int area = 0; area < RoomPaletteFxDefinitions.AreaCount; area++)
         {
             int pointerAddress = RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + area * 2;
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             ushort nativeList = Word(pointerAddress);
-            AssertEqual(nativeList, areaLists[area], $"area {area} native palette-FX list identity");
             for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
             {
                 int entryAddress = RoomFxRomData.Banks.RoomDefinitions |
                     unchecked((ushort)(nativeList + bit * 2));
                 forbidden.Add(entryAddress);
                 forbidden.Add(entryAddress + 1);
-                AssertEqual(
-                    Word(entryAddress),
-                    RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
-                    $"area {area} palette-FX bit {bit}");
             }
         }
 

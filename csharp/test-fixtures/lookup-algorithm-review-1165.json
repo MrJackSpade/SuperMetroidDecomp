@@ -5651,4 +5651,15 @@
     "scope":"The63 remaining inputs and other channel/shade relationships remain pending; no new retention exception. Full1165 remains active.",
     "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, updated closed-interface source pins and maintained-source index. Implementation record is this entry's commit."
   }
+,
+  "suitLoadingVariaTintReview": {
+    "status":"converted ten additional Varia loading shade words",
+    "owners":"LoadingPaletteColorDefinitions.TryCalculatedColor/VariaTintColor",
+    "source":"Original Varia normal/bright/middle/dim rows in8D:DCC8, supported NTSC J/U v1.0 and pinned bank_8D.asm362be646929cf8e483f692b73a6561cfc2dc1d0d. Independently inspected RGB5 channels for slots1/2/10/11.",
+    "algorithm":"Preserve red; shade0..2 adds max(0,5-5*shade) to green and30-10*shade to blue, saturating at31. Slots1/2 follow allthree levels; slots10/11 follow middle and dim only. Their brightest blue29 differs from this rule's30 and is explicitly excluded rather than corrected with a lookup. Together with the earlier shared tint,43 whole shade words are calculated and53 loading inputs remain stored.",
+    "ownership":"The existing equality-gated loader and explicit override precedence preserve each independently edited word, including base-only changes. Native brightness exceptions remain pending, without a retention claim or an invented fitted correction. No generated color cache or runtime cartridge read.",
+    "proof":"Extend the same loading-color proof with ten independently identified native addresses. All432 original values and complete ushort alias/calculation ownership remain checked, including the excluded brightest slots10/11. Every32768 RGB5 input at allthree Varia shades compares with a separate addition/saturation oracle; invalid shade boundaries reject. Existing custom edits and guarded loading executions remain consolidated, with the affected shared heat-color proof reused.",
+    "scope":"Remaining53 inputs, including the two brightest Varia exceptions and other shade/channel relationships, still require disposition. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds, --lookup-loading-colors, --lookup-heat-colors, refreshed source dependency pin and maintained-source index. Implementation record is this entry's commit."
+  }
 }

@@ -29,22 +29,42 @@ public static class LoadingPaletteColorDefinitions
     /// <remarks>Power slots3..8/13..15 and Gravity slots10/11 preserve red.
     /// Bright, middle and dim shades add green15/5/0 and blue20/20/10,
     /// saturating each RGB5 channel at31. All33 original words independently
-    /// confirm this channel transformation. Other slots have separate pending
+    /// confirm this channel transformation. Varia slots1/2 use the weaker green
+    /// and stronger blue tint; slots10/11 share its middle and dim shades only.
+    /// Their brightest blue29 differs and remains a separate pending input.
+    /// Other slots have separate pending
     /// artwork/channel reviews and are not silently forced into this rule.</remarks>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
     {
         value = 0;
-        int first = pointer >= 0xde37 ? 0xde37 : 0xdb6b;
+        int first = pointer >= 0xde37 ? 0xde37 : pointer >= 0xdcd1 ? 0xdcd1 : 0xdb6b;
         int offset = pointer - first;
         if ((uint)offset >= 4 * 79) return false;
         int group = offset / 79;
         int within = offset % 79 - 36;
         if (group == 1 || (uint)within >= 32 || (within & 1) != 0) return false;
         int slot = within / 2;
-        if (!(first == 0xdb6b ? slot is >= 3 and <= 8 or >= 13 and <= 15 : slot is 10 or 11)) return false;
+        bool varia = first == 0xdcd1;
+        if (!(first == 0xdb6b ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
+            varia ? slot is 1 or 2 || (group != 0 && slot is 10 or 11) : slot is 10 or 11)) return false;
         if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort original)) return false;
-        value = TintColor(original, group == 0 ? 0 : group - 1);
+        int shade = group == 0 ? 0 : group - 1;
+        value = varia ? VariaTintColor(original, shade) : TintColor(original, shade);
         return true;
+    }
+
+    /// <summary>Applies Varia's blue-dominant loading tint to one RGB5 input.</summary>
+    /// <remarks>Shade0..2 preserves red and adds green=max(0,5-5*shade),
+    /// blue=30-10*shade, saturating at31. Original Varia slots1/2 follow all
+    /// three levels; slots10/11 follow levels1/2. The brightest slots10/11
+    /// are excluded because their blue is29 rather than30. All ten included
+    /// words match the original program; no correction table is used.</remarks>
+    internal static ushort VariaTintColor(ushort original, int shade)
+    {
+        if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
+        int green = Math.Min(31, (original >> 5 & 31) + Math.Max(0, 5 - 5 * shade));
+        int blue = Math.Min(31, (original >> 10 & 31) + 30 - 10 * shade);
+        return (ushort)((original & 31) | green << 5 | blue << 10);
     }
 
     /// <summary>Applies the three saturating loading tint levels to one RGB5 input.</summary>

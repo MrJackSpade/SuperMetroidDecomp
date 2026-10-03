@@ -389,6 +389,10 @@ internal static partial class Program
             foreach (int rowIndex in new[] { 1, 5, 7 })
             foreach (int slot in start == 0xdb62 ? new[] { 3, 4, 5, 6, 7, 8, 13, 14, 15 } : start == 0xde2e ? new[] { 10, 11 } : Array.Empty<int>())
                 tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
+            if (start == 0xdcc8)
+            foreach (int rowIndex in new[] { 1, 5, 7 })
+            foreach (int slot in rowIndex == 1 ? new[] { 1, 2 } : new[] { 1, 2, 10, 11 })
+                tinted.Add((ushort)(rows[rowIndex].Pointer + 2 * slot));
             foreach (var row in rows)
             {
                 var original = rows.First(candidate => candidate.Colors.SequenceEqual(row.Colors));
@@ -406,8 +410,8 @@ internal static partial class Program
             }
         }
         AssertEqual(432, aliases.Count, "Loading color domain");
-        AssertEqual(33, tinted.Count, "Eleven calculated tint tracks across three shades");
-        AssertEqual(63, aliases.Keys.Count(stored.ContainsKey), "Tint conversion removes33 more stored words");
+        AssertEqual(43, tinted.Count, "Shared and Varia tint words");
+        AssertEqual(53, aliases.Keys.Count(stored.ContainsKey), "Both tint conversions remove43 stored words");
         for (int rgb = 0; rgb < 32768; rgb++)
         for (int shade = 0; shade < 3; shade++)
         {
@@ -416,9 +420,16 @@ internal static partial class Program
             int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + greenAdd, 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + blueAdd, 0, 31) * 1024;
             AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.TintColor((ushort)rgb, shade), "Every RGB5 tint input and saturation boundary");
+            int variaGreen = new[] { 5, 0, 0 }[shade];
+            int variaBlue = new[] { 30, 20, 10 }[shade];
+            int variaExpected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + variaGreen, 0, 31) * 32 +
+                Math.Clamp((rgb >> 10 & 31) + variaBlue, 0, 31) * 1024;
+            AssertEqual((ushort)variaExpected, LoadingPaletteColorDefinitions.VariaTintColor((ushort)rgb, shade), "Every RGB5 Varia tint input and saturation boundary");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.TintColor(0, invalid), "Tint shade rejects outside domain");
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.VariaTintColor(0, invalid), "Varia tint shade rejects outside domain");
         AssertEqual(96, aliases.Count(item => item.Key == item.Value), "Shared suit colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {

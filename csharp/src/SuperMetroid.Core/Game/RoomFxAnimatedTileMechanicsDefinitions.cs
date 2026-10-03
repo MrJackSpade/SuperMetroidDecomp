@@ -12,67 +12,67 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class RoomFxAnimatedTileMechanicsDefinitions
 {
-    private static readonly RoomFxAnimatedTileObjectDefinition[] Definitions =
-    [
-        new(
-            AnimatedTileObjectPointers.MaridiaSandCeiling,
+    /// <summary>Direct object-to-header dispatch; unknown bank87 identities return null.</summary>
+    /// <remarks>Six named sand/liquid/weather objects select native instruction starts,
+    /// transfer sizes and encoded VRAM destinations. Each field and the full ushort
+    /// identity domain are independently verified against NTSC J/U v1.0 and pinned
+    /// bank_87.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
+    /// Frame schedules use the separately verified arithmetic view; neither headers
+    /// nor frames are retained in a generated table.</remarks>
+    private static RoomFxAnimatedTileObjectDefinition? SelectObject(ushort objectPointer) => objectPointer switch
+    {
+        AnimatedTileObjectPointers.MaridiaSandCeiling => new(AnimatedTileObjectPointers.MaridiaSandCeiling,
             instructionPointer: 0x8221,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x1000,
             frameCount: 4, frameDuration: 0x000a),
-        new(
-            AnimatedTileObjectPointers.MaridiaSandFalling,
+        AnimatedTileObjectPointers.MaridiaSandFalling => new(AnimatedTileObjectPointers.MaridiaSandFalling,
             instructionPointer: 0x8235,
             transferByteCount: 0x0020,
             encodedVramDestination: 0x1020,
             frameCount: 4, frameDuration: 0x000a),
-        new(
-            AnimatedTileObjectPointers.Lava,
+        AnimatedTileObjectPointers.Lava => new(AnimatedTileObjectPointers.Lava,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
             frameCount: 5, frameDuration: 0x000d),
-        new(
-            AnimatedTileObjectPointers.Acid,
+        AnimatedTileObjectPointers.Acid => new(AnimatedTileObjectPointers.Acid,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
             frameCount: 5, frameDuration: 0x000a),
-        new(
-            AnimatedTileObjectPointers.Rain,
+        AnimatedTileObjectPointers.Rain => new(AnimatedTileObjectPointers.Rain,
             instructionPointer: RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             transferByteCount: RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
             encodedVramDestination: RoomFxRomData.Layer3AnimatedTiles.RainDestinationWord,
             frameCount: 5, frameDuration: 0x000a),
-        new(
-            AnimatedTileObjectPointers.Spores,
+        AnimatedTileObjectPointers.Spores => new(AnimatedTileObjectPointers.Spores,
             instructionPointer: 0x82ed,
             transferByteCount: 0x0030,
             encodedVramDestination: 0x4280,
             frameCount: 3, frameDuration: 10),
-    ];
-    private static readonly IReadOnlyList<RoomFxAnimatedTileObjectDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+        _ => null,
+    };
 
-    /// <summary>The six simple retail objects translated by this owner.</summary>
-    public static IReadOnlyList<RoomFxAnimatedTileObjectDefinition> All => ReadOnlyDefinitions;
-
-    /// <summary>Resolves a bank-$87 object header selected by translated room setup.</summary>
-    public static bool TryResolve(
-        ushort objectPointer,
-        out RoomFxAnimatedTileObjectDefinition definition)
+    /// <summary>Enumerates the six supported objects in their original order without stored headers.</summary>
+    public static IEnumerable<RoomFxAnimatedTileObjectDefinition> All
     {
-        foreach (RoomFxAnimatedTileObjectDefinition candidate in Definitions)
+        get
         {
-            if (candidate.ObjectPointer != objectPointer)
-                continue;
-
-            definition = candidate;
-            return true;
+            yield return SelectObject(AnimatedTileObjectPointers.MaridiaSandCeiling)!;
+            yield return SelectObject(AnimatedTileObjectPointers.MaridiaSandFalling)!;
+            yield return SelectObject(AnimatedTileObjectPointers.Lava)!;
+            yield return SelectObject(AnimatedTileObjectPointers.Acid)!;
+            yield return SelectObject(AnimatedTileObjectPointers.Rain)!;
+            yield return SelectObject(AnimatedTileObjectPointers.Spores)!;
         }
+    }
 
-        definition = null!;
-        return false;
+    /// <summary>Resolves a supported header; unknown identities preserve false and null output.</summary>
+    public static bool TryResolve(ushort objectPointer, out RoomFxAnimatedTileObjectDefinition definition)
+    {
+        definition = SelectObject(objectPointer)!;
+        return definition is not null;
     }
 }
 

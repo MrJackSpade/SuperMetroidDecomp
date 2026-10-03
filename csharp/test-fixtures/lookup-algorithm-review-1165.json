@@ -4999,5 +4999,21 @@
     "consumers":"All runtime, artwork import, resource-audit and verification consumers retain Frames.Count/index/enumeration APIs. GotoInstructionPointer now calculates directly from count. The six object-header descriptors remain a separate stored owner pending their own review; they are not marked retained or complete here.",
     "confirmation":"Verification and ResourceAudit builds plus early SHA-pinned --lookup-animated-frames pass. Existing native mechanics/artwork checks and production execution of all six complete loops are reused with original mechanics/source-operand reads forbidden. The older duplicate duration/goto assertions are consolidated into the two named proofs. ROM absence no longer silently skips the focused proof.",
     "scope":"Frame cursor/duration mappings and their loop/source-operand views resolved without retention. Header identity/setup fields and wider maintained-source inventory remain unfinished under1165. Implementation record is this entry's commit."
+  },
+  "simpleAnimatedObjectHeaderReview": {
+    "status":"converted: six stored object-header descriptors and read-only array wrapper removed",
+    "owner":"csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs: SelectObject, TryResolve, All",
+    "source":"Supported NTSC J/U v1.0 six-byte bank87 headers8287/828D/82AB/82C9/82E7/82FD. Pinned bank_87.asm 362be646929cf8e483f692b73a6561cfc2dc1d0d identifies sand ceiling/falling sand, lava, acid, rain and spores and each header's instruction pointer, transfer byte count and encoded VRAM destination.",
+    "evidence":"Object identity selects animation behavior and transfer geometry. Direct cases use named AnimatedTileObjectPointers and existing layer3 catalog constants. Each call constructs only its selected descriptor; All lazily enumerates the same six named objects in original order. No array or generated header cache remains.",
+    "identity":{"disposition":"converted","proof":"VerifySimpleAnimationObjectDomain compares original six-object enumeration order, all65536 ushort TryResolve inputs, exact returned ObjectPointer for accepted identities and false/null output for every unknown/interior identity."},
+    "fields":[
+      {"field":"InstructionPointer","disposition":"converted per-object initial-program selection","proof":"VerifySimpleAnimationInstructionStarts"},
+      {"field":"TransferByteCount","disposition":"converted per-object transfer-size selection","proof":"VerifySimpleAnimationTransferSizes"},
+      {"field":"EncodedVramDestination","disposition":"converted per-object hardware destination selection","proof":"VerifySimpleAnimationVramDestinations"}
+    ],
+    "proofCoverage":"One named proof per header field reads every original native word and checks selected descriptors, All enumeration and TryReadMechanicsWord aliases. Consolidated the older aggregate header checks. Reused the prior independent frame cursor/duration proofs, original artwork-source checks and all six guarded complete-loop executions without adding duplicate per-view proofs.",
+    "consumers":"Runtime object resolution retains the TryResolve contract. Core artwork import, resource audit and verification enumerate All lazily; its sole Count-property consumer now uses Count(). Existing frame views retain IReadOnlyList indexing. Updated the VramDmaSourceContracts source hash.",
+    "confirmation":"Verification and ResourceAudit builds plus SHA-pinned --lookup-animated-frames pass all header/domain/frame proofs and guarded animation loops. No whole-room or gameplay campaign.",
+    "scope":"This resolves the header owner left unfinished by simpleAnimatedFrameScheduleReview/f8953e0fa36f050337d895605e1b04200645a0b4. These six simple objects now have no stored header/frame lookup arrays. Separate artwork mappings and the wider maintained-source audit remain active under1165. Implementation record is this entry's commit."
   }
 }

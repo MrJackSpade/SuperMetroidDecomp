@@ -247,9 +247,9 @@ public sealed class GameOverMenuState
     {
         if (--missileTimer != 0)
             return;
-        missileFrame = (missileFrame + 1) % GameOverRomData.Sprites.MissileFrameIds.Length;
+        missileFrame = (missileFrame + 1) % MenuMissileAnimationDefinitions.FrameCount;
         missileTimer = mapPresentation?.GameOver.CursorFrameDuration ??
-            GameOverRomData.Sprites.MissileFrameDuration;
+            MenuMissileAnimationDefinitions.FrameDuration;
     }
 }
 

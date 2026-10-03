@@ -12,8 +12,6 @@ internal static partial class Program
     static void VerifyGameOverRomData()
     {
         AssertEqual(5, GameOverRomData.Text.All.Length, "game-over text stream count");
-        AssertEqual(4, GameOverRomData.Sprites.MissileFrameIds.Length,
-            "game-over missile cursor frame count");
         AssertEqual(GameOverRomData.TilemapWidth * sizeof(ushort),
             GameOverRomData.TilemapRowByteCount,
             "game-over tilemap row stride");

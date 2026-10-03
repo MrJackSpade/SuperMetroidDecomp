@@ -243,8 +243,6 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Spritemaps
     {
-        private static readonly ushort[] MissileFrames = [0x37, 0x36, 0x35, 0x34];
-
         public const ushort OptionModeBorder = 0x4b;
         public const ushort OptionModeBorderX = 0x7c;
         public const ushort OptionModeBorderY = 0x10;
@@ -256,18 +254,6 @@ public static class GameOptionsRomData
         public const ushort SpecialModeBorder = 0x4d;
         /// <summary>$82:F35B, special-heading border setup X position.</summary>
         public const ushort SpecialModeBorderX = 0x80;
-        /// <summary>All four $82:BAAA menu missile timer words equal eight calls.</summary>
-        /// <remarks>Issues #625 and #955: pinned NTSC J/U v1.0 ROM and bank_82.asm
-        /// match 4/4. The timer reload is shared with file select and game over; the
-        /// adjacent $82:BAB2 spritemap IDs are a separate table. Options animation
-        /// may use an editable presentation override.</remarks>
-        public const int MissileFrameDuration = 8;
-        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
-        /// <remarks>Issues #625 and #954: options animation wraps modulo this four-word
-        /// span, and asset extraction iterates the same bounded domain. File select and
-        /// game over expose the same native table; all four words match pinned NTSC J/U
-        /// v1.0 ROM and bank_82.asm.</remarks>
-        public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }
 }
 

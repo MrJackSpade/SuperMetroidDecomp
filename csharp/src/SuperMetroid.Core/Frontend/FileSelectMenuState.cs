@@ -225,7 +225,7 @@ public sealed partial class FileSelectMenuState
         {
             (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
             DrawMenuSpritemap(
-                FileSelectLayout.MissileSpritemapIds[missileAnimationFrame],
+                MenuMissileAnimationDefinitions.SpritemapId(missileAnimationFrame),
                 missileX,
                 missileY);
         }
@@ -356,7 +356,7 @@ public sealed partial class FileSelectMenuState
         if (--missileAnimationTimer != 0)
             return;
         missileAnimationFrame = (missileAnimationFrame + 1) & 3;
-        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? 8;
+        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     private void ApplyBrightness(Span<Rgba32> pixels)

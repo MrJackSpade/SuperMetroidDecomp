@@ -53,7 +53,7 @@ public static class GameOverPresentationExtractor
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
         {
             sprites.Add(GameOverPresentationDefinitions.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, GameOverRomData.Sprites.MissileFrameIds[frame]));
+                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
@@ -80,7 +80,7 @@ public static class GameOverPresentationExtractor
             BabyPalette = GameOverRomData.Sprites.BabyPalette.PaletteIndex,
             EggPalette = GameOverRomData.Sprites.EggPalette.PaletteIndex,
             CursorPalette = MenuPpuState.ObjectPaletteBits >> 9,
-            CursorFrameDuration = GameOverRomData.Sprites.MissileFrameDuration,
+            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
         return output.ToArray();
 

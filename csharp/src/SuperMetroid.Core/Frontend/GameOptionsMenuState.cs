@@ -519,9 +519,9 @@ public sealed class GameOptionsMenuState
     {
         if (--missileTimer != 0)
             return;
-        missileFrame = (missileFrame + 1) % GameOptionsRomData.Spritemaps.MissileFrameIds.Length;
+        missileFrame = (missileFrame + 1) % MenuMissileAnimationDefinitions.FrameCount;
         missileTimer = mapPresentation?.GameOptions.CursorFrameDuration ??
-            GameOptionsRomData.Spritemaps.MissileFrameDuration;
+            MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     private static string PresentationPageName(GameOptionsPage value) => value switch

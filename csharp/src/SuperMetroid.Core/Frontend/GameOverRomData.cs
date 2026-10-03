@@ -119,8 +119,6 @@ public static class GameOverRomData
     /// <summary>Fixed OBJ identities, positions, palettes, and animation timing.</summary>
     public static class Sprites
     {
-        private static readonly ushort[] MissileFrames = [0x37, 0x36, 0x35, 0x34];
-
         public const ushort BabyX = 0x7c;
         public const ushort BabyY = 0x50;
         public static readonly SnesObjAttributeWord BabyPalette = SnesObjPalettes.Index4;
@@ -129,17 +127,6 @@ public static class GameOverRomData
         public const ushort MissileX = 40;
         public const ushort YesMissileY = 160;
         public const ushort NoMissileY = 192;
-        /// <summary>All four $82:BAAA menu missile timer words equal eight calls.</summary>
-        /// <remarks>Issues #625 and #955: pinned NTSC J/U v1.0 ROM and bank_82.asm
-        /// match 4/4. The timer reload is shared with file select and options; the
-        /// adjacent $82:BAB2 spritemap IDs are a separate table. Game-over animation
-        /// may use an editable presentation override.</remarks>
-        public const int MissileFrameDuration = 8;
-        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
-        /// <remarks>Issues #625 and #954: game-over animation wraps modulo this four-word
-        /// span; file select and options expose the same native table. All four words match
-        /// pinned NTSC J/U v1.0 ROM and bank_82.asm.</remarks>
-        public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }
 
     /// <summary>Blank tile used before the text command streams populate BG1.</summary>

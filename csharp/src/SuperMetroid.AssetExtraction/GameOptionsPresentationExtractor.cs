@@ -63,10 +63,10 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.SpecialMenu)] =
                 MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.SpecialModeBorder),
         };
-        for (int frame = 0; frame < GameOptionsRomData.Spritemaps.MissileFrameIds.Length; frame++)
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
             sprites.Add(GameOptionsPresentationDefinitions.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.MissileFrameIds[frame]));
+                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
         var headings = new Dictionary<string, MapLabelPoint>(StringComparer.Ordinal)
@@ -107,7 +107,7 @@ public static class GameOptionsPresentationExtractor
             SelectedPalette = GameOptionsRomData.TilePalettes.Selected,
             UnselectedPalette = GameOptionsRomData.TilePalettes.Unselected,
             CursorPalette = MenuPpuState.ObjectPaletteBits >> 9,
-            CursorFrameDuration = GameOptionsRomData.Spritemaps.MissileFrameDuration,
+            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
         return output.ToArray();
 

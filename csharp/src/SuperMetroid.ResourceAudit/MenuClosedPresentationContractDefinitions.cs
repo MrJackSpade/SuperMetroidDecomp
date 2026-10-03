@@ -11,7 +11,7 @@ internal static class MenuClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
                 "B7B17351DF7ED1B519921F3B7E23C192F845A8161689554755B920EFEAD0BC75"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
-                "5D975557C4D863F641A8A6BBE1033CA4FFED0BEE8F08026649643B7A270E1DAE")],
+                "0B30B28A4FA3E22A1AF2D90A62BD673C559AA640DACD22181FA185D16BECDB6B")],
             "The private-constructor loader requires all six pages, seven controller labels/anchors, " +
             "two special toggles, four language regions, three heading/cursor sets and four cursor frames. " +
             "Controller/cursor indices are guarded and language/background operations use fixed loaded fields. " +
@@ -21,7 +21,7 @@ internal static class MenuClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
                 "A07C619692FB74869E6781A35DAB12DF9F595D5575530CFFE9941A099A39FB81"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
-                "D9D5C0A9F6FD9878BF940563F0AD40C8C3C6259B0D0FF524780DA4E418068FBA"),
+                "D4898ADBE50B570C97A08BED0BFD06D5AF53009406849FE0E307F8A68B649891"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverBabyAnimationDefinitions.cs",
                 "8DEAD1215A895068FF927725551EF880A3BC7D2DA1C50271662BC43F5384EE5F")],
             "Private construction requires the full tilemap, all eight named sprites and all four baby palettes. " +

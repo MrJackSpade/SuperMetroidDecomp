@@ -1,25 +1,13 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Native BG1 byte offsets, OBJ identifiers, and positions for file select.</summary>
-/// <remarks>Issues #625 and #955: the selection missile's four adjacent native timer
-/// words at $82:BAAA are all 8; FileSelectMenuState uses 8 as its native fallback
-/// reload and permits an editable presentation duration to override it. The separate
-/// four spritemap IDs at $82:BAB2 are documented on MissileSpritemapIds.</remarks>
+/// <remarks>Shared missile animation is defined by <see cref="MenuMissileAnimationDefinitions"/>.</remarks>
 internal static class FileSelectLayout
 {
     /// <summary>Screen-space Y coordinates for slots A-C, Copy, Clear, and Exit.</summary>
     public static readonly ushort[] MainSelectionY = [48, 88, 128, 163, 187, 211];
     /// <summary>Screen-space Y coordinates of the three save-slot helmet actors.</summary>
     public static readonly ushort[] HelmetY = [47, 87, 127];
-    /// <summary>Four-frame menu missile animation, in native playback order.</summary>
-    /// <remarks>
-    /// Issues #625 and #954: this is the $82:BAB2 Draw_Menu_Selection_Missile
-    /// spritemap-ID table, shared with the game-over and options menus. For frame
-    /// 0..3, the exact ROM word is $0037-frame; the native caller wraps with AND #3.
-    /// The adjacent $82:BAAA four-word timer table is separate and contains four 8s.
-    /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all four IDs.
-    /// </remarks>
-    public static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
 
     /// <summary>Main file-select border spritemap.</summary>
     public const ushort NormalBorderSpritemap = 0x48;

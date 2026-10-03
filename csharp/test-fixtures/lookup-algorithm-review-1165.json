@@ -6458,4 +6458,16 @@
     "scope":"Resolves the source-shadow endpoint portion of the pending body Hyper Beam color review. Four transparent payloads retain their earlier independent disposition. Eleven opaque adjustments and the broader1165 inventory remain unfinished.",
     "confirmation":"Documentation-only slice; ResourceAudit build,all owner/dependency hashes and maintained-source index refreshed. Implementation record is this entry's commit."
   }
+,
+  "hyperBeamMagentaCyanShadowMidpointReview": {
+    "status":"converted the magenta-cyan middle shadow and removed its red adjustment",
+    "owner":"SamusHyperBeamColorCatalog.Resolve/constructor; shared SamusHyperBeamColorFormat.HueMidpoint",
+    "source":"Supported NTSC J/U v1.0; pinned disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Frame2 begins9BA320. Shadow3/11 atA326/A336 have RGB10/6/18 and11/8/19. Middle shadow13 atA33A is10/7/18,the downward-rounded midpoint of those within-frame shadows. Its red previously differed from the temporal interpolation basis.",
+    "algorithm":"Select within-frame shadow interpolation for frame2 ink13,using floor((low+high)/2) independently in all RGB5 channels. Cyan frame3 continues upward rounding. Extend the existing midpoint helper with an explicit optional rounding direction,defaulting upward for every existing caller. No phase-specific numerical correction or generated color cache. Independently supplied middle/source colors remain exact overrides.",
+    "storage":"Intermediate override entries seven to six and components eight to seven; frame2/13/R no longer remains stored. Whole,endpoint and highlight counts are unchanged. Fourteen source-shadow artwork components retain their separate disposition; ten intermediate/highlight components remain pending.",
+    "domain":"Existing ten-frame/sixteen-ink and import RGB5 bounds remain unchanged. Channel numerator0..62 for downward and0..63 for upward rounding,nonnegative integer division by2,no saturation or wrap. The helper's established RGB5 domain is reused. Within-frame shadow3/11 do not depend on13,so evaluation remains acyclic.",
+    "proof":"Extend the same Hyper Beam proof with original all160-word comparisons in both playback views,zero stock correction at2/13,and all independent source/middle channel edits for frame2 alongside the existing endpoint hues. Reuse the exhaustive RGB5/per-channel midpoint proof for both rounding directions. Run body and projectile focused proofs because they share the helper; existing bounds and guarded playback checks remain consolidated.",
+    "supersedes":"Resolves only pending component2/13/R in hyperBeamEndpointArtworkDisposition. Seven intermediate and three highlight components still require review; no new retention justification. Full1165 remains active.",
+    "confirmation":"Verification and ResourceAudit builds; --samus-hyper-beam-colors and --hyper-beam-fx-colors; all owner/dependency source pins and maintained-source index refreshed. Implementation record is this entry's commit."
+  }
 }

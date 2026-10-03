@@ -32,12 +32,13 @@ internal static partial class Program
         AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
         var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(7, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
+        AssertEqual(6, componentInputs.Count, "Only independent differing intermediate colors carry component inputs");
+        AssertTrue(!componentInputs.ContainsKey(2 * 16 + 13), "Magenta-cyan middle shadow needs no stored correction");
         int componentCount = 0;
         foreach (var entry in componentInputs.Values)
             foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) componentCount++;
-        AssertEqual(8, componentCount, "Eight independently supplied intermediate components remain under review");
+        AssertEqual(7, componentCount, "Seven independently supplied intermediate components remain under review");
         var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
             .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(3, shadeInputs.Count, "Only three original colors have differing shade channels");
@@ -132,7 +133,7 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)),
                         ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
-                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index)
+                if (!sharedShade && index != 0 && (frame & 1) == 0 && source == frame * 16 + index && !(frame == 2 && index == 13))
                 {
                     ushort before = ReadVerificationWord(rom, 0x91d99e + ((frame + 9) % 10) * 2);
                     ushort after = ReadVerificationWord(rom, 0x91d99e + (frame + 1) * 2);
@@ -209,6 +210,9 @@ internal static partial class Program
                 int expected = (int)Math.Ceiling((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Ceiling((green + other) / 2.0) + 1024 * (int)Math.Ceiling((blue + other) / 2.0);
                 AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057)), "All RGB5 first colors and all independent per-channel midpoint pairs");
+                int lower = (int)Math.Floor((rgb % 32 + other) / 2.0) +
+                    32 * (int)Math.Floor((green + other) / 2.0) + 1024 * (int)Math.Floor((blue + other) / 2.0);
+                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint((ushort)rgb, (ushort)(other * 1057), roundUp: false), "Complete downward RGB5 midpoint arithmetic");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 6, 9, 31, int.MaxValue })
@@ -223,7 +227,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, invalid, 0), "Invalid low shadow input");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, 0, 0, invalid), "Invalid high shadow input");
         }
-        foreach (int shadowFrame in new[] { 1, 3, 5, 9 })
+        foreach (int shadowFrame in new[] { 1, 2, 3, 5, 9 })
         foreach (int ink in new[] { 3, 11, 13 })
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)

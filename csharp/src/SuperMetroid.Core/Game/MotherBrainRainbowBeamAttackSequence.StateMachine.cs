@@ -993,7 +993,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 escapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
                 EarthquakeType = 5;
                 EarthquakeTimer = 0xffff;
-                escapePaletteFxRequests.AddRange([0xffc9, 0xffcd, 0xffd1, 0xffd5]);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ShutterDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.BackgroundDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.GeneralLevelDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ArkanoidDefinitionPointer);
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
                 FunctionTimer = 0x0020;

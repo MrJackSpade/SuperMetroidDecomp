@@ -102,6 +102,7 @@ internal static partial class Program
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
+        VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
@@ -110,6 +111,31 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
         }
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (ushort parameter = 0; parameter < 3; parameter++)
+            AssertEqual(Read(0x86c929 + 2 * parameter), MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
+                "stream 3 native death explosion variant");
+        foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.InstructionList(invalid),
+                "stream 3 death explosion selector bounds");
+        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("Phase")!.SetValue(sequence,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape);
+        var bus = new TestAddressSpace();
+        var samus = new SamusState { Health = 99 };
+        var firstPage = sequence.Step(bus, samus, 0, 0);
+        AssertEqual(0, firstPage.EscapePaletteFxRequests.Count, "stream 3 escape palette effects wait for door graphics");
+        var handoff = sequence.Step(bus, samus, 0, 0);
+        AssertEqual(4, handoff.EscapePaletteFxRequests.Count, "stream 3 four escape palette registrations");
+        for (int effect = 0; effect < 4; effect++)
+            AssertEqual(Read(0xa9b296 + 7 * effect), handoff.EscapePaletteFxRequests[effect],
+                "stream 3 native escape palette registration order");
+        var text = sequence.Step(bus, samus, 0, 0);
+        AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
     private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)

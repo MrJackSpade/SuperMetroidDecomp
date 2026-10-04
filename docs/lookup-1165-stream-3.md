@@ -473,7 +473,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs
 
-- [ ] **MotherBrainDeathExplosionDefinitions.InstructionLists** ([L11](../csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainDeathExplosionDefinitions.InstructionLists** ([L11](../csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs
 
@@ -527,7 +527,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs
 
-- [ ] **MotherBrainRainbowBeamAttackSequence.Step / literal at L995** ([L995](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs#L995)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **MotherBrainRainbowBeamAttackSequence.Step / literal at L995** ([L995](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs#L995)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs
 
@@ -778,6 +778,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - All five signed rectangles retain their exact asymmetry and the gap boundary between brain local Y=0 and Y=1. Unsupported components and out-of-range region indices keep their previous exception types.
 - Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed the existing native fixture's twenty extent words and 49,155 production collision comparisons, plus region bounds. This reuses the existing confirmation matrix for the changed region-enumeration contract; no new gameplay search was added.
 - Production: `MotherBrainContactHitboxDefinitions.cs`; the runtime foreach consumer requires no modification. Verification: owned partial and additionally assigned Program.MotherBrainContactHitboxes.cs span-to-region-list adaptation. No retention or external source-hash dependency found.
+
+### Confirmed batch 16: Death variants and escape palette registrations
+
+- Converted the three death-explosion instruction selectors to small-explosion, smoke and big-explosion cases using their existing named program identities. The parameter domain and exception details remain unchanged.
+- Replaced the state-machine palette-pointer literal with four explicit named registrations: shutter, background, general level, then Arkanoid/red-orb flashing. These correspond directly to the four native LDY/JSL spawn pairs at $A9:B295-$B2AD; the second door transfer still triggers them once.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed all three native selector words at $86:C929, selector boundaries, and a real three-call escape handoff: no palette registration after door page one, all four native registrations in order after page two, and no repeat on the following text frame.
+- Changed production: owned death-explosion catalog and state machine; verification extends the owned partial. Two inventory entries completed, with no retained exception.
 
 ### Remaining scope
 

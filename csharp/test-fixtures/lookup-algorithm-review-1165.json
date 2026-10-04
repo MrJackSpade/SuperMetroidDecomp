@@ -9556,4 +9556,18 @@
     "proof": "Extend existing --lookup-ending-logo-programs with direct comparisons of all25 StockSelection results to the original extracted tile/size operands and invalid-index checks. Reordered and shortened custom compositions preserve exact identity while retaining calculated placement. Existing all138-part original visual identities, native on/offscreen OAM, nine-field edit preservation and31-word/four-actor timing checks cover composition integration.",
     "scope": "All stock logo OAM compositions now calculate their part fields and selections. Logo pixel artwork remains an independent obligation; no retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardHeadLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardHeadParts.cs",
+    "mappings": [
+      { "id": "ending-reward-helmetless-head-layouts", "state": "converted" },
+      { "id": "ending-reward-standing-helmet-layout", "state": "converted" },
+      { "id": "ending-reward-jumping-head-layouts", "state": "converted" }
+    ],
+    "source": "Original8C:9B58/9B73/9B8E and9C7C/9C88/9C94/9CA0/9CAC: eight head compositions,25 parts. Original reward instruction operands independently select the published frame catalog. Four helmetless poses share upper tile178 and advance the lower tile188 by two columns per pose. Standing and jumping helmets use overlapping large tiles with short small-tile cap rows.",
+    "algorithm": "Helmetless standing heads draw bottom then top atX=-8,Y=-8/-16. Standing helmet traverses each two-column row right-to-left, bottom small tiles before upper large tiles. First jump helmet traverses its three small lower-cap tiles right-to-left then two upper large tiles left-to-right. Second jump helmet draws the right large tile, three upper small tiles right-to-left, then left large tile. Jumping bare head uses two upper small tiles right-to-left and one lower large tile. Atlas rows/columns determine selections and8-pixel spacing. All parts are unflipped, priority3, actor-palette inherited.",
+    "implementation": "Immutable pose view calculates complete parts and selections on access. Pointer recognition uses the existing semantic frame catalog. Loader substitutes only after every supplied compiled field matches; arbitrary edits retain their original composition. No generated part cache, new schema or runtime ROM access.",
+    "proof": "Extend existing VerifyEndingRewardInstructions under --lookup-ending-reward-programs with the existing original extractor for all25 parts. Require calculated selection and complete visual identity equality; compare native/generated low/high OAM at positive/negative origins. Independently edit nine fields and retain supplied compositions; check part bounds. Existing160 program-word and seventeen480-call actor-stream checks remain in the same focused proof.",
+    "remaining": "Other reward body/arm/hair compositions and source pixel art remain required independent review. This converts head layout only and claims no retention exception. Implementation commit is the commit adding this record."
+  }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -55,6 +56,8 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
+            if (i is 18 or 19 or >= 29 and <= 31 or >= 34)
+                VerifyEndingRewardHeadParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
@@ -95,5 +98,45 @@ internal static partial class Program
                     $"reward actor ${start:X4} lifetime at frame {frame}");
             }
         }
+    }
+
+    private static void VerifyEndingRewardHeadParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
+    {
+        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
+            definition.Pointer, definition.StockPartCount, definition.Name);
+        SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+        SpriteComposition Calculate(SpriteComposition value) => EndingRewardHeadParts.CalculateIfMatching(definition.Pointer, value);
+        SpriteComposition calculated = Calculate(supplied);
+        AssertTrue(!ReferenceEquals(supplied, calculated), "original reward head uses calculated layout");
+        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
+        AssertEqual(Identity(supplied), Identity(calculated), "original reward head fields and ordering");
+        foreach (ushort y in new ushort[] { 72, 0xfff8 })
+        {
+            var originalOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
+            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "reward head preserves native OAM and clipping");
+        }
+        SpriteVisualPart first = visual[0];
+        foreach (SpriteVisualPart edit in new[]
+        {
+            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+            first with { TileColumn = (first.TileColumn + 1) % 14 }, first with { TileRow = first.TileRow + 1 },
+            first with { Size = first.Size == 16 ? 8 : 16, TileColumn = Math.Min(14, first.TileColumn) },
+            first with { Priority = 2 }, first with { Palette = 3 },
+            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+        })
+        {
+            visual[0] = edit;
+            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited reward head");
+            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent reward head edits stay supplied");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward head part bounds");
     }
 }

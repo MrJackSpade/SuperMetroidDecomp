@@ -56,7 +56,8 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
                 throw new InvalidDataException(
                     $"Ending reward frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                EndingRewardHeadParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new EndingRewardSpritePresentation(frames);
     }

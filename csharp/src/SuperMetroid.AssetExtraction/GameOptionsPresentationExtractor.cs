@@ -20,28 +20,29 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsPresentationDefinitions.BackgroundPage] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
                     GameOptionsRomData.TilemapByteCount)),
-            [GameOptionsPresentationDefinitions.PrimaryPage] = Page(GameOptionsRomData.Pages.Primary),
-            [GameOptionsPresentationDefinitions.ControllerEnglishPage] = Page(GameOptionsRomData.Pages.ControllerEnglish),
-            [GameOptionsPresentationDefinitions.ControllerJapanesePage] = Page(GameOptionsRomData.Pages.ControllerJapanese),
-            [GameOptionsPresentationDefinitions.SpecialEnglishPage] = Page(GameOptionsRomData.Pages.SpecialEnglish),
-            [GameOptionsPresentationDefinitions.SpecialJapanesePage] = Page(GameOptionsRomData.Pages.SpecialJapanese),
+            [GameOptionsPresentationDefinitions.PrimaryPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary)),
+            [GameOptionsPresentationDefinitions.ControllerEnglishPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish)),
+            [GameOptionsPresentationDefinitions.ControllerJapanesePage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerJapanese)),
+            [GameOptionsPresentationDefinitions.SpecialEnglishPage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialEnglish)),
+            [GameOptionsPresentationDefinitions.SpecialJapanesePage] = Page(GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese)),
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        ReadOnlySpan<ushort> sources = GameOptionsRomData.ControllerLabels.Sources;
-        for (int index = 0; index < sources.Length; index++)
+        for (int index = 0; index < GameOptionsRomData.Rows.ControllerActionCount; index++)
         {
             labels.Add(GameOptionsPresentationDefinitions.ControllerLabelName(index), Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), GameOptionsRomData.MenuBank | sources[index],
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    GameOptionsRomData.MenuBank | GameOptionsRomData.ControllerLabels.Source(index),
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        MapLabelPoint[] controllerAnchors = GameOptionsRomData.ControllerLabels.Destinations
-            .ToArray()
+        MapLabelPoint[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
+            .Select(GameOptionsRomData.ControllerLabels.Destination)
             .Select(ByteOffsetPoint)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            GameOptionsRomData.LanguagePaletteRegions.ToArray()
+            Enumerable.Range(0, GameOptionsRomData.LanguagePaletteRegionCount)
+                .Select(GameOptionsRomData.LanguagePaletteRegion)
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
@@ -57,38 +58,38 @@ public static class GameOptionsPresentationExtractor
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.PrimaryMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.OptionModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Primary)),
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.ControllerMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.ControllerModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Controller)),
             [GameOptionsPresentationDefinitions.HeadingFrameName(GameOptionsPresentationDefinitions.SpecialMenu)] =
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.SpecialModeBorder),
+                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.Heading(GameOptionsPage.Special)),
         };
-        for (int frame = 0; frame < GameOptionsRomData.Spritemaps.MissileFrameIds.Length; frame++)
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
             sprites.Add(GameOptionsPresentationDefinitions.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, GameOptionsRomData.Spritemaps.MissileFrameIds[frame]));
+                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
         var headings = new Dictionary<string, MapLabelPoint>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = new(
-                GameOptionsRomData.Spritemaps.OptionModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Primary),
+                GameOptionsRomData.Spritemaps.HeadingY),
             [GameOptionsPresentationDefinitions.ControllerMenu] = new(
-                GameOptionsRomData.Spritemaps.ControllerModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Controller),
+                GameOptionsRomData.Spritemaps.HeadingY),
             [GameOptionsPresentationDefinitions.SpecialMenu] = new(
-                GameOptionsRomData.Spritemaps.SpecialModeBorderX,
-                GameOptionsRomData.Spritemaps.OptionModeBorderY),
+                GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Special),
+                GameOptionsRomData.Spritemaps.HeadingY),
         };
         var cursors = new Dictionary<string, MapLabelPoint[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = Points(
-                GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Cursors.PrimaryY),
+                GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Rows.PrimaryCount, GameOptionsRomData.Cursors.PrimaryY),
             [GameOptionsPresentationDefinitions.ControllerMenu] = Points(
-                GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Cursors.ControllerY),
+                GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Rows.ControllerCount, GameOptionsRomData.Cursors.ControllerY),
             [GameOptionsPresentationDefinitions.SpecialMenu] = Points(
-                GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Cursors.SpecialY),
+                GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Rows.SpecialCount, GameOptionsRomData.Cursors.SpecialY),
         };
 
         using var output = new MemoryStream();
@@ -107,7 +108,7 @@ public static class GameOptionsPresentationExtractor
             SelectedPalette = GameOptionsRomData.TilePalettes.Selected,
             UnselectedPalette = GameOptionsRomData.TilePalettes.Unselected,
             CursorPalette = MenuPpuState.ObjectPaletteBits >> 9,
-            CursorFrameDuration = GameOptionsRomData.Spritemaps.MissileFrameDuration,
+            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
         return output.ToArray();
 
@@ -147,11 +148,11 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
-    private static MapLabelPoint[] Points(ushort x, ReadOnlySpan<ushort> rows)
+    private static MapLabelPoint[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
-        var result = new MapLabelPoint[rows.Length];
+        var result = new MapLabelPoint[count];
         for (int index = 0; index < result.Length; index++)
-            result[index] = new(x, rows[index]);
+            result[index] = new(x, rowY(index));
         return result;
     }
 

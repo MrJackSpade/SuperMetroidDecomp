@@ -18,7 +18,7 @@ internal static partial class Program
         AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed game-over JSON is the deterministic cartridge extraction");
         _ = GameOverPresentation.Load(new MemoryStream(extracted));
-        AssertEqual(60, GameOverBabyAnimationDefinitions.All.Length,
+        AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
             "compiled game-over Baby instruction count");
 
         var nativeAudio = new CartridgeAudioState();

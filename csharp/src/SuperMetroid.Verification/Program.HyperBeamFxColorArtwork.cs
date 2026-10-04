@@ -19,7 +19,41 @@ internal static partial class Program
 
         var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        AssertEqual(10, stored.Count, "Neutral highlight stores one intensity instead of a whole color");
+        AssertEqual(2, stored.Count, "Shared endpoint extrema remove eight whole inputs");
+        var endpointInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
+            .GetField("endpointInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        AssertEqual(8, endpointInputs.Count, "Eight endpoint colors keep only independent channels");
+        int endpointComponentCount = 0;
+        foreach (var entry in endpointInputs)
+        {
+            int frame = entry.Key / 8, color = entry.Key % 8;
+            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, ReadVerificationWord(bus, 0x8dd906),
+                ReadVerificationWord(bus, 0x8dd90c), out ushort basis, out int independentMask);
+            AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color), entry.Value.Apply(basis), "Original endpoint shared extrema");
+            string[] names = ["red", "green", "blue"];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                object? fieldValue = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value);
+                AssertEqual((independentMask & 1 << channel) != 0, fieldValue is not null, "Only independent original endpoint channels are stored");
+                if (fieldValue is not null) endpointComponentCount++;
+            }
+        }
+        AssertEqual(14, endpointComponentCount, "Fourteen endpoint components replace twenty-four");
+        for (int mask = 0; mask < 8; mask++)
+        {
+            var zero = new LoadingPaletteInputView.Channels(0, 0, mask);
+            string[] names = ["red", "green", "blue"];
+            for (int channel = 0; channel < 3; channel++)
+                AssertEqual((mask & 1 << channel) != 0, typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(zero) is not null,
+                    "Independent zero channels are kept as inputs");
+            for (int rgb = 0; rgb < 32768; rgb++)
+            {
+                ushort basis = (ushort)(32767 - rgb);
+                AssertEqual((ushort)rgb, new LoadingPaletteInputView.Channels((ushort)rgb, basis, mask).Apply(basis), "Complete RGB5 capture for every independent channel mask");
+            }
+        }
         int neutralIntensity = (int)typeof(HyperBeamFxColorCatalog).GetField("neutralIntensity",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual((int)(ReadVerificationWord(bus, 0x8dd906) & 31), neutralIntensity, "Original neutral intensity");
@@ -114,12 +148,12 @@ internal static partial class Program
                 "Every original within-hue shade midpoint");
         ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
         AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(nativeRedEndpoint), "Original saturated green endpoint");
-        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), HyperBeamFxColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), SamusHyperBeamColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
             AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed((ushort)rgb), "Complete RGB5 red-to-green domain");
-            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamFxColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
+            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), SamusHyperBeamColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
         }
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();
@@ -194,7 +228,10 @@ internal static partial class Program
                     bool transformedEndpoint = frame == 4 && color == 7 || frame == 8 && color == 1;
                     bool pairedOwner = !middleShade && !transformedEndpoint && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
                     AssertEqual(pairedOwner, pairedInputs.ContainsKey(frame * 8 + color), "Original paired endpoint ownership");
-                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
+                    bool sharedEndpoint = frame == 0 && color == 1 || frame == 2 && color is 1 or 3 ||
+                        frame == 4 && color is 1 or 3 || frame == 6 && color is 1 or 3 or 4;
+                    AssertEqual(sharedEndpoint, endpointInputs.ContainsKey(frame * 8 + color), "Shared endpoint ownership");
+                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(frame * 8 + color),
                         "Original FX input ownership");
                 }
             }

@@ -80,11 +80,12 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
         private readonly int? red;
         private readonly int? green;
         private readonly int? blue;
-        internal Channels(ushort supplied, ushort expected)
+        /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
+        internal Channels(ushort supplied, ushort expected, int independentMask = 0)
         {
-            red = (supplied & 31) == (expected & 31) ? null : supplied & 31;
-            green = (supplied >> 5 & 31) == (expected >> 5 & 31) ? null : supplied >> 5 & 31;
-            blue = (supplied >> 10 & 31) == (expected >> 10 & 31) ? null : supplied >> 10 & 31;
+            red = (independentMask & 1) == 0 && (supplied & 31) == (expected & 31) ? null : supplied & 31;
+            green = (independentMask & 2) == 0 && (supplied >> 5 & 31) == (expected >> 5 & 31) ? null : supplied >> 5 & 31;
+            blue = (independentMask & 4) == 0 && (supplied >> 10 & 31) == (expected >> 10 & 31) ? null : supplied >> 10 & 31;
         }
         internal ushort Apply(ushort expected) => (ushort)((red ?? (expected & 31)) |
             (green ?? (expected >> 5 & 31)) << 5 | (blue ?? (expected >> 10 & 31)) << 10);

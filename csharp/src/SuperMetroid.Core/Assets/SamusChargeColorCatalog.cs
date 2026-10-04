@@ -6,14 +6,34 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable Samus body colors during beam charge, pseudo-Screw, and Hyper-shot glow.</summary>
+/// <remarks>Charge base rows9B9820/9920/9A20 exactly alias full-body bases
+/// 9B9B20/9D20/9F20. After suit sharing their25 inputs are21 painted opaque
+/// inks (Power1..15,Varia2/10/11,Gravity2/10/11),Gravity inks1/12 using the
+/// already reviewed Power dim tint RG targets,and two unused slot-zero payloads.
+/// Native91DD5B and the installed ApplyCharge copy these categorical sprite
+/// inks to fixed OBJ slots. Ink index is not a lighting or brightness parameter;
+/// a formula reciting these color choices would re-encode the painting. The
+/// renderer skips index-zero pixels before RGB lookup,so the two transparent
+/// payloads also have no rendering-derived numerical meaning. This is the
+/// concrete1165 nonsense exception already established for the identical
+/// full-body inputs,not a new exemption for all charge-related data. The fade
+/// and repeated/suit views are calculated; separate assets keep independent
+/// edits. Pseudo-Screw normal rows are exactly9400/9520/9800: the24 inputs
+/// are the normal catalog's22 painted inks and two unused transparent payloads.
+/// Its calculated bright phase retains only Power/Varia ink2 blue,identical
+/// to the already reviewed full-body bright/middle ink2 targets at9C84/9C64
+/// (Varia9E84 equals9C64). Those chosen tint components have the same concrete
+/// painting rationale,not an unimplemented numerical curve. This resolves
+/// charge/pseudo-Screw color payloads only; Hyper Beam remaining inputs and
+/// other selectors/timing require their own dispositions.</remarks>
 public sealed class SamusChargeColorCatalog
 {
-    private readonly ushort[][][] chargedBeam;
-    private readonly ushort[][][] pseudoScrew;
+    private readonly ChargeInputs chargedBeam;
+    private readonly ChargeInputs pseudoScrew;
     private readonly SamusHyperBeamColorCatalog hyperShot;
 
-    private SamusChargeColorCatalog(ushort[][][] chargedBeam,
-        ushort[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
+    private SamusChargeColorCatalog(ChargeInputs chargedBeam,
+        ChargeInputs pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
         this.chargedBeam = chargedBeam;
         this.pseudoScrew = pseudoScrew;
@@ -28,7 +48,7 @@ public sealed class SamusChargeColorCatalog
     };
 
     public ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-        Resolve(pseudo ? pseudoScrew : chargedBeam, suit, phase, color);
+        (pseudo ? pseudoScrew : chargedBeam).Resolve(suit, phase, color);
 
     public ushort ResolveHyper(int frame, int color)
     {
@@ -64,8 +84,8 @@ public sealed class SamusChargeColorCatalog
         }
         if (document.Version != SamusChargeColorFormat.Version)
             throw new InvalidDataException("Samus charge colors require the supported version.");
-        return new(CompileCharge(document.ChargedBeam, "charged beam"),
-            CompileCharge(document.PseudoScrew, "pseudo-Screw"),
+        return new(CompileCharge(document.ChargedBeam, "charged beam", false),
+            CompileCharge(document.PseudoScrew, "pseudo-Screw", true),
             CompileHyper(document.HyperShot));
     }
 
@@ -76,31 +96,80 @@ public sealed class SamusChargeColorCatalog
         return bytes;
     }
 
-    private static ushort Resolve(ushort[][][] source, int suit, int phase, int color)
+    /// <summary>Shares native repeated phases without caching calculated palette rows.</summary>
+    /// <remarks>Bank91 lists D7DB/D7E7/D7F3 select charge shades0,1,2,3,2,1;
+    /// D805/D811/D81D select the same pseudo-Screw row for phases0..2 and
+    /// the normal row for3..5. Each differing supplied color remains independent.
+    /// Charge shades1..3 use the shared eighth-step whitening calculation; differing
+    /// channels remain editable inputs. Common base/pseudo-Screw inks share
+    /// the corresponding Power Suit input; each suit-specific or edited value
+    /// stays independent. Original charge bases9820/9920/9A20 differ only at
+    /// Varia inks2/10/11 and Gravity0/1/2/10/11/12. Pseudo-Screw holds select
+    /// bright and normal rows through91D805/D811/D81D. Bright colors reuse
+    /// the active-shinespark operations; Power/Varia ink2 retain distinct blue
+    /// inputs. All bright transparent words share Power normal color0.</remarks>
+    private sealed class ChargeInputs
     {
-        if ((uint)suit >= source.Length) throw new ArgumentOutOfRangeException(nameof(suit));
-        if ((uint)phase >= source[suit].Length) throw new ArgumentOutOfRangeException(nameof(phase));
-        if ((uint)color >= source[suit][phase].Length)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return source[suit][phase][color];
+        private readonly bool pseudo;
+        private readonly Dictionary<int, ushort> colors = new();
+        private readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
+
+        internal ChargeInputs(ushort[][][] source, bool pseudo)
+        {
+            this.pseudo = pseudo;
+            for (int suit = 0; suit < source.Length; suit++)
+            for (int phase = 0; phase < source[suit].Length; phase++)
+            for (int color = 0; color < source[suit][phase].Length; color++)
+            {
+                int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
+                ushort value = source[suit][phase][color];
+                if (phase != canonical && value == source[suit][canonical][color]) continue;
+                if (pseudo && phase == 0)
+                {
+                    ushort expected = color == 0 ? source[0][3][0] :
+                        SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, source[suit][3][color]);
+                    if (value != expected) fadeInputs.Add((suit * 6 + phase) * 16 + color, new(value, expected));
+                    continue;
+                }
+                if (suit != 0 && phase == canonical && (pseudo || phase == 0) && value == source[0][phase][color]) continue;
+                int key = (suit * 6 + phase) * 16 + color;
+                if (!pseudo && phase == canonical && phase != 0)
+                {
+                    ushort expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
+                    if (value != expected) fadeInputs.Add(key, new(value, expected));
+                }
+                else colors.Add(key, value);
+            }
+        }
+
+        internal ushort Resolve(int suit, int phase, int color)
+        {
+            if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
+            int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
+            if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
+            int key = (suit * 6 + phase) * 16 + color;
+            if (colors.TryGetValue(key, out ushort value)) return value;
+            if (phase != canonical) return Resolve(suit, canonical, color);
+            if (pseudo && phase == 0)
+            {
+                ushort bright = color == 0 ? Resolve(0, 3, 0) :
+                    SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, Resolve(suit, 3, color));
+                return fadeInputs.TryGetValue(key, out var brightInput) ? brightInput.Apply(bright) : bright;
+            }
+            if (suit != 0 && (pseudo || phase == 0)) return Resolve(0, phase, color);
+            ushort expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
+            return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
+        }
     }
 
-    private static void Apply(SnesCgram cgram, ushort[][][] source, int suit, int phase)
+    private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)suit >= source.Length) throw new ArgumentOutOfRangeException(nameof(suit));
-        if ((uint)phase >= source[suit].Length) throw new ArgumentOutOfRangeException(nameof(phase));
-        Apply(cgram, source[suit][phase]);
+        for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color,
+                source.Resolve(suit, phase, color));
     }
-
-    private static void Apply(SnesCgram cgram, ushort[] colors)
-    {
-        for (int index = 0; index < colors.Length; index++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
-                colors[index]);
-    }
-
-    private static ushort[][][] CompileCharge(PaletteRgb5[][][]? source, string name)
+    private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
             throw new InvalidDataException($"{name} requires three suits.");
@@ -115,7 +184,7 @@ public sealed class SamusChargeColorCatalog
                 result[suit][phase] = CompileColors(phases[phase],
                     $"{name} suit {suit}, phase {phase}");
         }
-        return result;
+        return new(result, pseudo);
     }
 
     /// <summary>Uses the same palette algorithms for the reverse Hyper-shot playback view.</summary>
@@ -178,6 +247,32 @@ public sealed record SamusChargeColorDocument
 
 public static class SamusChargeColorFormat
 {
+    /// <summary>Returns the first phase using a native charge palette.</summary>
+    /// <remarks>Phase0..5: charge mirrors around3; pseudo-Screw holds each
+    /// input for three phases. Original pointers91D7DB..D827 establish exact
+    /// row identity for all three suits. No extrapolation or invalid masking.</remarks>
+    internal static int CanonicalPhase(bool pseudo, int phase)
+    {
+        if ((uint)phase >= PhasesPerSuit) throw new ArgumentOutOfRangeException(nameof(phase));
+        return pseudo ? phase / 3 * 3 : Math.Min(phase, 6 - phase);
+    }
+    /// <summary>Calculates the bright pseudo-Screw shade from the corresponding normal ink.</summary>
+    /// <remarks>Native91D805/D811/D81D select active-shinespark final rows
+    /// 9B9C80/9E80/A080. Opaque gold inks reuse the owning full-body gold
+    /// operation at shade3; other inks use the shared warm tint (RG+26,B+10),
+    /// saturating each channel at31. These also cover common secondary-suit
+    /// inks represented by Power aliases in the full-body view. Gravity's
+    /// different base1/12 RG inputs both saturate here,so its normal-row RGB
+    /// produces the identical final color. Power/Varia ink2 blue differs and
+    /// remains independently supplied; all matching channels are calculated.</remarks>
+    internal static ushort PseudoScrewBrightColor(int suit, int color, ushort basis)
+    {
+        if ((uint)suit >= SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
+        if (color is < 1 or >= ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
+        if (basis > 0x7fff) throw new ArgumentOutOfRangeException(nameof(basis));
+        return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out ushort gold)
+            ? gold : SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 3);
+    }
     public const string FileName = "samus-charge-colors.json";
     public const int Version = 1;
     public const int SuitCount = 3;

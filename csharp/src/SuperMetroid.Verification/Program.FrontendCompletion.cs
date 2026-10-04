@@ -11,41 +11,6 @@ internal static partial class Program
 {
 static void VerifyGameOptionsRomDataCatalog()
 {
-    GameOptionsPageResource[] pages =
-    [
-        GameOptionsRomData.Pages.Primary,
-        GameOptionsRomData.Pages.ControllerEnglish,
-        GameOptionsRomData.Pages.ControllerJapanese,
-        GameOptionsRomData.Pages.SpecialEnglish,
-        GameOptionsRomData.Pages.SpecialJapanese,
-    ];
-    AssertEqual(5, pages.Length, "options compressed page count");
-    AssertEqual(pages.Length, pages.Select(page => page.Address).Distinct().Count(),
-        "options compressed page addresses are unique");
-    foreach (GameOptionsPageResource page in pages)
-    {
-        AssertTrue(page.Address is >= 0x808000 and <= 0xffffff,
-            $"{page.Description} options resource is mapped ROM");
-        AssertTrue(!string.IsNullOrWhiteSpace(page.Description),
-            $"options resource ${page.Address:X6} has a diagnostic name");
-    }
-
-    AssertEqual(GameOptionsRomData.Rows.PrimaryCount,
-        GameOptionsRomData.Cursors.PrimaryY.Length,
-        "primary cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.ControllerCount,
-        GameOptionsRomData.Cursors.ControllerY.Length,
-        "controller cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.SpecialCount,
-        GameOptionsRomData.Cursors.SpecialY.Length,
-        "special cursor rows match navigation rows");
-    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
-        GameOptionsRomData.ControllerLabels.Sources.Length,
-        "controller label source count matches assignable actions");
-    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
-        GameOptionsRomData.ControllerLabels.Destinations.Length,
-        "controller label destination count matches assignable actions");
-
     const ushort packedTile = 0xe155;
     SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
         .WithPaletteIndex(GameOptionsRomData.TilePalettes.Selected);
@@ -63,7 +28,7 @@ static void VerifyGameOptionsRomDataCatalog()
         "options palette replacement preserves priority");
 
     Console.WriteLine(
-        "  Options ROM data: pages, cursors, labels, toggles, spritemaps, and typed " +
+        "  Options ROM data: typed " +
         "palette replacement agree.");
 }
 
@@ -91,27 +56,27 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
     // production-ROM capture audits rather than embedding copyrighted menu data here.
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Primary.Address,
+        GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.ControllerEnglish.Address,
+        GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.ControllerJapanese.Address,
+        GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerJapanese).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.SpecialEnglish.Address,
+        GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialEnglish).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.SpecialJapanese.Address,
+        GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);

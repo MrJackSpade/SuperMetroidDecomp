@@ -11,7 +11,7 @@ internal static class MenuClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
                 "B7B17351DF7ED1B519921F3B7E23C192F845A8161689554755B920EFEAD0BC75"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
-                "553014A5F2A5FCA7305A94ED13F46461CA918302EC15CE5E0D353F182FC57E5C")],
+                "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],
             "The private-constructor loader requires all six pages, seven controller labels/anchors, " +
             "two special toggles, four language regions, three heading/cursor sets and four cursor frames. " +
             "Controller/cursor indices are guarded and language/background operations use fixed loaded fields. " +
@@ -19,11 +19,15 @@ internal static class MenuClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.GameOverPresentation", "game-over-v1-complete-enum-domains",
             ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
-                "A07C619692FB74869E6781A35DAB12DF9F595D5575530CFFE9941A099A39FB81"),
+                "4875F1E29748B33C81352529184423EAB9DC704E2CDC10D6F4CCAA7CCFC2C7E5"),
+             new("csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
+                "EC18D16A0969A3B6E8FE2ED0907FBF84B4A791E95D8BD3EA2EA614E8DAA83141"),
+             new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
+                "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
-                "D9D5C0A9F6FD9878BF940563F0AD40C8C3C6259B0D0FF524780DA4E418068FBA"),
+                "93546CA50CA9AB570A2F09AF939163AFB5B10420A4DD360BAED521A9FD46104A"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverBabyAnimationDefinitions.cs",
-                "8DEAD1215A895068FF927725551EF880A3BC7D2DA1C50271662BC43F5384EE5F")],
+                "A8617F78639973FB3E9BDD260CC8CE7B38C1259248CF512C86F7039AB7FD3360")],
             "Private construction requires the full tilemap, all eight named sprites and all four baby palettes. " +
             "Baby frame/palette enum switches are exhaustive over their supported domains and reject invalid values; " +
             "all four cursor frames are required and bounds-checked. Egg/tilemap operations use fixed loaded resources."),

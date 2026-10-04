@@ -102,12 +102,12 @@ public static class FileSelectPresentationExtractor
             [FileSelectPresentationDefinitions.BorderFrameName(FileSelectPresentationDefinitions.ClearBorder)] =
                 MenuSpriteExtractor.Read(bus, FileSelectLayout.ClearBorderSpritemap),
         };
-        for (int frame = 0; frame < FileSelectLayout.MissileSpritemapIds.Length; frame++)
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.CursorFrameName(frame),
-                MenuSpriteExtractor.Read(bus, FileSelectLayout.MissileSpritemapIds[frame]));
-        for (int frame = 0; frame < 8; frame++)
+                MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
+        for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
             sprites.Add(FileSelectPresentationDefinitions.HelmetFrameName(frame),
-                MenuSpriteExtractor.Read(bus, unchecked((ushort)(0x2c + frame))));
+                MenuSpriteExtractor.Read(bus, FileSelectHelmetAnimation.SpritemapId(frame)));
 
         using var output = new MemoryStream();
         FileSelectPresentation.Write(output, new()
@@ -119,21 +119,21 @@ public static class FileSelectPresentationExtractor
             SlotLetters = letters,
             MainSlots =
             [
-                Slot(FileSelectLayout.SlotAEnergyDestination,
-                    FileSelectLayout.SlotATimeValueDestination),
-                Slot(FileSelectLayout.SlotBEnergyDestination,
-                    FileSelectLayout.SlotBTimeValueDestination),
-                Slot(FileSelectLayout.SlotCEnergyDestination,
-                    FileSelectLayout.SlotCTimeValueDestination),
+                Slot(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Energy),
+                    FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeValue)),
+                Slot(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
+                    FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeValue)),
+                Slot(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Energy),
+                    FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeValue)),
             ],
             DataSlots =
             [
-                Slot(FileSelectLayout.DataSlotAEnergyDestination,
-                    FileSelectLayout.DataSlotATimeValueDestination),
-                Slot(FileSelectLayout.DataSlotBEnergyDestination,
-                    FileSelectLayout.DataSlotBTimeValueDestination),
-                Slot(FileSelectLayout.DataSlotCEnergyDestination,
-                    FileSelectLayout.DataSlotCTimeValueDestination),
+                Slot(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Energy),
+                    FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue)),
+                Slot(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Energy),
+                    FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue)),
+                Slot(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Energy),
+                    FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue)),
             ],
             Sprites = sprites,
             BorderAnchors = new(StringComparer.Ordinal)
@@ -142,13 +142,16 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationDefinitions.CopyBorder] = new(128, 16),
                 [FileSelectPresentationDefinitions.ClearBorder] = new(124, 16),
             },
-            MainCursorAnchors = FileSelectLayout.MainSelectionY
+            MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
+                .Select(FileSelectLayout.MainSelectionY)
                 .Select(y => new MapLabelPoint(14, y)).ToArray(),
-            DataCursorAnchors = new ushort[] { 72, 104, 136, 211 }
+            DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
+                .Select(FileSelectLayout.DataSelectionY)
                 .Select(y => new MapLabelPoint(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
-            HelmetAnchors = FileSelectLayout.HelmetY
+            HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
+                .Select(FileSelectLayout.HelmetY)
                 .Select(y => new MapLabelPoint(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
@@ -162,20 +165,20 @@ public static class FileSelectPresentationExtractor
                     Point(FileSelectLayout.ClearConfirmationSourceLetterDestination),
             },
             ObjectPalette = MenuPpuState.ObjectPaletteBits >> 9,
-            CursorFrameDuration = 8,
-            HelmetFrameDuration = 8,
+            CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
+            HelmetFrameDuration = FileSelectHelmetAnimation.FrameDuration,
         });
         return output.ToArray();
 
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemaps.SamusData), FileSelectLayout.SamusDataDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusA), FileSelectLayout.SlotALabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.SlotATimeLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusB), FileSelectLayout.SlotBLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.SlotBTimeLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusC), FileSelectLayout.SlotCLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.SlotCTimeLabelDestination);
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(0)), FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(1)), FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(2)), FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
             if (includeDataCommands)
             {
                 Apply(page, Patch(FileSelectTilemaps.DataCopy), FileSelectLayout.DataCopyDestination);
@@ -191,12 +194,12 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(mode), modeDestination);
             Apply(page, Patch(prompt), promptDestination);
             Apply(page, Patch(FileSelectTilemaps.Exit), FileSelectLayout.ExitDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusA), FileSelectLayout.DataSlotALabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotATimeLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusB), FileSelectLayout.DataSlotBLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotBTimeLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.SamusC), FileSelectLayout.DataSlotCLabelDestination);
-            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotCTimeLabelDestination);
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(0)), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(1)), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
+            Apply(page, Patch(FileSelectTilemaps.SlotLabel(2)), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label));
+            Apply(page, Patch(FileSelectTilemaps.Time), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
             return page;
         }
 

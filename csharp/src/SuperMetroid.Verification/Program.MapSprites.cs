@@ -12,29 +12,7 @@ internal static partial class Program
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
-        foreach (var frame in MapSpriteDefinitions.Frames)
-        {
-            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                MenuPpuState.SpritemapPointerTableAddress + frame.NativeId * 2);
-            foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
-            foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
-            for (int palette = 0; palette < 8; palette++)
-            foreach (int occupied in new[] { 0, 127, 128 })
-            {
-                native.BeginFrame(); installed.BeginFrame();
-                for (int index = 0; index < occupied; index++)
-                {
-                    native.AddRawSmallSprite(12, 34, 56);
-                    installed.AddRawSmallSprite(12, 34, 56);
-                }
-                DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
-                original.Sprites.Draw(frame.NativeId, installed, x, y, (ushort)(palette << 9));
-                AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
-                native.FinalizeFrame(); installed.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),
-                    $"{frame.Name} preserves native order, coordinates, attributes and clipping");
-            }
-        }
+        VerifyMapSpriteNativeCompositions(bus, original.Sprites);
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
         for (int origin = 0; origin < 256; origin++)

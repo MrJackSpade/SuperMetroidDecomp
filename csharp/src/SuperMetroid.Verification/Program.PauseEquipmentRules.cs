@@ -13,7 +13,7 @@ internal static partial class Program
         var guard = new PauseRulesReadGuard(bus);
         for (int category = 1; category <= 3; category++)
         {
-            var definition = PauseEquipmentCategories.Definitions[category];
+            var definition = PauseEquipmentCategories.Get(category);
             ushort[] masks = Enumerable.Range(0, definition.ItemCount)
                 .Select(item => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.BitmaskTableAddress + item * 2)).ToArray();
             for (int item = 0; item < masks.Length; item++)
@@ -100,7 +100,7 @@ internal static partial class Program
         {
             if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
                 (uint)(address - PauseReserveTransferRomData.TransferAmount) < 2 ||
-                PauseEquipmentCategories.Definitions.Any(category => category.ItemCount != 0 &&
+                Enumerable.Range(0, 4).Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
                     (uint)(address - category.BitmaskTableAddress) < category.ItemCount * 2))
                 throw new InvalidOperationException($"Pause read compiled inventory/transfer rule at {address:X6}.");
             return source.ReadByte(address);

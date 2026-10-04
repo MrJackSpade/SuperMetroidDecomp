@@ -45,19 +45,13 @@ public sealed class GameOptionsMenuState
             mapPresentation.WorldArtwork, mapPresentation.Sprites, loadInitialBackground: false);
         mapPresentation.GameOptions.LoadBackground(ppu.Vram);
 
-        // `$82:EC77-$ECA3` expands these five consecutive one-screen resources. Keeping
-        // each decompressed page independent mirrors their WRAM allocation and prevents a
-        // language toggle from mutating the other language's source page.
-        primaryTilemap = Page(GameOptionsPresentationDefinitions.PrimaryPage,
-            GameOptionsRomData.Pages.Primary);
-        controllerEnglishTilemap = Page(GameOptionsPresentationDefinitions.ControllerEnglishPage,
-            GameOptionsRomData.Pages.ControllerEnglish);
-        controllerJapaneseTilemap = Page(GameOptionsPresentationDefinitions.ControllerJapanesePage,
-            GameOptionsRomData.Pages.ControllerJapanese);
-        specialEnglishTilemap = Page(GameOptionsPresentationDefinitions.SpecialEnglishPage,
-            GameOptionsRomData.Pages.SpecialEnglish);
-        specialJapaneseTilemap = Page(GameOptionsPresentationDefinitions.SpecialJapanesePage,
-            GameOptionsRomData.Pages.SpecialJapanese);
+        // Separate installed page copies prevent a language toggle from mutating
+        // the other language's source page.
+        primaryTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+        controllerEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
+        controllerJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage);
+        specialEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+        specialJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
@@ -68,9 +62,6 @@ public sealed class GameOptionsMenuState
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
         Phase = GameOptionsPhase.FadeIn;
-
-        byte[] Page(string name, GameOptionsPageResource resource) =>
-            mapPresentation.GameOptions.CreatePage(name);
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
@@ -339,12 +330,12 @@ public sealed class GameOptionsMenuState
         QueueSelectSound();
         if (SelectedItem < GameOptionsRomData.Rows.ControllerActionCount)
         {
-            ReadOnlySpan<ushort> allowed = Input.ControllerBindings.AssignableButtons;
-            for (int button = allowed.Length - 1; button >= 0; button--)
+            for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
             {
-                if (((ushort)pressed & allowed[button]) == 0)
+                ushort physicalButton = Input.ControllerBindings.AssignableButton(button);
+                if (((ushort)pressed & physicalButton) == 0)
                     continue;
-                ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, allowed[button]);
+                ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
                 ApplyControllerLabels();
                 LoadVisiblePage();
                 break;
@@ -477,7 +468,7 @@ public sealed class GameOptionsMenuState
             "Controller labels require installed presentation assets.");
         for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
         {
-            int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
+            int button = Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]);
             content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
                 button < 0 ? 0 : button);
         }
@@ -485,11 +476,9 @@ public sealed class GameOptionsMenuState
 
     private (ushort X, ushort Y) CursorPosition()
     {
-        // These transitions have null entries in the native cursor-position table.
-        // Preserve the cursor actor in OAM but move it offscreen until selection resumes.
-        if (Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
-            GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
-            GameOptionsPhase.FadeOutToIntro)
+        GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
+        // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
+        if (cursorPage is null)
         {
             MapLabelPoint hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
@@ -498,7 +487,7 @@ public sealed class GameOptionsMenuState
         }
         MapLabelPoint point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
-            .GameOptions.CursorPosition(PresentationPageName(page), SelectedItem);
+            .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked((ushort)point.X), checked((ushort)point.Y));
     }
 
@@ -519,9 +508,9 @@ public sealed class GameOptionsMenuState
     {
         if (--missileTimer != 0)
             return;
-        missileFrame = (missileFrame + 1) % GameOptionsRomData.Spritemaps.MissileFrameIds.Length;
+        missileFrame = (missileFrame + 1) % MenuMissileAnimationDefinitions.FrameCount;
         missileTimer = mapPresentation?.GameOptions.CursorFrameDuration ??
-            GameOptionsRomData.Spritemaps.MissileFrameDuration;
+            MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     private static string PresentationPageName(GameOptionsPage value) => value switch

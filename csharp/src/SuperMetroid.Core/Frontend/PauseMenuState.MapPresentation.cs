@@ -38,7 +38,7 @@ internal sealed partial class PauseMenuState
             if (plasmaLabelOverrunActive)
                 catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
                     PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Boots].LabelWordCount,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Boots).LabelWordCount,
                     disabled: false);
         }
         else catalog.PauseEquipmentBase.RebindBaseInto(

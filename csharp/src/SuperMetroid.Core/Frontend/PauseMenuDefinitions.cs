@@ -21,10 +21,33 @@ internal static class PauseMenuLayout
     public const int ButtonRowsByteCount = 0x0080;
     /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
     public const int ButtonSourceWordOrigin = 0x0200;
-    /// <summary>MAP, EQUIPMENT and START row spans recolored by $82:A628-$A84C.</summary>
-    private static readonly (int Word, int Count)[] buttonLabelSpans =
-        [(805, 5), (837, 5), (812, 4), (844, 4), (822, 5), (854, 5)];
-    public static ReadOnlySpan<(int Word, int Count)> ButtonLabelSpans => buttonLabelSpans;
+    /// <summary>MAP, EXIT and SAMUS labels recolored by $82:A628-$A84C.</summary>
+    public static IEnumerable<(int Word, int Count)> ButtonLabelSpans
+    {
+        get
+        {
+            for (int label = 0; label < 3; label++)
+            for (int row = 0; row < 2; row++)
+                yield return ButtonLabelSpan((PauseButtonLabel)label, row);
+        }
+    }
+
+    /// <summary>Projects a named two-row button label into the 32-column BG2 tilemap.</summary>
+    /// <remarks>$82:A633/A66F/A6AB select MAP/EXIT/SAMUS at columns5/12/22.
+    /// Their lower halves are one32-word row below, as at A651/A68D/A6C9.
+    /// The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
+    public static (int Word, int Count) ButtonLabelSpan(PauseButtonLabel label, int row)
+    {
+        int column = label switch
+        {
+            PauseButtonLabel.Map => 5,
+            PauseButtonLabel.Exit => 12,
+            PauseButtonLabel.Samus => 22,
+            _ => throw new ArgumentOutOfRangeException(nameof(label)),
+        };
+        if ((uint)row >= 2) throw new ArgumentOutOfRangeException(nameof(row));
+        return ((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
+    }
     /// <summary>Three-bit BG palette index applied to unavailable equipment labels.</summary>
     public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
@@ -45,11 +68,31 @@ internal static class PauseMenuLayout
     public const ushort ReserveSupplyDigitZeroTile = 0x0804;
 }
 
-/// <summary>Cartridge-authored four-frame animation for Samus's pause-map marker.</summary>
+/// <summary>Shared four-phase pulse for pause and file-select map markers at $82:B9FC.</summary>
 internal static class PauseMapIndicatorAnimation
 {
-    public static readonly ushort[] SpritemapIds = [0x5f, 0x60, 0x61, 0x60];
-    public static readonly int[] FrameDelays = [8, 4, 8, 4];
+    /// <summary>$82:BA06 wraps at byte offset8: four word-indexed phases.</summary>
+    public const int FrameCount = 4;
+
+    /// <summary>Calculates the triangular sprite pulse at $82:BA2D, phase0..3.</summary>
+    /// <remarks>Independently reviewed for #1165: start at5F, rise twice, then fall.
+    /// The bounded triangle is2-abs(2-phase). Invalid indices preserve the former
+    /// array's IndexOutOfRangeException; timer advancement remains caller-owned.</remarks>
+    public static ushort SpritemapId(int frame)
+    {
+        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        return (ushort)(0x5f + 2 - Math.Abs(2 - frame));
+    }
+
+    /// <summary>Calculates the alternating endpoint/midpoint dwell at $82:BA25.</summary>
+    /// <remarks>Independently reviewed for #1165: phases0/2 hold an endpoint for8
+    /// ticks; phases1/3 traverse the middle image for4. Native consumers advance
+    /// before loading this delay and decrement on that same tick.</remarks>
+    public static int FrameDelay(int frame)
+    {
+        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        return 8 - 4 * (frame & 1);
+    }
 }
 
 /// <summary>One bank-$82 equipment-category table record used by the pause screen.</summary>
@@ -80,13 +123,29 @@ internal static class PauseEquipmentCategories
     public const int BeamRightSuitItem = 2;
     /// <summary>$82:B568 target offsets are relative to EquipmentScreenBG1Tilemap at $7E:3800.</summary>
     public const int TilemapWramBase = 0x3800;
-    public static readonly PauseEquipmentCategoryDefinition[] Definitions =
-    [
-        // Category zero is reserve tanks. Its special controls are unavailable until Samus
-        // owns reserve capacity, so the native equipment tables are intentionally null.
-        new(Reserves, 0, 0, 0, 0, 0),
-        new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
-        new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
-        new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
-    ];
+    /// <summary>Selects the native data contract for a named equipment category.</summary>
+    /// <remarks>The category dispatcher at $82:AC58 selects distinct controls, not
+    /// a numeric sequence. Pointer fields correspond to $82:C02C/C034/C044;
+    /// item counts follow $82:ABCC/ABEB/AC05 and copy lengths $82:AFCE/B0C8/B156.
+    /// Reserves use separate controls and retain the managed zero-data contract.
+    /// Invalid categories preserve the former array's IndexOutOfRangeException.</remarks>
+    public static PauseEquipmentCategoryDefinition Get(int category) => category switch
+    {
+        Reserves => new(Reserves, 0, 0, 0, 0, 0),
+        Beams => new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
+        Suits => new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
+        Boots => new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
+        _ => throw new IndexOutOfRangeException(),
+    };
+}
+
+/// <summary>Distinct pause-button label identities in the native recoloring routines.</summary>
+internal enum PauseButtonLabel
+{
+    /// <summary>$82:A633 MAP label at the left of the button row.</summary>
+    Map,
+    /// <summary>$82:A66F EXIT label at the center of the button row.</summary>
+    Exit,
+    /// <summary>$82:A6AB SAMUS label at the right of the button row.</summary>
+    Samus,
 }

@@ -6,12 +6,29 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable Hyper Beam projectile hues with shared white and calculated intermediate frames.</summary>
+/// <remarks>The remaining34 independent RGB5 components are color-design
+/// inputs under1165's nonsense exception,not an unresolved numeric lookup.
+/// Native8D:D900 selects OBJ palette6 colors1..8; the handler copies the eight
+/// chosen ink colors. The pixel index selects a painted ink,not a measured
+/// light level,hue angle or material parameter. The remaining inputs choose
+/// the endpoint tints and local shade emphasis. Replacing them with fitted
+/// coefficients or per-ink RGB cases would merely encode the same artwork.
+///
+/// The retained inputs are: one neutral intensity; paired components
+/// (frame,ink,channel)0/3/G,4/4/R,4/6/R,8/3/R,8/4/G,8/6/G,8/7/R;
+/// middle-shade components2/2/RG,4/2/GB,6/2/B,6/5/G; endpoint components
+/// 0/1/GB,2/1/RG,2/3/RG,4/1/B,4/3/GB,6/1/G,6/3/GB,6/4/RG;
+/// and all channels of blue-frame inks6/7. All other original components
+/// derive through the documented hue,shade,neutral and shared-channel rules.
+/// Asset edits remain independent; this disposition does not cover the
+/// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
     private readonly Dictionary<int, ushort> colors = new();
     private readonly int neutralIntensity;
     private readonly LoadingPaletteInputView.Channels neutralOverrides;
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
+    private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private HyperBeamFxColorCatalog(ushort[][] frames)
@@ -35,11 +52,16 @@ public sealed class HyperBeamFxColorCatalog
                 continue;
             }
             if (frame == 4 && color == 7 && value == HyperBeamFxColorFormat.GreenFromRed(frames[0][3])) continue;
-            if (frame == 8 && color == 1 && value == HyperBeamFxColorFormat.MagentaFromRed(frames[0][3])) continue;
+            if (frame == 8 && color == 1 && value == SamusHyperBeamColorFormat.MagentaFromRed(frames[0][3])) continue;
             if (HasPairedChannels(frame, color))
             {
                 var shared = SharedEndpointChannels(frame, color, frames[0][0], frames[0][3]);
                 pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0, shared.Red, shared.Green));
+                continue;
+            }
+            if (HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, frames[0][0], frames[0][3], out ushort basis, out int independentMask))
+            {
+                endpointInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, basis, independentMask));
                 continue;
             }
             colors.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, value);
@@ -54,7 +76,7 @@ public sealed class HyperBeamFxColorCatalog
     /// differing supplied values as explicit inputs, never generated colors.
     /// Frame2 highlight inks4..7 at8D:D936..D93C preserve frame4 green/blue
     /// and raise red to green: the same green-to-yellow transform used by the
-    /// body cycle. Other even-frame endpoint relationships remain under review.</remarks>
+    /// body cycle. Remaining independent inputs have the class-level art disposition.</remarks>
     private ushort Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
@@ -64,9 +86,14 @@ public sealed class HyperBeamFxColorCatalog
             var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? (ushort)0 : Resolve(0, 3));
             return paired.Resolve(frame == 0, shared.Red ?? 0, shared.Green ?? 0);
         }
+        if (endpointInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var endpoint))
+        {
+            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Resolve(0, 0), Resolve(0, 3), out ushort basis, out _);
+            return endpoint.Apply(basis);
+        }
         if (color == 0) return Resolve(0, 0);
         if (frame == 4 && color == 7) return HyperBeamFxColorFormat.GreenFromRed(Resolve(0, 3));
-        if (frame == 8 && color == 1) return HyperBeamFxColorFormat.MagentaFromRed(Resolve(0, 3));
+        if (frame == 8 && color == 1) return SamusHyperBeamColorFormat.MagentaFromRed(Resolve(0, 3));
         if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
         {
             ushort expected = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
@@ -82,7 +109,7 @@ public sealed class HyperBeamFxColorCatalog
     /// <remarks>Original red frame0 inks3..7 have blue=green; green frame4
     /// inks4..7 and magenta frame8 inks1..7 have blue=red. Frame addresses
     /// start8D:D906 and advance20 bytes. These are hue-channel equalities;
-    /// their remaining independent intensities still require review.</remarks>
+    /// their independent shade intensities have the class-level art disposition.</remarks>
     private static bool HasPairedChannels(int frame, int color) =>
         frame == 0 && color >= 3 || frame == 4 && color >= 4 || frame == 8 && color != 0;
 
@@ -91,7 +118,7 @@ public sealed class HyperBeamFxColorCatalog
     /// highlights use that red maximum as green. Magenta highlight inks use
     /// it as red, while shadow inks3/7 use the red endpoint's green minimum.
     /// All relationships are between supplied RGB5 inputs; differing edits
-    /// stay explicit. Remaining shade intensities still require review.</remarks>
+    /// stay explicit. Independent shade intensities have the class-level art disposition.</remarks>
     private static (int? Red, int? Green) SharedEndpointChannels(int frame, int color, ushort white, ushort red) =>
         frame == 0 ? (white & 31, null) :
         frame == 4 ? (null, red & 31) :
@@ -202,6 +229,29 @@ public sealed record HyperBeamFxColorDocument
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
 public static class HyperBeamFxColorFormat
 {
+    /// <summary>Supplies shared extrema for the remaining red,yellow,green and blue endpoint inks.</summary>
+    /// <remarks>Original8D:D906+20*frame: red ink1 shares white red;
+    /// yellow inks1/3 share red's minimum as blue; green inks1/3 share that
+    /// minimum as red,with ink1 also sharing the red maximum as green.
+    /// Blue inks1/3 share the red minimum as red; inks1/4 share white blue.
+    /// Other components remain independent inputs,including zero-valued edits.</remarks>
+    internal static bool TrySharedEndpoint(int frame, int ink, ushort white, ushort red, out ushort basis, out int independentMask)
+    {
+        int minimum = red >> 5 & 31, maximum = red & 31;
+        (int Value, int Mask) selected = (frame, ink) switch
+        {
+            (0, 1) => (white & 31, 6),
+            (2, 1 or 3) => (minimum << 10, 3),
+            (4, 1) => (minimum | maximum << 5, 4),
+            (4, 3) or (6, 3) => (minimum, 6),
+            (6, 1) => (minimum | (white & 0x7c00), 2),
+            (6, 4) => (white & 0x7c00, 3),
+            _ => (0, 7),
+        };
+        basis = (ushort)selected.Value;
+        independentMask = selected.Mask;
+        return selected.Mask != 7;
+    }
     /// <summary>Builds a neutral RGB5 highlight from its single intensity.</summary>
     /// <remarks>The repeated white at8D:D906 has equal red,green,blue.
     /// Expand one0..31 intensity into all three channels. Edited unequal
@@ -218,19 +268,13 @@ public static class HyperBeamFxColorFormat
     internal static ushort GreenFromRed(ushort red) =>
         (ushort)((red & 0x7c00) | (red & 31) << 5 | (red >> 5 & 31));
 
-    /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
-    /// <remarks>Original projectile frame8 ink1 ($8D:D9A8) derives from
-    /// frame0 ink3 ($D90C). Red/green stay fixed; copying red into blue
-    /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
-    internal static ushort MagentaFromRed(ushort red) =>
-        (ushort)((red & 0x03ff) | (red & 31) << 10);
     /// <summary>Selects middle projectile shades calculated from their adjacent inks.</summary>
     /// <remarks>In the original rows8D:D906+20*frame, red frame0 and magenta
     /// frame8 ink2 interpolate inks1/3; green frame4 and magenta frame8 ink5
     /// interpolate inks4/6. Each RGB5 channel rounds its midpoint upward.
     /// Other even-frame ink2 shades and frame6 ink5 also share matching
     /// midpoint channels; six differing components remain independent inputs
-    /// under review. A channel mismatch is not a retention justification.</remarks>
+    /// covered by the class-level ink-color disposition. Mismatch alone is not its rationale.</remarks>
     internal static bool IsShadeMidpoint(int frame, int ink) =>
         ink == 2 && frame is 0 or 2 or 4 or 6 or 8 || ink == 5 && frame is 4 or 6 or 8;
     /// <summary>Blends red and white into the four red-frame highlight inks.</summary>

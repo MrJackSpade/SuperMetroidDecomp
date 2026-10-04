@@ -497,8 +497,8 @@ public static class SamusPaletteRomData
         /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
         /// zero mismatches across all 128 words. Pointer index zero
         /// selects frame zero and indices two through eight select
-        /// frames one through seven. The base row remains authored
-        /// data; this is a bounded proof, not a runtime generator.
+        /// frames one through seven. Issue1165 implements this shared fade in
+        /// SamusPaletteFade for both charge and death. Base-input review remains separate.
         ///
         /// Issue #895 / #625: all 128 Varia Suit BGR555 words in
         /// eight death/beam-charge rows at <c>$9B:9920..9A1F</c>
@@ -578,14 +578,18 @@ public static class SamusPaletteRomData
         /// Issue #891 / #625: the nine timer bytes at even offsets
         /// match the pinned NTSC J/U v1.0 ROM and native bank-$9B
         /// listing: <c>21,6,3,4,5,5,6,6,80</c> for explosion index
-        /// <c>0..8</c>. The 21- and 80-call endpoint holds and
-        /// irregular interior cadence encode authored timing policy;
-        /// retain the nine-byte bounded compiled sequence rather than
-        /// a formula with per-index exceptions. The caller decrements
+        /// <c>0..8</c>. Issue1165 independently traces these countdowns
+        /// to the nine fixed right/left drawings at92EDBE. Their entry,
+        /// per-drawing and final delays specify cinematic rhythm; a numeric
+        /// case list or fitted curve would recite those timing choices,not
+        /// derive a physical or functional quantity. The concrete authored-
+        /// animation/nonsense disposition is on SamusDeathExplosionTimingDefinitions.
+        /// The caller decrements
         /// the active timer before advancing, loads the next duration
         /// only for indices below nine, and terminates without a tenth
         /// explosion frame. Odd-offset palette-selector bytes are a
-        /// separate logical table and remain live ROM data.
+        /// separate mapping, calculated by the death artwork catalog under1165
+        /// with independently supplied asset overrides.
         ///
         /// Issue #892 / #625: the nine odd-offset selector bytes
         /// match the pinned ROM/native listing and are exactly

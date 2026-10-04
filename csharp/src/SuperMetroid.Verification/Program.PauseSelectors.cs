@@ -18,29 +18,11 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new PauseSelectorReadGuard(bus);
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
-        AssertEqual((int)bus.ReadByte(0x82c10c), catalog.PauseSelectors.InitialDurationTicks, "selector initial delay matches native initialization");
-        int animation = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c0ec);
-        for (int phase = 0; phase < 14; phase++)
-            AssertEqual((int)bus.ReadByte(animation + phase * 3), catalog.PauseSelectors.Duration(phase), "all native selector phase durations preserved");
-        AssertEqual(14, catalog.PauseSelectors.PhaseCount, "native selector terminator resolves exactly fourteen phases");
+        VerifyPauseSelectorAnchors(bus);
+        VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors);
+        for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int positions = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c18e + anchor.Category * 2);
-            ushort x = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4) - 1);
-            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4 + 2) - 1);
-            AssertEqual(new MapLabelPoint(x, y), catalog.PauseSelectors.Anchor(anchor.Category, anchor.Item), "authored anchor retains both native minus-one offsets");
-            ushort id = (ushort)(anchor.Category == 0 ? 0x14 : anchor.Category == 1 ? 0x15 : 0x16);
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
-            foreach (int occupied in new[] { 0, 127, 128 })
-            for (int phase = 0; phase < 14; phase++)
-            {
-                var nativeOam = new OamBuffer(); var actualOam = new OamBuffer(); nativeOam.BeginFrame(); actualOam.BeginFrame();
-                for (int i = 0; i < occupied; i++) { nativeOam.AddRawSmallSprite(12, 34, 56); actualOam.AddRawSmallSprite(12, 34, 56); }
-                DrawImportedSpritemap(bus, nativeOam, pointer, x, y, 0x600);
-                catalog.PauseSelectors.Draw(actualOam, anchor.Category, anchor.Item, phase);
-                nativeOam.FinalizeFrame(); actualOam.FinalizeFrame();
-                AssertTrue(nativeOam.LowTable.SequenceEqual(actualOam.LowTable) && nativeOam.HighTable.SequenceEqual(actualOam.HighTable), "selector parts/order/attributes/capacity match native");
-            }
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual((anchor.Category, anchor.Item), (pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");

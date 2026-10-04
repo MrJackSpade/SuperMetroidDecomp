@@ -20,7 +20,7 @@ public static class MapSaveMarkerExtractor
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (pointer + index * 4);
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                bool usable = MapSaveMarkerDefinitions.Indices(typedArea).Contains(index);
+                bool usable = MapSaveMarkerDefinitions.IsUsable(typedArea, index);
                 if (usable)
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing save marker {typedArea}/{index}.");

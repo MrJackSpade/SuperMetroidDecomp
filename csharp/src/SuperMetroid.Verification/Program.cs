@@ -187,6 +187,376 @@ if (args is ["--single-frame-enemy-visuals"])
     VerifySingleFrameEnemyVisuals();
     return 0;
 }
+if (args is ["--lookup-map-sprite-cases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map sprite case oracle revision");
+    VerifyMapSpriteCompositionCases(rom);
+    Console.WriteLine("Map sprite cases: all original OAM, independent role edits, required membership and invalid identities pass.");
+    return 0;
+}
+if (args is ["--lookup-map-sprite-names"])
+{
+    VerifyMapSpriteNameCases();
+    Console.WriteLine("Map sprite names: all original identities and order, complete ushort membership and invalid names pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-title-font"] or ["--lookup-menu-large-font"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Large font pixel oracle revision");
+    VerifyMenuLargeFontPixels(rom);
+    Console.WriteLine("Large font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-beveled-square-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beveled square pixel oracle revision");
+    VerifyMenuBeveledSquarePixels(rom);
+    Console.WriteLine("Beveled square pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-map-arrow-pixels"] or ["--lookup-map-pulse-pixels"] or ["--lookup-defeated-boss-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map marker pixel oracle revision");
+    if (args[0] == "--lookup-map-arrow-pixels") VerifyMapArrowPixels(rom);
+    else if (args[0] == "--lookup-map-pulse-pixels") VerifyMapPulsePixels(rom);
+    else VerifyDefeatedBossPixels(rom);
+    Console.WriteLine($"{args[0]}: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-shoulder-highlight-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder highlight pixel oracle revision");
+    VerifyMenuShoulderHighlightPixels(rom);
+    Console.WriteLine("Shoulder highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-shoulder-button-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder button pixel oracle revision");
+    VerifyMenuShoulderButtonPixels(rom);
+    Console.WriteLine("Shoulder button pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-panel-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu panel pixel oracle revision");
+    VerifyMenuPanelPixels(rom);
+    Console.WriteLine("Menu panel pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-elevator-lettering"] or ["--lookup-menu-outlined-lettering"] or ["--lookup-menu-compact-lettering"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator lettering pixel oracle revision");
+    VerifyMenuCompactLetteringPixels(rom);
+    Console.WriteLine("Elevator lettering pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-menu-small-font"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small font pixel oracle revision");
+    VerifyMenuSmallFontPixels(rom);
+    Console.WriteLine("Small font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-highlight-tile-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Highlight pixel oracle revision");
+    VerifyHighlightTilePixels(rom);
+    Console.WriteLine("Highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-reserve-tile-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve pixel oracle revision");
+    VerifyReserveTilePixels(rom);
+    Console.WriteLine("Reserve pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-reserve-frames"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve frame oracle revision");
+    VerifyPauseReserveFrameCases(rom);
+    Console.WriteLine("Reserve frames: all native role identities and OAM, independent edits, required membership and invalid inputs pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-reserve-anchors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve anchor oracle revision");
+    VerifyPauseReserveAnchors(rom);
+    Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-selector-anchors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector anchor oracle revision");
+    VerifyPauseSelectorAnchors(rom);
+    Console.WriteLine("Pause selector anchors: original names and coordinates, independent axis edits, zero stock storage and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-selector-compositions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector composition oracle revision");
+    VerifyPauseSelectorCompositions(rom);
+    Console.WriteLine("Pause selector compositions: native OAM, all groups/phases, independent edits, cyclic indices and capacity pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-selector-durations"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector duration oracle revision");
+    VerifyPauseSelectorDurations(rom);
+    Console.WriteLine("Pause selector durations: native program, sparse edits, custom lengths, cyclic indices and initial timer pass.");
+    return 0;
+}
+if (args is ["--lookup-map-arrow-durations"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow duration oracle revision");
+    VerifyMapArrowDurations(rom);
+    Console.WriteLine("Map arrow durations: all original phases, sparse edits, custom lengths, bounds and actual timing pass.");
+    return 0;
+}
+if (args is ["--lookup-map-arrow-cases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow oracle revision");
+    VerifyMapArrowCases(rom);
+    Console.WriteLine("Map arrow cases: original anchors and shapes, independent direction edits, phase selection, membership and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-button-spans"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause button span oracle revision");
+    VerifyPauseButtonSpanWords(rom);
+    VerifyPauseButtonSpanCounts(rom);
+    Console.WriteLine("Pause buttons: all six native row destinations and widths, enumeration order and invalid bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-pause-categories"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause category oracle revision");
+    VerifyPauseCategoryCases(rom);
+    Console.WriteLine("Pause categories: all native pointer fields, item counts, dispatched copy lengths, reserve contract and invalid bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-map-indicator"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map indicator oracle revision");
+    VerifyMapIndicatorSprites(rom);
+    VerifyMapIndicatorDelays(rom);
+    Console.WriteLine("Map indicator: all native sprite/delay words, input bounds, first-tick order and two loop transitions pass.");
+    return 0;
+}
+if (args is ["--lookup-save-marker-coordinates"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Save-marker coordinate oracle revision");
+    VerifyMapSaveMarkerCoordinates(rom);
+    Console.WriteLine("Save-marker coordinates: all 68 native components, independent edits, JSON identity, actual marker binding and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-map-area-cases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map-area selector oracle revision");
+    VerifyFileSelectMapAreaCases(rom);
+    Console.WriteLine("Map-area selection: all six native identity cases and rejected input boundaries pass.");
+    return 0;
+}
+if (args is ["--lookup-save-marker-eligibility"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Save-marker eligibility oracle revision");
+    VerifySaveMarkerEligibility(rom);
+    Console.WriteLine("Save-marker eligibility: all 96 native slots, 34 identities, all used masks and input boundaries pass.");
+    return 0;
+}
+if (args is ["--lookup-map-load-anchors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map-load anchor oracle revision");
+    VerifyMapLoadAnchorX(rom);
+    VerifyMapLoadAnchorY(rom);
+    Console.WriteLine("Map-load anchors: all 34 original X/Y projections, unused stations and invalid input boundaries pass.");
+    return 0;
+}
+if (args is ["--lookup-options-headings"])
+{
+    VerifyGameOptionsHeadings();
+    Console.WriteLine("Options headings: all three original sprite selections and anchor pairs, imported records and enum bounds pass.");
+    return 0;
+}
+if (args is ["--game-options-cursor-phases"])
+{
+    VerifyGameOptionsCursorPhases();
+    return 0;
+}
+if (args is ["--lookup-options-pages"])
+{
+    VerifyGameOptionsPageCases();
+    Console.WriteLine("Options pages: all five native source pairs, named imported page bytes, descriptions and rejected selectors pass.");
+    return 0;
+}
+if (args is ["--lookup-file-select-slot-fields"])
+{
+    VerifyFileSelectSlotDestinations();
+    Console.WriteLine("File-select slot fields: all 24 original destinations, both slot-label source views, extracted anchors/text and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-file-select-helmet"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Helmet animation oracle revision");
+    VerifyFileSelectHelmetAnimation(rom);
+    Console.WriteLine("File-select helmet: all nine original sprite IDs, native cadence/clamp and bounded selectors pass.");
+    return 0;
+}
+if (args is ["--lookup-game-over-baby-animation"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby animation oracle revision");
+    VerifyGameOverBabyAnimation(rom);
+    Console.WriteLine("Baby animation: original durations, frames, palettes, sound/control handoffs, lazy enumeration and all ushort pointers pass.");
+    return 0;
+}
+if (args is ["--lookup-game-over-baby-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby colors oracle revision");
+    VerifyGameOverBabyColors(rom);
+    Console.WriteLine("Baby colors: all 64 original words, CGRAM application, independent channel edits and bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-game-over-text"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Game-over text oracle revision");
+    VerifyGameOverTextSources(rom);
+    VerifyGameOverTextDestinations(rom);
+    Console.WriteLine("Game-over text: all five original sources and destinations, enumeration order and rejected selectors pass.");
+    return 0;
+}
+if (args is ["--lookup-file-select-navigation"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select navigation oracle revision");
+    VerifyFileSelectMainNavigation();
+    VerifyFileSelectSourceNavigation(rom);
+    VerifyFileSelectDestinationNavigation(rom);
+    return 0;
+}
+if (args is ["--lookup-map-window-motion"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map window motion oracle revision");
+    var labels = RetailPresentationFixture().Labels;
+    VerifyMapWindowOriginX(rom, labels);
+    VerifyMapWindowOriginY(rom, labels);
+    VerifyMapWindowLeftVelocities(rom);
+    VerifyMapWindowRightVelocities(rom);
+    VerifyMapWindowTopVelocities(rom);
+    VerifyMapWindowBottomVelocities(rom);
+    VerifyMapWindowTimers(rom);
+    Console.WriteLine("Map window motion: all 24 original signed16.16 velocities, six timers, 12 named origin fields, independent label edits and rejected areas pass.");
+    return 0;
+}
+if (args is ["--lookup-file-select-geometry"])
+{
+    VerifyFileSelectGeometryLookups();
+    return 0;
+}
+if (args is ["--lookup-options-toggle-geometry"])
+{
+    VerifyGameOptionsToggleGeometry();
+    return 0;
+}
+if (args is ["--game-options-language-palettes"])
+{
+    VerifyGameOptionsLanguagePalettes();
+    return 0;
+}
+if (args is ["--lookup-menu-missile"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu missile oracle revision");
+    VerifyMenuMissileSpritemapIds(rom);
+    VerifyMenuMissileDurations(rom);
+    Console.WriteLine("Menu missile: all four original frame IDs, four duration words, wrap mask and rejected indices pass.");
+    return 0;
+}
+if (args is ["--lookup-options-geometry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options geometry oracle revision");
+    VerifyOptionsPrimaryCursorY(rom);
+    VerifyOptionsControllerCursorY(rom);
+    VerifyOptionsSpecialCursorY(rom);
+    VerifyOptionsLabelDestinations(rom);
+    VerifyOptionsLabelSources(rom);
+    Console.WriteLine("Options geometry: all 31 native words across five logical mappings and their bounds pass.");
+    return 0;
+}
+if (args is ["--lookup-controller-buttons"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Controller button oracle revision");
+    VerifyAssignableControllerButtons(rom);
+    VerifyDefaultControllerButtons(rom);
+    Console.WriteLine("Controller buttons: native choices, inverse domain, swaps, rejection and default action mappings pass.");
+    return 0;
+}
 if (args is ["--hyper-beam-fx-colors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -268,6 +638,14 @@ if (args is ["--lookup-treadmill-mechanics"])
 if (args is ["--lookup-fx-blends"] )
 {
     VerifyRoomFxPaletteBlends();
+    return 0;
+}
+if (args is ["--samus-charge-phases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Charge phase oracle revision");
+    VerifySamusChargeColorPhases(rom);
     return 0;
 }
 if (args is ["--samus-hyper-beam-colors"])
@@ -2197,16 +2575,9 @@ if (args is ["--samus-hurt-colors"])
     return 0;
 }
 
-if (args is ["--game-options-language-palettes"])
-{
-    VerifyGameOptionsLanguagePalettes();
-    return 0;
-}
-if (args is ["--game-options-cursor-phases"])
-{
-    VerifyGameOptionsCursorPhases();
-    return 0;
-}
+
+
+
 if (args is ["--normal-suit-palette-pointers"])
 {
     VerifyNormalSuitPalettePointers();

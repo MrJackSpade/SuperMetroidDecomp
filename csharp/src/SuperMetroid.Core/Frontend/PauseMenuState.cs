@@ -465,7 +465,7 @@ internal sealed partial class PauseMenuState
     {
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
-            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
+            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
             ushort collected = GetCollectedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
             {
@@ -658,7 +658,7 @@ internal sealed partial class PauseMenuState
             8 * (roomMapY + (samus.YPosition >> 8) + 1) - mapVerticalScroll));
         lastIndicatorOriginX = x;
         lastIndicatorOriginY = y;
-        lastIndicatorSpritemapId = PauseMapIndicatorAnimation.SpritemapIds[mapIndicatorAnimationFrame];
+        lastIndicatorSpritemapId = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
         DrawMenuSpritemap(
             lastIndicatorSpritemapId,
             x,
@@ -673,8 +673,8 @@ internal sealed partial class PauseMenuState
         // "draw frame zero for N ticks" animation helper.
         if (mapIndicatorAnimationTimer == 0)
         {
-            mapIndicatorAnimationFrame = (mapIndicatorAnimationFrame + 1) & 3;
-            mapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelays[mapIndicatorAnimationFrame];
+            mapIndicatorAnimationFrame = (mapIndicatorAnimationFrame + 1) & (PauseMapIndicatorAnimation.FrameCount - 1);
+            mapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelay(mapIndicatorAnimationFrame);
         }
         mapIndicatorAnimationTimer--;
     }

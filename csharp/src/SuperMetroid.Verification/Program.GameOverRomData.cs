@@ -11,9 +11,6 @@ internal static partial class Program
     /// </summary>
     static void VerifyGameOverRomData()
     {
-        AssertEqual(5, GameOverRomData.Text.All.Length, "game-over text stream count");
-        AssertEqual(4, GameOverRomData.Sprites.MissileFrameIds.Length,
-            "game-over missile cursor frame count");
         AssertEqual(GameOverRomData.TilemapWidth * sizeof(ushort),
             GameOverRomData.TilemapRowByteCount,
             "game-over tilemap row stride");
@@ -76,7 +73,7 @@ internal static partial class Program
 
     private static void SeedGameOverText(TestAddressSpace bus)
     {
-        ReadOnlySpan<GameOverTextStream> streams = GameOverRomData.Text.All;
+        GameOverTextStream[] streams = GameOverRomData.Text.All.ToArray();
         WriteTestWords(
             bus,
             GameOverRomData.TextBank | streams[0].SourcePointer,

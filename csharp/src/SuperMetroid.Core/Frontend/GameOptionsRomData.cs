@@ -19,31 +19,24 @@ public static class GameOptionsRomData
     public const int MenuTilemapHeight = 32;
     public const int MaximumQueuedMenuSounds = 6;
 
-    /// <summary>The five consecutive compressed options pages loaded from $82:EC66 onward.</summary>
+    /// <summary>Named import sources loaded by native $82:EC66..ECB8.</summary>
     /// <remarks>
-    /// Issues #625 and #956: pinned NTSC J/U v1.0 ROM source-load instructions at
-    /// $82:EC66, EC77, EC88, EC99, and ECAA select these five bank-$97 streams in
-    /// primary, controller English/Japanese, special English/Japanese order.
-    /// bank_94..99.asm places them at $97:8DF4, 8FCD, 91C4, 938D, and 953A with
-    /// compressed lengths $1D9, $1F7, $1C9, $1AD, and $1BA, respectively; the
-    /// final stream ends at $97:96F4. All five ROM immediate pairs and consecutive
-    /// source spans match. GameOptionsMenuState and extraction select the five
-    /// named resources, each expanding to one $800-byte tilemap. Their offsets are
-    /// authored compression boundaries; a prefix sum would just hide the lengths.
-    /// Retain this explicit page-to-resource mapping.
+    /// Each mutually exclusive page/language identity selects its compressed resource.
+    /// These are semantic cases, independently checked against the five native source
+    /// operand pairs; no compression-boundary retention exception is asserted. Runtime
+    /// presentation uses installed named pages and does not require these ROM identities.
     /// </remarks>
     public static class Pages
     {
-        public static readonly GameOptionsPageResource Primary =
-            new(0x978df4, "primary");
-        public static readonly GameOptionsPageResource ControllerEnglish =
-            new(0x978fcd, "English controller");
-        public static readonly GameOptionsPageResource ControllerJapanese =
-            new(0x9791c4, "Japanese controller");
-        public static readonly GameOptionsPageResource SpecialEnglish =
-            new(0x97938d, "English special-settings");
-        public static readonly GameOptionsPageResource SpecialJapanese =
-            new(0x97953a, "Japanese special-settings");
+        public static GameOptionsPageResource Get(GameOptionsTilemap page) => page switch
+        {
+            GameOptionsTilemap.Primary => new(0x978df4, "primary"),
+            GameOptionsTilemap.ControllerEnglish => new(0x978fcd, "English controller"),
+            GameOptionsTilemap.ControllerJapanese => new(0x9791c4, "Japanese controller"),
+            GameOptionsTilemap.SpecialEnglish => new(0x97938d, "English special-settings"),
+            GameOptionsTilemap.SpecialJapanese => new(0x97953a, "Japanese special-settings"),
+            _ => throw new ArgumentOutOfRangeException(nameof(page)),
+        };
     }
 
     /// <summary>Fixed row identities and scroll boundaries for each menu page.</summary>
@@ -89,11 +82,6 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Cursors
     {
-        private static readonly ushort[] PrimaryRows = [0x38, 0x58, 0x70, 0x90, 0xb0];
-        private static readonly ushort[] ControllerRows =
-            [0x30, 0x48, 0x60, 0x78, 0x90, 0xa8, 0xc0, 0xb8, 0xd0];
-        private static readonly ushort[] SpecialRows = [0x40, 0x70, 0xa0];
-
         public const ushort PrimaryX = 0x18;
         public const ushort ControllerX = 0x28;
         /// <summary>$82:F2E0: selector X when the active page phase has no cursor table (including scroll phases).</summary>
@@ -103,74 +91,89 @@ public static class GameOptionsRomData
         public const ushort SpecialX = 0x10;
         /// <summary>Primary options cursor Y for selected row 0..4.</summary>
         /// <remarks>
-        /// Issues #625 and #957: PreInstruction_MenuSelectionMissile selects five
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects five
         /// interleaved X/Y records at $82:F307, with Y every four bytes from $82:F309.
         /// For row i=0..4, X=$0018 and Y=$0038+$0020*i-(i&gt;=2 ? 8 : 0).
         /// The eight-pixel shift after row 1 matches the authored layout gap.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all five records;
-        /// GameOptionsMenuState wraps PrimaryCount at five before indexing.
+        /// PrimaryCount bounds the five rows; unsupported indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> PrimaryY => PrimaryRows;
+        public static ushort PrimaryY(int row)
+        {
+            if ((uint)row >= Rows.PrimaryCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x38 + 0x20 * row - (row >= 2 ? 8 : 0));
+        }
         /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
         /// <remarks>
-        /// Issues #625 and #958: PreInstruction_MenuSelectionMissile selects nine
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects nine
         /// interleaved X/Y records from $82:F31B; Y is at $82:F31D+4*i for row
         /// i=0..8. X=$0028 throughout, and Y=$0030+$0018*i-(i&gt;=7 ? $20 : 0).
         /// The final two rows are Exit and Reset, shifted upward by $20 to account
         /// for the controller-page scroll. Pinned NTSC J/U v1.0 ROM and bank_82.asm
         /// match all nine records; GameOptionsMenuState keeps the selected row in
-        /// 0..8 across the controller scroll transitions.
+        /// 0..8 across the controller scroll transitions. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> ControllerY => ControllerRows;
+        public static ushort ControllerY(int row)
+        {
+            if ((uint)row >= Rows.ControllerCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x30 + 0x18 * row - (row >= Rows.ControllerExit ? ControllerScrollLimit : 0));
+        }
         /// <summary>Special-settings cursor Y for selected row 0..2.</summary>
         /// <remarks>
-        /// Issues #625 and #959: PreInstruction_MenuSelectionMissile selects three
+        /// Independently reviewed and converted for #1165: PreInstruction_MenuSelectionMissile selects three
         /// interleaved X/Y records from $82:F33F; Y at $82:F341+4*i is exactly
         /// $0040+$0030*i for i=0..2, while X stays $0010. Pinned NTSC J/U v1.0
         /// ROM and bank_82.asm match all three records. GameOptionsMenuState
         /// wraps SpecialCount at three before indexing, and extraction uses the
-        /// same three anchors.
+        /// same three anchors. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> SpecialY => SpecialRows;
+        public static ushort SpecialY(int row)
+        {
+            if ((uint)row >= Rows.SpecialCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x40 + 0x30 * row);
+        }
     }
 
     /// <summary>Controller-label source pointers and destination boxes from $82:F639.</summary>
     public static class ControllerLabels
     {
-        private static readonly ushort[] DestinationOffsets =
-            [0x016e, 0x022e, 0x02ee, 0x03ae, 0x046e, 0x052e, 0x05ee];
-        private static readonly ushort[] SourcePointers =
-            [0xf659, 0xf665, 0xf671, 0xf67d, 0xf689, 0xf695, 0xf6a1];
-
         public const int WidthInTiles = 3;
         public const int HeightInTiles = 2;
         /// <summary>BG1 byte destination for each controller-action label, row 0..6.</summary>
         /// <remarks>
-        /// Issues #625 and #960: GameOptionsMenu_TilemapOffsets at $82:F639 contains
+        /// Independently reviewed and converted for #1165: GameOptionsMenu_TilemapOffsets at $82:F639 contains
         /// seven little-endian words exactly $016E+$00C0*i for action row i=0..6.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all seven. Native uses
         /// twice the row index to read the word; managed label drawing and asset
         /// extraction use the same seven-row domain. The $C0-byte step places each
         /// 3x2 label box three 32-word tilemap rows below the previous one.
-        /// The adjacent source-pointer region has its own rule.
+        /// The adjacent source-pointer region has its own rule. Invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> Destinations => DestinationOffsets;
+        public static ushort Destination(int action)
+        {
+            if ((uint)action >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            return (ushort)(0x16e + MenuTilemapWidth * sizeof(ushort) * 3 * action);
+        }
         /// <summary>Bank-$82 source pointer for each assignable controller-button label.</summary>
         /// <remarks>
-        /// Issues #625 and #961: ControllerButton_TilemapPointers at $82:F647
+        /// Independently reviewed and converted for #1165: ControllerButton_TilemapPointers at $82:F647
         /// contains nine words. Selectors i=0..6 point to X, A, B, Select, Y, L,
         /// and R label records at $F659+$000C*i. Each record is a 3x2 tilemap
         /// of six words. Adjacent selectors 7 and 8 both point to the distinct
         /// OFF record at $F6AD; the managed assignable-button view stops at 6.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all nine pointer words.
-        /// Managed label drawing and extraction use the seven-entry domain.
+        /// Extraction uses the seven-entry domain; invalid indices keep IndexOutOfRangeException.
         /// </remarks>
-        public static ReadOnlySpan<ushort> Sources => SourcePointers;
+        public static ushort Source(int button)
+        {
+            if ((uint)button >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            return (ushort)(0xf659 + WidthInTiles * HeightInTiles * sizeof(ushort) * button);
+        }
     }
 
     /// <summary>Language-dependent palette regions in the primary-page tilemap.</summary>
     /// <remarks>
-    /// Issues #625 and #962: pinned NTSC J/U v1.0 ROM and bank_82.asm match all
+    /// Independently reviewed and converted for #1165: NTSC J/U v1.0 ROM and bank_82.asm match all
     /// eight offset/count/palette calls in Set_Language_Text_Option_Highlight.
     /// For region i=0..3, byte offset is $0288+$0040*(i%2)+$00C0*(i/2);
     /// byte count is $18 for i&lt;2 and $32 otherwise. Native AltText=0 selects
@@ -179,20 +182,21 @@ public static class GameOptionsRomData
     /// HighlightWhenJapanese flags are false,false,true,true. Both ROM-page
     /// and editable-presentation rendering consume this same polarity.
     /// </remarks>
-    public static ReadOnlySpan<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions =>
-        LanguagePaletteRegionData;
+    public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(int index)
+    {
+        if ((uint)index >= LanguagePaletteRegionCount) throw new IndexOutOfRangeException();
+        int language = index / 2;
+        int row = index % 2;
+        return new(0x288 + MenuTilemapWidth * sizeof(ushort) * (row + 3 * language),
+            language == 0 ? 0x18 : 0x32, HighlightWhenJapanese: language != 0);
+    }
 
-    private static readonly GameOptionsLanguagePaletteRegion[] LanguagePaletteRegionData =
-    [
-        new(0x0288, 0x18, HighlightWhenJapanese: false),
-        new(0x02c8, 0x18, HighlightWhenJapanese: false),
-        new(0x0348, 0x32, HighlightWhenJapanese: true),
-        new(0x0388, 0x32, HighlightWhenJapanese: true),
-    ];
+    /// <summary>Two tilemap rows for each of the two language labels at $82:EDF2..EE51.</summary>
+    public const int LanguagePaletteRegionCount = 4;
 
     /// <summary>Palette boxes for the Icon Cancel and Moonwalk toggles.</summary>
     /// <remarks>
-    /// Issues #625 and #964: the eight native words at $82:F149..F158 are one
+    /// Independently reviewed and converted for #1165: the eight native words at $82:F149..F158 are one
     /// interleaved block used by Set_SpecialSetting_Highlights. For toggle
     /// t=0 (Icon Cancel) or 1 (Moonwalk), row r=0..1, and disabled choice
     /// d=0..1, the byte offset is $01E0+$0180*t+$0040*r+$000E*d.
@@ -205,11 +209,24 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class SpecialToggles
     {
-        public static readonly GameOptionsToggleLayout IconCancel =
-            new(0x01e0, 0x0220, 0x01ee, 0x022e);
-        public static readonly GameOptionsToggleLayout Moonwalk =
-            new(0x0360, 0x03a0, 0x036e, 0x03ae);
+        public static GameOptionsToggleLayout IconCancel => Layout(Rows.SpecialIconCancel);
+        public static GameOptionsToggleLayout Moonwalk => Layout(Rows.SpecialMoonwalk);
         public const int PaletteRegionByteCount = 0x0c;
+
+        /// <summary>
+        /// Calculates two-row choice boxes for Icon Cancel (0) or Moonwalk (1).
+        /// Settings are six tilemap rows apart; choices are seven words apart.
+        /// Exit has no setting boxes and unsupported selectors are rejected.
+        /// </summary>
+        public static GameOptionsToggleLayout Layout(int setting)
+        {
+            if ((uint)setting >= Rows.SpecialExit) throw new IndexOutOfRangeException();
+            int rowStride = MenuTilemapWidth * sizeof(ushort);
+            int origin = 0x1e0 + 6 * rowStride * setting;
+            int choiceStride = 7 * sizeof(ushort);
+            return new(origin, origin + rowStride, origin + choiceStride,
+                origin + rowStride + choiceStride);
+        }
     }
 
     /// <summary>Typed palette indices used to select and dim menu text.</summary>
@@ -221,44 +238,53 @@ public static class GameOptionsRomData
 
     /// <summary>Static and animated options-screen OBJ definitions.</summary>
     /// <remarks>
-    /// Issues #625 and #966: for options page p=0..2 (Primary, Controller,
+    /// Independently reviewed for #1165: for page p=0..2 (Primary, Controller,
     /// Special), heading-border spritemap ID is $4B+p. The $82:C5FF/C601/C603
     /// pointer-table words and $82:F47E/F48E/F49E instruction lists select
     /// $82:D24B/D2F7/D41B, respectively. Setup routines at $82:F34B/F353/F35B
     /// give X anchors $7C/$84/$80; common setup at $82:F369 gives Y=$10.
     /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all three tuples.
-    /// The IDs have a bounded consecutive rule, while the X anchors are authored
-    /// page layout. The disassembly's controller symbol says 49, but its table
+    /// Calculate consecutive IDs and select X through named page-layout cases.
+    /// This is not an exception retaining a numeric table. The disassembly's
+    /// controller symbol says 49, but its table
     /// position and actual spritemap header identify $4C.
     /// </remarks>
     public static class Spritemaps
     {
-        private static readonly ushort[] MissileFrames = [0x37, 0x36, 0x35, 0x34];
+        /// <summary>$82:F369, common heading setup aligns the top edge at screen Y=0.</summary>
+        public const ushort HeadingY = 0x10;
 
-        public const ushort OptionModeBorder = 0x4b;
-        public const ushort OptionModeBorderX = 0x7c;
-        public const ushort OptionModeBorderY = 0x10;
-        /// <summary>$82:F48E selects $82:D2F7, menu spritemap $4C at table entry $82:C601. The pinned disassembly's label incorrectly says 49.</summary>
-        public const ushort ControllerModeBorder = 0x4c;
-        /// <summary>$82:F353, controller-heading border setup X position.</summary>
-        public const ushort ControllerModeBorderX = 0x84;
-        /// <summary>$82:F49E, SPECIAL SETTING MODE border instruction list selects menu spritemap $4D.</summary>
-        public const ushort SpecialModeBorder = 0x4d;
-        /// <summary>$82:F35B, special-heading border setup X position.</summary>
-        public const ushort SpecialModeBorderX = 0x80;
-        /// <summary>All four $82:BAAA menu missile timer words equal eight calls.</summary>
-        /// <remarks>Issues #625 and #955: pinned NTSC J/U v1.0 ROM and bank_82.asm
-        /// match 4/4. The timer reload is shared with file select and game over; the
-        /// adjacent $82:BAB2 spritemap IDs are a separate table. Options animation
-        /// may use an editable presentation override.</remarks>
-        public const int MissileFrameDuration = 8;
-        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
-        /// <remarks>Issues #625 and #954: options animation wraps modulo this four-word
-        /// span, and asset extraction iterates the same bounded domain. File select and
-        /// game over expose the same native table; all four words match pinned NTSC J/U
-        /// v1.0 ROM and bank_82.asm.</remarks>
-        public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
+        /// <summary>$82:F47E/F48E/F49E select the consecutive page heading spritemaps $4B..4D.</summary>
+        internal static ushort Heading(GameOptionsPage page)
+        {
+            if ((uint)page > (uint)GameOptionsPage.Special) throw new ArgumentOutOfRangeException(nameof(page));
+            return (ushort)(0x4b + (int)page);
+        }
+
+        /// <summary>Native setup X anchors $82:F34B/F353/F35B, selected by the heading's page.</summary>
+        internal static ushort HeadingX(GameOptionsPage page) => page switch
+        {
+            GameOptionsPage.Primary => 0x7c,
+            GameOptionsPage.Controller => 0x84,
+            GameOptionsPage.Special => 0x80,
+            _ => throw new ArgumentOutOfRangeException(nameof(page)),
+        };
     }
+}
+
+/// <summary>Mutually exclusive options tilemaps imported by native initialization.</summary>
+public enum GameOptionsTilemap
+{
+    /// <summary>$82:EC66 selects $97:8DF4, the primary options page.</summary>
+    Primary,
+    /// <summary>$82:EC77 selects $97:8FCD, English controller settings.</summary>
+    ControllerEnglish,
+    /// <summary>$82:EC88 selects $97:91C4, Japanese controller settings.</summary>
+    ControllerJapanese,
+    /// <summary>$82:EC99 selects $97:938D, English special settings.</summary>
+    SpecialEnglish,
+    /// <summary>$82:ECAA selects $97:953A, Japanese special settings.</summary>
+    SpecialJapanese,
 }
 
 /// <summary>One compressed options-page resource and its diagnostic name.</summary>

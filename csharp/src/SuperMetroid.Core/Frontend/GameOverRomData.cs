@@ -18,7 +18,7 @@ public static class GameOverRomData
 
     /// <summary>Localized text streams and their byte destinations in BG1.</summary>
     /// <remarks>
-    /// Issues #625 and #969: GameOverMenu_1_Init at $81:9206..9230 loads five
+    /// Independently reviewed for #1165: GameOverMenu_1_Init at $81:9206..9230 loads five
     /// bank-$81 sources and BG1 byte destinations in this order. Pinned NTSC
     /// J/U v1.0 ROM and bank_81.asm match all ten immediates. The source words
     /// occupy $92DC..9303, $9304..9333, $9334..934B, $934C..939F, and
@@ -26,35 +26,41 @@ public static class GameOverRomData
     /// a $FFFE next-line command. Destinations $0156, $038A, $0414, $04CE,
     /// and $05CE encode screen columns/rows (11,5), (5,14), (10,16),
     /// (7,19), and (7,23) as 2*x+64*y. The loader and asset extractor both
-    /// walk these five bounded command streams. Their text lengths and placements
-    /// are authored presentation data; retaining explicit source/destination
-    /// records is clearer than hiding lengths in a prefix-sum generator.
+    /// walk these five bounded command streams. Named screen-element cases select
+    /// the resource and destination directly, without persistent record storage.
+    /// This is element selection, not a numerical curve or fitted stream-length rule.
     /// </remarks>
     public static class Text
     {
-        private static readonly GameOverTextStream[] Streams =
-        [
-            new(0x0156, 0x92dc, "GAME OVER"),
-            new(0x038a, 0x9304, "FIND THE METROID LARVA"),
-            new(0x0414, 0x9334, "TRY AGAIN"),
-            new(0x04ce, 0x934c, "YES - RETURN TO GAME"),
-            new(0x05ce, 0x93a0, "NO - GO TO TITLE"),
-        ];
+        public const int Count = 5;
 
-        public static ReadOnlySpan<GameOverTextStream> All => Streams;
+        /// <summary>Selects one native text element; unsupported selectors retain span-style rejection.</summary>
+        public static GameOverTextStream Get(GameOverTextElement element) => element switch
+        {
+            GameOverTextElement.Title => new(0x0156, 0x92dc, "GAME OVER"),
+            GameOverTextElement.Objective => new(0x038a, 0x9304, "FIND THE METROID LARVA"),
+            GameOverTextElement.Prompt => new(0x0414, 0x9334, "TRY AGAIN"),
+            GameOverTextElement.ReturnToGame => new(0x04ce, 0x934c, "YES - RETURN TO GAME"),
+            GameOverTextElement.ReturnToTitle => new(0x05ce, 0x93a0, "NO - GO TO TITLE"),
+            _ => throw new IndexOutOfRangeException(),
+        };
+
+        /// <summary>Enumerates the five native load calls in their original order, without a stored table.</summary>
+        public static IEnumerable<GameOverTextStream> All
+        {
+            get
+            {
+                for (int index = 0; index < Count; index++)
+                    yield return Get((GameOverTextElement)index);
+            }
+        }
     }
 
     /// <summary>Baby Metroid animation record layout and control words.</summary>
     /// <remarks>
-    /// Issues #625 and #973: the four 16-word BGR555 Baby palettes at
-    /// $82:BD97..BE16 match all 64 words in pinned NTSC J/U v1.0 ROM and
-    /// bank_82.asm. The 60 reachable frame records select only these four
-    /// blocks, and rendering copies exactly 16 colors to CGRAM $C0..CF.
-    /// Color slot 0 stays $3800, while all other 15 slots change across
-    /// phases. Fourteen channel sequences are nonmonotonic, and the first
-    /// phase change has seven distinct RGB delta vectors across those slots.
-    /// This is authored illustration color rather than a uniform fade or
-    /// common tint rule; retain the 64 source colors as presentation data.
+    /// The four 16-word BGR555 Baby palettes are at $82:BD97..BE16.
+    /// The animation selects these four blocks and rendering copies sixteen colors
+    /// to CGRAM $C0..CF. Palette payload review is separate from instruction layout.
     /// </remarks>
     public static class BabyAnimation
     {
@@ -96,7 +102,7 @@ public static class GameOverRomData
         /// library-3 effect $23, $26, or $27 and calls the same sound queue.
         /// The game-over Baby stream references those opcodes once each at
         /// $82:BC5D, BCEF, and BD69. Opcode spacing is regular, but the effect
-        /// identities are authored; retain the explicit bounded selector and
+        /// identities select three distinct sound operations; use the named cases and
         /// reject unknown opcodes.
         /// </remarks>
         public static SoundEffectId ResolveCry(ushort opcode) => opcode switch
@@ -119,8 +125,6 @@ public static class GameOverRomData
     /// <summary>Fixed OBJ identities, positions, palettes, and animation timing.</summary>
     public static class Sprites
     {
-        private static readonly ushort[] MissileFrames = [0x37, 0x36, 0x35, 0x34];
-
         public const ushort BabyX = 0x7c;
         public const ushort BabyY = 0x50;
         public static readonly SnesObjAttributeWord BabyPalette = SnesObjPalettes.Index4;
@@ -129,21 +133,25 @@ public static class GameOverRomData
         public const ushort MissileX = 40;
         public const ushort YesMissileY = 160;
         public const ushort NoMissileY = 192;
-        /// <summary>All four $82:BAAA menu missile timer words equal eight calls.</summary>
-        /// <remarks>Issues #625 and #955: pinned NTSC J/U v1.0 ROM and bank_82.asm
-        /// match 4/4. The timer reload is shared with file select and options; the
-        /// adjacent $82:BAB2 spritemap IDs are a separate table. Game-over animation
-        /// may use an editable presentation override.</remarks>
-        public const int MissileFrameDuration = 8;
-        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
-        /// <remarks>Issues #625 and #954: game-over animation wraps modulo this four-word
-        /// span; file select and options expose the same native table. All four words match
-        /// pinned NTSC J/U v1.0 ROM and bank_82.asm.</remarks>
-        public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }
 
     /// <summary>Blank tile used before the text command streams populate BG1.</summary>
     public static readonly SnesBgTilemapWord BlankTile = new(0x000f);
+}
+
+/// <summary>Mutually exclusive game-over text elements in native initialization order.</summary>
+public enum GameOverTextElement
+{
+    /// <summary>$81:9206 loads GAME OVER from $81:92DC to BG1 byte $0156.</summary>
+    Title,
+    /// <summary>$81:920F loads FIND THE METROID LARVA from $81:9304 to BG1 byte $038A.</summary>
+    Objective,
+    /// <summary>$81:9218 loads TRY AGAIN from $81:9334 to BG1 byte $0414.</summary>
+    Prompt,
+    /// <summary>$81:9221 loads YES - RETURN TO GAME from $81:934C to BG1 byte $04CE.</summary>
+    ReturnToGame,
+    /// <summary>$81:922A loads NO - GO TO TITLE from $81:93A0 to BG1 byte $05CE.</summary>
+    ReturnToTitle,
 }
 
 /// <summary>One bank-$81 text command stream and its BG1 byte destination.</summary>

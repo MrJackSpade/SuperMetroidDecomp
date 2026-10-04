@@ -13,7 +13,7 @@ public static class PauseEquipmentLabelExtractor
         var labels = new Dictionary<string, PauseEquipmentLabel>(StringComparer.Ordinal);
         for (int category = 1; category <= 3; category++)
         {
-            PauseEquipmentCategoryDefinition definition = PauseEquipmentCategories.Definitions[category];
+            PauseEquipmentCategoryDefinition definition = PauseEquipmentCategories.Get(category);
             for (int item = 0; item < definition.ItemCount; item++)
             {
                 ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.OffsetTableAddress + item * 2);

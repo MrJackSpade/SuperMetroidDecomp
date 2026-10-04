@@ -32,7 +32,7 @@ public sealed class FileSelectStationMarker
 
     public ushort MapX { get; private set; }
     public ushort MapY { get; private set; }
-    public ushort SpritemapId => PauseMapIndicatorAnimation.SpritemapIds[frame];
+    public ushort SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
     public bool ShowBacking => (loops & 1) == 0;
 
     /// <summary>One menu tick, before drawing; the initial zero timer advances immediately to frame one.</summary>
@@ -41,12 +41,12 @@ public sealed class FileSelectStationMarker
         if (timer == 0)
         {
             frame++;
-            if (frame == PauseMapIndicatorAnimation.SpritemapIds.Length)
+            if (frame == PauseMapIndicatorAnimation.FrameCount)
             {
                 frame = 0;
                 loops = unchecked((ushort)(loops + 1));
             }
-            timer = PauseMapIndicatorAnimation.FrameDelays[frame];
+            timer = PauseMapIndicatorAnimation.FrameDelay(frame);
         }
         timer--;
     }

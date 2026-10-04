@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 
@@ -6,22 +7,39 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-selector anchors, visual animation and compositions; selection rules stay compiled.</summary>
 public sealed class PauseSelectorPresentation
 {
-    private readonly Dictionary<string, MapLabelPoint> anchors;
-    private readonly (int Duration, SpriteComposition Reserve, SpriteComposition Beam, SpriteComposition Equipment)[] phases;
+    private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
+    private readonly PhaseComposition reserve, beam, equipment;
+    private readonly Dictionary<int, int>? durationOverrides;
+    internal int StoredDurationCount => durationOverrides?.Count ?? 0;
     public int InitialDurationTicks { get; }
     public ushort PaletteBits { get; }
-    public int PhaseCount => phases.Length;
-    private PauseSelectorPresentation(Dictionary<string, MapLabelPoint> anchors,
-        (int, SpriteComposition, SpriteComposition, SpriteComposition)[] phases, int initialDuration, int palette)
-    { this.anchors = anchors; this.phases = phases; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
-    public MapLabelPoint Anchor(int category, int item) => anchors[PauseSelectorDefinitions.Anchor(category, item)];
-    public int NormalizePhase(int phase) => phase >= 0 ? phase % phases.Length : throw new ArgumentOutOfRangeException(nameof(phase));
-    public int Duration(int phase) => phases[NormalizePhase(phase)].Duration;
+    public int PhaseCount { get; }
+    internal bool StoresCompositionParts => reserve.StoresParts || beam.StoresParts || equipment.StoresParts;
+    internal int StoredCompositionOverrideCount => reserve.OverrideCount + beam.OverrideCount + equipment.OverrideCount;
+    private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
+        PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
+        Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
+    { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    internal int StoredAnchorComponentCount => anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
+    public MapLabelPoint Anchor(int category, int item)
+    {
+        string name = PauseSelectorDefinitions.Anchor(category, item);
+        var basis = PauseSelectorDefinitions.StockAnchor(category, item);
+        return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+    }
+    public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
+    /// <summary>Calculates the shared native dwell rule after cyclic phase normalization.</summary>
+    public int Duration(int phase)
+    {
+        int normalized = NormalizePhase(phase);
+        return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
+            ? duration : MenuSelectorTiming.Duration(normalized);
+    }
     public void Draw(OamBuffer oam, int category, int item, int phase)
     {
         var point = Anchor(category, item);
-        var current = phases[NormalizePhase(phase)];
-        var composition = category switch { 0 => current.Reserve, 1 => current.Beam, _ => current.Equipment };
+        int normalized = NormalizePhase(phase);
+        var composition = (category switch { 0 => reserve, 1 => beam, _ => equipment }).Get(normalized);
         composition.DrawOnScreen(oam, (ushort)point.X, (ushort)point.Y, PaletteBits);
     }
     public static PauseSelectorPresentation Load(Stream json)
@@ -35,21 +53,24 @@ public sealed class PauseSelectorPresentation
             document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorDefinitions.MaximumFrames ||
             document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorDefinitions.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
-        var anchors = new Dictionary<string, MapLabelPoint>();
+        var anchorOverrides = new Dictionary<string, (int? X, int? Y)>();
         foreach (var definition in PauseSelectorDefinitions.Anchors())
         {
             if (!document.Anchors.TryGetValue(definition.Name, out var point) || point is null || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {definition.Name} requires screen coordinates X=0..255/Y=0..223.");
-            anchors.Add(definition.Name, point);
+            var basis = PauseSelectorDefinitions.StockAnchor(definition.Category, definition.Item);
+            if (point.X != basis.X || point.Y != basis.Y)
+                anchorOverrides.Add(definition.Name, (point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }
-        var frames = new Dictionary<string, SpriteComposition>();
+        var frames = new Dictionary<string, PauseSelectorVisual>();
         foreach (var frame in document.Frames)
         {
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
-            frames.Add(frame.Key, MenuSpriteCompiler.Compile(frame.Value, frame.Key));
+            frames.Add(frame.Key, PauseSelectorVisual.Compile(frame.Value, frame.Key));
         }
-        var phases = new (int, SpriteComposition, SpriteComposition, SpriteComposition)[document.Animation.Length];
-        for (int i = 0; i < phases.Length; i++)
+        PhaseComposition? reservePhases = null, beamPhases = null, equipmentPhases = null;
+        Dictionary<int, int>? durationOverrides = null;
+        for (int i = 0; i < document.Animation.Length; i++)
         {
             var phase = document.Animation[i];
             if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorDefinitions.MaximumDuration ||
@@ -57,9 +78,33 @@ public sealed class PauseSelectorPresentation
                 phase.Beam is null || !frames.TryGetValue(phase.Beam, out var beam) ||
                 phase.Equipment is null || !frames.TryGetValue(phase.Equipment, out var equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            phases[i] = (phase.DurationTicks, reserve, beam, equipment);
+            if (i == 0)
+            {
+                reservePhases = new(reserve); beamPhases = new(beam); equipmentPhases = new(equipment);
+            }
+            else
+            {
+                reservePhases!.Capture(i, reserve); beamPhases!.Capture(i, beam); equipmentPhases!.Capture(i, equipment);
+            }
+            if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
+                (durationOverrides ??= new()).Add(i, phase.DurationTicks);
         }
-        return new(anchors, phases, document.InitialDurationTicks, document.Palette);
+        return new(anchorOverrides, reservePhases!, beamPhases!, equipmentPhases!, document.Animation.Length, durationOverrides, document.InitialDurationTicks, document.Palette);
+    }
+    /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
+    /// holds its base composition. Capture only explicitly authored phase differences.</summary>
+    private sealed class PhaseComposition(PauseSelectorVisual basis)
+    {
+        private readonly PauseSelectorVisual basis = basis;
+        private Dictionary<int, PauseSelectorVisual>? overrides;
+        public bool StoresParts => basis.StoresParts || (overrides?.Values.Any(value => value.StoresParts) ?? false);
+        public int OverrideCount => overrides?.Count ?? 0;
+        public void Capture(int phase, PauseSelectorVisual value)
+        {
+            if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
+        }
+        public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
+            ? value : basis;
     }
     public static void Write(Stream output, PauseSelectorDocument document)
     {

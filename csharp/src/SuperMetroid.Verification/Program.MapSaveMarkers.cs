@@ -10,23 +10,70 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
-    private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    private static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
-        var guard = new SaveMarkerReadGuard(bus);
+        var expectedIds = new List<string>();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SavePointMapPointers + area * 2);
             int nativeMask = 0;
+            var expectedIndices = new List<int>();
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (pointer + index * 4));
-                if (x == ushort.MaxValue) break;
-                if (x != ushort.MaxValue - 1) nativeMask |= 1 << index;
+                AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
+                bool usable = x != ushort.MaxValue - 1;
+                AssertEqual(usable, MapSaveMarkerDefinitions.IsUsable((AreaId)area, index),
+                    "compiled active placement agrees with original marker presence");
+                if (usable)
+                {
+                    nativeMask |= 1 << index;
+                    expectedIndices.Add(index);
+                    string id = $"{(AreaId)area}.Save.{index}";
+                    expectedIds.Add(id);
+                    AssertEqual(id, MapSaveMarkerDefinitions.Id((AreaId)area, index), "stable marker identity");
+                }
+                else
+                    AssertThrows<InvalidDataException>(() => MapSaveMarkerDefinitions.Id((AreaId)area, index),
+                        "native unused marker remains rejected");
             }
+            AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkerDefinitions.Indices((AreaId)area)),
+                "lazy enumeration preserves native ascending station order");
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
                 AssertEqual((mask & nativeMask) != 0, MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, (ushort)mask),
                     "every used-station mask retains native area-label eligibility");
+            foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.IsUsable((AreaId)area, invalid),
+                    "station bounds precede byte narrowing");
+                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.Id((AreaId)area, invalid),
+                    "ID station bounds remain rejected");
+            }
         }
+        AssertEqual(34, expectedIds.Count, "all original marker identities");
+        AssertTrue(expectedIds.SequenceEqual(MapSaveMarkerDefinitions.AllIds()), "full marker identity enumeration order");
+        foreach (AreaId invalid in new[] { AreaId.Ceres, (AreaId)7, (AreaId)255 })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkerDefinitions.Indices(invalid); },
+                "invalid area rejects without enumerating the lazy sequence");
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkerDefinitions.HasUsedMarker(invalid, 0),
+                "invalid area rejects even an empty used mask");
+            try
+            {
+                MapSaveMarkerDefinitions.Id(invalid, -1);
+                throw new InvalidOperationException("Invalid marker area/index accepted.");
+            }
+            catch (ArgumentOutOfRangeException error)
+            {
+                AssertEqual("area", error.ParamName!, "area validation retains precedence over index validation");
+            }
+        }
+    }
+
+    private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    {
+        var guard = new SaveMarkerReadGuard(bus);
+        VerifySaveMarkerEligibility(bus);
         int valid = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)

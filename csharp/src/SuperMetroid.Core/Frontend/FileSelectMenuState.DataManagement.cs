@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed partial class FileSelectMenuState
 {
-    private static readonly ushort[] DataManagementSelectionY = [72, 104, 136, 211];
-
     private FileSelectDataMode pendingDataMode;
     private FileSelectPhase phaseAfterFadeIn;
     private bool showDataManagementScreen;
@@ -37,12 +35,12 @@ public sealed partial class FileSelectMenuState
     {
         if ((pressed & SnesButton.Up) != 0)
         {
-            MoveMainSelection(-1);
+            MoveMainSelection(down: false);
             QueueCursorSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            MoveMainSelection(1);
+            MoveMainSelection(down: true);
             QueueCursorSound();
         }
 
@@ -83,14 +81,8 @@ public sealed partial class FileSelectMenuState
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
     }
 
-    private void MoveMainSelection(int direction)
-    {
-        int[] selectable = HasAnySave ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 5];
-        int current = Array.IndexOf(selectable, SelectedItem);
-        if (current < 0)
-            throw new InvalidDataException($"File-select item {SelectedItem} is not currently visible.");
-        SelectedItem = selectable[(current + direction + selectable.Length) % selectable.Length];
-    }
+    private void MoveMainSelection(bool down) =>
+        SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, down);
 
     private void StepDataManagementFade()
     {
@@ -175,13 +167,11 @@ public sealed partial class FileSelectMenuState
 
     private void StepSlotSelection(SnesButton pressed, bool sourceSelection)
     {
-        int[] selectable = saveSlots
-            .Select((slot, index) => (slot, index))
-            .Where(entry => entry.slot is not null)
-            .Select(entry => entry.index)
-            .Append(3)
-            .ToArray();
-        MoveSubmenuSelection(pressed, selectable);
+        int occupiedSlots = 0;
+        for (int slot = 0; slot < FileSelectLayout.SaveSlotCount; slot++)
+            if (saveSlots[slot] is not null) occupiedSlots |= 1 << slot;
+        MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
+            submenuSelection, occupiedSlots, pressed));
 
         if ((pressed & SnesButton.B) != 0 ||
             ((pressed & (SnesButton.Start | SnesButton.A)) != 0 && submenuSelection == 3))
@@ -214,11 +204,8 @@ public sealed partial class FileSelectMenuState
 
     private void StepCopyDestination(SnesButton pressed)
     {
-        int[] selectable = Enumerable.Range(0, 3)
-            .Where(slot => slot != operationSourceSlot)
-            .Append(3)
-            .ToArray();
-        MoveSubmenuSelection(pressed, selectable);
+        MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
+            submenuSelection, operationSourceSlot, pressed));
         if ((pressed & SnesButton.B) != 0)
         {
             QueueCursorSound();
@@ -302,19 +289,11 @@ public sealed partial class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
-    private void MoveSubmenuSelection(SnesButton pressed, int[] selectable)
+    private void MoveSubmenuSelection(int next)
     {
-        int current = Array.IndexOf(selectable, submenuSelection);
-        if (current < 0)
-            throw new InvalidDataException($"Submenu item {submenuSelection} is not selectable.");
-        int next = current;
-        if ((pressed & SnesButton.Up) != 0)
-            next = Math.Max(0, current - 1);
-        else if ((pressed & SnesButton.Down) != 0)
-            next = Math.Min(selectable.Length - 1, current + 1);
-        if (next == current)
+        if (next == submenuSelection)
             return;
-        submenuSelection = selectable[next];
+        submenuSelection = next;
         QueueCursorSound();
     }
 
@@ -445,15 +424,15 @@ public sealed partial class FileSelectMenuState
 
     private void DrawDataManagementSlots()
     {
-        LoadMenuTilemap(FileSelectLayout.DataSlotALabelDestination, FileSelectTilemaps.SamusA);
-        DrawFileSlot(saveSlots[0], FileSelectLayout.DataSlotAEnergyDestination, FileSelectLayout.DataSlotATimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotATimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotBLabelDestination, FileSelectTilemaps.SamusB);
-        DrawFileSlot(saveSlots[1], FileSelectLayout.DataSlotBEnergyDestination, FileSelectLayout.DataSlotBTimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotBTimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotCLabelDestination, FileSelectTilemaps.SamusC);
-        DrawFileSlot(saveSlots[2], FileSelectLayout.DataSlotCEnergyDestination, FileSelectLayout.DataSlotCTimeValueDestination);
-        LoadMenuTilemap(FileSelectLayout.DataSlotCTimeLabelDestination, FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
+        DrawFileSlot(saveSlots[0], FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(1));
+        DrawFileSlot(saveSlots[1], FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(2));
+        DrawFileSlot(saveSlots[2], FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
     }
 
     private static void AddConfirmationText()
@@ -484,10 +463,10 @@ public sealed partial class FileSelectMenuState
             return (checked((ushort)point.X), checked((ushort)point.Y));
         }
         if (!showDataManagementScreen)
-            return (14, FileSelectLayout.MainSelectionY[SelectedItem]);
+            return (14, FileSelectLayout.MainSelectionY(SelectedItem));
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
             return (94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
-        return (22, DataManagementSelectionY[submenuSelection]);
+        return (22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
     private void UploadBg1Tilemap() =>

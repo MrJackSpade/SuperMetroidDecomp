@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -7,30 +8,44 @@ public static class MapSaveMarkerDefinitions
 {
     /// <summary>$82:C80B lists retain sixteen station-index slots per area, including unused entries.</summary>
     public const int SlotsPerArea = 16;
-    /// <summary>$82:C853: Crateria's usable save/elevator marker indices.</summary>
-    private static readonly int[] crateria = [0, 1, 8, 9, 10, 11, 12];
-    /// <summary>$82:C8BD: Brinstar's usable save/elevator marker indices.</summary>
-    private static readonly int[] brinstar = [0, 1, 2, 3, 4, 8, 9, 10, 11];
-    /// <summary>$82:C923: Norfair's usable save/elevator marker indices.</summary>
-    private static readonly int[] norfair = [0, 1, 2, 3, 4, 5, 8, 9, 10];
-    /// <summary>$82:C991: Wrecked Ship's sole usable save marker.</summary>
-    private static readonly int[] wreckedShip = [0];
-    /// <summary>$82:C9F3: Maridia's usable save/elevator marker indices.</summary>
-    private static readonly int[] maridia = [0, 1, 2, 3, 8];
-    /// <summary>$82:CA51: Tourian's usable save/elevator marker indices.</summary>
-    private static readonly int[] tourian = [0, 1, 8];
-
-    public static ReadOnlySpan<int> Indices(AreaId area) => area switch
+    /// <summary>Enumerates usable save/elevator identities in native slot order.</summary>
+    /// <remarks>
+    /// Independently reviewed for #1165: each of the six original sixteen-slot marker
+    /// views at $82:C80B has a usable coordinate exactly when the corresponding compiled
+    /// load-station record has a nonzero room pointer. Unused slots have FFFE coordinates
+    /// and a zero-room placement. Enumerate that existing semantic definition rather
+    /// than store a second list of station identities. Validate the area immediately,
+    /// before returning the lazy sequence, preserving the previous span API's rejection.
+    /// </remarks>
+    public static IEnumerable<int> Indices(AreaId area)
     {
-        AreaId.Crateria => crateria, AreaId.Brinstar => brinstar, AreaId.Norfair => norfair,
-        AreaId.WreckedShip => wreckedShip, AreaId.Maridia => maridia, AreaId.Tourian => tourian,
-        _ => throw new ArgumentOutOfRangeException(nameof(area), "Only Zebes areas have save-map markers.")
-    };
+        ValidateArea(area);
+        return Enumerate();
+
+        IEnumerable<int> Enumerate()
+        {
+            for (int index = 0; index < SlotsPerArea; index++)
+                if (LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0)
+                    yield return index;
+        }
+    }
+
+    /// <summary>Whether a bounded station identity has an active placement and map marker.</summary>
+    public static bool IsUsable(AreaId area, int index)
+    {
+        ValidateArea(area);
+        if ((uint)index >= SlotsPerArea) throw new ArgumentOutOfRangeException(nameof(index));
+        return LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0;
+    }
+
+    private static void ValidateArea(AreaId area)
+    {
+        if ((uint)area >= FileSelectMapRomData.AreaCount)
+            throw new ArgumentOutOfRangeException(nameof(area), "Only Zebes areas have save-map markers.");
+    }
     public static string Id(AreaId area, int index)
     {
-        var indices = Indices(area);
-        if ((uint)index >= SlotsPerArea) throw new ArgumentOutOfRangeException(nameof(index));
-        if (!indices.Contains(index)) throw new InvalidDataException($"Area {area} has no map coordinate for station {index}.");
+        if (!IsUsable(area, index)) throw new InvalidDataException($"Area {area} has no map coordinate for station {index}.");
         return $"{area}.Save.{index}";
     }
     /// <summary>$81:A97E DrawAreaSelectMapLabels: at least one used, non-unused save-coordinate slot.</summary>
@@ -43,6 +58,6 @@ public static class MapSaveMarkerDefinitions
     public static IEnumerable<string> AllIds()
     {
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
-            foreach (int index in Indices((AreaId)area).ToArray()) yield return Id((AreaId)area, index);
+            foreach (int index in Indices((AreaId)area)) yield return Id((AreaId)area, index);
     }
 }

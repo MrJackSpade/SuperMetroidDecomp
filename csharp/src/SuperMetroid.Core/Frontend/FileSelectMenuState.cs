@@ -136,9 +136,9 @@ public sealed partial class FileSelectMenuState
             case FileSelectPhase.TurnSelectedHelmet:
                 if (--helmetAnimationTimer <= 0)
                 {
-                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? 8;
+                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
                     helmetAnimationFrame++;
-                    if (helmetAnimationFrame >= 7)
+                    if (helmetAnimationFrame >= FileSelectHelmetAnimation.FrameCount - 1)
                         Phase = FileSelectPhase.FadeOutToOptions;
                 }
                 // The native routine also permits Start/A to end the turn early.
@@ -209,7 +209,7 @@ public sealed partial class FileSelectMenuState
                         FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                     ? helmetAnimationFrame
                     : 0;
-                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, 7), slot);
+                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
             }
             oam.FinalizeFrame();
             return;
@@ -225,7 +225,7 @@ public sealed partial class FileSelectMenuState
         {
             (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
             DrawMenuSpritemap(
-                FileSelectLayout.MissileSpritemapIds[missileAnimationFrame],
+                MenuMissileAnimationDefinitions.SpritemapId(missileAnimationFrame),
                 missileX,
                 missileY);
         }
@@ -239,9 +239,9 @@ public sealed partial class FileSelectMenuState
                 ? helmetAnimationFrame
                 : 0;
             DrawMenuSpritemap(
-                (ushort)(0x2c + Math.Min(frame, 7)),
+                FileSelectHelmetAnimation.SpritemapId(Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1)),
                 100,
-                FileSelectLayout.HelmetY[slot]);
+                FileSelectLayout.HelmetY(slot));
         }
         oam.FinalizeFrame();
 
@@ -260,34 +260,34 @@ public sealed partial class FileSelectMenuState
         // Native `ClearMenuTilemap` fills every word with character $00F (blank).
         Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
         LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemaps.SamusData);
-        LoadMenuTilemap(FileSelectLayout.SlotALabelDestination, FileSelectTilemaps.SamusA);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
         // `$81:A08E-$81:A096` adds one complete $40-byte tilemap row to the slot's
         // energy-field origin before loading NO DATA. The leading blank word in the ROM
         // string then places N at column 15. Using $01BC here would instead begin at column
         // 30, putting N in column 31 and wrapping O DATA onto the following scanline.
         DrawFileSlot(
             saveSlots[0],
-            FileSelectLayout.SlotAEnergyDestination,
-            FileSelectLayout.SlotATimeValueDestination);
+            FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Energy),
+            FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeValue));
         // `$81:9F3A` conditionally draws only the numeric HH:MM value. The following
         // `$81:9F3D-$81:9F43` tilemap load is unconditional, so the static TIME caption
         // remains visible even when slot A is empty and its numeric fields are omitted.
-        LoadMenuTilemap(FileSelectLayout.SlotATimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.SlotBLabelDestination, FileSelectTilemaps.SamusB);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(1));
         DrawFileSlot(
             saveSlots[1],
-            FileSelectLayout.SlotBEnergyDestination,
-            FileSelectLayout.SlotBTimeValueDestination);
+            FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
+            FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeValue));
         // Slot B repeats the same native split between conditional digits and an
         // unconditional ROM-authored caption (`$81:9F70-$81:9F79`).
-        LoadMenuTilemap(FileSelectLayout.SlotBTimeLabelDestination, FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.SlotCLabelDestination, FileSelectTilemaps.SamusC);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(2));
         DrawFileSlot(
             saveSlots[2],
-            FileSelectLayout.SlotCEnergyDestination,
-            FileSelectLayout.SlotCTimeValueDestination);
+            FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Energy),
+            FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeValue));
         // Slot C's caption is likewise loaded unconditionally at `$81:9FA9-$81:9FAF`.
-        LoadMenuTilemap(FileSelectLayout.SlotCTimeLabelDestination, FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
         if (saveSlots.Any(slot => slot is not null))
         {
             // Native index 16 exposes both data-management entries only when at least one
@@ -356,7 +356,7 @@ public sealed partial class FileSelectMenuState
         if (--missileAnimationTimer != 0)
             return;
         missileAnimationFrame = (missileAnimationFrame + 1) & 3;
-        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? 8;
+        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     private void ApplyBrightness(Span<Rgba32> pixels)

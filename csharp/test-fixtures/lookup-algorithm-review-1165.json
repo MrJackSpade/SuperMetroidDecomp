@@ -7319,4 +7319,14 @@
     "proof":"Extend the existing single small-font and large-font original-table proofs, without duplicates. All2624/2752 original pixels, both full8192-byte uploads, every independent pixel edit, selected all16 colors, full custom regions and rejected inputs pass. Assert exactly3 source differences for each owner and their exact reopened positions.",
     "confirmation":"Final Verification build succeeds with0 errors and1429 existing warnings. Both --lookup-menu-small-font and --lookup-menu-large-font pass against final guarded geometry. Closed source hashes refreshed. Implementation commit is the commit adding this entry. The ticket remains active."
   }
+,
+  "menuThinBorderPixelReview": {
+    "status":"converted both thin border cells to exact line geometry",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/MenuThinBorderArtwork.cs","csharp/src/SuperMetroid.Core/Assets/MapObjectTileArtwork.cs"],
+    "source":"Supported-ROM B6:D5A0..D5DF, menu atlas cellsAD/AE. Pinned bank_B6 identifies the containing8192-byte menu/pause sprite resource. The maintained full-sheet importer and both VRAM uploads include these cells. No specific native spritemap use is inferred from unrelated BG tile numbers.",
+    "algorithm":"Horizontal bodyAD draws index6 across row1. Left cornerAE draws the same row plus column0 below it. All other pixels are0. The complete128-pixel domain is straight-line geometry, with no basis image, pixel exception or generated cache.",
+    "storage":"Remove64 planar bytes. The two stock cells have zero retained deviations; independently supplied edits remain supported. Remaining105 raw atlas cells occupy3360 bytes and remain required review.",
+    "proof":"One independent VerifyMenuThinBorderPixels / --lookup-menu-thin-border-pixels proof explicitly listsAD/AE, compares all128 original pixels, checks both8192-byte uploads, every independently edited pixel, all16 colors at selected locations, complete-region replacement and invalid domains. Twelve existing atlas-family proofs confirm the changed shared compaction and independent edit ownership.",
+    "confirmation":"Verification build0 errors; full build1429 existing warnings, final incremental build25. New thin-border proof and all twelve affected existing atlas proofs pass. Closed source dependencies/hashes and maintained-source index refreshed. Implementation commit is the commit adding this entry. No retention exception is assigned."
+  }
 }

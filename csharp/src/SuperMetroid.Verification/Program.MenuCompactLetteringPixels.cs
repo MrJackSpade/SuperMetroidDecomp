@@ -17,7 +17,7 @@ internal static partial class Program
         AssertTrue(!font.HasPixelOverride(0xb7, 6, 2), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
         AssertTrue(!font.HasPixelOverride(0xaa, 0, 4), "START R's enclosed shadow gap is calculated without an override");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3424, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
+        AssertEqual(3360, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

@@ -16,7 +16,7 @@ internal static partial class Program
         AssertTrue(font.HasPixelOverride(0x74, 6, 2), "first K arm removal remains pending");
         AssertTrue(font.HasPixelOverride(0x74, 5, 3), "second K arm removal remains pending");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3424, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
+        AssertEqual(3360, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

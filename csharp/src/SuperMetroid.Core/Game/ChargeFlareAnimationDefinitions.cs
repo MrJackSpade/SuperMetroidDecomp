@@ -17,27 +17,28 @@ internal static class ChargeFlareAnimationDefinitions
     internal const ushort GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const ushort GrappleInitialDelay = 3;
-    private static ReadOnlySpan<ushort> Pointers => [MainFlare, SlowSparks, FastSparks];
-    private static ReadOnlySpan<byte> Delays =>
-    [
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, Rewind, 14,
-        5, 4, 3, 3, 3, 3, Restart,
-        4, 3, 2, 2, 2, 2, Restart,
-    ];
-
     internal static byte ReadByte(int address)
     {
         int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
-        if ((uint)pointerByte < Pointers.Length * 2)
-            return (byte)(Pointers[pointerByte / 2] >> (pointerByte % 2 * 8));
+        if ((uint)pointerByte < 6)
+        {
+            ushort pointer = (pointerByte / 2) switch { 0 => MainFlare, 1 => SlowSparks, _ => FastSparks };
+            return (byte)(pointer >> (pointerByte % 2 * 8));
+        }
         int delay = address - (SamusProjectileRomData.Banks.Movement | MainFlare);
-        return (uint)delay < Delays.Length
-            ? Delays[delay]
-            : throw new InvalidDataException(
-                $"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
-    }
+        if ((uint)delay >= 46)
+            throw new InvalidDataException($"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
+        if (delay < 30) return 3;
+        if (delay == 30) return Rewind;
+        if (delay == 31) return 14;
 
+        // Each spark cycle ramps down for two frames, holds its minimum for
+        // four frames, then restarts. Fast sparks are one frame quicker throughout.
+        int sparkOffset = address - (SamusProjectileRomData.Banks.Movement | SlowSparks);
+        int frame = sparkOffset % 7;
+        int minimum = sparkOffset < 7 ? 3 : 2;
+        return frame == 6 ? Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
+    }
     internal static ushort ReadWord(int address) =>
         (ushort)(ReadByte(address) | ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
 }

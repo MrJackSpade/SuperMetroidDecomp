@@ -50,6 +50,8 @@ if (args is ["--lookup-stream-1"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
     VerifyLookupStream1(rom);
+    VerifyBullInstructionProgramDefinitions(rom);
+    VerifyChargeFlareDefinitions(rom);
     Console.WriteLine("Stream 1 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }

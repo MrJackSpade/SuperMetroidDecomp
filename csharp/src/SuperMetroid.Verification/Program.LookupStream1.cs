@@ -6,6 +6,7 @@ internal static partial class Program
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         VerifyLookupStream1EnemyMovement(rom);
+        VerifyLookupStream1CadencePrograms(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (ushort medium = 0; medium < 3; medium++)
         {
@@ -62,5 +63,65 @@ internal static partial class Program
             AssertEqual(Word(0x86d96a + direction), CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)direction), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
+    }
+    private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int address = 0x90c481; address < 0x90c4b5; address++)
+        {
+            AssertEqual(rom.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(address), "stream1 original flare pointer/cadence byte");
+            if (address < 0x90c4b4)
+                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address), "stream1 original flare unaligned word");
+        }
+        foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
+        Check(0xa80000, 0xd841, 0xd871, BullInstructionProgramDefinitions.MechanicsWordCount,
+            BullInstructionProgramDefinitions.PresentationWordCount,
+            i => { var word = BullInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
+            BullInstructionProgramDefinitions.PresentationWordAddress, BullInstructionProgramDefinitions.ReadMechanicsWord,
+            BullInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            a => a is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867);
+        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitions.MechanicsWordCount,
+            CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
+            i => { var word = CacatacProjectileInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
+            CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord,
+            CacatacProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            a => (a - 0xd930) % 6 == 0);
+        for (int address = 0xd840; address <= 0xd871; address++)
+            AssertEqual(address is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867,
+                BullInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream1 Bull exact presentation classification");
+
+        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount,
+            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
+            Func<ushort, ushort> read, Func<int, bool> owns, Func<int, bool> isVisual)
+        {
+            int mechanical = 0, visual = 0;
+            for (int address = first; address < end; address += 2)
+            {
+                bool selectedVisual = isVisual(address);
+                if (selectedVisual)
+                {
+                    AssertEqual((ushort)address, presentation(visual++), "stream1 native presentation operand ordering");
+                    AssertThrows<InvalidDataException>(() => read((ushort)address), "stream1 presentation excluded from mechanics");
+                }
+                else
+                {
+                    var actual = mechanics(mechanical++);
+                    AssertEqual((ushort)address, actual.Address, "stream1 native mechanics address ordering");
+                    AssertEqual(Word(bank | address), actual.Value, "stream1 original program mechanics value");
+                    AssertEqual(actual.Value, read((ushort)address), "stream1 direct program mechanics value");
+                }
+                AssertEqual(!selectedVisual, owns(bank | address), "stream1 program low-byte ownership");
+                AssertEqual(!selectedVisual, owns(bank | (address + 1)), "stream1 program high-byte ownership");
+                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "stream1 unaligned program word rejection");
+            }
+            AssertEqual(mechanicsCount, mechanical, "stream1 exact mechanics count");
+            AssertEqual(presentationCount, visual, "stream1 exact presentation count");
+            AssertTrue(!owns(bank | (first - 1)) && !owns(bank | end) && !owns((bank ^ 0x10000) | first), "stream1 outside program byte rejection");
+            foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "stream1 mechanics enumeration bounds");
+            foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream1 presentation enumeration bounds");
+        }
     }
 }

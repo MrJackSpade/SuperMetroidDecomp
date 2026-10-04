@@ -1075,7 +1075,7 @@
                         "tables":  [
                                        {
                                            "id":  "spc-pan-gain-curve",
-                                           "state":  "unreviewed",
+                                           "state":  "pending",
                                            "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
                                            "nativeIdentity":  "CF:8A25..8A39,21 pan bytes atSPC1E1D..1E31; local interpolation additionally aliases the first FIR coefficient atCF:8A3A/SPC1E32",
                                            "consumers":  [
@@ -8178,6 +8178,112 @@
       "field": "CompletesScene",
       "review": "ceresZebesActorMetadataReview",
       "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    }
+  ]
+}
+,"spcReviewReconciliation":{
+  "sourceRevision": "df3cbabd0e59a4628c545d27a4e68014f49b0434",
+  "meaning": "Reconcile already implemented and independently proven SPC mappings. These entries link source owners to detailed evidence; no whole-file completion, unreviewed helper coverage or pan-curve retention is inferred.",
+  "entries": [
+    {
+      "id": "spc-library-1-stream-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "StreamPointer",
+      "library": 1,
+      "review": "spcSoundStreamDispatchReview",
+      "proof": "VerifySpcSoundStream1",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-library-1-policy-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "Configuration",
+      "library": 1,
+      "review": "spcSoundPolicyDispatchReview",
+      "proof": "VerifySpcSoundPolicy1",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-library-2-stream-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "StreamPointer",
+      "library": 2,
+      "review": "spcSoundStreamDispatchReview",
+      "proof": "VerifySpcSoundStream2",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-library-2-policy-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "Configuration",
+      "library": 2,
+      "review": "spcSoundPolicyDispatchReview",
+      "proof": "VerifySpcSoundPolicy2",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-library-3-stream-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "StreamPointer",
+      "library": 3,
+      "review": "spcSoundStreamDispatchReview",
+      "proof": "VerifySpcSoundStream3",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-library-3-policy-dispatch",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "Configuration",
+      "library": 3,
+      "review": "spcSoundPolicyDispatchReview",
+      "proof": "VerifySpcSoundPolicy3",
+      "consumerContract": "One-based sound command; runtime, extractor and manifest validator share the selector. Original command bounds and exception behavior preserved."
+    },
+    {
+      "id": "spc-allocation-address-voicebitset",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "AllocationStateAddress",
+      "field": "VoiceBitset",
+      "review": "spcAllocationLayoutReview",
+      "proof": "VerifySpcAllocationAddresses (one shared original layout proof, including every channel and invalid field/library)",
+      "consumerContract": "Library structure base plus native field offset; caller adds channel index with unchanged ushort conversion."
+    },
+    {
+      "id": "spc-allocation-address-channelmask",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "AllocationStateAddress",
+      "field": "ChannelMask",
+      "review": "spcAllocationLayoutReview",
+      "proof": "VerifySpcAllocationAddresses (one shared original layout proof, including every channel and invalid field/library)",
+      "consumerContract": "Library structure base plus native field offset; caller adds channel index with unchanged ushort conversion."
+    },
+    {
+      "id": "spc-allocation-address-voiceindex",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "member": "AllocationStateAddress",
+      "field": "VoiceIndex",
+      "review": "spcAllocationLayoutReview",
+      "proof": "VerifySpcAllocationAddresses (one shared original layout proof, including every channel and invalid field/library)",
+      "consumerContract": "Library structure base plus native field offset; caller adds channel index with unchanged ushort conversion."
+    },
+    {
+      "id": "spc-pan-adjacent-fir-byte",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+      "member": "PanVolume",
+      "field": "Index21 only",
+      "review": "spcPanAdjacentFirBoundaryReview",
+      "proof": "VerifySpcPanSamples (original local view including the adjacent FIR byte)",
+      "consumerContract": "Only the index21 compatibility result is resolved. The21 pan samples remain the separate pending spc-pan-gain-curve entry. Mutable SPC RAM reads for actual panIndex21..255 remain caller-owned."
     }
   ]
 }

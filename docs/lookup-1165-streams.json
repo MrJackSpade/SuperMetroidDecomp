@@ -2895,7 +2895,7 @@
     {
       "stream": 3,
       "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.Helpers.cs",
-      "purpose": "Adapt corpse, escape-text and exploded-door transfer helpers to calculated source and destination methods"
+      "purpose": "Adapt corpse, escape-text and exploded-door transfers and painful walking timer callers to calculated domain APIs"
     },
     {
       "stream": 2,
@@ -2906,6 +2906,26 @@
       "stream": 3,
       "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainEscapeTextArtwork.cs",
       "purpose": "Adapt five-page escape text fixture to calculated transfer API while preserving assertions"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresSteamInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete visual read count and verify all compiled operands against native source"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresFallingDebrisInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete visual read count and verify compiled operands against native source"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
+      "purpose": "Remove rejected Power Bomb palette retention rationale; document actual derivation and unresolved tail"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainPainfulWalkingDefinitions.cs",
+      "purpose": "Calculate painful walking stagger curves in a dedicated domain catalog"
     }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

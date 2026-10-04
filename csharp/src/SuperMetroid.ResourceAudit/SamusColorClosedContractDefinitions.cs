@@ -42,7 +42,7 @@ internal static class SamusColorClosedContractDefinitions
             "The private-constructor loader requires all six RGB5 colors and compiles independent words. Resolve guards its index. TryResolveByteOffset is a membership query: unsupported/odd offsets return false, not a missing-resource demand. Caller fallback behavior and X-ray clocks are not certified."),
         new("SuperMetroid.Core.Assets.CrystalFlashColorCatalog", "crystal-flash-complete-color-streams", ["ApplyBody", "ApplyBubble", "ResolveBody", "ResolveBubble"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs", "B099D0E15EEA61DEEDEDD46F0D49F5971CC3AAE205F0B6E00FAB4456DED171A4")],
+             new("csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs", "2753A933D4FA4FC83264517F702E29FFBCDD12F6E8E9051D09401D946AF5298C")],
             "Private construction requires ten ten-color body rows and six six-color bubble rows, compiled independently. Each reviewed method guards its own frame/color bounds rather than the other stream's larger domain. Timers, radius and healing are outside this proof."),
         new("SuperMetroid.Core.Assets.PowerBombFixedColorCatalog", "power-bomb-complete-fixed-colors", ["Resolve"],
             [PaletteDefinitions,

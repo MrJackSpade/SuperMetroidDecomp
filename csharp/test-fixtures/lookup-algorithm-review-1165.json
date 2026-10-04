@@ -10475,4 +10475,14 @@
     "confirmation": "Integrated Verification build1436warnings,zeroerrors; --lookup-stream-1 passes including complete relevant pose input domain and invalid253..255 handling. Existing behavioral oracle preserved while row-span checks changed to direct program emptiness checks. Source index refreshed.",
     "remaining": "201 of1128 snapshot definitions converted;927 pending. All streams remain unfinished. No retention exception."
   }
+,
+  "crystalBubbleRampIntegration": {
+    "id": "crystal-bubble-derived-ramp-with-required-residual",
+    "state": "unreviewed",
+    "implementationCommit": "5dfc8250d",
+    "convertedFields": "35 of36 stock bubble words calculate as a six-step rotating pink-to-white ramp; red31 and green/blue31-round(6*phase/5). A sparse supplied override preserves the final frame leading white sample exactly.",
+    "evidence": "Native 9B:96D4 palette sequence and91:DBA0-DBBD/91:DC88-DCAE consumer show equal-duration cycling and direct color copying; no special loop-seam rule justifies the one exception. Original bubble array removed. Independent replacement colors remain exact.",
+    "confirmation": "Integrated --lookup-stream2-crystal-body passes all136 body/bubble native words, CGRAM application, every individual supplied color edit and bounds; stock bubble storage contains exactly one residual. Verification build1436warnings,zeroerrors; ResourceAudit build zeroerrors. Reviewed Crystal source hash and static index refreshed.",
+    "remaining": "White residual remains required and bubble checklist stays unchecked. No retention exception. Snapshot completion unchanged at201 of1128,927 pending."
+  }
 }

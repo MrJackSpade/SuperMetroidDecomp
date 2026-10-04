@@ -1,29 +1,48 @@
+using System.Collections;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Visual compositions selected by the scientist delivery and examination lists.</summary>
 internal static class IntroScientistSpriteDefinitions
 {
-    /// <summary>$8C:8CCF, first shared scientist-scene baby composition.</summary>
+    /// <summary>$8C:8CCF, first subtitle-arrow composition in the shared scientist catalog.</summary>
     internal const ushort Start = 0x8ccf;
     /// <summary>$8C:8D6F, exclusive end of ten consecutive compositions.</summary>
     internal const ushort End = 0x8d6f;
 
-    private static readonly IntroScientistSpriteFrameDefinition[] frames =
-    [
-        new(0x8ccf, "examined-loop-1", 2),
-        new(0x8cdb, "examined-loop-2", 2),
-        new(0x8ce7, "examined-loop-3", 2),
-        new(0x8cf3, "delivered-baby-1", 6),
-        new(0x8d13, "delivered-baby-2", 6),
-        new(0x8d33, "delivered-baby-3", 6),
-        new(0x8d53, "examined-baby-1", 1),
-        new(0x8d5a, "examined-baby-2", 1),
-        new(0x8d61, "examined-baby-3", 1),
-        new(0x8d68, "examined-baby-hold", 1),
-    ];
+    /// <summary>Native record order: three two-part arrows, three six-part delivered
+    /// poses, three one-part examined poses, then the one-part caret. Record size is
+    /// two count bytes plus five bytes per part; index0..9 is bounded before summing.</summary>
+    internal static ushort FramePointer(int index)
+    {
+        if ((uint)index >= 10) throw new ArgumentOutOfRangeException(nameof(index));
+        int arrows = Math.Min(index, 3);
+        int delivered = index > 3 ? Math.Min(index - 3, 3) : 0;
+        int single = index > 6 ? index - 6 : 0;
+        return (ushort)(Start + arrows * 12 + delivered * 32 + single * 7);
+    }
 
-    internal static ReadOnlySpan<IntroScientistSpriteFrameDefinition> Frames => frames;
+    internal static IReadOnlyList<IntroScientistSpriteFrameDefinition> Frames { get; } = new FrameList();
+    private sealed class FrameList : IReadOnlyList<IntroScientistSpriteFrameDefinition>
+    {
+        public int Count => 10;
+        public IntroScientistSpriteFrameDefinition this[int index]
+        {
+            get
+            {
+                ushort pointer = FramePointer(index);
+                // Retain the published asset keys, including legacy arrow/hold names.
+                string name = index == 9 ? "examined-baby-hold"
+                    : $"{(index < 3 ? "examined-loop" : index < 6 ? "delivered-baby" : "examined-baby")}-{index % 3 + 1}";
+                return new(pointer, name, index < 3 ? 2 : index < 6 ? 6 : 1);
+            }
+        }
+        public IEnumerator<IntroScientistSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
-
 internal readonly record struct IntroScientistSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

@@ -9839,4 +9839,16 @@
     "proof": "Extract the existing scientist original-byte loop from VerifyIntroBabyActorDefinitions into one VerifyIntroScientistInstructions, reused by that suite and exposed alone as --lookup-intro-scientist-instructions. Compare all142 bytes including delete, every139 complete aligned/odd word view within the three original regions, all three terminal-word exceptions and outside-range byte/word rejection against SHA-pinned original ROM bytes. No unrelated actor/gameplay matrix is run.",
     "remaining": "The separate IntroScientistSpriteDefinitions asset catalog still needs its own disposition and shared-identity reconciliation; this conversion does not claim that stored catalog or source artwork is completed. Other intro programs and all unresolved1165 inventory remain required. Implementation commit is the commit adding this record."
   }
+,
+  "introScientistFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroScientistSpriteDefinitions.cs",
+    "id": "intro-scientist-frame-identities-counts-and-names",
+    "state": "converted",
+    "nativeIdentity": "Ten consecutive8C:8CCF..8D6E OAM records shared by subtitle arrows, delivered/examined baby and caret",
+    "evidence": "Pinned bank8C identifies three two-part arrow records, three six-part delivered-baby records, three one-part examined-baby records and the one-part caret8D68. Each record has2-byte count and5 bytes per part. The former asset array mislabeled the arrow family examined-loop and caret examined-baby-hold; those published keys are compatibility identities and remain unchanged.",
+    "algorithm": "FramePointer bounds index0..9, then sums preceding arrow records at12 bytes each, delivered records at32 bytes each and one-part records at7 bytes each. A stateless IReadOnlyList calculates each pointer, role-dependent part count and stable role/ordinal name. The terminal hold name remains a meaningful named role case. No stored record array or generated pointer cache.",
+    "consumers": "IntroScientistSpritePresentation uses the calculated Count/enumeration; extraction and identity/audit callers continue enumerating. IntroScientistInstructionDefinitions now calls the same pointer function for delivered/examined pulses and subtitle arrows, removing its three duplicate base addresses and stride arithmetic. Caret instruction bytes still delegate to their shared owner; the final catalog alias is independently checked.",
+    "proof": "One VerifyIntroScientistFrameCatalog walks all ten original OAM records directly using their source count words, compares every production pointer/count and the original published name list, confirms the8D6F terminal boundary and8D68 caret alias, and checks indexing/function bounds plus enumeration. The existing --lookup-intro-scientist-instructions flag runs this catalog proof alongside the unchanged logical program proof, which confirms all142 original bytes and all overlapping word contracts after caller migration. No cinematic playthrough or artwork-wide matrix.",
+    "supersedes": "Resolves the separate stored-catalog/shared-identity work left in introScientistInstructionReview. Actual OAM parts and pixels still need independent review; this is not a whole-owner/artwork exception or whole-ticket completion. Implementation commit is the commit adding this record."
+  }
 }

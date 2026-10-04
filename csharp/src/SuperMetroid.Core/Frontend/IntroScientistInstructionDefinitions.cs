@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Calculated delivery/examination pulse programs: ten cycles, page request,
@@ -18,12 +20,6 @@ internal static class IntroScientistInstructionDefinitions
 
     /// <summary>$8B:CC0F, subtitle-arrow loop included in the original examination view.</summary>
     private const ushort ArrowStart = 0xcc0f;
-    /// <summary>$8C:8CF3, first six-part delivered-baby OAM record; stride2+6*5.</summary>
-    private const ushort DeliveredFrame = 0x8cf3;
-    /// <summary>$8C:8D53, first one-part examined-baby OAM record; stride2+1*5.</summary>
-    private const ushort ExaminedFrame = 0x8d53;
-    /// <summary>$8C:8CCF, first two-part subtitle-arrow OAM record; stride2+2*5.</summary>
-    private const ushort ArrowFrame = 0x8ccf;
 
     private static ushort ActorWord(bool examination, int word)
     {
@@ -38,13 +34,13 @@ internal static class IntroScientistInstructionDefinitions
         int displayWord = word - (word < 10 ? 2 : 13);
         if ((displayWord & 1) == 0) return 10;
         int frame = 2 - Math.Abs(2 - displayWord / 2);
-        return (ushort)((examination ? ExaminedFrame : DeliveredFrame) + frame * (examination ? 7 : 32));
+        return IntroScientistSpriteDefinitions.FramePointer((examination ? 6 : 3) + frame);
     }
 
     private static ushort ArrowWord(int word)
     {
         if (word < 8)
-            return (word & 1) == 0 ? (ushort)10 : (ushort)(ArrowFrame + 12 * (2 - Math.Abs(2 - word / 2)));
+            return (word & 1) == 0 ? (ushort)10 : IntroScientistSpriteDefinitions.FramePointer(2 - Math.Abs(2 - word / 2));
         return word switch
         {
             8 or 12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,

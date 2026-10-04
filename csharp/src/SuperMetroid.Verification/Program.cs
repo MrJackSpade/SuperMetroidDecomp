@@ -546,7 +546,8 @@ if (args is ["--lookup-intro-scientist-instructions"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro scientist oracle revision");
     VerifyIntroScientistInstructions(rom);
-    Console.WriteLine("Intro scientist programs: all142 bytes, overlapping views, adjacent caret/arrow programs and boundaries pass.");
+    VerifyIntroScientistFrameCatalog(rom);
+    Console.WriteLine("Intro scientist programs/catalog: all142 bytes, overlapping views, ten original frame records, stable asset names and boundaries pass.");
     return 0;
 }
 if (args is ["--lookup-intro-eye-instructions"])

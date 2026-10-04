@@ -42,10 +42,10 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
         {
             throw new InvalidDataException("Invalid intro scientist sprite JSON.", error);
         }
-        ReadOnlySpan<IntroScientistSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroScientistSpriteFrameDefinition> definitions =
             IntroScientistSpriteDefinitions.Frames;
         if (document.Version != IntroScientistSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro scientist scenes require ten named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroScientistSpriteFrameDefinition definition in definitions)

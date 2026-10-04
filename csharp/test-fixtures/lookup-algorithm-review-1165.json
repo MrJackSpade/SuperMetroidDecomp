@@ -10304,4 +10304,24 @@
     "proof": "VerifyCeresReflectedStarParts under --lookup-ceres-flight-programs independently extracts both original compositions, requires reflection-view selection and compares every original field. Check bounds. For every included source star, an independent X edit preserves the target and a matching reflected target edit selects the calculated view. Real flight JSON loader compares original, independent and paired edits at visible/wrapped origins. Existing complete vortex composition proofs cover all other independent target fields/counts.",
     "remaining": "The25 source-star choices,20 odd-frame stars,vortex scene anchor and source pixels remain required independent reviews. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "ceresStarPointContentReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresStarPointParts.cs",
+    "id": "ceres-source-and-odd-star-points",
+    "state": "retained",
+    "attributes": {
+      "id": "ceres-star-common-attributes",
+      "state": "converted",
+      "algorithm": "Generate small size, priority zero, inherited actor palette and no vertical flip. The source25 points use horizontal reflection; the odd20 points do not. Store only supplied X,Y and drawing identity. Full-field matching preserves custom attribute edits. Even-frame23 points remain the separately calculated reflection of source points2..24.",
+      "proof": "VerifyCeresStarPointParts under --lookup-ceres-flight-programs independently extracts all45 native points and compares every compiled field. Priority edits retain supplied data; position edits retain calculated attributes with exact identity. Invalid indices throw within the harness. Existing vortex and reflection checks exercise native OAM and real JSON loading."
+    },
+    "content": {
+      "id": "ceres-two-authored-star-scatter-compositions",
+      "state": "retained",
+      "scope": "Only X,Y and drawing choices for25 source stars at8C:9478 and20 odd-frame stars embedded in8C:93D1, plus the shared vortex drawing anchor(70,-80).",
+      "evidence": "Read complete native records and consumers8B:BE7E..BFC6, CDA3 and CC57. Front/rear stars share a fixed source composition and move as actor sheets. CC57 alternates the two complete vortex compositions each tick; BFA0/BFB3 initialize a shared actor origin and BFC6 translates the entire sheet. There is no individual star trajectory, angle or evolving random state. SHA-pinned --lookup-ceres-asteroid-art exports original96:D10A pixels with8C:E5E9 palette and independently assembles source, even and odd frames. All three images were inspected: irregularly scattered point, square and glint drawings; the odd frame changes both population and selected glints, while the same vortex drawing stays at the same upper-right anchor.",
+      "rationale": "The residual coordinates and selected drawings specify two authored pictures of scattered stars and the placement of one vortex in that picture. The even-frame reflection and all common attributes have been removed from this residual. Inventing a trajectory through the remaining point ordinals would replace a fixed composition with a different behavior; enumerating the same coordinates in cases would only transcribe the picture. These specific placement/drawing choices meet the nonsense exception for authored visual content. This does not exempt other star fields, source pixels, palette data or any mathematical movement."
+    },
+    "remaining": "This resolves the source/odd star placement and vortex anchor previously pending in ceresVortexPartLayoutReview and ceresReflectedStarLayoutReview. Their historical remaining fields are superseded only for this explicit scope. All source pixels and other inventory items remain required."
+  }
 }

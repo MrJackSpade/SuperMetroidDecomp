@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Shared thirteen-part vortex drawing embedded in two star-field frames.
-/// Scene anchor and independent star placements remain separately unresolved.</summary>
+/// Scene placement is authored content; see ceresStarPointContentReview in the lookup review inventory.</summary>
 internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
@@ -22,7 +22,7 @@ internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IRead
         for (int index = 0; index < supplied.PartCount; index++)
             if (!(index >= tip && index < tip + 2) && !(index >= core && index < core + 11))
                 stars[next++] = supplied.Part(index);
-        IReadOnlyList<CompiledSpritePart> selectedStars = odd ? stars : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
+        IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, false) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
         return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchorX, unchecked((sbyte)anchor.Y), selectedStars));
     }
     public int Count => odd ? 33 : 36;

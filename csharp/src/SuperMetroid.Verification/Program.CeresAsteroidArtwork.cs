@@ -24,6 +24,9 @@ internal static partial class Program
         {
             (Pointer: (ushort)0x94f7, Count: 19, Name: "large-asteroids"),
             (Pointer: (ushort)0x90fe, Count: 16, Name: "small-asteroids"),
+            (Pointer: (ushort)0x9478, Count: 25, Name: "stars"),
+            (Pointer: (ushort)0x8fe7, Count: 36, Name: "vortex-even"),
+            (Pointer: (ushort)0x93d1, Count: 33, Name: "vortex-odd"),
         })
         {
             var pixels = new byte[256 * 256];

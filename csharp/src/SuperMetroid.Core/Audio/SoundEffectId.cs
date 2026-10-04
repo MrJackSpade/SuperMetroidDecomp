@@ -113,6 +113,9 @@ public static class SoundEffectLibrary1Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>
 public static class SoundEffectLibrary2Sounds
 {
+    /// <summary>$86:B7DB queues library-two $19 (Max6) as the Tourian statue eye releases its particles.</summary>
+    public static readonly SoundEffectId TourianStatueRelease = new(SoundEffectLibrary.Library2, 0x19); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$93:80CF KillProjectileInner: shared regular/Super Missile impact, library two $07, Max6.</summary>
     public static readonly SoundEffectId MissileImpact = new(SoundEffectLibrary.Library2, 0x07); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

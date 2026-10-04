@@ -102,6 +102,12 @@ public sealed partial class RoomEnemySystem
     {
         switch (code)
         {
+            case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                when projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow:
+                QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
+                // This command has a one-byte sound operand, unlike the word operands below.
+                cursor += 3;
+                return true;
             case TourianStatueRomData.ResetDustPosition:
                 projectile.XPosition = projectile.Variable0;
                 projectile.YPosition = projectile.Variable1;

@@ -80,6 +80,13 @@ public sealed record EndingExplosionSpriteDocument
 /// <summary>Distinct bank-$8C frame identities consumed by the eight explosion actors.</summary>
 public static class EndingExplosionSpriteDefinitions
 {
+    /// <summary>Mutually exclusive poses in the published explosion frame order.</summary>
+    internal enum Pose
+    {
+        DamageFirst, DamageSecond, DamageThird, DamageFourth,
+        FlashFirst, FlashSecond, FlashThird, FlashFourth, LavaFirst, LavaSecond,
+        Glow, SupernovaFirst, SupernovaSecond, Stars, Silhouette, Afterglow,
+    }
     /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
     /// contain four damage poses, four flash poses and two lava poses.</summary>
     private const ushort PlanetFirst = 0xa396;
@@ -91,29 +98,49 @@ public static class EndingExplosionSpriteDefinitions
     /// <summary>Ordered asset identities, calculated on demand without a stored frame array.</summary>
     public static IReadOnlyList<EndingExplosionSpriteFrameDefinition> Frames { get; } = new FrameView();
 
-    private enum FinalFrame { Glow, SupernovaFirst, SupernovaSecond, Stars, Silhouette, Afterglow }
+
+
+    /// <summary>$8C:A396 consecutive counted OAM records, except the independent
+    /// $8C:A28B starfield. Shared by asset identity and executable display operands.</summary>
+    internal static ushort Pointer(Pose pose)
+    {
+        int index = (int)pose;
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        if (index < 10) return (ushort)(PlanetFirst + index * RecordBytes(SmallParts));
+        int glow = PlanetFirst + 10 * RecordBytes(SmallParts);
+        int supernova = glow + RecordBytes(GlowParts);
+        return pose switch
+        {
+            Pose.Glow => (ushort)glow,
+            Pose.SupernovaFirst => (ushort)supernova,
+            Pose.SupernovaSecond => (ushort)(supernova + RecordBytes(SupernovaParts)),
+            Pose.Stars => Starfield,
+            Pose.Silhouette => (ushort)(supernova + 2 * RecordBytes(SupernovaParts)),
+            Pose.Afterglow => (ushort)(supernova + 3 * RecordBytes(SupernovaParts)),
+            _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+        };
+    }
 
     private static EndingExplosionSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
+        ushort pointer = Pointer((Pose)index);
         if (index < 10)
         {
             string family = index < 4 ? "planet-damage" : index < 8 ? "planet-flash" : "lava";
             int stage = index < 4 ? index : index < 8 ? index - 4 : index - 8;
             return new(family + "-" + stage.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                (ushort)(PlanetFirst + index * RecordBytes(SmallParts)), SmallParts);
+                pointer, SmallParts);
         }
         // The glow and supernova compositions follow the small planet/core records.
-        int glow = PlanetFirst + 10 * RecordBytes(SmallParts);
-        int firstSupernova = glow + RecordBytes(GlowParts);
-        return (FinalFrame)(index - 10) switch
+        return (Pose)index switch
         {
-            FinalFrame.Glow => new("glow-0", (ushort)glow, GlowParts),
-            FinalFrame.SupernovaFirst => new("glow-1", (ushort)firstSupernova, SupernovaParts),
-            FinalFrame.SupernovaSecond => new("glow-2", (ushort)(firstSupernova + RecordBytes(SupernovaParts)), SupernovaParts),
-            FinalFrame.Stars => new("starfield", Starfield, 53),
-            FinalFrame.Silhouette => new("silhouette", (ushort)(firstSupernova + 2 * RecordBytes(SupernovaParts)), SupernovaParts),
-            FinalFrame.Afterglow => new("afterglow", (ushort)(firstSupernova + 3 * RecordBytes(SupernovaParts)), 37),
+            Pose.Glow => new("glow-0", pointer, GlowParts),
+            Pose.SupernovaFirst => new("glow-1", pointer, SupernovaParts),
+            Pose.SupernovaSecond => new("glow-2", pointer, SupernovaParts),
+            Pose.Stars => new("starfield", pointer, 53),
+            Pose.Silhouette => new("silhouette", pointer, SupernovaParts),
+            Pose.Afterglow => new("afterglow", pointer, 37),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
     }

@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using Pose = SuperMetroid.Core.Assets.EndingExplosionSpriteDefinitions.Pose;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Timed display and scene operations for the eight Zebes-explosion actors.</summary>
@@ -21,21 +24,6 @@ internal static class EndingExplosionInstructionDefinitions
     private const ushort LeftStars = 0xeb81;
     /// <summary>$8B:EB89, afterglow loop.</summary>
     private const ushort Afterglow = 0xeb89;
-    /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten consecutive four-part
-    /// OAM records (22 bytes each) contain four damage, four flash and two core frames.</summary>
-    private const ushort PlanetFrames = 0xa396;
-    /// <summary>$8C:A472, ExplodingPlanetZebesGlow.</summary>
-    private const ushort GlowFrame = 0xa472;
-    /// <summary>$8C:A4B0, ZebesSupernovaPart1.</summary>
-    private const ushort SupernovaFirst = 0xa4b0;
-    /// <summary>$8C:A516, ZebesSupernovaPart2.</summary>
-    private const ushort SupernovaSecond = 0xa516;
-    /// <summary>$8C:A28B, ZebesBoomStarryBackground.</summary>
-    private const ushort Starfield = 0xa28b;
-    /// <summary>$8C:A57C, ZebesSupernovaPart3 (silhouette).</summary>
-    private const ushort SilhouetteFrame = 0xa57c;
-    /// <summary>$8C:A5E2, ZebesSupernovaPart4 (afterglow).</summary>
-    private const ushort AfterglowFrame = 0xa5e2;
     /// <summary>$8B:F35A, Instruction_CinematicSpriteObject_ZebesExplosion_Stars_Left,
     /// pre-instruction installed after the right starfield ends the explosion.</summary>
     private const ushort StarsPreInstruction = 0xf35a;
@@ -52,9 +40,9 @@ internal static class EndingExplosionInstructionDefinitions
             if (word >= 8) return word == 8 ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto : Glow;
             if ((word & 1) == 0) return 16;
             // Expand and contract through the same middle pose.
-            return (word / 2) switch { 0 => GlowFrame, 2 => SupernovaSecond, _ => SupernovaFirst };
+            return (word / 2) switch { 0 => EndingExplosionSpriteDefinitions.Pointer(Pose.Glow), 2 => EndingExplosionSpriteDefinitions.Pointer(Pose.SupernovaSecond), _ => EndingExplosionSpriteDefinitions.Pointer(Pose.SupernovaFirst) };
         }
-        if (pointer < Lava) return HoldWord(pointer, Stars, Starfield);
+        if (pointer < Lava) return HoldWord(pointer, Stars, EndingExplosionSpriteDefinitions.Pointer(Pose.Stars));
         if (pointer < Silhouette)
         {
             int word = (pointer - Lava) / 2;
@@ -67,7 +55,7 @@ internal static class EndingExplosionInstructionDefinitions
             return ((pointer - Silhouette) / 2) switch
             {
                 0 => 8,
-                1 => SilhouetteFrame,
+                1 => EndingExplosionSpriteDefinitions.Pointer(Pose.Silhouette),
                 2 => CinematicCodePointers.Ending_Instruction_StartZebesExplosion,
                 _ => CinematicCodePointers.CinematicSpriteObject_Instruction_Delete,
             };
@@ -75,14 +63,14 @@ internal static class EndingExplosionInstructionDefinitions
             return ((pointer - RightStars) / 2) switch
             {
                 0 => 144,
-                1 or 4 => Starfield,
+                1 or 4 => EndingExplosionSpriteDefinitions.Pointer(Pose.Stars),
                 2 => CinematicCodePointers.Ending_Instruction_ExplosionFinale,
                 3 => 332,
                 5 => CinematicCodePointers.Ending_Instruction_EndZebesExplosion,
                 6 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction,
                 _ => StarsPreInstruction,
             };
-        return pointer < Afterglow ? HoldWord(pointer, LeftStars, Starfield) : HoldWord(pointer, Afterglow, AfterglowFrame);
+        return pointer < Afterglow ? HoldWord(pointer, LeftStars, EndingExplosionSpriteDefinitions.Pointer(Pose.Stars)) : HoldWord(pointer, Afterglow, EndingExplosionSpriteDefinitions.Pointer(Pose.Afterglow));
     }
 
     private static ushort PlanetWord(int word)
@@ -98,7 +86,7 @@ internal static class EndingExplosionInstructionDefinitions
         return word == 21 ? CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette : CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
     }
 
-    private static ushort PlanetFrame(int frame) => (ushort)(PlanetFrames + (2 + 4 * 5) * frame);
+    private static ushort PlanetFrame(int frame) => EndingExplosionSpriteDefinitions.Pointer((Pose)frame);
 
     private static ushort HoldWord(ushort pointer, ushort start, ushort frame) => ((pointer - start) / 2) switch
     {

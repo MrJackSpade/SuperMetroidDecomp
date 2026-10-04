@@ -27,12 +27,18 @@ internal static partial class Program
             int header = 0x8c0000 | pointer;
             int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
             AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
+            AssertEqual(pointer, EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
+                $"explosion shared pose pointer {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
         }
         AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
+                (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
+        }
     }
 
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)

@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The mutually exclusive Mother Brain component owning a Samus-contact list.</summary>
@@ -39,30 +41,11 @@ internal static class MotherBrainContactHitboxDefinitions
     /// <summary><c>$A9:B44B</c>, one rectangle reused by neck joints one through three.</summary>
     internal const int NeckSourceAddress = 0xa9b44b;
 
-    private static readonly MotherBrainContactHitbox[] Body =
-    [
-        new(-32, -24, 42, 56),
-        new(-24, -42, 28, -25),
-    ];
-
-    private static readonly MotherBrainContactHitbox[] Brain =
-    [
-        new(-24, -22, 22, 0),
-        new(-22, 1, 16, 20),
-    ];
-
-    private static readonly MotherBrainContactHitbox[] Neck =
-    [
-        new(-8, -8, 8, 8),
-    ];
-
     /// <summary>Returns the native ordered collision rectangles for one physical component.</summary>
-    internal static ReadOnlySpan<MotherBrainContactHitbox> Get(MotherBrainContactPart part) =>
+    internal static MotherBrainContactHitboxes Get(MotherBrainContactPart part) =>
         part switch
         {
-            MotherBrainContactPart.Body => Body,
-            MotherBrainContactPart.Brain => Brain,
-            MotherBrainContactPart.Neck => Neck,
+            MotherBrainContactPart.Body or MotherBrainContactPart.Brain or MotherBrainContactPart.Neck => new(part),
             _ => throw new ArgumentOutOfRangeException(nameof(part)),
         };
 
@@ -75,4 +58,29 @@ internal static class MotherBrainContactHitboxDefinitions
             MotherBrainContactPart.Neck => NeckSourceAddress,
             _ => throw new ArgumentOutOfRangeException(nameof(part)),
         };
+}
+
+/// <summary>Ordered physical regions of a component; no stored rectangle sequence.</summary>
+internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPart Part) : IReadOnlyList<MotherBrainContactHitbox>
+{
+    public int Count => Part == MotherBrainContactPart.Neck ? 1 : 2;
+
+    public MotherBrainContactHitbox this[int region] => (Part, region) switch
+    {
+        // Lower body first, then the narrower upper body. Native collision stops on its first hit.
+        (MotherBrainContactPart.Body, 0) => new(-32, -24, 42, 56),
+        (MotherBrainContactPart.Body, 1) => new(-24, -42, 28, -25),
+        // The brain's upper and lower regions meet between local Y=0 and Y=1.
+        (MotherBrainContactPart.Brain, 0) => new(-24, -22, 22, 0),
+        (MotherBrainContactPart.Brain, 1) => new(-22, 1, 16, 20),
+        (MotherBrainContactPart.Neck, 0) => new(-8, -8, 8, 8),
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    public IEnumerator<MotherBrainContactHitbox> GetEnumerator()
+    {
+        for (int region = 0; region < Count; region++) yield return this[region];
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

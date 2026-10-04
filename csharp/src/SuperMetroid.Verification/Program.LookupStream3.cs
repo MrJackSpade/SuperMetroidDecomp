@@ -102,6 +102,13 @@ internal static partial class Program
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
+        VerifyMotherBrainContactHitboxes();
+        foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
+        {
+            var regions = MotherBrainContactHitboxDefinitions.Get(part);
+            foreach (int invalid in new[] { -1, regions.Count, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
+        }
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
 

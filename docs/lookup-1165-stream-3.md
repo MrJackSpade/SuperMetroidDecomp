@@ -459,9 +459,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs
 
-- [ ] **MotherBrainContactHitboxDefinitions.Body** ([L43](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainContactHitboxDefinitions.Brain** ([L49](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainContactHitboxDefinitions.Neck** ([L55](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainContactHitboxDefinitions.Body** ([L43](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainContactHitboxDefinitions.Brain** ([L49](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainContactHitboxDefinitions.Neck** ([L55](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs
 
@@ -771,6 +771,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Removed all three stored spans; the state machine and assigned Helpers timer call calculate directly. The outer stage guard and the timer caller's existing clamp to stage seven remain intact.
 - Native evidence: all 24 words at $A9:BEEE/$BEFE/$C049. Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed every native value, invalid index domains and the actual timer helper for all eight stages plus terminal stages eight and 65535.
 - No retained exception or shared inventory/hash edit. The new catalog and expanded Helpers scope were assigned by the coordinator.
+
+### Confirmed batch 15: Mother Brain contact regions
+
+- Converted three component rectangle arrays to region dispatch: lower then upper body, upper then lower brain, and the symmetric neck region. A lightweight component value enumerates those cases without any stored rectangle list. The order remains explicit because collision resolution stops at the first matching region.
+- All five signed rectangles retain their exact asymmetry and the gap boundary between brain local Y=0 and Y=1. Unsupported components and out-of-range region indices keep their previous exception types.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed the existing native fixture's twenty extent words and 49,155 production collision comparisons, plus region bounds. This reuses the existing confirmation matrix for the changed region-enumeration contract; no new gameplay search was added.
+- Production: `MotherBrainContactHitboxDefinitions.cs`; the runtime foreach consumer requires no modification. Verification: owned partial and additionally assigned Program.MotherBrainContactHitboxes.cs span-to-region-list adaptation. No retention or external source-hash dependency found.
 
 ### Remaining scope
 

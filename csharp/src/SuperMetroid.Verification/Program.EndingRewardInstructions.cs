@@ -125,6 +125,14 @@ internal static partial class Program
         if (isArm)
         {
             int shoulder = visual.Length - 3;
+            EndingRewardSpriteFrame pose = EndingRewardSpriteFrame.SamusArmFromEndingFrame1;
+            while (EndingRewardSpriteDefinitions.FramePointer(pose) != definition.Pointer) pose++;
+            for (int piece = 0; piece < shoulder; piece++)
+                AssertEqual(visual[piece].TileRow * 16 + visual[piece].TileColumn,
+                    EndingRewardArmParts.StockTile(pose, piece), "original arm tile selection");
+            foreach (int invalid in new[] { int.MinValue, -1, shoulder, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(pose, invalid), "arm tile selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(EndingRewardSpriteFrame.SamusHeadFromEndingFrame1, 0), "arm tile pose bounds");
             SpriteVisualPart[] shifted = (SpriteVisualPart[])visual.Clone();
             for (int part = shoulder; part < shifted.Length; part++)
                 shifted[part] = shifted[part] with { OffsetX = shifted[part].OffsetX + 2, OffsetY = shifted[part].OffsetY + 1 };

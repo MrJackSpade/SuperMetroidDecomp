@@ -9661,4 +9661,15 @@
     "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with all41 original arm parts, bringing the comparison to345 parts across29 compositions. Complete identity and native on/offscreen OAM checks cover each composition. Independent nine-field arm edits remain exact; shared shoulder translations remain calculated; independent tile/coordinate-edge shoulder edits stay supplied. Existing bounds and160-word/seventeen480-call instruction checks remain.",
     "remaining": "All17 ordered arm tile/position triples and eight shoulder anchors still require independent conversion or concrete acceptable exceptions. This structural conversion does not justify retaining them. Eight hair compositions and unreviewed pixel art also remain required. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardArmSelectionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardArmParts.cs",
+    "id": "ending-reward-arm-stock-tile-selection",
+    "state": "converted",
+    "source": "Original17 arm tile operands across8C:9B9F..9C7B. Pose1 selects lowerEE/upperE9. Pose2 uses vertical small tiles11D/10D followed by adjacent large10E. Poses3..5 use lower129/upper109; poses6..8 use the adjacent two-column variant12B/10B. Shoulder tiles are already calculated separately.",
+    "algorithm": "Named initial lower/upper pieces handle the initial arrangement. Split-pose small tiles traverse their atlas column bottom-to-top before its adjacent large piece. Later poses select one of two adjacent two-column variants, each shared by three poses; lower pieces are two atlas rows below upper pieces. Explicit pose/piece bounds exclude other domains.",
+    "implementation": "Store only arm XY positions and shoulder anchor for stock input; discard matching tile arrays and calculate StockTile on access. Independently edited tile arrays remain inputs and preserve the already calculated sizes/shared fields. No generated tile cache or runtime cartridge reads.",
+    "proof": "Extend the existing arm block of VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with direct comparison of all17 StockTile results to original extracted tile operands and invalid pose/index checks. Existing345-part original identities, native on/offscreen OAM, independent field edits, shoulder translations/boundaries and160-word/seventeen480-call instruction checks remain in the same focused proof.",
+    "remaining": "The17 arm XY positions and eight shoulder anchors remain required independent review. The earlier combined pose-selection/position entry is not an exemption and remains unfinished for positions. Eight hair compositions and unreviewed pixel art also remain required. Implementation commit is the commit adding this record."
+  }
 }

@@ -141,6 +141,7 @@ if (args is ["--lookup-stream-4"])
     VerifyRidleyClawOffsets(rom);
     VerifySaveRamLayout();
     VerifyLowerNorfairRioInstructionProgramDefinitions();
+    VerifyDraygonProjectileInstructionProgramDefinitions();
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }
@@ -4426,6 +4427,7 @@ if (args is ["--norfair-rio-instruction-program-definitions"])
 if (args is ["--lower-norfair-rio-instruction-program-definitions"])
 {
     VerifyLowerNorfairRioInstructionProgramDefinitions();
+    VerifyDraygonProjectileInstructionProgramDefinitions();
     return 0;
 }
 if (args is ["--mama-turtle-instruction-program-definitions"])

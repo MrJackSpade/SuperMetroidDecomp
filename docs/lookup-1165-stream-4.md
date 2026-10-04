@@ -195,8 +195,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs
 
-- [ ] **DraygonProjectileInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DraygonProjectileInstructionProgramDefinitions.PresentationWords** ([L73](../csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonProjectileInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonProjectileInstructionProgramDefinitions.PresentationWords** ([L73](../csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs
 
@@ -797,3 +797,12 @@ Two definitions converted; 45 complete and 180 unchecked. No retained exception.
 - Idle/descent/ascent use their constant frame durations. Preparation and cooldown calculate the capped linear timing ramp around spritemap pose7; cooldown ends with three one-tick closing poses. The three flame durations calculate a three-tick base plus successively halved extra dwell. These are exact arithmetic descriptions of the native values, not claims about the historical authoring tool.
 - Evidence: pinned bankA2 `InstList_Holtz_Idle_0` through `InstList_Holtz_Flames`, `$C61A..C6BF`; both turnaround sequences select pose7 at their one-tick center.
 - Confirmation: Verification build passed (1431 warnings, zero errors), and `--lookup-stream-4` passed. The existing `VerifyLowerNorfairRioInstructionProgramDefinitions` is now wired into this focused command unchanged: all51 control words,32 presentation selectors, all seven actual interpreter programs, three callback effects, initializer selections and mechanics-read guards pass. No unrelated gameplay investigation.
+## Batch 11: Draygon projectile programs
+
+Two definitions converted; 47 complete and 178 unchecked. No retained exception.
+
+- Six constant goop draws and three flight draws calculate their word/operand addresses. Shot goop retains two eight-tick draws, the drop callback, shared delete jump and private trailing delete. Touch and sleep identities remain explicit control cases.
+- Turret formation calculates two six-frame decreasing-duration ramps with floors3 then2; the second ramp is uniformly one tick faster. Four ten-tick charging frames follow, then the fired callback. No stored or generated instruction rows remain.
+- Evidence: pinned bank86 `$8C38..8C67` and `$8CA4..8CF5`; original sprite names distinguish formation, charging and flight phases.
+- Confirmation: full build passed (1431 warnings, zero errors); final incremental verifier build passed (25 warnings, zero errors); `--lookup-stream-4` passed. Existing native38-word, actual goop/turret producer, touch/drop, loop/sleep/delete and fired-callback assertions remain. Updated the obsolete expectation of27 live ROM presentation reads: all27 exact native operand identities are now compared in order and observed through actual installed-frame selections, with zero cartridge presentation reads. This changes the expected transport, not the native selected frame identity.
+- Additional verifier ownership was granted before editing `Program.DraygonProjectileInstructionProgramDefinitions.cs`.

@@ -26,104 +26,91 @@ internal static class DraygonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> at $86:8CE6.</summary>
     internal const ushort WallTurretFlight = 0x8ce6;
 
-    private static readonly DraygonProjectileInstructionMechanicsWord[] Words =
-    [
-        new(GoopTouch, EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision),
-        new(Goop, 0x000a),
-        new(0x8c3e, 0x000a),
-        new(0x8c42, 0x000a),
-        new(0x8c46, 0x000a),
-        new(0x8c4a, 0x000a),
-        new(0x8c4e, 0x000a),
-        new(0x8c52, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8c54, Goop),
-        new(0x8c56, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(GoopShot, 0x0008),
-        new(0x8c5c, 0x0008),
-        new(0x8c60, EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances),
-        new(0x8c62, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8c64, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        new(0x8c66, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(WallTurretBloom, 0x0005),
-        new(0x8ca8, 0x0004),
-        new(0x8cac, 0x0003),
-        new(0x8cb0, 0x0003),
-        new(0x8cb4, 0x0003),
-        new(0x8cb8, 0x0003),
-        new(0x8cbc, 0x0004),
-        new(0x8cc0, 0x0003),
-        new(0x8cc4, 0x0002),
-        new(0x8cc8, 0x0002),
-        new(0x8ccc, 0x0002),
-        new(0x8cd0, 0x0002),
-        new(0x8cd4, 0x000a),
-        new(0x8cd8, 0x000a),
-        new(0x8cdc, 0x000a),
-        new(0x8ce0, 0x000a),
-        new(0x8ce4,
-            EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired),
-        new(WallTurretFlight, 0x0008),
-        new(0x8cea, 0x0008),
-        new(0x8cee, 0x0008),
-        new(0x8cf2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8cf4, WallTurretFlight),
-    ];
+    internal static int MechanicsWordCount => 38;
+    internal static int PresentationWordCount => 27;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x8c3c, 0x8c40, 0x8c44, 0x8c48, 0x8c4c, 0x8c50,
-        0x8c5a, 0x8c5e,
-        0x8ca6, 0x8caa, 0x8cae, 0x8cb2, 0x8cb6, 0x8cba, 0x8cbe,
-        0x8cc2, 0x8cc6, 0x8cca, 0x8cce, 0x8cd2, 0x8cd6, 0x8cda, 0x8cde,
-        0x8ce2, 0x8ce8, 0x8cec, 0x8cf0,
-    ];
+    internal static DraygonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int address = index switch
+        {
+            0 => GoopTouch,
+            < 7 => Goop + (index - 1) * 4,
+            < 10 => Goop + 24 + (index - 7) * 2,
+            < 12 => GoopShot + (index - 10) * 4,
+            < 16 => GoopShot + 8 + (index - 12) * 2,
+            < 33 => WallTurretBloom + (index - 16) * 4,
+            < 36 => WallTurretFlight + (index - 33) * 4,
+            _ => WallTurretFlight + 12 + (index - 36) * 2,
+        };
+        return new((ushort)address, ReadMechanicsWord((ushort)address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DraygonProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(index switch
+        {
+            < 6 => Goop + 2 + index * 4,
+            < 8 => GoopShot + 2 + (index - 6) * 4,
+            < 24 => WallTurretBloom + 2 + (index - 8) * 4,
+            _ => WallTurretFlight + 2 + (index - 24) * 4,
+        });
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DraygonGoop or
         RoomEnemyProjectileKind.DraygonWallTurret;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            DraygonProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Draygon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    private static bool TryRead(int address, out ushort value)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        value = address switch
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            GoopTouch => EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision,
+            Goop + 24 or GoopShot + 10 or WallTurretFlight + 12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            Goop + 26 => Goop,
+            Goop + 28 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+            GoopShot + 8 => EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances,
+            GoopShot + 12 => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
+            GoopShot + 14 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            WallTurretFlight - 2 => EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired,
+            WallTurretFlight + 14 => WallTurretFlight,
+            _ => 0,
+        };
+        if (value != 0)
+            return true;
+        if (IsDraw(address, Goop, 6))
+            value = 10;
+        else if (IsDraw(address, GoopShot, 2) || IsDraw(address, WallTurretFlight, 3))
+            value = 8;
+        else if (IsDraw(address, WallTurretBloom, 16))
+        {
+            int frame = (address - WallTurretBloom) / 4;
+            // Two six-pose forming ramps; the second is one tick faster.
+            // Four ten-tick charging poses precede the fired callback.
+            value = (ushort)(frame < 12
+                ? Math.Max(3 - frame / 6, 5 - frame / 6 - frame % 6)
+                : 10);
         }
-
-        return false;
+        return value != 0;
     }
+
+    private static bool IsDraw(int address, ushort first, int frames)
+    {
+        int offset = address - first;
+        return offset >= 0 && offset < frames * 4 && offset % 4 == 0;
+    }
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        TryRead((ushort)(address & ~1), out _);
 }

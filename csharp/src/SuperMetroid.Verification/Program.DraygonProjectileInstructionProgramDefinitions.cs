@@ -23,6 +23,7 @@ internal static partial class Program
         }
 
         var guard = new DraygonProjectileInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawnGoop = typeof(RoomEnemySystem).GetMethod(
@@ -94,19 +95,23 @@ internal static partial class Program
             EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired,
             turret.PreInstruction, "Draygon turret callback enables projectile flight");
 
-        AssertEqual(DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Draygon spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < DraygonProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        ushort[] nativeOperands = [0x8c3c, 0x8c40, 0x8c44, 0x8c48, 0x8c4c, 0x8c50,
+            0x8c5a, 0x8c5e, 0x8ca6, 0x8caa, 0x8cae, 0x8cb2, 0x8cb6, 0x8cba,
+            0x8cbe, 0x8cc2, 0x8cc6, 0x8cca, 0x8cce, 0x8cd2, 0x8cd6, 0x8cda,
+            0x8cde, 0x8ce2, 0x8ce8, 0x8cec, 0x8cf0];
+        AssertEqual(nativeOperands.Length, DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,
+            "Draygon native presentation operand count");
+        AssertEqual(nativeOperands.Length, selectedPresentation.Count,
+            "actual Draygon programs select all installed presentation frames");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "installed Draygon spritemap selections require zero cartridge reads");
+        for (int index = 0; index < nativeOperands.Length; index++)
         {
-            ushort address = DraygonProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads Draygon presentation $86:{address:X4}");
+            ushort address = DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(nativeOperands[index], address, "Draygon exact ordered native visual operand identity");
+            AssertTrue(selectedPresentation.Contains(address),
+                $"production selects installed Draygon presentation $86:{address:X4}");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Draygon and shared-delete mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -126,7 +131,7 @@ internal static partial class Program
         Console.WriteLine(
             "Draygon projectile instruction mechanics: thirty-eight compiled words, " +
             "real goop/turret producers, touch/drop callbacks, all private programs, " +
-            "and twenty-seven live spritemap reads pass.");
+            "and twenty-seven installed spritemap selections pass.");
 
         RoomEnemySystem NewSystem()
         {
@@ -165,6 +170,8 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                if (projectile.PresentationOperandAddress != 0)
+                    selectedPresentation.Add(projectile.PresentationOperandAddress);
             }
         }
 

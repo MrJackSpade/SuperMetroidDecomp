@@ -8942,4 +8942,30 @@
   "proof": "Extract existing cloud word/actor-stream checks from VerifyEndingObjectArtwork into VerifyEndingCloudDefinitions; aggregate delegates, leaving artwork rendering checks separate. SHA-pinned --lookup-ending-cloud-definitions compares all24 native program words; six catalog pointers to independent original operands and counts to OAM headers; published names/order and invalid bounds. Six native/generated streams run120 calls each with explicit independent ROM reader, comparing cursor and visual frame. Single compound proof covers catalog fields and program views.",
   "scope": "Three catalog mappings plus six independently reviewed existing program generators. Cloud positions/motion and individual OAM contents retain separate obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingRewardFrameCatalogReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardSpritePresentation.cs",
+  "source": "Supported SHA-pinned original8B:ED1D..EE5C display operands independently select all37 distinct reward frames. Original8C:99D6..A28A is a contiguous OAM record chain; each header gives its part count. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d names every standing, hair, arm, head, jump, fall, landing and shooting pose.",
+  "tables": [
+    {
+      "id": "ending-reward-frame-catalog-pointers",
+      "state": "converted",
+      "algorithm": "Starting99D6, sum two header bytes plus five bytes per OAM part for every preceding named native-order pose. Shared FramePointer supplies catalog and reward instruction reader."
+    },
+    {
+      "id": "ending-reward-frame-catalog-counts",
+      "state": "converted",
+      "algorithm": "Named visual-pose cases select original composition part counts, grouping poses with equal record shape. These are pose metadata, not a fitted numeric curve."
+    },
+    {
+      "id": "ending-reward-frame-catalog-names",
+      "state": "converted",
+      "algorithm": "Consecutive hair/arm/head animation families generate stage suffixes with invariant formatting. Named asset-role cases preserve remaining standing/jump/fall/landing/shooting/head/body keys and published order."
+    }
+  ],
+  "implementation": "Remove37-record StockFrames array and duplicate frontend frame-address enum. Native-order EndingRewardSpriteFrame identifies mutually exclusive poses, with native identity XML; stateless IReadOnlyList preserves asset order separately. Reward instruction reader shares FramePointer, including helmetless head-stage traversal. A nullable frame represents blank arm display explicitly. No generated table cache or runtime ROM capability.",
+  "consumer": "Reward presentation loader resolves unchanged keys/pointers to editable compositions; artwork importer uses calculated pointer and named part count; ResourceAudit checks membership. EndingRewardInstructionDefinitions uses the same frame identities and address computation for17 actor programs.",
+  "proof": "Extend existing VerifyEndingRewardInstructions, replacing narrow four-head-header checks with all37 catalog records. Expected pointers come from independent native display operands, counts from original OAM headers, names/order from previously published compatibility fixture. Check catalog and frame-address bounds. Existing all160-word and17-stream/callback proof validates the migrated instruction consumer. SHA-pinned --lookup-ending-reward-programs passes; final verification build0 errors/1189 existing warnings, ResourceAudit build0 errors/0 warnings.",
+  "scope": "Three catalog metadata fields and shared frame-address aliases only. OAM coordinates/tile content, other catalogs and remaining inventory retain independent obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

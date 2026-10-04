@@ -98,7 +98,61 @@ internal static partial class Program
         VerifyStream3MotherBrainFades(rom);
         VerifyStream3BabyFade(rom);
         VerifyStream3DrainFades(rom);
+        VerifyStream3ShitroidPulse(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => Read(address + 2 * i)).ToArray();
+        var normal = Enumerable.Range(0, 8).Select(frame => Words(0xa9f6d1 + 8 * frame, 4)).ToArray();
+        var sidehopper = Words(0xa9f8c6, 16);
+        var shitroid = Words(0xa9f8e6, 16);
+        var dead = Words(0xa9f8a6, 16);
+        var rows = normal.Select(row => row.Select(Rgb).ToArray()).ToArray();
+        var document = new ShitroidColorDocument
+        {
+            Version = 1, Normal = rows, Sidehopper = sidehopper.Select(Rgb).ToArray(),
+            Shitroid = shitroid.Select(Rgb).ToArray(), DeadSidehopper = dead.Select(Rgb).ToArray(),
+        };
+        ShitroidColorCatalog Load() => ShitroidColorCatalog.Load(new MemoryStream(ShitroidColorCatalog.Write(document)));
+        void Check(ShitroidColorCatalog colors)
+        {
+            for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 4; color++)
+                AssertEqual(normal[frame][color], colors.NormalColor(frame, color), "stream 3 Shitroid pulse RGB5");
+            string identity = SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
+            {
+                content.AppendWords("sidehopper", sidehopper);
+                content.AppendWords("shitroid", shitroid);
+                content.AppendWords("deadSidehopper", dead);
+                content.AppendWordFrames("normal", normal);
+            });
+            AssertEqual(identity, colors.ContentIdentity, "stream 3 Shitroid pulse original identity framing");
+        }
+        var stock = Load();
+        Check(stock);
+        var pulse = typeof(ShitroidColorCatalog).GetField("normal",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertTrue(pulse.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(pulse) is null, "stream 3 Shitroid original pulse rows discarded");
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 4; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = normal[frame][color];
+            normal[frame][color] ^= (ushort)(1 << (5 * channel));
+            rows[frame][color] = Rgb(normal[frame][color]);
+            Check(Load());
+            normal[frame][color] = original;
+            rows[frame][color] = Rgb(original);
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(invalid, 0), "stream 3 Shitroid pulse frame bounds");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(0, invalid), "stream 3 Shitroid pulse color bounds");
     }
 
     private static void VerifyStream3DrainFades(ISnesAddressSpace rom)

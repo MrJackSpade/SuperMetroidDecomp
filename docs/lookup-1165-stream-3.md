@@ -741,6 +741,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed all 300 rainbow words, 30 normal-restoration words, calculated-shadow path selection in all ten frames, all 990 independent body/leg RGB channel edits, original bounds, and the preceding drain/legacy checks.
 - Changed production: `MotherBrainRainbowPalettePresentation.cs`; confirmation extends the owned partial. The coordinator-owned source hash dependency remains the same file in `SequenceColorClosedContractDefinitions.cs`.
 
+### Confirmed batch 11: Shitroid brightness pulse (partial payload disposition)
+
+- The eight four-color rows at $A9:F6D1 subtract five from each channel at four brightness levels, then retrace: `phase = min(frame, 7-frame)`. Channels clamp between a shared minimum (native RGB5 5,0,0) and 31. The first two red highlight origins are 36 before clipping, explaining their repeated saturated red values.
+- Matching assets discard all eight stored rows and retain only four unclipped origin triplets plus the shared minimum; no frame-indexed cache remains. Nonmatching edits retain exact supplied rows, and content identity keeps its original row framing.
+- The normal-cycle entry stays unchecked: the independent origin colors and minimum remain required, as do all three target palettes. No retained exception is asserted.
+- Verification build passed (1193 warnings, zero errors on final incremental build); `--lookup-stream-3` passed all 32 native colors, calculated-path selection, all 96 independent RGB channel edits and identities, and original frame/color bounds.
+- Changed production: `ShitroidColorCatalog.cs`; confirmation extends the assigned partial. Coordinator dependency: refresh `RemainingEnemyColorClosedContractDefinitions.cs` reviewed source hash (old 34CF411095FFF305D4C51537FDCCAD3CA2BD6FA4C81B307130C5ECFEE363328E).
+
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

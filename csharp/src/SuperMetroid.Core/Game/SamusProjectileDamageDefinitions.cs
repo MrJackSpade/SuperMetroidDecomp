@@ -4,42 +4,42 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusProjectileDamageDefinitions
 {
     /// <summary>$93:8431 ProjectileDataTable_Uncharged_Power, first beam header.</summary>
-    private const int BeamHeaderStart = 0x938431;
+    internal const int BeamHeaderStart = 0x938431;
     /// <summary>Each beam header occupies one damage word and ten direction-pointer words.</summary>
-    private const int BeamHeaderStride = 22;
+    internal const int BeamHeaderStride = 22;
 
     /// <summary>$93:8641 ProjectileDataTable_NonBeam_Missile: damage header identity.</summary>
-    private const int Missile = 0x938641;
+    internal const int Missile = 0x938641;
     /// <summary>$93:8657 ProjectileDataTable_NonBeam_SuperMissile: damage header identity.</summary>
-    private const int SuperMissile = 0x938657;
+    internal const int SuperMissile = 0x938657;
     /// <summary>$93:866D ProjectileDataTable_NonBeam_SuperMissileLink: damage header identity.</summary>
-    private const int SuperMissileLink = 0x93866d;
+    internal const int SuperMissileLink = 0x93866d;
     /// <summary>$93:8671 ProjectileDataTable_NonBeam_PowerBomb: damage header identity.</summary>
-    private const int PowerBomb = 0x938671;
+    internal const int PowerBomb = 0x938671;
     /// <summary>$93:8675 ProjectileDataTable_NonBeam_Bomb: damage header identity.</summary>
-    private const int Bomb = 0x938675;
+    internal const int Bomb = 0x938675;
     /// <summary>$93:8679 ProjectileDataTable_NonBeam_BeamExplosion: damage header identity.</summary>
-    private const int BeamExplosion = 0x938679;
+    internal const int BeamExplosion = 0x938679;
     /// <summary>$93:867D ProjectileDataTable_NonBeam_MissileExplosion: damage header identity.</summary>
-    private const int MissileExplosion = 0x93867d;
+    internal const int MissileExplosion = 0x93867d;
     /// <summary>$93:8681 ProjectileDataTable_NonBeam_BombExplosion: damage header identity.</summary>
-    private const int BombExplosion = 0x938681;
+    internal const int BombExplosion = 0x938681;
     /// <summary>$93:8685 ProjectileDataTable_NonBeam_PlasmaSBA: damage header identity.</summary>
-    private const int PlasmaSBA = 0x938685;
+    internal const int PlasmaSBA = 0x938685;
     /// <summary>$93:8689 ProjectileDataTable_NonBeam_WaveSBA: damage header identity.</summary>
-    private const int WaveSBA = 0x938689;
+    internal const int WaveSBA = 0x938689;
     /// <summary>$93:868D ProjectileDataTable_NonBeam_SpazerSBA: damage header identity.</summary>
-    private const int SpazerSBA = 0x93868d;
+    internal const int SpazerSBA = 0x93868d;
     /// <summary>$93:8691 ProjectileDataTable_NonBeam_SuperMissileExplosion: damage header identity.</summary>
-    private const int SuperMissileExplosion = 0x938691;
+    internal const int SuperMissileExplosion = 0x938691;
     /// <summary>$93:8695 ProjectileDataTable_NonBeam_Projectile25: damage header identity.</summary>
-    private const int Projectile25 = 0x938695;
+    internal const int Projectile25 = 0x938695;
     /// <summary>$93:86AB ProjectileDataTable_NonBeam_SpazerSBATrail: damage header identity.</summary>
-    private const int SpazerSBATrail = 0x9386ab;
+    internal const int SpazerSBATrail = 0x9386ab;
     /// <summary>$93:86C1 ProjectileDataTable_NonBeam_ShinesparkEcho: damage header identity.</summary>
-    private const int ShinesparkEcho = 0x9386c1;
+    internal const int ShinesparkEcho = 0x9386c1;
     /// <summary>$93:86D7 ProjectileDataTable_NonBeam_Projectile27: damage header identity.</summary>
-    private const int Projectile27 = 0x9386d7;
+    internal const int Projectile27 = 0x9386d7;
 
     internal static ushort Read(int address)
     {
@@ -69,7 +69,7 @@ internal static class SamusProjectileDamageDefinitions
     /// weapon headers per charge state, each followed by ten direction pointers.
     /// The charged half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
-    private static ushort BeamDamage(int header)
+    internal static (bool Charged, SamusBeamFlags Beam) BeamIdentity(int header)
     {
         bool charged = header >= 12;
         int row = header % 12;
@@ -88,6 +88,12 @@ internal static class SamusProjectileDamageDefinitions
             10 => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Ice : SamusBeamFlags.Wave),
             _ => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Wave : SamusBeamFlags.Ice),
         };
+        return (charged, beam);
+    }
+
+    private static ushort BeamDamage(int header)
+    {
+        var (charged, beam) = BeamIdentity(header);
         int damage = beam switch
         {
             SamusBeamFlags.None => 20,

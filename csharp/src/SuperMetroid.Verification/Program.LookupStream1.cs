@@ -144,4 +144,18 @@ internal static partial class Program
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.YVelocity, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
+    private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
+    {
+        for (int address = 0x9383c1; address < 0x9386db; address += 2)
+        {
+            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(expected, SamusProjectileSelectionDefinitions.ReadWord(address),
+                $"stream1 original projectile selector/header {address:X6}");
+            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(address + 1),
+                "stream1 unaligned selector/header rejection");
+        }
+        foreach (int invalid in new[] { int.MinValue, 0x9283c1, 0x9383bf, 0x9386db, 0x9483c1, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
+                "stream1 selector exact address-domain rejection");
+    }
 }

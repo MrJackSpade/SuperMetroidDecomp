@@ -524,7 +524,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs
 
-- [ ] **SamusProjectileSelectionDefinitions.Pointers** ([L15](../csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs#L15)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **SamusProjectileSelectionDefinitions.Pointers** ([L15](../csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs#L15)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileSoundRoutingDefinitions.cs
 
@@ -575,7 +575,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 29 definitions in batches 1 through 6 below.
+- Completed conversions: 30 definitions in batches 1 through 7 below.
 - Justified retained entries: none.
 - Confirmation results: isolated Verification build passed (1431 existing warnings, zero errors); --lookup-stream-1 passed.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -640,3 +640,11 @@ One more definition converted; 29 complete and 197 remain. No retained exception
 - `SamusProjectileDamageDefinitions.BeamDamage`: resolves physical header rows to named equipment combinations, selects uncharged weapon damage through cases, then multiplies by three for charge. Preserves the charged half's swapped Wave/Plasma and Plasma-Ice/Plasma-Wave header order, exact header alignment, all non-beam cases and rejection boundaries.
 - Evidence: pinned bank93 `$8431..8640`, `ProjectileDataTable_Uncharged_*` and `ProjectileDataTable_Charged_*`. All24 original damage words agree; the charged multiplier is exact across all twelve weapon combinations.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed including existing `VerifyProjectileDamage` original40-header/357-selector checks and seven actual projectile initializer paths with selection/damage ROM reads forbidden. Existing assertions and oracles are unchanged.
+## Batch 7: projectile selector and directional program layout
+
+One more definition converted; 30 complete and 196 remain. No retained exception.
+
+- Removed the complete357-entry `SamusProjectileSelectionDefinitions.Pointers` FrozenDictionary and its literal producer. The56 leading selectors dispatch by beam equipment, charge, projectile kind and special attack. Beam rows share the damage catalog's physical-header identity; direction selects eight compass programs, four opposite-direction programs, or the common Ice program as appropriate. Wave preserves its separate upward prefix and downward entry; uncharged Plasma-Wave preserves the skipped first frame on three axes. Missile programs use their twelve-byte stride. Final non-beam rows select named impact, bomb, special, trail and echo programs.
+- All address bases and program identities have named XML catalog members. Original damage-header fallthrough, exact odd-address domain, null selector entries and adjacent header observations remain intact. No replacement cache or stock dictionary remains.
+- Evidence: pinned bank93 `$83C1..86DA` selectors/header rows and their named instruction programs `$86DB..A16D`; the original row comments name each direction and shared program. Each formula follows the actual program spacing and direction sharing.
+- Confirmation: Verification build passed (1216 warnings, zero errors); `--lookup-stream-1` passed every397 original selector/header words, every intervening unaligned rejection, outer/bank/extreme bounds, and the existing seven initializer paths with selection/damage ROM reads forbidden. An initial parenthesization error in the new non-beam/trail switch expression was caught by the focused command and corrected before this verified commit.

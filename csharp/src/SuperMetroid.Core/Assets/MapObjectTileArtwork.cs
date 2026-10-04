@@ -13,6 +13,7 @@ internal sealed class MapObjectTileArtwork
     private const int CursorTile = 0x46;
     private readonly byte[] otherCharacters;
     private readonly MenuSmallFontArtwork smallFont;
+    private readonly MenuTitleFontArtwork titleFont;
     private readonly Dictionary<int, byte>? reserveEdits;
     private readonly Dictionary<int, byte>? highlightEdits;
     internal int StoredHighlightPixelCount => highlightEdits?.Count ?? 0;
@@ -23,11 +24,12 @@ internal sealed class MapObjectTileArtwork
     {
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
         smallFont = new(image);
-        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount) * 32];
+        titleFont = new(image);
+        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount + MenuTitleFontArtwork.TileCount) * 32];
         int stored = 0;
         for (int tile = 0; tile < encoded.Length / 32; tile++)
         {
-            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile)) continue;
+            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile) || MenuTitleFontArtwork.Contains(tile)) continue;
             encoded.AsSpan(tile * 32, 32).CopyTo(otherCharacters.AsSpan(stored, 32));
             stored += 32;
         }
@@ -61,8 +63,11 @@ internal sealed class MapObjectTileArtwork
         {
             if (x == 0 || y == 0) return 12;
             int pixel = 0;
+            int cursorOffset = 0;
+            for (int sourceTile = 0; sourceTile < CursorTile; sourceTile++)
+                if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuTitleFontArtwork.Contains(sourceTile)) cursorOffset += 32;
             for (int plane = 0; plane < 4; plane++)
-                pixel |= ((otherCharacters[CursorTile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (8 - x)) & 1) << plane;
+                pixel |= ((otherCharacters[cursorOffset + plane / 2 * 16 + y * 2 + plane % 2] >> (8 - x)) & 1) << plane;
             return (byte)(pixel == 1 ? 2 : pixel == 2 ? 1 : pixel);
         }
         if (tile == FirstHighlightTile + 1) return y == 0 ? (byte)12 : (byte)0;
@@ -89,7 +94,8 @@ internal sealed class MapObjectTileArtwork
         {
             bool reserve = IsReserve(tile);
             bool font = MenuSmallFontArtwork.Contains(tile);
-            if (!reserve && !IsHighlight(tile) && !font)
+            bool title = MenuTitleFontArtwork.Contains(tile);
+            if (!reserve && !IsHighlight(tile) && !font && !title)
             {
                 otherCharacters.AsSpan(stored, 32).CopyTo(transfer.Slice(tile * 32, 32));
                 stored += 32;
@@ -104,7 +110,7 @@ internal sealed class MapObjectTileArtwork
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
+                    byte pixel = title ? titleFont.Pixel(tile, x, y) : font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
                         ? authored : reserve ? ReservePixel(tile, x, y) : HighlightPixel(tile, x, y);
                     encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
                 }

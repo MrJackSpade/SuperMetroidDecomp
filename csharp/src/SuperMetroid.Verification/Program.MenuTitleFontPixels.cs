@@ -4,14 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
+    private static void VerifyMenuTitleFontPixels(ISnesAddressSpace rom)
     {
+        int[] tiles = [0x0a,0x0b,0x0d,0x0e,0x11,0x1a,0x1b,0x1e,0x25,0x27,0x2b,0x2c,0x35,0x37,0x38,0x3b,0x42,0x52];
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
-        var font = new MenuSmallFontArtwork(image);
-        AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
-        AssertEqual(9, font.StoredEditCount, "nine independently observed shadow retouches");
+        var font = new MenuTitleFontArtwork(image);
+        AssertEqual(144, font.StoredFaceByteCount, "one-bit authored silhouettes only");
+        AssertEqual(2, font.StoredEditCount, "two independently observed shadow retouches");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(5888, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
@@ -21,7 +22,7 @@ internal static partial class Program
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);
             AssertTrue(vram.Bytes.Slice(destination, native.Length).SequenceEqual(native), "whole original menu atlas upload");
         }
-        for (int tile = 0x60; tile <= 0x88; tile++)
+        foreach (int tile in tiles)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
@@ -34,14 +35,14 @@ internal static partial class Program
             pixels[position] = (byte)((expected + 1) % 16);
             CheckEdited(pixels);
         }
-        // Every color at one face and one shadow location, including introducing/removing foreground.
-        foreach (int position in new[] { 48 * 128 + 2, 49 * 128 + 2 })
+        // Every color at an upper-half face and a lower-half boundary shadow, including introducing/removing foreground.
+        foreach (int position in new[] { 7 * 128 + 10 * 8 + 1, 8 * 128 + 10 * 8 + 3 })
         for (byte value = 0; value < 16; value++)
         {
             byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
         }
         byte[] all = (byte[])image.Pixels.Clone();
-        for (int tile = 0x60; tile <= 0x88; tile++)
+        foreach (int tile in tiles)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
@@ -49,12 +50,12 @@ internal static partial class Program
             all[position] = (byte)((all[position] + 1) % 16);
         }
         CheckEdited(all);
-        foreach (int invalid in new[] { -1, 0x5f, 0x89, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, 0, 0), "invalid small font tile");
+        foreach (int invalid in new[] { -1, 0x0c, 0x10, 0x53, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, 0, 0), "invalid title font tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, invalid, 0), "invalid glyph X");
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, 0, invalid), "invalid glyph Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, invalid, 0), "invalid glyph X");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, 0, invalid), "invalid glyph Y");
         }
         void CheckEdited(byte[] pixels)
         {

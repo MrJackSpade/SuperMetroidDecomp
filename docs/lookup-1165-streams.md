@@ -33,3 +33,7 @@ The machine-readable [ownership manifest](lookup-1165-streams.json) covers every
 The current session supports the coordinator plus three concurrent workers. Streams 1–3 start first; streams 4–5 are queued and receive worker slots at completed batch boundaries. This is a capacity constraint, not a deferral of their scope. Workers stop mutations for a completed batch until the coordinator acknowledges integration.
 
 Each stream exclusively owns `csharp/src/SuperMetroid.Verification/Program.LookupStreamN.cs` for its corresponding N=1..5, as recorded under additionalOwnership in the manifest. The coordinator wires methods into existing entry points and runs shared builds and focused checks serially. Additional paths require explicit ownership assignment before editing.
+
+### Worktree isolation (supersedes shared-build freezes)
+
+Each stream now has `.worktrees/lookup-stream-N` on `work/lookup-1165-stream-N`. Workers edit, build, verify and commit locally in their assigned worktree. They do not push; the coordinator reviews and integrates their commits, resolves shared wiring, and publishes from main. Stream-local Program.cs wiring is permitted for independent checks. Production ownership is unchanged. Main-worktree edits were backed up under ignored `csharp/test-temp/1165-worktree-migration` before copying each owned change. Existing unrelated worktrees and test-temp files are untouched.

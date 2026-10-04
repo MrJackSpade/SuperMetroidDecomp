@@ -2831,7 +2831,12 @@
                                     "stream":  5,
                                     "path":  "csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs",
                                     "purpose":  "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+                                },
+                                {
+                                    "stream":  3,
+                                    "path":  "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectilePlacementDefinitions.cs",
+                                    "purpose":  "Shaktool projectile placement domain catalog"
                                 }
                             ],
-    "scheduling":  "Session capacity: coordinator plus three concurrent workers. Streams1-3 start first; streams4-5 queued for worker reassignment at batch boundaries. Only coordinator builds shared outputs and publishes."
+    "scheduling":  "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -4,7 +4,17 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Seven small asteroids assembled from three reusable overlapping shapes.
-/// Original90FE scene anchors remain separately unresolved supplied placement.</summary>
+/// The original90FE anchors and copy orientations are authored scene placement.</summary>
+/// <remarks>
+/// The complete native composition scatters seven copies of three rock drawings.
+/// BF76/BF89 initializes one shared origin and translates it horizontally; CC4F
+/// repeatedly displays the same composition. No individual trajectory or rotation
+/// determines the relative positions or chosen vertical reflections. Inspection of
+/// the original assembled art confirms these choices vary a fixed scene drawing.
+/// A fitted ordinal curve or numerical case list would recite that arrangement.
+/// Retain only those anchors and copy orientations under the nonsense exception;
+/// local shape geometry is calculated, and source pixels remain a separate review.
+/// </remarks>
 internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)

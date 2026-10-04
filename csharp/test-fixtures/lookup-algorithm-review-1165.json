@@ -10257,7 +10257,7 @@
   "ceresSmallAsteroidPartLayoutReview": {
     "owner": "csharp/src/SuperMetroid.Core/Assets/CeresSmallAsteroidParts.cs",
     "id": "ceres-small-asteroid-shapes-and-placement",
-    "state": "unreviewed",
+    "state": "retained",
     "shapes": {
       "id": "ceres-seven-small-asteroids-three-shapes",
       "state": "converted",
@@ -10267,9 +10267,11 @@
     },
     "placement": {
       "id": "ceres-seven-small-asteroid-scene-anchors",
-      "state": "unreviewed",
-      "scope": "Seven original anchors remain required independent placement review: vertical(-128,-22), vertical(-34,-3), horizontal(3,34), corner(99,-5), vertical(54,-12), horizontal(-100,20), corner(22,-17). Fixed copy orientations must also be assessed with scene composition. No retention exception is accepted."
+      "state": "retained",
+      "scope": "Only the seven anchors and per-copy vertical orientation choices: vertical(-128,-22), vertical(-34,-3), horizontal(3,34), corner(99,-5), vertical(54,-12), horizontal(-100,20), corner(22,-17). Copies0,4,6 are vertically reflected.",
+      "evidence": "Read complete native8C:90FE and8B:BF76..BF9F/CC4F..CC56. One actor origin starts at(128,96), moves horizontally by1/32 pixel per update with nine-bit X wrap, and repeatedly publishes the same composition. There is no per-rock position integration, rotation, collision or orbit input. Extended the SHA-pinned --lookup-ceres-asteroid-art exporter to assemble the complete16-part small group from original96:D10A pixels and8C:E5E9 palette. The image shows seven scattered copies of three drawings, with selected reflections varying those repeated copies.",
+      "rationale": "Relative gaps, heights and reflections define this fixed visual arrangement. They are independent of the shared translation and are not an evenly spaced tiling or reflected layout of the whole group. A curve through copy ordinals would invent a trajectory the consumer does not have; numeric cases would merely repeat the chosen composition. Retain these specific authored scene choices under the nonsense exception, supported by complete source, consumer and artwork inspection. This is not a size/performance/complexity objection or a blanket asteroid/pixel exemption."
     },
-    "remaining": "All local shapes are calculated; scene placement/orientation and source pixels remain required, along with other inventory entries. Implementation commit is the commit adding this record."
+    "remaining": "Local shapes are calculated and the specific scene anchors/orientations have the narrow disposition above. Source pixels and other inventory entries remain independently required. Shape commit is5ee5e982; placement-disposition commit is the commit extending the asteroid artwork exporter."
   }
 }

@@ -41,62 +41,53 @@ internal static class MotherBrainTurretDefinitions
     /// <summary>Minimum random firing cooldown applied by $86:C00A.</summary>
     internal const ushort MinimumFiringCooldown = 0x0080;
 
-    /// <summary>
-    /// The twelve parallel placement, rotation-pointer, and initial-direction rows at
-    /// <c>$86:BE89-$86:BEF8</c>, with each eight-byte permission row at
-    /// <c>$86:BEF9-$86:BF58</c> represented as a direction bit mask.
-    /// </summary>
-    private static readonly MotherBrainTurretDefinition[] Turrets =
-    [
-        new(0x0398, 0x0030, 0xbef9, MotherBrainTurretDirection.DownRight, 0x0e),
-        new(0x0348, 0x0040, 0xbf01, MotherBrainTurretDirection.Right, 0x1c),
-        new(0x0328, 0x0040, 0xbf09, MotherBrainTurretDirection.Down, 0x07),
-        new(0x02d8, 0x0030, 0xbf11, MotherBrainTurretDirection.DownRight, 0x0e),
-        new(0x0288, 0x0040, 0xbf19, MotherBrainTurretDirection.Right, 0x1e),
-        new(0x0268, 0x0040, 0xbf21, MotherBrainTurretDirection.Down, 0x0f),
-        new(0x0218, 0x0030, 0xbf29, MotherBrainTurretDirection.DownRight, 0x0e),
-        new(0x01c8, 0x0040, 0xbf31, MotherBrainTurretDirection.Right, 0x1c),
-        new(0x01a8, 0x0040, 0xbf39, MotherBrainTurretDirection.Down, 0x07),
-        new(0x0158, 0x0030, 0xbf41, MotherBrainTurretDirection.DownRight, 0x0e),
-        new(0x0108, 0x0040, 0xbf49, MotherBrainTurretDirection.Right, 0x1e),
-        new(0x00e8, 0x0040, 0xbf51, MotherBrainTurretDirection.DownLeft, 0x0f),
-    ];
-
-    /// <summary>
-    /// Direction instruction selectors at <c>$86:BEB9-$86:BEC8</c> and
-    /// <c>$86:C040-$86:C04F</c>, paired with the signed offset/velocity rows at
-    /// <c>$86:BF9F-$86:BFDE</c>. The two selector copies are identical in the cartridge.
-    /// </summary>
-    private static readonly MotherBrainTurretDirectionDefinition[] Directions =
-    [
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretLeft,
-            -17, -9, -0x02c0, 0),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretDownLeft,
-            -12, 3, -0x01f2, 0x01f2),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretDown,
-            0, 7, 0, 0x02c0),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretDownRight,
-            12, 3, 0x01f2, 0x01f2),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretRight,
-            17, -9, 0x02c0, 0),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretUpRight,
-            12, -19, 0x01f2, -0x01f2),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretUp,
-            0, -21, 0, -0x02c0),
-        new(MotherBrainTurretInstructionProgramDefinitions.TurretUpLeft,
-            -12, -19, -0x01f2, -0x01f2),
-    ];
+    /// <summary>$86:BE89-$BEF8 places four room bays of three turrets.</summary>
+    internal const int TurretCount = 12;
+    /// <summary>$86:BEB9/$C040 select eight turret poses in left-to-up-left octant order.</summary>
+    internal const int DirectionCount = 8;
+    /// <summary>$86:BEF9 begins twelve eight-byte allowed-direction rows.</summary>
+    internal const ushort RotationPolicyStart = 0xbef9;
+    /// <summary>$86:BE89 starts the first bay at X=$398; each later bay is 192 pixels left.</summary>
+    private const int FirstBayX = 0x398;
+    /// <summary>The native placement rows repeat three mounting positions every twelve tiles.</summary>
+    private const int BaySpacing = 192;
+    /// <summary>$86:BFBF/$BFCF use a 2.75-pixel 8.8 bullet speed, rounded in diagonal octants.</summary>
+    private const int BulletSpeed = 0x2c0;
+    /// <summary>$86:BF9F samples a seventeen-pixel horizontal muzzle radius.</summary>
+    private const int MuzzleRadius = 17;
+    /// <summary>$86:C101-$C12B: each direction has one timed pose followed by Sleep, six bytes total.</summary>
+    private const int PoseBytes = 6;
 
     /// <summary>Returns one of the twelve physical turret definitions.</summary>
     internal static MotherBrainTurretDefinition ForTurret(ushort parameter)
     {
-        if (parameter >= Turrets.Length)
+        if (parameter >= TurretCount)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(parameter), parameter, "Mother Brain turret parameter must be zero through eleven.");
         }
 
-        return Turrets[parameter];
+        int bay = parameter / 3;
+        int column = parameter % 3;
+        bool wideSector = (bay & 1) != 0;
+        int xInset = column == 0 ? 0 : 48 + column * 32;
+        MotherBrainTurretDirection initial = column switch
+        {
+            0 => MotherBrainTurretDirection.DownRight,
+            1 => MotherBrainTurretDirection.Right,
+            _ when bay == 3 => MotherBrainTurretDirection.DownLeft,
+            _ => MotherBrainTurretDirection.Down,
+        };
+        byte allowed = column switch
+        {
+            0 => Sector(MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
+            1 => Sector(wideSector ? MotherBrainTurretDirection.DownLeft : MotherBrainTurretDirection.Down,
+                MotherBrainTurretDirection.Right),
+            _ => Sector(MotherBrainTurretDirection.Left,
+                wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down),
+        };
+        return new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64),
+            (ushort)(RotationPolicyStart + parameter * DirectionCount), initial, allowed);
     }
 
     /// <summary>Returns the animation and bullet record for one of the eight directions.</summary>
@@ -104,13 +95,25 @@ internal static class MotherBrainTurretDefinitions
         MotherBrainTurretDirection direction)
     {
         int index = (byte)direction;
-        if ((uint)index >= Directions.Length)
+        if ((uint)index >= DirectionCount)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Mother Brain turret direction must be zero through seven.");
         }
 
-        return Directions[index];
+        double angle = index * Math.PI / 4;
+        short muzzleY = direction switch
+        {
+            MotherBrainTurretDirection.Left or MotherBrainTurretDirection.Right => -9,
+            MotherBrainTurretDirection.DownLeft or MotherBrainTurretDirection.DownRight => 3,
+            MotherBrainTurretDirection.Down => 7,
+            MotherBrainTurretDirection.UpLeft or MotherBrainTurretDirection.UpRight => -19,
+            MotherBrainTurretDirection.Up => -21,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+        };
+        return new((ushort)(MotherBrainTurretInstructionProgramDefinitions.TurretLeft + index * PoseBytes),
+            (short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY,
+            (short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle)));
     }
 
     /// <summary>
@@ -121,20 +124,23 @@ internal static class MotherBrainTurretDefinitions
         ushort allowedRotationPointer,
         MotherBrainTurretDirection direction)
     {
-        int pointerOffset = allowedRotationPointer - 0xbef9;
-        if (pointerOffset < 0 || pointerOffset >= Turrets.Length * 8 || (pointerOffset & 7) != 0)
+        int pointerOffset = allowedRotationPointer - RotationPolicyStart;
+        if (pointerOffset < 0 || pointerOffset >= TurretCount * DirectionCount || (pointerOffset & 7) != 0)
         {
             throw new InvalidDataException(
                 $"Mother Brain turret rotation pointer $86:{allowedRotationPointer:X4} is not an authored policy row.");
         }
 
         int directionIndex = (byte)direction;
-        if ((uint)directionIndex >= Directions.Length)
+        if ((uint)directionIndex >= DirectionCount)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Mother Brain turret direction must be zero through seven.");
         }
 
-        return (Turrets[pointerOffset / 8].AllowedDirectionMask & (1 << directionIndex)) != 0;
+        return (ForTurret((ushort)(pointerOffset / DirectionCount)).AllowedDirectionMask & (1 << directionIndex)) != 0;
     }
+
+    private static byte Sector(MotherBrainTurretDirection first, MotherBrainTurretDirection last) =>
+        (byte)(((1 << ((int)last - (int)first + 1)) - 1) << (int)first);
 }

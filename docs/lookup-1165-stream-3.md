@@ -541,8 +541,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs
 
-- [ ] **MotherBrainTurretDefinitions.Turrets** ([L50](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainTurretDefinitions.Directions** ([L71](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L71)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainTurretDefinitions.Turrets** ([L50](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainTurretDefinitions.Directions** ([L71](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L71)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs
 
@@ -786,6 +786,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed all three native selector words at $86:C929, selector boundaries, and a real three-call escape handoff: no palette registration after door page one, all four native registrations in order after page two, and no repeat on the following text frame.
 - Changed production: owned death-explosion catalog and state machine; verification extends the owned partial. Two inventory entries completed, with no retained exception.
 
+### Confirmed batch 17: Room turret placement and launch geometry
+
+- Converted both turret definitions. Twelve placements calculate four repeated three-turret bays with 192-pixel spacing and the original initial-direction cases. Rotation masks are contiguous direction sectors, widened for alternating bays; policy identities use an eight-byte stride.
+- Pose identities use six-byte spacing. Bullet velocities calculate sine/cosine octants at speed 704 with integer rounding; muzzle X uses radius 17 and vertical barrel anchors use named direction cases. Neither definition retains a cached array.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed the existing native fixture's twelve placements, 96 rotation bytes, sixteen instruction selectors, 32 bullet words, 384 rotations and all twenty real spawns with source tables forbidden.
+- Changed production: owned turret catalog; verification reuses the existing turret fixture through the owned partial. Two inventory entries completed, with no retained exception or external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

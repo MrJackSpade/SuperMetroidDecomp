@@ -104,6 +104,7 @@ internal static partial class Program
         VerifyStream3PainfulWalking(rom);
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
+        VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
             var regions = MotherBrainContactHitboxDefinitions.Get(part);

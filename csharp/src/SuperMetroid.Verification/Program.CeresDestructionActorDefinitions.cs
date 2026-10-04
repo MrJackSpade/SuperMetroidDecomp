@@ -83,20 +83,13 @@ internal static partial class Program
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 
+        VerifyCeresBackdropPrograms(retail);
         VerifyCeresInitialExplosionProgram(retail);
         VerifyCeresRepeatingExplosionProgram(retail);
         VerifyCeresFinalWaveProgram(retail);
         VerifyCeresStationBlastProgram(retail);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart,
-            CeresDestructionSpriteInstructionDefinitions.LargeAsteroidEnd);
         VerifyProgram(CeresFlightSpriteInstructionDefinitions.RearClusterStart,
             CeresFlightSpriteInstructionDefinitions.RearClusterEnd);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.PlanetStart,
-            CeresDestructionSpriteInstructionDefinitions.PlanetEnd);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.TitleStart,
-            CeresDestructionSpriteInstructionDefinitions.TitleEnd);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.StarSheetsStart,
-            CeresDestructionSpriteInstructionDefinitions.StarSheetsEnd);
         AssertThrows<InvalidDataException>(() =>
             CeresDestructionSpriteInstructionDefinitions.ReadWord(
                 CeresDestructionSpriteInstructionDefinitions.InitialExplosionEnd - 1),
@@ -105,12 +98,9 @@ internal static partial class Program
             CeresDestructionSpriteInstructionDefinitions.ReadWord(
                 CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 7),
             "Ceres star-sheet reader cannot cross into the next quadrant");
-        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+        for (int index = 1; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
             VerifyList(CeresDestructionActorDefinitions.InitialActor(index).InstructionList,
                 $"destruction initial actor {index}");
-        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
-            VerifyList(CeresDestructionActorDefinitions.ZebesActor(index).InstructionList,
-                $"Zebes reveal actor {index}");
 
         var guard = new CeresDestructionActorDefinitionReadGuard(retail);
         var state = new CeresDestructionCinematicState(guard);
@@ -141,7 +131,7 @@ internal static partial class Program
                     ? static (_, cursor) => cursor : null;
             for (int frame = 0; frame < 480; frame++)
             {
-                native.Step(retail, callback);
+                native.Step(retail, callback, pointer => ReadWord(retail, 0x8b0000 | pointer));
                 compiled.Step(retail, callback,
                     CeresDestructionSpriteInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, compiled.InstructionPointer,

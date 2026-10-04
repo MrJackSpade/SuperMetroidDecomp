@@ -174,6 +174,15 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-backdrop-programs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres backdrop program oracle revision");
+    VerifyCeresBackdropPrograms(rom);
+    Console.WriteLine("Ceres backdrop programs: seven original streams, word boundaries, loops and title callback timing pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-explosion-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

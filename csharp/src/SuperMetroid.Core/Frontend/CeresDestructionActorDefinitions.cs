@@ -140,36 +140,16 @@ internal static class CeresDestructionActorDefinitions
     /// completion. Planet and title have separate authored identities;
     /// retain the six bounded triples despite these star-address strides.
     ///
-    /// Issues #625 and #1023: all sixteen words in the four star-sheet
-    /// lists at $8B:CD83/CD8B/CD93/CD9B match pinned NTSC J/U v1.0 ROM
-    /// and bank_8B.asm. For bounded star index i=1..4, each list starts
-    /// at $CD83+8*(i-1), displays one bank-$8C spritemap for ten handler
-    /// calls, then $94BC jumps to its own start. The four frame pointers
-    /// are $975E, $979C, $97BC, $97D2; bank_8C.asm shows respective
-    /// entry counts 12, 6, 4, 7. Their spacing follows unequal authored
-    /// sprite sizes, not a useful frame-index formula. Retain these four
-    /// visual choices as one bounded quadrant selector, with the shared
-    /// constant-period loop; $CDA3 starts a different actor's list.
-    ///
-    /// Issues #625 and #1024: planet index zero uses list $8B:CCAB..CCB2.
-    /// Its four words $000A, $9558, $94BC, $CCAB match pinned NTSC J/U
-    /// v1.0 ROM and bank_8B.asm. The exact rule displays bank-$8C Zebes
-    /// spritemap $9558 for ten handler calls, then jumps back to $CCAB
-    /// while the scene retains the actor. IntroDiscoverySprite.Step cannot
-    /// fall through to the adjacent $CCB3 list. Keep the authored planet
-    /// visual ROM-backed; the constant-period loop needs no data table.
-    ///
-    /// Issues #625 and #1025: all thirteen words in title index five's
-    /// list at $8B:CCBB..CCD4 match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. It waits $0040 with a null map, calls fade-in $C9A5,
-    /// displays bank-$8C title spritemap $9654 for $0020, calls optional
-    /// Japanese-subtitle spawn $C9AF, displays $9654 for $00C0, calls
-    /// fade-out $C9BD, displays $9654 for $0060, calls start-flight
-    /// $C9C7, then deletes with $9438. The regional source durations here
-    /// are the pinned ROM's values. IntroDiscoverySprite.Step follows this
-    /// bounded stream, ending before adjacent subtitle list $CCD5.
-    /// Four waits have simple fixed durations, but the callback order and
-    /// visible/blank policy are authored; retain the native schedule.
+    /// The four star-sheet programs at $8B:CD83/CD8B/CD93/CD9B select
+    /// named upper-left, upper-right, lower-left and lower-right frames and
+    /// loop at ten calls. The planet list at $8B:CCAB uses the same loop
+    /// structure with its own frame identity. The title list at $8B:CCBB
+    /// sequences its blank/visible waits and fade/subtitle/flight callbacks,
+    /// then deletes. CeresDestructionSpriteInstructionDefinitions generates
+    /// these operations directly; no copied program-byte table remains.
+    /// Independent #1165 proofs cover every original byte and per-frame
+    /// callback timing. The former authored-content retention claims for
+    /// these programs are withdrawn; artwork is a separate review subject.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

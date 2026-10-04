@@ -132,12 +132,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs
 
-- [ ] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChootInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs
 
-- [ ] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs
 
@@ -692,6 +692,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Fireflea durations alternate two/one ticks with four-byte timed records; the final Goto and target follow the 52 records. Read, enumeration and ownership APIs calculate directly and retain their original accepted/rejected domains.
 - Evidence and confirmation: pinned ROM pickup selectors $86:EF04, death selectors $86:EFD5, all 30 pickup mechanics/16 visual operands in $ED8D-$EDFD, and 54 Fireflea mechanics/52 visual operands in $A3:8C2F-$8D02. Verification build passed (1431 warnings, zero errors), and `--lookup-stream-3` passed native words, enumeration order, exact word/byte ownership, presentation exclusion, invalid indices and invalid kind/variant boundaries.
 - Changed production: `EnemyPickupDefinitions.cs`, `EnemyDeathExplosionDefinitions.cs`, `EnemyPickupInstructionProgramDefinitions.cs`, `FirefleaInstructionProgramDefinitions.cs`. Confirmation extends the assigned stream partial; no additional dependencies.
+### Confirmed batch 4: Choot control and motion selection
+
+- Converted three definitions: normal/wide/very-wide/slow/very-slow motion selection is direct semantic dispatch, and the idle/jump/fall instruction mechanics plus visual operand addresses calculate on demand.
+- Idle disables off-screen processing, displays one tick and sleeps. Jump/fall enable off-screen processing, display eight ticks then one tick and sleep; their final visual operands remain separate. The physical program layouts supply record addresses without cached word arrays.
+- Shared path identities are named once in `ChootFallingPathDefinitions.cs`; selection retains the five original loop advances. The three original motion arrays are still required. Their former retention claims based on correction complexity, readability or scaling were deleted, as were obsolete retention claims in the converted selector/control files. No retained exception is asserted.
+- Confirmation: Verification build passed (1431 warnings, zero errors), `--lookup-stream-3` passed all five pointers and native indirect loop advances ($A2:DF5E/$DF6A), all eleven native control words/five visual operand addresses ($D82C-$D84A), complete word/byte ownership, alias rejection and index boundaries.
+- Changed production: `ChootPatternDefinitions.cs`, `ChootInstructionProgramDefinitions.cs`, `ChootFallingPathDefinitions.cs` (identity sharing and comment cleanup only; motion data unchanged). Tests extend the owned stream partial. No dependencies.
 ### Remaining scope
 
-All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes Choot instruction/selector conversion and removal of obsolete retention rationale.
+All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Next work includes Ripper-family program and visual selectors.

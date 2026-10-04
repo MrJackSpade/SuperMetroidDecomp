@@ -10,9 +10,12 @@ internal readonly record struct ChootFallingPathPoint(ushort XOffset, ushort YOf
 /// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>
 internal static class ChootFallingPathDefinitions
 {
-    private const ushort NormalPointer = 0xd84c;
-    private const ushort WidePointer = 0xd976;
-    private const ushort VeryWidePointer = 0xdaa0;
+    /// <summary>$A2:D84C, normal falling motion.</summary>
+    internal const ushort NormalPointer = 0xd84c;
+    /// <summary>$A2:D976, wide falling motion.</summary>
+    internal const ushort WidePointer = 0xd976;
+    /// <summary>$A2:DAA0, very wide falling motion.</summary>
+    internal const ushort VeryWidePointer = 0xdaa0;
 
     /// <summary>
     /// <c>$A2:DBCA-$A2:DD41</c>: the normal path with ten extra copies of
@@ -23,7 +26,7 @@ internal static class ChootFallingPathDefinitions
     /// mapping is applied by <see cref="CollapseExpandedPlateaus"/>.
     /// Investigation: #625 / #658.
     /// </summary>
-    private const ushort SlowPointer = 0xdbca;
+    internal const ushort SlowPointer = 0xdbca;
 
     /// <summary>
     /// <c>$A2:DD44-$A2:DF5B</c>: the normal path with thirty extra copies of
@@ -34,7 +37,7 @@ internal static class ChootFallingPathDefinitions
     /// mapping is applied by <see cref="CollapseExpandedPlateaus"/>.
     /// Investigation: #625 / #659.
     /// </summary>
-    private const ushort VerySlowPointer = 0xdd44;
+    internal const ushort VerySlowPointer = 0xdd44;
 
     private const int PositivePlateauIndex = 28;
     private const int NegativePlateauIndex = 63;
@@ -49,11 +52,7 @@ internal static class ChootFallingPathDefinitions
     /// The pinned NTSC J/U v1.0 ROM matches all 73 motion pairs and the final
     /// <c>$8000,$8000</c> sentinel. Choot consumes one pair per fall frame and
     /// adds its signed offsets to the 16-bit path origin; the following
-    /// <c>$D974</c> word is the loop Y distance, outside this path. Retain the
-    /// bounded authored trajectory: its unequal plateaus and phase transitions
-    /// would require correction data in a lossless arithmetic reconstruction.
-    /// Slow and very-slow selectors reuse these pairs with separate repeated
-    /// plateau frames. Investigation: #625 / #655.
+    /// <c>$D974</c> word is the loop Y distance, outside this path.
     /// </remarks>
     private static ReadOnlySpan<ushort> Normal =>
     [
@@ -83,10 +82,6 @@ internal static class ChootFallingPathDefinitions
     /// All 73 signed X/Y motion pairs and the <c>$8000,$8000</c> sentinel
     /// match the pinned NTSC J/U v1.0 ROM. Selector 1 consumes one pair per
     /// frame; the following <c>$DA9E</c> word is its loop Y distance.
-    /// Retain this bounded authored trajectory: its X steps are not a fixed
-    /// scaling of the normal path and its Y samples also differ, so an exact
-    /// arithmetic fit would require less readable phase and correction data.
-    /// Investigation: #625 / #656.
     /// </remarks>
     private static ReadOnlySpan<ushort> Wide =>
     [
@@ -116,10 +111,6 @@ internal static class ChootFallingPathDefinitions
     /// All 73 signed X/Y motion pairs and the <c>$8000,$8000</c> sentinel
     /// match the pinned NTSC J/U v1.0 ROM. Selector 2 consumes one pair per
     /// frame; the following <c>$DBC8</c> word is its loop Y distance.
-    /// Retain this bounded authored trajectory: its X and Y transitions do
-    /// not follow a single lossless scaling of the normal or wide paths, and
-    /// a fitted formula with correction data would obscure these path samples.
-    /// Investigation: #625 / #657.
     /// </remarks>
     private static ReadOnlySpan<ushort> VeryWide =>
     [

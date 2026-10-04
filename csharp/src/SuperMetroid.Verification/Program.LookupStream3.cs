@@ -92,7 +92,57 @@ internal static partial class Program
         }
         VerifyStream3WorkRobotColors(rom);
         VerifyStream3PickupAndFirefleaPrograms(rom);
-        Console.WriteLine("Lookup stream 3: grapple sectors/transfers, Spark initial states, Shaktool circle/selectors, and Work Robot colors match their originals.");
+        VerifyStream3ChootControl(rom);
+        Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3ChootControl(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (ushort pattern = 0; pattern < 5; pattern++)
+        {
+            ushort pointer = Read(0xa2df5e + 2 * pattern);
+            ushort distancePointer = Read(0xa2df6a + 2 * pattern);
+            AssertEqual(new ChootPatternDefinition(pointer, Read(0xa20000 | distancePointer)),
+                ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
+        }
+        foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => ChootPatternDefinitions.ForIndex(invalid),
+                "stream 3 Choot rejects alias and invalid patterns");
+        ushort[] mechanics = [0xd82c, 0xd82e, 0xd832, 0xd834, 0xd836, 0xd83a, 0xd83e, 0xd840, 0xd842, 0xd846, 0xd84a];
+        ushort[] presentation = [0xd830, 0xd838, 0xd83c, 0xd844, 0xd848];
+        AssertEqual(mechanics.Length, ChootInstructionProgramDefinitions.MechanicsWordCount, "stream 3 Choot mechanics count");
+        AssertEqual(presentation.Length, ChootInstructionProgramDefinitions.PresentationWordCount, "stream 3 Choot visual count");
+        for (int index = 0; index < mechanics.Length; index++)
+        {
+            ushort address = mechanics[index];
+            ushort value = Read(0xa20000 | address);
+            AssertEqual(new ChootInstructionMechanicsWord(address, value), ChootInstructionProgramDefinitions.MechanicsWord(index),
+                "stream 3 Choot native control instruction");
+            AssertEqual(value, ChootInstructionProgramDefinitions.ReadMechanicsWord(address), "stream 3 Choot control dispatch");
+        }
+        for (int index = 0; index < presentation.Length; index++)
+        {
+            ushort address = presentation[index];
+            AssertEqual(address, ChootInstructionProgramDefinitions.PresentationWordAddress(index), "stream 3 Choot visual operand");
+            AssertThrows<InvalidDataException>(() => ChootInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "stream 3 Choot visual operand remains excluded");
+        }
+        var bytes = mechanics.SelectMany(address => new[] { (int)address, address + 1 }).ToHashSet();
+        var visualWords = presentation.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), ChootInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+                "stream 3 Choot byte ownership");
+            AssertEqual(visualWords.Contains((ushort)address), ChootInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+                "stream 3 Choot presentation ownership");
+        }
+        foreach (int invalid in new[] { -1, 11, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 Choot mechanics bounds");
+        foreach (int invalid in new[] { -1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 Choot visual bounds");
     }
 
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)

@@ -174,6 +174,15 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-explosion-frame-catalog"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending explosion frame catalog oracle revision");
+    VerifyEndingExplosionFrameCatalog(rom);
+    Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-reward-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

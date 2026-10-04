@@ -9,6 +9,32 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
+    {
+        // Independent original list operands select every distinct visual frame.
+        ushort[] operands = [0xeb15, 0xeb19, 0xeb1d, 0xeb21, 0xeb2b, 0xeb2f, 0xeb33, 0xeb37,
+            0xeb5f, 0xeb63, 0xeb3f, 0xeb43, 0xeb47, 0xeb53, 0xeb6b, 0xeb8b];
+        // Published asset keys are compatibility evidence, not generated expected values.
+        string[] names = ["planet-damage-0", "planet-damage-1", "planet-damage-2", "planet-damage-3",
+            "planet-flash-0", "planet-flash-1", "planet-flash-2", "planet-flash-3", "lava-0", "lava-1",
+            "glow-0", "glow-1", "glow-2", "starfield", "silhouette", "afterglow"];
+        var frames = EndingExplosionSpriteDefinitions.Frames;
+        AssertEqual(16, frames.Count, "explosion catalog frame count");
+        for (int i = 0; i < operands.Length; i++)
+        {
+            int address = 0x8b0000 | operands[i];
+            ushort pointer = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            int header = 0x8c0000 | pointer;
+            int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
+            AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
+            AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
+        }
+        AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
+    }
+
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
@@ -67,6 +93,7 @@ internal static partial class Program
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
         VerifyEndingExplosionPrograms(bus);
+        VerifyEndingExplosionFrameCatalog(bus);
 
         foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {

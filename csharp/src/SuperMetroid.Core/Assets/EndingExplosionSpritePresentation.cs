@@ -42,12 +42,12 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
         {
             throw new InvalidDataException("Invalid ending explosion sprite JSON.", error);
         }
-        ReadOnlySpan<EndingExplosionSpriteFrameDefinition> definitions =
+        IReadOnlyList<EndingExplosionSpriteFrameDefinition> definitions =
             EndingExplosionSpriteDefinitions.Frames;
         if (document.Version != EndingExplosionSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
-                $"Ending explosion requires exactly {definitions.Length} named visual frames.");
+                $"Ending explosion requires exactly {definitions.Count} named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (EndingExplosionSpriteFrameDefinition definition in definitions)
         {
@@ -80,27 +80,57 @@ public sealed record EndingExplosionSpriteDocument
 /// <summary>Distinct bank-$8C frame identities consumed by the eight explosion actors.</summary>
 public static class EndingExplosionSpriteDefinitions
 {
-    private static readonly EndingExplosionSpriteFrameDefinition[] StockFrames =
-    [
-        new("planet-damage-0", 0xa396, 4),
-        new("planet-damage-1", 0xa3ac, 4),
-        new("planet-damage-2", 0xa3c2, 4),
-        new("planet-damage-3", 0xa3d8, 4),
-        new("planet-flash-0", 0xa3ee, 4),
-        new("planet-flash-1", 0xa404, 4),
-        new("planet-flash-2", 0xa41a, 4),
-        new("planet-flash-3", 0xa430, 4),
-        new("lava-0", 0xa446, 4),
-        new("lava-1", 0xa45c, 4),
-        new("glow-0", 0xa472, 12),
-        new("glow-1", 0xa4b0, 20),
-        new("glow-2", 0xa516, 20),
-        new("starfield", 0xa28b, 53),
-        new("silhouette", 0xa57c, 20),
-        new("afterglow", 0xa5e2, 37),
-    ];
+    /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
+    /// contain four damage poses, four flash poses and two lava poses.</summary>
+    private const ushort PlanetFirst = 0xa396;
+    /// <summary>$8C:A28B, ZebesBoomStarryBackground, independent of the planet record chain.</summary>
+    private const ushort Starfield = 0xa28b;
+    private const int SmallParts = 4, GlowParts = 12, SupernovaParts = 20;
+    private const int FrameCount = 16;
 
-    public static ReadOnlySpan<EndingExplosionSpriteFrameDefinition> Frames => StockFrames;
+    /// <summary>Ordered asset identities, calculated on demand without a stored frame array.</summary>
+    public static IReadOnlyList<EndingExplosionSpriteFrameDefinition> Frames { get; } = new FrameView();
+
+    private enum FinalFrame { Glow, SupernovaFirst, SupernovaSecond, Stars, Silhouette, Afterglow }
+
+    private static EndingExplosionSpriteFrameDefinition Get(int index)
+    {
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 10)
+        {
+            string family = index < 4 ? "planet-damage" : index < 8 ? "planet-flash" : "lava";
+            int stage = index < 4 ? index : index < 8 ? index - 4 : index - 8;
+            return new(family + "-" + stage.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                (ushort)(PlanetFirst + index * RecordBytes(SmallParts)), SmallParts);
+        }
+        // The glow and supernova compositions follow the small planet/core records.
+        int glow = PlanetFirst + 10 * RecordBytes(SmallParts);
+        int firstSupernova = glow + RecordBytes(GlowParts);
+        return (FinalFrame)(index - 10) switch
+        {
+            FinalFrame.Glow => new("glow-0", (ushort)glow, GlowParts),
+            FinalFrame.SupernovaFirst => new("glow-1", (ushort)firstSupernova, SupernovaParts),
+            FinalFrame.SupernovaSecond => new("glow-2", (ushort)(firstSupernova + RecordBytes(SupernovaParts)), SupernovaParts),
+            FinalFrame.Stars => new("starfield", Starfield, 53),
+            FinalFrame.Silhouette => new("silhouette", (ushort)(firstSupernova + 2 * RecordBytes(SupernovaParts)), SupernovaParts),
+            FinalFrame.Afterglow => new("afterglow", (ushort)(firstSupernova + 3 * RecordBytes(SupernovaParts)), 37),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+    }
+
+    private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
+
+    private sealed class FrameView : IReadOnlyList<EndingExplosionSpriteFrameDefinition>
+    {
+        public int Count => FrameCount;
+        public EndingExplosionSpriteFrameDefinition this[int index] => Get(index);
+        public IEnumerator<EndingExplosionSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return Get(index);
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
 }
 
 public readonly record struct EndingExplosionSpriteFrameDefinition(

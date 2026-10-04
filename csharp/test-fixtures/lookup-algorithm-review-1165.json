@@ -8751,4 +8751,30 @@
   "proof": "Reuse VerifyEndingRewardInstructions as sole compound original-program proof. Early SHA-pinned --lookup-ending-reward-programs compares all160 original words, bounds, and17 native/generated actor streams for480 calls each. Explicit independent ROM reader replaces stale omitted reader in verification only. Cursor, visual frame, pre-instruction, lifetime and callback order/timing match on every call. Four native OAM headers independently establish the12-byte head-frame stride. Build0 errors/1429 existing warnings; focused proof passes.",
   "scope": "Only these17 programs. Actor metadata, sprite catalog and individual artwork/motion mappings retain independent review obligations. These are control/animation cases, not a retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingExplosionFrameCatalogReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingExplosionSpritePresentation.cs",
+  "source": "Supported SHA-pinned ROM8B explosion instruction operands independently select16 frames. Original8C OAM headers provide their part counts. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d names the planet damage, flash, core, glow, starfield, silhouette and afterglow compositions.",
+  "tables": [
+    {
+      "id": "ending-explosion-frame-catalog-pointers",
+      "state": "converted",
+      "algorithm": "Ten four-part records atA396+(2+5*4)*index; glow follows them, then its12-part record and three20-part supernova records establish subsequent pointers. Independent starfield named identityA28B."
+    },
+    {
+      "id": "ending-explosion-frame-catalog-counts",
+      "state": "converted",
+      "algorithm": "Named composition roles: four parts for damage/flash/core,12 for glow,20 for supernova/silhouette,53 starfield,37 afterglow. Counts describe OAM record shape, not a sampled numeric curve."
+    },
+    {
+      "id": "ending-explosion-frame-catalog-names",
+      "state": "converted",
+      "algorithm": "Damage/flash/lava family plus invariant decimal stage; named glow/supernova/starfield/silhouette/afterglow cases preserve published editable asset keys."
+    }
+  ],
+  "implementation": "Remove16-record StockFrames array. Stateless IReadOnlyList view computes each record on access/enumeration; no generated lookup cache. Loader uses Count instead of span Length. Extractor, verification and resource-audit consumers enumerate the same ordered definitions. Invalid indices throw ArgumentOutOfRangeException through the new collection contract.",
+  "consumer": "EndingExplosionSpritePresentation.Load uses exact names and pointer identities to compile independently editable compositions; EndingObjectArtworkFiles imports with native part counts; InterfacePresentationDomainAudit uses pointer membership. Mutable installed composition dictionary is user content storage, not replacement fixed lookup data.",
+  "proof": "VerifyEndingExplosionFrameCatalog is the sole focused catalog proof, also called by existing artwork aggregate. SHA-pinned --lookup-ending-explosion-frame-catalog compares all16 pointers to independent original bank8B display operands, counts to original OAM headers, names to published compatibility fixture; verifies enumeration order and invalid int bounds. Existing actor program proof retains its separate complete instruction-word/timing contract. Verification build0 errors/1429 existing warnings; focused catalog proof passes.",
+  "scope": "These three catalog fields only. The16 underlying OAM compositions and other catalogs remain independent obligations; no artwork retention exception is inferred. Implementation commit is the commit adding this record."
+}
 }

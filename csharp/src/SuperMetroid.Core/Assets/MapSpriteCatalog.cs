@@ -10,12 +10,23 @@ public sealed class MapSpriteCatalog
     private readonly FrameSet frames;
     private readonly MapObjectTileArtwork characters;
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
-    public void Draw(ushort id, OamBuffer oam, ushort x, ushort y, ushort paletteBits) => GetFrame(id).DrawOnScreen(oam, x, y, paletteBits);
+    public void Draw(ushort id, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    {
+        var frame = GetFrame(id);
+        if (frame is not null) { frame.DrawOnScreen(oam, x, y, paletteBits); return; }
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
+        {
+            var part = MapMarkerGeometry.Part(id, index);
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
+        }
+    }
+    internal bool StoresComposition(ushort id) => GetFrame(id) is not null;
     public void LoadArtworkTo(SnesVram vram, int destinationByte) => characters.LoadTo(vram, destinationByte);
     internal int StoredReservePixelCount => characters.StoredReservePixelCount;
     internal int StoredArtworkByteCount => characters.StoredOtherByteCount;
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
-    private SpriteComposition GetFrame(ushort id) => id switch
+    private SpriteComposition? GetFrame(ushort id) => id switch
     {
         MapSpriteDefinitions.ArrowRight => frames.ArrowRight,
         MapSpriteDefinitions.ArrowLeft => frames.ArrowLeft,
@@ -47,32 +58,32 @@ public sealed class MapSpriteCatalog
     };
 
     private sealed record FrameSet(
-        SpriteComposition ArrowRight,
-        SpriteComposition ArrowLeft,
-        SpriteComposition ArrowUp,
-        SpriteComposition ArrowDown,
-        SpriteComposition MarkerBoss,
-        SpriteComposition StationEnergy,
-        SpriteComposition StationMissile,
-        SpriteComposition StationMap,
-        SpriteComposition MarkerDefeatedBoss,
-        SpriteComposition MarkerGunship,
-        SpriteComposition IndicatorBacking,
-        SpriteComposition IndicatorFrame0,
-        SpriteComposition IndicatorFrame1,
-        SpriteComposition IndicatorFrame2,
-        SpriteComposition ElevatorCrateria,
-        SpriteComposition ElevatorBrinstar,
-        SpriteComposition ElevatorNorfair,
-        SpriteComposition ElevatorWreckedShip,
-        SpriteComposition ElevatorMaridia,
-        SpriteComposition WorldTitle,
-        SpriteComposition WorldCrateria,
-        SpriteComposition WorldBrinstar,
-        SpriteComposition WorldNorfair,
-        SpriteComposition WorldWreckedShip,
-        SpriteComposition WorldMaridia,
-        SpriteComposition WorldTourian);
+        SpriteComposition? ArrowRight,
+        SpriteComposition? ArrowLeft,
+        SpriteComposition? ArrowUp,
+        SpriteComposition? ArrowDown,
+        SpriteComposition? MarkerBoss,
+        SpriteComposition? StationEnergy,
+        SpriteComposition? StationMissile,
+        SpriteComposition? StationMap,
+        SpriteComposition? MarkerDefeatedBoss,
+        SpriteComposition? MarkerGunship,
+        SpriteComposition? IndicatorBacking,
+        SpriteComposition? IndicatorFrame0,
+        SpriteComposition? IndicatorFrame1,
+        SpriteComposition? IndicatorFrame2,
+        SpriteComposition? ElevatorCrateria,
+        SpriteComposition? ElevatorBrinstar,
+        SpriteComposition? ElevatorNorfair,
+        SpriteComposition? ElevatorWreckedShip,
+        SpriteComposition? ElevatorMaridia,
+        SpriteComposition? WorldTitle,
+        SpriteComposition? WorldCrateria,
+        SpriteComposition? WorldBrinstar,
+        SpriteComposition? WorldNorfair,
+        SpriteComposition? WorldWreckedShip,
+        SpriteComposition? WorldMaridia,
+        SpriteComposition? WorldTourian);
 
     public static MapSpriteCatalog Load(Stream json, Stream png)
     {
@@ -83,37 +94,37 @@ public sealed class MapSpriteCatalog
         if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteDefinitions.Count)
             throw new InvalidDataException("Map sprite content requires version 1 and all 26 named frames.");
         var frames = new FrameSet(
-            Require("Arrow.Right"),
-            Require("Arrow.Left"),
-            Require("Arrow.Up"),
-            Require("Arrow.Down"),
-            Require("Marker.Boss"),
-            Require("Station.Energy"),
-            Require("Station.Missile"),
-            Require("Station.Map"),
-            Require("Marker.DefeatedBoss"),
-            Require("Marker.Gunship"),
-            Require("Indicator.Backing"),
-            Require("Indicator.Frame0"),
-            Require("Indicator.Frame1"),
-            Require("Indicator.Frame2"),
-            Require("Elevator.Crateria"),
-            Require("Elevator.Brinstar"),
-            Require("Elevator.Norfair"),
-            Require("Elevator.WreckedShip"),
-            Require("Elevator.Maridia"),
-            Require("World.Title"),
-            Require("World.Crateria"),
-            Require("World.Brinstar"),
-            Require("World.Norfair"),
-            Require("World.WreckedShip"),
-            Require("World.Maridia"),
-            Require("World.Tourian"));
-        SpriteComposition Require(string name)
+            Require("Arrow.Right", MapSpriteDefinitions.ArrowRight),
+            Require("Arrow.Left", MapSpriteDefinitions.ArrowLeft),
+            Require("Arrow.Up", MapSpriteDefinitions.ArrowUp),
+            Require("Arrow.Down", MapSpriteDefinitions.ArrowDown),
+            Require("Marker.Boss", MapSpriteDefinitions.MarkerBoss),
+            Require("Station.Energy", MapSpriteDefinitions.StationEnergy),
+            Require("Station.Missile", MapSpriteDefinitions.StationMissile),
+            Require("Station.Map", MapSpriteDefinitions.StationMap),
+            Require("Marker.DefeatedBoss", MapSpriteDefinitions.MarkerDefeatedBoss),
+            Require("Marker.Gunship", MapSpriteDefinitions.MarkerGunship),
+            Require("Indicator.Backing", MapSpriteDefinitions.IndicatorBacking),
+            Require("Indicator.Frame0", MapSpriteDefinitions.IndicatorFrame0),
+            Require("Indicator.Frame1", MapSpriteDefinitions.IndicatorFrame1),
+            Require("Indicator.Frame2", MapSpriteDefinitions.IndicatorFrame2),
+            Require("Elevator.Crateria", MapSpriteDefinitions.ElevatorCrateria),
+            Require("Elevator.Brinstar", MapSpriteDefinitions.ElevatorBrinstar),
+            Require("Elevator.Norfair", MapSpriteDefinitions.ElevatorNorfair),
+            Require("Elevator.WreckedShip", MapSpriteDefinitions.ElevatorWreckedShip),
+            Require("Elevator.Maridia", MapSpriteDefinitions.ElevatorMaridia),
+            Require("World.Title", MapSpriteDefinitions.WorldTitle),
+            Require("World.Crateria", MapSpriteDefinitions.WorldCrateria),
+            Require("World.Brinstar", MapSpriteDefinitions.WorldBrinstar),
+            Require("World.Norfair", MapSpriteDefinitions.WorldNorfair),
+            Require("World.WreckedShip", MapSpriteDefinitions.WorldWreckedShip),
+            Require("World.Maridia", MapSpriteDefinitions.WorldMaridia),
+            Require("World.Tourian", MapSpriteDefinitions.WorldTourian));
+        SpriteComposition? Require(string name, ushort id)
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > MapSpriteFormat.MaximumParts)
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
-            return MenuSpriteCompiler.Compile(parts, name);
+            return MapMarkerGeometry.Matches(id, parts) ? null : MenuSpriteCompiler.Compile(parts, name);
         }
         var image = IndexedPng.Read(png, MapSpriteFormat.Width, MapSpriteFormat.Height);
         return new(frames, new MapObjectTileArtwork(image));

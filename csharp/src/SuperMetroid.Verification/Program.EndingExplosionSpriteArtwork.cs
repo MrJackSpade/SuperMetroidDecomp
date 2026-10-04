@@ -37,12 +37,55 @@ internal static partial class Program
             Console.WriteLine($"{source.Item2}: {count} original parts, {pixels.Count(pixel => pixel != 0)} visible pixels");
             if (source.Item1 is 0xa472 or 0xa4b0 or 0xa516)
             {
+                InspectEndingGlowPixelBands(pixels, source.Item2);
                 Console.WriteLine("Original upper-left24x24 color indexes (0 is transparent):");
                 for (int y = 104; y < 128; y++)
                     Console.WriteLine(Convert.ToHexString(pixels.AsSpan(y * 256 + 104, 24)));
             }
         }
         Console.WriteLine(directory);
+    }
+
+    private static void InspectEndingGlowPixelBands(byte[] pixels, string name)
+    {
+        // Source inspection only: measure lattice depth from the supplied original mask.
+        var depths = new int[pixels.Length];
+        var pending = new Queue<int>();
+        for (int index = 0; index < pixels.Length; index++)
+        {
+            depths[index] = pixels[index] == 0 ? 0 : int.MaxValue;
+            if (pixels[index] == 0) pending.Enqueue(index);
+        }
+        while (pending.TryDequeue(out int index))
+        {
+            int x = index % 256, y = index / 256;
+            void Visit(int next)
+            {
+                if (depths[next] <= depths[index] + 1) return;
+                depths[next] = depths[index] + 1;
+                pending.Enqueue(next);
+            }
+            if (x > 0) Visit(index - 1);
+            if (x < 255) Visit(index + 1);
+            if (y > 0) Visit(index - 256);
+            if (y < 255) Visit(index + 256);
+        }
+        int rimDifferences = 0;
+        var baselineDifferences = new List<string>();
+        for (int y = 104; y < 128; y++)
+        for (int x = 104; x < 128; x++)
+        {
+            int index = y * 256 + x;
+            if ((pixels[index] == 14) != (depths[index] == 1)) rimDifferences++;
+            if (name != "glow") continue;
+            int band = depths[index] switch { 0 => 0, 1 => 14, 2 => 13, 3 => 12, 4 => 10, _ => 9 };
+            if (band != pixels[index]) baselineDifferences.Add($"({x - 104},{y - 104}) depth{depths[index]} original{pixels[index]:X} baseline{band:X}");
+        }
+        Console.WriteLine($"{name}: outer-rim versus four-neighbor depth1 differences={rimDifferences}");
+        if (name == "glow") Console.WriteLine("glow base-band differences: " + string.Join(", ", baselineDifferences));
+        foreach (byte color in pixels.Where(pixel => pixel != 0).Distinct().Order())
+            Console.WriteLine($"color{color:X}: lattice depths " + string.Join(",", Enumerable.Range(0, pixels.Length)
+                .Where(index => pixels[index] == color).Select(index => depths[index]).Distinct().Order()));
     }
 
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)

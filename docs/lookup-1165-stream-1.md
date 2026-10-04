@@ -372,8 +372,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs
 
-- [ ] **SamusBeamCallbackDefinitions.UnchargedDefinitions** ([L10](../csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusBeamCallbackDefinitions.ChargedDefinitions** ([L32](../csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusBeamCallbackDefinitions.UnchargedDefinitions** ([L10](../csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusBeamCallbackDefinitions.ChargedDefinitions** ([L32](../csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs
 
@@ -575,7 +575,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 26 definitions in batches 1 through 4 below.
+- Completed conversions: 28 definitions in batches 1 through 5 below.
 - Justified retained entries: none.
 - Confirmation results: isolated Verification build passed (1431 existing warnings, zero errors); --lookup-stream-1 passed.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -626,3 +626,10 @@ Eight more definitions converted; 26 complete and 200 remain. No retained except
 - Evidence: pinned bank90 horizontal motion records consumed by the indexed speed routes, `$C28F..C2CE` sound requests and `$C2D1..C37A` projectile speed/acceleration words. Semantic movement and weapon comments agree with the converted branches.
 - Confirmation: Verification incremental build passed (25 warnings, zero errors); `--lookup-stream-1` passed. Checks cover all 492 indexed motion words, all 85 projectile motion words, the actual power-beam initializer across all 16 combinations and ten directions with mechanics ROM access forbidden, rejection bounds, and all 32 sound/adjacent observations.
 - The older `VerifyBeamSpeedRows` whole-frame fixture reaches unsupported unrelated animation mechanics `$9386DD` before completing. This batch uses a focused direct production-initializer fixture with the same original ROM oracle and ROM-read guard; the unrelated animation implementation and existing verifier remain unchanged.
+## Batch 5: beam callback dispatch
+
+Two more definitions converted; 28 complete and 198 remain. No retained exception.
+
+- `SamusBeamCallbackDefinitions`: Wave selects terrain-passing movement. Uncharged Wave/Ice-Wave select the three-frame trail; charge, Spazer or Plasma select four frames. Non-Wave beams select ordinary motion. The bounded invalid-combination adjacent-code observations dispatch explicitly to their existing named identities, preserving unsupported-null and translated behavior separately.
+- Original evidence: pinned bank90 `$B96E..B98D` and `$BA3E..BA5D`, including twelve native callback words and four adjacent instruction words per producer. No callback array or generated cache remains.
+- Confirmation: Verification build passed (25 warnings, zero errors); `--lookup-stream-1` passed all32 original callback identities and actual `TryFireBeam` initialization for all24 legal charge/combination cases with source ranges forbidden. The verifier's original full-frame path remains available; the scoped command uses the new initialization-only option because the older full-frame fixture reaches unrelated unsupported animation mechanics `$9386F5`.

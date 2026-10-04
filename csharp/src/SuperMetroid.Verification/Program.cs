@@ -65,6 +65,7 @@ if (args is ["--lookup-stream-1"])
     VerifyChargeFlareDefinitions(rom);
     VerifySamusIndexedSpeeds(rom);
     VerifyLookupStream1ProjectileMotion(rom);
+    VerifyBeamCallbackTables(initializeOnly: true);
     VerifyProjectileSoundRoutingDefinitions(rom);
     Console.WriteLine("Stream 1 lookup conversions: focused original-source and domain checks pass.");
     return 0;

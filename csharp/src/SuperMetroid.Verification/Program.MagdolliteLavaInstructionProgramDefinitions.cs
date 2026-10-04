@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -98,18 +99,17 @@ internal static partial class Program
             enemies.LastMagdolliteLavaDropRequest!.Value.Y,
             "Magdollite drop preserves projectile Y");
 
-        AssertEqual(
-            MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both live Magdollite-lava spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
         for (int index = 0;
              index < MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Magdollite-lava presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"compiled visual selector exists at $86:{address:X4}");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                $"compiled visual selector matches native operand $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -134,7 +134,7 @@ internal static partial class Program
         Console.WriteLine(
             "Magdollite-lava instruction mechanics: seven private words, one shared " +
             "delete word, both directional poses, shot/drop/delete execution, and two " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "compiled spritemap operands pass with mechanics bytes forbidden.");
 
         void RunToSleep(
             RoomEnemyProjectileSlot projectile,

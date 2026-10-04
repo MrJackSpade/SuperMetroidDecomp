@@ -20,47 +20,53 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
     /// <summary>Initial closed-gate sleep instruction at $86:E566.</summary>
     internal const ushort ClosedSleep = 0xe566;
 
-    private static readonly DownwardGateProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Moving, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
-        new(0xe53e, 0x0100),
-        new(0xe540, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xe542, DownwardGateEnemyProjectileRomData.MovementPreInstruction),
-        new(0xe544, 0x0001),
-        new(0xe548, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe54a, 0x0001),
-        new(0xe54e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe550, 0x0001),
-        new(0xe554, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe556, 0x0001),
-        new(0xe55a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe55c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(Closed, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
-        new(0xe560, 0xff00),
-        new(0xe562, 0x0001),
-        new(ClosedSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe568, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xe56a, DownwardGateEnemyProjectileRomData.MovementPreInstruction),
-        new(0xe56c, 0x0001),
-        new(0xe570, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe572, 0x0001),
-        new(0xe576, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe578, 0x0001),
-        new(0xe57c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe57e, 0x0001),
-        new(0xe582, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xe584, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    internal static int MechanicsWordCount => 28;
+    internal static int PresentationWordCount => 9;
 
-    private static readonly ushort[] PresentationWords =
-        [0xe546, 0xe54c, 0xe552, 0xe558, 0xe564, 0xe56e, 0xe574, 0xe57a, 0xe580];
+    /// <summary>
+    /// Closing and opening each traverse four one-tick pose/sleep stages, advanced by
+    /// the movement pre-instruction. The closed hold reverses velocity and waits before
+    /// re-enabling movement; completed opening deletes the projectile.
+    /// </summary>
+    internal static DownwardGateProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index is >= 4 and < 12)
+            return MovementPoseWord((ushort)(Moving + 8), index - 4);
+        if (index is >= 19 and < 27)
+            return MovementPoseWord((ushort)(Closed + 14), index - 19);
+        return index switch
+        {
+            0 => new(Moving, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
+            1 => new((ushort)(Moving + 2), 0x0100),
+            2 => new((ushort)(Moving + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+            3 => new((ushort)(Moving + 6), DownwardGateEnemyProjectileRomData.MovementPreInstruction),
+            12 => new((ushort)(Closed - 2), EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+            13 => new(Closed, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
+            14 => new((ushort)(Closed + 2), 0xff00),
+            15 => new((ushort)(Closed + 4), 1),
+            16 => new(ClosedSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+            17 => new((ushort)(Closed + 10), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+            18 => new((ushort)(Closed + 12), DownwardGateEnemyProjectileRomData.MovementPreInstruction),
+            _ => new((ushort)(Closed + 38), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+        };
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DownwardGateProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static DownwardGateProjectileInstructionMechanicsWord MovementPoseWord(ushort start, int word)
+    {
+        bool sleep = (word & 1) != 0;
+        return new((ushort)(start + 6 * (word / 2) + (sleep ? 4 : 0)),
+            sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+    }
 
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(index < 4 ? Moving + 10 + 6 * index
+            : index == 4 ? Closed + 6 : Closed + 16 + 6 * (index - 5));
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DownwardGateMoving or
         RoomEnemyProjectileKind.DownwardGateClosed;
@@ -68,11 +74,11 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            DownwardGateProjectileInstructionMechanicsWord candidate = Words[middle];
+            DownwardGateProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -91,9 +97,9 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

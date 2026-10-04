@@ -395,8 +395,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs
 
-- [ ] **DownwardGateProjectileInstructionProgramDefinitions.Words** ([L24](../csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DownwardGateProjectileInstructionProgramDefinitions.PresentationWords** ([L56](../csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DownwardGateProjectileInstructionProgramDefinitions.Words** ([L24](../csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DownwardGateProjectileInstructionProgramDefinitions.PresentationWords** ([L56](../csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EvirVisualDefinitions.cs
 
@@ -440,8 +440,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs
 
-- [ ] **MagdolliteLavaInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MagdolliteLavaInstructionProgramDefinitions.PresentationWords** ([L37](../csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MagdolliteLavaInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MagdolliteLavaInstructionProgramDefinitions.PresentationWords** ([L37](../csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs
 
@@ -751,3 +751,10 @@ Verification build passed (1431 warnings, zero errors). `--lookup-stream5-crocom
 Also corrected an incomplete comment replacement from batch4: the remaining unsupported `no clearer lossless generator` line in Crocomire rumble documentation is now removed. Rumble remains required and unchecked.
 
 Nineteen stream5 definitions resolved:18 converted/removed and1 mixed conversion with narrowly justified retention.206 remain required. No other payload receives this exception.
+### Batch 7: Magdollite lava and downward gate programs
+
+Removed both mechanics and presentation-address tables in each program. Magdollite's two directional poses calculate their one-tick/sleep records; its shot branch explicitly calls drops then follows shared deletion. Downward gates calculate four equal movement stages in each direction and explicitly encode velocity installation, movement callback installation, closed sleep, callback clearing and deletion. No equivalent table is rebuilt or cached.
+
+Verification build passed (1431 full-build warnings,25 incremental warnings, zero errors). `--magdollite-lava-instruction-mechanics` passed all7 private native words, both actual directional producers, shot/drop/deletion and2 native compiled visual operands. `--downward-gate-projectile-instruction-mechanics` passed all28 native words, both actual producers, exact four-stage close/open positions, sleep/wake behavior, deletion and9 native compiled visual operands. Both first runs reached obsolete live-visual-read assertions after their changed mechanics/runtime checks passed. With coordinator-granted ownership, those assertions now require zero cartridge reads and compare every compiled selector with its native operand. Producer, movement, drop and deletion assertions remain intact.
+
+Twenty-three stream5 definitions resolved:22 converted/removed and1 mixed conversion with narrowly justified retention.202 remain required.

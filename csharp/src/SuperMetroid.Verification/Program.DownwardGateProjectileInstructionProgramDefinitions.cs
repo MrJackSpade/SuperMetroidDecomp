@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -104,17 +105,17 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "downward-gate shot reaction reaches shared compiled deletion");
 
-        AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all downward-gate spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
         for (int index = 0;
              index < DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = DownwardGateProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads downward-gate presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"compiled visual selector exists at $86:{address:X4}");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                $"compiled visual selector matches native operand $86:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared downward-gate mechanics bytes");
@@ -135,7 +136,7 @@ internal static partial class Program
         Console.WriteLine(
             "Downward-gate projectile instruction mechanics: twenty-eight compiled words, " +
             "both real producers, four-stage close/open lifecycles, shared deletion, and " +
-            "nine live spritemap reads pass.");
+            "nine compiled spritemap operands pass.");
 
         RoomEnemySystem NewSystem()
         {

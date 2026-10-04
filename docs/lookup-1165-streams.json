@@ -2871,6 +2871,36 @@
       "stream": 1,
       "path": "csharp/src/SuperMetroid.Verification/Program.BeamCallbackTables.cs",
       "purpose": "Adapt callback table proof to semantic dispatch while preserving native and firing assertions"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainRainbowBeam.cs",
+      "purpose": "Adapt corpse page transfer consumer to calculated page addresses"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainCorpseArtwork.cs",
+      "purpose": "Adapt focused corpse page fixture to calculated page API while retaining assertions"
+    },
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseTransitionTable.cs",
+      "purpose": "Convert pose input consumer to ordered semantic button decisions"
+    },
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Verification/Program.PoseInputDefinitions.cs",
+      "purpose": "Adapt pose graph proof while preserving original priority, entry identity and fallback assertions"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.Helpers.cs",
+      "purpose": "Adapt corpse transfer helper to calculated page source and destination methods"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.GunshipLiftoff.cs",
+      "purpose": "Adapt explicit span binding to calculated transfer view while retaining existing proof"
     }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

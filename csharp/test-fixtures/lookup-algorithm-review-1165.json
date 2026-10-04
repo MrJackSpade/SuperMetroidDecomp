@@ -10432,4 +10432,14 @@
     "confirmation": "Integrated Verification build1432warnings,zeroerrors. --lookup-stream2-crawler-animations,--sbug-instruction-mechanics,--zero-instruction-program-definitions,--viola-instruction-program-definitions pass. Obsolete Zero live-ROM-read expectation corrected to current compiled-selector ownership with exact24 native operands verified.",
     "remaining": "115 of1128 snapshot definitions converted;1013 pending. All streams remain open and independent payloads still require disposition. No retention exception."
   }
+,
+  "deathAndBabyFadeIntegration": {
+    "id": "death-and-baby-fade-derived-payloads",
+    "state": "unreviewed",
+    "implementationCommits": "d189c9143,9d0e0891f",
+    "convertedFields": "Mother Brain body/leg channels calculate (initial*(15-frame)+1)/15; corpse channels use nearest endpoint interpolation. All568 displayed words derive from58 endpoint words, removing510 stored intermediate words. Baby six-row fade uses compatible RGB8 endpoints inferred from quantization intervals and calculates all84 displayed RGB5 words.",
+    "evidence": "Stream3 batches7/8 document pinned AD source addresses and consumers. All652 original displayed values match; Baby inferred endpoints also match14 independently read undisplayed RGB5 endpoint colors. Stock frame arrays are discarded; all1956 independent channel edits preserve exact selected values and content identities. Frame/color bounds pass.",
+    "confirmation": "Integrated --lookup-stream-3 passes; Verification build1432warnings,zeroerrors; ResourceAudit build zeroerrors. Source contract hashes updated only after loader/API/identity review; source index refreshed.",
+    "remaining": "Independent Mother Brain endpoints, Baby initial colors and inferred endpoint choices remain required. Their full-container checklist entries remain unchecked. Snapshot completion stays115 of1128,1013 pending. No retention exception."
+  }
 }

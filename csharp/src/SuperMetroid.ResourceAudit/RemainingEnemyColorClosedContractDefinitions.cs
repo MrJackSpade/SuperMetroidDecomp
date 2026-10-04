@@ -10,7 +10,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/BotwoonHealthPaletteDefinitions.cs", "DD4DC9B57ABB2B15C9C1CFF83AFDC87B420BEACFD70417B21F2E24B8FE829C2B")],
             "The sole private-constructor loader requires eight sixteen-color health bands and compiles independent arrays. HealthColor guards band/color bounds. Health thresholds and their signed comparison are not executed or certified."),
         new("SuperMetroid.Core.Assets.BabyMetroidCutsceneColorCatalog", "cutscene-baby-complete-color-images", ["InitialColor", "FadeColor"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs", "3FB29FB3B3F4FD142FC7212F76F4EFF34D44CAC22AAA6958AB223A595F916EB4"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs", "46F3505AB98C768E6A1E4595E0F6B06D5278AB68AD19AA532C0175EA3784EBC7"),
              new("csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneColorRomData.cs", "6204D0F2EF5780EC535FBAC57AD3618FA8E59BE5A283398EC40C45C77633D869")],
             "Private construction requires fifteen initial colors and six fourteen-color fade rows, compiled independently. InitialColor and FadeColor guard their separate widths; fade palette indices are one-based one through six. Cutscene state/timing is outside this proof."),
         new("SuperMetroid.Core.Assets.NorfairRidleyColorCatalog", "norfair-ridley-complete-color-images", ["ApplyInitial", "ApplyReveal", "ResolveInitial", "ResolveReveal"],

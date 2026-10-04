@@ -16,7 +16,7 @@ internal static class SequenceColorClosedContractDefinitions
             "The sole private-constructor loader requires ten full rainbow rows, eight drain/revival/fake-death rows, normal colors and 38 beam colors. Legacy fake-death rows inherit validated stock. Row selectors are guarded; the aligned terminal beam cursor returns a compiled terminator, not a missing color."),
         new("SuperMetroid.Core.Assets.MotherBrainDeathColorCatalog", "mother-brain-death-v1-complete-color-rows",
             ["BodyColor", "LegColor", "CorpseColor", "ExplodedDoorColor"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs", "ECF27902773206B741220DB9BD0B94F7E6CB8F69AF591DFF606370EE0E76AC99"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs", "6599A4F79639E5E492D27CCAAEF1894486D5E7344FF574451E1055CD1EC247C2"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainDeathRomData.cs", "081EFAD19AF9C9D1B9B39DA09362624FB6481417227CA5FDCDC5BD5E9722A96B")],
             "Load compiles all sixteen fourteen-color body/leg rows, eight fifteen-color corpse rows and fourteen exploded-door colors before private construction. Every reviewed resolver bounds-checks the selected complete row/color domain."),
         new("SuperMetroid.Core.Assets.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",

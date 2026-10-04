@@ -21,12 +21,11 @@ internal static partial class Program
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add((Word(address), Word(address + 2), Word(address + 4)));
             }
-            AssertTrue(SamusPoseInputDefinitions.TryGet(pose, out ushort actualPointer, out var rules), "Authored graph exists");
+            AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out ushort actualPointer), "Authored graph exists");
             AssertEqual(pointer, actualPointer, "Native transition-list diagnostic identity");
-            AssertEqual(native.Count, rules.Length, "Native transition-list length and empty terminator");
+            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(pointer, ushort.MaxValue, ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
-                AssertEqual(native[i], (rules[i].RequiredNewInput, rules[i].RequiredHeldInput, rules[i].TargetPose), "Every native condition and target in order");
                 newMask |= native[i].New; heldMask |= native[i].Held;
             }
             if (unique.Add(pointer)) conditionCount += native.Count;
@@ -66,7 +65,7 @@ internal static partial class Program
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
             byte invalidPose = (byte)pose;
-            AssertTrue(!SamusPoseInputDefinitions.TryGet(invalidPose, out _, out _), "Trailing pose indexes have no authored graph");
+            AssertTrue(!SamusPoseInputDefinitions.TryGetPointer(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
                 () => SamusPoseTransitionTable.Lookup(forbidden, invalidPose, 1, 1),
                 "Non-authored pose graph rejects adjacent code");

@@ -28,41 +28,21 @@ internal static class PipeBugDefinitions
     internal const ushort YellowEnemyDefinition = 0xf253;
 
     /// <summary>
-    /// Facing-left rising/shooting then facing-right rising/shooting instruction lists
-    /// for the ordinary Zeb at <c>$B3:882B-$B3:8832</c>.
+    /// $B3:882B/$8833 dispatch normal/strong rising/shooting programs by the native
+    /// facing and shooting flags. Every value names its actual behavior and species.
     /// </summary>
-    private static readonly ushort[] BrinstarInstructionLists =
-    [
-        BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft,
-        BrinstarPipeBugInstructionProgramDefinitions.NormalShootingLeft,
-        BrinstarPipeBugInstructionProgramDefinitions.NormalRisingRight,
-        BrinstarPipeBugInstructionProgramDefinitions.NormalShootingRight,
-    ];
-
-    /// <summary>
-    /// Facing-left rising/shooting then facing-right rising/shooting instruction lists
-    /// for the stronger Zebbo at <c>$B3:8833-$B3:883A</c>.
-    /// </summary>
-    private static readonly ushort[] StrongBrinstarInstructionLists =
-    [
-        BrinstarPipeBugInstructionProgramDefinitions.StrongRisingLeft,
-        BrinstarPipeBugInstructionProgramDefinitions.StrongShootingLeft,
-        BrinstarPipeBugInstructionProgramDefinitions.StrongRisingRight,
-        BrinstarPipeBugInstructionProgramDefinitions.StrongShootingRight,
-    ];
-
-    /// <summary>Returns one normal/strong Brinstar Pipe Bug animation program.</summary>
-    internal static ushort BrinstarInstructionList(
-        bool strong,
-        PipeBugAnimationSelector selector)
-    {
-        int index = (int)selector;
-        if ((uint)index >= BrinstarInstructionLists.Length)
+    internal static ushort BrinstarInstructionList(bool strong, PipeBugAnimationSelector selector) =>
+        (strong, selector) switch
         {
-            throw new InvalidDataException(
-                $"Pipe Bug animation selector ${index:X4} exceeds its four-entry table.");
-        }
-
-        return (strong ? StrongBrinstarInstructionLists : BrinstarInstructionLists)[index];
-    }
+            (false, PipeBugAnimationSelector.None) => BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft,
+            (false, PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.NormalShootingLeft,
+            (false, PipeBugAnimationSelector.FacingRight) => BrinstarPipeBugInstructionProgramDefinitions.NormalRisingRight,
+            (false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.NormalShootingRight,
+            (true, PipeBugAnimationSelector.None) => BrinstarPipeBugInstructionProgramDefinitions.StrongRisingLeft,
+            (true, PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.StrongShootingLeft,
+            (true, PipeBugAnimationSelector.FacingRight) => BrinstarPipeBugInstructionProgramDefinitions.StrongRisingRight,
+            (true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.StrongShootingRight,
+            _ => throw new InvalidDataException(
+                $"Pipe Bug animation selector ${(ushort)selector:X4} exceeds its four-entry table."),
+        };
 }

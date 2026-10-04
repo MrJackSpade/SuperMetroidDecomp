@@ -16,44 +16,50 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8B45</c>, horizontal flight facing right.</summary>
     internal const ushort FlyingRight = 0x8b45;
 
-    private static readonly NorfairPipeBugInstructionMechanicsWord[] Words =
-    [
-        new(0x8ae1, 2), new(0x8ae5, 2), new(0x8ae9, 2), new(0x8aed, 2),
-        new(0x8af1, 2), new(0x8af5, 2), new(0x8af9, 2), new(0x8afd, 2),
-        new(0x8b01, 0x80ed), new(0x8b03, RisingLeft),
-        new(0x8b05, 1), new(0x8b09, 1), new(0x8b0d, 1), new(0x8b11, 1),
-        new(0x8b15, 1), new(0x8b19, 1), new(0x8b1d, 0x80ed),
-        new(0x8b1f, FlyingLeft),
-        new(0x8b21, 2), new(0x8b25, 2), new(0x8b29, 2), new(0x8b2d, 2),
-        new(0x8b31, 2), new(0x8b35, 2), new(0x8b39, 2), new(0x8b3d, 2),
-        new(0x8b41, 0x80ed), new(0x8b43, RisingRight),
-        new(0x8b45, 1), new(0x8b49, 1), new(0x8b4d, 1), new(0x8b51, 1),
-        new(0x8b55, 1), new(0x8b59, 1), new(0x8b5d, 0x80ed),
-        new(0x8b5f, FlyingRight),
-    ];
+    internal static int MechanicsWordCount => 36;
+    internal static int PresentationWordCount => 28;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x8ae3, 0x8ae7, 0x8aeb, 0x8aef, 0x8af3, 0x8af7, 0x8afb, 0x8aff,
-        0x8b07, 0x8b0b, 0x8b0f, 0x8b13, 0x8b17, 0x8b1b,
-        0x8b23, 0x8b27, 0x8b2b, 0x8b2f, 0x8b33, 0x8b37, 0x8b3b, 0x8b3f,
-        0x8b47, 0x8b4b, 0x8b4f, 0x8b53, 0x8b57, 0x8b5b,
-    ];
+    /// <summary>
+    /// $B3:8AE1-$8B60 contains two facing halves. Each half has eight two-tick rising
+    /// frames and six one-tick flying frames, with a goto pair after each loop.
+    /// </summary>
+    internal static NorfairPipeBugInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int facing = index / 18;
+        int word = index % 18;
+        bool flying = word >= 10;
+        if (flying)
+            word -= 10;
+        int frames = flying ? 6 : 8;
+        ushort start = (ushort)((flying ? FlyingLeft : RisingLeft) + 64 * facing);
+        if (word < frames)
+            return new((ushort)(start + 4 * word), (ushort)(flying ? 1 : 2));
+        return new((ushort)(start + 4 * frames + 2 * (word - frames)),
+            word == frames ? CommonEnemyInstructionCodes.Goto : start);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NorfairPipeBugInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    /// <summary>Each timed record interleaves its visual selector two bytes after duration.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        int facing = index / 14;
+        int frame = index % 14;
+        bool flying = frame >= 8;
+        if (flying)
+            frame -= 8;
+        return (ushort)((flying ? FlyingLeft : RisingLeft) + 64 * facing + 4 * frame + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NorfairPipeBugInstructionMechanicsWord candidate = Words[middle];
+            NorfairPipeBugInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -70,9 +76,9 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xb30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
                 return true;
         }

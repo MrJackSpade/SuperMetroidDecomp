@@ -26,7 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
-if (args is ["--lookup-stream2-body-placements"])
+if (args is ["--lookup-stream2-pipe-programs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 pipe-program oracle revision");
+    VerifyPipeBugAnimationDefinitions(rom);
+    VerifyNorfairPipeBugInstructionProgramDefinitions(rom);
+    return 0;
+}if (args is ["--lookup-stream2-body-placements"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),

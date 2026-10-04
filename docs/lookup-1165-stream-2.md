@@ -261,8 +261,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs
 
-- [ ] **NorfairPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NorfairPipeBugInstructionProgramDefinitions.PresentationWords** ([L36](../csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairPipeBugInstructionProgramDefinitions.PresentationWords** ([L36](../csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs
 
@@ -320,8 +320,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs
 
-- [ ] **PipeBugDefinitions.BrinstarInstructionLists** ([L35](../csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PipeBugDefinitions.StrongBrinstarInstructionLists** ([L47](../csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugDefinitions.BrinstarInstructionLists** ([L35](../csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugDefinitions.StrongBrinstarInstructionLists** ([L47](../csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs
 
@@ -773,3 +773,8 @@ Removed Chozo's carried-Samus Y table. The acquisition/release poses place Samus
 Verification build passed (1436 warnings, zero errors). `--lookup-stream2-body-placements` passed34 original Bomb Torizo geometry words,22 production swipe spawns and18 bounded explosion spawns with original geometry reads forbidden; the existing statue-walking proof passed96 original Chozo fields and actual movement/carried-Samus coordinates, including fractional arithmetic and invalid selectors. Its unchanged neighboring Golden Torizo39 byte windows also pass. An earlier invocation accidentally used the stale binary while build remained active and entered the default verifier, which stopped on a missing startup resource; no changes or task selection were based on that unrelated failure. The correctly rebuilt focused invocation passes.
 
 Twenty-nine named definitions complete in stream2;197 remain required.
+### Batch 9: Pipe Bug animation dispatch and Norfair loop structure
+
+Removed both normal/strong Brinstar animation selector tables through semantic species/facing/shooting cases. Removed Norfair Pipe Bug mechanics and presentation-address tables: each facing half contains an eight-frame two-tick rising loop followed by a six-frame one-tick flight loop, each terminating with goto to its first record. Frame/control/visual operand addresses calculate from that program layout, without materializing a replacement table.
+
+Verification build passed (1436 warnings, zero errors). `--lookup-stream2-pipe-programs` passed all eight native selectors and eight actual production handoffs with original selectors forbidden, plus all36 native Norfair mechanics words and four complete production loops with original mechanics and28 visual-selector reads forbidden. Thirty-three named definitions complete in stream2;193 remain required.

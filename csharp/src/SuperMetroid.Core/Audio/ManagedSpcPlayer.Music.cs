@@ -30,7 +30,7 @@ public sealed partial class ManagedSpcPlayer
             {
                 // Indices21 and above start at the echo FIR data after the21 pan samples.
                 // Preserve the existing mutable SPC-RAM compatibility branch.
-                int address = panIndex + 0x1e1d; // allow(HardwareAddress): native pan-table overread base
+                int address = panIndex + SpcDriverData.Music.PanVolumeTableAddress;
                 baseVolume = ram[address];
                 nextVolume = ram[address + 1];
             }
@@ -40,14 +40,17 @@ public sealed partial class ManagedSpcPlayer
                 nextVolume = SpcMusicTables.PanVolume(panIndex + 1);
             }
 
+            // SPC SBC stores an eight-bit result before MUL YA. Descending adjacent
+            // RAM bytes therefore wrap the difference instead of multiplying a negative.
+            byte delta = unchecked((byte)(nextVolume - baseVolume));
             byte interpolated = unchecked((byte)(baseVolume +
-                ((nextVolume - baseVolume) * unchecked((byte)volume) >> 8)));
+                (delta * unchecked((byte)volume) >> 8)));
             byte final = unchecked((byte)(interpolated * channel.FinalVolume >> 8));
             if (((channel.PanFlags << side) & 0x80) != 0) // allow(BitMask): phase-inversion bit
                 final = unchecked((byte)-final);
             WriteDsp(unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride +
                 SnesDspRegisterMap.Voice.VolumeLeft + side)), final);
-            volume = unchecked((ushort)(0x1400 - volume)); // allow(HardwareMagnitude): 20-step mirrored pan domain
+            volume = unchecked((ushort)(SpcDriverData.Music.FullyLeftPan - volume));
         }
     }
 

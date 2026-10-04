@@ -14,15 +14,17 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions)!;
         var stock = MapSpriteCatalog.Load(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         VerifyMapSpriteNativeCompositions(rom, stock);
-        foreach (var role in MapSpriteRoleOracle().Take(20))
+        foreach (var role in MapSpriteRoleOracle())
         {
             AssertTrue(!stock.StoresComposition(role.NativeId), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];
-            AssertEqual(original.Length, MapMarkerGeometry.PartCount(role.NativeId), "original marker part count");
+            bool worldLabel = role.NativeId is >= 0x39 and <= 0x3e;
+            AssertEqual(original.Length, worldLabel ? stock.StoredLabelHorizontalCount(role.NativeId) : MapMarkerGeometry.PartCount(role.NativeId),
+                "original part count; only pending horizontal positions remain stored for area labels");
             for (int index = 0; index < original.Length; index++)
             {
                 var part = original[index];
-                foreach (var change in new[] { part with { OffsetX = 17 }, part with { OffsetY = -23 },
+                foreach (var change in new[] { part with { OffsetX = 17 }, part with { OffsetX = -256 }, part with { OffsetX = 255 }, part with { OffsetY = -23 },
                     part with { TileColumn = 0 }, part with { TileRow = 0 }, part with { Size = 16, TileColumn = Math.Min(part.TileColumn, 14) },
                     part with { Priority = 0 }, part with { Palette = 3 },
                     part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY } }.Where(change => change != part))
@@ -30,7 +32,9 @@ internal static partial class Program
                     var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[role.Name] = parts;
                     var edited = Load(frames);
-                    AssertTrue(edited.StoresComposition(role.NativeId), "authored marker edit remains stored");
+                    bool horizontalOnly = (change with { OffsetX = part.OffsetX }) == part;
+                    AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition(role.NativeId),
+                        "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, 100, 100, 0x600);
                     edited.Draw(role.NativeId, actual, 100, 100, 0x600);

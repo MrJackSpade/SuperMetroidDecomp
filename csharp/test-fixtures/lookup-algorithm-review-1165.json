@@ -10232,19 +10232,13 @@
   "zebesPlanetBandLayoutReview": {
     "owner": "csharp/src/SuperMetroid.Core/Assets/ZebesPlanetBandParts.cs",
     "id": "zebes-planet-fifty-part-composition",
-    "state": "unreviewed",
-    "bands": {
-      "id": "zebes-planet-two-middle-seven-part-bands",
-      "state": "converted",
-      "evidence": "Read all50 original parts at8C:9558. Native parts19..25 and26..32 are matching horizontal bands at Y=0/-16, with left atlas origins60/43. Left-to-right tile columns are0,2,4,6,8,10,11; the last large part overlaps by eight pixels. X=-64+8*column. All fourteen parts are large, priority0, no flips, actor palette inherited. Original SHA-pinned export --lookup-zebes-planet-art independently decodes96:EC76 and assembles all50 parts; both atlas and assembled planet were inspected.",
-      "algorithm": "Generate the two seven-part bands in native right-to-left order with column=min(2*(6-piece),11), X=-64+8*column, Y=-16*band and tile=bandAtlasOrigin+column. Store only the36 remaining supplied parts; no duplicate full50-part array. Ceres loader substitutes the view after complete field/count equality.",
-      "proof": "VerifyZebesPlanetBandParts under --lookup-ceres-backdrop-programs independently extracts the full original composition, requires calculated selection, and compares all50 fields and native visible/wrapped OAM. Independently edit every field: changed band parts remain supplied, changed remaining parts preserve calculated bands, and all identities remain equal. Actual Ceres JSON loader checks all original/edited variants; changed counts and invalid indices are checked."
-    },
-    "remaining": {
-      "id": "zebes-planet-other-thirty-six-parts",
-      "state": "unreviewed",
-      "scope": "Parts0..18 and33..49, including upper/lower bands, edge pieces and their atlas packing, remain required. Native part34 uses tile2E; pinned disassembly identifies a tiling mismatch relative to2F. Preserve original behavior while deriving the packing; this review does not authorize fixing the artwork. Source pixels also remain independently required. No retention exception."
-    },
-    "implementation": "The commit adding this record converts only fourteen middle-band parts and adds original-art inspection evidence. The whole planet composition remains unresolved."
+    "state": "converted",
+    "nativeIdentity": "Complete fifty-part composition8C:9558..9653",
+    "evidence": "Read every original part and the CCAB consumer. SHA-pinned --lookup-zebes-planet-art independently decodes96:EC76 and assembles all50 original parts; atlas and complete globe were inspected. The composition uses horizontal bands with overlapping right edges, two-row atlas strip packing, a top cap, bottom rim and three-cell northwest/southeast patches. Three isolated small parts are cells immediately adjoining neighboring bands/cap. All parts use priority0, no flips and inherited actor palette.",
+    "algorithm": "Generate native order by semantic region. Middle two bands use column=min(2*(6-piece),11), X=-64+8*column, Y=0/-16. Southern/northern large strips advance through sixteen atlas columns and skip the row occupied by lower tile halves; the northern rightmost part overlaps by eight pixels. Bottom rim and top cap use ordinary small/large strides. Corner patches use row/column arithmetic with their empty cells omitted. Derive isolated cells from adjoining patch origins. Upper shoulder uses its named separately packed right overlap; preserve the documented native one-cell-left tile mismatch at part34 explicitly. No remaining part array or generated cache.",
+    "compatibility": "Native part34 uses tile2E instead of the regular2F continuation, corroborated by the pinned disassembly annotation. Preserve2E exactly. The separately packed right-overlap starts at41. These are explicit atlas-seam cases, not permission to change visible original behavior or a retained numerical table.",
+    "implementation": "The Ceres loader selects an immutable stateless calculated view only on complete supplied field/count equality. Every independent custom field edit retains supplied composition. Commit15dc8558 converted the fourteen middle-band parts; the commit updating this record removes the residual36-part array and completes all50.",
+    "proof": "VerifyZebesPlanetBandParts under --lookup-ceres-backdrop-programs independently extracts all50 original parts, requires calculated selection, compares all compiled fields and native visible/wrapped OAM, and checks every independent field edit, changed count and invalid index. The actual Ceres JSON writer/loader confirms original and edited variants. Existing seven backdrop-program and23-frame-catalog checks remain included.",
+    "remaining": "All fifty OAM parts are converted. Planet source pixels and other scene/inventory mappings remain independently required. No retention exception."
   }
 }

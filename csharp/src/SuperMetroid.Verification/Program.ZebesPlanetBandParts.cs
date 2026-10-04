@@ -34,7 +34,7 @@ internal static partial class Program
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited ZebesPlanetBand");
                     var selected = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
-                    AssertTrue((piece >= 19 && piece < 33) == ReferenceEquals(supplied, selected),
+                    AssertTrue(ReferenceEquals(supplied, selected),
                         "independent ZebesPlanetBand field edit stays supplied");
                 }
             }

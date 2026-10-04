@@ -9891,4 +9891,16 @@
     "proof": "One VerifyIntroEggEffectFrameCatalog compares all eleven pointers against independently read original instruction operands, counts against original OAM headers and names against prior published identities. Check invalid indexing/pointer inputs and enumeration agreement. Run together with the separate logical instruction proof; compiler checks cover loader/extractor/audit migration.",
     "remaining": "OAM fields and source pixels remain independent required work; their simple metadata does not exempt them. Other unresolved1165 mappings remain required. Implementation commit is the commit adding this record."
   }
+,
+  "introEggEffectPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroEggEffectParts.cs",
+    "id": "intro-egg-effect-oam-fields-and-atlas-selection",
+    "state": "converted",
+    "nativeIdentity": "Eleven single-part compositions8C:8F7E..8FCA",
+    "evidence": "Complete pinned bank8C records all use small eight-pixel sprites at(-4,-4),priority3,no flips and the actor palette. Six fragments select105/106,115/116,125/126: a two-column three-row atlas patch. Moving/impact slime selects10D/10E/10F then11D/12D: the first three cells of a row followed by two cells down its initial column. The native sprite renderer replaces the authored palette bits with actor palette, matching the compiled inheritance representation.",
+    "algorithm": "Generate centered offsets,size,priority,flip state and palette inheritance for one part. Fragment tile=105+16*(frame/2)+frame%2. Slime ordinal0..2 advances the row from10D; ordinals3/4 advance one/two rows down that starting column. Named atlas origins carry their identities. Store only bounded frame identity in an immutable calculated view, not generated compiled parts.",
+    "implementation": "IntroEggEffectSpritePresentation compiles supplied input then substitutes the view only after complete field/count equality through SpriteComposition.CalculateIfMatching. Independent artwork edits retain the original compiled composition; no source pixel content is changed or exempted. Runtime draw paths consume the same IReadOnlyList contract and perform no cartridge reads.",
+    "proof": "One VerifyIntroEggEffectParts joins the existing focused --lookup-intro-egg-effect-programs flag. Independently extract all eleven original records, require calculated selection and compare complete compiled identity; compare native on/offscreen OAM at visible and wrapped origins. Independently change X,Y,tile column,row,priority,palette and both flips; each remains supplied. A size16 edit stays supplied, moving column15 to14 only where needed to keep that larger sprite within the atlas. The initial out-of-bounds size fixture was rejected by the compiler and corrected before the passing run. Also preserve a changed part count and reject invalid calculated part indices. Existing program/catalog proofs remain separate logical proofs.",
+    "remaining": "All eleven effect OAM layouts now calculate their complete fields. Source pixels and the wider1165 inventory remain independently required; no artwork-wide exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
+  }
 }

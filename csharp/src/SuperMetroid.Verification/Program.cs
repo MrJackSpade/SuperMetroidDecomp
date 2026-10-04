@@ -547,7 +547,8 @@ if (args is ["--lookup-intro-egg-effect-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro egg-effect oracle revision");
     VerifyIntroEggEffectPrograms(rom);
     VerifyIntroEggEffectFrameCatalog(rom);
-    Console.WriteLine("Intro egg effects: all76 bytes, overlapping words, eleven original frame identities/counts/names and boundaries pass.");
+    VerifyIntroEggEffectParts(rom);
+    Console.WriteLine("Intro egg effects: all76 bytes, eleven frame records/calculated parts, native OAM, independent edits and boundaries pass.");
     return 0;
 }
 if (args is ["--lookup-intro-rinka-programs"])

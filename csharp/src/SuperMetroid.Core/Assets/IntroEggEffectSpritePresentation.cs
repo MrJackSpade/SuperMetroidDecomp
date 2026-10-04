@@ -56,7 +56,8 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
                 throw new InvalidDataException(
                     $"Intro egg effect frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroEggEffectParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroEggEffectSpritePresentation(frames);
     }

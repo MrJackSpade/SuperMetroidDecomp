@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-map-sprite-names"])
+{
+    VerifyMapSpriteNameCases();
+    Console.WriteLine("Map sprite names: all original identities and order, complete ushort membership and invalid names pass.");
+    return 0;
+}
 if (args is ["--lookup-reserve-tile-pixels"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

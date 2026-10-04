@@ -6967,4 +6967,16 @@
     "remainingObligations":"The remaining247 menu tiles, map sprite selectors/compositions and other maintained lookup candidates still require independent dispositions. Their raw retained atlas bytes are not exempted by this nine-tile conversion.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-reserve-tile-pixels passes. Closed map-sprite resource contract pins the new pixel owner and refreshed catalog source, with updated transfer ownership text. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "mapSpriteNameCaseReview": {
+    "status":"converted26-entry native identity/name table to explicit semantic cases",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/MapSpriteDefinitions.cs",
+    "source":"Original26-entry managed table in9b54e512ab40109c092101c77c1b60d5f535594a, corresponding to native bank82:C569 sparse menu spritemap identities. Roles cover four arrows, station/boss/gunship markers, indicator/backing frames, five elevator labels, world title and six area labels.",
+    "disposition":"Named domain constants document each original pointer-table slot. Name selects a role string through explicit identity cases; Contains uses the same complete selector. Frames lazily enumerates named roles in the unchanged document order instead of exposing a stored pair array. Count26 replaces the old array length in the loader, and the audit helper no longer materializes a redundant intermediate array.",
+    "rationale":"IDs denote categorical drawing roles, not samples of a numerical sequence. This is the ticket's permitted semantic case conversion. There is no retention exception, fitted curve, cached pair table or independent second membership map.",
+    "domain":"All ushort identity inputs. Exactly26 are recognized; unsupported Name calls preserve ArgumentOutOfRangeException, id parameter and the existing message. Enumeration order and exact case-sensitive JSON names remain unchanged, as does lazy consumer content selection.",
+    "proof":"VerifyMapSpriteNameCases uses an independently preserved copy of the original26 pairs, compares every name and ordered enumeration, and confirms membership for all65536 identities. Representative invalid names cover sparse holes and boundaries. Existing early SHA-pinned reserve-pixel proof exercises real MapSpriteExtractor and MapSpriteCatalog.Load with the changed definition API and verifies complete stock/custom atlas uploads.",
+    "remainingObligations":"MapSpriteCatalog's separate identity-to-composition dictionary, underlying compositions and the remaining247 atlas tiles still need independent dispositions. This name-selector conversion does not exempt them.",
+    "confirmation":"Verification build passes with0 errors and1429 existing warnings. --lookup-map-sprite-names and --lookup-reserve-tile-pixels pass. Both changed source-owner pins and resource-contract text are refreshed. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

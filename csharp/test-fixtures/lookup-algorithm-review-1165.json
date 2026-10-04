@@ -8315,4 +8315,102 @@
     ],
     "scope": "Only runtime allocation-policy state selection is resolved. Command rejection/priority admission and other audio mappings remain independently scoped; pan gain is still pending. No player-visible behavior change is claimed."
   }
+,"audioMutableStorageClassification":{
+  "sourceRevision": "bc20aebc76e2e07d1d8dd13e97556d0c05a4ef98",
+  "classification": "These13 declarations own or reference mutable execution state, not fixed input-to-output lookup data. Readonly fixes the reference, not its contents. This is a source-candidate classification, not a retention exception for a logical lookup table.",
+  "scope": "Only these storage declarations are classified. Imported presets, instruction/data payloads, scalar topology definitions, arithmetic, selectors and the rest of these files remain independently reviewable. No gameplay tests or broad audio probes were used; source writes establish the distinction.",
+  "entries": [
+    {
+      "id": "audio-state-storage-managedspcplayer.state-ram",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "ram",
+      "evidence": "64KiB mutable SPC memory; WriteMemory, Upload and instrument installation write caller/asset bytes. Contents remain independently in scope."
+    },
+    {
+      "id": "audio-state-storage-managedspcplayer.state-portstosnes",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "portsToSnes",
+      "evidence": "ReadPort returns mutable command acknowledgements written by runtime handlers."
+    },
+    {
+      "id": "audio-state-storage-managedspcplayer.state-inputports",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "inputPorts",
+      "evidence": "WritePort stores external commands, and handlers consume/clear them."
+    },
+    {
+      "id": "audio-state-storage-managedspcplayer.state-channels",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "channels",
+      "evidence": "New per-channel state objects; music decoding changes pattern pointers, pitch, volume and note state."
+    },
+    {
+      "id": "audio-state-storage-managedspcplayer.state-soundlibraries",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "soundLibraries",
+      "evidence": "New allocation-state objects; runtime native policy handlers change voices, priority and mode."
+    },
+    {
+      "id": "audio-state-storage-managedspcplayer.state-soundchannels",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+      "member": "soundChannels",
+      "evidence": "New per-library mutable channel objects; initialization and instruction decoding change pointers/timers/allocation state. Named channel capacities are topology, not stored output samples."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-apuram",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "apuRam",
+      "evidence": "Constructor aliases caller-owned mutable SPC memory; echo and sample-directory consumers read current bytes."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-registers",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "registers",
+      "evidence": "WriteRegister mutates the DSP register mirror, and synthesis updates live output/envelope/end flags."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-voices",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "voices",
+      "evidence": "New mutable Voice instances; key-on, envelope and sample advancement update per-voice state."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-samplebuffer",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "sampleBuffer",
+      "evidence": "Synthesis writes the current left/right PCM output into the host transfer buffer."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-firvalues",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "firValues",
+      "evidence": "WriteRegister writes signed filter coefficients from current register values. This is mutable register state; source FIR preset data remains separately in scope."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-firbufferleft",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "firBufferLeft",
+      "evidence": "Echo processing stores the next left sample into circular history and reads prior samples for filtering."
+    },
+    {
+      "id": "audio-state-storage-managedsnesdsp-firbufferright",
+      "state": "not-a-fixed-lookup",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+      "member": "firBufferRight",
+      "evidence": "Echo processing stores the next right sample into circular history and reads prior samples for filtering."
+    }
+  ]
+}
 }

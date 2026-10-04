@@ -148,6 +148,13 @@ if (args is ["--lookup-stream-4"])
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }
+if (args is ["--lookup-stream5-corpse-geometry"])
+{
+    VerifyCorpseMetadataDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyLookupStream5CorpseViews();
+    Console.WriteLine("Corpse geometry: all30 rotation offsets,32 sand offsets,32 four-field DMA descriptors and10 terminators match original ROM.");
+    return 0;
+}
 if (args is ["--lookup-stream5-crocomire-order"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

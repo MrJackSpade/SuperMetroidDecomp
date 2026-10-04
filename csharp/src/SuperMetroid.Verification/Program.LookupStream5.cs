@@ -5,6 +5,29 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CorpseViews()
+    {
+        var expected = new List<DeadMonsterVramTransferDefinition>();
+        foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
+        {
+            var rows = DeadMonsterRottingDefinitions.ForTransferTable(table);
+            int index = 0;
+            foreach (var row in rows)
+            {
+                AssertEqual(rows[index++], row, "corpse DMA enumeration retains indexed order");
+                expected.Add(row);
+            }
+            AssertEqual(rows.Length, index, "corpse DMA enumeration count");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
+        }
+        AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitions.AllTransfers), "audit DMA order matches all native lists");
+        AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.ForTransferTable(0xe0e1), "unaligned DMA list rejected");
+        AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe226, 104), "corpse row past end rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandSource(16), "sand source past end rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandDestination(16), "sand destination past end rejected");
+    }
     private static void VerifyLookupStream5ActorLayouts(ISnesAddressSpace rom)
     {
         var flight = Enumerable.Range(0, 5).Select(index =>

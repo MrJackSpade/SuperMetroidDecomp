@@ -174,6 +174,16 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-logo-tables"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo table oracle revision");
+    VerifyEndingLogoPaletteSources(rom);
+    VerifyEndingPostShotTransferFields(rom);
+    Console.WriteLine("Ending logo tables: all32 original palette sources, six transfer records and invalid bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-audio-upload-catalog"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

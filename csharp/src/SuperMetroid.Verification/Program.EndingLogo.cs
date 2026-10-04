@@ -83,12 +83,7 @@ internal static partial class Program
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
                 $"logo actor {index} initial instruction list");
         }
-        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
-        for (int palette = 0; palette < 2; palette++)
-            AssertEqual(ReadWord(bus,
-                    EndingLogoPalettePointerDefinitions.NativeTableAddress + step * 4 + palette * 2),
-                EndingLogoPalettePointerDefinitions.Source(step, palette),
-                $"logo fade step {step} palette {palette} source pointer");
+        VerifyEndingLogoPaletteSources(bus);
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingLogoDefinitions.Actor(4),
             "logo actor definition boundary");

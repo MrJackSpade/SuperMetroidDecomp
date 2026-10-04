@@ -13,19 +13,22 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 
     private readonly HeatPaletteInputView heatInputs;
     private readonly LoadingPaletteInputView loadingInputs;
+    private readonly EndingGunshipPaletteInputView gunshipInputs;
 
     private RoomPaletteFxPresentation(Dictionary<ushort, ushort> colors)
     {
         this.colors = colors;
         heatInputs = new HeatPaletteInputView(colors);
         loadingInputs = new LoadingPaletteInputView(colors);
+        gunshipInputs = new EndingGunshipPaletteInputView(colors);
     }
 
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
+        gunshipInputs.TryGetValue(pointer, out color) ||
         LoadingPaletteColorDefinitions.TryReadColor(pointer, loadingInputs, out color) ||
         LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
-        EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
+        EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, gunshipInputs, out color) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));

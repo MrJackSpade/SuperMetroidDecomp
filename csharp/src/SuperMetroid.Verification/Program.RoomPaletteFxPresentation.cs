@@ -364,6 +364,12 @@ internal static partial class Program
         var inputs = original.Where(pair => coordinates[pair.Key].Frame == 15 || coordinates[pair.Key] == (7, 15))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
+        ushort[] inputPointers = inputs.Keys.ToArray();
+        var inputView = new EndingGunshipPaletteInputView(inputs);
+        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Keys), "gunship input identities survive shared-channel calculation");
+        AssertEqual(17, inputView.Count, "gunship input view keeps its complete logical key count");
+        foreach (ushort pointer in inputPointers)
+            AssertEqual(original[pointer], inputView[pointer], "original gunship base word reconstructed from independent channels");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -376,7 +382,7 @@ internal static partial class Program
                 AssertEqual(expected.Color, color, "gunship original color column");
             }
             bool computed = owned && expected.Frame != 15 && expected != (7, 15);
-            AssertEqual(computed, EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, inputs, out ushort calculated),
+            AssertEqual(computed, EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, inputView, out ushort calculated),
                 "gunship calculated color domain");
             if (computed) AssertEqual(original[pointer], calculated, "gunship calculated color matches original ROM");
         }
@@ -392,6 +398,18 @@ internal static partial class Program
             PaletteRgb5 current = document.ZebesExplosionGunship[edit.Item1][edit.Item2];
             document.ZebesExplosionGunship[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
         }
+        for (int color = 0; color < 16; color++)
+        {
+            PaletteRgb5 current = document.ZebesExplosionGunship[15][color];
+            document.ZebesExplosionGunship[15][color] = new PaletteRgb5
+            {
+                Red = (current.Red + 11) & 31,
+                Green = (current.Green + 7) & 31,
+                Blue = (current.Blue + 13) & 31,
+            };
+        }
+        document.ZebesExplosionGunship[15][9] = document.ZebesExplosionGunship[15][9] with { Green = 0 };
+        document.ZebesExplosionGunship[15][13] = document.ZebesExplosionGunship[15][13] with { Blue = 0 };
         using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
         RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
         for (int frame = 0; frame < 16; frame++)

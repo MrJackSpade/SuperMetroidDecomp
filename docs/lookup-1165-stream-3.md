@@ -726,6 +726,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 - All 84 original displayed words match; the compatible midpoint endpoints also quantize to all fourteen original undisplayed RGB5 colors at $AD:E8F0. The fourteen independent endpoint colors and fifteen initial-palette colors still require their own disposition. Both checklist entries therefore remain unchecked, with no retained exception.
 - Verification build passed (1431 warnings, zero errors). `--lookup-stream-3` passed all original displayed/initial colors, explicit calculated-path selection, the undisplayed endpoint cross-check, all 252 independent RGB channel edits and identities, and original bounds.
 - Changed production: `BabyMetroidCutsceneColorCatalog.cs`; tests extend the owned partial. Coordinator hash dependency: `RemainingEnemyColorClosedContractDefinitions.cs` entry for this file (old 3FB29FB3B3F4FD142FC7212F76F4EFF34D44CAC22AAA6958AB223A595F916EB4).
+### Confirmed batch 9: Mother Brain drain and fake-death fades (partial payload disposition)
+
+- The eight drain rows selected by $AD:EF87 and eight fake-death rows selected by $AD:ED8A are exact nearest-integer RGB5 endpoint interpolation: `(first * (7-frame) + last * frame + 3) / 7` per channel. Matching assets discard their intermediate rows; runtime writes calculate each color directly. This removes 144 intermediate words across the two sequences while retaining 48 endpoint words for separate disposition.
+- All 168 drain words (body, back legs and trailing WRAM word) and 24 fake-death words match the pinned ROM. Version 2 asset fallback reuses the selected stock fake-death fade. Independently edited rows remain exact.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed original CGRAM/WRAM destinations, explicit calculated-path selection, all 576 independent channel edits, legacy loading and frame bounds.
+- Both entries remain unchecked because their independent endpoint colors are still required. Revival/from-grey also remains required: direct endpoint interpolation differs in two channels of one intermediate body color; no approximation or retention exception was introduced.
+- Changed production: `MotherBrainRainbowPalettePresentation.cs`; confirmation extends the assigned stream partial.
+
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MotherBrainRainbowPalettePresentation
 {
     private readonly PaletteFrame[] rainbow;
-    private readonly PaletteFrame[] toGrey;
+    private readonly PaletteFade toGrey;
     private readonly PaletteFrame[] fromGrey;
-    private readonly ushort[][] fakeDeathToGrey;
+    private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
     private readonly ushort[] beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
-        PaletteFrame[] fromGrey, ushort[][] fakeDeathToGrey, PaletteFrame normal,
+        PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
         ushort beamInitial, ushort[] beamCycle)
     {
         this.rainbow = rainbow;
-        this.toGrey = toGrey;
+        this.toGrey = new PaletteFade(toGrey);
         this.fromGrey = fromGrey;
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
@@ -65,7 +65,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
-        ApplyBrainColors(cgram, fakeDeathToGrey[frame]);
+        for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
+            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color,
+                fakeDeathToGrey.Body(frame, color));
     }
 
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
@@ -89,6 +91,26 @@ public sealed class MotherBrainRainbowPalettePresentation
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain rainbow frame {frame} is outside the authored loop.");
         ApplyColors(cgram, frames[frame], MotherBrainRainbowPaletteRomData.SecondaryColor);
+    }
+
+    private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
+        PaletteFade frames, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if ((uint)frame >= frames.Length)
+            throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
+        for (int color = 0; color < frames.BodyCount; color++)
+        {
+            ushort value = frames.Body(frame, color);
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, value);
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, value);
+        }
+        for (int color = 0; color < frames.LegCount; color++)
+            cgram.SetColor(MotherBrainDrainedPaletteRomData.BackLegColor + color, frames.Leg(frame, color));
+        ushort trailing = frames.Trailing(frame)!.Value;
+        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, (byte)trailing);
+        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, (byte)(trailing >> 8));
     }
 
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
@@ -144,15 +166,15 @@ public sealed class MotherBrainRainbowPalettePresentation
                 nameof(document.BeamCycle)));
     }
 
-    private static ushort[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
+    private static PaletteFade CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
-        var frames = new ushort[source.Length][];
+        var frames = new PaletteFrame[source.Length];
         for (int frame = 0; frame < source.Length; frame++)
-            frames[frame] = CompileColors(source[frame],
-                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}");
-        return frames;
+            frames[frame] = new PaletteFrame(CompileColors(source[frame],
+                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}"), [], null);
+        return new PaletteFade(frames);
     }
 
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
@@ -200,6 +222,54 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     private sealed record PaletteFrame(ushort[] Body, ushort[] BackLegs, ushort? TrailingColor);
+
+    private sealed class PaletteFade
+    {
+        private readonly PaletteFrame first;
+        private readonly PaletteFrame last;
+        private readonly PaletteFrame[]? supplied;
+
+        public PaletteFade(PaletteFrame[] frames)
+        {
+            first = frames[0];
+            last = frames[^1];
+            Length = frames.Length;
+            // The drain and fake-death rows round each RGB5 channel to the nearest
+            // point on a straight endpoint fade. Keep independently edited rows verbatim.
+            for (int frame = 0; frame < Length; frame++)
+            {
+                for (int color = 0; color < BodyCount; color++)
+                    if (Body(frame, color) != frames[frame].Body[color])
+                    { supplied = frames; return; }
+                for (int color = 0; color < LegCount; color++)
+                    if (Leg(frame, color) != frames[frame].BackLegs[color])
+                    { supplied = frames; return; }
+                if (Trailing(frame) != frames[frame].TrailingColor)
+                { supplied = frames; return; }
+            }
+        }
+
+        public int Length { get; }
+        public int BodyCount => first.Body.Length;
+        public int LegCount => first.BackLegs.Length;
+        public ushort Body(int frame, int color) => supplied is null
+            ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
+        public ushort Leg(int frame, int color) => supplied is null
+            ? Interpolate(first.BackLegs[color], last.BackLegs[color], frame) : supplied[frame].BackLegs[color];
+        public ushort? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
+            : first.TrailingColor is ushort start && last.TrailingColor is ushort end
+                ? Interpolate(start, end, frame) : null;
+
+        private ushort Interpolate(ushort start, ushort end, int frame)
+        {
+            int intervals = Length - 1;
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((start >> shift & 31) * (intervals - frame)
+                    + (end >> shift & 31) * frame + intervals / 2) / intervals) << shift;
+            return (ushort)result;
+        }
+    }
 }
 
 public sealed record MotherBrainRainbowPaletteDocument

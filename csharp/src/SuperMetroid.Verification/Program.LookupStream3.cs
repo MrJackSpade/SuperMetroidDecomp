@@ -97,7 +97,96 @@ internal static partial class Program
         VerifyStream3UniformEnemyLoops(rom);
         VerifyStream3MotherBrainFades(rom);
         VerifyStream3BabyFade(rom);
+        VerifyStream3DrainFades(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3DrainFades(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+        PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
+        MotherBrainRainbowPaletteFrameDocument Empty(int bodies, int legs, bool trailing) => new()
+        { Body = Zeros(bodies), BackLegs = Zeros(legs), TrailingColor = trailing ? Color(0) : null };
+        var drain = new MotherBrainRainbowPaletteFrameDocument[8];
+        var fake = new PaletteRgb5[8][];
+        for (int frame = 0; frame < 8; frame++)
+        {
+            int source = 0xad0000 | Read(0xadef87 + 2 * frame);
+            drain[frame] = new()
+            {
+                Body = Enumerable.Range(0, 15).Select(color => Color(Read(source + 2 * color))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(Read(source + 30 + 2 * color))).ToArray(),
+                TrailingColor = Color(Read(source + 40)),
+            };
+            int fakeSource = 0xad0000 | Read(0xaded8a + 2 * frame);
+            fake[frame] = Enumerable.Range(0, 3).Select(color => Color(Read(fakeSource + 2 * color))).ToArray();
+        }
+        var document = new MotherBrainRainbowPaletteDocument
+        {
+            Version = 3, Rainbow = Enumerable.Range(0, 10).Select(_ => Empty(15, 15, false)).ToArray(),
+            ToGrey = drain, FromGrey = Enumerable.Range(0, 8).Select(_ => Empty(13, 5, true)).ToArray(),
+            FakeDeathToGrey = fake, Normal = Empty(15, 15, false), BeamInitial = Color(0), BeamCycle = Zeros(38),
+        };
+        MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
+            MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
+                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, MapPresentationFormat.JsonOptions)), stock);
+        void Check(MotherBrainRainbowPalettePresentation palette)
+        {
+            var cgram = new SnesCgram();
+            var bus = new TestAddressSpace();
+            for (int frame = 0; frame < 8; frame++)
+            {
+                palette.ApplyToGrey(bus, cgram, frame);
+                for (int color = 0; color < 15; color++)
+                {
+                    AssertEqual(Word(drain[frame].Body[color]), cgram.Colors[0x41 + color], "stream 3 drain body RGB5");
+                    AssertEqual(Word(drain[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 drain brain RGB5");
+                }
+                for (int color = 0; color < 5; color++)
+                    AssertEqual(Word(drain[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 drain legs RGB5");
+                AssertEqual(Word(drain[frame].TrailingColor!), (ushort)(bus.ReadByte(0x7e017c) | bus.ReadByte(0x7e017d) << 8),
+                    "stream 3 drain trailing word");
+                palette.ApplyFakeDeathToGrey(cgram, frame);
+                for (int color = 0; color < 3; color++)
+                    AssertEqual(Word(fake[frame][color]), cgram.Colors[0x91 + color], "stream 3 fake-death brain RGB5");
+            }
+        }
+        var stock = Load(document);
+        Check(stock);
+        foreach (string field in new[] { "toGrey", "fakeDeathToGrey" })
+        {
+            var fade = typeof(MotherBrainRainbowPalettePresentation).GetField(field,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+            AssertTrue(fade.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(fade) is null, "stream 3 drain stock intermediate rows discarded");
+        }
+        Check(Load(document with { Version = 2, FakeDeathToGrey = null }, stock));
+        // Independently edited channels must still be delivered exactly, including endpoints and WRAM.
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 24; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var row = drain[frame];
+            PaletteRgb5 original = color < 15 ? row.Body[color] : color < 20 ? row.BackLegs[color - 15]
+                : color == 20 ? row.TrailingColor! : fake[frame][color - 21];
+            void Set(PaletteRgb5 value)
+            {
+                if (color < 15) row.Body[color] = value;
+                else if (color < 20) row.BackLegs[color - 15] = value;
+                else if (color == 20) drain[frame] = row with { TrailingColor = value };
+                else fake[frame][color - 21] = value;
+            }
+            Set(Color((ushort)(Word(original) ^ 1 << (5 * channel))));
+            Check(Load(document));
+            Set(original);
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new TestAddressSpace(), new SnesCgram(), invalid), "stream 3 drain bounds");
+            AssertThrows<InvalidDataException>(() => stock.ApplyFakeDeathToGrey(new SnesCgram(), invalid), "stream 3 fake-death bounds");
+        }
     }
 
     private static void VerifyStream3BabyFade(ISnesAddressSpace rom)

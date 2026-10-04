@@ -6,15 +6,15 @@ internal static partial class Program
 {
     private static void VerifyElevatorLetteringPixels(ISnesAddressSpace rom)
     {
-        int[] tiles = [0,1,2,3,4,5,6,7,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x44,0x45,0x53,0x54,0x55,0x56];
+        int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56];
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
         var font = new MenuElevatorLetteringArtwork(image);
-        AssertEqual(68, font.StoredInkByteCount, "seventeen shared six-row glyph silhouettes only");
+        AssertEqual(72, font.StoredInkByteCount, "eighteen shared six-row glyph silhouettes only");
         AssertEqual(0, font.StoredEditCount, "all stock outlines and bevels are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(4384, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
+        AssertEqual(4256, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })
@@ -50,7 +50,7 @@ internal static partial class Program
             all[position] = (byte)((all[position] + 1) % 16);
         }
         CheckEdited(all);
-        foreach (int invalid in new[] { -1, 8, 0x11, 0x17, 0x52, 0x57, int.MaxValue })
+        foreach (int invalid in new[] { -1, 0xa, 0x11, 0x17, 0x52, 0x57, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, 0, 0), "invalid elevator lettering tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {

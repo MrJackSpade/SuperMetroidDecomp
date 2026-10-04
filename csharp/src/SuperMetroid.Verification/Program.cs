@@ -573,6 +573,7 @@ if (args is ["--lookup-intro-baby-discovery-instructions"])
     VerifyIntroEggRockingParts(rom);
     VerifyIntroEggCrackingParts(rom);
     VerifyIntroConfusedBabyParts(rom);
+    VerifyCeresLargeAsteroidParts(rom);
     VerifyIntroBabyDiscoveryInput(rom);
     VerifyIntroDiscoveryCollision(rom);
     Console.WriteLine("Intro discovery programs: all138 bytes, overlapping words, operations and boundaries pass.");

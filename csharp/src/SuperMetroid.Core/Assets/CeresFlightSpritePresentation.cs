@@ -58,7 +58,8 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
                 visual is null)
                 throw new InvalidDataException($"Ceres flight sprite {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new CeresFlightSpritePresentation(frames);
     }

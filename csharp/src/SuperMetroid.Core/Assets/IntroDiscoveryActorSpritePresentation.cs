@@ -53,6 +53,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
                 visual is null)
                 throw new InvalidDataException($"Intro discovery actor frame {definition.Name} is missing.");
             SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = IntroEggRockingParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = IntroEggCrackingParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer,

@@ -10124,4 +10124,23 @@
     "proof": "One VerifyIntroEggCrackingParts joins --lookup-intro-baby-discovery-instructions. Independently extract all54 native parts,require calculated selection,compare complete compiled identity and native visible/wrapped OAM. Independently edit each part field and count and preserve supplied composition;reject invalid calculated indices.",
     "remaining": "All sixteen egg OAM layouts are now calculated across intact/rocking,cracking and remnant groups. The aliased asteroid composition,source pixels and wider1165 inventory remain required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "ceresLargeAsteroidPartGeometryReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresLargeAsteroidParts.cs",
+    "id": "ceres-large-asteroid-shapes-and-placement",
+    "state": "unreviewed",
+    "converted": {
+      "id": "ceres-large-asteroid-atlas-aligned-shapes",
+      "state": "converted",
+      "evidence": "Complete pinned records8C:909D and94F7 contain identical nineteen-part geometry and tiles,differing only in priority3 versus0. Parts0..5 use left patch160,parts6..12 right patch169,parts13..18 lower patch165. Every local X/Y equals eight times its atlas column/row displacement. One right-patch part is eight-pixel;the others are sixteen-pixel. Three loaders consume these identities,including discovery legacy hatched-baby alias.",
+      "algorithm": "Generate left shape from overlapping right strip and two-by-two grid,right shape from lower tip/offset pieces and two-by-two grid,and lower shape from two-by-three grid. Tile=patch+column+16*row;local position=8*column/row. Derive three anchors from supplied anchor parts and discard matching full-part arrays in favor of an immutable view. Preserve pointer-selected priority,actor palette and no flips. Use the calculation in discovery,flight and destruction loaders.",
+      "proof": "One VerifyCeresLargeAsteroidParts under --lookup-intro-baby-discovery-instructions independently extracts both original records,requires calculated selection,compares all38 parts and native visible/wrapped OAM. Preserve every independent field edit and changed count. Translate each asteroid as a whole and require calculated selection with identical identity;an isolated anchor255 edit falls back without an inferred-X bounds exception. Invalid calculated indices throw."
+    },
+    "placement": {
+      "id": "ceres-large-asteroid-three-scene-anchors",
+      "state": "unreviewed",
+      "scope": "Original anchors(-113,-65),(88,-36),(0,8) remain supplied placement data,not accepted retention. Their relationship must be independently reviewed against original scene composition/motion. Whole-shape translation support does not justify retaining original positions."
+    },
+    "remaining": "Shape geometry is converted in all three consumers;three placement anchors and source pixels remain required review. No retention exception or whole-layout completion claim. Implementation commit is the commit adding this record."
+  }
 }

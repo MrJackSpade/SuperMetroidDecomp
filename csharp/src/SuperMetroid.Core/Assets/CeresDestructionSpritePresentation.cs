@@ -58,7 +58,8 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
                 throw new InvalidDataException(
                     $"Ceres destruction sprite {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new CeresDestructionSpritePresentation(frames);
     }

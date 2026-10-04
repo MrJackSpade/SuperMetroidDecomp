@@ -569,6 +569,7 @@ if (args is ["--lookup-intro-baby-discovery-instructions"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro discovery oracle revision");
     VerifyIntroBabyDiscoveryInstructions(rom);
     VerifyIntroDiscoveryFrameCatalog(rom);
+    VerifyIntroEggRemnantParts(rom);
     VerifyIntroBabyDiscoveryInput(rom);
     VerifyIntroDiscoveryCollision(rom);
     Console.WriteLine("Intro discovery programs: all138 bytes, overlapping words, operations and boundaries pass.");

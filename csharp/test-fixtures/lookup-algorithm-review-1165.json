@@ -10076,4 +10076,16 @@
     "proof": "One VerifyIntroMotherBrainParts under --lookup-intro-mother-brain-instructions independently extracts all27 original parts,requires calculated selection,compares complete identities and native visible/wrapped OAM. Independently edit every part field,including valid atlas-column changes for sixteen-pixel sprites,and preserve custom counts;reject invalid calculated indices. Existing instruction/catalog proofs remain separate.",
     "remaining": "All three OAM layouts are calculated. Source pixels and other1165 mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introEggRemnantPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroEggRemnantParts.cs",
+    "id": "intro-egg-seven-remnant-oam-layouts",
+    "state": "converted",
+    "nativeIdentity": "Seven three-part compositions8C:8F07..8F7D",
+    "evidence": "Complete pinned bank8C records share small lower-right(4,4),small upper-right(4,-4),large left(-12,-4),priority3,no flips and inherited actor palette. Early top-right tiles107/109/10B advance two columns,left pieces117/119/11B occupy the next row;lower-right uses108,shared108,then10C. Final four drawings use adjacent three-by-two patches130/133/136/139.",
+    "algorithm": "Generate all positions,size,attributes and native part order. Early top-right=107+2*frame,left=topRight+16,lower-right=topRight+1 with explicit second-pose reuse of the first lower-right drawing. Later patch=130+3*(frame-3),with left offset0,upper-right2,lower-right18. Immutable calculated view stores only frame identity;no generated part cache.",
+    "implementation": "Discovery actor loader substitutes this view only after complete supplied field/count equality. Other discovery frames remain supplied pending their own conversion. Independent custom remnant edits remain supplied.",
+    "proof": "One VerifyIntroEggRemnantParts joins --lookup-intro-baby-discovery-instructions. Extract all21 original parts independently,require calculated selection,compare full compiled identity and native visible/wrapped OAM. Independently edit each field on each piece,preserve changed counts,and reject invalid part indices. Existing discovery program/catalog/input/collision proofs remain separate.",
+    "remaining": "All seven remnant layouts converted. Intact/cracking egg and baby layouts,source pixels,and other1165 mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

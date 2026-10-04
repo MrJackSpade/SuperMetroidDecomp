@@ -75,24 +75,15 @@ public sealed class SamusBombProjectileSystem
     public bool SoundSuppressedBeforeProjectileHandling { get; private set; }
 
     /// <summary>
-    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
-    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// Advances bank-$88 blast HDMA independently of Samus's alpha/input handler.
+    /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
-        RoomPlmSystem? roomPlms = null,
-        bool deferSamusOverlap = false)
+    public void AdvancePowerBombHdma(ISnesAddressSpace bus, SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
-        // frame handler. A power bomb spawned later in this method consequently receives
+        // frame handler. A power bomb spawned later by alpha consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
@@ -116,6 +107,28 @@ public sealed class SamusBombProjectileSystem
         }
 
         SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
+    }
+
+    /// <summary>
+    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
+    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// </summary>
+    public BombProjectileFrameResult StepFrame(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort controllerNewInput,
+        RoomPlmSystem? roomPlms = null,
+        bool deferSamusOverlap = false,
+        bool advancePowerBombHdma = true)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        if (advancePowerBombHdma)
+            AdvancePowerBombHdma(bus, samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.

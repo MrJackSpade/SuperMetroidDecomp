@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--chozo-power-bomb"]) { VerifyChozoGrabAnimation(powerBomb: true); return 0; }
 if (args is ["--golden-torizo-code-entry"]) { VerifyGoldenTorizoCodeEntry(); return 0; }
 if (args is ["--mockball-boost-contact"]) { VerifyMockballBoostContact(); return 0; }
 if (args is ["--game-save-json"])

@@ -1430,6 +1430,11 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is not null && !MessageBox.IsActive)
             RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
 
+        // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
+        // replaces her handlers while the already-spawned blast continues normally.
+        if (Samus is { } hdmaSamus && !MessageBox.IsActive)
+            BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current);
+
         // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
         // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
         // dispatches the current game state. Several room/enemy routines deliberately only
@@ -1963,7 +1968,8 @@ public sealed partial class SuperMetroidRuntime
                         Controller1.Current,
                         Controller1.NewlyPressed,
                         Plms,
-                        deferSamusOverlap: true);
+                        deferSamusOverlap: true,
+                        advancePowerBombHdma: false);
 
                     if (bombFrame.BeamChargeConsumed)
                     {

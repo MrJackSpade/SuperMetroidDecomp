@@ -183,6 +183,15 @@ if (args is ["--lookup-ending-explosion-frame-catalog"])
     Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-fragment-metadata"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending fragment oracle revision");
+    VerifyEndingObjectFragmentMetadata(rom);
+    Console.WriteLine("Ending fragments: four native compressed sources, published filenames and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-cloud-definitions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

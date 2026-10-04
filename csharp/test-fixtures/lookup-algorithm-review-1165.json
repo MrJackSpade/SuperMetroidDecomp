@@ -8968,4 +8968,25 @@
   "proof": "Extend existing VerifyEndingRewardInstructions, replacing narrow four-head-header checks with all37 catalog records. Expected pointers come from independent native display operands, counts from original OAM headers, names/order from previously published compatibility fixture. Check catalog and frame-address bounds. Existing all160-word and17-stream/callback proof validates the migrated instruction consumer. SHA-pinned --lookup-ending-reward-programs passes; final verification build0 errors/1189 existing warnings, ResourceAudit build0 errors/0 warnings.",
   "scope": "Three catalog metadata fields and shared frame-address aliases only. OAM coordinates/tile content, other catalogs and remaining inventory retain independent obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingFragmentMetadataReview": {
+  "source": "Supported SHA-pinned ROM8B:D5AF..D5F2: four bank/address LDA pairs select compressed resources98B5C1/98B857/98BAED/98BCCD. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d names wide explosion, concentric wide explosion, eclipse and blank BG2 tilemaps; upstream-sm578f90b3cc49557bb70060ad033bb90b8cf8ac50 sm_8b.c independently lists these decompressions to7F:E000/E800/F000/F800. Existing published file keys identify segments70/74/78/7c.",
+  "tables": [
+    {
+      "id": "ending-object-fragment-source-selector",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
+      "state": "converted",
+      "algorithm": "ObjectFragmentSource selects existing named native source identities by EndingObjectFragmentId cases. Remove duplicate fragmentSources arrays from importer and artwork verification."
+    },
+    {
+      "id": "ending-object-fragment-file-selector",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs",
+      "state": "converted",
+      "algorithm": "Validate index0..3; append invariant lowercase two-digit hexadecimal70+4*index to the published fragment filename prefix/suffix."
+    }
+  ],
+  "consumer": "EndingObjectArtworkFiles.Extract now calls the named source selector; manifest key enumeration and installed loading use calculated filenames. Existing Fragment(id) content selection and runtime uploads are unchanged. This is source/key metadata, not a claim about fragment pixel/tile semantics.",
+  "proof": "VerifyEndingObjectFragmentMetadata compares four source results to independent native bank/address immediates, asserts LDA opcodes, checks all four published filenames and invalid int bounds. Called by artwork aggregate and SHA-pinned --lookup-ending-fragment-metadata. Existing full extracted-sheet comparisons migrate to the shared source selector; no duplicate production array remains.",
+  "scope": "Two mappings only. Compressed payloads, fragment content and upload behavior retain their independent review obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

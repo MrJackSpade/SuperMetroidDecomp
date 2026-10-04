@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -32,6 +33,15 @@ public static class EndingCreditsRomData
         public const int EndingObjectCharacters74 = 0x98b857;
         public const int EndingObjectCharacters78 = 0x98baed;
         public const int EndingObjectCharacters7C = 0x98bccd;
+        /// <summary>$8B:D5AF..D5F2 decompression sources for the four ending fragments.</summary>
+        public static int ObjectFragmentSource(EndingObjectFragmentId id) => id switch
+        {
+            EndingObjectFragmentId.Segment70 => EndingObjectCharacters70,
+            EndingObjectFragmentId.Segment74 => EndingObjectCharacters74,
+            EndingObjectFragmentId.Segment78 => EndingObjectCharacters78,
+            EndingObjectFragmentId.Segment7C => EndingObjectCharacters7C,
+            _ => throw new ArgumentOutOfRangeException(nameof(id)),
+        };
         public const int EndingFontCharacters = 0x97e7de;
         public const int CreditsTilemap = 0x97eeff;
         public const int WaitingForCreditsCharacters = 0x979803;

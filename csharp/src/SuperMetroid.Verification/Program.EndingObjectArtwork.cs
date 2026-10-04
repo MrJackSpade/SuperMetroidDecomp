@@ -9,6 +9,27 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
+    {
+        string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
+            "ending-explosion-fragment-78.png", "ending-explosion-fragment-7c.png"];
+        AssertEqual(names.Length, EndingObjectArtworkFormat.FragmentCount, "ending fragment count");
+        for (int index = 0; index < names.Length; index++)
+        {
+            int load = 0x8bd5af + 17 * index;
+            AssertEqual((byte)0xa9, bus.ReadByte(load), "native fragment bank LDA");
+            AssertEqual((byte)0xa9, bus.ReadByte(load + 5), "native fragment address LDA");
+            int source = bus.ReadByte(load + 2) << 16 | bus.ReadByte(load + 6) | bus.ReadByte(load + 7) << 8;
+            AssertEqual(source, EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), "native fragment compressed source");
+            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)invalid), "fragment source bounds");
+        }
+    }
+
     private static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingCloudInstructionDefinitions.Start;
@@ -61,20 +82,14 @@ internal static partial class Program
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        VerifyEndingObjectFragmentMetadata(bus);
         AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
         AssertSheet(stock.Explosion, EndingCreditsRomData.Assets.EndingObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount, "explosion");
-        int[] fragmentSources =
-        [
-            EndingCreditsRomData.Assets.EndingObjectCharacters70,
-            EndingCreditsRomData.Assets.EndingObjectCharacters74,
-            EndingCreditsRomData.Assets.EndingObjectCharacters78,
-            EndingCreditsRomData.Assets.EndingObjectCharacters7C,
-        ];
-        for (int index = 0; index < fragmentSources.Length; index++)
+        for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             AssertSheet(stock.Fragment((EndingObjectFragmentId)index),
-                fragmentSources[index], EndingObjectArtworkFormat.FragmentByteCount,
+                EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
         AssertSheet(stock.WaitingSamus,
             EndingCreditsRomData.Assets.WaitingForCreditsCharacters,

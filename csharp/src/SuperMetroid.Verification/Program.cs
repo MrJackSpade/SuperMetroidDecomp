@@ -58,12 +58,15 @@ if (args is ["--lookup-stream-4"])
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }
-if (args is ["--lookup-stream5-initialization"])
+if (args is ["--lookup-stream5-initialization"] or ["--lookup-stream5-palette-entries"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 5 original oracle revision");
-    VerifyLookupStream5Initialization(rom);
+    if (args[0] == "--lookup-stream5-initialization")
+        VerifyLookupStream5Initialization(rom);
+    else
+        VerifyLookupStream5PaletteEntries(rom);
     return 0;
 }
 if (args is ["--lookup-file-select-names"])

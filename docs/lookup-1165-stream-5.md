@@ -184,7 +184,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All** ([L103](../csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs#L103)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All** ([L103](../csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs#L103)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorInitializationDefinitions.cs
 
@@ -240,7 +240,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **CinematicGlowPaletteFxProgramMechanicsDefinitions.Definitions** ([L33](../csharp/src/SuperMetroid.Core/Game/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CinematicGlowPaletteFxProgramMechanicsDefinitions.Definitions** ([L33](../csharp/src/SuperMetroid.Core/Game/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank86.Definitions.cs
 
@@ -638,11 +638,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.Definitions** ([L49](../csharp/src/SuperMetroid.Core/Game/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.Definitions** ([L49](../csharp/src/SuperMetroid.Core/Game/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **TourianStatueGreyPaletteFxProgramMechanicsDefinitions.Definitions** ([L30](../csharp/src/SuperMetroid.Core/Game/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TourianStatueGreyPaletteFxProgramMechanicsDefinitions.Definitions** ([L30](../csharp/src/SuperMetroid.Core/Game/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs
 
@@ -715,3 +715,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Existing `VerifyCeresDoorInitializationDefinitions` production fixture cannot currently run standalone: its actor lacks installed Ceres door visuals now required by production. It fails before the changed dispatch is exercised. No production behavior was changed to accommodate that fixture; dedicated native-word checks cover the changed dispatch contract. Other existing fixture production behavior is not claimed as verified.
 - Confirmation results: pending. No retention exceptions granted; all other checklist entries remain required.
 Batch 1 confirmation passed: Verification build (1431 existing warnings, zero errors); ResourceAudit build (zero warnings/errors); `--lookup-stream5-initialization` (53 native words and rejected domains); `--ceres-escape-transfers` (all 19 original records, three terminators, both installed timer lists and Japanese overlay with descriptor reads blocked). Four named definitions are complete. These results supersede the pending confirmation note above; the older standalone door-production fixture limitation remains as recorded. Other 221 named definitions remain required.
+### Batch 2: cinematic/Tourian palette entry catalogs
+
+Replaced `CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All`, `CinematicGlowPaletteFxProgramMechanicsDefinitions.Definitions`, `TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.Definitions`, and `TourianStatueGreyPaletteFxProgramMechanicsDefinitions.Definitions` with immutable indexed calculation/semantic-dispatch views. The first three dispatch by the actual light/glow/level owner. Statue definition/entry addresses advance by their four/eight-byte record layouts, CGRAM rows advance by palette size while skipping row eight, and only the final statue entry falls through into the shared program. These views do not cache a regenerated table.
+
+Added `--lookup-stream5-palette-entries`: checks all eleven definition list operands against original bank 8D, indexed/enumerated order and bounds, and every mechanics result over the full pointer domain against the pinned ROM with exact expected coverage. This verifies the changed entry dispatch routes into the original controls. All live BGR555 color payloads remain independently required; no retention disposition is granted. Confirmation pending.
+Batch 2 confirmed: Verification build passed (1431 existing warnings, zero errors). `--lookup-stream5-palette-entries` passed all eleven entry identities, 44 Ceres-light mechanics words, 64 glow words, 50 shared-red words and 31 statue-grey words, enumeration and bounds. Four more named definitions complete, eight total in stream5; 217 entries remain required. No color payload was exempted or marked complete by these metadata conversions.

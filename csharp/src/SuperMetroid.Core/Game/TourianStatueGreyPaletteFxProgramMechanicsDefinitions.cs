@@ -26,16 +26,37 @@ public enum TourianStatueBoss
 /// </remarks>
 public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 {
-    private static readonly TourianStatueGreyPaletteFxProgramDefinition[] Definitions =
-    [
-        new(TourianStatueBoss.Draygon, 0xf749, 0xe222, 0x00c0, usesGoto: true),
-        new(TourianStatueBoss.Kraid, 0xf74d, 0xe22a, 0x00e0, usesGoto: true),
-        new(TourianStatueBoss.Ridley, 0xf751, 0xe232, 0x0120, usesGoto: true),
-        new(TourianStatueBoss.Phantoon, 0xf755, 0xe23a, 0x0140, usesGoto: false),
-    ];
-    private static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:F749: first of four consecutive statue palette-FX definitions.</summary>
+    private const ushort FirstDefinition = 0xf749;
+    /// <summary>$8D:E222: first color-index/goto entry; the final entry falls through.</summary>
+    private const ushort FirstProgram = 0xe222;
+    /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
+    private const ushort FirstColorByte = 0xc0;
 
+    private static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    private sealed class ProgramEntries : IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
+    {
+        public int Count => 4;
+        public TourianStatueGreyPaletteFxProgramDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                return new((TourianStatueBoss)index,
+                    (ushort)(FirstDefinition + 4 * index),
+                    (ushort)(FirstProgram + 8 * index),
+                    (ushort)(FirstColorByte + 32 * (index + (index >= 2 ? 1 : 0))),
+                    usesGoto: index < Count - 1);
+            }
+        }
+        public IEnumerator<TourianStatueGreyPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>
     public const ushort FirstFramePointer = 0xe23e;
 
@@ -53,7 +74,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 
     /// <summary>The Draygon, Kraid, Ridley, and Phantoon entries in cartridge order.</summary>
     public static IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Resolves one compiled mechanics word across all four statue entries.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

@@ -201,12 +201,18 @@ public sealed partial class RoomEnemySystem
     {
         ResolveNormalEnemyTouch(slot, samus, controllerInput);
 
-        // EnemyDeath clears the actor even when common touch merely damaged Samus. If common
-        // touch already killed it, this second call still increments the native kill counter;
-        // retaining that erroneous accounting is necessary for an actual decompilation.
-        slot.Health = 0;
-        slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
-        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+        // With ordinary contact, native A still contains the surviving health ($A0:A480).
+        // EnemyDeath clamps values above four to the small explosion. Queue that real
+        // death program before clearing the actor so its artwork and sound can run.
+        if (slot.EnemyDefinitionPointer != 0)
+            StartGenericEnemyDeath(slot, deathAnimation: slot.Health);
+        else
+        {
+            // Common attacking contact already ran EnemyDeath. Preserve the existing
+            // native double-kill accounting for that cleared-slot tail.
+            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+            EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+        }
         AdvanceFirefleaDarknessLevel();
     }
 

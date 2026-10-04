@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--fireflea-contact-death-audit", var firefleaInstallation])
+        return FirefleaContactDeathAudit.Run(firefleaInstallation);
     if (args is ["--crateria-acid-background-audit", var acidInstallation])
         return CrateriaAcidBackgroundAudit.Run(acidInstallation);
     if (args is ["--tester-options-audit", var testerInstallation])

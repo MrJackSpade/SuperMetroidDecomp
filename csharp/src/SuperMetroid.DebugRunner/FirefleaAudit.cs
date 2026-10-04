@@ -202,7 +202,7 @@ internal static class FirefleaAudit
         samus.HorizontalSpeed.ContactDamageIndex = 0;
         if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 995 ||
             normalTouchTarget.Health != 0 ||
-            !normalTouchTarget.Properties.HasAny(EnemyProperties.Deleted) ||
+            normalTouchTarget.EnemyDefinitionPointer != 0 ||
             enemies.EnemiesKilled != 1 || enemies.FirefleaDarknessLevel != 2)
         {
             throw new InvalidDataException(

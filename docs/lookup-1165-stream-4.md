@@ -170,7 +170,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs
 
-- [ ] **DraygonBurialEvirDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonBurialEvirDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs
 
@@ -694,7 +694,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 25 named definitions (batches 1/2/4); Tourian statue grey intermediate payload also converted (batch 3, container remains open).
+- Completed conversions: 26 named definitions (batches 1/2/4/5); Tourian statue grey intermediate payload also converted (batch 3, container remains open).
 - Justified retained entries: none.
 - Confirmation results: isolated builds and --lookup-stream-4 pass; legacy presentation-read verifier limitations recorded in batch 2.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -741,3 +741,10 @@ Thirteen definitions converted; 25 complete and 200 unchecked. No retained excep
 - Evidence: pinned bank A6 action pointers `$B38C..B3EB`; targets `$B60D/$B63B/$B6C8/$BBEB/$BC62`; divisor indexes `$B439/$BB4E`. Native comments identify facing and fight situations.
 - Confirmation: Verification build passed (1431 warnings, zero errors). `--lookup-stream-4` passed all previous scoped checks plus existing Ridley choice/target confirmation, adapted only from span indexing to function calls. All48 original action words and23 target/divisor words match; the existing production checks verify choice/RNG order and same-frame setup, carry/health clamping, side movement and grab acceleration with mechanics reads forbidden. Their original assertions and raw-ROM oracles remain intact.
 - Additional ownership granted by coordinator: `Program.RidleyAttackChoices.cs` and `Program.RidleyMovementTargets.cs`; the local stream command now calls these focused checks.
+## Batch 5: Draygon burial Evir radial approach
+
+One complete five-column definition converted; 26 definitions complete and 199 remain. No retained exception.
+
+- `DraygonBurialEvirDefinitions.Entries` is removed. The six angles are $68-$10*entry. Subspeeds are floor(65535*abs(cos(angle))) and floor(65535*sin(angle)); spawn coordinates are floor(256+508*cos(angle)) and floor(512-508*sin(angle)), with native signed-X word wrapping. All values are evaluated from angle geometry, without storing the six results.
+- Evidence: pinned bankA5 `$A1AF..A1F6`. Native annotations explicitly identify the $FFFF-scaled trigonometric subspeeds and equally spaced angles; the six positions independently match the radius508 circle centered at(256,512). Every one of the30 meaningful original fields matches raw ROM, including the two negative X positions. Angle-padding words are unused and remain outside the record API.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed the thirty raw-field comparisons and invalid entry bounds, alongside its existing focused checks. No consumer or mutable state ownership changed.

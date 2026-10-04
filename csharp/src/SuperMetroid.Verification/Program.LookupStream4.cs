@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4Burial(rom);
         VerifyLookupStream4StatueColors(rom);
         VerifyLookupStream4Programs(rom);
         VerifyLookupStream4ProgramConsumers(rom);
@@ -207,5 +208,20 @@ internal static partial class Program
             }
         }
         AssertTrue(!TourianStatueGreyColorDefinitions.TryCalculatedColor(0xe254, new Dictionary<ushort, ushort>(), out _), "stream4 absent statue endpoints are not invented");
+    }
+    private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int entry = 0; entry < 6; entry++)
+        {
+            var actual = DraygonBurialEvirDefinitions.ForEntry(entry);
+            AssertEqual(Word(0xa5a1af + 4 * entry), actual.XSubspeed, "stream4 burial radial X subspeed");
+            AssertEqual(Word(0xa5a1b1 + 4 * entry), actual.YSubspeed, "stream4 burial radial Y subspeed");
+            AssertEqual(Word(0xa5a1c7 + 4 * entry), actual.InitialX, "stream4 burial radial spawn X including negative wrap");
+            AssertEqual(Word(0xa5a1c9 + 4 * entry), actual.InitialY, "stream4 burial radial spawn Y");
+            AssertEqual(Word(0xa5a1df + 4 * entry), actual.Angle, "stream4 burial radial angle");
+        }
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => DraygonBurialEvirDefinitions.ForEntry(invalid), "stream4 burial exact six-record domain");
     }
 }

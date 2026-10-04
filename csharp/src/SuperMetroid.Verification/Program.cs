@@ -183,6 +183,12 @@ if (args is ["--lookup-ending-explosion-frame-catalog"])
     Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-palette-roles"])
+{
+    VerifyEndingPaletteRoleSelection();
+    Console.WriteLine("Ending palette roles: all seven supplied references, original identity order and invalid-role behavior pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-fragment-metadata"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

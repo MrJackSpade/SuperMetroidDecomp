@@ -9,8 +9,37 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingPaletteRoleSelection()
+    {
+        // Distinct caller-owned values exercise the original constructor-position contract.
+        var supplied = new EndingPalette[7];
+        for (int i = 0; i < supplied.Length; i++)
+        {
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(new EndingPaletteDocument
+            {
+                Version = 1,
+                Colors = Enumerable.Range(0, 256).Select(_ => new PaletteRgb5 { Red = i, Green = 0, Blue = 0 }).ToArray(),
+            }, MapPresentationFormat.JsonOptions));
+            supplied[i] = EndingPalette.Load(json, EndingPaletteId.Escape);
+        }
+        var catalog = new EndingPaletteCatalog(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
+        EndingPaletteId[] originalOrder = [EndingPaletteId.Escape, EndingPaletteId.PostCredits, EndingPaletteId.Credits,
+            EndingPaletteId.Explosion, EndingPaletteId.FinalGunship, EndingPaletteId.LogoInitial, EndingPaletteId.LogoCrossfade];
+        for (int i = 0; i < originalOrder.Length; i++)
+            AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending palette role preserves supplied reference");
+        string originalIdentity = SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
+        {
+            content.Append("palette-count", supplied.Length);
+            foreach (EndingPalette palette in supplied) content.Append("palette", palette.Transfer.Span);
+        });
+        AssertEqual(originalIdentity, catalog.ContentIdentity, "ending palette identity preserves original role order");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
+    }
+
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
+        VerifyEndingPaletteRoleSelection();
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");

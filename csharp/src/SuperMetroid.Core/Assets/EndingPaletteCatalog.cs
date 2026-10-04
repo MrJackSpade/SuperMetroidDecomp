@@ -86,24 +86,44 @@ public sealed record EndingPaletteDocument
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
-    private readonly EndingPalette[] palettes;
+    private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
 
     public EndingPaletteCatalog(EndingPalette escape, EndingPalette postCredits,
         EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,
         EndingPalette logoInitial, EndingPalette logoCrossfade)
     {
-        palettes = [escape, postCredits, credits, explosion, finalGunship,
-            logoInitial, logoCrossfade];
+        this.escape = escape;
+        this.postCredits = postCredits;
+        this.credits = credits;
+        this.explosion = explosion;
+        this.finalGunship = finalGunship;
+        this.logoInitial = logoInitial;
+        this.logoCrossfade = logoCrossfade;
     }
 
-    public EndingPalette this[EndingPaletteId id] => palettes[(int)id];
+    public EndingPalette this[EndingPaletteId id] => id switch
+    {
+        EndingPaletteId.Escape => escape,
+        EndingPaletteId.PostCredits => postCredits,
+        EndingPaletteId.Credits => credits,
+        EndingPaletteId.Explosion => explosion,
+        EndingPaletteId.FinalGunship => finalGunship,
+        EndingPaletteId.LogoInitial => logoInitial,
+        EndingPaletteId.LogoCrossfade => logoCrossfade,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
     {
-        content.Append("palette-count", palettes.Length);
-        foreach (EndingPalette palette in palettes)
-            content.Append("palette", palette.Transfer.Span);
+        content.Append("palette-count", 7);
+        content.Append("palette", escape.Transfer.Span);
+        content.Append("palette", postCredits.Transfer.Span);
+        content.Append("palette", credits.Transfer.Span);
+        content.Append("palette", explosion.Transfer.Span);
+        content.Append("palette", finalGunship.Transfer.Span);
+        content.Append("palette", logoInitial.Transfer.Span);
+        content.Append("palette", logoCrossfade.Transfer.Span);
     });
 }
 

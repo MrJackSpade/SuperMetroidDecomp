@@ -9090,4 +9090,16 @@
   "validation": "Read-only source tracing and JSON parsing; no gameplay or exploratory tests. Regenerated the static source index solely to link these explicit member classifications. Index counts are not completion evidence.",
   "scope": "13 content-container classifications across9 owners. No whole-owner completion is inferred. Implementation record is the commit adding this inventory section."
 }
+,
+  "endingPaletteRoleReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs",
+  "id": "ending-palette-role-selector",
+  "state": "converted",
+  "source": "Previous published EndingPaletteCatalog constructor assigned [escape,postCredits,credits,explosion,finalGunship,logoInitial,logoCrossfade] and indexed it by EndingPaletteId0..6. This managed API/constructor contract is the original definition; no cartridge palette bytes are needed to establish which supplied reference each role owns.",
+  "implementation": "Remove positional palettes array; store seven named references and select through explicit EndingPaletteId cases. ContentIdentity appends those references in the same published role order with unchanged count/framing. Preserve IndexOutOfRangeException for invalid IDs. Constructor input acceptance and selected content remain unchanged.",
+  "consumer": "Ending coroutine and logo operations request palette roles through the indexer. ContentIdentity serializes their ordered loaded transfers for presentation identity. This conversion handles role selection only; it does not replace or exempt color payloads.",
+  "proof": "VerifyEndingPaletteRoleSelection constructs seven distinct caller-owned palettes and compares all role results by reference to the original constructor-position contract. Expected content identity uses the original ordered-array append sequence as verification-only evidence. Invalid enum representatives preserve the old exception. Early --lookup-ending-palette-roles and existing artwork aggregate share this one selector proof. Synthetic colors exercise identity/selection, not cartridge color generation.",
+  "supersedes": "Resolves only the pending constructor-order palette selector explicitly separated by endingLoadedContentClassification. EndingPaletteDefinitions source addresses/counts/filenames and original color payloads remain independent review obligations.",
+  "scope": "One logical role mapping including its ordered content-identity view. No retention exception. Implementation commit is the commit adding this record."
+}
 }

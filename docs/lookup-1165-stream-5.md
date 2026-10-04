@@ -318,7 +318,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrocomireBridgeFragmentDefinitions.cs
 
-- [ ] **CrocomireBridgeFragmentDefinitions.XPositions** ([L19](../csharp/src/SuperMetroid.Core/Game/CrocomireBridgeFragmentDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrocomireBridgeFragmentDefinitions.XPositions** ([L19](../csharp/src/SuperMetroid.Core/Game/CrocomireBridgeFragmentDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrocomireInstructionProgramDefinitions.cs
 
@@ -742,3 +742,12 @@ Sixteen named definitions complete in stream5;209 remain required.
 Removed both generated-and-cached Evir word tables. Both facing halves calculate their six-frame body and seventeen-frame arm loops, preserving the final arm rest. The normal projectile displays one pose then sleeps; the regeneration program explicitly starts the horizontal offset, sets an eight-step timer, emits the spit sound, advances the offset through eight-tick records, then finishes after its16-tick final pose and sleeps. Mechanics and interleaved visual operand addresses now calculate directly.
 
 Verification build passed (1431 warnings, zero errors). `--evir-instruction-program-definitions` passed all67 original mechanics words, all six actual body/arm/projectile programs, complete regeneration callbacks and49 compiled sprite selectors. Eighteen named definitions complete in stream5;207 remain required. The separate Crocomire destruction-order retention review is pending and is not counted complete.
+### Batch 6: Crocomire destruction order — mixed conversion and justified retention
+
+**Resolved by mixed conversion/justified retention, not fully converted.** Floor X coordinates now calculate as $0710+16*(column-1). Only the eleven-column destruction order `8,3,9,4,11,6,10,7,1,5,2` remains stored. This order specifies the effect choreography itself: native $A4:9136-$9153 advances a byte cursor by2 and passes the selected X directly to the identical projectile initializer, stopping at22. It does not select order by direction, geometry, RNG or another input. $86:9286-$92B9 fixes Y187, X velocity0 and graphics$0400; each fragment independently receives Y velocity(RNG&63)+64. That random velocity does not determine which column crumbles next. Replacing the authored order with an invented shuffle would change the visual destruction sequence, rather than reconstruct any functional relation. The coordinator reviewed both pinned native consumers and accepted the narrow nonsense exception for this permutation only.
+
+Verification build passed (1431 warnings, zero errors). `--lookup-stream5-crocomire-order` passed every original word at $A4:9156-$916B, actual produced X order `0780,0730,0790,0740,07B0,0760,07A0,0770,0710,0750,0720`, all eleven allocations, Y/substate behavior and cursor cutoff with original position reads forbidden. The fixture's fixed RNG gives Y velocity$74; this is fixture evidence, not a universal native velocity claim. Invalid odd/post-end cursors remain rejected.
+
+Also corrected an incomplete comment replacement from batch4: the remaining unsupported `no clearer lossless generator` line in Crocomire rumble documentation is now removed. Rumble remains required and unchecked.
+
+Nineteen stream5 definitions resolved:18 converted/removed and1 mixed conversion with narrowly justified retention.206 remain required. No other payload receives this exception.

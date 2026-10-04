@@ -23,10 +23,9 @@ internal static class CrocomireRumbleDefinitions
     /// Nonnegative target Y offsets occupy one word; negative targets are followed
     /// by cooldown and approach-delta words. The final negative target loads
     /// <c>$8080,$8080</c> timing before the reachable <c>$8080</c> target
-    /// terminator; a second terminator at offset <c>$3E</c> supports restored
-
-
-    /// unequal rebounds and cooldowns have no clearer lossless generator.
+    /// terminator; a second terminator at offset <c>$3E</c> supports restored cursors.
+    /// Independent derivation of the amplitude/cadence sequence or a concrete permitted
+    /// exception remains required under issue #1165.
     /// All words and the complete production rumble match the native stream.
     /// Investigation: #625 / #671.
     /// </remarks>

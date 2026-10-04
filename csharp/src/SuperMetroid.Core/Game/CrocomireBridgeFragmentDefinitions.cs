@@ -8,30 +8,30 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <c>$A4:9156-$A4:916B</c>. The native cursor is a byte offset advancing by two.
     /// </summary>
     /// <remarks>
-    /// All eleven words match the pinned NTSC J/U v1.0 ROM. They permute the
-    /// eleven whole-pixel positions <c>$0710,$0720,...,$07B0</c>, each once,
-
-
-    /// computing the grid still requires an opaque shuffle to reproduce
-    /// the exact sequence. The next bank-$A4 bytes begin another routine.
-    /// Investigation: #625 / #674.
+    /// The eleven equal-width floor columns are visited in this destruction choreography:
+    /// 8,3,9,4,11,6,10,7,1,5,2. $A4:9136-$9153 advances the cursor by two and passes
+    /// each selected X to the same producer. $86:9286-$92B9 fixes Y187, X velocity0 and
+    /// graphics$0400; independently, each fragment gets Y velocity(RNG &amp; 63)+64.
+    /// No RNG, actor direction or data-dependent choice selects the
+    /// order. The permutation is the authored ordering of the visual destruction, not
+    /// sampled geometry. Retain only that order; coordinates calculate from the grid.
+    /// Issue1165 retains this order as the narrow nonsense exception: replacing the
+    /// chosen destruction choreography with an invented shuffle would change the effect.
     /// </remarks>
-    private static readonly ushort[] XPositions =
-    [
-        0x0780, 0x0730, 0x0790, 0x0740, 0x07b0, 0x0760,
-        0x07a0, 0x0770, 0x0710, 0x0750, 0x0720,
-    ];
+    private static ReadOnlySpan<byte> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 
+    /// <summary>$A4:9156-$916B cover eleven floor columns beginning at X$0710 with16-pixel spacing.</summary>
+    private const int FirstColumnX = 0x0710;
     /// <summary>Returns the authored X position selected by an even native byte cursor.</summary>
     internal static ushort XPosition(ushort byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset >= XPositions.Length * 2)
+        if ((byteOffset & 1) != 0 || byteOffset >= AuthoredCrumbleColumnOrder.Length * 2)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(byteOffset), byteOffset,
                 "Crocomire bridge-fragment offset must be even and zero through twenty.");
         }
 
-        return XPositions[byteOffset >> 1];
+        return (ushort)(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[byteOffset >> 1] - 1));
     }
 }

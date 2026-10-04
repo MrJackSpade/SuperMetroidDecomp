@@ -10365,4 +10365,16 @@
     "algorithm": "Fold/reflection sectors; source/atlas strides; semantic behavior cases with bounded adjacent opcode identity; rotated eight-byte program sequence; physical segment dispatch; radius16 octants with outward-rounded diagonals and quarter-turn Y. No stored generated lookup.",
     "evidence": "Pinned banks9B/A8/AA/86 and original-ROM verification over complete relevant domains; owning XML and report contain source addresses and consumers. --lookup-stream-3 and integrated Verification/ResourceAudit builds pass. Reviewed Grapple source hashes refreshed after API review. No retention exception."
   }
+,
+  "parallelStreamsSecondIntegration": {
+    "id": "parallel-streams-second-27-conversions",
+    "state": "converted",
+    "scope": "Only the additional27 checked definitions reflected in docs/lookup-remaining-1165.json: WorkRobot colors1; Ridley pogo/breakup6; Ceres door/steam/DMA and Magdollite4; cinematic/Tourian palette entries4; pickup/death/Fireflea6; Skree/Metaree/electricity6.",
+    "implementationCommits": "2c06205ff, fed9bc8d2, 9e8d0cf84, a79d4461c, e0a0ac2c0, 898664e1c",
+    "algorithms": "Stock WorkRobot red rotation with supplied-edit fallback; stage and record strides; semantic initialization; packed row/block DMA; named palette owners and entry strides; generated instruction operations and visual-operand addresses; named animation phase dispatch. No generated lookup caches or new retention exception.",
+    "evidence": "Each owning XML/report documents the original banks/addresses and relevant consumers. Worker reports in docs/lookup-1165-stream-{3,4,5}.md contain complete domain and field-specific confirmation. WorkRobot verifies all24 stock words and every independent RGB5 channel edit with unchanged content identity; other independent color payloads remain required.",
+    "confirmation": "Isolated worker builds and focused checks passed. Integrated Verification and ResourceAudit builds pass; --lookup-stream-3, --lookup-stream-4, --lookup-stream5-initialization, --lookup-stream5-palette-entries and --ceres-escape-transfers pass. DMA confirms installed timer/Japanese transfers with native descriptor reads forbidden. Added current-consumer electricity/debris checks confirm exact visuals, durations and deletion.",
+    "limitations": "Legacy Ceres door initialization fixture lacks installed visual assets; legacy debris/electricity tests expect presentation ROM reads despite current installed presentation ownership. These are recorded fixture limitations, not claims of gameplay defects or reasons to restore ROM reads. No player-facing behavior change or player validation is inferred.",
+    "remaining": "54 snapshot definitions converted in total,1074 pending. Independent color endpoints, irregular motion, placement and other unchecked payloads remain required. No stream is complete."
+  }
 }

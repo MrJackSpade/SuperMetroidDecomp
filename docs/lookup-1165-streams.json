@@ -2841,6 +2841,11 @@
                                     "stream":  5,
                                     "path":  "csharp/src/SuperMetroid.Verification/Program.CeresEscapeVramTransferDefinitions.cs",
                                     "purpose":  "Existing focused DMA proof collection API adaptation"
+                                },
+                                {
+                                    "stream":  4,
+                                    "path":  "csharp/src/SuperMetroid.Core/Assets/TourianStatueGreyColorDefinitions.cs",
+                                    "purpose":  "Calculated grey-out interpolation with independent endpoint and supplied-edit preservation"
                                 }
                             ],
     "scheduling":  "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

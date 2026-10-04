@@ -25,6 +25,17 @@ public static class EndingCreditsRomData
         public const int EscapeCharactersA = 0x99d17e;
         public const int EscapeCharactersB = 0x99d65b;
         public const int ExplosionCharacters = 0x99d932;
+        /// <summary>Original ending scene decompression sources. EscapeA: $8B:D4B4/D4D6;
+        /// EscapeB: $8B:D775/D604; explosion: $8B:D87B/D615. Each pair is the
+        /// high-byte character lane followed by the packed low-byte map source.
+        /// The legacy Map/Characters constant names are inverted relative to these lanes.</summary>
+        public static (int Characters, int PackedMap) Mode7Sources(EndingMode7SceneId id) => id switch
+        {
+            EndingMode7SceneId.EscapeA => (EscapeMapA, EscapeCharactersA),
+            EndingMode7SceneId.EscapeB => (EscapeMapB, EscapeCharactersB),
+            EndingMode7SceneId.PlanetExplosion => (ExplosionMap, ExplosionCharacters),
+            _ => throw new ArgumentOutOfRangeException(nameof(id)),
+        };
         /// <summary>$8B:D56C decompresses the explosion OBJ sheet into $7F:8000.</summary>
         public const int EndingObjectCharacters = 0x988304;
         /// <summary>$8B:D4D1 decompresses the atmospheric cloud OBJ sheet for VRAM word $6000.</summary>

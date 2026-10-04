@@ -215,7 +215,7 @@ if (args is ["--lookup-ending-font-layout"])
 if (args is ["--lookup-ending-mode7-roles"])
 {
     VerifyEndingMode7RoleSelection();
-    Console.WriteLine("Ending Mode7 roles: supplied references, original hash ordering, bounds and null checks pass.");
+    Console.WriteLine("Ending Mode7 roles: six original sources, filenames, supplied references, identity ordering and bounds pass.");
     return 0;
 }
 if (args is ["--lookup-ending-gunship-art"])

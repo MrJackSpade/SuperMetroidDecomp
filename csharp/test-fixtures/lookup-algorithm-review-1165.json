@@ -9111,7 +9111,7 @@
   "implementation": "Remove positional scenes array; named fields and explicit scene-role cases preserve references. ContentIdentity explicitly appends each scene map/character pair in original order, then RewardIcon transfer. Preserve constructor null checks and invalid-role ArgumentOutOfRangeException.",
   "consumer": "EndingCreditsState requests the atmospheric/explosion backdrop by role; ending presentation identity includes every selected scene transfer and the reward icon. No map/pixel payload or scene rendering logic is changed.",
   "proof": "VerifyEndingMode7RoleSelection builds three distinct synthetic supplied scenes and one icon, checks each named selector by reference, and compares content hash with the original ordered-array append contract. Complete three-role domain, representative invalid int enum values and all four null constructor inputs are checked. Early --lookup-ending-mode7-roles is the one focused selector proof; synthetic maps/pixels are fixtures for selection/identity, not a stock-artwork oracle.",
-  "scope": "One logical scene-role mapping including its ordered identity view. Source/file/dimension selectors, maps and character artwork remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  "scope": "One logical scene-role mapping including its ordered identity view. Source and filename mappings are resolved in endingMode7MetadataReview; dimension definitions, maps and character artwork remain independently required. No retention exception. Implementation commit is the commit adding this record."
 },
   "endingTextGlyphEvidenceReview": {
   "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs",
@@ -9360,5 +9360,21 @@
     "evidence": "The SHA-pinned original tile/map export in endingGunshipArtworkEvidence shows an indexed painted gunship: gold upper hull, green cockpit and blue-grey underside. Native ending setup selects these fixed material inks by tile pixel index, and the palette program varies only time. It has no light position, surface normal, material spectrum or exposure input from which these particular color choices follow. Identical visible inks appear in Ceres and explosion scene artwork. The source supplies both the indexed painting and its chosen colors. The reviewed runtime consumer applies the independently converted temporal fade; it does not supply a hidden hue/intensity calculation.",
     "rationale": "Nonsense exception for the residual artistic parameters of this particular drawing. Choosing gold rather than another hull hue, green cockpit glass, a blue-grey underside, and the contrast between their painted regions is authored visual content. Encoding those choices as index-specific numeric cases or a fitted function would merely recite the same painting. This is a positive source-art and consumer-semantic justification, not a failure to fit data, a performance argument, table size, complexity or missing historical tool provenance. Every identified shared-channel, midpoint and temporal relationship is separately calculated; the exception does not include those relationships.",
     "scope": "Only the18 listed independent component choices in this effect. Preserve independently supplied edits and separate effect/scene ownership. No exemption for other gunship data, other palettes, or complete files. Existing original256-color proof covers the composed result; retention adds no redundant test. Implementation commit is the commit adding this record."
+  }
+,
+  "endingMode7MetadataReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
+    "id": "ending-mode7-scene-source-pairs",
+    "state": "converted",
+    "source": "Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank8B: EscapeA character/map loadsD4B4/D4D6; EscapeB D775/D604; explosion D87B/D615. Supported ROM supplies bank byte via LDA immediate high byte and offset via following LDA at+5. These are decompression sources for high character lane and packed map lane, respectively. Legacy EscapeMap/Characters and ExplosionMap/Characters names are inverted relative to their actual transfer lane.",
+    "implementation": "The existing meaningful three-scene source cases are consolidated in EndingCreditsRomData.Assets.Mode7Sources. Importer and installed-art verification use that catalog; remove both duplicated private selectors. No numeric stored table, gameplay ROM access or source-file format change. Existing exact named cases remain the appropriate port; no retention exception.",
+    "proof": "Extend the existing VerifyEndingMode7RoleSelection and --lookup-ending-mode7-roles compound proof. SHA-pin ROM; independently decode original two LDA instructions for each of six source addresses and compare shared catalog. Check all three scene roles and invalid int enum values. Existing supplied-reference/hash/null proof remains. No full-scene replay required for metadata consolidation.",
+    "files": {
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
+      "id": "ending-mode7-published-scene-filenames",
+      "state": "converted",
+      "rationale": "Existing SceneName cases assign semantic escape-a, escape-b, planet-explosion roles; map/character filenames compose their published suffix. Complete three-role filename pairs and invalid roles are checked against the established file contract in the same proof. No conversion churn needed and no retention exception."
+    },
+    "scope": "Source pairs and scene filenames only. Dimension definitions and artwork payloads are not exempted. Implementation commit is the commit adding this record."
   }
 }

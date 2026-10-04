@@ -5,9 +5,32 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    /// <summary>Checks statically identified ending presentation domains without a cartridge or playthrough.</summary>
+    /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
     private static void VerifyEndingMode7RoleSelection()
     {
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mode7 metadata oracle revision");
+        int Source(int instruction)
+        {
+            AssertEqual(0xa9, (int)rom.ReadByte(instruction), "native source bank LDA");
+            AssertEqual(0xa9, (int)rom.ReadByte(instruction + 5), "native source offset LDA");
+            return rom.ReadByte(instruction + 2) << 16 | rom.ReadByte(instruction + 6) |
+                rom.ReadByte(instruction + 7) << 8;
+        }
+        foreach (var native in new[]
+        {
+            (EndingMode7SceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
+            (EndingMode7SceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
+            (EndingMode7SceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
+        })
+        {
+            var sources = SuperMetroid.Core.Frontend.EndingCreditsRomData.Assets.Mode7Sources(native.Item1);
+            AssertEqual(Source(native.Item2), sources.Characters, "original high-lane character source");
+            AssertEqual(Source(native.Item3), sources.PackedMap, "original packed-map source");
+            AssertEqual($"ending-{native.Item4}-mode7-characters.png", EndingMode7ArtworkFormat.CharacterFileName(native.Item1), "published character filename");
+            AssertEqual($"ending-{native.Item4}-mode7-map.json", EndingMode7ArtworkFormat.MapFileName(native.Item1), "published map filename");
+        }
         static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
             new EndingMode7MapDocument { Version = 1, Width = 128, Height = height,
                 Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, MapPresentationFormat.JsonOptions));
@@ -46,7 +69,12 @@ internal static partial class Program
         });
         AssertEqual(originalHash, catalog.ContentIdentity, "ending Mode7 original hash ordering");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+        {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingMode7SceneId)invalid], "ending Mode7 role bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.EndingCreditsRomData.Assets.Mode7Sources((EndingMode7SceneId)invalid), "Mode7 source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.CharacterFileName((EndingMode7SceneId)invalid), "Mode7 character filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.MapFileName((EndingMode7SceneId)invalid), "Mode7 map filename bounds");
+        }
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(null!, supplied[1], supplied[2], reward), "Mode7 null escapeA");
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], null!, supplied[2], reward), "Mode7 null escapeB");
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], null!, reward), "Mode7 null explosion");

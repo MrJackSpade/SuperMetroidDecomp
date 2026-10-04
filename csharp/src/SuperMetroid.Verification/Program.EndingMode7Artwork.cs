@@ -15,7 +15,7 @@ internal static partial class Program
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
         {
-            (int characterSource, int packedSource) = Sources(id);
+            (int characterSource, int packedSource) = EndingCreditsRomData.Assets.Mode7Sources(id);
             byte[] nativeCharacters = RomDataReader.Decompress(nativeBus, characterSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
@@ -220,16 +220,6 @@ internal static partial class Program
         Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon, guarded runtime and independent edits pass.");
     }
 
-    private static (int Characters, int PackedMap) Sources(EndingMode7SceneId id) => id switch
-    {
-        EndingMode7SceneId.EscapeA =>
-            (EndingCreditsRomData.Assets.EscapeMapA, EndingCreditsRomData.Assets.EscapeCharactersA),
-        EndingMode7SceneId.EscapeB =>
-            (EndingCreditsRomData.Assets.EscapeMapB, EndingCreditsRomData.Assets.EscapeCharactersB),
-        EndingMode7SceneId.PlanetExplosion =>
-            (EndingCreditsRomData.Assets.ExplosionMap, EndingCreditsRomData.Assets.ExplosionCharacters),
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
 
     private sealed class EndingMode7SourceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource

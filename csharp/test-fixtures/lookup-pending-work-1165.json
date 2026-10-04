@@ -27,7 +27,7 @@
     {
       "id": "spc-pan-gain-curve",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
-      "nativeIdentity": "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+      "nativeIdentity": "CF:8A25..8A39,21 pan bytes atSPC1E1D..1E31; local interpolation additionally aliases the first FIR coefficient atCF:8A3A/SPC1E32",
       "status": "pending",
       "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
     },

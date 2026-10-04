@@ -26,18 +26,18 @@ public sealed partial class ManagedSpcPlayer
             int panIndex = volume >> 8;
             int baseVolume;
             int nextVolume;
-            if (panIndex >= SpcMusicTables.PanVolume.Length - 1)
+            if (panIndex >= SpcMusicTables.PanSampleCount)
             {
-                // The retail driver intentionally reads beyond its 22-byte local curve into
-                // adjacent SPC program data. Preserve that address-level behavior.
+                // Indices21 and above start at the echo FIR data after the21 pan samples.
+                // Preserve the existing mutable SPC-RAM compatibility branch.
                 int address = panIndex + 0x1e1d; // allow(HardwareAddress): native pan-table overread base
                 baseVolume = ram[address];
                 nextVolume = ram[address + 1];
             }
             else
             {
-                baseVolume = SpcMusicTables.PanVolume[panIndex];
-                nextVolume = SpcMusicTables.PanVolume[panIndex + 1];
+                baseVolume = SpcMusicTables.PanVolume(panIndex);
+                nextVolume = SpcMusicTables.PanVolume(panIndex + 1);
             }
 
             byte interpolated = unchecked((byte)(baseVolume +

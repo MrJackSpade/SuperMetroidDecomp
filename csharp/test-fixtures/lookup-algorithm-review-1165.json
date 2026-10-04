@@ -1077,11 +1077,11 @@
                                            "id":  "spc-pan-gain-curve",
                                            "state":  "unreviewed",
                                            "owner":  "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
-                                           "nativeIdentity":  "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+                                           "nativeIdentity":  "CF:8A25..8A39,21 pan bytes atSPC1E1D..1E31; local interpolation additionally aliases the first FIR coefficient atCF:8A3A/SPC1E32",
                                            "consumers":  [
                                                              "ManagedSpcPlayer.WriteVolume"
                                                          ],
-                                           "domain":  "Stored index0..21; actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
+                                           "domain":  "Stored curve index0..20; local view0..21 includes the explicit adjacent FIR case. Actual local branch panIndex0..20 plus adjacent index. panIndex21..255 instead reads mutable SPC RAM at1E1D+index and next byte, ending1F1D. This compatibility data is caller-owned, not static curve samples.",
                                            "interpretation":  "Unsigned gain byte, signed adjacent difference times low position byte then arithmetic shift8 and byte truncation; channel-volume scaling and phase inversion afterward. Second stereo position wraps ushort(1400-position).",
                                            "investigation":  {
                                                                  "status":  "Exact generator unresolved; no retention disposition",
@@ -7394,5 +7394,16 @@
     "algorithm":"Existing WireframeIndex uses the named HiJumpBoots and VariaSuit flags and combines their booleans into result bits0/1. Keep that correct implementation. Domain is all65536 ushort values; output0..3. No arithmetic overflow, invalid-input extrapolation or generated cache is involved. XML now records this complete independently verified domain.",
     "proof":"Extract and strengthen the existing numeric proof as VerifyPauseWireframeSelection; the original aggregate delegates it. Independent literal source addresses confirm native AND and CMP opcodes, the comparison-table operand, the mask operand and all four original little-endian words. For every ushort value, perform the original masked linear search and compare the production result. This removes the former hard-coded expected0101 mask from the mapping proof. The separate existing rendered-wireframe integration remains available but was not needed or run for this unchanged algorithm.",
     "confirmation":"Verification build0 errors/1429 existing warnings. Early SHA-pinned --lookup-pause-wireframe-selection passes all65536 inputs and native operand checks. Maintained-source index refreshed. Review commit is the commit adding this entry. Also correct the preceding equipment-mask XML endpoint fromC065 toC067; behavior is unchanged. Remaining reserve-rate and repository mappings are not certified by this review."
+  }
+,
+  "spcPanAdjacentFirBoundaryReview": {
+    "status":"converted the neighboring FIR-byte alias to an explicit semantic case; the21 pan samples remain unresolved required work",
+    "owners":["csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs","csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs"],
+    "source":"Supported-ROM CF:8A25..8A39 are the21 pan values; CF:8A3A starts the sharp-echo FIR preset. Independently confirmed by PJBoy/SM-SPC commit17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/engine data.asm: panningVolumeMultipliers at1E1D contains21 bytes, echoFirFilters starts1E32 with7F followed by seven zeros. Existing SpcDriverData.Echo.FirCoefficientTableAddress independently names1E32. Pinned upstream-sm kVolumeTable[22] had combined these adjacent logical fields.",
+    "implementation":"PanVolume becomes a bounded index0..21 function over21 private pending curve bytes. Index21 explicitly returns the maximal positive signed FIR coefficient127 for the neighboring sharp-echo impulse; it is not an extrapolated/repeated pan sample. Remove the duplicate22nd stored byte. PanSampleCount21 replaces the former22-entry-array length minus one in the caller.",
+    "callerContract":"WriteVolume still selects static local samples for high-byte panIndex0..20, with adjacent interpolation sample up to21. For panIndex21..255 it still reads both mutable SPC RAM bytes at1E1D+index and the next address. Signed adjacent differences, fractional arithmetic shift, channel scaling, phase inversion and ushort1400-position reflection remain unchanged. No runtime ROM read or generated output cache is introduced.",
+    "pending":"The21-value nonlinear curve is still required conversion, with no artistic/performance/provenance/failed-fit exception. This boundary evidence must inform further derivation: the22nd byte cannot constrain a hypothesized pan generator as if it were another curve sample. Corrected the prior identity/domain and reopened-work record; do not count this entry as completion of spc-pan-gain-curve.",
+    "proof":"One VerifySpcPanSamples / --lookup-spc-pan-samples proof compares all22 results of the original local interpolation view directly against the SHA-pinned ROM, confirms the21-sample extent and neighboring seven-zero impulse tail, checks the independent FIR base and rejects negative/out-of-range indices. All previously supported sample results are unchanged. No broad audio/replay search was run.",
+    "confirmation":"Verification build0 errors/1429 existing warnings. Focused original-byte and boundary proof passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
 }

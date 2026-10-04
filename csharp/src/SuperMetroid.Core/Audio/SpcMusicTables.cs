@@ -43,9 +43,21 @@ internal static class SpcMusicTables
             _ => throw new IndexOutOfRangeException(),
         };
     }
-    /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
-    internal static readonly byte[] PanVolume =
-        [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
+    /// <summary>SPC1E1D..1E31 contains21 pan samples. The curve's exact generator remains
+    /// required review under1165; no retention exception has been established.</summary>
+    internal const int PanSampleCount = 21;
+    private static readonly byte[] panVolume =
+        [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127];
+
+    /// <summary>Native local interpolation view, indices0..21. Index21 is the adjacent
+    /// sharp-echo FIR preset's first coefficient atSPC1E32/CF:8A3A: maximal positive
+    /// signed gain127, not another pan-curve sample. Preserve this bounded stock alias;
+    /// the caller's pan indices21..255 continue to read mutable SPC RAM separately.</summary>
+    internal static byte PanVolume(int index)
+    {
+        if ((uint)index > PanSampleCount) throw new IndexOutOfRangeException();
+        return index == PanSampleCount ? (byte)sbyte.MaxValue : panVolume[index];
+    }
 
     /// <summary>$CF:8A6E uploaded driver kBaseNoteFreqs, thirteen little-endian pitch words.</summary>
     internal const int BaseNoteReferenceAddress = 0xcf8a6e;

@@ -788,11 +788,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.MotherBrainLevelData,
-            IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
-        AssertTrue(IntroMotherBrainCollisionDefinitions.SourceBytes.SequenceEqual(native),
-            "compiled Mother Brain flashback physical level matches all 448 cartridge bytes");
+        byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = new IntroArtworkSourceReadGuard(bus);
         var state = new IntroCinematicState(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

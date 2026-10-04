@@ -10004,4 +10004,23 @@
     "next": "Convert independently regular full-width strips and platform geometry while preserving exact debugger-visible bytes and room state. Inspect the original illustrated room and native collision block semantics to establish whether the irregular left silhouette and upper/lower formations follow a functional geometric construction or require a narrowly evidenced authored-level disposition. The current row widths are observations,not a replacement lookup or justified retention.",
     "limits": "No formula failure,complexity,size,performance or absent historical-tool provenance is accepted as retention evidence. No exception or completion claim is made for this mapping. Existing complete-byte/foreground proof in VerifyIntroMotherBrainCollision can be extracted and reused when implementation is ready;do not use gameplay tests to discover structure. This commit records source investigation only."
   }
+,
+  "introMotherBrainCollisionRegularRegions": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainCollisionDefinitions.cs",
+    "id": "intro-mother-brain-collision-regular-regions",
+    "state": "unreviewed",
+    "convertedRegion": {
+      "id": "intro-mother-brain-collision-strips-and-platforms",
+      "state": "converted",
+      "algorithm": "Remove fourteen stored sixteen-character rows and the cached generated448-byte array. Construct full-width ceiling/floor,upper central two-row widening formation,central vertical platform with lower foot,and right two-row platform from named coordinates and block types. Generate each debugger-visible copy directly. Preserve the existing byte-state/foreground decoder contract.",
+      "proof": "Extract existing full-source comparison from VerifyIntroMotherBrainCollision into one VerifyIntroMotherBrainCollisionSource,reused there and exposed by --lookup-intro-mother-brain-collision. Compare all448 original bytes under SHA-pinned ROM and independently mutate the first allocation before confirming a fresh exact second allocation."
+    },
+    "unresolvedRegion": {
+      "id": "intro-mother-brain-left-collision-contour",
+      "state": "unreviewed",
+      "scope": "Eleven left-contour widths on rows2..12 remain6,6,5,6,4,4,4,6,7,7,7. These are the narrowed unresolved source data,not an accepted retention. The regular-region conversion does not establish a mathematical or authored-art disposition for this silhouette.",
+      "next": "Inspect original illustrated scene and native collision semantics,then replace the contour where functionally justified or establish a concrete narrow nonsense/impossibility disposition. Do not treat the smaller residual size as justification."
+    },
+    "remaining": "Whole collision mapping remains unreviewed until the left contour is resolved. No retention exception or whole-file completion claim. Other1165 mappings remain required. Implementation commit is the commit adding this record."
+  }
 }

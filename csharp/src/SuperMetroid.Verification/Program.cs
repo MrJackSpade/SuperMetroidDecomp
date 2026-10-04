@@ -594,6 +594,15 @@ if (args is ["--lookup-intro-eye-instructions"])
     Console.WriteLine("Intro eye programs: all74 bytes, overlapping words, loop targets and read boundaries pass.");
     return 0;
 }
+if (args is ["--lookup-intro-mother-brain-collision"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain collision oracle revision");
+    VerifyIntroMotherBrainCollisionSource(rom);
+    Console.WriteLine("Mother Brain collision source: all448 bytes and independent mutable allocations pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-mother-brain-explosion-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

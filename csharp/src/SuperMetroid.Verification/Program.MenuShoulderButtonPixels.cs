@@ -14,7 +14,7 @@ internal static partial class Program
         AssertEqual(4, MenuShoulderButtonArtwork.StoredGlyphByteCount, "only two authored letter masks remain");
         AssertEqual(0, button.StoredEditCount, "all stock button caps and shadow joins are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(4000, stock.StoredArtworkByteCount, "button planar tiles absent from retained atlas");
+        AssertEqual(3872, stock.StoredArtworkByteCount, "button planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

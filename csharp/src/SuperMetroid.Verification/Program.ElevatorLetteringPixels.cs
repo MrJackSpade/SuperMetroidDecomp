@@ -14,7 +14,7 @@ internal static partial class Program
         AssertEqual(72, font.StoredInkByteCount, "eighteen shared six-row glyph silhouettes only");
         AssertEqual(0, font.StoredEditCount, "all stock outlines and bevels are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(4000, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
+        AssertEqual(3872, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

@@ -20,8 +20,14 @@ internal static partial class Program
                 return 0;
             }
             bool profilesOnly = args is ["--power-bomb-profiles-only"];
-            byte[] rom = File.ReadAllBytes(args.Length == 0 || profilesOnly ? "Super Metroid.smc" : args.Single());
+            bool ceresOnly = args is ["--ceres-rotation-only"];
+            byte[] rom = File.ReadAllBytes(args.Length == 0 || profilesOnly || ceresOnly ? "Super Metroid.smc" : args.Single());
             Equal(ResearchData.RomSha256, Convert.ToHexString(SHA256.HashData(rom)), "NTSC J/U v1.0 oracle identity");
+            if (ceresOnly)
+            {
+                VerifyCeresRotation(rom);
+                return 0;
+            }
             if (profilesOnly)
             {
                 VerifyPowerBombProfiles(rom, definitionsOnly: true);

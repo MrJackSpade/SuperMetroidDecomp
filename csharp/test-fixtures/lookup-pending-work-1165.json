@@ -1,8 +1,15 @@
 {
   "issue": 1165,
-  "status": "SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
+  "status": "Ceres shaft timers, SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
+    {
+      "id": "ceres-shaft-rotation-timers",
+      "owner": "csharp/src/SuperMetroid.Core/Runtime/CeresShaftRotationDefinitions.cs",
+      "nativeIdentity": "89:AD5F timer column of69 six-byte records;35 independent symmetric values",
+      "status": "pending",
+      "task": "Derive and implement the timing rule or establish concrete evidence of a permitted impossibility/nonsense exception. Previous failed-fit and missing-provenance retention claims are withdrawn. DEC/BMI holds each loaded timer for timer+1 room-main calls. The independently verified sine/cosine calculation does not resolve this timing column."
+    },
     {
       "id": "spc-sound-command-dispatch",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",

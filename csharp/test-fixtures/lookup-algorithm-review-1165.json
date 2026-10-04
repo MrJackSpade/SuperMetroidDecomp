@@ -7579,16 +7579,16 @@
     "repeatingFullData": [[14,-8],[8,12],[-16,12],[-8,-14],[0,0],[16,14],[-12,4],[-8,-16]],
     "finalContract": "C50C..C532 explicitly spawns parameters0,1,2,3. C533 shifts each parameter once and independently selects initial instruction delay atC56A, X atC572 and Y atC57A. The coordinate calculation uses the same wrapped station anchor. The existing exact delay and X rules remain separately proven; they do not establish a rule for Y. Four complete placements are(8,-4),(12,8),(-8,-10),(-12,12), with delays1,4,8,16.",
     "consumerConfirmation": "Managed StepCeresActors advances the repeating index on every event before allocation and masks the selected index by7; SpawnCeresExplosion adds the signed offsets to the same center-minus-background anchor. Final callers enumerate0..3. No source consumer supplies a geometric role, angle, radius or independent animation-state selector for the residual samples.",
-    "disposition": "Still unresolved: repeatingX, repeatingY and finalY remain required conversion work. The fixed chronological/spatial use is evidence about their role, not proof that they were arbitrarily authored. Irregularity, lack of a visible progression and absence of a generator in this consumer are not accepted retention reasons. Do not silently reclassify these as named actor dispatch: every row spawns the same effect type.",
-    "nextEvidence": "Review these screen-space points against the actual station artwork/geometry and the other explosion phases before deciding whether they encode a meaningful placement construction or arbitrary effect choreography. A retain decision needs positive content evidence; a fitted polynomial or per-index numeric switch would merely re-encode these samples. No accepted exception or implementation completion is claimed."
+    "disposition": "Subsequently resolved by ceresBurstChoreographyReview as particular visual-layout content, not named actor dispatch or a numerical conversion. This consumer record establishes the complete coordinate contract. Irregularity and missing generator code alone are not the retention rationale.",
+    "nextEvidence": "The original artwork and other phases were inspected in ceresExplosionArtworkGeometryReview; the complete content assessment and three field dispositions are now recorded in ceresBurstChoreographyReview. The old per-index numeric switches have been replaced with explicitly retained layout content."
   }
 ,
   "ceresExplosionArtworkGeometryReview": {
     "source": "Original SHA-pinned cartridge: Mode7 characters95:A82F, map96:FE69 slice600..BFF, palette8C:E5E9. C11B uploads this1536-cell slice to a128-cell-wide Mode7 map. Native C23A/C242 set transform origin(52,48); C259 starts scale0100, C317/C374 increment it, and C36E compares against0280 before the station blast.",
     "reproduction": "--lookup-ceres-placement-art is a static source-art inspector under the existing guarded Verification process boundary. It decompresses only the named source assets and exports the original128x96 texture window at4x nearest-neighbor magnification. It neither starts gameplay nor searches cases. The generated PNG stays ignored in csharp/test-temp; no ROM artwork is committed. Build0 errors/1429 existing warnings; export succeeded and the image was inspected.",
     "observation": "The actual image is a ring-like station with radial structures, not a rectangular grid of eight blast attachment points. More decisively, the repeating/final coordinate consumer adds offsets directly to origin-minus-background while the native Mode7 scale changes: their texture-space locations therefore vary with scale. No scale/angle input feeds these offset selections. The samples are not a direct fixed hull-landmark mapping across the phase. This finding does not exclude a deliberately screen-space placement construction.",
-    "disposition": "RepeatingX, repeatingY and finalY remain unresolved. Neither a meaningful exact geometric generator nor positive evidence sufficient for an arbitrary-content/nonsense exception has been established. Do not treat the absence of a fixed landmark match, source-art asymmetry or failed visual inference as a retention reason. Preserve the existing pending obligation.",
-    "nextEvidence": "Any proposed placement rule must explain the full original screen-space sequence independently of changing station scale; it must not fit per-index coefficients to the observed points. The artwork-linked hypothesis has now been examined rather than left as an unperformed next step."
+    "disposition": "The three fields are now specifically retained as visual choreography in ceresBurstChoreographyReview. This artwork observation establishes their coordinate context, not by itself the exception. The disposition is based on the complete layout-content role; source-art asymmetry and lack of a fixed landmark match are not independent retention reasons.",
+    "nextEvidence": "The artwork-linked hypothesis has been examined. The subsequent content review preserves the exact composition as layout data, without per-index fitted coefficients or numerical switches. Its specific field dispositions are in ceresBurstChoreographyReview."
   }
 ,"ceresReviewReconciliation":{
   "sourceRevision": "e747c54b9397ade251e7441587d3f9457ad95cb8",
@@ -7641,30 +7641,30 @@
     },
     {
       "id": "ceres-blast-repeating-x",
-      "state": "pending",
+      "state": "retained",
       "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
       "member": "RepeatingExplosion",
       "field": "X",
-      "review": "ceresExplosionArtworkGeometryReview",
-      "proof": "No conversion proof or retention exception established"
+      "review": "ceresBurstChoreographyReview",
+      "proof": "VerifyCeresBurstLayout (existing original-word checks extracted from VerifyCeresExplosionDefinitions)"
     },
     {
       "id": "ceres-blast-repeating-y",
-      "state": "pending",
+      "state": "retained",
       "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
       "member": "RepeatingExplosion",
       "field": "Y",
-      "review": "ceresExplosionArtworkGeometryReview",
-      "proof": "No conversion proof or retention exception established"
+      "review": "ceresBurstChoreographyReview",
+      "proof": "VerifyCeresBurstLayout (existing original-word checks extracted from VerifyCeresExplosionDefinitions)"
     },
     {
       "id": "ceres-blast-final-y",
-      "state": "pending",
+      "state": "retained",
       "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
       "member": "FinalExplosion",
       "field": "Y",
-      "review": "ceresExplosionArtworkGeometryReview",
-      "proof": "No conversion proof or retention exception established"
+      "review": "ceresBurstChoreographyReview",
+      "proof": "VerifyCeresBurstLayout (existing original-word checks extracted from VerifyCeresExplosionDefinitions)"
     },
     {
       "id": "ceres-program-initial",
@@ -8458,5 +8458,19 @@
     "scope":"Keep the common displacement and thirteen geometric joins calculated. Retain exactly three source differences per font, alongside independently retained silhouettes; preserve arbitrary supplied artwork edits. Do not exempt the Tourian corner, other atlas cells, selectors, placement, palettes or remaining ticket scope. No generated shadow cache, new production table or gameplay behavior change.",
     "proof":"Extend VerifyMenuSmallFontPixels and VerifyMenuLargeFontPixels with the exact paired-region ink assertions and differing shadow values; reuse their independent ROM bitplane comparisons for every2624/2752 source pixel, uploads and editable-artwork contract. No additional per-font test or duplicate oracle. Both focused font proofs pass; final Verification build has0 errors/25 existing incremental warnings (full build1429 existing warnings). The commit adding this record contains the owner documentation and evidence assertions.",
     "supersedes":"Resolves only the six pending differences in menuFontJoinGeometryReview and lookup-pending-work-1165.json using fresh concrete source comparisons. Earlier blanket artistic-retouch claims remain withdrawn; the thirteen successfully derived joins are not reverted."
+  }
+,
+  "ceresBurstChoreographyReview": {
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+    "status":"repeating X/Y and final Y retained as particular visual choreography under the nonsense exception",
+    "source":"Complete supported SHA-pinned ROM8B:C4EB..C50A andC57A..C581; pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d C489..C5A8; upstream-sm578f90b3cc49557bb70060ad033bb90b8cf8ac50 sm_8b.c. The complete native initializers, ordinal progression, common movement and actual source station artwork were inspected. Earlier consumer and artwork records contain the full coordinate and transform evidence.",
+    "contentEvidence":"C49F passes a chronological ordinal to the same CEC1 small-explosion actor; C4AE increments modulo8 even when no actor slot is available. All entries share palette, program and subsequent motion. C4CD/C4DE add independent absolute offsets to a common scrolling anchor, rather than integrating them as deltas or selecting different actor roles. The complete repeating layout scatters bursts through the four quadrants, the center, and three further off-center positions. Final C50C explicitly creates four instances of the same larger effect; C55D supplies their chosen upper/lower heights. These are the positions in a particular explosion composition, not measured outputs of an angle, radius, velocity, collision or attachment input.",
+    "artworkContext":"The decoded original station is an asymmetric ring with radial structures. Its Mode7 scale changes during these effects, while the selected offsets are added directly in screen space. Thus these are composed screen-space burst locations, not a list of fixed texture landmarks transformed with the hull. This supports the layout-content interpretation; lack of a landmark match alone is not the retention reason.",
+    "generationAssessment":"Regular construction is retained where established: the initial wave is four square corners and center; final X has mirrored8/12 magnitudes; delays and common movement are calculated. For the residual layout, replacing the ordinal with circular sampling, a lattice traversal or a new random scatter would impose a different composition. Encoding the same points as polynomial samples or coordinate cases would simply express this chosen layout in a different syntax. The conclusion is about what the data represents, not a proof that finite points have no conceivable generator, nor a claim to know the original authoring tool or designer intent.",
+    "disposition":"Retain only these three independently indexed spatial fields as visual choreography. This is the user's arbitrary-animation-content/nonsense exception: the exact selected positions are the content to preserve, and a numeric switch that repeats them is not an algorithmic port. Irregular spacing or unsuccessful fitting alone is not used as evidence. No performance, complexity, size, provenance or caching justification is assigned.",
+    "implementation":"Replace the existing numerical index switches with explicit RepeatingBurstLayout and FinalBurstHeights content, documenting the original source and this specific exception on those owners. RepeatingExplosion validates0..7, reads the selected point and supplies the common delay1. FinalExplosion validates0..3 and continues to compute X and delay while reading only the retained Y content. Runtime callers, index advancement, signed coordinates, wrapped anchor addition and shared motion remain the original contract. This is an honest representation of retained content, not counted as a numerical conversion.",
+    "fields":["ceres-blast-repeating-x","ceres-blast-repeating-y","ceres-blast-final-y"],
+    "proof":"Reuse the original-word loops from VerifyCeresExplosionDefinitions as VerifyCeresBurstLayout; the original aggregate delegates to it. The focused --lookup-ceres-burst-layout entry checks every16 repeating coordinate word and every4 final Y word against the SHA-pinned ROM, common delay and invalid indices. The existing --lookup-ceres-blast-placement independently confirms that the five calculated fields still match. No new oracle or cinematic playthrough is required for this representation change. Verification build passes with0 errors/1429 existing warnings; both focused entries pass. The implementation commit is the commit adding this record.",
+    "supersedes":"Resolves the three pending fields in ceresReviewReconciliation, ceresExplosionResidualConsumerReview, ceresExplosionArtworkGeometryReview and the pending-work record after assessment of their complete content role. Their source/transform observations remain valid. It does not resolve the shaft timers, other numeric curves, audio filters or broader inventory."
   }
 }

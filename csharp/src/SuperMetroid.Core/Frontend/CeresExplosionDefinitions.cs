@@ -131,21 +131,40 @@ internal static class CeresExplosionDefinitions
         return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 16 * index));
     }
 
-    /// <summary>Returns one of the eight interleaved X/Y rows at <c>$8B:C4EB-$C50A</c>.</summary>
-    /// <remarks>The masked index admits all eight X/Y pairs. Their conversion remains
-    /// required work under #1165; irregular spacing establishes no retention exception.</remarks>
-    public static CeresExplosionPlacement RepeatingExplosion(int index) => index switch
+    /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
+    /// <remarks>
+    /// Retained under #1165's drawing/choreography exception. Each ordinal creates the
+    /// same small blast, then advances modulo eight even if allocation fails. These
+    /// points describe the particular scattered sequence around the station, not sampled
+    /// motion, actor dispatch, or hull attachment points: the offsets stay in screen space
+    /// while the underlying Mode7 image changes scale. A per-index switch or fitted curve
+    /// would just encode this same layout. The initial square/center layout, final X rule,
+    /// instruction delays and shared actor motion are calculated separately.
+    /// </remarks>
+    private static readonly (short X, short Y)[] RepeatingBurstLayout =
+    [
+        (14, -8), (8, 12), (-16, 12), (-8, -14),
+        (0, 0), (16, 14), (-12, 4), (-8, -16),
+    ];
+
+    /// <summary>Returns a chosen repeating-burst position with its common first-call delay.</summary>
+    public static CeresExplosionPlacement RepeatingExplosion(int index)
     {
-        0 => new(14, -8, 1),
-        1 => new(8, 12, 1),
-        2 => new(-16, 12, 1),
-        3 => new(-8, -14, 1),
-        4 => new(0, 0, 1),
-        5 => new(16, 14, 1),
-        6 => new(-12, 4, 1),
-        7 => new(-8, -16, 1),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        if ((uint)index >= RepeatingExplosionCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        var position = RepeatingBurstLayout[index];
+        return new(position.X, position.Y, 1);
+    }
+
+    /// <summary>$8B:C57A-$C581, chosen heights of the four final large bursts.</summary>
+    /// <remarks>
+    /// Retained as the final burst's spatial choreography under #1165. These are absolute
+    /// offsets from the scrolling anchor, not successive displacements or a velocity curve.
+    /// The alternating upper/lower placements have individually chosen heights; turning
+    /// their ordinal-to-height list into cases would merely recite the layout. Only this
+    /// Y content is retained: the independent X and delay fields remain calculated.
+    /// </remarks>
+    private static ReadOnlySpan<short> FinalBurstHeights => [-4, 8, -10, 12];
 
     /// <summary>Returns one of the four timer/X/Y rows at <c>$8B:C56A/$C572/$C57A</c>.</summary>
     /// <remarks>
@@ -169,8 +188,8 @@ internal static class CeresExplosionDefinitions
     /// $8B:C57A+2*i are -4, +8, -10, +12 for i=0..3, matching pinned
     /// NTSC J/U v1.0 ROM and bank_8B.asm. Initializer $8B:C533 adds Y
     /// after Mode 7 origin Y minus BG1 Y with native 16-bit wrap.
-    /// These four vertical placements remain required conversion work under #1165;
-    /// no retention exception has been established.
+    /// These particular vertical placements are retained spatial choreography; see
+    /// FinalBurstHeights for the narrowly scoped nonsense disposition under #1165.
     /// </remarks>
     public static CeresExplosionPlacement FinalExplosion(int index)
     {
@@ -178,8 +197,7 @@ internal static class CeresExplosionDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int magnitude = 8 + 4 * (index & 1);
         int x = index < 2 ? magnitude : -magnitude;
-        // These vertical placements remain required review under #1165.
-        int y = index switch { 0 => -4, 1 => 8, 2 => -10, _ => 12 };
+        int y = FinalBurstHeights[index];
         return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 1 << (index + 1)));
     }
 }

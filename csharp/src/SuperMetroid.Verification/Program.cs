@@ -261,6 +261,15 @@ if (args is ["--lookup-ceres-explosion-programs"])
     Console.WriteLine("Ceres explosion programs: four original streams, byte/word bounds and actual interpreter timing/deletion pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-burst-layout"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres burst layout oracle revision");
+    VerifyCeresBurstLayout(rom);
+    Console.WriteLine("Ceres burst layout: all original repeating X/Y and final Y words, common delay and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-blast-placement"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

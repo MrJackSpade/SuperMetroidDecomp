@@ -62,7 +62,12 @@ public static class SamusMorphBallMovement
         else
         {
             // Moving `$1E/$1F`, plus either stable pose carrying reversal mode one, enters
-            // the full deceleration-allowed `Samus_X_Movement` route with table type four.
+            // the full deceleration-allowed `Samus_X_Movement` route. Its $90:8E67
+            // call retains established run momentum and republishes boost contact damage.
+            speed.HandleExtraRunSpeed(
+                movementType, controllerInput: 0,
+                speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
+                liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
             uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
             int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(

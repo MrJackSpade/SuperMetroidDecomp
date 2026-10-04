@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--mockball-boost-contact"]) { VerifyMockballBoostContact(); return 0; }
 if (args is ["--game-save-json"])
 {
     VerifyGameSaveJsonPersistence();

@@ -217,6 +217,7 @@ static void VerifySamusMorphBallMovement()
         YPosition = 32,
     };
     boostedRoll.RefreshCollisionRadii(bus);
+    boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedRoll.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     SamusMorphBallMovement.StepGrounded(bus, empty, boostedRoll, nmiFrameCounter: 0);

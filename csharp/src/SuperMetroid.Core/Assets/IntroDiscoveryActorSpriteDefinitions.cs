@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Visual OAM compositions selected by the SR388 egg and confused-baby lists.</summary>
@@ -29,31 +31,29 @@ internal static class IntroDiscoveryActorSpriteDefinitions
         if ((uint)frame >= 3) throw new ArgumentOutOfRangeException(nameof(frame));
         return (ushort)(BabyStart + 7 * frame);
     }
-    private static readonly IntroDiscoveryActorSpriteFrameDefinition[] frames =
-    [
-        new(0x8d6f, "egg-intact", 6),
-        new(0x8d8f, "egg-crack-1", 9),
-        new(0x8dbe, "egg-crack-2", 9),
-        new(0x8ded, "egg-crack-3", 9),
-        new(0x8e1c, "egg-crack-4", 9),
-        new(0x8e4b, "egg-crack-5", 9),
-        new(0x8e7a, "egg-crack-6", 9),
-        new(0x8ea9, "egg-crack-7", 9),
-        new(0x8ed8, "egg-hatched", 9),
-        new(0x8f07, "egg-remnant-1", 3),
-        new(0x8f18, "egg-remnant-2", 3),
-        new(0x8f29, "egg-remnant-3", 3),
-        new(0x8f3a, "egg-remnant-4", 3),
-        new(0x8f4b, "egg-remnant-5", 3),
-        new(0x8f5c, "egg-remnant-6", 3),
-        new(0x8f6d, "egg-remnant-7", 3),
-        new(0x8fcb, "confused-baby-1", 1),
-        new(0x8fd2, "confused-baby-2", 1),
-        new(0x8fd9, "confused-baby-3", 1),
-        new(0x909d, "hatched-baby", 19),
-    ];
 
-    internal static ReadOnlySpan<IntroDiscoveryActorSpriteFrameDefinition> Frames => frames;
+    internal static IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> Frames { get; } = new FrameList();
+    private sealed class FrameList : IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition>
+    {
+        public int Count => 20;
+        public IntroDiscoveryActorSpriteFrameDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                if (index == 19) return new(BabyLarge, "hatched-baby", 19);
+                if (index >= 16) return new(BabyFramePointer(index - 16), $"confused-baby-{index - 15}", 1);
+                string name = index == 0 ? "egg-intact" : index == 8 ? "egg-hatched"
+                    : index < 8 ? $"egg-crack-{index}" : $"egg-remnant-{index - 8}";
+                return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
+            }
+        }
+        public IEnumerator<IntroDiscoveryActorSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
 
 internal readonly record struct IntroDiscoveryActorSpriteFrameDefinition(

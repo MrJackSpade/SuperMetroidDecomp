@@ -41,10 +41,10 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
         {
             throw new InvalidDataException("Invalid intro discovery actor sprite JSON.", error);
         }
-        ReadOnlySpan<IntroDiscoveryActorSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> definitions =
             IntroDiscoveryActorSpriteDefinitions.Frames;
         if (document.Version != IntroDiscoveryActorSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro discovery actors require twenty named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroDiscoveryActorSpriteFrameDefinition definition in definitions)

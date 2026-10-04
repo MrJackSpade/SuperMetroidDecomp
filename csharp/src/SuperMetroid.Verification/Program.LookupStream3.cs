@@ -95,7 +95,104 @@ internal static partial class Program
         VerifyStream3ChootControl(rom);
         VerifyStream3RipperMappings(rom);
         VerifyStream3UniformEnemyLoops(rom);
+        VerifyStream3MotherBrainFades(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var body = new ushort[16][];
+        var leg = new ushort[16][];
+        var corpse = new ushort[8][];
+        for (int frame = 0; frame < 16; frame++)
+        {
+            body[frame] = new ushort[14];
+            leg[frame] = new ushort[14];
+            for (int color = 0; color < 14; color++)
+            {
+                body[frame][color] = Read(0xadea0a + 56 * frame + 2 * color);
+                leg[frame][color] = Read(0xadea26 + 56 * frame + 2 * color);
+            }
+        }
+        for (int frame = 0; frame < 8; frame++)
+        {
+            corpse[frame] = new ushort[15];
+            for (int color = 0; color < 15; color++)
+                corpse[frame][color] = Read(0xadf119 + 30 * frame + 2 * color);
+        }
+        var door = new ushort[14];
+        for (int color = 0; color < door.Length; color++)
+            door[color] = Read(0xa99534 + 2 * color);
+
+        static PaletteRgb5 Rgb(ushort value) => new()
+        {
+            Red = value & 31, Green = (value >> 5) & 31, Blue = (value >> 10) & 31,
+        };
+        MotherBrainDeathColorCatalog Load() => MotherBrainDeathColorCatalog.Load(new MemoryStream(
+            MotherBrainDeathColorCatalog.Write(new MotherBrainDeathColorDocument
+            {
+                Version = 1,
+                BodyFade = body.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                LegFade = leg.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                CorpseFade = corpse.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                ExplodedDoor = door.Select(Rgb).ToArray(),
+            }), writable: false));
+        void Check(MotherBrainDeathColorCatalog catalog)
+        {
+            for (int frame = 0; frame < 16; frame++)
+            for (int color = 0; color < 14; color++)
+            {
+                AssertEqual(body[frame][color], catalog.BodyColor(frame, color), "stream 3 selected body fade color");
+                AssertEqual(leg[frame][color], catalog.LegColor(frame, color), "stream 3 selected leg fade color");
+            }
+            for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 15; color++)
+                AssertEqual(corpse[frame][color], catalog.CorpseColor(frame, color), "stream 3 selected corpse fade color");
+            for (int color = 0; color < door.Length; color++)
+                AssertEqual(door[color], catalog.ExplodedDoorColor(color), "stream 3 unchanged door color");
+            string identity = SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
+            {
+                content.AppendWords("explodedDoor", door);
+                content.AppendWordFrames("bodyFade", body);
+                content.AppendWordFrames("legFade", leg);
+                content.AppendWordFrames("corpseFade", corpse);
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "stream 3 death fade identity keeps exact selected values");
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "bodyFade", "legFade", "corpseFade" })
+        {
+            object fade = typeof(MotherBrainDeathColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(fade.GetType().GetField("supplied", fields)!.GetValue(fade) is null,
+                "stream 3 original death fade discards its stored frame table");
+        }
+        foreach (ushort[][] frames in new[] { body, leg, corpse })
+        for (int frame = 0; frame < frames.Length; frame++)
+        for (int color = 0; color < frames[frame].Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = frames[frame][color];
+            frames[frame][color] ^= (ushort)(1 << (5 * channel));
+            Check(Load());
+            frames[frame][color] = original;
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.BodyColor(invalid, 0), "stream 3 body fade frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LegColor(invalid, 0), "stream 3 leg fade frame bounds");
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(invalid, 0), "stream 3 corpse fade frame bounds");
+        foreach (int invalid in new[] { -1, 14, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.BodyColor(0, invalid), "stream 3 body fade color bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LegColor(0, invalid), "stream 3 leg fade color bounds");
+        }
+        foreach (int invalid in new[] { -1, 15, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(0, invalid), "stream 3 corpse fade color bounds");
     }
 
     private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
@@ -399,6 +496,9 @@ internal static partial class Program
         }
         var stock = Load();
         Check(stock);
+        AssertTrue(typeof(WorkRobotPaletteCycle).GetField("frames",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock) is null,
+            "stream 3 original Work Robot colors discard their stored frame table");
         for (int frame = 0; frame < 6; frame++)
         for (int color = 0; color < 4; color++)
         for (int channel = 0; channel < 3; channel++)

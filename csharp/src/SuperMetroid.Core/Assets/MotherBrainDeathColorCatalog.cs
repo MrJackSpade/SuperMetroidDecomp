@@ -11,22 +11,22 @@ public sealed class MotherBrainDeathColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
         {
             content.AppendWords("explodedDoor", explodedDoor);
-            content.AppendWordFrames("bodyFade", bodyFade);
-            content.AppendWordFrames("legFade", legFade);
-            content.AppendWordFrames("corpseFade", corpseFade);
+            bodyFade.AppendIdentity(content, "bodyFade");
+            legFade.AppendIdentity(content, "legFade");
+            corpseFade.AppendIdentity(content, "corpseFade");
         });
 
-    private readonly ushort[][] bodyFade;
-    private readonly ushort[][] legFade;
-    private readonly ushort[][] corpseFade;
+    private readonly ColorFade bodyFade;
+    private readonly ColorFade legFade;
+    private readonly ColorFade corpseFade;
     private readonly ushort[] explodedDoor;
 
     private MotherBrainDeathColorCatalog(ushort[][] bodyFade, ushort[][] legFade,
         ushort[][] corpseFade, ushort[] explodedDoor)
     {
-        this.bodyFade = bodyFade;
-        this.legFade = legFade;
-        this.corpseFade = corpseFade;
+        this.bodyFade = new(bodyFade, toBlack: true);
+        this.legFade = new(legFade, toBlack: true);
+        this.corpseFade = new(corpseFade, toBlack: false);
         this.explodedDoor = explodedDoor;
     }
 
@@ -88,11 +88,72 @@ public sealed class MotherBrainDeathColorCatalog
         return bytes;
     }
 
-    private static ushort Resolve(ushort[][] frames, int frame, int color, string name) =>
-        (uint)frame < frames.Length && (uint)color < frames[frame].Length
-            ? frames[frame][color]
+    private static ushort Resolve(ColorFade frames, int frame, int color, string name) =>
+        (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
+            ? frames.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
                 $"Mother Brain death {name} frame {frame}, color {color} is outside the authored images.");
+
+    /// <summary>
+    /// $AD:EA0A body/leg channels fade to black as (initial*(15-frame)+1)/15.
+    /// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
+    /// over seven intervals. These rules match every original intermediate color.
+    /// Endpoint colors remain independently supplied; unmatched edited frames remain exact.
+    /// </summary>
+    private sealed class ColorFade
+    {
+        private readonly ushort[] first;
+        private readonly ushort[]? last;
+        private readonly ushort[][]? supplied;
+        internal int FrameCount { get; }
+        internal int ColorCount => first.Length;
+
+        internal ColorFade(ushort[][] frames, bool toBlack)
+        {
+            first = frames[0];
+            last = toBlack ? null : frames[^1];
+            FrameCount = frames.Length;
+            for (int frame = 0; frame < FrameCount; frame++)
+            for (int color = 0; color < ColorCount; color++)
+            {
+                if (frames[frame][color] != Calculate(frame, color))
+                {
+                    supplied = frames;
+                    return;
+                }
+            }
+        }
+
+        internal ushort Resolve(int frame, int color) =>
+            supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        private ushort Calculate(int frame, int color)
+        {
+            int steps = FrameCount - 1;
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+            {
+                int start = (first[color] >> shift) & 31;
+                int end = last is null ? 0 : (last[color] >> shift) & 31;
+                int bias = last is null ? 1 : steps / 2;
+                int channel = (start * (steps - frame) + end * frame + bias) / steps;
+                result |= channel << shift;
+            }
+            return (ushort)result;
+        }
+
+        internal void AppendIdentity(SelectedPresentationHash content, string label)
+        {
+            content.Append(label, FrameCount);
+            Span<ushort> row = stackalloc ushort[ColorCount];
+            for (int frame = 0; frame < FrameCount; frame++)
+            {
+                for (int color = 0; color < ColorCount; color++)
+                    row[color] = Resolve(frame, color);
+                content.AppendWords("row", row);
+            }
+        }
+    }
 
     private static ushort[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)

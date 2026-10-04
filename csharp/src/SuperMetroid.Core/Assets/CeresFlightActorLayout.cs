@@ -51,7 +51,7 @@ public sealed class CeresFlightActorLayout
         {
             CeresFlightActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresFlightActorDefinitions.RearViewPlacementSources[index].Id ||
+                placement.Id != CeresFlightActorDefinitions.RearViewPlacementSource(index).Id ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(

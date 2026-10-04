@@ -72,7 +72,7 @@ internal static class CeresDestructionArtworkExtractor
             CeresDestructionActorDefinitions.ZebesActorCount];
         for (int index = 0; index < placements.Length; index++)
         {
-            var source = CeresDestructionActorDefinitions.ZebesPlacementSources[index];
+            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresDestructionActorDefinitions.NativeBank | source.XAddress);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -106,7 +106,7 @@ internal static class CeresDestructionArtworkExtractor
                 CeresDestructionActorDefinitions.InitialActor(index);
             destructionPlacements[index] = new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActorDefinitions.InitialPlacementIds[index],
+                Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
                 X = actor.X,
                 Y = actor.Y,
             };

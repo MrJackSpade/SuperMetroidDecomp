@@ -88,7 +88,7 @@ internal static class CeresFlightArtworkExtractor
             CeresFlightActorDefinitions.RearViewActorCount];
         for (int index = 0; index < placements.Length; index++)
         {
-            var source = CeresFlightActorDefinitions.RearViewPlacementSources[index];
+            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 CeresFlightActorDefinitions.NativeBank | source.XAddress);
             ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

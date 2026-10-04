@@ -174,6 +174,17 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-placement-selectors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres placement oracle revision");
+    VerifyCeresRearPlacementSelector(rom);
+    VerifyCeresRevealPlacementSelector(rom);
+    VerifyCeresInitialPlacementSelector();
+    Console.WriteLine("Ceres placement selectors: all 14 original entries, native operands and invalid-index contracts pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-spawner-schedule"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

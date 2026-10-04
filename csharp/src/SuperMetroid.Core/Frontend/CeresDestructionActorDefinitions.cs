@@ -10,26 +10,33 @@ internal static class CeresDestructionActorDefinitions
     public const int InitialActorCount = 3;
 
     /// <summary>Stable presentation roles of the three persistent explosion-scene actors.</summary>
-    public static readonly string[] InitialPlacementIds =
-    [
-        "large-asteroid",
-        "small-asteroid",
-        "vortex",
-    ];
+    /// <remarks>Named roles follow $C27C..C295 spawn order. #1165 verifies the original identity
+    /// mapping; invalid indices preserve the former array's IndexOutOfRangeException.</remarks>
+    public static string InitialPlacementId(int index) => index switch
+    {
+        0 => "large-asteroid",
+        1 => "small-asteroid",
+        2 => "vortex",
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Number of reveal actors allocated by <c>$8B:C810-$C831</c>.</summary>
     public const int ZebesActorCount = 6;
 
     /// <summary>Native reveal actor placement operands in bank $8B, in spawn order.</summary>
-    public static readonly (string Id, ushort XAddress, ushort YAddress)[] ZebesPlacementSources =
-    [
-        ("planet", 0xc83c, 0xc842),
-        ("stars-upper-left", 0xc944, 0xc94a),
-        ("stars-upper-right", 0xc958, 0xc95e),
-        ("stars-lower-left", 0xc96c, 0xc972),
-        ("stars-lower-right", 0xc980, 0xc986),
-        ("planet-zebes-title", 0xc993, 0xc999),
-    ];
+    /// <remarks>Role cases follow $C810..C831 spawn order and identify X/Y immediates in each
+    /// initializer. #1165 verifies all six original entries and ROM operands. Invalid indices
+    /// preserve the former array's IndexOutOfRangeException contract.</remarks>
+    public static (string Id, ushort XAddress, ushort YAddress) ZebesPlacementSource(int index) => index switch
+    {
+        0 => ("planet", 0xc83c, 0xc842),
+        1 => ("stars-upper-left", 0xc944, 0xc94a),
+        2 => ("stars-upper-right", 0xc958, 0xc95e),
+        3 => ("stars-lower-left", 0xc96c, 0xc972),
+        4 => ("stars-lower-right", 0xc980, 0xc986),
+        5 => ("planet-zebes-title", 0xc993, 0xc999),
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Returns the three persistent actors behind the station explosion.</summary>
     /// <remarks>

@@ -127,10 +127,10 @@ internal static partial class Program
             return Json(new { Version = version, Frames = frames });
         }
 
-        var flightActors = CeresFlightActorDefinitions.RearViewPlacementSources.Select((source, index) =>
+        var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
             new CeresFlightActorPlacement
             {
-                Id = source.Id, X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
+                Id = CeresFlightActorDefinitions.RearViewPlacementSource(index).Id, X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         int[] FlightMap(string name)
@@ -152,16 +152,16 @@ internal static partial class Program
             Sprites("flight", CeresFlightSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name)),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
-        var revealActors = CeresDestructionActorDefinitions.ZebesPlacementSources.Select((source, index) =>
+        var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
             new CeresRevealActorPlacement
             {
-                Id = source.Id, X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActorDefinitions.ZebesPlacementSource(index).Id, X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"reveal-actor-{index}-y" ? 1 : 0),
             }).ToArray();
-        var destructionActors = CeresDestructionActorDefinitions.InitialPlacementIds.Select((id, index) =>
+        var destructionActors = Enumerable.Range(0, CeresDestructionActorDefinitions.InitialActorCount).Select(index =>
             new CeresDestructionActorPlacement
             {
-                Id = id, X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
+                Id = CeresDestructionActorDefinitions.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"destruction-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         int[][] views = Enumerable.Range(0, CeresDestructionArtworkFormat.ViewCount).Select(view =>

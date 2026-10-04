@@ -51,7 +51,7 @@ public sealed class CeresDestructionActorLayout
         {
             CeresDestructionActorPlacement placement = document.Actors[index];
             if (placement is null ||
-                placement.Id != CeresDestructionActorDefinitions.InitialPlacementIds[index] ||
+                placement.Id != CeresDestructionActorDefinitions.InitialPlacementId(index) ||
                 placement.X is < 0 or > ushort.MaxValue ||
                 placement.Y is < 0 or > ushort.MaxValue)
                 throw new InvalidDataException(

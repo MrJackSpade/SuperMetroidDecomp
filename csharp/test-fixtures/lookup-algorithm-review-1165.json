@@ -7535,4 +7535,13 @@
     "resolution": "This supersedes the conditional ceresSpawnerSelectorReview and resolves its countdown-context obligation. The remaining repeating X/Y and final Y coordinate mappings stay pending independently. This source-review behavior correction awaits player confirmation, like the earlier Kraid/FX corrections on1165; no affected player-report version is inferred.",
     "confirmation": "Verification build0 errors/1429 existing warnings and focused reproduction proof pass; final builds remain error-free; maintained-source index refreshed before commit."
   }
+,
+  "ceresPlacementSelectorReview": {
+    "owners": ["csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs", "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs"],
+    "mappings": ["RearViewPlacementSources -> RearViewPlacementSource", "ZebesPlacementSources -> ZebesPlacementSource", "InitialPlacementIds -> InitialPlacementId"],
+    "originalEvidence": "The three maintained extraction/asset-format selector arrays at d12fa8fafb62831dec4dd90e74f2f61a020ad73b contain five rear-flight role/operand tuples, six Zebes reveal role/operand tuples and three destruction role IDs. Pinned disassembly 362be646929cf8e483f692b73a6561cfc2dc1d0d bank8B BE3B..BE5C, C810..C831 and C27C..C295 independently establish named actor spawn order; their initializers contain the selected X/Y immediate operands. Strings are installed asset-format identities, not ROM strings.",
+    "disposition": "Converted all three stored arrays to explicit named-role cases in their domain catalogs. These select actor identities and extraction views, not numerical curves. No generated cache. All extraction, asset-layout validation, artwork checks and content-identity fixture consumers migrated; enumeration uses the bounded actor count.",
+    "proof": "Exactly one focused proof per logical selector: VerifyCeresRearPlacementSelector, VerifyCeresRevealPlacementSelector and VerifyCeresInitialPlacementSelector. Original maintained arrays are verification-only oracles. Compare every one of the14 original entries and invalid indices int.MinValue/-1/count/int.MaxValue. Rear/reveal proofs additionally check all22 coordinate operand LDA opcodes and values against the SHA-pinned original ROM. Former IndexOutOfRangeException contract is preserved. Run through --lookup-ceres-placement-selectors.",
+    "scope": "This resolves only the three presentation/extraction selectors. Existing actor metadata, numerical placement, motion and callback mappings still require their independent dispositions; older retention claims are not validated by this proof. No exploratory cinematic run or player-visible change is claimed."
+  }
 }

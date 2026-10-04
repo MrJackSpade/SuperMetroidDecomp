@@ -13,14 +13,19 @@ internal static class CeresFlightActorDefinitions
     /// Native bank-$8B X/Y initializer operands for the five rear-view actors.
     /// The final X word is signed -32 represented in its native 16-bit form.
     /// </summary>
-    public static readonly (string Id, ushort XAddress, ushort YAddress)[] RearViewPlacementSources =
-    [
-        ("large-asteroid", 0xbf23, 0xbf29),
-        ("station-under-attack", 0xbf4d, 0xbf53),
-        ("small-asteroid", 0xbf77, 0xbf7d),
-        ("vortex", 0xbfb4, 0xbfba),
-        ("rear-stars", 0xbea3, 0xbea9),
-    ];
+    /// <remarks>Explicit role selection in native spawn order $BE3B..BE5C. Addresses identify
+    /// X/Y operands in each role's initializer, including the nonzero-parameter vortex/star branches.
+    /// #1165 independently verifies the five original entries and ROM operands; unsupported indices
+    /// preserve the former array's IndexOutOfRangeException contract.</remarks>
+    public static (string Id, ushort XAddress, ushort YAddress) RearViewPlacementSource(int index) => index switch
+    {
+        0 => ("large-asteroid", 0xbf23, 0xbf29),
+        1 => ("station-under-attack", 0xbf4d, 0xbf53),
+        2 => ("small-asteroid", 0xbf77, 0xbf7d),
+        3 => ("vortex", 0xbfb4, 0xbfba),
+        4 => ("rear-stars", 0xbea3, 0xbea9),
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>
     public const ushort FrontStarAcceleration = 0x0080;

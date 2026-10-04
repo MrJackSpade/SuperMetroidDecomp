@@ -60,6 +60,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             var compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
             compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresDestructionSpritePresentation(frames);

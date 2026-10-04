@@ -497,6 +497,7 @@ if (args is ["--lookup-ceres-explosion-programs"])
     VerifyCeresRepeatingExplosionProgram(rom);
     VerifyCeresFinalWaveProgram(rom);
     VerifyCeresStationBlastProgram(rom);
+    VerifyCeresStationBlastParts(rom);
     Console.WriteLine("Ceres explosion programs: four original streams, byte/word bounds and actual interpreter timing/deletion pass.");
     return 0;
 }

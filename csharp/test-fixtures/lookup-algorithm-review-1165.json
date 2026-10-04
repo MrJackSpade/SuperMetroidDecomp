@@ -10184,4 +10184,15 @@
     },
     "remaining": "This resolves only the six shared small-blast compositions in this loader. Other destruction layouts and source pixels require their independent reviews. Root remains unreviewed to avoid treating the entire loader as completed. Implementation commit is the commit adding this record."
   }
+,
+  "ceresStationBlastPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresStationBlastParts.cs",
+    "id": "ceres-six-station-blast-quadrant-layouts",
+    "state": "converted",
+    "nativeIdentity": "Six native compositions 8C:98EE..99D5, totaling44 OAM parts",
+    "evidence": "Read every part of all six original bank8C records and the consuming CE1B program. First three poses use four mirrored quadrants, growing from8 to16 pixels. Fourth pose publishes eight peripheral tips followed by four core quadrants. Fifth uses two large lobes per quadrant reflected about the origin. Sixth publishes vertical and horizontal tip pairs followed by detached diagonal quadrants. All use priority3 and inherited actor palette.",
+    "algorithm": "Derive coordinates, size and original OAM order from quadrant/pair indices. Reflect coordinates by -size-offset and derive horizontal/vertical flip from the resulting side. Reuse the initial explosion atlas quadrants; derive adjacent expanded tips and lobe tiles by atlas strides, and name the distinct detached drawings. Immutable calculated view stores only the frame identity. Ceres loader uses it only after full supplied field/count equality; independent edits remain supplied. No part array cache.",
+    "proof": "VerifyCeresStationBlastParts under --lookup-ceres-explosion-programs independently extracts all44 original parts, requires calculated selection, compares complete compiled identities and visible/wrapped native OAM, checks invalid indices and preserves independent field/count edits. Original and edited frames also pass through the real Ceres JSON writer/loader and compare OAM. Existing four explosion-program proofs remain included.",
+    "remaining": "All six final station-blast layouts converted. Source pixels, four large-blast layouts and other scene mappings retain their independent review requirements. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

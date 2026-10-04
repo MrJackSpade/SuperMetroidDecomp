@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pause-selector-compositions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector composition oracle revision");
+    VerifyPauseSelectorCompositions(rom);
+    Console.WriteLine("Pause selector compositions: native OAM, all groups/phases, independent edits, cyclic indices and capacity pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-selector-durations"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

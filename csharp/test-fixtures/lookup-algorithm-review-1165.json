@@ -9706,4 +9706,17 @@
     "confirmation": "The existing focused --lookup-ending-reward-programs checks already compare every original arm field and native on/offscreen OAM; independently edited positions, shared shoulder translations and translated split-grid origins remain exact. Latest production conversion25b99e27 passed that check. This disposition changes documentation only, so no unrelated or broader tests are run. Reproducible source exportfb71c5bd and split-grid calculation25b99e27 establish the evidence and removed relationship.",
     "remaining": "Arm OAM mappings now have scoped conversions or this specific residual-art disposition. Eight hair compositions, source pixels and the full remaining issue inventory remain independent required work. This is not an artwork-wide exception or a whole-ticket completion claim. Disposition commit is the commit adding this record."
   }
+,
+  "endingRewardHairLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardHairParts.cs",
+    "mappings": [
+      { "id": "ending-reward-hair-atlas-layouts-and-selections", "state": "converted" },
+      { "id": "ending-reward-hair-six-moving-placements", "state": "unreviewed" }
+    ],
+    "source": "Original eight compositions8C:A085..A242 contain86 parts. Each pose selects packed atlas regions with fixed grid origins and short row/column traversals. Poses2..4 share head/body fields but change two independently placed pieces1B6/1B8; pose3 also reverses its first two parts. Poses7/8 share a separately packed four-piece arm strip.",
+    "algorithm": "Calculate all tile selections through named boundary-piece cases and atlas row/column strides. Grid origins account for separately packed head, body and arm regions. Preserve pose3 first-pair reversal, left/right ordering and bottom-to-top strips. Calculate sprite sizes, priority3, no flips and palette inheritance. Only the six XY inputs for parts2/3 of poses2..4 remain supplied pending independent review.",
+    "implementation": "Immutable bounded pose view computes every part from semantic pose and index, retaining only the two position inputs for each of the three moving-pair poses. Loader recognizes existing frame identities and substitutes only on complete supplied-field equality. Independently edited positions in that pair remain inputs; incompatible edits retain original compiled compositions. No generated part/selection cache or runtime cartridge read.",
+    "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs to all86 original hair parts. All431 parts across all37 reward compositions now undergo calculation selection, complete visual identity, native on/offscreen OAM, independent nine-field edit and bounds checks. Additional edits independently move each pending hair piece and preserve exact calculated output. Existing160 instruction words and seventeen480-call actor streams remain checked.",
+    "remaining": "The six moving-pair XY inputs still need their own calculation or concrete acceptable exception. No arm-art exception is transferred to these poses. Source pixel art and the broader issue inventory remain required independently. Implementation commit is the commit adding this record."
+  }
 }

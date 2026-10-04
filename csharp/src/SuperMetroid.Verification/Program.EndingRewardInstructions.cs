@@ -56,8 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            if (i is 0 or 1 or >= 10)
-                VerifyEndingRewardCalculatedParts(bus, catalog[i]);
+            VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
@@ -114,7 +113,8 @@ internal static partial class Program
             value = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pointer, value);
-            return EndingRewardArmParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardArmParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardHairParts.CalculateIfMatching(definition.Pointer, value);
         }
         SpriteComposition calculated = Calculate(supplied);
         bool isArm = definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SamusArmFromEndingFrame1)
@@ -122,6 +122,19 @@ internal static partial class Program
         AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
+        if (definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2)
+            && definition.Pointer <= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4))
+        {
+            for (int piece = 2; piece <= 3; piece++)
+            {
+                SpriteVisualPart[] moved = (SpriteVisualPart[])visual.Clone();
+                moved[piece] = moved[piece] with { OffsetX = moved[piece].OffsetX + 3, OffsetY = moved[piece].OffsetY - 2 };
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(moved, "independent hair-pose placement");
+                SpriteComposition result = Calculate(source);
+                AssertTrue(!ReferenceEquals(source, result), "independent hair-pose position remains an input");
+                AssertEqual(Identity(source), Identity(result), "independent hair-pose position remains exact");
+            }
+        }
         if (isArm)
         {
             int shoulder = visual.Length - 3;

@@ -9997,30 +9997,42 @@
   "introMotherBrainCollisionInvestigation": {
     "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainCollisionDefinitions.cs",
     "id": "intro-mother-brain-collision-source-decomposition",
-    "state": "unreviewed",
+    "state": "retained",
     "nativeIdentity": "8C:BEC3..C082,224 words arranged16x14 inside a16x16 room",
     "evidence": "Read the complete pinned bank8C LevelData_OldMotherBrainRoomFromCutscene and both runtime consumers. Source rows exactly match the stored diagram. SetupMotherBrainFlashback exposes a fresh448-byte copy as MotherBrainLevelData and decodes it into256 foreground words;the remaining32 words and BTS are zero. The debugger-visible byte copy is a separate observable contract from mutable collision foreground and must be preserved or deliberately migrated.",
     "decomposition": "Full-width solid rows1/13 and empty row0;left solid silhouette occupies columns0..width-1 on rows2..12 with widths6,6,5,6,4,4,4,6,7,7,7. Separate upper formation has solid(row2,column9) and row3 columns8..10. Lower central column9 is type1000 atrow8 and solid rows9..12,with additional solid(row12,column10). Right platform has type1000 row8 columns12..15 and solid row9 columns12..15. All other cells empty;rows14/15 remain uncopied zeros.",
-    "next": "Convert independently regular full-width strips and platform geometry while preserving exact debugger-visible bytes and room state. Inspect the original illustrated room and native collision block semantics to establish whether the irregular left silhouette and upper/lower formations follow a functional geometric construction or require a narrowly evidenced authored-level disposition. The current row widths are observations,not a replacement lookup or justified retention.",
-    "limits": "No formula failure,complexity,size,performance or absent historical-tool provenance is accepted as retention evidence. No exception or completion claim is made for this mapping. Existing complete-byte/foreground proof in VerifyIntroMotherBrainCollision can be extracted and reused when implementation is ready;do not use gameplay tests to discover structure. This commit records source investigation only."
+    "next": "Completed by introMotherBrainCollisionRegularRegions and introMotherBrainCollisionContourDisposition:regular geometry is calculated and the eleven residual widths are justified as authored collision-mask data after original-scene inspection.",
+    "limits": "No formula failure,complexity,size,performance or absent historical-tool provenance is accepted as retention evidence. The original source investigation is resolved by the later geometry conversion and narrow contour disposition;its existing complete-byte proof was extracted and reused without gameplay discovery."
   }
 ,
   "introMotherBrainCollisionRegularRegions": {
     "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainCollisionDefinitions.cs",
     "id": "intro-mother-brain-collision-regular-regions",
-    "state": "unreviewed",
+    "state": "retained",
     "convertedRegion": {
       "id": "intro-mother-brain-collision-strips-and-platforms",
       "state": "converted",
       "algorithm": "Remove fourteen stored sixteen-character rows and the cached generated448-byte array. Construct full-width ceiling/floor,upper central two-row widening formation,central vertical platform with lower foot,and right two-row platform from named coordinates and block types. Generate each debugger-visible copy directly. Preserve the existing byte-state/foreground decoder contract.",
       "proof": "Extract existing full-source comparison from VerifyIntroMotherBrainCollision into one VerifyIntroMotherBrainCollisionSource,reused there and exposed by --lookup-intro-mother-brain-collision. Compare all448 original bytes under SHA-pinned ROM and independently mutate the first allocation before confirming a fresh exact second allocation."
     },
-    "unresolvedRegion": {
+    "authoredContourRegion": {
       "id": "intro-mother-brain-left-collision-contour",
-      "state": "unreviewed",
-      "scope": "Eleven left-contour widths on rows2..12 remain6,6,5,6,4,4,4,6,7,7,7. These are the narrowed unresolved source data,not an accepted retention. The regular-region conversion does not establish a mathematical or authored-art disposition for this silhouette.",
-      "next": "Inspect original illustrated scene and native collision semantics,then replace the contour where functionally justified or establish a concrete narrow nonsense/impossibility disposition. Do not treat the smaller residual size as justification."
+      "state": "retained",
+      "scope": "Eleven left-contour widths on rows2..12 remain6,6,5,6,4,4,4,6,7,7,7. These narrowed residual source values receive their authored-mask disposition in introMotherBrainCollisionContourDisposition.",
+      "next": "Resolved by introMotherBrainCollisionContourDisposition using original-scene and source-mask inspection;residual size is not the justification."
     },
-    "remaining": "Whole collision mapping remains unreviewed until the left contour is resolved. No retention exception or whole-file completion claim. Other1165 mappings remain required. Implementation commit is the commit adding this record."
+    "remaining": "Left contour is resolved by introMotherBrainCollisionContourDisposition;regular regions remain converted. Other1165 mappings remain required. Implementation commit is the commit adding this record."
+  }
+,
+  "introMotherBrainCollisionContourDisposition": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainCollisionDefinitions.cs",
+    "id": "intro-mother-brain-left-collision-contour",
+    "state": "retained",
+    "source": "SHA-pinned --lookup-intro-collision-art decompresses original95:F90E BG characters and96:FF14 tilemaps,uses palette8C:E3E9,and exports the first complete illustrated page. The second image overlays left solid-prefix widths read independently from8C:BEC3 for rows2..12. Both images were viewed. Native renderer selects this first page with an eight-pixel vertical scroll;export and overlay use unscrolled source coordinates.",
+    "evidence": "The image identifies the left structure as the broken Mother Brain tank with pipework above and below. The overlay follows the upper pipe boundary at width6,notches to5 atrow4,returns to6 atrow5,then cuts through the tank interior at width4 on rows6..8 rather than following the visible broken glass at width6. It widens to6 on row9 and7 on rows10..12 around the lower pipe assembly. Thus these are separately chosen blocking boundaries,not samples of the tank drawing outline or a pixel-occupancy function.",
+    "justification": "Retain only the eleven authored collision-mask widths under the user-defined nonsense exception. Their role is to specify which portion of this particular illustrated structure blocks actors;geometry and visible ink do not prescribe the interior cut or upper notch. A curve fitted through these coordinates,or coordinate cases carrying the same profile,would merely re-encode the level designer choices. Replacing the choices with an inferred physical outline would change the authored collision mask. This does not claim finite data is mathematically unrepresentable,and does not rely on failed fitting,size,performance,complexity or absent historical-tool provenance.",
+    "scope": "Only LeftContourWidths is retained. Full-width strips,central formations,right platform,attributes and byte construction remain calculated by the preceding conversion. No blanket collision-map or artwork exemption follows. The earlier investigation and next-step prose records the research sequence;this disposition resolves that specific pending contour.",
+    "confirmation": "Existing --lookup-intro-mother-brain-collision confirms all448 original bytes and independent mutable allocations. Source-art export runs under the existing guarded Verification process boundary without gameplay execution. Exporter build and invocation passed. No duplicate behavior proof or expanded gameplay campaign.",
+    "remaining": "This collision layout now has converted regular regions and a narrowly justified authored contour. Other1165 mappings remain independently required. Implementation commit is the commit adding this record."
   }
 }

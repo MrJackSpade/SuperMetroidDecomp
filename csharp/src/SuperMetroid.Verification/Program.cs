@@ -594,6 +594,14 @@ if (args is ["--lookup-intro-eye-instructions"])
     Console.WriteLine("Intro eye programs: all74 bytes, overlapping words, loop targets and read boundaries pass.");
     return 0;
 }
+if (args is ["--lookup-intro-collision-art"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro collision art oracle revision");
+    ExportIntroCollisionArtwork(rom);
+    return 0;
+}
 if (args is ["--lookup-intro-mother-brain-collision"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

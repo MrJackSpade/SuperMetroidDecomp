@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Physical foreground at8C:BEC3. Regular regions are constructed geometrically;
-/// the left silhouette remains a separate unresolved lookup under1165.</summary>
+/// the left silhouette is authored collision-mask data reviewed under1165.</summary>
 internal static class IntroMotherBrainCollisionDefinitions
 {
     /// <summary>Sixteen level blocks per physical source row.</summary>
@@ -19,8 +19,9 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// <summary>Lower central and right platforms start at row8;right platform starts column12.</summary>
     private const int PlatformRow = 8, RightPlatformColumn = 12;
 
-    /// <summary>Unresolved left-contour widths on rows2..12. This is not an accepted retention:
-    /// investigate against the original scene before assigning its final disposition.</summary>
+    /// <summary>Authored collision-mask widths on rows2..12: tank interior,upper notch and pipe base.
+    /// These select blocking geometry independently of visible pixels; a fitted curve would
+    /// restate or alter the chosen level mask. See introMotherBrainCollisionContourDisposition.</summary>
     private static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 
     private static ushort Block(int row, int column)

@@ -139,7 +139,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs
 
 - [ ] **ChozoCarryMotionDefinitions.Magnitudes** ([L15](../csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChozoCarryMotionDefinitions.YOffsets** ([L26](../csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChozoCarryMotionDefinitions.YOffsets** ([L26](../csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs
 
@@ -391,7 +391,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs
 
 - [ ] **BombTorizoAttackDefinitions.SwipePlacements** ([L17](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BombTorizoAttackDefinitions.ExplosionPlacements** ([L37](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BombTorizoAttackDefinitions.ExplosionPlacements** ([L37](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs
 
@@ -763,3 +763,13 @@ Replaced the stock six-by-six bubble matrix with a calculated rotating ramp and 
 Consumer inspection establishes a uniform six-frame, five-tick cycle at $91:DBA0-$DBBD and direct six-word copying to sprite palette6 colorsA..F at $91:DC88-$DCAE, also reflected by `SamusCrystalFlashState`. There is no special phase branch that establishes a functional rule for the exceptional white sample. No invented seam rule or retention exception has been introduced.
 
 Verification build passed (1436 warnings, zero errors). Expanded `--lookup-stream2-crystal-body` passed all100 body and36 bubble original colors, actual CGRAM writes, every independently edited body/bubble cell, preservation of every other supplied cell, bounds, and stock residual count1. Twenty-seven named definitions remain complete;199 remain required, including this now-isolated residual.
+
+### Batch 8: Bomb Torizo explosion placement and Chozo carry bob
+
+Removed Bomb Torizo's six explosion-placement records. The two body sites select gut or face distances; their centered/right/left entries select the signed horizontal offset. Original facing adjustment, odd-parameter folding, centered padding entries and range errors remain exact. The separate hand-swipe trajectory remains required.
+
+Removed Chozo's carried-Samus Y table. The acquisition/release poses place Samus32 and25 pixels above the statue, then the held pose is23 pixels above; the two four-pose stride cycles bob by a triangular0..2 pixels. Source instruction traversal $AA:E4C1-$E54D establishes repeated stride poses; $AA:E55B-$E573 reverses the acquisition poses on release. The unsupported complexity-based magnitude-retention comment was removed; independent velocity magnitudes remain required.
+
+Verification build passed (1436 warnings, zero errors). `--lookup-stream2-body-placements` passed34 original Bomb Torizo geometry words,22 production swipe spawns and18 bounded explosion spawns with original geometry reads forbidden; the existing statue-walking proof passed96 original Chozo fields and actual movement/carried-Samus coordinates, including fractional arithmetic and invalid selectors. Its unchanged neighboring Golden Torizo39 byte windows also pass. An earlier invocation accidentally used the stale binary while build remained active and entered the default verifier, which stopped on a missing startup resource; no changes or task selection were based on that unrelated failure. The correctly rebuilt focused invocation passes.
+
+Twenty-nine named definitions complete in stream2;197 remain required.

@@ -26,7 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
-if (args is ["--lookup-stream2-crawler-animations"])
+if (args is ["--lookup-stream2-body-placements"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 body-placement oracle revision");
+    VerifyBombTorizoAttackDefinitions(rom);
+    VerifyCompiledStatueWalking(rom);
+    return 0;
+}if (args is ["--lookup-stream2-crawler-animations"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),

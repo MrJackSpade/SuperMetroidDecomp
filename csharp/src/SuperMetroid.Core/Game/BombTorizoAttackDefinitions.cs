@@ -29,21 +29,6 @@ internal static class BombTorizoAttackDefinitions
     ];
 
     /// <summary>
-    /// The six paired X/Y placements at <c>$86:A859-$86:A870</c>. Rows zero and three
-    /// are unused padding between the gut and face facing pairs, but remain part of the
-    /// native adjusted-parameter lookup.
-    /// </summary>
-    private static readonly BombTorizoExplosionDefinition[] ExplosionPlacements =
-    [
-        new(0, -8),
-        new(12, -8),
-        new(-12, -8),
-        new(0, -20),
-        new(16, -20),
-        new(-16, -20),
-    ];
-
-    /// <summary>
     /// Returns the swipe placement selected by the native byte offset. Retail callers use
     /// even values; the translated host's bounded odd restored values retain their prior
     /// word-index truncation instead of gaining a new behavior during this migration.
@@ -71,18 +56,28 @@ internal static class BombTorizoAttackDefinitions
     {
         int adjusted = parameter + 2 + (facingRight ? 0 : 2);
         int index = adjusted >> 1;
-        if ((uint)index >= (uint)ExplosionPlacements.Length)
+        if ((uint)index >= 6u)
         {
             throw new InvalidDataException(
                 $"Bomb Torizo explosion parameter ${parameter:X4} selects table index {index}.");
         }
 
-        return ExplosionPlacements[index];
+        return RawExplosionRow(index);
     }
 
-    /// <summary>Exposes one raw explosion row for cartridge parity verification.</summary>
-    internal static BombTorizoExplosionDefinition RawExplosionRow(int index) =>
-        (uint)index < (uint)ExplosionPlacements.Length
-            ? ExplosionPlacements[index]
-            : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>
+    /// Calculates $86:A859/$A865: gut and face explosion offsets, each with an unused
+    /// centered row followed by right/left facing rows. Gut offsets are12 pixels
+    /// horizontally and8 up; face offsets are16 horizontally and20 up.
+    /// </summary>
+    internal static BombTorizoExplosionDefinition RawExplosionRow(int index)
+    {
+        if ((uint)index >= 6u)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        bool atFace = index >= 3;
+        int horizontalDistance = atFace ? 16 : 12;
+        int facing = index % 3;
+        int horizontalSign = facing == 0 ? 0 : facing == 1 ? 1 : -1;
+        return new((short)(horizontalSign * horizontalDistance), (short)(atFace ? -20 : -8));
+    }
 }

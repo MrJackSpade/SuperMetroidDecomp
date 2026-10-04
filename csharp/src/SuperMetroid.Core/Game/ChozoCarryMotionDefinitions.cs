@@ -9,22 +9,27 @@ public static class ChozoCarryMotionDefinitions
     /// first-half words are negative; the second half is their positive mirror.
     /// Each half holds four zero frames, repeats the authored
     /// <c>0200,0300,0E00,0800</c> burst twice, then holds four more zeros.
-    /// Retain these four tuned magnitudes rather than fit an opaque curve.
+    /// Their independent derivation remains required under issue #1165.
     /// Investigation: #625 / #665.
     /// </remarks>
     private static ReadOnlySpan<short> Magnitudes => [0,0,0,0,0x200,0x300,0xe00,0x800,0x200,0x300,0xe00,0x800,0,0,0,0];
-    /// <summary>$AA:E6B0: Samus Y offsets, identical for both facing halves.</summary>
-    /// <remarks>
-    /// All 32 signed words match the pinned NTSC J/U v1.0 ROM; the same
-    /// sixteen-position sequence is used in both facing halves. These
-    /// negative whole-pixel offsets follow the authored carried-Samus poses,
-    /// with unequal one-pixel steps and holds. Retain the bounded pose data
-    /// rather than fit a less readable curve. The caller adds the selected
-    /// offset after statue collision and slope alignment with 16-bit wrapping.
-    /// Investigation: #625 / #667.
-    /// </remarks>
-    private static ReadOnlySpan<short> YOffsets => [-32,-25,-23,-23,-23,-24,-25,-24,-23,-24,-25,-24,-23,-23,-23,-23];
-
+    /// <summary>
+    /// $AA:E6B0: Samus's vertical hand offset, shared by both facing halves.
+    /// The two acquisition/release poses place Samus32 and25 pixels above the statue.
+    /// The carried pose is23 pixels above, with a two-pixel triangular bob during the
+    /// two four-pose stride cycles at local indices4..11. Remaining poses hold still.
+    /// Native movement instructions in $AA:E4C1-$E54D traverse those stride poses;
+    /// $AA:E55B-$E573 reverses the acquisition poses when releasing Samus.
+    /// </summary>
+    private static short SamusYOffset(int local)
+    {
+        if (local == 0)
+            return -32;
+        if (local == 1)
+            return -25;
+        int bob = local is >= 4 and < 12 ? 2 - Math.Abs(2 - local % 4) : 0;
+        return (short)(-23 - bob);
+    }
     /// <summary>$AA:E630/E670/E6B0: one of 32 velocity/X-joint/Y-joint records, selected by an even byte offset.</summary>
     /// <remarks>
     /// The carried-Samus X field at <c>$AA:E670</c> is exactly
@@ -43,6 +48,6 @@ public static class ChozoCarryMotionDefinitions
         int local = index & 15;
         int sign = index < 16 ? -1 : 1;
         int x = local == 0 ? 28 : local == 1 ? 30 : 32;
-        return ((short)(sign * Magnitudes[local]), (short)(sign * x), YOffsets[local]);
+        return ((short)(sign * Magnitudes[local]), (short)(sign * x), SamusYOffset(local));
     }
 }

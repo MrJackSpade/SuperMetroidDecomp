@@ -7235,4 +7235,38 @@
     "proof":"One VerifyMenuShoulderHighlightPixels proof compares all256 original values against direct SHA-pinned ROM bitplane decoding from an independent explicit cell list. Both8192-byte uploads, every individual pixel edit, all16 colors at border/curve/transparent locations, an entirely edited region and invalid domains pass. Stock zero-deviation and reduced-storage assertions confirm removal. Seven existing panel/button/font/lettering/reserve/selector-border proofs confirm the affected shared compaction.",
     "confirmation":"Verification build0 errors/1429 existing warnings. Early --lookup-menu-shoulder-highlight-pixels and all seven affected existing atlas proofs pass. Closed source dependencies/pins and maintained-source index refreshed. Implementation commit is the commit adding this entry. No retain exception is assigned to these four cells."
   }
+,
+  "mapMarkerPixelReview": {
+    "status":"converted three independently reviewed geometric pixel families across four atlas cells; no retained stock data",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/MapMarkerTileArtwork.cs","csharp/src/SuperMetroid.Core/Assets/MapObjectTileArtwork.cs"],
+    "source":"Complete supported SHA-pinned B6:D3A0..D3FF andB6:D5E0..D5FF pixel decode. Pinned bank82 native spritemap entries independently use9D/9E as mirrored arrow halves, AF as the four moving pulse corners and9F as four defeated-boss corners. Current MapMarkerGeometry maps these same semantic roles and preserves their existing native draw order/placement; only pixel generation changes here.",
+    "logicalTables":[
+      {
+        "identity":"map arrow half pixels9D/9E",
+        "status":"converted",
+        "algorithm":"Right-facing half9E fills0<=X<=Y with11; its left edgeX0 and diagonalX=Y use14. Other pixels are0. Vertical half9D is the transpose, so swapX/Y before the same calculation. Native seven-pixel spacing and flips join the mirrored halves; no independently chosen pixel values remain.",
+        "domain":"Two8x8 cells,128 original pixels, X/Y0..7. Transposed views share one logical shape and one proof.",
+        "proof":"VerifyMapArrowPixels / --lookup-map-arrow-pixels"
+      },
+      {
+        "identity":"map position pulse cornerAF",
+        "status":"converted",
+        "algorithm":"Three nested right-angle lines. Let d=min(X,Y). d2 or4 is black15, d3 is bright14, all other values are transparent0. The existing native four-corner mirroring and animated placement consume this same calculated cell.",
+        "domain":"One8x8 cell,64 original pixels, X/Y0..7.",
+        "proof":"VerifyMapPulsePixels / --lookup-map-pulse-pixels"
+      },
+      {
+        "identity":"defeated-boss corner9F",
+        "status":"converted",
+        "algorithm":"Black15 outer top/left border X0 orY0. Red10 frame/diagonal takes precedence at X1, Y1, X=Y or X=Y-1. Remaining pixels on inner frame X2/Y2 or the bordering diagonals X=Y+1/X=Y-2 use black15. Everything else is transparent0. The outlined two-pixel diagonal and one-pixel frame are direct line geometry, not encoded individual pixels.",
+        "domain":"One8x8 cell,64 original pixels, X/Y0..7.",
+        "proof":"VerifyDefeatedBossPixels / --lookup-defeated-boss-pixels"
+      }
+    ],
+    "numericalContract":"Bounded integer equality, ordering, minimum and transpose only. Invalid identities and coordinates reject. No interpolation, floating point, rounding, overreads, masks hiding invalid input or generated pixel cache are introduced.",
+    "storage":"Remove128 planar bytes. These four stock cells have no retained basis data or pixel deviations. Remaining117 raw atlas tiles occupy3744 bytes; they and all broader inventory obligations remain required work.",
+    "editableContract":"Capture independently supplied PNG pixel differences. Both arrow orientations and all marker cells remain independently editable, including all16 colors and complete replacement of a region. Generated bitplanes exist only in the immediate VRAM transfer. Existing asset validation and full-sheet transfer boundaries remain unchanged.",
+    "proofScope":"Exactly one named proof per logical table, sharing an oracle/edit-check helper rather than duplicating the table proofs. Each supplies its independent explicit native cell list, directly decodes original ROM bitplanes, compares its full128/64/64 values, verifies both8192-byte uploads, edits every pixel independently, checks all16 colors at three locations per cell, replaces the entire family region and exercises invalid inputs. The eight previously existing atlas-family proofs confirm changed compaction and independent editing across owners.",
+    "confirmation":"Final Verification build0 errors/25 existing incremental warnings. All three new early SHA-pinned proofs and all eight affected existing atlas proofs pass. Closed source dependencies/pins and maintained-source index refreshed. Implementation commit is the commit adding this entry. No retention exception is assigned to any of these shapes."
+  }
 }

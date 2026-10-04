@@ -3,24 +3,19 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Thirty strip-aligned parts of the station at8C:9150.
-/// Eleven lower-edge pieces remain independently unresolved supplied content.</summary>
-internal sealed class CeresStationParts(CompiledSpritePart[] lowerEdge) : IReadOnlyList<CompiledSpritePart>
+/// <summary>All forty-one parts of8C:9150 from packed body strips, edge patches
+/// and their adjoining cells. Preserve the native publication order.</summary>
+internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
 {
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
-    {
-        if (pointer != CeresFlightSpriteDefinitions.StationUnderAttack || supplied.PartCount != 41) return supplied;
-        var edge = new CompiledSpritePart[11];
-        for (int index = 0; index < edge.Length; index++) edge[index] = supplied.Part(index + 3);
-        return supplied.CalculateIfMatching(new CeresStationParts(edge));
-    }
+    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
+        pointer == CeresFlightSpriteDefinitions.StationUnderAttack
+            ? supplied.CalculateIfMatching(new CeresStationParts()) : supplied;
     public int Count => 41;
     public CompiledSpritePart this[int index]
     {
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            if (index is >= 3 and <= 13) return lowerEdge[index - 3];
             int x, y, tile;
             if (index < 2)
             {
@@ -31,6 +26,42 @@ internal sealed class CeresStationParts(CompiledSpritePart[] lowerEdge) : IReadO
             else if (index == 2)
             {
                 x = -50 + 8 * 9; y = 16; tile = CeresStationAtlas.Lower + 9;
+            }
+            else if (index == 3)
+            {
+                // Small continuation after the six-part middle strip.
+                x = -50 + 6 * 16; y = 0; tile = CeresStationAtlas.RightTip;
+            }
+            else if (index < 6)
+            {
+                int column = 5 - index;
+                x = -50 + 8 * (8 + column); y = 32;
+                tile = CeresStationAtlas.LowerRightEdge + column;
+            }
+            else if (index == 6)
+            {
+                // Downward continuation of the left cell of the lower-right pair.
+                x = -50 + 6 * 8; y = 32 + 8;
+                tile = CeresStationAtlas.LowerRightEdge + 2;
+            }
+            else if (index < 9)
+            {
+                int column = 8 - index;
+                x = -50 + 8 * (6 + column); y = 32;
+                tile = CeresStationAtlas.LowerRightPair + column;
+            }
+            else if (index < 13)
+            {
+                // Three-cell left edge plus a downward continuation of its right cell.
+                int column = index == 9 ? 2 : 12 - index;
+                int row = index == 9 ? 1 : 0;
+                x = -50 + 8 * (1 + column); y = 32 + 8 * row;
+                tile = CeresStationAtlas.LowerLeftEdge + column + 16 * row;
+            }
+            else if (index == 13)
+            {
+                // The large center patch immediately follows the three small edge cells.
+                x = -50 + 4 * 8; y = 32; tile = CeresStationAtlas.LowerLeftEdge + 3;
             }
             else if (index < 19)
             {
@@ -60,7 +91,7 @@ internal sealed class CeresStationParts(CompiledSpritePart[] lowerEdge) : IReadO
                 int column = 2 * (40 - index);
                 x = -10 + 8 * column; y = -48; tile = CeresStationAtlas.Top + column;
             }
-            return new(SnesSpritemapXWord.Create(x, index != 0), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, index is 1 or 2 or >= 13), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
@@ -82,6 +113,16 @@ internal static class CeresStationAtlas
     internal const int Middle = 0x124;
     /// <summary>Tile140, left end of the lower strip at Y=16.</summary>
     internal const int Lower = 0x140;
+    /// <summary>TileF0, small extension beyond the right end of the middle strip.</summary>
+    internal const int RightTip = 0xf0;
+    /// <summary>TileF1, two adjacent lower-right edge cells followed by the
+    /// separately packed downward continuation of the neighboring pair.</summary>
+    internal const int LowerRightEdge = 0xf1;
+    /// <summary>Tile15B, two adjacent small cells on the right of the lower center patch.</summary>
+    internal const int LowerRightPair = 0x15b;
+    /// <summary>Tile14B, three-cell left edge, its lower-right continuation in the
+    /// next atlas row, and an adjoining large center patch at column+3.</summary>
+    internal const int LowerLeftEdge = 0x14b;
     /// <summary>At a sixteen-column boundary, skip the row of lower tile halves.</summary>
     internal static int TwoRowStrip(int start, int column)
     {

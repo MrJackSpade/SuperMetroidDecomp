@@ -34,7 +34,7 @@ internal static partial class Program
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresStation");
                     var selected = CeresStationParts.CalculateIfMatching(definition.Pointer, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
-                    AssertTrue((piece < 3 || piece >= 14) == ReferenceEquals(supplied, selected),
+                    AssertTrue(ReferenceEquals(supplied, selected),
                         "independent CeresStation field edit stays supplied");
                 }
             }

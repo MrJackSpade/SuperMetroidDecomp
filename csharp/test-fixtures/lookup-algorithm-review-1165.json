@@ -10245,19 +10245,12 @@
   "ceresStationPartLayoutReview": {
     "owner": "csharp/src/SuperMetroid.Core/Assets/CeresStationParts.cs",
     "id": "ceres-station-forty-one-part-layout",
-    "state": "unreviewed",
-    "body": {
-      "id": "ceres-station-thirty-strip-aligned-parts",
-      "state": "converted",
-      "evidence": "Read all41 original parts of8C:9150 and the shared flight/destruction visual consumer. Parts14..40 form five horizontal strips. Atlas origins140/124/107/EC/E6 correspond to Y16/0/-16/-32/-48. Two strips overlap a large part by eight pixels; two wrap atlas columns while skipping lower tile halves. Parts0/1 extend the top strip to the left, and part2 overlaps the lower strip's right edge.",
-      "algorithm": "Generate thirty parts from strip row, column and two-row atlas packing. X advances eight pixels per atlas column. Derive the small northwest extension from the adjoining large part and the lower-right extension from its strip origin. Common priority0, no flips and actor palette inheritance are generated. Keep only eleven unresolved supplied edge parts, not the full41-part array. Flight loader serves this shared identity for both scenes and uses the calculated view only on complete equality.",
-      "proof": "VerifyCeresStationParts under --lookup-ceres-flight-programs independently extracts all41 original parts, requires calculated selection and compares full identities and native visible/wrapped OAM. Independent body edits preserve supplied composition; independent residual-edge edits retain calculated body geometry. All edits preserve identity, and original/edited variants also pass through the real flight JSON loader. Changed counts and invalid indices are checked."
-    },
-    "remaining": {
-      "id": "ceres-station-eleven-lower-edge-parts",
-      "state": "unreviewed",
-      "scope": "Native parts3..13 remain required independent review, including their tile selections and placement. Source pixels and other scene mappings also remain required. No retention exception."
-    },
-    "implementation": "The commit adding this record calculates thirty parts; it does not mark the complete station composition resolved."
+    "state": "converted",
+    "nativeIdentity": "Complete41-part composition8C:9150..921E",
+    "evidence": "Read every original part and the shared flight/destruction consumer. Five horizontal strips have atlas origins140/124/107/EC/E6 and Y16/0/-16/-32/-48. Two overlap large parts by eight pixels; two wrap atlas columns while skipping lower halves. Top/side extensions adjoin the strip boundaries. The lower edge consists of three adjacent small left cells and a lower-right continuation, an adjoining large center patch, a right pair and its downward continuation, and two further right cells.",
+    "algorithm": "Generate native order by body strip or edge patch. Derive X from eight-pixel columns, Y from strip rows, and tile selections from named atlas patch origins and row/column strides. Isolated extensions use adjoining strip endpoints. Preserve the separately packed right tip and lower-right continuation as named atlas identities. Generate all sizes, priority0, no flips and palette inheritance. No remaining full-part or residual array; the calculated view is stateless.",
+    "implementation": "Flight presentation serves this shared station identity in both scenes and adopts the calculated view only on complete field/count equality. Independent custom changes remain supplied. Commit e72bf397 converted thirty body parts; the commit updating this record completes the eleven lower-edge parts and removes their residual array.",
+    "proof": "VerifyCeresStationParts under --lookup-ceres-flight-programs independently extracts all41 original parts, requires calculated selection, compares complete compiled fields and native visible/wrapped OAM, and checks every independent field edit, count and invalid index. The actual flight JSON writer/loader confirms all original and edited variants. Existing flight program/catalog checks remain included.",
+    "remaining": "All41 OAM parts are converted. Source pixels and other scene/inventory mappings remain independently required. No retention exception."
   }
 }

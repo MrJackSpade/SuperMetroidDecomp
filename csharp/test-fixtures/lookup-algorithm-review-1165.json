@@ -8777,4 +8777,30 @@
   "proof": "VerifyEndingExplosionFrameCatalog is the sole focused catalog proof, also called by existing artwork aggregate. SHA-pinned --lookup-ending-explosion-frame-catalog compares all16 pointers to independent original bank8B display operands, counts to original OAM headers, names to published compatibility fixture; verifies enumeration order and invalid int bounds. Existing actor program proof retains its separate complete instruction-word/timing contract. Verification build0 errors/1429 existing warnings; focused catalog proof passes.",
   "scope": "These three catalog fields only. The16 underlying OAM compositions and other catalogs remain independent obligations; no artwork retention exception is inferred. Implementation commit is the commit adding this record."
 }
+,
+  "endingCompletionFrameCatalogReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingCompletionTextSpritePresentation.cs",
+  "source": "Supported SHA-pinned original8B:EB91/EBD7/EC35 display operands select45 text prefixes; EC81..ECD8 select ten digits and colon. Original8C OAM headers establish two parts per revealed nonspace letter and two per digit/colon. Native labels from pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d.",
+  "tables": [
+    {
+      "id": "ending-completion-frame-catalog-pointers",
+      "state": "converted",
+      "algorithm": "For each text family, first+2*n+5*n*(n+1) sums the preceding OAM record sizes. Digits useB67B+12*digit, colonB66F. Shared PrefixMap/DigitMap now supply both catalog and instruction programs."
+    },
+    {
+      "id": "ending-completion-frame-catalog-counts",
+      "state": "converted",
+      "algorithm": "2*(prefix+1) parts for each progressively revealed text prefix; two for every digit and colon."
+    },
+    {
+      "id": "ending-completion-frame-catalog-names",
+      "state": "converted",
+      "algorithm": "Select operation/completed/clear-time/digit family by range and append invariant two-digit stage; final named colon-00 case."
+    }
+  ],
+  "implementation": "Remove56-record StockFrames array. Stateless IReadOnlyList view calculates each record; loader migrates Length to Count, all enumeration users retain their order. Move existing instruction PrefixMap, digit calculation and five native frame identities into shared catalog ownership; remove duplicate frontend formula/constants. No generated array/cache or runtime ROM capability.",
+  "consumer": "EndingCompletionTextSpritePresentation.Load resolves published keys to compiled editable compositions; EndingObjectArtworkFiles extracts original records with the calculated stock counts; resource-audit checks membership; EndingCompletionTextInstructionDefinitions consumes the same frame-address algorithms.",
+  "proof": "Extend existing VerifyEndingCompletionTextInstructions rather than add another oracle. Existing45 original-header checks now compare catalog pointers/counts; original digit/colon operands and headers cover11 more. Compare all56 keys to the previous published compatibility fixture, check enumeration and invalid int bounds. Existing full164-word/14-stream proof confirms the migrated instruction consumer. SHA-pinned --lookup-ending-completion-programs passes; verification build0 errors/1429 existing warnings.",
+  "scope": "These three metadata fields and shared address-calculation aliases only. Individual OAM placements/artwork and other catalogs retain independent obligations. No retention exception; implementation commit is the commit adding this record."
+}
 }

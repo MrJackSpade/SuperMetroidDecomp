@@ -30,16 +30,16 @@ public static class SamusPaletteRomData
         /// <c>$9B</c>. Every production suit selector reaches only those even
         /// offsets; Gravity has priority over Varia when both equipment bits
         /// are set. The X-ray and projectile catalogs alias this same physical
-        /// table. These three distinct palette identities are retained as
-        /// authored selectors; a numeric stride would not reproduce them.
+        /// table. NormalSuitPalettePointer implements the three semantic suit
+        /// cases directly; no stored pointer lookup is retained.
         /// </remarks>
         public const int NormalSuitPointers = 0x91d727;
         /// <summary>Native $91:D727 Power/Varia/Gravity pointer selected by a byte offset.</summary>
         /// <remarks>
         /// The three pinned cartridge words are $9400, $9520, and $9800. Every
         /// ordinary suit selector produces byte offset 0, 2, or 4, with Gravity
-        /// taking priority when both suit bits are equipped. The addresses are
-        /// authored palette identities, not a numeric stride.
+        /// taking priority when both suit bits are equipped. Named suit cases
+        /// resolve their native palette identities directly.
         /// </remarks>
         public static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
         {
@@ -70,8 +70,8 @@ public static class SamusPaletteRomData
         /// <c>q(hurt[c]) = floor((2*q(intro[c]) + 5*31)/7)</c>, where
         /// <c>intro</c> is the adjacent palette at <c>$9B:A3A0</c>.
         /// This bounded 5/7 blend toward white matches all sixteen ROM words
-        /// exactly; it describes the stored relationship, not a native runtime
-        /// calculation. The palette remains live cartridge data.
+        /// exactly. The corresponding installed color payload still requires
+        /// conversion; this address member grants no retention disposition.
         /// </remarks>
         public const int Colors = 0x9ba380;
         /// <summary><c>$9B:A3A0</c>, the sixteen-color cinematic Samus palette.</summary>
@@ -81,10 +81,10 @@ public static class SamusPaletteRomData
         /// <c>$3800</c>; the remaining positions select seven authored grey
         /// shades with red = green = <c>4,8,13,18,22,27,31</c>. Blue equals
         /// red minus two except at the darkest shade, where all channels are
-        /// four. The slot-to-shade choices remain authored data; even a uniform
-        /// seven-step <c>31*k/7</c> ramp misses levels 4 and 6 with floor,
-        /// or level 2 with nearest rounding. The hurt palette (#863) is an exact
-        /// forward blend from these colors, but its integer floor loses source values.
+        /// four. Slot-to-shade selection and the base shade payload still require
+        /// conversion or concrete impossible/nonsense evidence. The hurt palette
+        /// (#863) is an exact forward blend from these colors; that relation does
+        /// not by itself resolve the independent intro palette.
         /// Production copies indices 0..15 unchanged to Samus OBJ CGRAM
         /// 192..207 on cinematic hurt-counter calls 2, 4, and 6.
         /// </remarks>
@@ -578,12 +578,15 @@ public static class SamusPaletteRomData
         /// Issue #891 / #625: the nine timer bytes at even offsets
         /// match the pinned NTSC J/U v1.0 ROM and native bank-$9B
         /// listing: <c>21,6,3,4,5,5,6,6,80</c> for explosion index
-        /// <c>0..8</c>. Issue1165 independently traces these countdowns
-        /// to the nine fixed right/left drawings at92EDBE. Their entry,
-        /// per-drawing and final delays specify cinematic rhythm; a numeric
-        /// case list or fitted curve would recite those timing choices,not
-        /// derive a physical or functional quantity. The concrete authored-
-        /// animation/nonsense disposition is on SamusDeathExplosionTimingDefinitions.
+        /// <c>0..8</c>. Issue1165 traces these countdowns to the nine fixed
+        /// right/left drawings selected at $92:EDBE, all at the captured position.
+        /// The 21-call entry delay, seven individual drawing dwell times, and
+        /// 80-call final hold specify this cinematic's chosen timing. No motion,
+        /// distance or measured-brightness quantity determines those durations;
+        /// inventing such a relationship would replace the intended drawing rhythm.
+        /// This is the concrete animation/nonsense case documented on
+        /// SamusDeathExplosionTimingDefinitions, not an exemption for authored data
+        /// in general. Only the nine timer bytes receive that disposition.
         /// The caller decrements
         /// the active timer before advancing, loads the next duration
         /// only for indices below nine, and terminates without a tenth

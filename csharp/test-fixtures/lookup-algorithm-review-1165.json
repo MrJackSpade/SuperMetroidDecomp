@@ -10571,4 +10571,15 @@
     "confirmation": "Integrated --lookup-stream-3 passed native fields, enumeration, bounds, all 48 actual pixel-copy/move rows, independent staging oracle, room/sequence staging, six cartridge-free VRAM uploads and edited PNG/reload behavior. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Source index refreshed.",
     "remaining": "225 of 1128 snapshot definitions converted; 903 pending. No retention exception."
   }
+,
+  "motherBrainEscapeGeometryIntegration": {
+    "id": "mother-brain-escape-five-definitions",
+    "state": "converted",
+    "implementationCommit": "cf27e62c7",
+    "scope": "Three escape-text page mappings and timer/text and exploded-door transfer arrays.",
+    "algorithm": "Transfer records calculate consecutive graphics pages, truncated final page sizes and VRAM word strides for two timer pages, five text pages and two door pages. Sequence cursor and completion transitions remain unchanged.",
+    "evidence": "All native records at A6:C4CB and A9:902F match, including production helper selection, cursor advancement and completion rejection. Existing artwork reference corrected to an independent native-byte oracle because runtime no longer has an uninstalled-ROM fallback.",
+    "confirmation": "Integrated --lookup-stream-3 passed native fields, bounds, five guarded text uploads, visible artwork edit, reload and invalid overrides. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
+    "remaining": "230 of 1128 snapshot definitions converted; 898 pending. No retention exception."
+  }
 }

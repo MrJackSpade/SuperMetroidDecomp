@@ -2987,6 +2987,21 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.DraygonProjectileInstructionProgramDefinitions.cs",
       "purpose": "Replace obsolete presentation ROM read count with exact native selector evidence while retaining mechanics and behavior assertions"
     }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DeadTorizoArtwork.cs",
+      "purpose": "Adapt explicit span binding to calculated phase view while retaining artwork and DMA assertions"
+    }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.TorizoExplosiveSwipeInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale presentation ROM reads with exact native selectors and preserve lifetime and producer checks"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainTurretInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale presentation ROM reads with exact native selectors and preserve mechanics and producer checks"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  903,
+    "remainingTableDefinitionCount":  898,
     "fileCount":  523,
     "entries":  [
                     {
@@ -1289,21 +1289,27 @@
                         "line":  17,
                         "name":  "MotherBrainEscapeTextArtworkDefinitions.PageSources",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "cf27e62c7"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs",
                         "line":  21,
                         "name":  "MotherBrainEscapeTextArtworkDefinitions.PageByteCounts",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "cf27e62c7"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs",
                         "line":  25,
                         "name":  "MotherBrainEscapeTextArtworkDefinitions.PageDestinations",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "cf27e62c7"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs",
@@ -4662,14 +4668,18 @@
                         "line":  76,
                         "name":  "MotherBrainRainbowBeamAttackSequence.EscapeTimerTileTransfers",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "cf27e62c7"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
                         "line":  99,
                         "name":  "MotherBrainRainbowBeamAttackSequence.ExplodedDoorTileTransfers",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "cf27e62c7"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
@@ -20760,5 +20770,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  225
+    "convertedSinceSnapshot":  230
 }

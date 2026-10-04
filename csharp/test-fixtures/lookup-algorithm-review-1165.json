@@ -10399,4 +10399,15 @@
     },
     "remaining": "84 of1128 snapshot definitions are fully converted;1044 remain pending. All five streams remain open. No new retention exception."
   }
+,
+  "sporeFlySweatIntegration": {
+    "id": "spore-fly-sweat-six-definitions",
+    "state": "converted",
+    "implementationCommit": "e3b8cd8db51376b101b028410426b9e180bb26a3",
+    "scope": "Spore Spawn stalk offsets and emitter coordinates; fly and Eye Door sweat mechanics and presentation locations. Six complete definitions.",
+    "algorithm": "Eight-pixel stalk spacing and centered 64-pixel emitter columns; calculated timed-frame records with semantic goto, clear-movement and delete operations.",
+    "evidence": "Owning XML and stream4 batch6 identify native addresses. All eight spacing words, all program mechanics values, enumeration order, presentation ownership, unaligned reads and index bounds confirmed against the pinned ROM.",
+    "confirmation": "Integrated Verification build:1432 warnings,zero errors. --lookup-stream-4 passes. Source index refreshed from tracked source; no dispositions inferred by indexing.",
+    "remaining": "90 of1128 snapshot definitions converted;1038 pending. Separate spore movement and independent presentation payloads remain required. No new retention exception."
+  }
 }

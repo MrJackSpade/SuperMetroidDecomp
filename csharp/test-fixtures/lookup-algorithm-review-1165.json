@@ -10507,4 +10507,15 @@
     "confirmation": "Integrated Verification build1436warnings,zeroerrors; focused command passes. Source index refreshed.",
     "remaining": "207 of1128 snapshot definitions converted;921 pending. No new retention disposition integrated in this batch; all streams remain open."
   }
+,
+  "reserveGeometryIntegration": {
+    "id": "reserve-digit-and-arrow-two-definitions",
+    "state": "converted",
+    "implementationCommit": "55fcfdffe",
+    "scope": "PauseReserveUiPresentation.digits and arrowOffsets stock mappings.",
+    "algorithm": "Consecutive glyph words from0804; eight vertical arrow cells and two horizontal cells calculate from tilemap row stride. Matching stock arrays discarded; independent document replacements preserved.",
+    "evidence": "Native82:8FB6/8FC1/8FCB digit addition and82:AE07-AE41 arrow loops. Integrated --lookup-stream2-reserve-geometry confirms ten digits in all three places, ten arrow cells, actual tilemap writes, all twenty independent edits, supplied anchors/palettes and unchanged unrelated tile fields.",
+    "confirmation": "Verification build1436warnings,zeroerrors; focused command passes. Source index refreshed.",
+    "remaining": "209 of1128 snapshot definitions converted;919 pending. Reserve labels and arrow color payloads remain required. No new retention disposition."
+  }
 }

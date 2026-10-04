@@ -2966,6 +2966,16 @@
       "stream": 4,
       "path": "csharp/src/SuperMetroid.Verification/Program.SaveRamLayout.cs",
       "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MagdolliteLavaInstructionProgramDefinitions.cs",
+      "purpose": "Confirm converted program and replace stale visual ROM read assertions with exact compiled selector evidence"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DownwardGateProjectileInstructionProgramDefinitions.cs",
+      "purpose": "Confirm converted program and replace stale visual ROM read assertions with exact compiled selector evidence"
     }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

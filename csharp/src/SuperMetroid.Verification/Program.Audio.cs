@@ -13,20 +13,7 @@ internal static partial class Program
         VerifyDoorSoundDisableGuard();
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
-        {
-            int pointer = AudioRomData.Assets.MusicPointerTable + definition.DataIndex;
-            int nativeAddress = retail.ReadByte(pointer) |
-                (retail.ReadByte(pointer + 1) << 8) |
-                (retail.ReadByte(pointer + 2) << 16);
-            AssertEqual(
-                nativeAddress,
-                AudioAssetCatalogData.ResolveDataIndex(definition.DataIndex).SnesAddress,
-                $"compiled music upload ${definition.DataIndex:X2}");
-        }
-        AssertThrows<InvalidDataException>(
-            () => AudioAssetCatalogData.ResolveDataIndex(0x01),
-            "overlapping music-pointer byte offset is not an authored data identity");
+        VerifyAudioUploadCatalog(retail);
         var invalidMusicData = new CartridgeAudioState();
         invalidMusicData.AdvanceFrame(retail, default);
         invalidMusicData.QueueMusicDelayed8(MusicCommand.LoadData(0x01));

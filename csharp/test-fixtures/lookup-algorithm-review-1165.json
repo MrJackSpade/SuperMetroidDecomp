@@ -8487,4 +8487,17 @@
     "validation":"Source-review behavior correction within1165; player confirmation pending. No player-reported affected version is inferred.",
     "remaining":"The21 pan samples still require their own exact generator or a supported exception. This consumer correction supplies neither a pan-curve retention rationale nor completion of the audio/table inventory."
   }
+,
+  "audioUploadCatalogReview": {
+    "id":"audio-upload-bank-selector",
+    "state":"converted",
+    "owner":"csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs",
+    "member":"ResolveDataIndex, Music, All",
+    "source":"Supported SHA-pinned ROM8F:E7E1..E82B and pinned bank_8F.asm Music_Pointers establish the common engine and24 named music streams. The byte identity is the offset of a three-byte pointer, not an ordinal. Maintained published names were independently captured from the previous catalog for compatibility.",
+    "consumers":"CartridgeAudioState resolves queued data-load identities. SpcAudioAssetExtractor enumerates All/Music to create uploads and metadata; ExtractedAudioAssetCatalog checks required identities and resolves names. Diagnostic and verification consumers enumerate banks or index Music. No consumer requires the former concrete collection or cached record identity; the public IReadOnlyList and record-value contracts remain intact.",
+    "algorithm":"Replace the24-record list and derived25-entry dictionary with explicit named bank cases. Common remains its single named record. A stateless IReadOnlyList view exposes24 entries; ordinal i resolves byte offset3*(i+1). All yields Common then that view. No generated record array, dictionary or lookup cache remains. The genuine selector cases preserve each address/name pair, including separately named uploads with related music content.",
+    "domain":"ResolveDataIndex accepts0,3,...,48hex and rejects every other byte with InvalidDataException. Music admits indices0..23 and rejects other ints with IndexOutOfRangeException; enumeration stays cartridge ordered. Exact names, paths, addresses and manifest identity semantics are preserved.",
+    "proof":"Extract the existing original-pointer checks from VerifyCartridgeAudioQueues into VerifyAudioUploadCatalog; the aggregate delegates. The SHA-pinned focused entry compares all25 three-byte pointers against original ROM, every published name, data-index fields, All/Music enumeration and indexed views, all256 selector bytes and invalid int bounds. No second pointer oracle or gameplay check is introduced. Verification build0 errors/1429 existing warnings; --lookup-audio-upload-catalog passes.",
+    "scope":"This resolves only the upload identity selector and its alias views. Lossless stream payloads, FIR presets, pan samples and the remaining inventory have separate obligations. Implementation commit is the commit adding this record."
+  }
 }

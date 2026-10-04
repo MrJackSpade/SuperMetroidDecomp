@@ -9,8 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
-        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+    private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
              pointer < EndingExplosionInstructionDefinitions.End; pointer += sizeof(ushort))
@@ -38,9 +37,14 @@ internal static partial class Program
             {
                 // Private opcodes affect the containing ending scene. This actor-level
                 // comparison advances their cursor identically without duplicating that scene.
-                native.Step(bus, (_, cursor) => cursor);
-                installed.Step(bus, (_, cursor) => cursor,
+                var nativeCallbacks = new List<ushort>();
+                var generatedCallbacks = new List<ushort>();
+                native.Step(bus, (opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                    (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                installed.Step(bus, (opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
                     EndingExplosionInstructionDefinitions.ReadWord);
+                AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
+                    $"explosion actor ${start:X4} callback order/timing at frame {frame}");
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,
                     $"explosion actor ${start:X4} cursor at frame {frame}");
                 AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,
@@ -53,6 +57,16 @@ internal static partial class Program
                     $"explosion actor ${start:X4} lifetime at frame {frame}");
             }
         }
+
+        for (int frame = 0; frame < 10; frame++)
+            AssertEqual((ushort)4, (ushort)(bus.ReadByte(0x8ca396 + 22 * frame) | bus.ReadByte(0x8ca397 + 22 * frame) << 8),
+                $"explosion frame {frame} has four OAM parts and a 22-byte record");
+    }
+
+    private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
+        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+    {
+        VerifyEndingExplosionPrograms(bus);
 
         foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {

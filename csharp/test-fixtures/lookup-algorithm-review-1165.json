@@ -8587,4 +8587,54 @@
     "proof":"Extend the existing VerifyEndingLogoDefinitions rather than add a duplicate. Expected pointers now come from original LDY operands atE555+6*index, not the former production Actors copy. Read each native six-byte record at that independently selected address. Read original LDA immediates from its initializer for both origins and assert the opcodes. Compare all four pointer identities, twelve record words and eight origin words, plus complete valid indices and representative invalid int bounds. The early SHA-pinned --lookup-ending-logo-actors also reuses the existing palette-source proof already called by this aggregate. Build0 errors/1429 existing warnings; focused proof passes.",
     "scope":"These six logical mappings have independently reviewed dispositions; aliases share the compound original-data proof. Motion/landing constants, unrelated actor programs and broader inventory remain separate. Implementation commit is the commit adding this record."
   }
+,
+  "endingExplosionProgramReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingExplosionInstructionDefinitions.cs",
+  "source": "SHA-pinned supported ROM8B:EB0F..EB90; pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank8B names all eight programs and scene operations. Bank8C OAM headers establish ten consecutive four-part frames atA396+22*frame.",
+  "programs": [
+    {
+      "id": "ending-explosion-planet-program",
+      "state": "converted",
+      "algorithm": "Set repeat count5; cycle four damage poses for13 each; decrement/branch; fade palette; four flash poses for32 each; spawn silhouette and delete. Frame pointers follow four-part OAM record layout."
+    },
+    {
+      "id": "ending-explosion-glow-program",
+      "state": "converted",
+      "algorithm": "16-frame expand/contract poses: glow, first supernova, second supernova, first supernova; branch to start. Named visual cases."
+    },
+    {
+      "id": "ending-explosion-stars-program",
+      "state": "converted",
+      "algorithm": "16-frame starfield display and branch to own start."
+    },
+    {
+      "id": "ending-explosion-lava-program",
+      "state": "converted",
+      "algorithm": "156-frame blank delay; two10-frame core poses using the same OAM record layout; branch past initial delay."
+    },
+    {
+      "id": "ending-explosion-silhouette-program",
+      "state": "converted",
+      "algorithm": "8-frame silhouette display, start-explosion callback, delete."
+    },
+    {
+      "id": "ending-explosion-right-stars-program",
+      "state": "converted",
+      "algorithm": "144-frame stars, finale callback,332-frame stars, end-explosion callback, install left-stars pre-instruction, fall through into left-stars loop."
+    },
+    {
+      "id": "ending-explosion-left-stars-program",
+      "state": "converted",
+      "algorithm": "16-frame starfield display and branch to own start."
+    },
+    {
+      "id": "ending-explosion-afterglow-program",
+      "state": "converted",
+      "algorithm": "16-frame afterglow display and branch to own start."
+    }
+  ],
+  "implementation": "Remove65-word130-byte Program span. Generate repeated display records, OAM record addresses and branches; explicit semantic scene-operation cases preserve callback identities and timing. Native identities live in this domain catalog or existing CinematicCodePointers. No stored generated words or runtime ROM fallback.",
+  "proof": "Extract the existing word/stream portion of VerifyEndingExplosionActorArtwork into VerifyEndingExplosionPrograms; aggregate delegates. SHA-pinned --lookup-ending-explosion-programs compares all65 original words, bounds and eight actor streams for500 calls each using independent native ROM and generated readers. Compare cursor, map, pre-instruction, timer, lifetime and callback order/timing on each call. Check all ten original OAM count headers for the22-byte stride. Focused confirmation of identified program conversions; no gameplay discovery or whole-ending validation.",
+  "scope": "These eight programs only. The sprite-definition catalog, installed compositions, reward programs and remaining inventory have independent review obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

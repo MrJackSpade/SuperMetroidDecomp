@@ -12,6 +12,7 @@ public sealed class PauseReserveTankPresentation
     private readonly ushort paletteBits;
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    internal int StoredFrameCount => (frames.Full is null ? 0 : 1) + (frames.EndCap is null ? 0 : 1) + (frames.Empty is null ? 0 : 1) + (frames.Fill1 is null ? 0 : 1) + (frames.Fill2 is null ? 0 : 1) + (frames.Fill3 is null ? 0 : 1) + (frames.Fill4 is null ? 0 : 1) + (frames.Fill5 is null ? 0 : 1) + (frames.Fill6 is null ? 0 : 1) + (frames.Fill7 is null ? 0 : 1);
     internal int StoredAnchorComponentCount => anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     public MapLabelPoint Anchor(int index)
     {
@@ -35,7 +36,10 @@ public sealed class PauseReserveTankPresentation
             PauseReserveTankRomData.EmptyMap + 7 => frames.Fill7,
             _ => throw new InvalidDataException($"Unknown reserve visual {nativeIdentity:X4}."),
         };
-        frame.DrawOnScreen(oam, (ushort)anchor.X, (ushort)anchor.Y, paletteBits);
+        if (frame is not null) frame.DrawOnScreen(oam, (ushort)anchor.X, (ushort)anchor.Y, paletteBits);
+        else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
+            SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(paletteBits),
+            (ushort)anchor.X, (ushort)anchor.Y);
     }
     public static PauseReserveTankPresentation Load(Stream json)
     {
@@ -50,13 +54,14 @@ public sealed class PauseReserveTankPresentation
         foreach (var point in document.Anchors)
             if (point is null || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException("Reserve tank anchor requires screen coordinates X=0..255/Y=0..223.");
-        var frames = new FrameSet(Require("Full"), Require("EndCap"), Require("Empty"),
-            Require("Fill1"), Require("Fill2"), Require("Fill3"), Require("Fill4"), Require("Fill5"), Require("Fill6"), Require("Fill7"));
-        SpriteComposition Require(string name)
+        var frames = new FrameSet(Require("Full", PauseReserveTankRomData.FullMap), Require("EndCap", PauseReserveTankRomData.EndCapMap), Require("Empty", PauseReserveTankRomData.EmptyMap),
+            Require("Fill1", PauseReserveTankRomData.EmptyMap + 1), Require("Fill2", PauseReserveTankRomData.EmptyMap + 2), Require("Fill3", PauseReserveTankRomData.EmptyMap + 3), Require("Fill4", PauseReserveTankRomData.EmptyMap + 4), Require("Fill5", PauseReserveTankRomData.EmptyMap + 5), Require("Fill6", PauseReserveTankRomData.EmptyMap + 6), Require("Fill7", PauseReserveTankRomData.EmptyMap + 7));
+        SpriteComposition? Require(string name, ushort identity)
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
                 throw new InvalidDataException($"Missing reserve tank frame {name}.");
-            return MenuSpriteCompiler.Compile(parts, name);
+            return parts.Length == 1 && parts[0] == PauseReserveTankDefinitions.StockPart(identity)
+                ? null : MenuSpriteCompiler.Compile(parts, name);
         }
         var anchorOverrides = new Dictionary<int, (int? X, int? Y)>();
         for (int index = 0; index < document.Anchors.Length; index++)
@@ -69,9 +74,9 @@ public sealed class PauseReserveTankPresentation
         return new(anchorOverrides, frames, document.Palette);
     }
     /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
-    private sealed record FrameSet(SpriteComposition Full, SpriteComposition EndCap, SpriteComposition Empty,
-        SpriteComposition Fill1, SpriteComposition Fill2, SpriteComposition Fill3, SpriteComposition Fill4,
-        SpriteComposition Fill5, SpriteComposition Fill6, SpriteComposition Fill7);
+    private sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
+        SpriteComposition? Fill1, SpriteComposition? Fill2, SpriteComposition? Fill3, SpriteComposition? Fill4,
+        SpriteComposition? Fill5, SpriteComposition? Fill6, SpriteComposition? Fill7);
     public static void Write(Stream output, PauseReserveTankDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);

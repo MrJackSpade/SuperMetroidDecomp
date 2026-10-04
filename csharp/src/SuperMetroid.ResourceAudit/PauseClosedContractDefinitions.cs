@@ -35,9 +35,9 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "965C7A5234E0AD1256900579421573E9DEE3AB921C1EF90D561AD984786E2188")],
             "Private construction requires all sixteen named category/item anchors and nonempty positive-timing phases. Anchor coordinates use bounded category geometry with independently captured author edits. Every phase is validated against installed Reserve/Beam/Equipment compositions before publication; each group stores its first composition and only authored phase differences. Nonnegative phases normalize modulo the installed count. Unknown category/item tuples and negative phases fail; controller/navigation behavior is not certified."),
         new("SuperMetroid.Core.Assets.PauseReserveTankPresentation", "pause-reserve-complete-anchors-and-sprites", ["Anchor", "Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "9E26E10E5940CC53D1F4A284EC153439ECAC3D94931D53A4410CA082C960591A"),
-             new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs", "D03042610709C578B3BFEFD69E5389833D0B2986D355805ABBE7CE6E46AE7B52"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "BE414A5B857D739C065F4E6D66D830EDCCF3C9FC0DB260F2DDE0EFAD96DE5A36"),
+             new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs", "6D2F0A0909C53A11C3125A98E8381E1C947AD18DB9830D7AF6D74895307FF5E1"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseReserveTankRomData.cs", "6081A77E52F44FCF02F2A93F7BFAF662EA405F501BF4081A3B2CD37F542E8D06")],
-            "Private construction validates six bounded anchor inputs, calculates stock strip geometry and captures independent coordinate edits. It requires every one of ten named reserve compositions and stores named fields. Draw selects explicit visual-role cases with explicitly checked anchor indices. Supply/fill selection and tank animation are not certified."),
+            "Private construction validates six bounded anchor inputs, calculates stock strip geometry and captures independent coordinate edits. It requires every one of ten named reserve compositions, draws stock single-sprite geometry directly and compiles only authored differences into named fields. Draw selects explicit visual-role cases with explicitly checked anchor indices. Supply/fill selection and tank animation are not certified."),
     ];
 }

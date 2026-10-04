@@ -56,6 +56,7 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
                 throw new InvalidDataException(
                     $"Ending explosion sprite {definition.Name} is missing.");
             SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+            compiled = EndingExplosionQuadrantParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, EndingExplosionGridParts.CalculateIfMatching(definition.Pointer, compiled));
         }
         return new EndingExplosionSpritePresentation(frames);

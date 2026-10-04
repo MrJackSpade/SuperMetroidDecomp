@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
-        VerifyEndingExplosionGridParts(bus);
+        VerifyEndingExplosionCalculatedParts(bus);
         // Independent original list operands select every distinct visual frame.
         ushort[] operands = [0xeb15, 0xeb19, 0xeb1d, 0xeb21, 0xeb2b, 0xeb2f, 0xeb33, 0xeb37,
             0xeb5f, 0xeb63, 0xeb3f, 0xeb43, 0xeb47, 0xeb53, 0xeb6b, 0xeb8b];
@@ -42,13 +42,16 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyEndingExplosionGridParts(ISnesAddressSpace bus)
+    private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
-        for (int pose = 0; pose < 10; pose++)
+        static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
+            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, supplied));
+        for (int pose = 0; pose < 13; pose++)
         {
-            ushort pointer = (ushort)(0xa396 + pose * 22);
-            var visual = new SpriteVisualPart[4];
-            for (int index = 0; index < 4; index++)
+            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : (ushort)0xa516;
+            int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
+            var visual = new SpriteVisualPart[count];
+            for (int index = 0; index < count; index++)
             {
                 int address = 0x8c0000 + pointer + 2 + index * 5;
                 var x = new SnesSpritemapXWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
@@ -62,7 +65,7 @@ internal static partial class Program
                 };
             }
             SpriteComposition original = IntroCinematicSpriteCompiler.Compile(visual, "native grid");
-            SpriteComposition calculated = EndingExplosionGridParts.CalculateIfMatching(pointer, original);
+            SpriteComposition calculated = Calculate(pointer, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
             AssertEqual(Identity(original), Identity(calculated), "calculated grid preserves every compiled visual field and order");
@@ -79,25 +82,34 @@ internal static partial class Program
                     "calculated grid preserves native OAM and clipping");
             }
             SpriteVisualPart first = visual[0];
+            if (pose >= 10)
+            {
+                SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
+                    visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
+                SpriteComposition calculatedBasis = Calculate(pointer, editedBasis);
+                AssertTrue(!ReferenceEquals(editedBasis, calculatedBasis), "symmetric edits retain calculated quadrants");
+                AssertEqual(Identity(editedBasis), Identity(calculatedBasis), "edited quadrant inputs preserve every field");
+            }
             foreach (SpriteVisualPart edited in new[]
             {
                 first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
                 first with { TileColumn = first.TileColumn == 14 ? 13 : first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
-                first with { Size = 8 }, first with { Priority = 1 }, first with { Palette = 3 },
+                first with { Size = first.Size == 8 ? 16 : 8 }, first with { Priority = 1 }, first with { Palette = 3 },
                 first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+                first with { OffsetX = 255 }, first with { OffsetY = 127 },
             })
             {
                 visual[0] = edited;
                 SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(ReferenceEquals(supplied, EndingExplosionGridParts.CalculateIfMatching(pointer, supplied)),
+                AssertTrue(ReferenceEquals(supplied, Calculate(pointer, supplied)),
                     "independent edited field keeps supplied composition");
             }
             visual[0] = first;
             (visual[0], visual[1]) = (visual[1], visual[0]);
             SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(ReferenceEquals(reordered, EndingExplosionGridParts.CalculateIfMatching(pointer, reordered)), "edited part order is preserved");
-            SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..3], "shortened grid");
-            AssertTrue(ReferenceEquals(shortened, EndingExplosionGridParts.CalculateIfMatching(pointer, shortened)), "edited part count is preserved");
+            AssertTrue(ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
+            SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
+            AssertTrue(ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
         }
     }
 

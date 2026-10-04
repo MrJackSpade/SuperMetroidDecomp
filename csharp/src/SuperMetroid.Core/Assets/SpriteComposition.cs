@@ -8,6 +8,8 @@ public sealed class SpriteComposition
     private readonly IReadOnlyList<CompiledSpritePart> parts;
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
+    internal int PartCount => parts.Count;
+    internal CompiledSpritePart Part(int index) => parts[index];
 
     /// <summary>Use an immutable calculated view only when every supplied visual field matches.
     /// Independently edited compositions retain their compiled parts.</summary>

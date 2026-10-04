@@ -9250,6 +9250,37 @@
     "implementation": "LogoGlarePaletteColorDefinitions resolves exact color-word ownership using record stride36 and16 even color words. RoomPaletteFxPresentation removes only the208 intermediate words equal to calculated output; it keeps the final16 source colors and any independent edits. Explicit values resolve before calculation. Edited base values cause unchanged intermediate samples to remain explicit if necessary, preserving the full supplied document. No generated lookup cache, ROM fallback, schema change or dependency on the separate ending palette catalog. ColorPointers enumerates all224 identities exactly once after samples are removed.",
     "consumers": "RoomPaletteFxSystem obtains colors through IPaletteFxColorSource.TryReadColor while compiled mechanics retain timing, destination and delete behavior. ResourceAudit enumerates ColorPointers as a set of owned identities; it does not require dictionary insertion order. Existing extraction/JSON serialization continue to preserve independently editable presentation data.",
     "proof": "Consolidated the existing installed-glare family check into VerifyExtractedLogoGlarePaletteFxPresentation, reached directly by SHA-pinned --lookup-ending-logo-glare and by the existing aggregate. Original-ROM words independently verify all224 loaded colors and all208 calculated intermediate words. All65536 pointer inputs confirm exact frame/column ownership and exclude odd bytes/control words. The existing guarded15-call native-versus-installed interpreter comparison confirms CGRAM and sound outputs without color ROM access. Check complete unique auditor identities, independent rising/return/white-peak/base edits, all unchanged supplied colors and absent-base rejection. One compound proof, no duplicate parallel color test or exploratory gameplay.",
-    "remaining": "The final base palette and separately indexed mechanics fields still require their own independent dispositions; temporal colors are resolved without a retention exception. Existing prior mechanics checks are not treated as whole-ticket completion. Implementation commit is the commit adding this disposition."
+    "remaining": "The final base palette is resolved by endingLogoGlareBaseReview and control/pointer fields by endingLogoGlareProgramReview. Other palette families and the complete remaining inventory remain required; temporal glare colors are resolved without a retention exception. Implementation commit is the commit adding this disposition."
+  }
+,
+  "endingLogoGlareProgramReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Game/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
+    "mappings": [
+      { "id": "ending-logo-glare-control-word-map", "state": "converted" },
+      { "id": "ending-logo-glare-frame-pointer-map", "state": "converted" },
+      { "id": "ending-logo-glare-color-pointer-map", "state": "converted" }
+    ],
+    "source": "Supported SHA-pinned ROM8D:DF94..E191, definitionE200/E202, pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Decode native C655/01E0 destination header, fourteen duration1 records whose sixteen RGB5 words terminate at C595 wait, then C5CF delete atE190. Native setupC685 and entryDF94 match named definition roles.",
+    "implementation": "Replace the14-record control scan with bounded offset modulo36: duration at0,wait at34. Header/destination/delete remain named semantic cases. Independently validate existing frame addressDF98+36*frame and color addressframe+2+2*column; no churn to correct address arithmetic. Accepted frames0..13,colors0..15. Full ushort control ownership rejects colors, odd bytes and out-of-stream values with false/zero.",
+    "proof": "Upgrade existing VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions instead of adding a duplicate. Independently parse original colors until native high-bit wait opcode, collecting31 original controls and comparing14 frame/224 color pointers as encountered. Check all65536 control inputs against that original dictionary, shared registry results, setup/entry and invalid indices. Preserve existing guarded14-call hold/fifteenth-call deletion and exact448 presentation-byte reads. SHA-pinned early --lookup-ending-logo-glare-program runs this one focused proof; the temporal color proof remains separate.",
+    "scope": "Three mechanics/address mappings resolved without retention. Base colors receive their own scoped artwork decision; full ticket remains active. Implementation commit is the commit adding this record."
+  },
+  "endingLogoGlareBaseReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/LogoGlarePaletteColorDefinitions.cs",
+    "source": "Supported original final glare row8D:E16E..E18D compared word-for-word with initial logo8C:EFE9..F008. Slots1..15 are identical; only slot0 differs,21A8 versus0000. Native E200 glare writes OBJ palette7 fromCGRAM byte1E0. SnesObjRenderer.DrawSprite checks decoded colorIndex==0 before any CGRAM lookup, implementing the original OBJ transparent-index contract.",
+    "mappings": [
+      {
+        "id": "ending-logo-glare-base-opaque-colors",
+        "state": "retained",
+        "rationale": "Same fifteen opaque drawing inks already independently resolved in endingLogoEndpointArtworkReview: yellow face, blue/cyan edge, differently shaded orange sectors and dark outline in original99:E089 tiles/OAM. Nonsense exception only for those chosen artwork colors. A numerical case list would recite the painting. The glare uses a separate editable document; do not couple it to the ending-logo document or overwrite independent edits. All208 intermediate animation colors are computed."
+      },
+      {
+        "id": "ending-logo-glare-base-transparent-payload",
+        "state": "retained",
+        "rationale": "Nonsense exception for the specific unused-visible-color payload21A8 in OBJ slot0. Original sprite pixels with index0 are transparent before CGRAM access, so no visible hue, shading or numerical input determines this value. Preserve the native CGRAM/source contract and independently editable payload; replacing it with initial-logo0000 would change original outputs. The temporal interpolation of this payload remains calculated exactly like every channel."
+      }
+    ],
+    "evidence": "All16 source words were compared statically, and the prior source-art export/inspection establishes the opaque inks. Existing all224-color original-ROM proof already includes the distinct transparent payload and its intermediate values; no additional test was added for retention. These dispositions do not exempt any other palette/effect or imply completion of the inventory.",
+    "scope": "Only final-row base values, no timing or generated animation samples. Implementation commit is the commit adding this record."
   }
 }

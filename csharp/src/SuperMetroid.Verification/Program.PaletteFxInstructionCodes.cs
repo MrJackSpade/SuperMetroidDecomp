@@ -362,51 +362,59 @@ internal static partial class Program
     private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        int mechanicsWords = 0;
-        for (ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                 .ProgramStart;
-             pointer <= PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                 .DeleteInstructionPointer;
-             pointer = unchecked((ushort)(pointer + 1)))
+        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
+        AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
+        AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
+        AssertEqual(PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ProgramStart, Word(0xe202), "native glare definition entry");
+        AssertEqual(PaletteFxSetupCodes.Null, Word(0xe200), "native glare setup callback");
+        var original = new Dictionary<ushort, ushort> { [0xdf94] = Word(0xdf94), [0xdf96] = Word(0xdf96) };
+        int cursor = 0xdf98, frame = 0;
+        while (true)
         {
-            if (!PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                    .TryReadMechanicsWord(pointer, out ushort value))
+            ushort operation = Word(cursor);
+            original.Add((ushort)cursor, operation);
+            if (operation == 0xc5cf) break;
+            AssertEqual((ushort)1, operation, "native glare frame duration");
+            AssertEqual((ushort)cursor, PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FramePointer(frame), "decoded glare frame pointer");
+            cursor += 2;
+            int color = 0;
+            while (Word(cursor) < 0x8000)
             {
-                continue;
+                AssertTrue(color < 16, "native glare record has bounded color payload");
+                AssertEqual((ushort)cursor, PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color), "decoded glare color pointer");
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord((ushort)cursor, out _), "glare colors remain presentation-owned");
+                color++;
+                cursor += 2;
             }
-            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                    pointer,
-                    out ushort compiled),
-                $"post-credits icon glare catalogs word $8D:{pointer:X4}");
-            AssertEqual(value, compiled,
-                $"post-credits icon glare compiled word $8D:{pointer:X4}");
-            AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
-                $"post-credits icon glare cartridge word $8D:{pointer:X4}");
-            mechanicsWords++;
+            AssertEqual(16, color, "native glare color count");
+            AssertEqual((ushort)0xc595, Word(cursor), "native glare wait opcode");
+            original.Add((ushort)cursor, Word(cursor));
+            cursor += 2;
+            frame++;
+            AssertTrue(frame <= 14, "native glare has bounded frame count");
         }
-        AssertEqual(31, mechanicsWords,
-            "compiled post-credits icon-glare mechanics words");
-
-        for (int frame = 0;
-             frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount;
-             frame++)
+        AssertEqual(14, frame, "decoded glare frame count");
+        AssertEqual(0xe190, cursor, "decoded glare delete address");
+        AssertEqual(31, original.Count, "decoded glare control-word count");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            ushort firstColor = unchecked((ushort)(
-                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
-            for (int color = 0;
-                 color < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                     .ColorsPerFrame;
-                 color++)
+            ushort pointer = (ushort)raw;
+            bool owned = original.TryGetValue(pointer, out ushort expected);
+            AssertEqual(owned, PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort actual), "complete glare control ownership");
+            AssertEqual(expected, actual, "glare control value and rejected-pointer zero result");
+            if (owned)
             {
-                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
-                        out _),
-                    "post-credits icon-glare colors remain presentation-owned");
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled), "glare registered control word");
+                AssertEqual(expected, compiled, "glare registered native control value");
             }
         }
-
+        foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FramePointer(invalid), "glare frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(invalid, 0), "glare color frame bounds");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(0, invalid), "glare color column bounds");
         var guarded = new PaletteFxMechanicsForbiddenBus(bus);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(

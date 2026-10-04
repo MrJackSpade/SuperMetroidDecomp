@@ -49,7 +49,7 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
     /// <summary>The complete icon glare lasts fourteen frames.</summary>
     public const int CycleFrames = FrameCount * FrameDuration;
 
-    /// <summary>Returns one timed-record pointer.</summary>
+    /// <summary>Frames0..13 occupy36-byte records atDF98: duration,16 colors, wait.</summary>
     public static ushort FramePointer(int frame)
     {
         if ((uint)frame >= FrameCount)
@@ -57,7 +57,7 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    /// <summary>Color0..15 begins two bytes after its frame duration and advances by two.</summary>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)
@@ -66,7 +66,9 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
-    /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
+    /// <summary>Named header/delete operations and duration/wait at offsets0/34 of
+    /// each36-byte record. Exact finite pointer ownership excludes colors and odd bytes;
+    /// independently checked by decoding the original stream through its delete.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch
@@ -79,19 +81,14 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
         if (value != 0)
             return true;
 
-        for (int frame = 0; frame < FrameCount; frame++)
+        int offset = pointer - FirstFramePointer;
+        if ((uint)offset >= FrameCount * FrameByteCount) return false;
+        value = (offset % FrameByteCount) switch
         {
-            int offset = pointer - FramePointer(frame);
-            value = offset switch
-            {
-                0 => FrameDuration,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
-                _ => 0,
-            };
-            if (value != 0)
-                return true;
-        }
-
-        return false;
+            0 => FrameDuration,
+            FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+            _ => 0,
+        };
+        return value != 0;
     }
 }

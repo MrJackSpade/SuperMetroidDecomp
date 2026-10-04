@@ -5,6 +5,61 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
+    {
+        byte[] source = PauseReserveUiExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
+        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertTrue(typeof(PauseReserveUiPresentation).GetField("digits", fields)!.GetValue(stock) is null, "Stock digits discard stored lookup");
+        AssertTrue(typeof(PauseReserveUiPresentation).GetField("arrowOffsets", fields)!.GetValue(stock) is null, "Stock arrow discards stored offsets");
+        Check(stock, document);
+        for (int index = 0; index < 10; index++)
+        {
+            var digits = document.Digits.Cells.ToArray();
+            digits[index] = digits[index] with { FlipY = !digits[index].FlipY };
+            var changedDocument = document with { Digits = document.Digits with { Cells = digits, Anchor = new() { Column = 18, Row = 20 } } };
+            using var encoded = new MemoryStream();
+            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            encoded.Position = 0;
+            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+            var cells = document.Arrow.Cells.ToArray();
+            cells[index] = new() { Column = 20 + index, Row = 22 };
+            changedDocument = document with { Arrow = document.Arrow with { Cells = cells, EnabledPalette = 3, DisabledPalette = 4 } };
+            encoded.SetLength(0);
+            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            encoded.Position = 0;
+            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+        }
+        Console.WriteLine("Reserve geometry: all10 stock digits/10 arrow cells, actual tilemap writes, all20 independent edits, supplied anchors/palettes and unrelated tile fields pass.");
+
+        static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
+        {
+            for (int value = 0; value < 10; value++)
+            for (int place = 0; place < 3; place++)
+            {
+                byte[] tilemap = new byte[2048];
+                presentation.ApplyDigit(tilemap, place, value);
+                int offset = 2 * (32 * expected.Digits.Anchor.Row + expected.Digits.Anchor.Column + place);
+                byte[] word = PauseTileGrid.Compile([expected.Digits.Cells[value]], "reserve verification");
+                AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(word),
+                    System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(offset)), "Digit actual complete tile word and supplied anchor");
+            }
+            foreach (bool enabled in new[] { false, true })
+            {
+                byte[] tilemap = new byte[2048];
+                for (int cell = 0; cell < 1024; cell++)
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(tilemap.AsSpan(2 * cell), 0xe355);
+                presentation.ApplyArrowTilePalettes(tilemap, enabled);
+                for (int cell = 0; cell < 1024; cell++)
+                {
+                    bool arrow = expected.Arrow.Cells.Any(point => 32 * point.Row + point.Column == cell);
+                    ushort word = arrow ? (ushort)((0xe355 & ~0x1c00) | ((enabled ? expected.Arrow.EnabledPalette : expected.Arrow.DisabledPalette) << 10)) : (ushort)0xe355;
+                    AssertEqual(word, System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(2 * cell)), "Arrow updates exactly supplied cells and preserves tile/flip/priority fields");
+                }
+            }
+        }
+    }
     private static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;

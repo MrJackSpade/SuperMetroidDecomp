@@ -484,6 +484,7 @@ if (args is ["--lookup-ceres-backdrop-programs"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres backdrop program oracle revision");
     VerifyCeresBackdropPrograms(rom);
+    VerifyCeresDestructionFrameCatalog(rom);
     Console.WriteLine("Ceres backdrop programs: seven original streams, word boundaries, loops and title callback timing pass.");
     return 0;
 }

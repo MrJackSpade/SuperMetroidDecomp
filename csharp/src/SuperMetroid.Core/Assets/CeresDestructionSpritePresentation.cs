@@ -44,12 +44,12 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
         {
             throw new InvalidDataException("Invalid Ceres destruction sprite JSON.", error);
         }
-        ReadOnlySpan<CeresDestructionSpriteFrameDefinition> definitions =
+        IReadOnlyList<CeresDestructionSpriteFrameDefinition> definitions =
             CeresDestructionSpriteDefinitions.Frames;
         if (document.Version != CeresDestructionSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
-                $"Ceres destruction requires exactly {definitions.Length} named visual frames.");
+                $"Ceres destruction requires exactly {definitions.Count} named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (CeresDestructionSpriteFrameDefinition definition in definitions)
         {
@@ -92,39 +92,6 @@ public sealed record CeresDestructionSpriteDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Native bank-$8C frame identities consumed only by destruction/reveal actors.</summary>
-public static class CeresDestructionSpriteDefinitions
-{
-    private static readonly CeresDestructionSpriteFrameDefinition[] StockFrames =
-    [
-        new("station-under-attack-large-asteroid", 0x909d, 19),
-        new("planet-zebes", 0x9558, 50),
-        new("planet-zebes-title", 0x9654, 11),
-        new("zebes-stars-upper-left", 0x975e, 12),
-        new("zebes-stars-upper-right", 0x979c, 6),
-        new("zebes-stars-lower-left", 0x97bc, 4),
-        new("zebes-stars-lower-right", 0x97d2, 7),
-        new("small-blast-0", 0x97f7, 1),
-        new("small-blast-1", 0x97fe, 1),
-        new("small-blast-2", 0x9805, 4),
-        new("small-blast-3", 0x981b, 4),
-        new("small-blast-4", 0x9831, 4),
-        new("small-blast-5", 0x9847, 4),
-        new("large-blast-0", 0x98d2, 1),
-        new("large-blast-1", 0x98d9, 1),
-        new("large-blast-2", 0x98e0, 1),
-        new("large-blast-3", 0x98e7, 1),
-        new("station-blast-0", 0x98ee, 4),
-        new("station-blast-1", 0x9904, 4),
-        new("station-blast-2", 0x991a, 4),
-        new("station-blast-3", 0x9930, 12),
-        new("station-blast-4", 0x996e, 8),
-        new("station-blast-5", 0x9998, 12),
-    ];
-
-    public static ReadOnlySpan<CeresDestructionSpriteFrameDefinition> Frames => StockFrames;
 }
 
 public readonly record struct CeresDestructionSpriteFrameDefinition(

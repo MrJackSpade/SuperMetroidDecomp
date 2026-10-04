@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -36,21 +38,6 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>$8B:CE35, exclusive end before the spawner's separate program.</summary>
     internal const ushort StationBlastEnd = 0xce35;
 
-    /// <summary>$8C:909D, Ceres under-attack large-asteroid spritemap.</summary>
-    private const ushort LargeAsteroidFrame = 0x909d;
-    /// <summary>$8C:9558, SpaceSpritemaps_Zebes.</summary>
-    private const ushort PlanetFrame = 0x9558;
-    /// <summary>$8C:9654, SpaceSpritemaps_PlanetZebes title.</summary>
-    private const ushort TitleFrame = 0x9654;
-    /// <summary>$8C:975E, SpaceSpritemaps_ZebesStars2, upper-left sheet.</summary>
-    private const ushort UpperLeftStars = 0x975e;
-    /// <summary>$8C:979C, SpaceSpritemaps_ZebesStars3, upper-right sheet.</summary>
-    private const ushort UpperRightStars = 0x979c;
-    /// <summary>$8C:97BC, SpaceSpritemaps_ZebesStars4, lower-left sheet.</summary>
-    private const ushort LowerLeftStars = 0x97bc;
-    /// <summary>$8C:97D2, SpaceSpritemaps_ZebesStars5, lower-right sheet.</summary>
-    private const ushort LowerRightStars = 0x97d2;
-
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -72,7 +59,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
             1 => 0,
             2 => CinematicCodePointers.Instruction_FadeInPlanetZebesText,
             3 => 32,
-            4 or 7 or 10 => TitleFrame,
+            4 or 7 or 10 => CeresDestructionSpriteDefinitions.Title,
             5 => CinematicCodePointers.Instruction_SpawnPlanetZebesJapanTextIfNeeded,
             6 => 192,
             8 => CinematicCodePointers.Instruction_FadeOutPlanetZebesText,
@@ -89,10 +76,10 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         int quadrant = offset / 8;
         ushort frame = quadrant switch
         {
-            0 => UpperLeftStars,
-            1 => UpperRightStars,
-            2 => LowerLeftStars,
-            3 => LowerRightStars,
+            0 => CeresDestructionSpriteDefinitions.UpperLeftStars,
+            1 => CeresDestructionSpriteDefinitions.UpperRightStars,
+            2 => CeresDestructionSpriteDefinitions.LowerLeftStars,
+            3 => CeresDestructionSpriteDefinitions.LowerRightStars,
             _ => throw new InvalidDataException("Zebes star-sheet quadrant is invalid."),
         };
         return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
@@ -100,12 +87,12 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
-            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, LargeAsteroidFrame);
+            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, CeresDestructionSpriteDefinitions.LargeAsteroids);
         if (pointer is >= CeresFlightSpriteInstructionDefinitions.RearClusterStart and
             < CeresFlightSpriteInstructionDefinitions.RearClusterEnd)
             return CeresFlightSpriteInstructionDefinitions.ReadByte(pointer);
         if (pointer is >= PlanetStart and < PlanetEnd)
-            return LoopByte(pointer - PlanetStart, PlanetStart, PlanetFrame);
+            return LoopByte(pointer - PlanetStart, PlanetStart, CeresDestructionSpriteDefinitions.Planet);
         if (pointer is >= TitleStart and < TitleEnd)
             return TitleByte(pointer - TitleStart);
         if (pointer is >= ExplosionsStart and < ExplosionsEnd)

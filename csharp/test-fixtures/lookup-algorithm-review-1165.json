@@ -10157,4 +10157,16 @@
     "proof": "VerifyCeresFlightFrameCatalog under --lookup-ceres-flight-programs independently reads all six original instruction operands and OAM header counts, verifies published keys, enumeration order and invalid indices. Existing five-stream byte/word and interpreter checks confirm the shared instruction identities. Build Verification and ResourceAudit to cover all statically identified consumers.",
     "remaining": "This resolves only the flight frame catalog. Individual OAM layouts and source pixels retain their separate dispositions; destruction catalog remains required. Implementation commit is the commit adding this record."
   }
+,
+  "ceresDestructionFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpriteDefinitions.cs",
+    "id": "ceres-destruction-backdrop-and-blast-catalog",
+    "state": "converted",
+    "nativeIdentity": "23 original frame selections: seven backdrops, six small blasts, four large blasts, six station blasts",
+    "evidence": "Read native bank8B backdrop/explosion consumers and complete bank8C headers. Backdrops are semantic visual identities. Small blasts alias the already reviewed Mother Brain family. Large blasts are four adjacent single-part records. Station blasts have one part per quadrant for frames0..2, a core plus two tips per quadrant for frames3/5, and two lobes per quadrant for frame4; full source parts establish these counts.",
+    "algorithm": "Remove the stored23-record array. Use seven named backdrop selections and bounded family arithmetic with stable published keys/order. Reuse Mother Brain small-frame pointer calculation. Large pointer=start+7*frame. Station pointer sums preceding two-byte headers plus five bytes per part; count is four times the per-quadrant topology. Share catalog identities and calculations with destruction/backdrop and all four explosion instruction streams, removing duplicate numeric frame cases. No generated table cache.",
+    "consumers": "Destruction presentation loader, asset extractor, presentation-domain audit, cinematic artwork/content-identity verification, backdrop programs and explosion programs. Loader now consumes the immutable calculated list.",
+    "proof": "VerifyCeresDestructionFrameCatalog under --lookup-ceres-backdrop-programs reads all23 native instruction operands and original OAM counts independently, checks published names, enumeration and bounded helpers. Existing backdrop and explosion program checks compare original bytes, overlapping words, interpreter lifetimes and boundaries. Verification and ResourceAudit builds cover identified consumers.",
+    "remaining": "This resolves the catalog and shared frame selectors only. Individual compositions, pixels and other lookup inventory entries remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

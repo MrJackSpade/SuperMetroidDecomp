@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Input;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed bank-$91 demo-controller program for the intro Mother Brain battle.</summary>
@@ -12,56 +14,74 @@ internal static class IntroMotherBrainInputDefinitions
     /// <summary>$91:878A, exclusive end of the object header.</summary>
     internal const ushort HeaderEnd = 0x878a;
 
-    private static ReadOnlySpan<byte> List =>
-    [
-        0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-        0x40, 0x00, 0x40, 0x00, 0x28, 0x00, 0x40, 0x00,
-        0x00, 0x00, 0x01, 0x00, 0x40, 0x00, 0x40, 0x00,
-        0x1d, 0x00, 0x40, 0x00, 0x00, 0x00, 0x46, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0x02,
-        0x07, 0x00, 0x00, 0x02, 0x00, 0x00, 0x01, 0x00,
-        0x80, 0x02, 0x80, 0x00, 0x07, 0x00, 0x80, 0x02,
-        0x00, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x00,
-        0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-        0x40, 0x00, 0x40, 0x00, 0x28, 0x00, 0x40, 0x00,
-        0x00, 0x00, 0x01, 0x00, 0x40, 0x00, 0x40, 0x00,
-        0x13, 0x00, 0x40, 0x00, 0x00, 0x00, 0x39, 0x87,
-        0x27, 0x84,
-    ];
+    private static ushort InputWord(int field, ushort duration, SnesButton held = 0, SnesButton pressed = 0) =>
+        field == 0 ? duration : (ushort)(field == 1 ? held : pressed);
 
-    private static ReadOnlySpan<byte> Header =>
-    [
-        0xbf, 0x83, 0xbf, 0x83, 0x94, 0x86,
-    ];
+    private static ushort ListWord(int word)
+    {
+        if (word < 51)
+        {
+            int record = word / 3, field = word % 3;
+            if (record is >= 1 and <= 4 or >= 13 and <= 16)
+            {
+                int phase = record < 5 ? record - 1 : record - 13;
+                ushort duration = phase % 2 == 0 ? (ushort)1
+                    : phase == 1 ? (ushort)40 : (ushort)(record < 5 ? 29 : 19);
+                return InputWord(field, duration, SnesButton.X, phase % 2 == 0 ? SnesButton.X : 0);
+            }
+            return record switch
+            {
+                0 => InputWord(field, 90),
+                5 => InputWord(field, 70),
+                6 => InputWord(field, 20),
+                7 => InputWord(field, 1, SnesButton.Left, SnesButton.Left),
+                8 => InputWord(field, 7, SnesButton.Left),
+                9 => InputWord(field, 1, SnesButton.Left | SnesButton.A, SnesButton.A),
+                10 => InputWord(field, 7, SnesButton.Left | SnesButton.A),
+                11 => InputWord(field, 4, SnesButton.Left),
+                12 => InputWord(field, 60),
+                _ => throw new ArgumentOutOfRangeException(nameof(word)),
+            };
+        }
+        return word switch
+        {
+            51 => IntroCinematicRomData.Flashback.ExpectedEndInstruction,
+            52 => DemoInputRomData.Instructions.Delete,
+            _ => throw new ArgumentOutOfRangeException(nameof(word)),
+        };
+    }
+
+    private static ushort HeaderWord(int word) => word switch
+    {
+        0 or 1 => DemoInputRomData.Routines.NoOp,
+        2 => ListStart,
+        _ => throw new ArgumentOutOfRangeException(nameof(word)),
+    };
 
     internal static byte ReadByte(ushort pointer)
     {
+        int offset;
+        ushort word;
         if (pointer >= ListStart && pointer < ListEnd)
-            return List[pointer - ListStart];
-        if (pointer >= HeaderStart && pointer < HeaderEnd)
-            return Header[pointer - HeaderStart];
-        throw new InvalidDataException(
+        {
+            offset = pointer - ListStart;
+            word = ListWord(offset / 2);
+        }
+        else if (pointer >= HeaderStart && pointer < HeaderEnd)
+        {
+            offset = pointer - HeaderStart;
+            word = HeaderWord(offset / 2);
+        }
+        else throw new InvalidDataException(
             $"Intro Mother Brain demo byte $91:{pointer:X4} leaves its compiled program.");
+        return (byte)(word >> (8 * (offset & 1)));
     }
 
     internal static ushort ReadWord(ushort pointer)
     {
-        ReadOnlySpan<byte> source;
-        int offset;
-        if (pointer >= ListStart && pointer < ListEnd - 1)
-        {
-            source = List;
-            offset = pointer - ListStart;
-        }
-        else if (pointer >= HeaderStart && pointer < HeaderEnd - 1)
-        {
-            source = Header;
-            offset = pointer - HeaderStart;
-        }
-        else
-            throw new InvalidDataException(
-                $"Intro Mother Brain demo word $91:{pointer:X4} leaves its compiled program.");
-        return (ushort)(source[offset] | source[offset + 1] << 8);
+        if (pointer >= ListStart && pointer < ListEnd - 1 || pointer >= HeaderStart && pointer < HeaderEnd - 1)
+            return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        throw new InvalidDataException(
+            $"Intro Mother Brain demo word $91:{pointer:X4} leaves its compiled program.");
     }
 }

@@ -10035,4 +10035,15 @@
     "confirmation": "Existing --lookup-intro-mother-brain-collision confirms all448 original bytes and independent mutable allocations. Source-art export runs under the existing guarded Verification process boundary without gameplay execution. Exporter build and invocation passed. No duplicate behavior proof or expanded gameplay campaign.",
     "remaining": "This collision layout now has converted regular regions and a narrowly justified authored contour. Other1165 mappings remain independently required. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainInputReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainInputDefinitions.cs",
+    "id": "intro-mother-brain-demo-input-and-header",
+    "state": "converted",
+    "nativeIdentity": "91:8694..86FD seventeen input records,end/delete;8784..8789 object header",
+    "evidence": "Complete pinned bank91 list contains90-tick pause,two X presses separated by40-tick hold and ending29-tick hold,70-tick pause;continuation starts20-tick pause,left press/7-tick hold,A press while left stays held,7-tick combined hold,4-tick left hold,60-tick pause,and another two-X-press sequence ending19-tick hold. Named end-facing-left8739 precedes delete8427. Header uses no-op initialization and pre-instruction then8694.",
+    "algorithm": "Remove106-byte List and6-byte Header spans. Generate duration/held/newly-pressed fields from semantic input cases,sharing the two four-record firing sequences. Use SnesButton.X/Left/A and catalogued routine/opcode identities. Preserve the A-only new edge during Left+A hold. Generate byte halves and overlapping words with unchanged region admission and exception types.",
+    "proof": "Extract existing source-byte comparison from VerifyIntroMotherBrainDemoInput into one VerifyIntroMotherBrainInputSource reused there and exposed under --lookup-intro-mother-brain-input. Compare all112 original bytes and110 complete aligned/overlapping word views plus terminal and outside boundaries against SHA-pinned ROM. Existing interpreter/owner checks remain intact;no exploratory gameplay.",
+    "remaining": "Mother Brain input program/header converted. Sprite instruction programs,OAM/pixel mappings and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

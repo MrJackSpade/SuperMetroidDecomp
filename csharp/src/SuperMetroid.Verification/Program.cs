@@ -182,6 +182,14 @@ if (args is ["--lookup-ending-reward-arm-art"] or ["--lookup-ending-reward-hair-
     ExportEndingRewardGestureArtwork(rom, args[0] == "--lookup-ending-reward-hair-art");
     return 0;
 }
+if (args is ["--lookup-zebes-planet-art"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Zebes planet artwork oracle revision");
+    ExportZebesPlanetArtwork(rom);
+    return 0;
+}
 if (args is ["--lookup-ceres-large-blast-art"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -494,6 +502,7 @@ if (args is ["--lookup-ceres-backdrop-programs"])
     VerifyCeresBackdropPrograms(rom);
     VerifyCeresDestructionFrameCatalog(rom);
     VerifyPlanetZebesTitleParts(rom);
+    VerifyZebesPlanetBandParts(rom);
     Console.WriteLine("Ceres backdrop programs: seven original streams, word boundaries, loops and title callback timing pass.");
     return 0;
 }

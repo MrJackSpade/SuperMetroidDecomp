@@ -63,6 +63,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresDestructionSpritePresentation(frames);

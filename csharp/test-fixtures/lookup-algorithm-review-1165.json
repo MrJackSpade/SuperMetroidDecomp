@@ -9993,4 +9993,15 @@
     "proof": "Extract the existing source equality check into one VerifyIntroDiscoveryCollision reused by the actor suite and --lookup-intro-baby-discovery-instructions. Compare every generated foreground word against all768 original source bytes plus the128-word zero tail. Independently mutate air and strip blocks and confirm the next room allocation is fresh and unchanged. No gameplay search.",
     "remaining": "This collision source mapping is calculated directly into required mutable state,without a lookup cache. Other discovery OAM/pixel mappings and the wider1165 inventory remain required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainCollisionInvestigation": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainCollisionDefinitions.cs",
+    "id": "intro-mother-brain-collision-source-decomposition",
+    "state": "unreviewed",
+    "nativeIdentity": "8C:BEC3..C082,224 words arranged16x14 inside a16x16 room",
+    "evidence": "Read the complete pinned bank8C LevelData_OldMotherBrainRoomFromCutscene and both runtime consumers. Source rows exactly match the stored diagram. SetupMotherBrainFlashback exposes a fresh448-byte copy as MotherBrainLevelData and decodes it into256 foreground words;the remaining32 words and BTS are zero. The debugger-visible byte copy is a separate observable contract from mutable collision foreground and must be preserved or deliberately migrated.",
+    "decomposition": "Full-width solid rows1/13 and empty row0;left solid silhouette occupies columns0..width-1 on rows2..12 with widths6,6,5,6,4,4,4,6,7,7,7. Separate upper formation has solid(row2,column9) and row3 columns8..10. Lower central column9 is type1000 atrow8 and solid rows9..12,with additional solid(row12,column10). Right platform has type1000 row8 columns12..15 and solid row9 columns12..15. All other cells empty;rows14/15 remain uncopied zeros.",
+    "next": "Convert independently regular full-width strips and platform geometry while preserving exact debugger-visible bytes and room state. Inspect the original illustrated room and native collision block semantics to establish whether the irregular left silhouette and upper/lower formations follow a functional geometric construction or require a narrowly evidenced authored-level disposition. The current row widths are observations,not a replacement lookup or justified retention.",
+    "limits": "No formula failure,complexity,size,performance or absent historical-tool provenance is accepted as retention evidence. No exception or completion claim is made for this mapping. Existing complete-byte/foreground proof in VerifyIntroMotherBrainCollision can be extracted and reused when implementation is ready;do not use gameplay tests to discover structure. This commit records source investigation only."
+  }
 }

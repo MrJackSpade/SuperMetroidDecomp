@@ -38,29 +38,17 @@ internal static class CeresDestructionActorDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
-    /// <summary>Returns the three persistent actors behind the station explosion.</summary>
-    /// <remarks>
-    /// Issues #625 and #1015: row zero's distinct large-asteroid list at
-    /// $8B:CC3F..CC46 has words $000A, $909D, $94BC, $CC3F in pinned
-    /// NTSC J/U v1.0 ROM and bank_8B.asm. It reuses the flight asteroid's
-    /// native initializer and motion callback, but displays bank-$8C
-    /// under-attack spritemap $909D for ten handler calls before the goto
-    /// repeats from $CC3F. IntroDiscoverySprite.Step confines the cursor
-    /// to this single-frame loop; $CC47 starts another actor's list.
-    /// The constant-period rule needs no table, while the authored visual
-    /// frame remains ROM-backed.
-    ///
-    /// Issues #625 and #1016: $8B:C27C..C295 spawns definition pointers
-    /// $CE7F, $CE8B, $CE91 in that order. Their three-word definitions
-    /// match pinned NTSC J/U v1.0 ROM and bank_8B.asm: (BF22,BF35,CC3F),
-    /// (BF76,BF89,CC4F), (BFA0,BFC6,CC57). For bounded index i=0..2,
-    /// the reused flight row is i==0 ? 0 : i+1. Row zero selects its
-    /// distinct under-attack frame list; row one keeps the flight small
-    /// asteroids. Row two passes initializer parameter zero, which sets
-    /// X=$0070 and replaces active callback $BFC6 with no-op $BFD9;
-    /// therefore its horizontal delta is zero. The pointer mapping is
-    /// exact, but retain the three authored actor identities and overrides.
-    /// </remarks>
+    /// <summary>Selects large debris, small debris and stationary vortex in native spawn order.</summary>
+    /// <remarks>#1165 independently confirms $C27C..C295 selecting CE7F/CE8B/CE91.
+    /// This existing explicit actor dispatch is preserved: large debris aliases flight row0
+    /// with its distinct definition/list, small debris aliases flight row2 unchanged, and
+    /// vortex aliases flight row3 with the native parameter-zero initializer overrides.
+    /// BFA5 sets X112 and BFAB installs the BFD9 no-op, so this vortex has no horizontal
+    /// movement or wrap. The definition still names BFC6 before initialization. No slide
+    /// policy applies to these actors. One original-ROM proof covers the complete mapping,
+    /// initializer operands, shared aliases and invalid-index rejection. The prior authored-
+    /// identity retention claim is superseded by verified semantic case selection; no table
+    /// or generated cache remains. Animation programs have their separate existing proofs.</remarks>
     public static CeresDestructionActorDefinition InitialActor(int index)
     {
         CeresFlightActorDefinition flight = index switch
@@ -72,19 +60,25 @@ internal static class CeresDestructionActorDefinitions
         };
         return index switch
         {
-            0 => new(0xce7f, flight.Initialization, flight.DefinitionPreInstruction,
-                flight.ActivePreInstruction, 0xcc3f, flight.X, flight.Y, flight.Attributes,
+            0 => new(DestructionLargeAsteroidDefinition, flight.Initialization, flight.DefinitionPreInstruction,
+                flight.ActivePreInstruction, CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart, flight.X, flight.Y, flight.Attributes,
                 flight.HorizontalDelta, flight.WrapX, 0, 0, false),
             1 => new(flight.Pointer, flight.Initialization, flight.DefinitionPreInstruction,
                 flight.ActivePreInstruction, flight.InstructionList, flight.X, flight.Y,
                 flight.Attributes, flight.HorizontalDelta, flight.WrapX, 0, 0, false),
             // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
             2 => new(flight.Pointer, flight.Initialization, flight.DefinitionPreInstruction,
-                0xbfd9, flight.InstructionList, 0x0070, flight.Y, flight.Attributes,
+                StationaryVortexCallback, flight.InstructionList, 112, flight.Y, flight.Attributes,
                 0, false, 0, 0, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
     }
+
+    /// <summary>$8B:CE7F, CinematicSpriteObjectDefs_CeresUnderAttackLargeAsteroids,
+    /// sharing BF22/BF35 with CF39 but selecting CC3F instead of CE4B.</summary>
+    private const ushort DestructionLargeAsteroidDefinition = 0xce7f;
+    /// <summary>$8B:BFD9, RTS_8BBFD9 installed by the vortex parameter-zero initializer at BFAB.</summary>
+    private const ushort StationaryVortexCallback = 0xbfd9;
 
     /// <summary>Returns planet, four grid-aligned star sheets and title in native spawn order.</summary>
     /// <remarks>

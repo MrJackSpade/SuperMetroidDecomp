@@ -174,6 +174,15 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-initial-metadata"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres destruction metadata oracle revision");
+    VerifyCeresInitialActorMetadata(rom);
+    Console.WriteLine("Ceres destruction metadata: native spawn identities, asteroid aliases, stationary-vortex overrides and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-flight-metadata"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

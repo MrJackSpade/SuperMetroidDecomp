@@ -7,26 +7,7 @@ internal static partial class Program
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
-        {
-            CeresDestructionActorDefinition actor =
-                CeresDestructionActorDefinitions.InitialActor(index);
-            VerifyActor(retail, actor, $"initial destruction actor {index}");
-        }
-        VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0),
-            0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46,
-            "destruction large asteroids");
-        VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1),
-            0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a,
-            "destruction small asteroids");
-        CeresDestructionActorDefinition vortex =
-            CeresDestructionActorDefinitions.InitialActor(2);
-        AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.X, "destruction vortex X");
-        AssertEqual(ReadWord(retail, 0x8bbfba), vortex.Y, "destruction vortex Y");
-        AssertEqual(ReadWord(retail, 0x8bbfc0), vortex.Attributes,
-            "destruction vortex attributes");
-        AssertEqual(ReadWord(retail, 0x8bbfac), vortex.ActivePreInstruction,
-            "destruction vortex no-op callback override");
+        VerifyCeresInitialActorMetadata(retail);
 
         VerifyCeresZebesActorMetadata(retail);
 
@@ -66,42 +47,6 @@ internal static partial class Program
         Console.WriteLine(
             "  Ceres destruction actors: 65 metadata words and 214 list bytes match ROM; all thirteen consumed lists and the full station/Zebes production sequence pass with source reads forbidden.");
 
-        static void VerifyActor(
-            SuperMetroidAddressSpace source,
-            CeresDestructionActorDefinition actor,
-            string name)
-        {
-            int address = CeresDestructionActorDefinitions.NativeBank | actor.Pointer;
-            AssertEqual(ReadWord(source, address), actor.Initialization,
-                $"{name} initialization callback");
-            AssertEqual(ReadWord(source, address + 2), actor.DefinitionPreInstruction,
-                $"{name} definition pre-instruction");
-            AssertEqual(ReadWord(source, address + 4), actor.InstructionList,
-                $"{name} instruction list");
-        }
-
-        static void VerifyWrappedActor(
-            SuperMetroidAddressSpace source,
-            CeresDestructionActorDefinition actor,
-            int xAddress,
-            int yAddress,
-            int attributeAddress,
-            int deltaAddress,
-            int maskAddress,
-            string name)
-        {
-            AssertEqual(ReadWord(source, xAddress), actor.X, $"{name} X");
-            AssertEqual(ReadWord(source, yAddress), actor.Y, $"{name} Y");
-            AssertEqual(ReadWord(source, attributeAddress), actor.Attributes,
-                $"{name} attributes");
-            AssertEqual(ReadWord(source, deltaAddress), unchecked((ushort)actor.HorizontalDelta),
-                $"{name} speed");
-            AssertEqual((ushort)0x01ff, ReadWord(source, maskAddress), $"{name} wrap mask");
-            AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
-        }
-
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
     }
 
     private sealed class CeresDestructionActorDefinitionReadGuard(ISnesAddressSpace source) :

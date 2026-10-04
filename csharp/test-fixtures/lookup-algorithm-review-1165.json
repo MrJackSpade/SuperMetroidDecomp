@@ -7406,4 +7406,15 @@
     "proof":"One VerifySpcPanSamples / --lookup-spc-pan-samples proof compares all22 results of the original local interpolation view directly against the SHA-pinned ROM, confirms the21-sample extent and neighboring seven-zero impulse tail, checks the independent FIR base and rejects negative/out-of-range indices. All previously supported sample results are unchanged. No broad audio/replay search was run.",
     "confirmation":"Verification build0 errors/1429 existing warnings. Focused original-byte and boundary proof passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "spcAllocationLayoutReview": {
+    "status": "converted nine stored field bases to native structure layout",
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+    "source": "Pinned upstream-sm 578f90b3cc49557bb70060ad033bb90b8cf8ac50 src/spc_player.c SpcPlayer member map and kSomeAddrs. Library1 channel bitsets occupy03A6..03A9, masks03AA..03AD, indices03AF..03B2; library2 corresponding pairs0446..0447/0448..0449/044B..044C; library3 pairs047E..047F/0480..0481/0483..0484.",
+    "algorithm": "Select the library structure base and channel count by native library identity. VoiceBitset offset0, ChannelMask offsetC, VoiceIndex offset2*C+1. A mutually exclusive field enum replaces numeric field indices. The caller retains its original channel-index addition and unchecked ushort conversion. Preserve IndexOutOfRangeException for unsupported library or field; no cache or ROM access.",
+    "proof": "Single --lookup-spc-allocation-addresses proof compares all nine original bases, every valid per-channel address and invalid library/field bounds against the independent original member offsets. This confirms the identified layout conversion only.",
+    "reopened": "Remove unsupported #625-era retention comments for all three sound stream-pointer maps and all three allocation-policy selector maps. Record these six mappings as required work in lookup-pending-work-1165.json. Dispatch and policy semantics support meaningful case conversion; address irregularity and per-sound choice are not retention reasons.",
+    "panResearch": "Bounded source inspection: AddMusicKFF b553d29c83d31cb07fea7018662e6c765435d5bb asm/main.asm PanValues repeats the samples and interpolation; loveemu/spc_converters_legacy 64e535fb26dfa1239769f1e6ed0c8fb11ad98ce9 nintspc/src/nintspc.c translates the pan command; vgmtrans 33673176917c122627d4c317b69130c4ffbdffcc NinSnesProfile.cpp interpolates a supplied table. None of these inspected locations establishes a generating formula or arbitrariness. SPC pan conversion remains required, with no retention conclusion. VGMTrans bounds policy is not imported into the managed SPC RAM overread path.",
+    "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-spc-allocation-addresses passes. Maintained-source index refreshed. No broader audio or gameplay validation claimed."
+  }
 }

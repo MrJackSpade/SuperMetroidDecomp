@@ -172,11 +172,11 @@ public sealed partial class ManagedSpcPlayer
             ManagedSpcSoundChannel soundChannel = libraryChannels[library.ChannelIndex];
             soundChannel.Disabled = 0;
             library.ChannelVoiceBitsetPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddresses[libraryIndex, 0] + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.VoiceBitset) + library.ChannelIndex));
             library.ChannelVoiceMaskPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddresses[libraryIndex, 1] + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.ChannelMask) + library.ChannelIndex));
             library.ChannelVoiceIndexPointer = unchecked((ushort)(
-                SpcSoundEffectTables.AllocationStateAddresses[libraryIndex, 2] + library.ChannelIndex));
+                SpcSoundEffectTables.AllocationStateAddress(libraryIndex, SpcAllocationField.VoiceIndex) + library.ChannelIndex));
             library.ChannelIndex++;
             library.ChannelIndexTimesTwo += 2;
 

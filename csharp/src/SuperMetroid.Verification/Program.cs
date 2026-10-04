@@ -174,6 +174,12 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-spc-allocation-addresses"])
+{
+    VerifySpcAllocationAddresses();
+    Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
+    return 0;
+}
 if (args is ["--lookup-spc-pan-samples"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

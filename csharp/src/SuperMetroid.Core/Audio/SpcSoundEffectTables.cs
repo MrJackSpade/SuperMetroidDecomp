@@ -7,26 +7,7 @@ namespace SuperMetroid.Core.Audio;
 internal static class SpcSoundEffectTables
 {
     /// <summary>Authored instruction-stream starts for the three SPC sound libraries.</summary>
-    /// <remarks>
-    /// Issues #625 and #925: library 1 has 66 little-endian SPC RAM pointers,
-    /// indexed by command 1..66 minus one. All 66 words match pinned NTSC
-    /// J/U v1.0 ROM $CF:96F5 (file $2796F5), kSfx1InstrListPtrs in
-    /// upstream-sm/src/spc_player.c, and this array. These are addresses of
-    /// authored instruction streams; their irregular gaps and shared stream
-    /// layout have no independently evidenced shorter index-to-address rule.
-    /// Retain the mapping. The managed caller rejects commands beyond the
-    /// library length before reading; command zero is a no-sound sentinel.
-    /// Issues #625 and #926: library 2 is a separate 127-word pointer map
-    /// at pinned ROM $CF:A5BB (file $27A5BB). Every little-endian word agrees
-    /// with kSfx2InstrListPtrs and this array. Its authored stream starts and
-    /// irregular gaps likewise warrant retaining the bounded mapping for
-    /// commands 1..127, with the same command-zero sentinel.
-    /// Issues #625 and #927: library 3 is a separate 47-word pointer map at
-    /// pinned ROM $CF:BA97 (file $27BA97). Every little-endian word agrees
-    /// with kSfx3InstrListPtrs and this array. Retain the authored stream
-    /// addresses for commands 1..47; zero remains a no-sound sentinel and
-    /// commands above 47 are rejected before lookup.
-    /// </remarks>
+    /// <remarks>Conversion to meaningful sound-command dispatch remains required by #1165.</remarks>
     internal static readonly ushort[][] StreamPointerTables =
     [
         [
@@ -69,29 +50,7 @@ internal static class SpcSoundEffectTables
     ];
 
     /// <summary>Authored sound-command selectors for voice allocation and priority.</summary>
-    /// <remarks>
-    /// Issues #625 and #928: library 1 has 66 byte selectors for commands
-    /// 1..66. Every byte matches kSfx1Conf in pinned upstream-sm/src/spc_player.c.
-    /// The native switch maps selectors 0..5 to voice count and priority;
-    /// selectors 4 and 5 intentionally share the same four-voice outcome.
-    /// The complete selector sequence does not occur contiguously in the
-    /// pinned ROM, so no ROM address is claimed. Retain this authored per-sound
-    /// policy mapping; deriving it from command number or stream pointer
-    /// would discard sound-specific allocation choices. The managed caller
-    /// checks the command domain before indexing.
-    /// Issues #625 and #929: library 2 has a separate 127-byte policy map
-    /// for commands 1..127. All selectors match native kSfx2Conf; its switch
-    /// maps 0..3 to one/two voices and low/high priority. The complete byte
-    /// sequence has no contiguous ROM match. Retain the authored per-sound
-    /// choices rather than infer them from pointer spacing or command number.
-    /// Issues #625 and #930: library 3 has a separate 47-byte selector map
-    /// for commands 1..47. Every byte matches native kSfx3Conf; selectors
-    /// 0..5 choose voice count, priority and sometimes a mode flag. The switch
-    /// intentionally leaves some fields at their prior values. The complete
-    /// selector sequence has no contiguous ROM match. Retain this per-sound
-    /// state policy and its bounded command domain rather than fold it into
-    /// the other libraries' simpler selector meanings.
-    /// </remarks>
+    /// <remarks>Conversion to explicit sound-command policy remains required by #1165.</remarks>
     internal static readonly byte[][] Configurations =
     [
         [
@@ -119,27 +78,28 @@ internal static class SpcSoundEffectTables
     ];
 
     /// <summary>
-    /// Original SPC work-RAM addresses retained in allocation state for save-state parity.
-    /// The managed implementation accesses typed channel objects directly.
+    /// SPC allocation structure layout: contiguous per-channel bitsets and masks,
+    /// then one intervening byte before the per-channel voice indices.
+    /// Library bases are $03A6, $0446 and $047E; channel counts are four, two and two.
     /// </summary>
-    /// <remarks>
-    /// Issues #625 and #931 exact layout: for library l=0..2, choose base
-    /// B=( $03A6, $0446, $047E )[l] and channel count C=(4,2,2)[l].
-    /// Field 0 (voice bitset) starts at B; field 1 (channel mask) at B+C;
-    /// field 2 (voice index) at B+2*C+1. Each field's channel j adds j,
-    /// with j=0..C-1. The extra byte precedes the voice-index region in
-    /// every library. All nine stored bases and every per-channel address
-    /// agree with the pinned SpcPlayer memory map in upstream-sm/src/spc_player.c.
-    /// These are SPC RAM structure offsets, not a cartridge lookup region.
-    /// Preserve the original addresses for serialized allocation state;
-    /// no runtime migration is part of this proof.
-    /// </remarks>
-    internal static readonly ushort[,] AllocationStateAddresses =
+    internal static ushort AllocationStateAddress(int libraryIndex, SpcAllocationField field)
     {
-        { 0x03a6, 0x03aa, 0x03af },
-        { 0x0446, 0x0448, 0x044b },
-        { 0x047e, 0x0480, 0x0483 },
-    };
+        (int baseAddress, int channelCount) = libraryIndex switch
+        {
+            0 => (0x03a6, 4),
+            1 => (0x0446, 2),
+            2 => (0x047e, 2),
+            _ => throw new IndexOutOfRangeException(),
+        };
+        int offset = field switch
+        {
+            SpcAllocationField.VoiceBitset => 0,
+            SpcAllocationField.ChannelMask => channelCount,
+            SpcAllocationField.VoiceIndex => 2 * channelCount + 1,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        return (ushort)(baseAddress + offset);
+    }
 
     static SpcSoundEffectTables()
     {
@@ -174,4 +134,12 @@ internal static class SpcSoundEffectTables
         },
         _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
+}
+
+/// <summary>Distinct per-channel fields in the native SPC voice-allocation structures.</summary>
+internal enum SpcAllocationField
+{
+    VoiceBitset,
+    ChannelMask,
+    VoiceIndex,
 }

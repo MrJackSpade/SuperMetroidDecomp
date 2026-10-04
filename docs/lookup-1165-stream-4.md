@@ -154,11 +154,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs
 
-- [ ] **BotwoonNavigationDefinitions.Holes** ([L39](../csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BotwoonNavigationDefinitions.Holes** ([L39](../csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs
 
-- [ ] **BotwoonWallPlmDrawDefinitions.All** ([L29](../csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BotwoonWallPlmDrawDefinitions.All** ([L29](../csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs
 
@@ -824,3 +824,12 @@ Partial conversion; the container remains unchecked. Totals remain48 complete an
 - Evidence: pinned bankB3 `BotwoonHealthBasedPalettes`, `$971B..981A`. All colored slots interpolate between first/last rows; slot0 has `$2003` at bands1/2 while its endpoints are zero.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks verify all128 native values, exactly34 stored stock words, unchanged content identities, independent JSON edits and index rejection.
 - Also normalized the preceding Draygon interpolation source annotation into member XML documentation; no behavior changed there.
+
+## Batch 14: Botwoon hole selection and wall-fill reconciliation
+
+Two definitions resolved;50 complete and175 unchecked. No retained exception.
+
+- The four hole rectangles dispatch by named native Left/Bottom/Top/Right identities. Each case specifies its center and derives the four-pixel inset; existing eight-pixel right/bottom and target calculations remain. Original eight-byte offsets and all invalid-offset rejections remain exact. These semantic names are explicit in pinned bankB3 `BotwoonHoleHitboxes`, `$949B..94BA`.
+- `BotwoonWallPlmDrawDefinitions.All` was already converted in this worktree baseline. Static call review confirms gameplay uses `LevelWordAt`'s bounded constant air fill; `All` materializes an export DTO only. Pinned bank84 `$930F..9324` is one vertical run of nine `$00FF` words plus zero terminator. This entry is reconciled as implemented, not exempted; no duplicate production rewrite.
+- Confirmation: build passed (1433 warnings on full build;25 on final incremental, zero errors), `--lookup-stream-4` passed. Native hole left/top/right/bottom and centers match; existing actual detection confirms exclusive right/bottom boundaries and rejects all invalid ushort offsets. Existing wall-stock mapping confirms native words, selected content identity and editable override independence.
+- Removed an accidentally added Draygon verifier invocation from the standalone Rio command; combined execution remains scoped to `--lookup-stream-4`.

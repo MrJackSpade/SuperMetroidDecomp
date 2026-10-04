@@ -9,6 +9,16 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        for (ushort offset = 0; offset <= 24; offset += 8)
+        {
+            var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);
+            ushort Native(int displacement) => (ushort)(rom.ReadByte(0xb3949b + offset + displacement)
+                | rom.ReadByte(0xb3949c + offset + displacement) << 8);
+            AssertEqual(Native(0), hole.Left, "Botwoon named hole native left boundary");
+            AssertEqual(Native(4), hole.Top, "Botwoon named hole native top boundary");
+            AssertEqual((ushort)(Native(0) + 4), hole.TargetX, "Botwoon named hole center X");
+            AssertEqual((ushort)(Native(4) + 4), hole.TargetY, "Botwoon named hole center Y");
+        }
         VerifyLookupStream4BotwoonColors(rom);
         VerifyLookupStream4DraygonColors(rom);
         VerifyLookupStream4KzanCeresPrograms(rom);

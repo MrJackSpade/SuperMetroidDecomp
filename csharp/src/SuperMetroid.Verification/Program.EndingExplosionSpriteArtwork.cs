@@ -95,6 +95,14 @@ internal static partial class Program
                 };
             }
             SpriteComposition original = IntroCinematicSpriteCompiler.Compile(visual, "native grid");
+            if (pose == 14)
+            {
+                for (int index = 0; index < visual.Length; index++)
+                    AssertEqual(visual[index].TileRow * 16 + visual[index].TileColumn,
+                        EndingExplosionAfterglowParts.StockTile(index), "original afterglow ordered tile runs");
+                foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionAfterglowParts.StockTile(invalid), "afterglow tile sequence bounds");
+            }
             SpriteComposition calculated = Calculate(pointer, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);

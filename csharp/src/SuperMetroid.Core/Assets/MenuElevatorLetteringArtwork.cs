@@ -1,11 +1,14 @@
+using System.Numerics;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Six elevator-label strips, selected by82:C4DB..C568. Authored ink index11 casts
 /// a one-pixel eight-neighbor black outline15 across adjacent cells of the same strip.
+/// Bevel each row's outer diagonal-only corner when its ink is inset from a neighboring
+/// row. This accounts for all thirty original corner/notch trims without stored exceptions.
 /// Authored ink silhouettes select the lettering design; tracing their chosen strokes
-/// in numerical cases would disguise that art. Thirty transparent corner/notch trims
-/// remain explicit inputs pending their own geometric review, not an accepted exception.
+/// in numerical cases would disguise that art. Only independent pixel edits are captured.
 /// </summary>
 internal sealed class MenuElevatorLetteringArtwork
 {
@@ -66,13 +69,24 @@ internal sealed class MenuElevatorLetteringArtwork
         var row = Layout(tile);
         int column = tile - row.Start - (row.Gap >= 0 && tile > row.Gap ? 1 : 0);
         int position = column * 8 + x;
-        if (IsInk(position, y)) return 11;
-        for (int dy = -1; dy <= 1; dy++)
-        for (int dx = -1; dx <= 1; dx++)
-            if (IsInk(position + dx, y + dy)) return 15;
-        return 0;
+        uint current = RowInk(y), bit = 1u << position;
+        if ((current & bit) != 0) return 11;
+        uint neighboring = current | RowInk(y - 1) | RowInk(y + 1);
+        if (((neighboring | (neighboring << 1) | (neighboring >> 1)) & bit) == 0) return 0;
 
-        bool IsInk(int px, int py) => (uint)px < row.Count * 8 && (uint)py < 8 &&
-            (ink[(row.Offset + px / 8) * 8 + py] & (1 << (px % 8))) != 0;
+        int left = BitOperations.TrailingZeroCount(neighboring);
+        int right = 31 - BitOperations.LeadingZeroCount(neighboring);
+        if (position == left - 1 && BitOperations.TrailingZeroCount(current) > left) return 0;
+        if (position == right + 1 && 31 - BitOperations.LeadingZeroCount(current) < right) return 0;
+        return 15;
+
+        uint RowInk(int py)
+        {
+            if ((uint)py >= 8) return 0;
+            uint bits = 0;
+            for (int cell = 0; cell < row.Count; cell++)
+                bits |= (uint)ink[(row.Offset + cell) * 8 + py] << (cell * 8);
+            return bits;
+        }
     }
 }

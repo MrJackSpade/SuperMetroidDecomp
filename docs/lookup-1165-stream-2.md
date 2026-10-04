@@ -189,8 +189,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs
 
-- [ ] **HZoomerInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **HZoomerInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **HZoomerInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **HZoomerInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs
 
@@ -652,8 +652,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs
 
-- [ ] **WaverInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **WaverInstructionProgramDefinitions.PresentationWords** ([L40](../csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WaverInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WaverInstructionProgramDefinitions.PresentationWords** ([L40](../csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs
 
@@ -732,3 +732,9 @@ This is partial resolution: endpoint artwork and the two deviating original colo
 
 Added `--lookup-stream2-kraid-ramps` to check all336 original colors, all288 independent health/secondary cell edits with preservation of every other source, exact content identity, shared stock selection, the two residual samples, and bounds. Confirmation pending.
 Batch 3 confirmation passed: Verification build (1432 warnings, zero errors); --lookup-stream2-kraid-ramps passed all original336 colors, all288 independent edited cells, source independence, canonical identity, residual accounting and bounds. Both Kraid palette entries remain unchecked for their explicitly identified residual data. Stream2 completion count remains nine.
+
+### Batch 4: Waver and HZoomer executable animation programs
+
+Removed both mechanics-word and presentation-operand-address tables in `WaverInstructionProgramDefinitions` and `HZoomerInstructionProgramDefinitions` (four definitions). Waver emits two steady frame/sleep programs and two four-frame spin/completion/sleep programs. HZoomer emits four surface loops, each selecting its movement axis, displaying five three-tick frames, and branching back after setup. Program word addresses, durations, callbacks, branches, sleeps and interleaved presentation-operand addresses now follow these structures; no regenerated table is stored. Actual sprite artwork remains a separate scope.
+
+Verification build passed (1432 warnings, zero errors). `--waver-instruction-mechanics` passed all16 native mechanics words, both steady/spinning production programs, completion callbacks and sleeps with every original mechanics and ten visual-selector reads blocked. `--hzoomer-instruction-program-definitions` passed all36 native mechanics words, all four real surface loops/movement callbacks and twenty visual selectors. Thirteen named definitions complete in stream2; 213 remain required, including the explicitly pending Kraid endpoints/deviations and Crystal Flash bubble.

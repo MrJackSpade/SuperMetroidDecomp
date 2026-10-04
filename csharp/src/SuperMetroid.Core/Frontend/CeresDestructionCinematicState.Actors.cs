@@ -10,16 +10,16 @@ internal sealed partial class CeresDestructionCinematicState
         // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
         // it during the final $40-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
-        CeresExplosionWave wave = CeresExplosionDefinitions.WaveAtFrame(explosionSpawnerFrame,
-            Phase < CeresDestructionPhase.FlyingAwayFromExplosion);
-        if (wave == CeresExplosionWave.Initial)
+        CeresExplosionSpawnEvents events = CeresExplosionDefinitions.EventsAtFrame(explosionSpawnerFrame,
+            Phase < CeresDestructionPhase.FlyingAwayFromExplosion, ref explosionRepeatCountdown);
+        if (events.Initial)
         {
             for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
                 SpawnCeresExplosion(
                     CeresExplosionDefinitions.InitialActor,
                     CeresExplosionDefinitions.InitialExplosion(index));
         }
-        else if (wave == CeresExplosionWave.Repeating)
+        if (events.Repeating)
         {
             int offset = explosionOffsetIndex++ &
                 (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
@@ -27,7 +27,7 @@ internal sealed partial class CeresDestructionCinematicState
                 CeresExplosionDefinitions.RepeatingActor,
                 CeresExplosionDefinitions.RepeatingExplosion(offset));
         }
-        else if (wave == CeresExplosionWave.Final)
+        if (events.Final)
         {
             for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
                 SpawnCeresExplosion(

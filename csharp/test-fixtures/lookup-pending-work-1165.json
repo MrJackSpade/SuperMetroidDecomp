@@ -6,9 +6,9 @@
     {
       "id": "ceres-explosion-placement-and-stream-residuals",
       "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
-      "nativeIdentity": "Repeating X/Y at8B:C4EB..C50A; final Y at8B:C57A..C581; spawner listCE35",
+      "nativeIdentity": "Repeating X/Y at8B:C4EB..C50A; final Y at8B:C57A..C581",
       "status": "pending",
-      "task": "Review and convert repeating X/Y and final Y placements or establish an evidenced permitted exception. Finish the spawner shared-countdown context review: native C33B reseeds CinematicFunctionTimer when fading completes, and C489 consumes it. The extracted WaveAtFrame selector matches the native list and stable seeded countdown, but that conditional proof does not establish every scene-timing context. See ceresSpawnerSelectorReview. The four explosion instruction streams are now converted; see ceresExplosionProgramReview. Old claims based on irregular spacing, authored frame order or unequal spritemap sizes are withdrawn. Five initial/final geometry-delay fields are separately converted in ceresBlastPlacementReview."
+      "task": "Review and convert repeating X/Y and final Y placements or establish an evidenced permitted exception. Spawner timing is now resolved by explicit countdown state and fade-completion reseeding; see ceresSpawnerCountdownCorrectionReview. Its behavior correction awaits player validation. The four explosion instruction streams are now converted; see ceresExplosionProgramReview. Old claims based on irregular spacing, authored frame order or unequal spritemap sizes are withdrawn. Five initial/final geometry-delay fields are separately converted in ceresBlastPlacementReview."
     },
     {
       "id": "ceres-shaft-rotation-timers",

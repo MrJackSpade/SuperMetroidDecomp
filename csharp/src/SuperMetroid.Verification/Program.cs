@@ -180,7 +180,7 @@ if (args is ["--lookup-ceres-spawner-schedule"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres spawner oracle revision");
     VerifyCeresSpawnerSchedule(rom);
-    Console.WriteLine("Ceres spawner selector: native list timing, stable countdown cadence and departure boundaries pass.");
+    Console.WriteLine("Ceres spawner: native list timing, late countdown resets, simultaneous waves and departure boundaries pass.");
     return 0;
 }
 if (args is ["--lookup-ceres-flight-programs"])

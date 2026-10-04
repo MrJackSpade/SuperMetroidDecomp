@@ -48,6 +48,7 @@ internal sealed partial class CeresDestructionCinematicState
     private ushort cinematicFrameCounter;
     private int explosionSpawnerFrame;
     private int explosionOffsetIndex;
+    private ushort explosionRepeatCountdown;
     private bool usesMode7 = true;
     private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
 
@@ -194,7 +195,10 @@ internal sealed partial class CeresDestructionCinematicState
                 zoom++;
                 StepSlowFadeIn();
                 if (brightness == 15)
+                {
+                    explosionRepeatCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                     Phase = CeresDestructionPhase.ApproachExplosion;
+                }
                 break;
 
             case CeresDestructionPhase.ApproachExplosion:

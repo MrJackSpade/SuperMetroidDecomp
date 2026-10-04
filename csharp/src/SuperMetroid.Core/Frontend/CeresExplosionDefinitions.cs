@@ -46,16 +46,24 @@ internal static class CeresExplosionDefinitions
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
-    /// <summary>Selects the translated spawner operation on its one-based handler call.</summary>
-    internal static CeresExplosionWave WaveAtFrame(int frame, bool repeatingEnabled)
-    {
-        if (frame == InitialSpawnFrame) return CeresExplosionWave.Initial;
-        if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame &&
-            (frame - RepeatingFirstFrame) % RepeatingPeriodFrames == 0)
-            return CeresExplosionWave.Repeating;
-        return frame == SpawnerFinalFrame ? CeresExplosionWave.Final : CeresExplosionWave.None;
-    }
+    /// <summary>$8B:C33C, CinematicFunctionTimer seed when the initial fade completes.</summary>
+    internal const ushort RepeatingCountdownSeed = 1;
 
+    /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref ushort countdown)
+    {
+        bool repeat = false;
+        if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
+        {
+            countdown = unchecked((ushort)(countdown - 1));
+            if ((short)countdown <= 0)
+            {
+                repeat = true;
+                countdown = RepeatingPeriodFrames;
+            }
+        }
+        return new(frame == InitialSpawnFrame, repeat, frame == SpawnerFinalFrame);
+    }
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>
@@ -77,7 +85,7 @@ internal static class CeresExplosionDefinitions
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 
     /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
-    /// <remarks>Native list $8B:CE35..CE4A owns the three-wave schedule translated by StepCeresActors. The earlier claim that this stream must be retained is withdrawn; independently review the existing translated schedule under #1165.</remarks>
+    /// <remarks>Native list $8B:CE35..CE4A owns the three-wave schedule translated by StepCeresActors. The native list is translated to EventsAtFrame, with a mutable repeat countdown reset by fade completion. Initial/final instruction timing and repeat-before-final ordering are independently verified under #1165.</remarks>
     public static CeresExplosionActorDefinition SpawnerActor =>
         new(0xcf33, 0x93d9, 0x93d9, 0xce35);
 
@@ -186,5 +194,5 @@ internal readonly record struct CeresExplosionActorDefinition(
 /// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
 internal readonly record struct CeresExplosionPlacement(short X, short Y, ushort DelayFrames);
 
-/// <summary>Mutually exclusive spawn operations emitted by the Ceres destruction schedule.</summary>
-internal enum CeresExplosionWave { None, Initial, Repeating, Final }
+/// <summary>Ordered spawner events; repeating and final waves may occur on the same call.</summary>
+internal readonly record struct CeresExplosionSpawnEvents(bool Initial, bool Repeating, bool Final);

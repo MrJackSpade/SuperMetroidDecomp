@@ -37,26 +37,7 @@ internal static partial class Program
                 $"final explosion {index} Y offset");
         }
 
-        ushort[] spawnerProgram =
-        [
-            CeresExplosionDefinitions.InitialWaitFrames,
-            0,
-            CeresExplosionDefinitions.SpawnInitialWaveInstruction,
-            CeresExplosionDefinitions.RepeatingStartWaitFrames,
-            0,
-            CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction,
-            CeresExplosionDefinitions.SpawnRepeatingWavePreInstruction,
-            CeresExplosionDefinitions.RepeatingLifetimeFrames,
-            0,
-            CeresExplosionDefinitions.SpawnFinalWaveInstruction,
-            CinematicCodePointers.CinematicSpriteObject_Instruction_Delete,
-        ];
-        for (int index = 0; index < spawnerProgram.Length; index++)
-            AssertEqual(ReadWord(retail, 0x8bce35 + index * 2), spawnerProgram[index],
-                $"Ceres explosion spawner word {index}");
-        AssertEqual(CeresExplosionDefinitions.RepeatingPeriodFrames,
-            ReadWord(retail, 0x8bc4a9),
-            "Ceres repeating explosion cadence");
+        VerifyCeresSpawnerSchedule(retail);
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => CeresExplosionDefinitions.InitialExplosion(

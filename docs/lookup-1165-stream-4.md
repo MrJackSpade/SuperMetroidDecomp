@@ -694,9 +694,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: pending.
-- Justified retained entries: pending.
-- Confirmation results: pending.
+- Completed conversions: 12 named definitions (batches 1/2); Tourian statue grey intermediate payload also converted (batch 3, container remains open).
+- Justified retained entries: none.
+- Confirmation results: isolated builds and --lookup-stream-4 pass; legacy presentation-read verifier limitations recorded in batch 2.
 - Cross-stream dependencies and proposed shared-file patches: pending.
 - Remaining entries: all unchecked entries above.
 
@@ -722,3 +722,12 @@ Six more definitions converted; 12 total complete and 213 remain. No retained ex
 - Added actual consumer confirmation in `--lookup-stream-4`: twenty complete electricity cycles in exact frame order, one-frame durations, correct installed presentation operands and deletion on the next command; both four-particle debris bursts execute repeated sixteen-frame goto-self loops with their original compiled visual identity. Guards reject mechanics cartridge reads.
 - Verification build passed (1216 warnings, zero errors); `--lookup-stream-4` passed. Two pre-existing legacy commands (`--skree-metaree-particle-instruction-mechanics`, `--save-station-electricity-instruction-mechanics`) failed obsolete assertions requiring presentation ROM reads after executing their loop checks. Current production already uses compiled/installed presentation identities. The new focused fixture confirms those actual identities; shared legacy verifier files were not changed. Initial new fixture assumptions about a uniform presentation route were corrected: electricity uses `PresentationOperandAddress`, debris uses its compiled `SpritemapPointer`.
 - Follow-up review cleanup: Ridley initializer/program address bases now have named XML-documented catalog constants. No production behavior changed by that cleanup.
+## Batch 3: installed Tourian statue grey interpolation
+
+Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colors` entry; no additional container checkmark and no retention exception.
+
+- New `Assets/TourianStatueGreyColorDefinitions.cs` computes the six intermediate rows from supplied first/last endpoints: each RGB5 channel is start + sign(delta) * floor((abs(delta)*frame+3)/7); color zero adopts the last endpoint immediately. All 48 intermediate words are computed on demand, without a generated lookup cache.
+- `RoomPaletteFxPresentation.Load` removes an intermediate only when it equals calculation from the supplied endpoints. Explicit independent edits stay stored. Endpoint edits preserve every unchanged intermediate that no longer fits. All 64 pointer identities remain enumerable exactly once, and explicit supplied values take read precedence.
+- Original evidence: pinned bank8D `$E240+20*frame+2*color`, eight grey-out rows shared by the four statue programs. Existing control catalog XML independently records the channel interpolation; direct raw ROM comparisons verify it here through the installed loader.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed original64word output, exact color-pointer classification, only16 endpoint words remaining stored, identity enumeration, missing-endpoint rejection, and six real-JSON independent endpoint/intermediate edits including color zero.
+- Remaining: the sixteen endpoint words and other palette families in the container still require their own conversion or acceptable evidence. The stream retains 213 unchecked named definitions; this partial field conversion does not lower that count.

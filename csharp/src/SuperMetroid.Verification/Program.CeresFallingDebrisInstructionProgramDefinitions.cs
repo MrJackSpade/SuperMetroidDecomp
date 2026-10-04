@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -61,9 +62,16 @@ internal static partial class Program
                 "Ceres debris shot reaction reaches the compiled shared delete program");
         }
 
-        AssertEqual(CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both Ceres debris spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Ceres FallingDebris production uses compiled visual selectors without ROM reads");
+        for (int index = 0; index < CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Ceres FallingDebris visual operand has a compiled selector");
+            AssertEqual(ReadVerificationWord(rom, (0x86 << 16) | address), selector,
+                "Ceres FallingDebris compiled visual selector matches original operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared-delete debris mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -82,7 +90,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres falling-debris instruction mechanics: four compiled words, both real " +
-            "producers, terminal sleeps, shared deletion, and two live spritemap reads pass.");
+            "producers, terminal sleeps, shared deletion, and two original visual selectors pass without ROM reads.");
 
         RoomEnemySystem NewSystem()
         {

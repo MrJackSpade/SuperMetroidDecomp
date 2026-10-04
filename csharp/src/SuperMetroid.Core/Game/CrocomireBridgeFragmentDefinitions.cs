@@ -10,7 +10,8 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <remarks>
     /// All eleven words match the pinned NTSC J/U v1.0 ROM. They permute the
     /// eleven whole-pixel positions <c>$0710,$0720,...,$07B0</c>, each once,
-    /// in the authored projectile launch order. Retain that bounded order:
+
+
     /// computing the grid still requires an opaque shuffle to reproduce
     /// the exact sequence. The next bank-$A4 bytes begin another routine.
     /// Investigation: #625 / #674.

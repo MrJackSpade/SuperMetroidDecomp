@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -73,19 +74,16 @@ internal static partial class Program
                 $"Ceres steam {variant} completes its full cycle");
         }
 
-        AssertEqual(CeresSteamInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "uninstalled Ceres steam fixture retains mutable visual operands");
-        for (int index = 0;
-             index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Ceres Steam production uses compiled visual selectors without ROM reads");
+        for (int index = 0; index < CeresSteamInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address =
-                CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"uninstalled Ceres steam fixture reads presentation $A6:{address:X4}");
+            ushort address = CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
+                "Ceres Steam visual operand has a compiled selector");
+            AssertEqual(ReadVerificationWord(rom, (0xa6 << 16) | address), selector,
+                "Ceres Steam compiled visual selector matches original operand");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Ceres steam mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -104,8 +102,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres steam instruction mechanics: sixty-eight compiled words, four shared " +
-            "directional cycles, and thirty-six synthetic mutable visual reads pass with " +
-            "mechanics bytes forbidden.");
+            "directional cycles, and thirty-six original visual selectors pass with " +
+            "mechanics bytes forbidden and zero visual ROM reads.");
 
         RoomEnemySystem CreateSystem(CeresSteamVariant variant, out RoomEnemySlot slot)
         {

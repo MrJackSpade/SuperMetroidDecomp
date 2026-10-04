@@ -24,7 +24,8 @@ internal static class CrocomireRumbleDefinitions
     /// by cooldown and approach-delta words. The final negative target loads
     /// <c>$8080,$8080</c> timing before the reachable <c>$8080</c> target
     /// terminator; a second terminator at offset <c>$3E</c> supports restored
-    /// cursors. Retain this bounded authored amplitude/cadence sequence: its
+
+
     /// unequal rebounds and cooldowns have no clearer lossless generator.
     /// All words and the complete production rumble match the native stream.
     /// Investigation: #625 / #671.

@@ -205,8 +205,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs
 
-- [ ] **CeresFallingDebrisInstructionProgramDefinitions.Words** ([L34](../csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs#L34)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CeresFallingDebrisInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresFallingDebrisInstructionProgramDefinitions.Words** ([L34](../csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs#L34)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresFallingDebrisInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs
 
@@ -231,8 +231,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs
 
-- [ ] **CeresSteamInstructionProgramDefinitions.Words** ([L89](../csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs#L89)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CeresSteamInstructionProgramDefinitions.PresentationWords** ([L164](../csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs#L164)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresSteamInstructionProgramDefinitions.Words** ([L89](../csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs#L89)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresSteamInstructionProgramDefinitions.PresentationWords** ([L164](../csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs#L164)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresDoor.cs
 
@@ -413,7 +413,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/HudReserveLayout.cs
 
-- [ ] **HudReserveLayout.TileIndices** ([L11](../csharp/src/SuperMetroid.Core/Game/HudReserveLayout.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **HudReserveLayout.TileIndices** ([L11](../csharp/src/SuperMetroid.Core/Game/HudReserveLayout.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs
 
@@ -728,3 +728,12 @@ Removed the three stock placement arrays for the approach, destruction and Zebes
 Verification build passed (25 incremental warnings, zero errors; full production rebuild1431 warnings). `--lookup-stream5-actor-layouts` passed all14 native actor placements/28 original coordinate operands, all28 independent X/Y edits with all other fields preserved, unchanged canonical identities and both bounds. The stationary-vortex fixture initially addressed the LDA opcode at$8B:BFA5; source inspection corrected the fixture to its immediate operand at$BFA6 before the successful run. No production workaround was made. This confirmation covers the changed layout/indexer contract, not a gameplay playthrough.
 
 Eleven named definitions complete in stream5;214 remain required. Color/Mode7/artwork payloads are not exempted by actor-layout dispatch.
+### Batch 4: Ceres steam/debris program structure and unused HUD mapping
+
+Removed steam mechanics/visual-address tables: all four directions share the52-byte activation-wait, hidden64-tick hold, seven three-tick active-frame and return-branch structure. Removed falling-debris mechanics/visual-address tables: light/dark each display one one-tick pose then sleep. Calculated words preserve exact instruction, branch, duration and presentation-address fields without cached sequences. Separate artwork remains required; the old single-pose/size-based retention prose was removed.
+
+Static search of all csharp/src found `HudReserveLayout` only at its declaration; removed the unused type and its six-cell table. Compiler confirmation shows no consumer depends on it. Unsupported opaque-generator/complexity retention claims were also removed from Crocomire rumble and bridge-fragment documentation; those two data mappings remain required and unchecked.
+
+Verification build passed (1431 warnings, zero errors). `--ceres-steam-instruction-mechanics` passed68 original mechanics words and all four actual activation/hide/show cycles. `--ceres-debris-instruction-mechanics` passed4 original mechanics words, both actual producers, terminal sleeps and shared deletion. Both initially reached obsolete visual-read assertions (36/2 expected versus0 actual) after all changed program assertions passed. With coordinator-assigned ownership, the verifiers now assert zero reads and independently compare all36/2 compiled selectors with original ROM operands. Production was not changed for these stale assertions. The final steam console wording was corrected to describe the now-passing zero-read check.
+
+Sixteen named definitions complete in stream5;209 remain required.

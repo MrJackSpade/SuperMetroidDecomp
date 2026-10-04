@@ -30,34 +30,30 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Dark = 0x9756;
 
-    private static readonly CeresFallingDebrisInstructionMechanicsWord[] Words =
-    [
-        new(Light, 0x0001),
-        new(0x9754, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(Dark, 0x0001),
-        new(0x975a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-    ];
+    internal static int MechanicsWordCount => 4;
+    internal static int PresentationWordCount => 2;
+
+    /// <summary>Two six-byte programs each display one frame for one tick, then sleep.</summary>
+    internal static CeresFallingDebrisInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        bool sleep = (index & 1) != 0;
+        return new((ushort)(Light + 6 * (index / 2) + (sleep ? 4 : 0)),
+            sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+    }
 
     /// <summary>
-    /// Live bank-$86 spritemap operands. The light program's sole operand at
-    /// $9752 is $8ABF in the pinned NTSC J/U v1.0 ROM. Its bank-$8D target
-    /// is a one-component authored pose with packed attribute $20EA. A
-    /// one-pose pointer has no useful indexed algorithm; retain its identity
-    /// and the live cartridge presentation read.
-    /// The dark program's sole operand at $9758 is $8AC6. Its pointer follows
-    /// the light record exactly: <c>$8ABF + 2 + 5 * 1 = $8AC6</c> for one
-    /// packed OBJ component. All seven target bytes match the light record
-    /// except the attribute low byte $EA becomes $EC; geometry is identical.
-    /// Retain the authored dark pose and its live presentation read.
+    /// Visual operands at $86:9752/$9758 follow their one-tick duration words.
+    /// Original $8ABF/$8AC6 selectors reference two seven-byte one-component poses;
+    /// their artwork remains independently required under issue1165.
     /// </summary>
-    private static readonly ushort[] PresentationWords = [0x9752, 0x9758];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CeresFallingDebrisInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Light + 6 * index + 2);
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresFallingDebrisLight or
         RoomEnemyProjectileKind.CeresFallingDebrisDark;
@@ -65,11 +61,11 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresFallingDebrisInstructionMechanicsWord candidate = Words[middle];
+            CeresFallingDebrisInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -88,9 +84,9 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

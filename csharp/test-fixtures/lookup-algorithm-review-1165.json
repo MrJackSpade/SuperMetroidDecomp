@@ -10604,4 +10604,15 @@
     "confirmation": "Integrated --lookup-stream-3 passed all native fields, 384 rotation checks, 20 actual spawns with source reads forbidden, selector bounds and escape effect handoff. Verification build: 1438 warnings, zero errors. Source index refreshed.",
     "remaining": "240 of 1128 snapshot definitions converted; 888 pending. The separately reviewed decorative scatter exception is not integrated or counted here."
   }
+,
+  "motherBrainDecorativeScatterIntegration": {
+    "id": "mother-brain-death-scatter-narrow-retention",
+    "state": "justified-retained",
+    "implementationCommit": "7d522fabb",
+    "scope": "Only 28 decorative body-relative X/Y anchors from A9:B099-B108, isolated in the domain catalog.",
+    "justification": "The chosen scatter pattern is the visual content. A9:B03E-B098 reads positions before RNG selects type; 86:C8F5/C914 reattaches the unchanged offsets every frame without velocity integration; 86:CB13 has no hitbox or damage. Inventing a geometric distribution would replace the visual content. This is a narrow nonsense exception, not an authored-data or complexity exemption.",
+    "convertedRules": "Reverse group indexing and wrap, burst count, cadence and type selection remain executable rules. No other geometry or palette is exempted.",
+    "confirmation": "Integrated --lookup-stream-3 passes all 56 native coordinate words and sixteen real smoke/mixed bursts, including group wrap, per-projectile RNG, types and body-relative positions. Verification build: 1438 warnings, zero errors. Source index refreshed.",
+    "remaining": "Snapshot: 240 converted, one justified retained, 887 pending. Retention is counted separately from conversion."
+  }
 }

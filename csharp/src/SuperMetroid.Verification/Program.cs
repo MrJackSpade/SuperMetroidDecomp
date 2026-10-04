@@ -174,6 +174,11 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-placement-art"])
+{
+    ExportCeresPlacementArtwork();
+    return 0;
+}
 if (args is ["--lookup-ceres-initial-metadata"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

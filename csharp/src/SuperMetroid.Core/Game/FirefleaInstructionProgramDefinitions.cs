@@ -17,15 +17,28 @@ internal static class FirefleaInstructionProgramDefinitions
     internal const ushort AdjacentUnusedData = 0x8d03;
     internal const int FrameCount = 52;
 
-    private static readonly FirefleaInstructionMechanicsWord[] Words = BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static int MechanicsWordCount => FrameCount + 2;
+    internal static int PresentationWordCount => FrameCount;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FirefleaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Calculates alternating timed records followed by the loop command and its target.</summary>
+    internal static FirefleaInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < FrameCount)
+            return new((ushort)(Loop + index * 4), (ushort)(2 - (index & 1)));
+        return new((ushort)(Loop + FrameCount * 4 + (index - FrameCount) * 2),
+            index == FrameCount ? CommonEnemyInstructionCodes.Goto : Loop);
+    }
 
-    /// <summary>Whether an address is one of the 52 authored visual operands.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= FrameCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Loop + index * 4 + 2);
+    }
+
+    /// <summary>Whether an address is one of the 52 visual operands.</summary>
     internal static bool IsPresentationWord(ushort address) =>
         address >= Loop + 2 &&
         address <= Loop + (FrameCount - 1) * 4 + 2 &&
@@ -33,20 +46,13 @@ internal static class FirefleaInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            FirefleaInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        int offset = address - Loop;
+        if (offset >= 0 && offset < FrameCount * 4 && (offset & 3) == 0)
+            return (ushort)(2 - ((offset / 4) & 1));
+        if (offset == FrameCount * 4)
+            return CommonEnemyInstructionCodes.Goto;
+        if (offset == FrameCount * 4 + 2)
+            return Loop;
         throw new InvalidDataException(
             $"Fireflea instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
@@ -55,39 +61,8 @@ internal static class FirefleaInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static FirefleaInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new FirefleaInstructionMechanicsWord[FrameCount + 2];
-        for (int frame = 0; frame < FrameCount; frame++)
-        {
-            words[frame] = new(
-                unchecked((ushort)(Loop + frame * 4)),
-                unchecked((ushort)((frame & 1) == 0 ? 2 : 1)));
-        }
-        ushort gotoAddress = unchecked((ushort)(Loop + FrameCount * 4));
-        words[FrameCount] = new(gotoAddress, CommonEnemyInstructionCodes.Goto);
-        words[FrameCount + 1] = new(unchecked((ushort)(gotoAddress + 2)), Loop);
-        return words;
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new ushort[FrameCount];
-        for (int frame = 0; frame < FrameCount; frame++)
-            words[frame] = unchecked((ushort)(Loop + frame * 4 + 2));
-        return words;
+        int offset = unchecked((ushort)address) - Loop;
+        return offset >= 0 &&
+            (offset < FrameCount * 4 ? (offset & 3) < 2 : offset < FrameCount * 4 + 4);
     }
 }

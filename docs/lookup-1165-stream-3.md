@@ -202,7 +202,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs
 
-- [ ] **EnemyDeathExplosionDefinitions.InstructionPointers** ([L21](../csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyDeathExplosionDefinitions.InstructionPointers** ([L21](../csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs
 
@@ -215,12 +215,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs
 
-- [ ] **EnemyPickupDefinitions.InstructionLists** ([L17](../csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyPickupDefinitions.InstructionLists** ([L17](../csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs
 
-- [ ] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EnemyPickupInstructionProgramDefinitions.PresentationWords** ([L64](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyPickupInstructionProgramDefinitions.PresentationWords** ([L64](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs
 
@@ -253,8 +253,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs
 
-- [ ] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **FirefleaInstructionProgramDefinitions.PresentationWords** ([L21](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L21)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **FirefleaInstructionProgramDefinitions.PresentationWords** ([L21](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L21)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs
 
@@ -685,6 +685,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Evidence: all 24 original words at $A8:CCC1 + 10*frame + 2*color, cross-checked against the pinned bank_A8 assembly palette records.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed original colors, ApplyFrame CGRAM writes, identical stock ContentIdentity, all 72 independent RGB channel edits, their selected identities, and frame/color bounds. Tests reside in the assigned `Program.LookupStream3.cs` partial.
 - No new dependencies or shared-file edits.
+### Confirmed batch 3: Pickup and Fireflea instruction layouts
+
+- Converted six definitions without retention: enemy pickup/death selectors now dispatch named variants; pickup mechanics and visual operand addresses calculate five timed loops; Fireflea mechanics and visual operand addresses calculate its 52 timed records and loop tail.
+- Pickup energy loops have four eight-tick records, missile loops two five-tick records, Power Bombs four five-tick records. Every loop branches to its start; the four earlier programs preserve their unreachable trailing sleep instruction. Metadata selects these semantic programs; no generated word arrays remain.
+- Fireflea durations alternate two/one ticks with four-byte timed records; the final Goto and target follow the 52 records. Read, enumeration and ownership APIs calculate directly and retain their original accepted/rejected domains.
+- Evidence and confirmation: pinned ROM pickup selectors $86:EF04, death selectors $86:EFD5, all 30 pickup mechanics/16 visual operands in $ED8D-$EDFD, and 54 Fireflea mechanics/52 visual operands in $A3:8C2F-$8D02. Verification build passed (1431 warnings, zero errors), and `--lookup-stream-3` passed native words, enumeration order, exact word/byte ownership, presentation exclusion, invalid indices and invalid kind/variant boundaries.
+- Changed production: `EnemyPickupDefinitions.cs`, `EnemyDeathExplosionDefinitions.cs`, `EnemyPickupInstructionProgramDefinitions.cs`, `FirefleaInstructionProgramDefinitions.cs`. Confirmation extends the assigned stream partial; no additional dependencies.
 ### Remaining scope
 
-All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes enemy pickup/death dispatch, pickup instruction layout and Fireflea record calculations.
+All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes Choot instruction/selector conversion and removal of obsolete retention rationale.

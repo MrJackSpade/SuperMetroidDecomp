@@ -91,7 +91,113 @@ internal static partial class Program
                 "stream 3 invalid Shaktool attack segment");
         }
         VerifyStream3WorkRobotColors(rom);
+        VerifyStream3PickupAndFirefleaPrograms(rom);
         Console.WriteLine("Lookup stream 3: grapple sectors/transfers, Spark initial states, Shaktool circle/selectors, and Work Robot colors match their originals.");
+    }
+
+    private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int kind = 0; kind < 6; kind++)
+            AssertEqual(new EnemyPickupAnimationDefinition((ushort)(2 * kind), Read(0x86ef04 + 2 * kind)),
+                EnemyPickupDefinitions.Animation((EnemyPickupKind)kind), "stream 3 pickup kind dispatch");
+        for (ushort animation = 0; animation < 5; animation++)
+            AssertEqual(Read(0x86efd5 + 2 * animation), EnemyDeathExplosionDefinitions.InstructionPointer(animation),
+                "stream 3 death variant dispatch");
+        foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => EnemyPickupDefinitions.Animation((EnemyPickupKind)invalid),
+                "stream 3 invalid pickup kind");
+        foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosionDefinitions.InstructionPointer(invalid),
+                "stream 3 invalid death variant");
+
+        ushort[] pickupMechanics =
+        [
+            0xed8d, 0xed91, 0xed95, 0xed99, 0xed9d, 0xed9f, 0xeda1,
+            0xeda3, 0xeda7, 0xedab, 0xedaf, 0xedb3, 0xedb5, 0xedb7,
+            0xedb9, 0xedbd, 0xedc1, 0xedc3, 0xedc5,
+            0xeddd, 0xede1, 0xede5, 0xede7, 0xede9,
+            0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedfb, 0xedfd,
+        ];
+        ushort[] pickupPresentation =
+        [
+            0xed8f, 0xed93, 0xed97, 0xed9b, 0xeda5, 0xeda9, 0xedad, 0xedb1,
+            0xedbb, 0xedbf, 0xeddf, 0xede3, 0xeded, 0xedf1, 0xedf5, 0xedf9,
+        ];
+        AssertEqual(pickupMechanics.Length, EnemyPickupInstructionProgramDefinitions.MechanicsWordCount,
+            "stream 3 pickup mechanic count");
+        AssertEqual(pickupPresentation.Length, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
+            "stream 3 pickup visual operand count");
+        for (int index = 0; index < pickupMechanics.Length; index++)
+        {
+            ushort address = pickupMechanics[index];
+            AssertEqual(new EnemyPickupInstructionMechanicsWord(address, Read(0x860000 | address)),
+                EnemyPickupInstructionProgramDefinitions.MechanicsWord(index), "stream 3 native pickup mechanic");
+            AssertEqual(Read(0x860000 | address), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "stream 3 pickup mechanic dispatch");
+        }
+        for (int index = 0; index < pickupPresentation.Length; index++)
+        {
+            ushort address = pickupPresentation[index];
+            AssertEqual(address, EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(index),
+                "stream 3 pickup visual operand address");
+            AssertThrows<InvalidDataException>(() => EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "stream 3 pickup visual operand remains excluded");
+        }
+        var mechanicsSet = pickupMechanics.ToHashSet();
+        var byteSet = pickupMechanics.SelectMany(address => new[] { (int)address, address + 1 }).ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            bool owned = mechanicsSet.Contains((ushort)address);
+            AssertEqual(owned, EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.EnemyDeathPickup, (ushort)address),
+                "stream 3 pickup ownership domain");
+            AssertEqual(owned, EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.EnemyDeathExplosion, (ushort)address),
+                "stream 3 explosion pickup ownership domain");
+            AssertEqual(byteSet.Contains(address), EnemyPickupInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                "stream 3 pickup byte ownership domain");
+        }
+        AssertTrue(!EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, pickupMechanics[0]),
+            "stream 3 unrelated actor does not own pickup instructions");
+        AssertTrue(!EnemyPickupInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa3ed8d),
+            "stream 3 pickup excludes other bank");
+
+        AssertEqual(54, FirefleaInstructionProgramDefinitions.MechanicsWordCount, "stream 3 Fireflea mechanic count");
+        AssertEqual(52, FirefleaInstructionProgramDefinitions.PresentationWordCount, "stream 3 Fireflea visual count");
+        var fireBytes = new HashSet<int>();
+        for (int index = 0; index < 54; index++)
+        {
+            ushort address = (ushort)(index < 52 ? 0x8c2f + index * 4 : 0x8cff + (index - 52) * 2);
+            ushort value = Read(0xa30000 | address);
+            AssertEqual(new FirefleaInstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitions.MechanicsWord(index),
+                "stream 3 native Fireflea mechanic");
+            AssertEqual(value, FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address),
+                "stream 3 Fireflea mechanic dispatch");
+            fireBytes.Add(address);
+            fireBytes.Add(address + 1);
+            if (index < 52)
+            {
+                ushort visual = (ushort)(address + 2);
+                AssertEqual(visual, FirefleaInstructionProgramDefinitions.PresentationWordAddress(index),
+                    "stream 3 Fireflea visual operand");
+                AssertThrows<InvalidDataException>(() => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(visual),
+                    "stream 3 Fireflea visual remains excluded");
+            }
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(fireBytes.Contains(address), FirefleaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+                "stream 3 Fireflea byte ownership domain");
+        foreach (int invalid in new[] { -1, 30, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 pickup mechanic bounds");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 pickup visual bounds");
+        foreach (int invalid in new[] { -1, 54, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 Fireflea mechanic bounds");
+        foreach (int invalid in new[] { -1, 52, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 Fireflea visual bounds");
     }
 
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)

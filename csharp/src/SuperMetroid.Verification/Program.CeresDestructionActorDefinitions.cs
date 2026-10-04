@@ -83,6 +83,10 @@ internal static partial class Program
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 
+        VerifyCeresInitialExplosionProgram(retail);
+        VerifyCeresRepeatingExplosionProgram(retail);
+        VerifyCeresFinalWaveProgram(retail);
+        VerifyCeresStationBlastProgram(retail);
         VerifyProgram(CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart,
             CeresDestructionSpriteInstructionDefinitions.LargeAsteroidEnd);
         VerifyProgram(CeresFlightSpriteInstructionDefinitions.RearClusterStart,
@@ -91,12 +95,8 @@ internal static partial class Program
             CeresDestructionSpriteInstructionDefinitions.PlanetEnd);
         VerifyProgram(CeresDestructionSpriteInstructionDefinitions.TitleStart,
             CeresDestructionSpriteInstructionDefinitions.TitleEnd);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.ExplosionsStart,
-            CeresDestructionSpriteInstructionDefinitions.ExplosionsEnd);
         VerifyProgram(CeresDestructionSpriteInstructionDefinitions.StarSheetsStart,
             CeresDestructionSpriteInstructionDefinitions.StarSheetsEnd);
-        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.StationBlastStart,
-            CeresDestructionSpriteInstructionDefinitions.StationBlastEnd);
         AssertThrows<InvalidDataException>(() =>
             CeresDestructionSpriteInstructionDefinitions.ReadWord(
                 CeresDestructionSpriteInstructionDefinitions.InitialExplosionEnd - 1),
@@ -111,10 +111,6 @@ internal static partial class Program
         for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
             VerifyList(CeresDestructionActorDefinitions.ZebesActor(index).InstructionList,
                 $"Zebes reveal actor {index}");
-        VerifyList(CeresExplosionDefinitions.InitialActor.InstructionList, "initial explosion");
-        VerifyList(CeresExplosionDefinitions.RepeatingActor.InstructionList, "repeating explosion");
-        VerifyList(CeresExplosionDefinitions.FinalWaveActor.InstructionList, "final-wave explosion");
-        VerifyList(CeresExplosionDefinitions.StationBlastActor.InstructionList, "station blast");
 
         var guard = new CeresDestructionActorDefinitionReadGuard(retail);
         var state = new CeresDestructionCinematicState(guard);

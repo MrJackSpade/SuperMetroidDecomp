@@ -47,22 +47,22 @@ internal static class CeresExplosionDefinitions
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
-    /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. Its instruction-stream disposition remains required review under #1165; no retention exception is established.</remarks>
+    /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>
         new(0xcebb, 0xc434, 0xc582, 0xccdb);
 
     /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
-    /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. Its instruction-stream disposition remains required review under #1165; no retention exception is established.</remarks>
+    /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition RepeatingActor =>
         new(0xcec1, 0xc4b9, 0xc582, 0xccf5);
 
     /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
-    /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. Its instruction-stream disposition remains required review under #1165; no retention exception is established.</remarks>
+    /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition FinalWaveActor =>
         new(0xcec7, 0xc533, 0xc582, 0xcd1b);
 
     /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
-    /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. Its instruction-stream disposition remains required review under #1165; no retention exception is established.</remarks>
+    /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition StationBlastActor =>
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 

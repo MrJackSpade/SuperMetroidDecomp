@@ -7475,4 +7475,20 @@
     "reopened": "Repeating X/Y and final Y still require derivation or concrete impossibility/nonsense evidence. Remove unsupported authored-placement/irregular-spacing claims. Four native explosion instruction streams still need independent dispositions, and the already translated spawner schedule needs review; replace old blanket retention claims based on authored ordering/unequal sprite sizes with accurate pending records. This entry does not certify those mappings.",
     "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-ceres-blast-placement passes all five field proofs and bounds. Maintained-source index refreshed."
   }
+,
+  "ceresExplosionProgramReview": {
+    "status": "converted four explosion animation byte streams to semantic instruction generation",
+    "owners": ["csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs", "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs"],
+    "programs": [
+      {"native":"8B:CCDB..CCF4","kind":"initial small explosion","proof":"VerifyCeresInitialExplosionProgram"},
+      {"native":"8B:CCF5..CD1A","kind":"six-cycle small explosion","proof":"VerifyCeresRepeatingExplosionProgram"},
+      {"native":"8B:CD1B..CD38","kind":"seven-cycle large explosion","proof":"VerifyCeresFinalWaveProgram"},
+      {"native":"8B:CE1B..CE34","kind":"single station blast","proof":"VerifyCeresStationBlastProgram"}
+    ],
+    "evidence": "Pinned bank8B lists explicitly encode frame records, SetTimer, DecrementTimerAndGoto and Delete operations. Small and station animations choose named sequential frame identities. Pinned bank8C confirms that the four large-explosion maps at98D2/98D9/98E0/98E7 each contain one OAM entry, giving the structural seven-byte stride. Frame selection is animation dispatch; unequal address spacing is not a retention reason.",
+    "implementation": "Remove120 copied program bytes across Explosions and StationBlast spans. Generate duration/frame pairs by record ordinal, loop setup/body/blank/branch/delete by semantic instruction position, and branch targets from each program start plus its setup length. Small and station frames use named catalog cases with native symbols and addresses. Large frames use the proven single-entry map stride. No generated output cache or ROM read. Other asteroid/planet/title/star-sheet programs remain separate review work.",
+    "compatibility": "The outer reader retains its exact accepted regions and list-boundary rejection, including odd-address words. Byte generation selects low/high byte relative to each odd native program base. Actual IntroDiscoverySprite interpreter, first-instruction delay, independent loop timer, blank frames and deletion order are unchanged. StepCeresActors and the final station spawn continue using this reader.",
+    "proof": "Extract one original-ROM proof for each of the four logical programs from the existing aggregate; remove its duplicate byte and interpreter loops for these programs. SHA-pinned --lookup-ceres-explosion-programs checks all120 original bytes and every supported aligned/unaligned word, terminal word-boundary rejection and unrelated-region rejection. Run the actual native-ROM and generated-reader interpreter paths for256 calls at first-instruction delays1 and16, comparing instruction cursor, frame pointer, loop timer and active state every call; require final deletion. This confirms the identified conversion, not exploratory cinematic playback.",
+    "confirmation": "Verification build0 errors/1429 existing warnings; final incremental build0 errors/25 warnings. --lookup-ceres-explosion-programs passes all four proofs after supplying the required explicit original-ROM reader to the reference interpreter. Maintained-source index refreshed. Four streams resolved without a retention exception. Irregular placement fields, spawner schedule and other pending work remain unresolved."
+  }
 }

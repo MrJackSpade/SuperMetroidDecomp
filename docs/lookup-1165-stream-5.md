@@ -192,7 +192,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs
 
-- [ ] **CeresDoorInstructionProgramDefinitions.Words** ([L156](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L156)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresDoorInstructionProgramDefinitions.Words** ([L156](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L156)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **CeresDoorInstructionProgramDefinitions.PresentationWords** ([L269](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L269)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs
@@ -765,3 +765,10 @@ Removed direction bases, per-direction hitbox-list pointer arrays, generated fra
 Verification build passed (1431 full-build warnings,25 incremental warnings, zero errors). The existing `--verify-ceres-steam-collision` first failed in its obsolete reference fixture: a fake enemy$FFFF attempted to enter a removed ROM fallback. With coordinator approval, its reference side now directly decodes the original frame/rectangle words and signed16 touch/shot bounds. No production workaround was added. The corrected focused check passed all28 native component records,21 hitbox lists and4512 existing boundary comparisons through the actual compiled walker, with zero cartridge reads on that path. These cases confirm the changed mapping; rectangle retention has not been justified by their pass.
 
 Twenty-six stream5 definitions resolved:25 converted/removed and1 mixed conversion with narrowly justified retention.199 remain required.
+### Batch 9: Ceres door control programs
+
+Removed the97-word mechanics table. Both normal facing programs share the same30-word control structure, relocating local branches by their82-byte program length. Closing/opening phases calculate four five-tick frames; Ridley's introduction calculates its four two-tick transition frames and explicitly dispatches visibility, ownership and boss-alive handoff controls. The overlay and Mode7 wall actors share one-time initialization followed by one-frame loops; the invisible wall preserves its separate escape-status branch. No equivalent mechanics array is rebuilt.
+
+Verification build passed (1431 warnings, zero errors). `--ceres-door-instruction-mechanics` passed all97 original mechanics words, all seven actual control variants, their branch/visibility/handoff behavior and all33 existing sprite selectors with ROM reads forbidden. PresentationWords stores actual artwork selector values and remains independently required; this control conversion does not grant it a retention exception.
+
+Twenty-seven stream5 definitions resolved:26 converted/removed and1 mixed conversion with narrowly justified retention.198 remain required.

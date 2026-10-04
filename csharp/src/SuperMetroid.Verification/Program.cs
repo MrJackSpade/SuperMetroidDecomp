@@ -140,6 +140,7 @@ if (args is ["--lookup-stream-4"])
     VerifyRidleyMovementTargets(rom);
     VerifyRidleyClawOffsets(rom);
     VerifySaveRamLayout();
+    VerifyLowerNorfairRioInstructionProgramDefinitions();
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }

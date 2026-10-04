@@ -5,13 +5,19 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition
 {
-    private readonly CompiledSpritePart[] parts;
+    private readonly IReadOnlyList<CompiledSpritePart> parts;
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
+    private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
+
+    /// <summary>Use an immutable calculated view only when every supplied visual field matches.
+    /// Independently edited compositions retain their compiled parts.</summary>
+    internal SpriteComposition CalculateIfMatching(IReadOnlyList<CompiledSpritePart> calculated) =>
+        parts.SequenceEqual(calculated) ? new SpriteComposition(calculated) : this;
 
     /// <summary>Hashes only compiled visual fields, preserving the draw order and palette inheritance.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
-        content.Append("parts", parts.Length);
+        content.Append("parts", parts.Count);
         foreach (CompiledSpritePart part in parts)
         {
             content.Append("x-and-size", part.X.Raw);

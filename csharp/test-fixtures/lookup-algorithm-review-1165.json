@@ -9377,4 +9377,17 @@
     },
     "scope": "Source pairs and scene filenames only. Dimension definitions and artwork payloads are not exempted. Implementation commit is the commit adding this record."
   }
+,
+  "endingExplosionGridReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingExplosionGridParts.cs",
+    "mappings": [
+      { "id": "ending-explosion-planet-grid-parts", "state": "converted" },
+      { "id": "ending-explosion-lava-mirrored-parts", "state": "converted" }
+    ],
+    "source": "Supported original8C:A396..A471, ten four-part OAM records. Pinned bank8C defines eight planet damage/flash poses followed by two lava/core poses. Generic cinematic OAM loader discards source palette in favor of actor palette; compiled presentation preserves that inheritance and normalized signed9 X.",
+    "algorithm": "Every composition is a2x2 grid of16-pixel parts at coordinates -16/0. Planet and first lava order is bottom-right,bottom-left,top-right,top-left; second lava is bottom-right,top-right,bottom-left,top-left. Planet base tile advances four columns per pose and four rows per four-pose group, then adds32 per grid row and2 per column. Lava uses tile99 or9B mirrored horizontally in right quadrants and vertically in bottom quadrants. Size16, priority0, palette inherited for every part.",
+    "implementation": "Immutable EndingExplosionGridParts calculates four parts on access. Loader first compiles/validates supplied content, then substitutes the calculated view only if every field and order matches. SpriteComposition supports the immutable calculated view while retaining cloned arrays for independently edited content. No generated lookup cache, schema change or runtime cartridge reads. Other sprite compositions are unaffected and not exempted.",
+    "proof": "Extend the existing SHA-pinned --lookup-ending-explosion-frame-catalog proof, not a new parallel oracle. Decode all40 original parts directly, confirm calculated selection, compare complete content identities and native on/offscreen OAM at positive/negative origins. Independently edit all nine supplied visual fields, part order and part count for each pose and require preservation of supplied composition. The initial edit fixture moved a large tile beyond the valid last column; correct the fixture to a valid neighboring column without changing production. Existing16-pointer/count/name proof remains. Focused confirmation only; no playthrough or discovery tests.",
+    "remaining": "Six larger explosion compositions and source tile pixels remain separate review obligations. This record claims no artwork retention exception. Implementation commit is the commit adding this record."
+  }
 }

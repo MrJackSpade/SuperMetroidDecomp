@@ -78,17 +78,16 @@ internal static class PausePresentationContractChecks
             after.Findings.Count(item => item.Owner == "PauseSelectorPresentation.Anchor" || item.Owner == "PauseSelectorPresentation.Draw") == 2,
             "Boots and Reserve must not borrow larger categories; only Plasma may extend a beam label to nine words");
 
-        SyntaxTree externalUse = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
-            class ExternalPauseKeys {
-                void Change() { PauseEquipmentLabelDefinitions.Keys[1][0] = "Absent.Key"; }
-            }
-            """, path: "fixture-external-pause-keys.cs");
-        AuditReport revoked = Inspect(Compile(trees.Append(externalUse)), true);
+        const string labelPath = "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs";
+        SyntaxTree labelSource = trees.Single(tree => tree.FilePath == labelPath);
+        SyntaxTree changedLabels = CSharpSyntaxTree.ParseText(
+            labelSource.GetText().ToString().Replace("\"Beam.Hyper\"", "\"Absent.Key\"", StringComparison.Ordinal),
+            path: labelPath);
+        AuditReport revoked = Inspect(Compile(trees.Select(tree => tree == labelSource ? changedLabels : tree)), true);
         Require(revoked.Classifications.Count == 12 && revoked.UnresolvedCount == 14 &&
             revoked.Findings.Count(item => item.Owner.StartsWith("PauseEquipmentLabelPresentation.", StringComparison.Ordinal) &&
                 item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
-            "external access to mutable label Keys must revoke every label proof, not certify post-publication identity mutations");
+            "changed label identity source must revoke every label proof; the former public mutable Keys table no longer exists");
     }
 
     private static void Require(bool valid, string reason)

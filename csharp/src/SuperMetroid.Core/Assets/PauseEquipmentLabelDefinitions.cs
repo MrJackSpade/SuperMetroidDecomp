@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Semantic identities and native extraction sources for pause equipment labels.</summary>
@@ -17,14 +19,6 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary><c>kHyperBeamWeaponsTilemaps</c> at $82:C0A8.</summary>
     public const int HyperPointerTable = 0x82c0a8;
 
-    public static readonly string[][] Keys =
-    [
-        [],
-        ["Beam.Charge", "Beam.Ice", "Beam.Wave", "Beam.Spazer", "Beam.Plasma"],
-        ["Equipment.Varia", "Equipment.Gravity", "Equipment.MorphBall", "Equipment.Bombs", "Equipment.SpringBall", "Equipment.ScrewAttack"],
-        ["Boots.HiJump", "Boots.SpaceJump", "Boots.SpeedBooster"],
-    ];
-
     public const string HyperKey = "Beam.Hyper";
     public const string PlasmaKey = "Beam.Plasma";
     public const string VariaKey = "Equipment.Varia";
@@ -35,11 +29,25 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>The ninth Boots-length Plasma word is subsequently owned by the wireframe at cell $28C.</summary>
     public const int NativePlasmaWireframeOverlapCell = 0x28c;
 
+    /// <summary>Equipment label identities alias the corresponding selector controls. Native
+    /// 82:C08C..C0A6 selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in
+    /// the same category/item order. Reserve controls have no ordinary inventory label.</summary>
     public static string Key(int category, int item)
     {
-        if ((uint)category >= Keys.Length || (uint)item >= Keys[category].Length)
+        if ((uint)category >= 4 || (uint)item >= ItemCount(category))
             throw new ArgumentOutOfRangeException(nameof(item), $"No pause equipment label exists for category {category}, item {item}.");
-        return Keys[category][item];
+        return PauseSelectorDefinitions.Anchor(category, item);
+    }
+
+    /// <summary>Uses the reviewed category contract, including zero labels for reserves.</summary>
+    public static int ItemCount(int category) => PauseEquipmentCategories.Get(category).ItemCount;
+
+    /// <summary>Enumerates the ordinary label view without storing another identity table.</summary>
+    public static IEnumerable<(int Category, int Item, string Key)> Labels()
+    {
+        foreach (var anchor in PauseSelectorDefinitions.Anchors())
+            if (anchor.Category != PauseEquipmentCategories.Reserves)
+                yield return (anchor.Category, anchor.Item, anchor.Name);
     }
 
     public static int WordCount(int category) => category == 1 ? BeamWords : EquipmentWords;

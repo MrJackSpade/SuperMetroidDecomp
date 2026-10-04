@@ -16,6 +16,22 @@ internal static partial class Program
         AssertTrue(expectedNames.SequenceEqual(PauseSelectorDefinitions.Anchors()), "original named identity order");
         foreach (var (category, item, name) in expectedNames)
             AssertEqual(name, PauseSelectorDefinitions.Anchor(category, item), "original named identity case");
+        AssertTrue(expectedNames.Where(entry => entry.category != 0).SequenceEqual(PauseEquipmentLabelDefinitions.Labels()),
+            "label identity view contains exactly the fourteen ordinary controls in order");
+        AssertEqual(0, PauseEquipmentLabelDefinitions.ItemCount(0), "reserve controls have no inventory labels");
+        for (int category = 1; category < names.Length; category++)
+        {
+            AssertEqual(names[category].Length, PauseEquipmentLabelDefinitions.ItemCount(category), "label category capacity");
+            for (int item = 0; item < names[category].Length; item++)
+                AssertEqual(names[category][item], PauseEquipmentLabelDefinitions.Key(category, item), "label alias identity");
+        }
+        foreach (int category in new[] { int.MinValue, -1, 0, 4, 256, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, 0), "no label for invalid or reserve category");
+        for (int category = 1; category < names.Length; category++)
+        foreach (int item in new[] { int.MinValue, -1, names[category].Length, 256, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, item), "label category bounds");
+        VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != 0).Select(entry => entry.name)
+            .Append("Beam.Hyper").ToArray());
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
@@ -30,6 +46,31 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, item), "unsupported selector item");
             AssertThrows<ArgumentOutOfRangeException>(() => PauseSelectorDefinitions.StockAnchor(category, item), "geometry guards item before arithmetic");
         }
+    }
+
+    private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
+    {
+        byte[] source = PauseEquipmentLabelExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions)!;
+        AssertTrue(document.Labels.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(names), "native extractor supplies exact label identities");
+        _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(source));
+        foreach (string name in names)
+        {
+            var labels = new Dictionary<string, PauseEquipmentLabel>(document.Labels);
+            PauseEquipmentLabel original = labels[name];
+            labels.Remove(name);
+            Reject(labels);
+            labels.Add("Absent.Key", original);
+            Reject(labels);
+            labels.Remove("Absent.Key");
+            labels.Add(name.ToLowerInvariant(), original);
+            Reject(labels);
+        }
+        var extra = new Dictionary<string, PauseEquipmentLabel>(document.Labels) { ["Absent.Key"] = document.Labels[names[0]] };
+        Reject(extra);
+        void Reject(Dictionary<string, PauseEquipmentLabel> labels) =>
+            AssertThrows<InvalidDataException>(() => PauseEquipmentLabelPresentation.Write(new MemoryStream(), document with { Labels = labels }),
+                "label loader rejects missing, substituted, case-changed or extra identities");
     }
 
     private static void VerifyPauseSelectorAnchorField(ISnesAddressSpace rom, PauseSelectorDocument document,

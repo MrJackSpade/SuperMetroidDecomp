@@ -13,6 +13,12 @@ internal static partial class Program
         {
             if (OperatingSystem.IsWindows()) SetErrorMode(ConsoleErrorPolicy.FailCriticalErrors |
                 ConsoleErrorPolicy.NoFaultDialog | ConsoleErrorPolicy.NoOpenFileDialog);
+            if (args is ["--pause-presentation-contract-check"])
+            {
+                PausePresentationContractChecks.Run();
+                Console.WriteLine("Pause presentation selector domains and changed-source revocation pass.");
+                return 0;
+            }
             if (args is ["--self-check"])
             {
                 AuditContractChecks.Run();

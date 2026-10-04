@@ -106,12 +106,6 @@ internal sealed class ClosedPresentationAudit
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));
             }
-            if (valid && contract.Type == typeof(PauseEquipmentLabelPresentation).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "Keys")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
-                            field.ContainingType.ToDisplayString() == typeof(PauseEquipmentLabelDefinitions).FullName));
             if (valid && contract.Type == typeof(EscapeTimerPresentation).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()

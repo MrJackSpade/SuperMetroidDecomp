@@ -153,8 +153,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs
 
-- [ ] **CrawlerAnimationDefinitions.InitialFamilies** ([L48](../csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CrawlerAnimationDefinitions.SurfaceSpecies** ([L81](../csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs#L81)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrawlerAnimationDefinitions.InitialFamilies** ([L48](../csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrawlerAnimationDefinitions.SurfaceSpecies** ([L81](../csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs#L81)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrawlerSpeedDefinitions.cs
 
@@ -371,13 +371,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs
 
-- [ ] **SbugInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SbugInstructionProgramDefinitions.PresentationWords** ([L58](../csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SbugInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SbugInstructionProgramDefinitions.PresentationWords** ([L58](../csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs
 
-- [ ] **SbugMovementDefinitions.FacingInstructionLists** ([L12](../csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SbugMovementDefinitions.ActivationFunctions** ([L28](../csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SbugMovementDefinitions.FacingInstructionLists** ([L12](../csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SbugMovementDefinitions.ActivationFunctions** ([L28](../csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs
 
@@ -643,12 +643,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs
 
-- [ ] **ViolaInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ViolaInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ViolaInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ViolaInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/WaverAnimationDefinitions.cs
 
-- [ ] **WaverAnimationDefinitions.InstructionLists** ([L23](../csharp/src/SuperMetroid.Core/Game/WaverAnimationDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WaverAnimationDefinitions.InstructionLists** ([L23](../csharp/src/SuperMetroid.Core/Game/WaverAnimationDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs
 
@@ -686,8 +686,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs
 
-- [ ] **ZeroInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZeroInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZeroInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZeroInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff
 
@@ -738,3 +738,12 @@ Batch 3 confirmation passed: Verification build (1432 warnings, zero errors); --
 Removed both mechanics-word and presentation-operand-address tables in `WaverInstructionProgramDefinitions` and `HZoomerInstructionProgramDefinitions` (four definitions). Waver emits two steady frame/sleep programs and two four-frame spin/completion/sleep programs. HZoomer emits four surface loops, each selecting its movement axis, displaying five three-tick frames, and branching back after setup. Program word addresses, durations, callbacks, branches, sleeps and interleaved presentation-operand addresses now follow these structures; no regenerated table is stored. Actual sprite artwork remains a separate scope.
 
 Verification build passed (1432 warnings, zero errors). `--waver-instruction-mechanics` passed all16 native mechanics words, both steady/spinning production programs, completion callbacks and sleeps with every original mechanics and ten visual-selector reads blocked. `--hzoomer-instruction-program-definitions` passed all36 native mechanics words, all four real surface loops/movement callbacks and twenty visual selectors. Thirteen named definitions complete in stream2; 213 remain required, including the explicitly pending Kraid endpoints/deviations and Crystal Flash bubble.
+### Batch 5: crawler/Sbug program structures and semantic animation dispatch
+
+Removed eleven named definitions: mechanics and visual-operand tables for Viola, Zero and Sbug; Sbug facing and activation selectors; Waver facing/spin selector; crawler initial-family and surface-species selectors. Viola uses four axis-setting entries into a fourteen-frame shared loop, Zero uses four six-frame axis loops, and Sbug uses eight four-frame directional loops. Instruction and operand addresses follow those structures. Sbug facing follows the twenty-byte program stride (including native odd-selector folding); activation, crawler families/species and Waver flags dispatch by their existing semantic domains.
+
+Verification build passed (1432 warnings, zero errors). Focused `--sbug-instruction-mechanics`, `--zero-instruction-program-definitions`, `--viola-instruction-program-definitions`, `--lookup-stream2-crawler-animations` and `--waver-instruction-mechanics` all passed. They confirm original mechanics/selector values and actual initialization, movement callback, loop, spin and surface-handoff behavior with original source reads blocked.
+
+The old Zero verifier expected24 live visual-pointer reads, obsolete after the earlier visual migration. With coordinator-assigned ownership, it now asserts zero such reads and independently compares every24 compiled selector to its original ROM operand; production was not changed to satisfy a stale test. All40 native mechanics words and all four real loops pass.
+
+Twenty-four named definitions complete in stream2; 202 remain required. Kraid endpoint/deviation payloads and Crystal Flash bubble remain expressly unfinished, without a retention exception.

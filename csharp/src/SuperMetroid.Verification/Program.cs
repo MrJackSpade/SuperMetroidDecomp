@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-crawler-animations"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 crawler original oracle revision");
+    VerifyCrawlerAnimationDefinitions(rom);
+    VerifyWaverAnimationDefinitions(rom);
+    return 0;
+}
 if (args is ["--lookup-stream2-palette-mechanics"] or ["--lookup-stream2-yard-directions"] or ["--lookup-stream2-crystal-body"] or ["--lookup-stream2-kraid-ramps"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

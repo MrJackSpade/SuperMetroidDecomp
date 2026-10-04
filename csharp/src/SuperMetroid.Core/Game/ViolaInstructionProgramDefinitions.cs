@@ -24,49 +24,45 @@ internal static class ViolaInstructionProgramDefinitions
     /// <summary>The retail-unused X-flipped Viola program at $A3:B62B.</summary>
     internal const ushort UnusedXFlipped = 0xb62b;
 
-    private static readonly ViolaInstructionMechanicsWord[] Words =
-    [
-        new(UpsideDown, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xb5d5, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0xb5d7, CommonEnemyInstructionCodes.Goto), new(0xb5d9, NormalLoop),
+    internal static int MechanicsWordCount => 30;
+    internal static int PresentationWordCount => 14;
 
-        new(UpsideUp, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xb5dd, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0xb5df, CommonEnemyInstructionCodes.Goto), new(0xb5e1, NormalLoop),
+    /// <summary>Four axis-setting entries converge on fourteen ten-tick frames; the last entry falls through.</summary>
+    internal static ViolaInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 14)
+        {
+            ushort address = (ushort)(UpsideDown + 2 * index);
+            ushort value = (index % 4) switch
+            {
+                0 => EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY,
+                1 => (ushort)(index / 4 < 2 ? CrawlerEnemyFunction.CrawlingHorizontally : CrawlerEnemyFunction.CrawlingVertically),
+                2 => CommonEnemyInstructionCodes.Goto,
+                _ => NormalLoop,
+            };
+            return new(address, value);
+        }
+        int word = index - 14;
+        return word < 14 ? new((ushort)(NormalLoop + 4 * word), 10)
+            : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? CommonEnemyInstructionCodes.Goto : NormalLoop);
+    }
 
-        new(UpsideRight, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xb5e5, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0xb5e7, CommonEnemyInstructionCodes.Goto), new(0xb5e9, NormalLoop),
-
-        new(UpsideLeft, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xb5ed, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-
-        new(0xb5ef, 10), new(0xb5f3, 10), new(0xb5f7, 10), new(0xb5fb, 10),
-        new(0xb5ff, 10), new(0xb603, 10), new(0xb607, 10), new(0xb60b, 10),
-        new(0xb60f, 10), new(0xb613, 10), new(0xb617, 10), new(0xb61b, 10),
-        new(0xb61f, 10), new(0xb623, 10),
-        new(0xb627, CommonEnemyInstructionCodes.Goto), new(0xb629, NormalLoop),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb5f1, 0xb5f5, 0xb5f9, 0xb5fd, 0xb601, 0xb605, 0xb609,
-        0xb60d, 0xb611, 0xb615, 0xb619, 0xb61d, 0xb621, 0xb625,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ViolaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(NormalLoop + 2 + 4 * index);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ViolaInstructionMechanicsWord candidate = Words[middle];
+            ViolaInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -84,9 +80,9 @@ internal static class ViolaInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

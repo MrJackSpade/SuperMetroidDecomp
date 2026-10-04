@@ -22,54 +22,51 @@ internal static class ZeroInstructionProgramDefinitions
     /// <summary>The retail-unused alternate upside-right program at $A3:982B.</summary>
     internal const ushort UnusedAlternateUpsideRight = 0x982b;
 
-    private static readonly ZeroInstructionMechanicsWord[] Words =
-    [
-        new(UpsideRight, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x984d, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0x984f, 4), new(0x9853, 4), new(0x9857, 4), new(0x985b, 4),
-        new(0x985f, 4), new(0x9863, 4),
-        new(0x9867, CommonEnemyInstructionCodes.Goto), new(0x9869, 0x984f),
+    internal static int MechanicsWordCount => 40;
+    internal static int PresentationWordCount => 24;
 
-        new(UpsideLeft, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x988d, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0x988f, 4), new(0x9893, 4), new(0x9897, 4), new(0x989b, 4),
-        new(0x989f, 4), new(0x98a3, 4),
-        new(0x98a7, CommonEnemyInstructionCodes.Goto), new(0x98a9, 0x988f),
+    private static ushort Entry(CrawlerSurfaceOrientation surface) => surface switch
+    {
+        CrawlerSurfaceOrientation.UpsideRight => UpsideRight,
+        CrawlerSurfaceOrientation.UpsideLeft => UpsideLeft,
+        CrawlerSurfaceOrientation.UpsideDown => UpsideDown,
+        CrawlerSurfaceOrientation.UpsideUp => UpsideUp,
+        _ => throw new ArgumentOutOfRangeException(nameof(surface)),
+    };
 
-        new(UpsideDown, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x98ad, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0x98af, 4), new(0x98b3, 4), new(0x98b7, 4), new(0x98bb, 4),
-        new(0x98bf, 4), new(0x98c3, 4),
-        new(0x98c7, CommonEnemyInstructionCodes.Goto), new(0x98c9, 0x98af),
+    /// <summary>Each selected surface sets its axis, displays six four-tick frames and loops without repeating setup.</summary>
+    internal static ZeroInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int surface = index / 10;
+        int word = index % 10;
+        ushort start = Entry((CrawlerSurfaceOrientation)surface);
+        return word switch
+        {
+            0 => new(start, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
+            1 => new((ushort)(start + 2), (ushort)(surface < 2
+                ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally)),
+            < 8 => new((ushort)(start + 4 + 4 * (word - 2)), 4),
+            8 => new((ushort)(start + 28), CommonEnemyInstructionCodes.Goto),
+            _ => new((ushort)(start + 30), (ushort)(start + 4)),
+        };
+    }
 
-        new(UpsideUp, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x990d, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0x990f, 4), new(0x9913, 4), new(0x9917, 4), new(0x991b, 4),
-        new(0x991f, 4), new(0x9923, 4),
-        new(0x9927, CommonEnemyInstructionCodes.Goto), new(0x9929, 0x990f),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9851, 0x9855, 0x9859, 0x985d, 0x9861, 0x9865,
-        0x9891, 0x9895, 0x9899, 0x989d, 0x98a1, 0x98a5,
-        0x98b1, 0x98b5, 0x98b9, 0x98bd, 0x98c1, 0x98c5,
-        0x9911, 0x9915, 0x9919, 0x991d, 0x9921, 0x9925,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ZeroInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Entry((CrawlerSurfaceOrientation)(index / 6)) + 6 + 4 * (index % 6));
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ZeroInstructionMechanicsWord candidate = Words[middle];
+            ZeroInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -87,9 +84,9 @@ internal static class ZeroInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Display loops and wrap/reveal operations for the four assembling logo actors.</summary>
@@ -11,23 +13,6 @@ internal static class EndingLogoInstructionDefinitions
     private const ushort RightWrapStart = 0xee6d;
     /// <summary>$8B:EE87, lower-circle/left-wrap sequence.</summary>
     private const ushort LeftWrapStart = 0xee87;
-    /// <summary>$8C:B97F, EndingSequenceSpritemaps_ScrewAttackSymbolUpperPart.</summary>
-    private const ushort UpperS = 0xb97f;
-    /// <summary>$8C:B9C7, EndingSequenceSpritemaps_ScrewAttackSymbolLowerPart.</summary>
-    private const ushort LowerS = 0xb9c7;
-    /// <summary>$8C:BA0F, ScrewAttackSymbolRightWrapFrame1.</summary>
-    private const ushort RightWrapFirst = 0xba0f;
-    /// <summary>$8C:BA4D, ScrewAttackSymbolRightWrapFrame2.</summary>
-    private const ushort RightWrapSecond = 0xba4d;
-    /// <summary>$8C:BAA9, ScrewAttackSymbolRightWrapFrame3.</summary>
-    private const ushort RightWrapComplete = 0xbaa9;
-    /// <summary>$8C:BB28, ScrewAttackSymbolLeftWrapFrame1.</summary>
-    private const ushort LeftWrapFirst = 0xbb28;
-    /// <summary>$8C:BB66, ScrewAttackSymbolLeftWrapFrame2.</summary>
-    private const ushort LeftWrapSecond = 0xbb66;
-    /// <summary>$8C:BBC2, ScrewAttackSymbolLeftWrapFrame3.</summary>
-    private const ushort LeftWrapComplete = 0xbbc2;
-
     /// <summary>Generate the exact31 aligned native words. S halves display for10 and
     /// loop. Circle halves wait96 blank frames, reveal three stages at5-frame intervals,
     /// and hold their completed frame. The upper half holds64 before requesting crossfade.
@@ -43,7 +28,7 @@ internal static class EndingLogoInstructionDefinitions
             return (offset / 2 % 4) switch
             {
                 0 => 10,
-                1 => actor == 0 ? UpperS : LowerS,
+                1 => EndingLogoSpriteDefinitions.FramePointer(actor),
                 2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
                 _ => (ushort)(Start + actor * 8),
             };
@@ -64,16 +49,12 @@ internal static class EndingLogoInstructionDefinitions
         {
             0 => EndingLogoDefinitions.GreyOutInstruction,
             1 => 5,
-            2 => RightWrapComplete,
+            2 => EndingLogoSpriteDefinitions.FramePointer(4),
             3 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
             _ => (ushort)(start + 18),
         };
     }
 
-    private static ushort WrapFrame(bool right, int stage) => stage switch
-    {
-        0 => right ? RightWrapFirst : LeftWrapFirst,
-        1 => right ? RightWrapSecond : LeftWrapSecond,
-        _ => right ? RightWrapComplete : LeftWrapComplete,
-    };
+    private static ushort WrapFrame(bool right, int stage) =>
+        EndingLogoSpriteDefinitions.FramePointer((right ? 2 : 5) + stage);
 }

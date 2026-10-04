@@ -8849,4 +8849,30 @@
   "proof": "Upgrade the existing VerifyEndingRewardActorDefinitions; SHA-pinned --lookup-ending-reward-actors invokes it directly. Expected record pointers come from ten original LDY immediates, not production membership; compare30 original record words. Deduplicate four initializers and compare12 original LDA immediate operands for X/Y/palette, checking instruction opcodes. Confirm role domain and invalid role/record/initializer inputs. This is one compound proof of the related record fields and views.",
   "scope": "Seven mapping dispositions only. Idle actors, jump motion and remaining sprite/artwork mappings retain independent obligations. Implementation commit is the commit adding this record."
 }
+,
+  "endingLogoFrameCatalogReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoSpritePresentation.cs",
+  "source": "Supported SHA-pinned original8B:EE5D..EE9A instruction operands independently select eight logo compositions;8C:B97F onward holds two S records followed by three right-wrap and three left-wrap records. Original OAM headers supply counts. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d names symbol halves and circle-wrap stages.",
+  "tables": [
+    {
+      "id": "ending-logo-frame-catalog-pointers",
+      "state": "converted",
+      "algorithm": "StartingB97F, sum two-byte-header/five-byte-part record sizes. Two14-part S records precede two equal groups of12/18/25-part circle stages. FramePointer shared by catalog and generated logo programs."
+    },
+    {
+      "id": "ending-logo-frame-catalog-counts",
+      "state": "converted",
+      "algorithm": "Both S halves have14 OAM parts. Named first/second/complete circle-stage cases select12/18/25 for either side; counts describe composition shape, not a fitted curve."
+    },
+    {
+      "id": "ending-logo-frame-catalog-names",
+      "state": "converted",
+      "algorithm": "Named upper/lower S keys; circle side plus invariant one-based stage preserves six published wrap keys."
+    }
+  ],
+  "implementation": "Remove eight-record StockFrames and eight duplicate frontend frame-address constants. Stateless IReadOnlyList view computes catalog records; loader uses Count. Logo instruction reader obtains every S/wrap identity through shared FramePointer. No stored generated records or runtime cartridge fallback.",
+  "consumer": "EndingLogoSpritePresentation.Load binds published keys to editable compositions, EndingObjectArtworkFiles imports with stock counts, ResourceAudit checks membership, and EndingLogoInstructionDefinitions selects the same frame addresses.",
+  "proof": "Extend existing VerifyEndingLogoPrograms, keeping one compound original-data proof for catalog/program views. SHA-pinned --lookup-ending-logo-programs compares eight catalog pointers to independent native instruction operands, counts to OAM headers, keys/order to previous published fixture, plus catalog/address bounds. Existing all31-word and four200-call actor stream checks confirm the migrated instruction consumer and callback timing.",
+  "scope": "Three catalog mappings and shared address aliases only. Individual OAM placements and other catalogs remain independent review obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

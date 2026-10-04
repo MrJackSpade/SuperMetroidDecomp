@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -56,6 +57,27 @@ internal static partial class Program
 
     private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
+        ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
+        string[] names = ["s-upper", "s-lower", "circle-right-1", "circle-right-2", "circle-right-3",
+            "circle-left-1", "circle-left-2", "circle-left-3"];
+        var catalog = EndingLogoSpriteDefinitions.Frames;
+        AssertEqual(8, catalog.Count, "logo frame count");
+        for (int i = 0; i < operands.Length; i++)
+        {
+            int operand = 0x8b0000 | operands[i];
+            ushort pointer = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            int header = 0x8c0000 | pointer;
+            int count = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");
+            AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
+            AssertEqual(names[i], catalog[i].Name, "logo published asset key");
+        }
+        AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "logo catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "logo catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoSpriteDefinitions.FramePointer(invalid), "logo frame address bounds");
+        }
         for (int pointer = EndingLogoInstructionDefinitions.Start;
              pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),

@@ -2856,6 +2856,11 @@
       "stream": 4,
       "path": "csharp/src/SuperMetroid.Verification/Program.RidleyMovementTargets.cs",
       "purpose": "Adapt existing focused Ridley mapping fixture API while preserving original assertions"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.ZeroInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete presentation-ROM-read assertion; preserve exact native operand and production loop verification"
     }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

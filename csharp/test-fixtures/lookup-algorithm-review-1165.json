@@ -10377,4 +10377,26 @@
     "limitations": "Legacy Ceres door initialization fixture lacks installed visual assets; legacy debris/electricity tests expect presentation ROM reads despite current installed presentation ownership. These are recorded fixture limitations, not claims of gameplay defects or reasons to restore ROM reads. No player-facing behavior change or player validation is inferred.",
     "remaining": "54 snapshot definitions converted in total,1074 pending. Independent color endpoints, irregular motion, placement and other unchecked payloads remain required. No stream is complete."
   }
+,
+  "parallelStreamsThirdIntegration": {
+    "id": "parallel-streams-third-thirty-conversions-and-two-partial-fades",
+    "state": "unreviewed",
+    "completed": {
+      "id": "third-batch-thirty-complete-definitions",
+      "state": "converted",
+      "scope": "Crystal Flash body1; Choot controls/selection3; Ripper programs/visuals4; Ridley attack/targets13; Draygon burial1; Waver/HZoomer4; Mochtroid/Yellow Pipe Bug4.",
+      "implementationCommits": "0c3625d21,5670b1983,76cea552e,18e844703,c37593f8b,743cc4b0b,1654bde7d",
+      "algorithm": "Grey triangular pulse with fixed backdrop; semantic behavior and phase dispatch; on-demand timed-loop layout; wing-cycle/packed-composition addressing; arena-quarter targets and bounded distributions; unit-circle subspeeds scaled65535 with radius508 spawn geometry and native flooring/wrap.",
+      "proof": "Integrated --lookup-stream2-crystal-body,--lookup-stream-3,--lookup-stream-4,--waver-instruction-mechanics,--hzoomer-instruction-program-definitions pass. Native full-domain comparisons and relevant production callbacks, RNG, frame progression and source-read guards pass; Crystal body original100 colors and independent edits pass. Verification and ResourceAudit builds have zero errors. Owning XML/stream reports document exact addresses and consumers."
+    },
+    "partial": {
+      "id": "kraid-and-tourian-palette-interpolation-only",
+      "state": "unreviewed",
+      "implementationCommits": "fc8433c7b,e834ea35e",
+      "convertedFields": "Kraid health/secondary channel interpolation, saturated flash and shared identical source; Tourian statue48 intermediate RGB5 samples from16 endpoints. Supplied sample/endpoint edits remain exact independent content.",
+      "proof": "--lookup-stream2-kraid-ramps confirms original336 colors, all288 individual edited cells, source independence and content hashes. --lookup-stream-4 confirms64 original statue colors, absent stored48 intermediates, complete pointer enumeration and real JSON endpoint/intermediate edits. Reviewed Kraid/Crystal source audit hashes updated after API and loader review.",
+      "remaining": "Kraid endpoint colors and exactly two color6 deviations, Tourian endpoint choices, all other container payloads, Crystal bubble data and Choot motion remain required. No retained exception or completed-container claim."
+    },
+    "remaining": "84 of1128 snapshot definitions are fully converted;1044 remain pending. All five streams remain open. No new retention exception."
+  }
 }

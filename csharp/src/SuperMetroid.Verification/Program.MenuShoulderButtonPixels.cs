@@ -4,17 +4,17 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyMenuLargeFontPixels(ISnesAddressSpace rom)
+    private static void VerifyMenuShoulderButtonPixels(ISnesAddressSpace rom)
     {
-        int[] tiles = [0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x11,0x17,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x2b,0x2c,0x2d,0x2f,0x30,0x31,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3e,0x3f,0x40,0x41,0x42,0x50,0x52];
+        int[] tiles = [0x28, 0x29, 0x2a, 0x2e];
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
-        var font = new MenuLargeFontArtwork(image);
-        AssertEqual(336, font.StoredFaceByteCount, "one-bit authored silhouettes only");
-        AssertEqual(10, font.StoredEditCount, "ten independently observed shadow retouches");
+        var button = new MenuShoulderButtonArtwork(image);
+        AssertEqual(4, MenuShoulderButtonArtwork.StoredGlyphByteCount, "only two authored letter masks remain");
+        AssertEqual(0, button.StoredEditCount, "all stock button caps and shadow joins are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(4000, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
+        AssertEqual(4000, stock.StoredArtworkByteCount, "button planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })
@@ -29,14 +29,14 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, font.Pixel(tile, x, y), "original glyph foreground, shadow, retouch and transparency");
+            AssertEqual((byte)expected, button.Pixel(tile, x, y), "original rounded button, letter, shadow and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
             CheckEdited(pixels);
         }
-        // Every color at an upper-half face and a lower-half boundary shadow, including introducing/removing foreground.
-        foreach (int position in new[] { 7 * 128 + 10 * 8 + 1, 8 * 128 + 10 * 8 + 3, 15 * 8 })
+        // Every color in the glyph, shadow join and transparent cap corner.
+        foreach (int position in new[] { 17 * 128 + 75, 22 * 128 + 85, 16 * 128 + 64 })
         for (byte value = 0; value < 16; value++)
         {
             byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
@@ -50,12 +50,12 @@ internal static partial class Program
             all[position] = (byte)((all[position] + 1) % 16);
         }
         CheckEdited(all);
-        foreach (int invalid in new[] { -1, 0x10, 0x18, 0x3c, 0x43, 0x53, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, 0, 0), "invalid title font tile");
+        foreach (int invalid in new[] { -1, 0x27, 0x2b, 0x2d, 0x2f, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => button.Pixel(invalid, 0, 0), "invalid button tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, invalid, 0), "invalid glyph X");
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, 0, invalid), "invalid glyph Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => button.Pixel(0x28, invalid, 0), "invalid button X");
+            AssertThrows<ArgumentOutOfRangeException>(() => button.Pixel(0x28, 0, invalid), "invalid button Y");
         }
         void CheckEdited(byte[] pixels)
         {
@@ -63,7 +63,7 @@ internal static partial class Program
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(vram, 0x4000);
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, 128, 128, 4);
-            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");
+            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");
         }
     }
 }

@@ -239,8 +239,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs
 
-- [ ] **EyeDoorSweatInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EyeDoorSweatInstructionProgramDefinitions.PresentationWords** ([L34](../csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs#L34)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorSweatInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorSweatInstructionProgramDefinitions.PresentationWords** ([L34](../csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs#L34)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs
 
@@ -248,8 +248,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs
 
-- [ ] **FlyInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **FlyInstructionProgramDefinitions.PresentationWords** ([L20](../csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **FlyInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **FlyInstructionProgramDefinitions.PresentationWords** ([L20](../csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs
 
@@ -614,8 +614,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs
 
-- [ ] **SporeSpawnProjectileDefinitions.StalkYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SporeSpawnProjectileDefinitions.SpawnerXPositions** ([L13](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnProjectileDefinitions.StalkYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnProjectileDefinitions.SpawnerXPositions** ([L13](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SporeSpawnProjectileDefinitions.Movement** ([L17](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs
@@ -694,7 +694,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 26 named definitions (batches 1/2/4/5); Tourian statue grey intermediate payload also converted (batch 3, container remains open).
+- Completed conversions: 32 named definitions (batches 1/2/4/5/6); Tourian statue grey intermediate payload also converted (batch 3, container remains open).
 - Justified retained entries: none.
 - Confirmation results: isolated builds and --lookup-stream-4 pass; legacy presentation-read verifier limitations recorded in batch 2.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -748,3 +748,12 @@ One complete five-column definition converted; 26 definitions complete and 199 r
 - `DraygonBurialEvirDefinitions.Entries` is removed. The six angles are $68-$10*entry. Subspeeds are floor(65535*abs(cos(angle))) and floor(65535*sin(angle)); spawn coordinates are floor(256+508*cos(angle)) and floor(512-508*sin(angle)), with native signed-X word wrapping. All values are evaluated from angle geometry, without storing the six results.
 - Evidence: pinned bankA5 `$A1AF..A1F6`. Native annotations explicitly identify the $FFFF-scaled trigonometric subspeeds and equally spaced angles; the six positions independently match the radius508 circle centered at(256,512). Every one of the30 meaningful original fields matches raw ROM, including the two negative X positions. Angle-padding words are unused and remain outside the record API.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed the thirty raw-field comparisons and invalid entry bounds, alongside its existing focused checks. No consumer or mutable state ownership changed.
+## Batch 6: Spore Spawn geometry, fly and eye-door sweat programs
+
+Six definitions converted; 32 complete and 193 unchecked. No retained exception.
+
+- Spore Spawn stalk offsets derive from -64+8*index, and ceiling emitters from32+64*index. The existing four-entry domain and rejected higher arguments remain unchanged. Native `$86:DCB9..DCC0` and `$86:DCE6..DCED` independently match all eight words. The adjacent fifth native stalk word is outside the pre-existing API domain; this conversion does not extend that contract. The separate wrapped spore movement stream is still pending.
+- Fly instruction mechanics and presentation locations derive from four two-frame drawing records and goto-first-frame at `$A2:B013..B026`.
+- Eye Door sweat mechanics and presentation locations derive from the six-frame falling loop and impact sequence (clear movement, three six-frame drawings, delete) at `$86:B615..B62C`.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed all changed native words, enumeration order/count, exact presentation/mechanics byte ownership, unaligned-read rejection and index bounds. Existing unrelated presentation data remain supplied.
+- Stream4 worktree now pauses for the coordinator-requested rotation back to stream1. All193 unchecked entries and Tourian endpoint/container scopes remain explicit pending work; no exception was inferred for them.

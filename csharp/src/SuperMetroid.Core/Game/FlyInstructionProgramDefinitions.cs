@@ -11,29 +11,37 @@ internal static class FlyInstructionProgramDefinitions
     /// <summary><c>InstList_Mellow_Mella_Menu</c> at $A2:B013.</summary>
     internal const ushort Flight = 0xb013;
 
-    private static readonly FlyInstructionMechanicsWord[] Words =
-    [
-        new(0xb013, 2), new(0xb017, 2), new(0xb01b, 2), new(0xb01f, 2),
-        new(0xb023, CommonEnemyInstructionCodes.Goto), new(0xb025, Flight),
-    ];
+    /// <summary>Four two-frame drawings followed by goto-first-frame.</summary>
+    private const int FrameCount = 4;
+    internal static int MechanicsWordCount => FrameCount + 2;
+    internal static int PresentationWordCount => FrameCount;
 
-    private static readonly ushort[] PresentationWords = [0xb015, 0xb019, 0xb01d, 0xb021];
+    internal static FlyInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < FrameCount) return new((ushort)(Flight + 4 * index), 2);
+        return new((ushort)(Flight + 4 * FrameCount + 2 * (index - FrameCount)),
+            index == FrameCount ? CommonEnemyInstructionCodes.Goto : Flight);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FlyInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Flight + 2 + 4 * index);
+    }
 
-    /// <summary>True only for the four visual operands in the shared flight loop.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    /// <summary>True only for the visual operand in each of the four drawing records.</summary>
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (Flight + 2);
+        return (uint)offset < 4 * FrameCount && offset % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -46,9 +54,9 @@ internal static class FlyInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

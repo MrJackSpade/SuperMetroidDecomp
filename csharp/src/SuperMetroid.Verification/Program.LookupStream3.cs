@@ -105,6 +105,30 @@ internal static partial class Program
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
         VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);
+        VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
+        var turretMechanics = new HashSet<int>();
+        for (int direction = 0; direction < 8; direction++)
+        {
+            turretMechanics.Add(0xc101 + 6 * direction);
+            turretMechanics.Add(0xc105 + 6 * direction);
+            turretMechanics.Add(0xc143 + 6 * direction);
+            turretMechanics.Add(0xc147 + 6 * direction);
+        }
+        for (int selector = 0; selector < 9; selector++)
+            turretMechanics.Add(0xc131 + 2 * selector);
+        foreach (int address in new[] { 0xc19a, 0xc19c, 0xc19e, 0xc1a2, 0xc1a6, 0xc1aa, 0xc1ae, 0xc1b2 })
+            turretMechanics.Add(address);
+        foreach (int address in turretMechanics)
+            AssertEqual((ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8),
+                MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream 3 turret calculated word read");
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(turretMechanics.Contains(address) || turretMechanics.Contains(address - 1),
+                MotherBrainTurretInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                "stream 3 turret mechanics byte ownership domain");
+        foreach (int invalid in new[] { -1, 49, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitions.MechanicsWord(invalid), "stream 3 turret mechanics index bounds");
+        foreach (int invalid in new[] { -1, 21, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream 3 turret visual index bounds");
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
             var regions = MotherBrainContactHitboxDefinitions.Get(part);

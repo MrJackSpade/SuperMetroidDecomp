@@ -42,30 +42,48 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
     /// <summary>Shared turret-bullet touch/shot smoke at $86:C19A.</summary>
     internal const ushort BulletTouchOrShot = 0xc19a;
 
-    private static readonly ushort[] TurretPrograms =
-    [
-        TurretLeft, TurretDownLeft, TurretDown, TurretDownRight,
-        TurretRight, TurretUpRight, TurretUp, TurretUpLeft,
-    ];
+    /// <summary>Left-facing bullet pose at $86:C143; eight poses occupy six bytes each.</summary>
+    private const ushort BulletLeft = 0xc143;
 
-    private static readonly ushort[] BulletPrograms =
-        [0xc143, 0xc149, 0xc14f, 0xc155, 0xc15b, 0xc161, 0xc167, 0xc16d];
+    internal static int MechanicsWordCount => 49;
+    internal static int PresentationWordCount => 21;
+    internal static int DirectionCount => 8;
 
-    private static readonly MotherBrainTurretInstructionMechanicsWord[] Words = BuildWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static MotherBrainTurretInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 16)
+            return PoseWord(TurretLeft, index);
+        if (index == 16)
+            return new(BulletSelector, EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY);
+        if (index < 25)
+            return new((ushort)(BulletSelector + 2 + 2 * (index - 17)), (ushort)(BulletLeft + 6 * (index - 17)));
+        if (index < 41)
+            return PoseWord(BulletLeft, index - 25);
+        return index switch
+        {
+            41 => new(BulletTouchOrShot, EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0),
+            42 => new(BulletTouchOrShot + 2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+            48 => new(BulletTouchOrShot + 24, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            _ => new((ushort)(BulletTouchOrShot + 4 + 4 * (index - 43)), index == 47 ? (ushort)32 : (ushort)8),
+        };
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static int DirectionCount => TurretPrograms.Length;
-    internal static MotherBrainTurretInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(index < 8 ? TurretLeft + 6 * index + 2
+            : index < 16 ? BulletLeft + 6 * (index - 8) + 2
+            : BulletTouchOrShot + 6 + 4 * (index - 16));
+    }
 
     internal static ushort TurretProgram(MotherBrainTurretDirection direction) =>
-        DirectionProgram(TurretPrograms, direction);
+        DirectionProgram(TurretLeft, direction);
 
     internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
-        DirectionProgram(BulletPrograms, direction);
+        DirectionProgram(BulletLeft, direction);
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainRoomTurret or
@@ -73,119 +91,62 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MotherBrainTurretInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Mother Brain turret mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (TryRead(unchecked((ushort)address), out _) ||
+         TryRead(unchecked((ushort)(address - 1)), out _));
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static ushort DirectionProgram(
-        ushort[] programs,
-        MotherBrainTurretDirection direction)
+    private static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
     {
         int index = (byte)direction;
-        if ((uint)index >= programs.Length)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(direction), direction,
+        if ((uint)index >= DirectionCount)
+            throw new ArgumentOutOfRangeException(nameof(direction), direction,
                 "Mother Brain turret direction must be zero through seven.");
+        return (ushort)(first + 6 * index);
+    }
+
+    private static MotherBrainTurretInstructionMechanicsWord PoseWord(ushort first, int index) =>
+        new((ushort)(first + 6 * (index / 2) + 4 * (index % 2)),
+            index % 2 == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+
+    private static bool TryRead(ushort address, out ushort value)
+    {
+        int poseOffset = address - TurretLeft;
+        if (poseOffset < 0 || poseOffset >= 48)
+            poseOffset = address - BulletLeft;
+        if (poseOffset >= 0 && poseOffset < 48 && poseOffset % 6 is 0 or 4)
+        {
+            value = poseOffset % 6 == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep;
+            return true;
         }
-
-        return programs[index];
+        int selectorOffset = address - BulletSelector;
+        if (selectorOffset >= 0 && selectorOffset <= 16 && selectorOffset % 2 == 0)
+        {
+            value = selectorOffset == 0
+                ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY
+                : (ushort)(BulletLeft + 6 * (selectorOffset / 2 - 1));
+            return true;
+        }
+        int smokeOffset = address - BulletTouchOrShot;
+        if (smokeOffset is 0 or 2 or 24 || smokeOffset >= 4 && smokeOffset <= 20 && smokeOffset % 4 == 0)
+        {
+            value = smokeOffset switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0,
+                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+                20 => 32,
+                24 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+                _ => 8,
+            };
+            return true;
+        }
+        value = 0;
+        return false;
     }
-
-    private static MotherBrainTurretInstructionMechanicsWord[] BuildWords()
-    {
-        var words = new List<MotherBrainTurretInstructionMechanicsWord>(49);
-        foreach (ushort program in TurretPrograms)
-            AddPose(words, program);
-
-        Add(words, BulletSelector,
-            EnemyProjectileCodePointers
-                .Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY);
-        for (int index = 0; index < BulletPrograms.Length; index++)
-            Add(words, BulletSelector + 2 + index * 2, BulletPrograms[index]);
-        foreach (ushort program in BulletPrograms)
-            AddPose(words, program);
-
-        Add(words, BulletTouchOrShot,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0);
-        Add(words, BulletTouchOrShot + 2,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
-        AddTimedFrames(words, BulletTouchOrShot + 4, [8, 8, 8, 8, 32]);
-        Add(words, BulletTouchOrShot + 0x18,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(21);
-        foreach (ushort program in TurretPrograms)
-            words.Add(unchecked((ushort)(program + 2)));
-        foreach (ushort program in BulletPrograms)
-            words.Add(unchecked((ushort)(program + 2)));
-        AddPresentationFrames(words, BulletTouchOrShot + 4, 5);
-        return words.ToArray();
-    }
-
-    private static void AddPose(
-        List<MotherBrainTurretInstructionMechanicsWord> words,
-        ushort program)
-    {
-        Add(words, program, 1);
-        Add(words, program + 4,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
-    }
-
-    private static void AddTimedFrames(
-        List<MotherBrainTurretInstructionMechanicsWord> words,
-        int start,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int index = 0; index < durations.Length; index++)
-            Add(words, start + index * 4, durations[index]);
-    }
-
-    private static void AddPresentationFrames(List<ushort> words, int start, int count)
-    {
-        for (int index = 0; index < count; index++)
-            words.Add(unchecked((ushort)(start + index * 4 + 2)));
-    }
-
-    private static void Add(
-        List<MotherBrainTurretInstructionMechanicsWord> words,
-        int address,
-        ushort value) => words.Add(new(unchecked((ushort)address), value));
 }

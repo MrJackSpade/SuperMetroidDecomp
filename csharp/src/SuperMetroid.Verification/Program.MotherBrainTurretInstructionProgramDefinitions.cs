@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -64,6 +65,7 @@ internal static partial class Program
             turretPose.InstructionPointer = turretProgram;
             turretPose.InstructionTimer = 1;
             RunForcedTick(turretSystem, turretPose);
+            VerifyPresentation(turretPose, (ushort)(0xc103 + 6 * directionValue));
             AssertEqual(1, turretPose.InstructionTimer,
                 $"Mother Brain turret direction {directionValue} pose duration");
             AssertEqual(unchecked((ushort)(turretProgram + 4)), turretPose.InstructionPointer,
@@ -89,6 +91,7 @@ internal static partial class Program
             RunForcedTick(bulletSystem, bullet);
             ushort bulletProgram = MotherBrainTurretInstructionProgramDefinitions
                 .BulletProgram(direction);
+            VerifyPresentation(bullet, (ushort)(0xc145 + 6 * directionValue));
             AssertEqual(1, bullet.InstructionTimer,
                 $"Mother Brain turret bullet direction {directionValue} pose duration");
             AssertEqual(unchecked((ushort)(bulletProgram + 4)), bullet.InstructionPointer,
@@ -115,6 +118,7 @@ internal static partial class Program
         for (int frame = 0; frame < contactDurations.Length; frame++)
         {
             RunForcedTick(contactSystem, contact);
+            VerifyPresentation(contact, (ushort)(0xc1a0 + 4 * frame));
             AssertEqual(contactDurations[frame], contact.InstructionTimer,
                 $"Mother Brain turret bullet contact frame {frame} duration");
             AssertEqual(unchecked((ushort)(
@@ -143,9 +147,8 @@ internal static partial class Program
         AssertEqual(21,
             MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
             "Mother Brain turret catalog retains all presentation operands");
-        AssertEqual(MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Mother Brain turret spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Mother Brain turret visual operands require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Mother Brain turret mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -165,8 +168,17 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain turret instruction mechanics: 49 compiled words, twelve real " +
             "turrets, all eight real bullet selectors, touch/shot smoke, shared deletion, " +
-            "and 21 live spritemap reads pass.");
+            "and 21 native presentation operand identities pass without runtime cartridge reads.");
 
+        void VerifyPresentation(RoomEnemyProjectileSlot projectile, ushort expectedOperand)
+        {
+            AssertEqual(expectedOperand, projectile.PresentationOperandAddress,
+                "Mother Brain turret selects the exact native presentation operand");
+            AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(expectedOperand),
+                "Mother Brain turret operand belongs to installed presentation definitions");
+            AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
+                "Mother Brain turret defers the exact visual identity to installed artwork");
+        }
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();

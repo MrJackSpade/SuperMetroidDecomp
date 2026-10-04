@@ -174,7 +174,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs
 
-- [ ] **DraygonCannonData.FiringTargets** ([L24](../csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCannonData.FiringTargets** ([L24](../csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs
 
@@ -229,8 +229,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs
 
-- [ ] **EyeDoorEnemyProjectileRomData.ProjectileOriginOffsets** ([L24](../csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EyeDoorEnemyProjectileRomData.SweatVelocities** ([L30](../csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorEnemyProjectileRomData.ProjectileOriginOffsets** ([L24](../csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorEnemyProjectileRomData.SweatVelocities** ([L30](../csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs
 
@@ -344,7 +344,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs
 
-- [ ] **MaridiaLargeSnailInstructionDefinitions.InstructionPointers** ([L24](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaLargeSnailInstructionDefinitions.InstructionPointers** ([L24](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionProgramDefinitions.cs
 
@@ -406,8 +406,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs
 
-- [ ] **RidleyClawOffsets.X** ([L7](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleyClawOffsets.Y** ([L10](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyClawOffsets.X** ([L7](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyClawOffsets.Y** ([L10](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RidleyClawOffsets.ExistingOutOfRangeWindow** ([L19](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs
@@ -565,7 +565,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SaveRamLayout.cs
 
-- [ ] **SaveRamLayout.NativeSlotOffsets** ([L97](../csharp/src/SuperMetroid.Core/Game/SaveRamLayout.cs#L97)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SaveRamLayout.NativeSlotOffsets** ([L97](../csharp/src/SuperMetroid.Core/Game/SaveRamLayout.cs#L97)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs
 
@@ -769,3 +769,14 @@ One more complete definition (`preExplosion`);33 complete and192 unchecked. `exp
 ### Related palette documentation audit
 
 Removed the obsolete normal-suit pointer retention language: the current implementation already resolves semantic suit cases. Removed the cinematic intro-grey retention argument based on failed uniform-ramp fits and the adjacent hurt-palette live-cartridge wording. Both independent payload obligations remain explicit. Rechecked death-explosion timing against native `$9B:B75B` countdown/advance, `$B823` nine timer bytes, and `$92:EDBE` fixed-position drawing selection. Its existing exception is specifically the chosen entry/per-drawing/final cinematic dwell times, with no motion or measured-brightness quantity determining them; clarified that authored data in general receives no exemption. No production behavior changed in this documentation cleanup.
+## Batch 8: enemy geometry/dispatch and save-slot layout
+
+Seven more definitions converted;40 complete and185 unchecked. No retained exception.
+
+- Draygon cannon selection dispatches the four named roles, preserving every control word and wall muzzle coordinate. The consumer retains its random-bit selection, disabled-cannon check and allocation ordering.
+- Eye-door origin words calculate the used left/right block offsets and the unused staggered/row patterns. Sweat velocities derive horizontal direction and shared vertical speed. Word-level access preserves all existing overlapping-pair parameter cases; odd and out-of-range parameters retain the consumer's rejection. Corrected the origin table's source identity from initializer `$B62D` to actual payload `$B65B`.
+- Ridley claw X decreases12 pixels per clamped facing. The three Y heights advance10.5 pixels rounded upward. Existing clamps, odd foot-index aliases and the adjacent-code read window remain behaviorally unchanged; `ExistingOutOfRangeWindow` stays unchecked and independently required.
+- Oum animation dispatch maps the eight named facing/action states to named programs.
+- Save-slot origins calculate16+slot*1628, replacing the stored three-word span. Serializer, replay exporter and existing verifier consumers call the new bounded API; payload bytes and directory layout are unchanged.
+- Evidence: pinned bankA5 `$87AA..87F3`, bank86 `$B65B..B682` and `$B6B1..B6B8`, bankA6 `$B9D5..B9DF`, bankA2 `$CB77..CB86`, bank81 `SaveSlotOffsets` `$812B..8130`.
+- Confirmation: Verification build passed (1431 warnings, zero errors), DebugRunner build passed (42 warnings, zero errors), and `--lookup-stream-4` passed. Direct original-word checks cover every changed geometry/dispatch/slot value and rejected bounds. Existing Ridley verification preserves all65536 raw facing/foot-index values,1,179,648 actual carry placements and228,150 collision-boundary checks. Existing SRAM schema assertions pass. No gameplay discovery or expanded unrelated acceptance was performed.

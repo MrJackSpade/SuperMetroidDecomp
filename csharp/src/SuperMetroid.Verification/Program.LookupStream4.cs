@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4GeometryLayout(rom);
         VerifyLookupStream4PowerBombColors(rom);
         VerifyLookupStream4SporeAndFly(rom);
         VerifyLookupStream4Burial(rom);
@@ -332,5 +333,34 @@ internal static partial class Program
             AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, Stored(installed, "preExplosion"), "only changed pre-explosion content stays stored");
             AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, Stored(installed, "explosion"), "only changed calculated explosion content joins unresolved tail");
         }
+    }
+    private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int index = 0; index < 20; index++)
+            AssertEqual(unchecked((short)Word(0x86b65b + index * 2)), EyeDoorEnemyProjectileRomData.ProjectileOriginWord(index), "eye-door native origin words including overlapping-pair selectors");
+        for (int index = 0; index < 4; index++)
+        {
+            AssertEqual(unchecked((short)Word(0x86b6b1 + index * 2)), EyeDoorEnemyProjectileRomData.SweatVelocityWord(index), "eye-door native sweat velocity words");
+            var target = DraygonCannonData.FiringTarget(index);
+            AssertEqual((ushort)(0x8804 + 2 * index), target.DisabledWord, "Draygon original control-word selection");
+            AssertEqual(Word(0xa587e4 + 4 * index), target.X, "Draygon original cannon X");
+            AssertEqual(Word(0xa587e6 + 4 * index), target.Y, "Draygon original cannon Y");
+        }
+        for (ushort index = 0; index < 8; index++)
+            AssertEqual(Word(0xa2cb77 + index * 2), MaridiaLargeSnailInstructionDefinitions.InstructionPointer(index), "Oum native action/facing dispatch");
+        for (int slot = 0; slot < 3; slot++)
+            AssertEqual(Word(0x81812b + slot * 2), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
+        foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.ProjectileOriginWord(invalid), "eye-door origin word domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.SweatVelocityWord(invalid), "eye-door sweat word domain");
+            AssertThrows<IndexOutOfRangeException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
+        foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(invalid), "Oum animation exact domain");
     }
 }

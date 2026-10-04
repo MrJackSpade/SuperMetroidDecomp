@@ -94,8 +94,13 @@ public static class SaveRamLayout
     /// <summary>Saved frontend dispatcher word at $7E:D914.</summary>
     public const int LoadingGameStateWramAddress = WramMirrorAddress + LoadingGameStateOffset;
 
-    private static readonly ushort[] NativeSlotOffsets = [0x0010, 0x066c, 0x0cc8];
+    /// <summary>$81:812B SaveSlotOffsets: first payload begins after the sixteen-byte checksum directory.</summary>
+    private const ushort FirstSlotOffset = 0x0010;
 
-    /// <summary>Read-only starts of the three checksummed slot payloads.</summary>
-    public static ReadOnlySpan<ushort> SlotOffsets => NativeSlotOffsets;
+    /// <summary>$81:812B SaveSlotOffsets: three adjacent payloads, each exactly $065C bytes long.</summary>
+    public static ushort SlotOffset(int slot)
+    {
+        if ((uint)slot >= SlotCount) throw new IndexOutOfRangeException();
+        return (ushort)(FirstSlotOffset + slot * SlotByteCount);
+    }
 }

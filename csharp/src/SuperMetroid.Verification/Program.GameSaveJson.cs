@@ -67,7 +67,7 @@ internal static partial class Program
 
         // This gap is intentionally not represented by the translated snapshot. Preserve a
         // sentinel there and rebuild the checksum so migration proves unknown bytes survive.
-        int untranslatedOffset = SaveRamLayout.SlotOffsets[1] + SaveRamLayout.ReserveEnergyOffset + 2;
+        int untranslatedOffset = SaveRamLayout.SlotOffset(1) + SaveRamLayout.ReserveEnergyOffset + 2;
         source.WriteByte((int)new SnesAddress(SaveRamLayout.SramBank, (ushort)untranslatedOffset), 0xa5);
         saveRam.SaveSlotPreservingUntranslatedBytes(1, snapshot);
         saveRam.SelectSlot(1);

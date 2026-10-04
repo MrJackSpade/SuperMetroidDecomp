@@ -16,16 +16,34 @@ public static class EyeDoorEnemyProjectileRomData
 
     public const int PixelsPerRoomBlock = 16;
 
-    /// <summary>
-    /// Exact signed position-pair table at <c>$86:B62D</c>. The PLM parameter is an even
-    /// byte offset, so indexing it as words reproduces the native absolute indexed read.
-    /// </summary>
-    public static ReadOnlySpan<short> ProjectileOriginOffsets =>
-    [
-        -16, 16, -96, -64, -128, -32, -96, 64, -128, 32,
-        16, 16, 96, -64, 112, -64, 128, -64, 144, -64,
-    ];
+    /// <summary>$86:B65B InitAI_EnemyProjectile_EyeDoorProjectile.Xpositions: ten interleaved X/Y origin pairs.</summary>
+    public const int ProjectileOriginWordCount = 20;
+    /// <summary>$86:B6B1 InitAI_EnemyProjectile_EyeDoorSweat.Xvelocity: two interleaved X/Y launch pairs.</summary>
+    public const int SweatVelocityWordCount = 4;
 
-    /// <summary>Exact signed X/Y velocity pairs at <c>$86:B6B1</c>.</summary>
-    public static ReadOnlySpan<short> SweatVelocities => [-64, 512, 64, 512];
+    /// <summary>
+    /// $86:B65B..B682: left/right door origins are one block sideways and down.
+    /// Unused left patterns alternate six/eight blocks sideways and four/two
+    /// blocks above or below. Unused right patterns advance one block at a time,
+    /// four blocks above. Word addressing preserves the existing overlapping-pair domain.
+    /// </summary>
+    public static short ProjectileOriginWord(int index)
+    {
+        if ((uint)index >= ProjectileOriginWordCount) throw new IndexOutOfRangeException();
+        int pair = index / 2;
+        bool yAxis = (index & 1) != 0;
+        if (pair is 0 or 5)
+            return (short)(yAxis ? PixelsPerRoomBlock : pair == 0 ? -PixelsPerRoomBlock : PixelsPerRoomBlock);
+        if (pair < 5)
+            return (short)(yAxis ? (pair <= 2 ? -1 : 1) * ((pair & 1) != 0 ? 4 : 2) * PixelsPerRoomBlock
+                : -((pair & 1) != 0 ? 6 : 8) * PixelsPerRoomBlock);
+        return (short)(yAxis ? -4 * PixelsPerRoomBlock : pair * PixelsPerRoomBlock);
+    }
+
+    /// <summary>$86:B6B1: horizontal launch is minus/plus one-quarter pixel; both vertical launches are two pixels per frame.</summary>
+    public static short SweatVelocityWord(int index)
+    {
+        if ((uint)index >= SweatVelocityWordCount) throw new IndexOutOfRangeException();
+        return (short)((index & 1) != 0 ? 512 : 64 * (index - 1));
+    }
 }

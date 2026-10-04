@@ -53,7 +53,7 @@ internal static class ReplaySaveRamExporter
     /// <summary>Changes only the native entry-point word and its four redundant checksum directory words.</summary>
     private static void SetMainGameEntryPoint(Span<byte> sram, int slot)
     {
-        int start = SaveRamLayout.SlotOffsets[slot];
+        int start = SaveRamLayout.SlotOffset(slot);
         BinaryPrimitives.WriteUInt16LittleEndian(sram[(start + SaveRamLayout.LoadingGameStateOffset)..], CartridgeSaveLoadStates.MainGame);
         ushort checksum = 0;
         for (int offset = 0; offset < SaveRamLayout.SlotByteCount; offset += SaveRamLayout.WordByteCount)

@@ -17,31 +17,21 @@ internal enum MaridiaLargeSnailAnimation : ushort
 internal static class MaridiaLargeSnailInstructionDefinitions
 {
     /// <summary>
-    /// <c>InstListPointers_Oum</c> at <c>$A2:CB77-$A2:CB86</c>, indexed by the
-    /// mutually-exclusive animation state stored in Oum extra word $00.
+    /// $A2:CB77 InstListPointers_Oum: named idle, roll and attack states select
+    /// their facing-specific programs. The complete domain is zero through seven.
     /// </summary>
-    private static readonly ushort[] InstructionPointers =
-    [
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightIdle,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingForwards,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingForwards,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightAttacking,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftAttacking,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingBackwards,
-        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingBackwards,
-    ];
-
-    /// <summary>Returns the bank-$A2 instruction list for one authored animation state.</summary>
-    internal static ushort InstructionPointer(ushort animationIndex)
-    {
-        if (animationIndex >= InstructionPointers.Length)
+    internal static ushort InstructionPointer(ushort animationIndex) =>
+        (MaridiaLargeSnailAnimation)animationIndex switch
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(animationIndex), animationIndex,
-                "Maridia Large Snail animation index must be zero through seven.");
-        }
-
-        return InstructionPointers[animationIndex];
-    }
+            MaridiaLargeSnailAnimation.FacingRightIdle => MaridiaLargeSnailInstructionProgramDefinitions.FacingRightIdle,
+            MaridiaLargeSnailAnimation.FacingLeftIdle => MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle,
+            MaridiaLargeSnailAnimation.FacingRightRollingForwards => MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingForwards,
+            MaridiaLargeSnailAnimation.FacingLeftRollingForwards => MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingForwards,
+            MaridiaLargeSnailAnimation.FacingRightAttacking => MaridiaLargeSnailInstructionProgramDefinitions.FacingRightAttacking,
+            MaridiaLargeSnailAnimation.FacingLeftAttacking => MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftAttacking,
+            MaridiaLargeSnailAnimation.FacingRightRollingBackwards => MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingBackwards,
+            MaridiaLargeSnailAnimation.FacingLeftRollingBackwards => MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingBackwards,
+            _ => throw new ArgumentOutOfRangeException(nameof(animationIndex), animationIndex,
+                "Maridia Large Snail animation index must be zero through seven."),
+        };
 }

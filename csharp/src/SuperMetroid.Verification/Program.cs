@@ -106,6 +106,8 @@ if (args is ["--lookup-stream-4"])
     VerifyPowerBombFixedColors();
     VerifyRidleyAttackChoices(rom);
     VerifyRidleyMovementTargets(rom);
+    VerifyRidleyClawOffsets(rom);
+    VerifySaveRamLayout();
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }

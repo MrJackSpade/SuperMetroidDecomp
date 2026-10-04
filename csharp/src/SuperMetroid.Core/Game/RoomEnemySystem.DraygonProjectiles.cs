@@ -13,7 +13,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort random)
     {
-        DraygonCannonTarget target = DraygonCannonData.FiringTargets[random & 3];
+        DraygonCannonTarget target = DraygonCannonData.FiringTarget(random & 3);
         if (state.DisabledCannonWords.Contains(target.DisabledWord))
             return;
 

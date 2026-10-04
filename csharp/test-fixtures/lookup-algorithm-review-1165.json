@@ -8570,4 +8570,21 @@
     "proof":"Extract/reuse the original word checks from VerifyEndingLogo into VerifyEndingLogoPrograms; the aggregate delegates. Early SHA-pinned --lookup-ending-logo-programs compares all31 original words and bounds, then runs each of the four native/generated actor streams for200 calls using explicit independent ROM and generated readers. Cursor, visual frame and callback timing must match on each call. This is focused confirmation of these identified program conversions, not an ending playthrough or defect search. Verification build0 errors/1429 existing warnings; the focused entry passes.",
     "scope":"Only these four programs are converted here. Actor metadata/origins, explosion/reward programs and the remaining inventory have independent obligations. Implementation commit is the commit adding this record."
   }
+,
+  "endingLogoActorMetadataReview": {
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/EndingLogoDefinitions.cs",
+    "source":"Supported SHA-pinned ROM8B:E554..E569 spawns four LDY-selected actors in upper-S, lower-S, upper-circle, lower-circle order. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank8B definitionsEF81..EF98 and initializersF18F/F1A8/F1C1/F1D4 independently establish every callback, program and origin.",
+    "implementation":"Remove the four-word Actors pointer span. ActorPointer validates0..3 and calculatesEF81+6*index from native record layout. Actor selects named UpperS/LowerS/UpperCircle/LowerCircle definition properties; Origin uses the same mutually exclusive role enum. These are native actor initialization cases, not fitted samples. Catalog-member XML identifies each native record and its callbacks/program. Existing record values and exceptions remain unchanged.",
+    "tables":[
+      {"id":"ending-logo-actor-pointers","state":"converted","member":"ActorPointer/Actor.Pointer","algorithm":"EF81+6*index for four consecutive six-byte definitions; both views share this mapping."},
+      {"id":"ending-logo-actor-initializers","state":"converted","member":"Actor.Initialization","algorithm":"Named upper/lower S and upper/lower circle initialization cases."},
+      {"id":"ending-logo-actor-preinstructions","state":"converted","member":"Actor.PreInstruction","algorithm":"Distinct S-half movement callbacks; both circle roles select the shared native no-op."},
+      {"id":"ending-logo-actor-programs","state":"converted","member":"Actor.InstructionList","algorithm":"Named actor role selects its independently converted display/wrap program."},
+      {"id":"ending-logo-origin-x","state":"converted","member":"Origin.X","algorithm":"Native initialization role selects its initial X operand; no inferred geometric fit."},
+      {"id":"ending-logo-origin-y","state":"converted","member":"Origin.Y","algorithm":"Native initialization role selects its initial Y operand; no inferred geometric fit."}
+    ],
+    "consumer":"EndingLogo construction selects Actor/Origin in allocation order, stores callback/program state and starts at those native world-space coordinates. The former Actors span was only duplicated reference membership in verification; those consumers now use the calculated pointer/count API. Static search finds no remaining span users or pointer store.",
+    "proof":"Extend the existing VerifyEndingLogoDefinitions rather than add a duplicate. Expected pointers now come from original LDY operands atE555+6*index, not the former production Actors copy. Read each native six-byte record at that independently selected address. Read original LDA immediates from its initializer for both origins and assert the opcodes. Compare all four pointer identities, twelve record words and eight origin words, plus complete valid indices and representative invalid int bounds. The early SHA-pinned --lookup-ending-logo-actors also reuses the existing palette-source proof already called by this aggregate. Build0 errors/1429 existing warnings; focused proof passes.",
+    "scope":"These six logical mappings have independently reviewed dispositions; aliases share the compound original-data proof. Motion/landing constants, unrelated actor programs and broader inventory remain separate. Implementation commit is the commit adding this record."
+  }
 }

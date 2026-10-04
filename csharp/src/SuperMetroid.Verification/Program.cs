@@ -540,6 +540,16 @@ if (args is ["--lookup-spc-allocation-addresses"])
     Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
     return 0;
 }
+if (args is ["--lookup-intro-mother-brain-explosion-programs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro explosion oracle revision");
+    VerifyIntroMotherBrainExplosionPrograms(rom);
+    VerifyIntroMotherBrainExplosionFrameCatalog(rom);
+    Console.WriteLine("Intro Mother Brain explosions: both native programs, word views, delete, twelve frame identities and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-caret-instructions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

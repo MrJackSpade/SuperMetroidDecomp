@@ -13,16 +13,7 @@ internal static partial class Program
             AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
                 IntroMotherBrainInstructionDefinitions.ReadByte((ushort)pointer),
                 $"intro Mother Brain instruction byte $8B:{pointer:X4}");
-        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.StartPointer;
-             pointer < IntroMotherBrainExplosionInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain explosion instruction byte $8B:{pointer:X4}");
-        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.DeletePointer;
-             pointer < IntroMotherBrainExplosionInstructionDefinitions.DeletePointer + 2; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain explosion delete byte $8B:{pointer:X4}");
+        VerifyIntroMotherBrainExplosionPrograms(retail);
 
         IntroMotherBrainActorDefinition[] actors =
         [

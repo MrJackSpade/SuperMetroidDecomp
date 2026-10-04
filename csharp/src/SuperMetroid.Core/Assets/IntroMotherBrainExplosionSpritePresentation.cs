@@ -38,10 +38,10 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
         {
             throw new InvalidDataException("Invalid intro Mother Brain explosion sprite JSON.", error);
         }
-        ReadOnlySpan<IntroMotherBrainExplosionSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroMotherBrainExplosionSpriteFrameDefinition> definitions =
             IntroMotherBrainExplosionSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainExplosionSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 "Intro Mother Brain explosions require twelve named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();

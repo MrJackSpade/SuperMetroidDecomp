@@ -1,8 +1,12 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Fixed bank-$8B instruction lists for the small and large intro Mother Brain
-/// explosions. Spritemap payloads live separately in bank $8C.
+/// Calculated bank-$8B small/large explosion loops: six sequential frames held
+/// three/six ticks, a16-tick blank, then self-loop. Native8B:CDAB..CDEA and the
+/// shared delete opcode are independently verified, including overlapping reads.
+/// Spritemap identities follow the native record-size calculation in the asset catalog.
 /// </summary>
 internal static class IntroMotherBrainExplosionInstructionDefinitions
 {
@@ -19,17 +23,21 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     /// <summary>One native six-frame small loop occupies 34 frames including blank hold.</summary>
     internal const int SmallLoopFrames = 34;
 
-    private static ReadOnlySpan<byte> Program =>
-    [
-        0x06, 0x00, 0x5d, 0x98, 0x06, 0x00, 0x64, 0x98,
-        0x06, 0x00, 0x7a, 0x98, 0x06, 0x00, 0x90, 0x98,
-        0x06, 0x00, 0xa6, 0x98, 0x06, 0x00, 0xbc, 0x98,
-        0x10, 0x00, 0x00, 0x00, 0xbc, 0x94, 0xab, 0xcd,
-        0x03, 0x00, 0xf7, 0x97, 0x03, 0x00, 0xfe, 0x97,
-        0x03, 0x00, 0x05, 0x98, 0x03, 0x00, 0x1b, 0x98,
-        0x03, 0x00, 0x31, 0x98, 0x03, 0x00, 0x47, 0x98,
-        0x10, 0x00, 0x00, 0x00, 0xbc, 0x94, 0xcb, 0xcd,
-    ];
+    private static ushort ProgramWord(int index)
+    {
+        bool big = index < 16;
+        int word = index % 16;
+        if (word < 12)
+            return (word & 1) == 0 ? (ushort)(big ? 6 : 3)
+                : IntroMotherBrainExplosionSpriteDefinitions.FramePointer(big, word / 2);
+        return word switch
+        {
+            12 => 16, // blank hold duration
+            13 => 0, // no spritemap
+            14 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            _ => big ? StartPointer : SmallPointer,
+        };
+    }
 
     internal static byte ReadByte(ushort pointer)
     {
@@ -39,7 +47,8 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
             return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
         if (pointer < StartPointer || pointer >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return Program[pointer - StartPointer];
+        int offset = pointer - StartPointer;
+        return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
     internal static ushort ReadWord(ushort pointer)
@@ -49,7 +58,6 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         if (pointer < StartPointer || pointer >= EndPointer - 1)
             throw new InvalidDataException(
                 $"Intro Mother Brain explosion instruction read $8B:{pointer:X4} leaves its compiled program.");
-        int offset = pointer - StartPointer;
-        return (ushort)(Program[offset] | Program[offset + 1] << 8);
+        return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
     }
 }

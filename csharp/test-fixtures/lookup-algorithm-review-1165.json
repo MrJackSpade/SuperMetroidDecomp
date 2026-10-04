@@ -9795,4 +9795,25 @@
     "proof": "Extract the existing caret-byte loop from VerifyIntroCaretSpriteArtwork into one VerifyIntroCaretInstructions proof, reused by that integration check and exposed alone as --lookup-intro-caret-instructions. Compare all20 bytes and all19 complete aligned/odd word views directly with the SHA-pinned ROM. Confirm outside-range rejection, zero out-values, byte exceptions and terminal-word crossing exception. Do not rerun the broader cinematic integration/playthrough to establish this instruction-only conversion.",
     "scope": "Both caret programs are converted. Caret artwork, other intro actor programs and the full remaining inventory retain their independent obligations. No retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainExplosionProgramReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainExplosionInstructionDefinitions.cs",
+    "id": "intro-mother-brain-explosion-programs",
+    "state": "converted",
+    "nativeIdentity": "8B:CDAB..CDEA, two32-byte big/small loops; shared delete at8B:CE53",
+    "evidence": "Complete pinned bank8B lists specify six sequential big frames at6 ticks or six small frames at3 ticks, then16 ticks with spritemap0 and94BC self-loop. Existing ReadByte/ReadWord consumer admits arbitrary byte/overlapping-word views within this region and the separate delete operation. NeighborCDEB is another actor and is not included.",
+    "algorithm": "Select big/small list by32-byte region; calculate six duration/frame records from ordinal and shared frame identity function, followed by semantic blank-duration/blank-map/goto/self-target fields. Derive byte halves on demand and compose overlapping words from those bytes. Keep separate delete-byte/word cases and all original exceptions. Remove64-byte Program span; no generated cache or runtime ROM reader.",
+    "proof": "Extract existing native-byte and delete comparisons from VerifyIntroMotherBrainDefinitions into one VerifyIntroMotherBrainExplosionPrograms, reused by that suite and exposed under --lookup-intro-mother-brain-explosion-programs. Extend to all63 complete aligned/odd word views, shared delete word, out-of-region byte/word rejection and both terminal-word crossings. Independent expected bytes come directly from the SHA-pinned ROM. No broader cinematic run is required for this exact instruction substitution.",
+    "scope": "Programs converted; individual explosion artwork remains independent work. Implementation commit is the commit adding this record."
+  },
+  "introMotherBrainExplosionFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpriteDefinitions.cs",
+    "id": "intro-mother-brain-explosion-frame-catalog",
+    "state": "converted",
+    "nativeIdentity": "Twelve consecutive8C:97F7..98D1 OAM records selected by the two original8B explosion programs",
+    "evidence": "Complete pinned bank8C records: first two small frames and first big frame contain one part; the other frames contain four. A native record has2-byte count plus5 bytes per part. Thus small frames start97F7 with two7-byte records then22-byte records; big starts985D with one7-byte record then22-byte records. Existing asset names encode size role and zero-based ordinal.",
+    "algorithm": "FramePointer validates0..5 and sums preceding7-byte single-part and22-byte four-part records. A bounded stateless IReadOnlyList computes small-before-big order, stable size/ordinal names and part counts. Both instruction generation and asset catalog use the same pointer function. Remove stored twelve-record array; loader consumes Count/enumeration. Extraction, identity and audit consumers continue enumerating the calculated view.",
+    "proof": "One VerifyIntroMotherBrainExplosionFrameCatalog compares each calculated pointer against its independently read original instruction operand, each count against that original OAM record, and all twelve names against prior format identities. Check collection/pointer bounds and enumeration agreement. Run alongside the distinct instruction-program proof under the focused flag. Update the two reviewed presentation-source hashes after inspecting the loader Count migration and bounded catalog.",
+    "scope": "Catalog identities/counts/names converted, not OAM pixel content. No retention exception or whole-ticket completion claim. Implementation commit is the commit adding this record."
+  }
 }

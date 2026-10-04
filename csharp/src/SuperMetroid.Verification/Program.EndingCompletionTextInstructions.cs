@@ -24,6 +24,20 @@ internal static partial class Program
                 unchecked((ushort)(EndingCompletionTextInstructionDefinitions.Start + 1))),
             "ending completion reader rejects an unaligned address");
 
+        // Original OAM headers independently establish two sprites per revealed
+        // letter, so packed maps grow by two header bytes plus five per sprite.
+        foreach (var line in new[] { (Start: 0xeb91, Letters: 15), (Start: 0xebd7, Letters: 21), (Start: 0xec35, Letters: 9) })
+        for (int letter = 0; letter < line.Letters; letter++)
+        {
+            int operand = 0x8b0000 | (line.Start + letter * 4 + 2);
+            int map = bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8;
+            int address = 0x8c0000 | map;
+            int count = bus.ReadByte(address) | bus.ReadByte(address + 1) << 8;
+            AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
+        }
+        foreach (ushort invalid in new ushort[] { 0, 0xeb90, 0xecd9, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingCompletionTextInstructionDefinitions.ReadWord(invalid), "completion program bounds");
+
         ushort[] starts =
         [
             0xeb91, 0xebd7, 0xec35, 0xec81, 0xec89, 0xec91, 0xec99, 0xeca1,
@@ -37,7 +51,8 @@ internal static partial class Program
             {
                 // The scene owns private callbacks; here both actor interpreters
                 // advance across the same callback without duplicating its effects.
-                native.Step(bus, (_, cursor) => cursor);
+                native.Step(bus, (_, cursor) => cursor, pointer => (ushort)(
+                    bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
                 installed.Step(bus, (_, cursor) => cursor,
                     EndingCompletionTextInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,

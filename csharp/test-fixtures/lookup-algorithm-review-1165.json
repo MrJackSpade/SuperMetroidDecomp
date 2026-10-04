@@ -7130,4 +7130,16 @@
     "supersedes":"Extends menuTitleFontShadowReview and replaces its owner paths with MenuLargeFontArtwork/Program.MenuLargeFontPixels. Resolves22 of its184 remaining cells, leaving162. All unrelated ticket-wide candidates remain required work.",
     "confirmation":"Verification build0 errors/1429 existing warnings; early SHA-pinned --lookup-menu-large-font, --lookup-menu-small-font, --lookup-highlight-tile-pixels and --lookup-reserve-tile-pixels pass. Closed source pins and maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "menuVYFontBoundaryReview": {
+    "status":"resolved three previously unreviewed glyph cells through correct V/Y pairing; no new retention exceptions",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/MenuLargeFontArtwork.cs",
+    "source":"Complete original4bpp decode of tiles11,17,22,2C,2D,3E,40,41,50 from the supported SHA-pinned B6:C000 atlas. Tile3E continues the wide vertical stems of2D into the narrowing V. Tile41 already converges into Y's stem and therefore joins17, whose initial shadow extends through column6 from41's final foreground row. The earlier tentative41/3E pairing combined the wrong halves.",
+    "algorithm":"Extend the existing semantic upper-half selector with V lower3E -> upper2D and Y lower17 -> upper41. Include upper41 and lower17/3E in the same one-pixel down/right shadow calculation. Every pixel in these three cells follows that rule exactly. No fitted corrections, pixel exceptions or artistic-retouch rationale are added for the earlier mismatch.",
+    "storage":"Remove all96 original planar bytes of the three cells. The full reviewed large-font/blank domain is43 tiles, with42 authored face masks336 bytes and the same ten previously reviewed retouches. The other159 atlas cells occupy5088 raw bytes and remain pending. No generated glyph cache is retained.",
+    "editableContract":"Independent glyph-half edits continue to capture only supplied deviations from the calculated shadows. The proof edits every newly added pixel, including upper row7 and lower row0; user-provided boundary pixels remain independent. Blank-tile, sparse identity and shared upload contracts remain unchanged.",
+    "proof":"Extend the existing single VerifyMenuLargeFontPixels independent source list to43 cells and compare all2752 original pixels, both complete native uploads, every individual pixel edit, full-region edits and all16 color checks. Stock assertions336 mask bytes/ten retouches prove that the new cells required no additional retained pixel exceptions. Sparse invalid IDs now use actual remaining holes. Shared small-font/highlight/reserve proofs confirm new atlas compaction and calculated cursor-source offset.",
+    "supersedes":"Resolves unresolvedBoundary in menuLargeFontExtensionReview. It reduces its162 remaining cells to159. Other atlas families and all ticket-wide unreconciled candidates remain required work.",
+    "confirmation":"Verification build0 errors/1429 existing warnings; early SHA-pinned --lookup-menu-large-font, --lookup-menu-small-font, --lookup-highlight-tile-pixels and --lookup-reserve-tile-pixels pass. Closed source pin and maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

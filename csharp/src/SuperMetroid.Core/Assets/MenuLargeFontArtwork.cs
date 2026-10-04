@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// terminal, counter and diagonal treatments are authored design, not cast-shadow samples.</summary>
 internal sealed class MenuLargeFontArtwork
 {
-    internal const int TileCount = 40;
+    internal const int TileCount = 43;
     private readonly byte[] faces = new byte[(TileCount - 1) * 8];
     private readonly Dictionary<int, byte>? edits;
     internal int StoredFaceByteCount => faces.Length;
@@ -30,10 +30,10 @@ internal sealed class MenuLargeFontArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
     }
 
-    /// <summary>Reviewed large-letter cells and blank0F. Alternate stem17 and Y cells3E/41 remain unreviewed.</summary>
-    internal static bool Contains(int tile) => tile is >= 0x0a and <= 0x0f or 0x11 or >= 0x1a and <= 0x1f or
+    /// <summary>Reviewed large-letter cells and blank0F, including V2D/3E and Y41/17.</summary>
+    internal static bool Contains(int tile) => tile is >= 0x0a and <= 0x0f or 0x11 or 0x17 or >= 0x1a and <= 0x1f or
         >= 0x21 and <= 0x27 or >= 0x2b and <= 0x2d or 0x2f or 0x30 or 0x31 or
-        >= 0x33 and <= 0x3b or 0x3f or 0x40 or 0x42 or 0x50 or 0x52;
+        >= 0x33 and <= 0x3b or >= 0x3e and <= 0x42 or 0x50 or 0x52;
     private static IEnumerable<int> Tiles()
     {
         for (int tile = 0; tile <= 0x52; tile++) if (Contains(tile)) yield return tile;
@@ -58,7 +58,9 @@ internal sealed class MenuLargeFontArtwork
         0x36 => 0x26, // M
         0x39 => 0x0d, // Q
         0x3a => 0x0d, // R
+        0x3e => 0x2d, // V
         0x3f => 0x2f, // W
+        0x17 => 0x41, // Y
         0x50 => 0x40, // X
         0x1e => 0x0e, // E
         0x35 => 0x25, // L

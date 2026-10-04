@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  1013,
+    "remainingTableDefinitionCount":  1010,
     "fileCount":  523,
     "entries":  [
                     {
@@ -4838,7 +4838,9 @@
                         "line":  39,
                         "name":  "NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Durations",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0b8365344a7ec5848d599282046426c06735dc55"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
@@ -6064,14 +6066,18 @@
                         "line":  123,
                         "name":  "RoomEnemySystem.WreckedShipGhostFlickerDurations",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0b8365344a7ec5848d599282046426c06735dc55"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs",
                         "line":  130,
                         "name":  "RoomEnemySystem.WreckedShipGhostSpawnOffsets",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0b8365344a7ec5848d599282046426c06735dc55"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs",
@@ -20540,5 +20546,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  115
+    "convertedSinceSnapshot":  118
 }

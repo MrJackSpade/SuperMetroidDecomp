@@ -124,4 +124,24 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream1 presentation enumeration bounds");
         }
     }
+    private static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
+            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
+        foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid), "stream1 exact projectile motion address domain");
+        var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePowerBeamVelocity",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
+        var guarded = new BeamSpeedRowAddressSpace(rom);
+        for (ushort combination = 0; combination < 16; combination++)
+        for (ushort direction = 0; direction < 10; direction++)
+        {
+            var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
+            initialize(guarded, slot);
+            int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
+            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.XVelocity, "stream1 actual initializer X preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.YVelocity, "stream1 actual initializer Y preserves adjacent missile-data overread");
+        }
+    }
 }

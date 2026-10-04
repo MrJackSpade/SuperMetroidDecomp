@@ -11,22 +11,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusProjectileSoundRoutingDefinitions
 {
-    private static ReadOnlySpan<ushort> UnchargedSounds =>
-    [
-        0x000b, 0x000d, 0x000c, 0x000e,
-        0x000f, 0x0012, 0x0010, 0x0011,
-        0x0013, 0x0016, 0x0014, 0x0015,
-        0x0017, 0x0019, 0x0018, 0x001a,
-    ];
-
-    private static ReadOnlySpan<ushort> ChargedSounds =>
-    [
-        0x0017, 0x0019, 0x0018, 0x001a,
-        0x001b, 0x001e, 0x001c, 0x001d,
-        0x001f, 0x0022, 0x0020, 0x0021,
-        0x0000, 0x0003, 0x0004, 0x0000,
-    ];
-
+    /// <summary>$90:C28F ProjectileSFX_Uncharged: first library-one request in the three beam families.</summary>
+    private const ushort UnchargedPowerRequest = 0x000b;
+    /// <summary>$90:C2C1 non-beam missile firing request, reached by charged selector thirteen.</summary>
+    private const ushort MissileRequest = 0x0003;
+    /// <summary>$90:C2C3 non-beam super-missile firing request, reached by charged selector fourteen.</summary>
+    private const ushort SuperMissileRequest = 0x0004;
     /// <summary>The complete raw low-nibble selector domain accepted by the cartridge.</summary>
     public const int SelectorCount = 16;
 
@@ -43,6 +33,23 @@ public static class SamusProjectileSoundRoutingDefinitions
                 "Beam sound routing accepts the cartridge's four-bit selector domain.");
         }
 
-        return (charged ? ChargedSounds : UnchargedSounds)[beamCombination];
+        // The uncharged overread reaches the first charged beam family. The
+        // charged overread reaches the non-beam no-sound/missile/super/no-sound row.
+        if (beamCombination >= 12)
+            return charged ? (beamCombination - 12) switch { 1 => MissileRequest, 2 => SuperMissileRequest, _ => (ushort)0 }
+                : Resolve(true, beamCombination - 12);
+
+        SamusBeamFlags elements = (SamusBeamFlags)beamCombination;
+        int family = beamCombination & (int)(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
+        int variant = (elements & (SamusBeamFlags.Ice | SamusBeamFlags.Wave)) switch
+        {
+            SamusBeamFlags.None => 0,
+            SamusBeamFlags.Ice => 1,
+            SamusBeamFlags.Wave => family == 0 ? 2 : 3,
+            _ => family == 0 ? 3 : 2,
+        };
+        // Library one reserves four adjacent sounds per beam family, followed
+        // by the same three families charged, twelve request IDs later.
+        return (ushort)(UnchargedPowerRequest + family + variant + (charged ? 12 : 0));
     }
 }

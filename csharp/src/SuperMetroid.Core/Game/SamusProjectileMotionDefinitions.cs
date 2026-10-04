@@ -9,16 +9,6 @@ internal static class SamusProjectileMotionDefinitions
     private const ushort DiagonalSpeed = 0x02ab;
     /// <summary>$90:C301 MissileInitializedBitset: adjacent word reached by invalid beam combinations.</summary>
     private const ushort MissileInitialized = 0x0100;
-    /// <summary>$90:C303 MissileAccelerations: ten signed X/Y pairs, in direction order.</summary>
-    private static ReadOnlySpan<short> Missile =>
-        [0, -64, 54, -54, 64, 0, 54, 54, 0, 64, 0, 64, -54, 54, -64, 0, -54, -54, 0, -64];
-    /// <summary>$90:C32B SuperMissileAccelerations: ten signed X/Y pairs.</summary>
-    private static ReadOnlySpan<short> SuperMissile =>
-        [0, -256, 182, -182, 256, 0, 182, 182, 0, 256, 0, 256, -182, 182, -256, 0, -182, -182, 0, -256];
-    /// <summary>$90:C353/C367 ProjectileAccelerations.X/Y: ten X words followed by ten Y words.</summary>
-    private static ReadOnlySpan<short> Beam =>
-        [0, 16, 16, 16, 0, 0, -16, -16, -16, 0, -16, -16, 0, 16, 16, 16, 16, 0, -16, -16];
-
     internal static ushort ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Beams.HorizontalVerticalSpeeds;
@@ -32,16 +22,30 @@ internal static class SamusProjectileMotionDefinitions
             if (offset < 12 * 4) return (offset & 2) == 0 ? CardinalSpeed : DiagonalSpeed;
             if (address == SamusProjectileRomData.NonBeam.MissileAccelerations - 2) return MissileInitialized;
             int index = (address - SamusProjectileRomData.NonBeam.MissileAccelerations) / 2;
-            if (address >= SamusProjectileRomData.NonBeam.MissileAccelerations && index < Missile.Length)
-                return unchecked((ushort)Missile[index]);
+            if (address >= SamusProjectileRomData.NonBeam.MissileAccelerations && index < 20)
+                return Acceleration(index / 2, (index & 1) != 0, 64, 54);
             index = (address - SamusProjectileRomData.NonBeam.SuperMissileAccelerations) / 2;
-            if (address >= SamusProjectileRomData.NonBeam.SuperMissileAccelerations && index < SuperMissile.Length)
-                return unchecked((ushort)SuperMissile[index]);
+            if (address >= SamusProjectileRomData.NonBeam.SuperMissileAccelerations && index < 20)
+                return Acceleration(index / 2, (index & 1) != 0, 256, 182);
             index = (address - SamusProjectileRomData.Beams.XAccelerations) / 2;
-            if (address >= SamusProjectileRomData.Beams.XAccelerations && index < Beam.Length)
-                return unchecked((ushort)Beam[index]);
+            if (address >= SamusProjectileRomData.Beams.XAccelerations && index < 20)
+                return Acceleration(index % 10, index >= 10, 16, 16);
         }
         throw new InvalidDataException(
             $"Projectile motion word ${address:X6} is outside the compiled definitions.");
+    }
+    /// <summary>
+    /// $90:C303/C32B/C353: ten facing-dependent directions cover eight compass
+    /// octants, with duplicated down and up directions. Project each acceleration
+    /// magnitude onto the selected signed axis; diagonal magnitudes remain the
+    /// native missile54 / super182, while beam acceleration uses16 on either axis.
+    /// </summary>
+    private static ushort Acceleration(int direction, bool yAxis, int cardinal, int diagonal)
+    {
+        int octant = (direction - (direction >= 5 ? 1 : 0)) & 7;
+        int sign = yAxis
+            ? octant is 0 or 1 or 7 ? -1 : octant is 3 or 4 or 5 ? 1 : 0
+            : octant is >= 1 and <= 3 ? 1 : octant is >= 5 and <= 7 ? -1 : 0;
+        return unchecked((ushort)(sign * ((octant & 1) == 0 ? cardinal : diagonal)));
     }
 }

@@ -10112,4 +10112,16 @@
     "proof": "One VerifyIntroEggRockingParts joins --lookup-intro-baby-discovery-instructions. Independently extract all24 native parts,require calculated selection,compare complete compiled identities and native visible/wrapped OAM. Preserve independent edits to every field on each part and changed counts;reject invalid calculated indices.",
     "remaining": "Intact and two rocking layouts converted. Six progressive cracking layouts,aliased asteroid layout,source pixels and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introEggCrackingPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroEggCrackingParts.cs",
+    "id": "intro-egg-progressive-cracking-grid",
+    "state": "converted",
+    "nativeIdentity": "Six nine-part compositions8C:8DED..8F06,total54 OAM parts",
+    "evidence": "Complete pinned bank8C records occupy the same three-by-three small-sprite grid. Successive stages replace top-left,top-middle,middle-left,top-right,middle-right,then center using matching cells of the three-by-two cracked atlas patch102..104/112..114. Other cells retain intact atlas drawings. Publication order groups exposed cells before remaining shell;center moves to the front together with middle-right one pose before changing its tile.",
+    "algorithm": "Use mutually exclusive named grid cells and semantic stage conditions to emit native order without a stored permutation. Calculate X/Y=-12+8*column/row,small size,priority3,no flips and palette inheritance. Cracked tile=102+16*row+column;intact cells reuse top-strip,right-column and lower-left patch arithmetic. No generated full-part cache or numeric coordinate recitation.",
+    "implementation": "Discovery loader substitutes the immutable stage view only on full supplied field/count equality. Independent edits remain supplied. Existing intact/rocking,remnant and small-baby conversions remain in the same loader.",
+    "proof": "One VerifyIntroEggCrackingParts joins --lookup-intro-baby-discovery-instructions. Independently extract all54 native parts,require calculated selection,compare complete compiled identity and native visible/wrapped OAM. Independently edit each part field and count and preserve supplied composition;reject invalid calculated indices.",
+    "remaining": "All sixteen egg OAM layouts are now calculated across intact/rocking,cracking and remnant groups. The aliased asteroid composition,source pixels and wider1165 inventory remain required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

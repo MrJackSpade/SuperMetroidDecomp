@@ -571,6 +571,7 @@ if (args is ["--lookup-intro-baby-discovery-instructions"])
     VerifyIntroDiscoveryFrameCatalog(rom);
     VerifyIntroEggRemnantParts(rom);
     VerifyIntroEggRockingParts(rom);
+    VerifyIntroEggCrackingParts(rom);
     VerifyIntroConfusedBabyParts(rom);
     VerifyIntroBabyDiscoveryInput(rom);
     VerifyIntroDiscoveryCollision(rom);

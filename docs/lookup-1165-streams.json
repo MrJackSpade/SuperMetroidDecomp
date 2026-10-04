@@ -3007,6 +3007,16 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.WorkRobotLaserInstructionProgramDefinitions.cs",
       "purpose": "Replace stale visual ROM reads with native operand and installed selector evidence while retaining actual producer checks"
     }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.TorizoChozoOrbInstructionProgramDefinitions.cs",
+      "purpose": "Confirm exact native presentation operands and zero runtime reads while preserving real producer checks"
+    }
+    ,{
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.DraygonOamCollision.cs",
+      "purpose": "Exclude confirmed BG2 frame roots from OAM-only fixture while preserving native collision assertions"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

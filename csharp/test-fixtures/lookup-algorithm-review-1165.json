@@ -10615,4 +10615,15 @@
     "confirmation": "Integrated --lookup-stream-3 passes all 56 native coordinate words and sixteen real smoke/mixed bursts, including group wrap, per-projectile RNG, types and body-relative positions. Verification build: 1438 warnings, zero errors. Source index refreshed.",
     "remaining": "Snapshot: 240 converted, one justified retained, 887 pending. Retention is counted separately from conversion."
   }
+,
+  "turretLaserProgramIntegration": {
+    "id": "turret-and-work-robot-laser-six-program-definitions",
+    "state": "converted",
+    "implementationCommits": ["2c089401d", "b3234d2f7"],
+    "scope": "Four Mother Brain turret instruction arrays/factories and two Work Robot laser mechanics/presentation arrays.",
+    "algorithm": "Fixed pose strides calculate turret and bullet programs, selector dispatch and smoke layout; laser prefix and loop calculate four-tick draws and goto operands. No generated program cache remains.",
+    "evidence": "All 49 turret and nine laser native mechanics words match. Existing actual turret/bullet/smoke and five laser producer paths retain timing, loops and deletion. Stale live-ROM visual expectations replaced by independent native operand checks and installed selector membership with zero runtime reads.",
+    "confirmation": "Integrated --lookup-stream-3 passed complete turret bank-byte ownership, bounds, 21 turret and seven laser presentation operands and existing actual producer checks. Verification build: 1438 warnings, zero errors. Source index refreshed.",
+    "remaining": "Snapshot: 246 converted, one justified retained, 881 pending. No additional retention exception."
+  }
 }

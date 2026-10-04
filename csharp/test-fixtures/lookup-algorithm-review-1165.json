@@ -10195,4 +10195,24 @@
     "proof": "VerifyCeresStationBlastParts under --lookup-ceres-explosion-programs independently extracts all44 original parts, requires calculated selection, compares complete compiled identities and visible/wrapped native OAM, checks invalid indices and preserves independent field/count edits. Original and edited frames also pass through the real Ceres JSON writer/loader and compare OAM. Existing four explosion-program proofs remain included.",
     "remaining": "All six final station-blast layouts converted. Source pixels, four large-blast layouts and other scene mappings retain their independent review requirements. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "ceresLargeBlastPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresLargeBlastParts.cs",
+    "id": "ceres-four-large-blast-layouts-and-atlas-selection",
+    "state": "unreviewed",
+    "geometry": {
+      "id": "ceres-large-blast-rising-single-sprite-geometry",
+      "state": "converted",
+      "nativeIdentity": "Four one-part records 8C:98D2,98D9,98E0,98E7",
+      "evidence": "Read all four complete original records and the final-wave consumer. Every part is size16 at X=-8; Y is -10,-12,-14,-16 in successive frames. Priority3, no flips and actor palette inheritance are shared. Native instruction timing remains owned by the already calculated explosion program.",
+      "algorithm": "Generate X=-8,Y=-10-2*frame,size16 and common attributes. Store only frame and the independently supplied tile number. Substitute only after full field/count match. A tile-only edit can still use calculated geometry; other independent field edits preserve the supplied layout. No generated full-part cache.",
+      "proof": "VerifyCeresLargeBlastParts under --lookup-ceres-explosion-programs independently extracts all four records, requires calculated selection, compares all compiled fields and native visible/wrapped OAM. All independent edits preserve identity; tile edits retain calculated selection, other field/count edits remain supplied. Real Ceres JSON writer/loader is exercised for original and edited variants. Bounds are checked."
+    },
+    "atlas": {
+      "id": "ceres-four-large-blast-atlas-choices",
+      "state": "unreviewed",
+      "scope": "Original tile selections76,78,98,9E remain supplied. Review the shared source atlas9A:D200 and their functional/artwork relationship. No retention exception is accepted and the geometry conversion does not resolve this mapping."
+    },
+    "remaining": "Atlas selection and source pixels remain required, along with other inventory entries. Geometry implementation commit is the commit adding this record."
+  }
 }

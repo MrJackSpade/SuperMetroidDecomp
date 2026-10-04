@@ -80,34 +80,31 @@ internal static class CeresDoorInitializationDefinitions
     /// and 6. Those aliases classify authored behavior, rather than a
     /// numeric progression of code addresses.
     /// </summary>
-    private static readonly CeresDoorInitializationDefinition[] Definitions =
-    [
-        new(CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
-            NormalFacingRightInstructionList),
-        new(CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
-            NormalFacingLeftInstructionList),
-        new(RotatingElevatorRoomDefaultFunction,
-            RotatingElevatorPreExplosionOverlayInstructionList),
-        new(CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom,
-            RidleyRoomFacingRightInstructionList),
-        new(CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
-            RotatingElevatorInvisibleWallInstructionList),
-        new(CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
-            RidleyEscapeMode7LeftWallInstructionList),
-        new(CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
-            RidleyEscapeMode7RightWallInstructionList),
-    ];
-
-    /// <summary>Returns the paired native selectors for one authored population variant.</summary>
-    internal static CeresDoorInitializationDefinition For(ushort variant)
-    {
-        if (variant >= Definitions.Length)
+    internal static CeresDoorInitializationDefinition For(ushort variant) =>
+        (CeresDoorVariant)variant switch
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(variant), variant,
-                "Ceres door initialization variant must be zero through six.");
-        }
-
-        return Definitions[variant];
-    }
+            CeresDoorVariant.NormalFacingRight => new(
+                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                NormalFacingRightInstructionList),
+            CeresDoorVariant.NormalFacingLeft => new(
+                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                NormalFacingLeftInstructionList),
+            CeresDoorVariant.RotatingElevatorPreExplosionOverlay => new(
+                RotatingElevatorRoomDefaultFunction,
+                RotatingElevatorPreExplosionOverlayInstructionList),
+            CeresDoorVariant.RidleyRoomFacingRight => new(
+                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom,
+                RidleyRoomFacingRightInstructionList),
+            CeresDoorVariant.RotatingElevatorInvisibleWall => new(
+                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                RotatingElevatorInvisibleWallInstructionList),
+            CeresDoorVariant.RidleyEscapeMode7LeftWall => new(
+                CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
+                RidleyEscapeMode7LeftWallInstructionList),
+            CeresDoorVariant.RidleyEscapeMode7RightWall => new(
+                CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
+                RidleyEscapeMode7RightWallInstructionList),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(variant), variant, "Ceres door initialization variant must be zero through six."),
+        };
 }

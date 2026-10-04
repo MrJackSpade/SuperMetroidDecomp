@@ -49,32 +49,20 @@ public static class CeresSteamDefinitions
     /// apply the graphical transform. The same bounded index selects both
     /// fields; the adjacent tables have independent value rules.
     /// </summary>
-    private static readonly CeresSteamInitialization[] Initializations =
-    [
-        new(CeresSteamInstructionProgramDefinitions.Up, CeresSteamFunction.None),
-        new(CeresSteamInstructionProgramDefinitions.Left, CeresSteamFunction.None),
-        new(CeresSteamInstructionProgramDefinitions.Down, CeresSteamFunction.None),
-        new(CeresSteamInstructionProgramDefinitions.Right, CeresSteamFunction.None),
-        new(CeresSteamInstructionProgramDefinitions.Left,
-            CeresSteamFunction.ApplyRotatingElevatorOffset),
-        new(CeresSteamInstructionProgramDefinitions.Right,
-            CeresSteamFunction.ApplyRotatingElevatorOffset),
-    ];
-
-    /// <summary>Returns the cartridge-authored initialization for one steam variant.</summary>
-    internal static CeresSteamInitialization Initialization(CeresSteamVariant variant)
+    internal static CeresSteamInitialization Initialization(CeresSteamVariant variant) => variant switch
     {
-        int index = (int)variant;
-        if ((uint)index >= Initializations.Length)
-        {
-            throw new InvalidDataException(
-                $"Ceres steam variant ${index:X4} exceeds its six-entry tables.");
-        }
-
-        return Initializations[index];
-    }
+        CeresSteamVariant.Up => new(CeresSteamInstructionProgramDefinitions.Up, CeresSteamFunction.None),
+        CeresSteamVariant.Left => new(CeresSteamInstructionProgramDefinitions.Left, CeresSteamFunction.None),
+        CeresSteamVariant.Down => new(CeresSteamInstructionProgramDefinitions.Down, CeresSteamFunction.None),
+        CeresSteamVariant.Right => new(CeresSteamInstructionProgramDefinitions.Right, CeresSteamFunction.None),
+        CeresSteamVariant.RotatingElevatorLeft => new(CeresSteamInstructionProgramDefinitions.Left,
+            CeresSteamFunction.ApplyRotatingElevatorOffset),
+        CeresSteamVariant.RotatingElevatorRight => new(CeresSteamInstructionProgramDefinitions.Right,
+            CeresSteamFunction.ApplyRotatingElevatorOffset),
+        _ => throw new InvalidDataException(
+            $"Ceres steam variant ${(ushort)variant:X4} exceeds its six-entry tables."),
+    };
 }
-
 /// <summary>One compiled Ceres steam instruction/function selection.</summary>
 internal readonly record struct CeresSteamInitialization(
     ushort InstructionList,

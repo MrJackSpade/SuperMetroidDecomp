@@ -1,4 +1,4 @@
-﻿# Issue 1165 - agent stream 5
+# Issue 1165 - agent stream 5
 
 GitHub child ticket: [#1242](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1242).
 
@@ -188,7 +188,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorInitializationDefinitions.cs
 
-- [ ] **CeresDoorInitializationDefinitions.Definitions** ([L84](../csharp/src/SuperMetroid.Core/Game/CeresDoorInitializationDefinitions.cs#L84)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresDoorInitializationDefinitions.Definitions** ([L84](../csharp/src/SuperMetroid.Core/Game/CeresDoorInitializationDefinitions.cs#L84)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs
 
@@ -201,7 +201,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs
 
-- [ ] **CeresEscapeVramTransferDefinitions.Records** ([L30](../csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresEscapeVramTransferDefinitions.Records** ([L30](../csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs
 
@@ -227,7 +227,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresSteamDefinitions.cs
 
-- [ ] **CeresSteamDefinitions.Initializations** ([L53](../csharp/src/SuperMetroid.Core/Game/CeresSteamDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresSteamDefinitions.Initializations** ([L53](../csharp/src/SuperMetroid.Core/Game/CeresSteamDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs
 
@@ -445,7 +445,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs
 
-- [ ] **MagdollitePhaseDefinitions.Phases** ([L20](../csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MagdollitePhaseDefinitions.Phases** ([L20](../csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/MapLandmarkLayout.cs
 
@@ -704,3 +704,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Cross-stream dependencies and proposed shared-file patches: pending.
 - Remaining entries: all unchecked entries above.
 
+
+### Batch 1: Ceres initialization/DMA and Magdollite phases
+
+- `CeresDoorInitializationDefinitions.Definitions`: semantic dispatch on the seven named door variants replaces the paired main-function/instruction table. Both fields preserve native aliases.
+- `CeresSteamDefinitions.Initializations`: semantic dispatch on directional and rotating-elevator variants replaces both initialization fields; rotating variants reuse the corresponding directional animation and select the transform callback.
+- `MagdollitePhaseDefinitions.Phases`: threshold is 16 times phase; the initial two records share visible phase zero, then each phase advances a six-byte frame/sleep program and eight-pixel overlay displacement.
+- `CeresEscapeVramTransferDefinitions.Records`: calculated indexed records replace all 19 descriptors. Japanese tilemap rows are packed at their original widths and mapped to 32-word VRAM rows; timer sprites use consecutive blocks; five warning-character strips share source data between object/background VRAM; three door blocks advance by 512 source bytes and 256 destination words. No reconstructed descriptor table is cached. Original pixels remain separately required.
+- Added `Program.LookupStream5.cs` and local `--lookup-stream5-initialization` wiring. This confirms all 53 original initialization/phase words, every changed field and rejected domains. Extended the assigned DMA proof only for `IReadOnlyList` API compatibility; its original descriptor and actual DMA-queue assertions remain.
+- Existing `VerifyCeresDoorInitializationDefinitions` production fixture cannot currently run standalone: its actor lacks installed Ceres door visuals now required by production. It fails before the changed dispatch is exercised. No production behavior was changed to accommodate that fixture; dedicated native-word checks cover the changed dispatch contract. Other existing fixture production behavior is not claimed as verified.
+- Confirmation results: pending. No retention exceptions granted; all other checklist entries remain required.
+Batch 1 confirmation passed: Verification build (1431 existing warnings, zero errors); ResourceAudit build (zero warnings/errors); `--lookup-stream5-initialization` (53 native words and rejected domains); `--ceres-escape-transfers` (all 19 original records, three terminators, both installed timer lists and Japanese overlay with descriptor reads blocked). Four named definitions are complete. These results supersede the pending confirmation note above; the older standalone door-production fixture limitation remains as recorded. Other 221 named definitions remain required.

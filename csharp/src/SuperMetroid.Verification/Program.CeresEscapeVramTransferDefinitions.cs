@@ -8,9 +8,9 @@ internal static partial class Program
 {
     private static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
-        ReadOnlySpan<CeresEscapeVramTransferDefinition> records =
+        IReadOnlyList<CeresEscapeVramTransferDefinition> records =
             CeresEscapeVramTransferDefinitions.All;
-        AssertEqual(19, records.Length, "Ceres transfer metadata record count");
+        AssertEqual(19, records.Count, "Ceres transfer metadata record count");
         foreach (CeresEscapeVramTransferDefinition record in records)
         {
             int address = 0xa60000 | record.Pointer;

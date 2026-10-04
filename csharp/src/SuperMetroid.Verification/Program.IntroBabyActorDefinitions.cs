@@ -22,23 +22,7 @@ internal static partial class Program
                 AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
                     IntroBabyDiscoveryInstructionDefinitions.ReadByte((ushort)pointer),
                     $"SR388 egg/baby instruction byte $8B:{pointer:X4}");
-        foreach ((int start, int end) in new[]
-        {
-            (IntroScientistInstructionDefinitions.DeliveryStart,
-                IntroScientistInstructionDefinitions.DeliveryEnd),
-            (IntroScientistInstructionDefinitions.ExaminationStart,
-                IntroScientistInstructionDefinitions.ExaminationEnd),
-            (IntroScientistInstructionDefinitions.DeletePointer,
-                IntroScientistInstructionDefinitions.DeletePointer + 2),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
-                    IntroScientistInstructionDefinitions.ReadByte((ushort)pointer),
-                    $"intro scientist instruction byte $8B:{pointer:X4}");
-        AssertThrows<InvalidDataException>(() =>
-            IntroScientistInstructionDefinitions.ReadWord(
-                IntroScientistInstructionDefinitions.ExaminationEnd),
-            "scientist actor reader rejects the confused-baby program");
+        VerifyIntroScientistInstructions(retail);
         foreach ((int start, int end) in new[]
         {
             (IntroBabyDiscoveryInputDefinitions.ListStart,

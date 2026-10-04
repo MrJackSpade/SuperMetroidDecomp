@@ -540,6 +540,15 @@ if (args is ["--lookup-spc-allocation-addresses"])
     Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
     return 0;
 }
+if (args is ["--lookup-intro-scientist-instructions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro scientist oracle revision");
+    VerifyIntroScientistInstructions(rom);
+    Console.WriteLine("Intro scientist programs: all142 bytes, overlapping views, adjacent caret/arrow programs and boundaries pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-eye-instructions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

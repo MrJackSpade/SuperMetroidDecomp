@@ -173,6 +173,7 @@ public sealed partial class RoomEnemySystem
             state.HitboxesEnabled = 0;
         state.SmallPurpleBreathGenerationEnabled =
             sequence.SmallPurpleBreathGenerationEnabled;
+        state.DroolGenerationEnabled = sequence.DroolGenerationEnabled;
 
         // These words are the renderer-facing output of the bank-$88 HDMA object. The beam
         // renderer is deliberately fed from this single translated aim calculation.

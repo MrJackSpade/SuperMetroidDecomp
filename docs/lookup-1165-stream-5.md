@@ -404,8 +404,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs
 
-- [ ] **EvirInstructionProgramDefinitions.Words** ([L34](../csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs#L34)) - factory-built stock table. Stored EvirInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **EvirInstructionProgramDefinitions.PresentationWords** ([L35](../csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs#L35)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **EvirInstructionProgramDefinitions.Words** ([L34](../csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs#L34)) - factory-built stock table. Stored EvirInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **EvirInstructionProgramDefinitions.PresentationWords** ([L35](../csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs#L35)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs
 
@@ -737,3 +737,8 @@ Static search of all csharp/src found `HudReserveLayout` only at its declaration
 Verification build passed (1431 warnings, zero errors). `--ceres-steam-instruction-mechanics` passed68 original mechanics words and all four actual activation/hide/show cycles. `--ceres-debris-instruction-mechanics` passed4 original mechanics words, both actual producers, terminal sleeps and shared deletion. Both initially reached obsolete visual-read assertions (36/2 expected versus0 actual) after all changed program assertions passed. With coordinator-assigned ownership, the verifiers now assert zero reads and independently compare all36/2 compiled selectors with original ROM operands. Production was not changed for these stale assertions. The final steam console wording was corrected to describe the now-passing zero-read check.
 
 Sixteen named definitions complete in stream5;209 remain required.
+### Batch 5: Evir animation and projectile regeneration structure
+
+Removed both generated-and-cached Evir word tables. Both facing halves calculate their six-frame body and seventeen-frame arm loops, preserving the final arm rest. The normal projectile displays one pose then sleeps; the regeneration program explicitly starts the horizontal offset, sets an eight-step timer, emits the spit sound, advances the offset through eight-tick records, then finishes after its16-tick final pose and sleeps. Mechanics and interleaved visual operand addresses now calculate directly.
+
+Verification build passed (1431 warnings, zero errors). `--evir-instruction-program-definitions` passed all67 original mechanics words, all six actual body/arm/projectile programs, complete regeneration callbacks and49 compiled sprite selectors. Eighteen named definitions complete in stream5;207 remain required. The separate Crocomire destruction-order retention review is pending and is not counted complete.

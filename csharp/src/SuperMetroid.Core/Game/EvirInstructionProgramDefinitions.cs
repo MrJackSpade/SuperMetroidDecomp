@@ -31,23 +31,74 @@ internal static class EvirInstructionProgramDefinitions
     internal const int BodyFrameCount = 6;
     internal const int ArmsFrameCount = 17;
 
-    private static readonly EvirInstructionMechanicsWord[] Words = BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static int MechanicsWordCount => 67;
+    internal static int PresentationWordCount => 49;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EvirInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>
+    /// Both facing halves contain a six-frame body loop and seventeen-frame arm loop.
+    /// Frames last ten ticks except the arms' final48-tick rest. The projectile holds
+    /// one pose or performs eight regeneration steps followed by a16-tick completion.
+    /// </summary>
+    internal static EvirInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 54)
+        {
+            int word = index % 27;
+            bool arms = word >= 8;
+            if (arms)
+                word -= 8;
+            int frames = arms ? ArmsFrameCount : BodyFrameCount;
+            ushort start = (ushort)((arms ? ArmsFacingLeft : BodyFacingLeft) + 100 * (index / 27));
+            if (word < frames)
+                return new((ushort)(start + 4 * word), (ushort)(arms && word == frames - 1 ? 48 : 10));
+            return new((ushort)(start + 4 * frames + 2 * (word - frames)),
+                word == frames ? CommonEnemyInstructionCodes.Goto : start);
+        }
+        int control = index - 54;
+        return control switch
+        {
+            0 => new(ProjectileNormal, 1),
+            1 => new((ushort)(ProjectileNormal + 4), CommonEnemyInstructionCodes.Sleep),
+            2 => new(ProjectileRegenerating, EnemyInstructionCodePointers.Instruction_Evir_SetInitialRegenerationXOffset),
+            3 => new((ushort)(ProjectileRegenerating + 2), CommonEnemyInstructionCodes.SetTimer),
+            4 => new((ushort)(ProjectileRegenerating + 4), 8),
+            5 => new((ushort)(ProjectileRegenerating + 6), EnemyInstructionCodePointers.Instruction_Evir_PlaySpitSFX),
+            6 => new(ProjectileRegenerationLoop, 8),
+            7 => new((ushort)(ProjectileRegenerationLoop + 4), EnemyInstructionCodePointers.Instruction_Evir_AdvanceRegenerationXOffset),
+            8 => new((ushort)(ProjectileRegenerationLoop + 6), CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
+            9 => new((ushort)(ProjectileRegenerationLoop + 8), ProjectileRegenerationLoop),
+            10 => new((ushort)(ProjectileRegenerationLoop + 10), 16),
+            11 => new((ushort)(ProjectileRegenerationLoop + 14), EnemyInstructionCodePointers.Instruction_Evir_FinishRegeneration),
+            _ => new((ushort)(ProjectileRegenerationLoop + 16), CommonEnemyInstructionCodes.Sleep),
+        };
+    }
 
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 46)
+        {
+            int frame = index % 23;
+            bool arms = frame >= BodyFrameCount;
+            if (arms)
+                frame -= BodyFrameCount;
+            return (ushort)((arms ? ArmsFacingLeft : BodyFacingLeft) + 100 * (index / 23) + 4 * frame + 2);
+        }
+        return (ushort)(index == 46 ? ProjectileNormal + 2
+            : ProjectileRegenerationLoop + 2 + 10 * (index - 47));
+    }
     /// <summary>Returns fixed Evir control or rejects pointers outside its six programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            EvirInstructionMechanicsWord candidate = Words[middle];
+            EvirInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -65,9 +116,9 @@ internal static class EvirInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa80000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {
@@ -77,77 +128,4 @@ internal static class EvirInstructionProgramDefinitions
         return false;
     }
 
-    private static EvirInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<EvirInstructionMechanicsWord>(capacity: 67);
-        AddLoop(words, BodyFacingLeft, BodyFrameCount, lastDuration: 10);
-        AddLoop(words, ArmsFacingLeft, ArmsFrameCount, lastDuration: 48);
-        AddLoop(words, BodyFacingRight, BodyFrameCount, lastDuration: 10);
-        AddLoop(words, ArmsFacingRight, ArmsFrameCount, lastDuration: 48);
-
-        words.Add(new(ProjectileNormal, 1));
-        words.Add(new(unchecked((ushort)(ProjectileNormal + 4)),
-            CommonEnemyInstructionCodes.Sleep));
-
-        words.Add(new(ProjectileRegenerating,
-            EnemyInstructionCodePointers.Instruction_Evir_SetInitialRegenerationXOffset));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerating + 2)),
-            CommonEnemyInstructionCodes.SetTimer));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerating + 4)), 8));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerating + 6)),
-            EnemyInstructionCodePointers.Instruction_Evir_PlaySpitSFX));
-        words.Add(new(ProjectileRegenerationLoop, 8));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 4)),
-            EnemyInstructionCodePointers.Instruction_Evir_AdvanceRegenerationXOffset));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 6)),
-            CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 8)),
-            ProjectileRegenerationLoop));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 10)), 16));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 14)),
-            EnemyInstructionCodePointers.Instruction_Evir_FinishRegeneration));
-        words.Add(new(unchecked((ushort)(ProjectileRegenerationLoop + 16)),
-            CommonEnemyInstructionCodes.Sleep));
-
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 49);
-        AddLoopPresentation(words, BodyFacingLeft, BodyFrameCount);
-        AddLoopPresentation(words, ArmsFacingLeft, ArmsFrameCount);
-        AddLoopPresentation(words, BodyFacingRight, BodyFrameCount);
-        AddLoopPresentation(words, ArmsFacingRight, ArmsFrameCount);
-        words.Add(unchecked((ushort)(ProjectileNormal + 2)));
-        words.Add(unchecked((ushort)(ProjectileRegenerationLoop + 2)));
-        words.Add(unchecked((ushort)(ProjectileRegenerationLoop + 12)));
-        return words.ToArray();
-    }
-
-    private static void AddLoop(
-        List<EvirInstructionMechanicsWord> words,
-        ushort entry,
-        int frameCount,
-        ushort lastDuration)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-        {
-            words.Add(new(
-                unchecked((ushort)(entry + frame * 4)),
-                frame == frameCount - 1 ? lastDuration : (ushort)10));
-        }
-        ushort gotoAddress = unchecked((ushort)(entry + frameCount * 4));
-        words.Add(new(gotoAddress, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(gotoAddress + 2)), entry));
-    }
-
-    private static void AddLoopPresentation(
-        List<ushort> words,
-        ushort entry,
-        int frameCount)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(entry + frame * 4 + 2)));
-    }
 }

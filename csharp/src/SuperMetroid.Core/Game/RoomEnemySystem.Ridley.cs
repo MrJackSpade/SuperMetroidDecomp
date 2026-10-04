@@ -338,7 +338,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairCarryRelease:
-                ushort releaseX = RidleyMovementTargets.CarryReleaseX[Math.Min(state.FacingDirection, (ushort)2)];
+                ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
                 MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
@@ -421,35 +421,35 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level)
     {
-        ReadOnlySpan<RidleyAiFunction> choices;
+        RidleyAttackSituation situation;
         if (samus?.ReadMovementType(_bus!) == SamusMovementType.SpinJumping)
         {
-            choices = RidleyAttackChoices.SpinJumping;
+            situation = RidleyAttackSituation.SpinJumping;
         }
         else if (slot.Health == 0)
         {
-            choices = RidleyAttackChoices.ZeroHealth;
+            situation = RidleyAttackSituation.ZeroHealth;
             state.ZeroHealthLungeCount = unchecked((ushort)(state.ZeroHealthLungeCount + 1));
         }
         else if (slot.Health < 14400)
         {
-            choices = RidleyAttackChoices.BelowHalfHealth;
+            situation = RidleyAttackSituation.BelowHalfHealth;
         }
         else if (samus is not null && samus.YPosition >= 352)
         {
-            choices = RidleyAttackChoices.PogoZone;
+            situation = RidleyAttackSituation.PogoZone;
         }
         else if (SamusMovementUsesRidleyGrab(samus))
         {
-            choices = RidleyAttackChoices.DamageBoosting;
+            situation = RidleyAttackSituation.DamageBoosting;
         }
         else
         {
-            choices = slot.Health < 9000 ? RidleyAttackChoices.AboveHalfHealth : RidleyAttackChoices.BelowHalfHealth;
+            situation = slot.Health < 9000 ? RidleyAttackSituation.AboveHalfHealth : RidleyAttackSituation.BelowHalfHealth;
         }
 
         int choice = _nextRandom!() & 7;
-        state.Function = choices[choice];
+        state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
         // The native selector tail-calls the chosen routine. Retain that same-frame setup
         // so timers, instruction changes, and velocity all begin on the selected frame.
@@ -519,9 +519,9 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         bool descending)
     {
-        ReadOnlySpan<ushort> targets = descending
-            ? RidleyMovementTargets.DescendingPogoX : RidleyMovementTargets.AscendingPogoX;
-        ushort targetX = targets[Math.Min(state.FacingDirection, (ushort)2)];
+        int facing = Math.Min(state.FacingDirection, (ushort)2);
+        ushort targetX = descending ? RidleyMovementTargets.DescendingPogoX(facing)
+            : RidleyMovementTargets.AscendingPogoX(facing);
         ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.YPosition, (ushort)352);
         MoveNorfairRidleyToward(
             slot,
@@ -565,7 +565,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort targetX = RidleyMovementTargets.GroundAttackX[Math.Min(state.FacingDirection, (ushort)2)];
+        ushort targetX = RidleyMovementTargets.GroundAttackX(Math.Min(state.FacingDirection, (ushort)2));
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
@@ -697,7 +697,7 @@ public sealed partial class RoomEnemySystem
 
         int sideOffset = state.FacingDirection != 0 ? 16 : -16;
         ushort targetY = unchecked((ushort)(samus.YPosition - 4));
-        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes[Math.Min(state.HealthStage, (ushort)3)];
+        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -730,7 +730,7 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.TargetX = RidleyMovementTargets.CarryAnchorX[Math.Min(state.FacingDirection, (ushort)2)];
+        state.TargetX = RidleyMovementTargets.CarryAnchorX(Math.Min(state.FacingDirection, (ushort)2));
         state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
             ? (ushort)256
             : unchecked((ushort)(slot.YPosition - 64));
@@ -825,7 +825,7 @@ public sealed partial class RoomEnemySystem
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
     private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
-        RidleyMovementTargets.HoverDivisorIndexes[Math.Min(state.HealthStage, (ushort)3)];
+        RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 
     private bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {

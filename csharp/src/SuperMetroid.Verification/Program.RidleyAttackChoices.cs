@@ -7,22 +7,22 @@ internal static partial class Program
 {
     private static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
-        ReadOnlySpan<RidleyAiFunction> Table(int row) => row switch
+        RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
         {
-            0 => RidleyAttackChoices.BelowHalfHealth,
-            1 => RidleyAttackChoices.AboveHalfHealth,
-            2 => RidleyAttackChoices.DamageBoosting,
-            3 => RidleyAttackChoices.PogoZone,
-            4 => RidleyAttackChoices.SpinJumping,
-            _ => RidleyAttackChoices.ZeroHealth,
-        };
+            0 => RidleyAttackSituation.BelowHalfHealth,
+            1 => RidleyAttackSituation.AboveHalfHealth,
+            2 => RidleyAttackSituation.DamageBoosting,
+            3 => RidleyAttackSituation.PogoZone,
+            4 => RidleyAttackSituation.SpinJumping,
+            _ => RidleyAttackSituation.ZeroHealth,
+        }, choice);
         var native = new RidleyAiFunction[6, 8];
         for (int row = 0; row < 6; row++)
         for (int choice = 0; choice < 8; choice++)
         {
             int address = 0xa6b38c + row * 16 + choice * 2;
             native[row, choice] = (RidleyAiFunction)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-            AssertEqual(native[row, choice], Table(row)[choice], "Every native Ridley action pointer");
+            AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;

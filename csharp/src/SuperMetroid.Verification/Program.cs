@@ -609,6 +609,7 @@ if (args is ["--lookup-intro-mother-brain-instructions"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain instruction oracle revision");
     VerifyIntroMotherBrainInstructions(rom);
     VerifyIntroMotherBrainFrameCatalog(rom);
+    VerifyIntroMotherBrainParts(rom);
     Console.WriteLine("Mother Brain programs/catalog: all46 bytes,45 word views,three frames and boundaries pass.");
     return 0;
 }

@@ -49,7 +49,8 @@ public sealed class IntroMotherBrainSpritePresentation
                 visual is null)
                 throw new InvalidDataException($"Intro Mother Brain frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroMotherBrainParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroMotherBrainSpritePresentation(frames);
     }

@@ -26,7 +26,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs", "1FF1DCBC7268CE53DD4470B2C34ACA15A633AB6A84DD1F1516EC52CEB9000BDD")],
             "Both current and legacy loader paths bind the sole required visible caret identity before private construction. Legacy artwork aliases its first validated frame, not the discarded blink identities. Draw guards pointer membership; caret position/blink behavior is unchanged and not certified."),
         new("SuperMetroid.Core.Assets.IntroMotherBrainSpritePresentation", "intro-complete-mother-brain-sprites", ["Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpritePresentation.cs", "08C03091CBF77D553ED027AE3B666027527958D275B1E654CDE9EDCA2370100F"),
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpritePresentation.cs", "1AA39BF563466D14B71F1CBB32E48D9E8D0B758A03436FF165D9148E2B1F18C8"),
              new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpriteDefinitions.cs", "7B6D841B425965A44DBEE80BE4338C6458A646C5839483E6256DC0A59AF0361F")],
             "Private construction requires all three named Mother Brain compositions with exact compiled pointers. Draw guards membership. Intro AI, damage, collision, animation timing and placement are not certified."),
         new("SuperMetroid.Core.Assets.IntroMotherBrainExplosionSpritePresentation", "intro-complete-mother-brain-explosions", ["Draw"],

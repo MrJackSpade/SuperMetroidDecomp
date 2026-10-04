@@ -10064,4 +10064,16 @@
     "proof": "One VerifyIntroMotherBrainFrameCatalog reads three original instruction operands and original OAM counts,compares pointers,names and aliases,and checks bounds/enumeration. Run alongside the separate instruction proof. Verification and ResourceAudit builds pass.",
     "remaining": "Frame metadata converted. Individual OAM fields and original pixels still need independent review. No whole-file artwork exception. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainParts.cs",
+    "id": "intro-mother-brain-grid-and-animated-atlas-patches",
+    "state": "converted",
+    "nativeIdentity": "Three nine-part compositions8C:8C00..8C8C",
+    "evidence": "Complete pinned bank8C records form a48x48 grid of sixteen-pixel parts at X/Y-24,-8,8. First pose traverses bottom-to-top,right-to-left. Later poses publish five changing cells then the shared bottom row and center. Animated atlas origins150/156/15C advance six tile columns;final top-right178 occupies the preceding patch middle-center hole,whose normal center remains172. All records use priority3,no flips and actor-palette inheritance.",
+    "algorithm": "Calculate row/column from native publication order,position=-24+16*cell,large size and common attributes. Shared cells select firstPatch+32*row+2*column;animated cells add6*frame. Final top-right selects preceding patch origin plus one sixteen-pixel row and column;its middle-side drawings pack adjacently into the last two available atlas columns. No stored full-part mapping or generated cache.",
+    "implementation": "Loader substitutes an immutable calculated view only after complete supplied field/count equality. Independent custom edits retain supplied compositions. Reviewed and updated the presentation source hash.",
+    "proof": "One VerifyIntroMotherBrainParts under --lookup-intro-mother-brain-instructions independently extracts all27 original parts,requires calculated selection,compares complete identities and native visible/wrapped OAM. Independently edit every part field,including valid atlas-column changes for sixteen-pixel sprites,and preserve custom counts;reject invalid calculated indices. Existing instruction/catalog proofs remain separate.",
+    "remaining": "All three OAM layouts are calculated. Source pixels and other1165 mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

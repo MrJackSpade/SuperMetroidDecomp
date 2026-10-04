@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Assets;
 /// Boss corners use the native seven-pixel horizontal/eight-pixel vertical spacing;
 /// gunship halves are eight pixels apart. Native draw order is preserved before clipping.
 /// All parts are small, inherit the caller palette, and use priority2 (arrows priority3).
+/// Elevator labels at82:C4DB/C4F1/C507/C533/C549 draw contiguous text strips right-to-left.
+/// Norfair and Maridia skip atlas cells11/17 containing vertical-bar art, not label text.
+/// Wrecked Ship draws its centered two-tile bottom line before its four-tile top line.
 /// </summary>
 internal static class MapMarkerGeometry
 {
@@ -20,6 +23,9 @@ internal static class MapMarkerGeometry
         MapSpriteDefinitions.IndicatorFrame1 or MapSpriteDefinitions.IndicatorFrame2 => 4,
         MapSpriteDefinitions.MarkerBoss or MapSpriteDefinitions.StationEnergy or MapSpriteDefinitions.StationMissile or
         MapSpriteDefinitions.StationMap or MapSpriteDefinitions.IndicatorBacking => 1,
+        MapSpriteDefinitions.ElevatorCrateria or MapSpriteDefinitions.ElevatorBrinstar or
+        MapSpriteDefinitions.ElevatorNorfair or MapSpriteDefinitions.ElevatorMaridia => 4,
+        MapSpriteDefinitions.ElevatorWreckedShip => 6,
         _ => 0,
     };
 
@@ -30,6 +36,27 @@ internal static class MapMarkerGeometry
         bool flipX = false, flipY = false;
         switch (id)
         {
+            case MapSpriteDefinitions.ElevatorCrateria:
+            case MapSpriteDefinitions.ElevatorBrinstar:
+            case MapSpriteDefinitions.ElevatorNorfair:
+            case MapSpriteDefinitions.ElevatorMaridia:
+                int column = 3 - index;
+                x = -8 + 8 * column; y = -8;
+                tile = id switch
+                {
+                    MapSpriteDefinitions.ElevatorCrateria => column,
+                    MapSpriteDefinitions.ElevatorBrinstar => 4 + column,
+                    MapSpriteDefinitions.ElevatorNorfair => 0x10 + column + (column >= 1 ? 1 : 0),
+                    MapSpriteDefinitions.ElevatorMaridia => 0x15 + column + (column >= 2 ? 1 : 0),
+                    _ => throw new ArgumentOutOfRangeException(nameof(id)),
+                };
+                break;
+            case MapSpriteDefinitions.ElevatorWreckedShip:
+                bool bottom = index < 2;
+                int rowColumn = bottom ? 1 - index : 5 - index;
+                x = (bottom ? -4 : -12) + 8 * rowColumn; y = bottom ? 0 : -8;
+                tile = (bottom ? 0x44 : 0x53) + rowColumn;
+                break;
             case MapSpriteDefinitions.ArrowRight:
             case MapSpriteDefinitions.ArrowLeft:
                 x = -4; y = -7 * index; tile = 0x9e; priority = 3;

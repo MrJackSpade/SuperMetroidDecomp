@@ -7002,4 +7002,17 @@
     "remainingObligations":"Supersedes the fourteen marker-part obligations in mapSpriteCompositionCaseReview. Twelve elevator/world text compositions and remaining247 atlas tiles are still required work; this conversion grants no retention exception for them or any other candidate.",
     "confirmation":"Verification build passes with0 errors (1429 existing warnings; incremental verifier rebuild25). Early SHA-pinned --lookup-map-sprite-cases passes. Closed source ownership pins refreshed including the new geometry owner. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "elevatorLabelGeometryReview": {
+    "status":"converted all five stock elevator-label composition records to strip geometry",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "source":"Supported SHA-pinned ROM pointer table82:C569, recordsC4DB/C4F1/C507/C549/C533 for Crateria/Brinstar/Norfair/WreckedShip/Maridia. Statically decoded all original part records and the involved B6:C000 atlas tiles. Tiles11 and17 contain vertical-bar graphics interrupting the Norfair and Maridia text strips; their skipped addresses are physical atlas gaps rather than unexplained numerical corrections.",
+    "coordinatesAndOrder":"Four single-row labels each draw four eight-pixel cells right-to-left, column3-index, X=-8+8*column,Y=-8. Wrecked Ship draws its two-cell lower line right-to-left at X=-4+8*column,Y=0, then four-cell upper line at X=-12+8*column,Y=-8. Counts follow these line widths.",
+    "tileField":"Crateria base0+column; Brinstar4+column. Norfair starts10 and skips vertical-bar cell11 after column0; Maridia starts15 and skips vertical-bar cell17 after column1. Wrecked Ship lower line starts44 and upper line53. Named region bases select the area lettering, and geometric columns calculate each strip address.",
+    "otherFields":"All parts small8x8, priority2, unflipped and caller-palette inherited. No stock compiled composition or generated cache remains for these five roles. Independently authored edits retain the unchanged composition compiler and exact part order.",
+    "proof":"Extend the existing single VerifyMapSpriteNativeCompositions proof and its VerifyMapSpriteCompositionCases edit/storage checks to include these five calculated roles. All original OAM output across the existing coordinate/palette/capacity domain matches. Stock storage is absent for all19 converted roles. Every part receives independent differing coordinate/tile/size/priority/palette/flip edits; no-op edits are excluded. Existing hiding, membership and invalid-identity checks remain shared.",
+    "domain":"Indices0..3 for single strips or0..5 for Wrecked Ship; Part rejects outside the role count. Native signed offsets, draw order, clipping, overflow, palette validation and OAM capacity continue through the existing typed emitter.",
+    "remainingObligations":"Supersedes the five elevator composition obligations in mapMarkerGeometryReview and mapSpriteCompositionCaseReview. Seven world-label/title compositions and remaining247 atlas tiles still need independent dispositions. This resolves strip geometry and tile selection, not the chosen lettering pixels, and grants no blanket artwork retention.",
+    "confirmation":"Verification build passes with0 errors; early SHA-pinned --lookup-map-sprite-cases passes. Source ownership pin and maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

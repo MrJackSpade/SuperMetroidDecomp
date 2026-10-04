@@ -14,7 +14,7 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions)!;
         var stock = MapSpriteCatalog.Load(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         VerifyMapSpriteNativeCompositions(rom, stock);
-        foreach (var role in MapSpriteRoleOracle().Take(14))
+        foreach (var role in MapSpriteRoleOracle().Take(19))
         {
             AssertTrue(!stock.StoresComposition(role.NativeId), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];
@@ -25,7 +25,7 @@ internal static partial class Program
                 foreach (var change in new[] { part with { OffsetX = 17 }, part with { OffsetY = -23 },
                     part with { TileColumn = 0 }, part with { TileRow = 0 }, part with { Size = 16, TileColumn = Math.Min(part.TileColumn, 14) },
                     part with { Priority = 0 }, part with { Palette = 3 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY } })
+                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY } }.Where(change => change != part))
                 {
                     var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[role.Name] = parts;

@@ -10336,4 +10336,16 @@
     "proof": "VerifySpaceColonyCaption under --lookup-ceres-flight-programs independently follows all eleven original ROM instruction operands to their drawing records. Compare columns, tile words, original row/duration and one-cell dimensions; reject out-of-domain indices. No retention exception.",
     "implementation": "The commit adding SpaceColonyCaptionDefinitions removes the production tuple table and migrates its sole shipped-game consumer. Glyph pixels remain separate inventory scope."
   }
+,
+  "stream2PaletteAndYardIntegration": {
+    "id": "stream2-first-eight-definition-conversions",
+    "state": "converted",
+    "implementationCommit": "7401a9c6c",
+    "sourceCommit": "05fa87d0e06a97d9831760b0614ae5ae8c91f453",
+    "scope": "Only UpperCrateriaEscapeRedFlash Durations, OldTourianEscapeRedFlash ColorOffsets, TorizoBelly FrameDurations/Definitions, YardDirection Directions/AirborneInstructions, and YardTurn OrdinaryTurns/SuppressedTurns. Eight snapshot definitions; independent colors remain unresolved.",
+    "algorithm": "Triangle abs(7-frame)+1; count inline commands before colors3/7; three-frame Torizo endpoint cadence; owner-dispatched descriptor geometry; named Yard physical-state animation/callback dispatch with direction-pair reversal and sign/axis bit calculation. No generated caches or retention exception.",
+    "evidence": "Native bank8D timed programs and bankA3 Yard direction/turn records, including original callback mismatches. Owning API XML and docs/lookup-1165-stream-2.md record domains, consumers and exact original addresses.",
+    "proof": "Isolated Verification build passed; --lookup-stream2-palette-mechanics and --lookup-stream2-yard-directions passed original-ROM mechanics, address and domain checks plus focused existing Yard production branches. Coordinator reviewed source changes and guarded wiring before cherry-pick.",
+    "remaining": "All other unchecked stream2 definitions and all independent BGR555 payloads remain required. Unsupported irregularity/authored retention prose was removed. No stream or parent completion claim."
+  }
 }

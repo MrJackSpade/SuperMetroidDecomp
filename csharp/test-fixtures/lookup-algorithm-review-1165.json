@@ -10593,4 +10593,15 @@
     "confirmation": "Integrated --lookup-stream-3 passed stagger domains, real timer stages 0 through 8 and 65535, all 49155 existing production collision comparisons and region bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Source index refreshed.",
     "remaining": "236 of 1128 snapshot definitions converted; 892 pending. No retention exception."
   }
+,
+  "motherBrainTurretDeathDispatchIntegration": {
+    "id": "mother-brain-turret-and-death-dispatch-four-definitions",
+    "state": "converted",
+    "implementationCommits": ["7966c773e", "dfe69f8fe"],
+    "scope": "Turret placements and directions, death explosion program variants and escape palette-effect registration list.",
+    "algorithm": "Four repeating bays calculate turret positions, alternating angular sectors determine allowed rotation, and octant trigonometry calculates launch velocities and horizontal muzzle offsets. Explicit directional barrel heights and semantic effect dispatch preserve native behavior.",
+    "evidence": "Twelve placements, 96 native permission bytes, 16 program selectors and 32 bullet words match. Three death variants match native selectors; actual escape handoff registers four named effects exactly once in native order.",
+    "confirmation": "Integrated --lookup-stream-3 passed all native fields, 384 rotation checks, 20 actual spawns with source reads forbidden, selector bounds and escape effect handoff. Verification build: 1438 warnings, zero errors. Source index refreshed.",
+    "remaining": "240 of 1128 snapshot definitions converted; 888 pending. The separately reviewed decorative scatter exception is not integrated or counted here."
+  }
 }

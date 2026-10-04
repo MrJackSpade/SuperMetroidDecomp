@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  892,
+    "remainingTableDefinitionCount":  888,
     "fileCount":  523,
     "entries":  [
                     {
@@ -4520,7 +4520,9 @@
                         "line":  11,
                         "name":  "MotherBrainDeathExplosionDefinitions.InstructionLists",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "7966c773e"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs",
@@ -4719,7 +4721,9 @@
                         "line":  995,
                         "name":  "MotherBrainRainbowBeamAttackSequence.Step / literal at L995",
                         "kind":  "method-local definition",
-                        "note":  "Fixed values inside a method; not an array parameter/return declaration."
+                        "note":  "Fixed values inside a method; not an array parameter/return declaration.",
+                        "state":  "converted",
+                        "implementationCommit":  "7966c773e"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
@@ -4754,14 +4758,18 @@
                         "line":  50,
                         "name":  "MotherBrainTurretDefinitions.Turrets",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "dfe69f8fe"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs",
                         "line":  71,
                         "name":  "MotherBrainTurretDefinitions.Directions",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "dfe69f8fe"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs",
@@ -20782,5 +20790,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  236
+    "convertedSinceSnapshot":  240
 }

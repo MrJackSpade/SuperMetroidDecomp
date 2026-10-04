@@ -3002,6 +3002,11 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainTurretInstructionProgramDefinitions.cs",
       "purpose": "Replace stale presentation ROM reads with exact native selectors and preserve mechanics and producer checks"
     }
+    ,{
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.WorkRobotLaserInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native operand and installed selector evidence while retaining actual producer checks"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

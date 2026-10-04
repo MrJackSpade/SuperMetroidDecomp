@@ -474,6 +474,7 @@ if (args is ["--lookup-ceres-flight-programs"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight program oracle revision");
     VerifyCeresFlightPrograms(rom);
+    VerifyCeresFlightFrameCatalog(rom);
     Console.WriteLine("Ceres flight programs: five original streams, byte/word boundaries, shared aliases and interpreter loops pass.");
     return 0;
 }

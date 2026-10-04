@@ -10146,4 +10146,15 @@
     },
     "remaining": "OAM geometry is resolved: all local parts are calculated in three consumers and only the six scene-anchor coordinates are retained with the narrow rationale above. Source pixels and all other inventory entries retain their independent review requirements. Placement-disposition commit is the commit updating this record and adding Program.CeresAsteroidArtwork.cs."
   }
+,
+  "ceresFlightFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresFlightSpriteDefinitions.cs",
+    "id": "ceres-flight-six-semantic-frame-selections",
+    "state": "converted",
+    "nativeIdentity": "Original operands 8B:CDA5, CE4D, CC49, CC51, CC59, CC5D and their six bank-8C OAM headers",
+    "evidence": "Read the five native instruction streams and all six header identities in pinned bank8C. Four actors each select one drawing; the vortex alternates two drawings. Counts are 25,19,41,16,36,33. These are distinct visual selections, not numerical curve samples. Static consumers are flight loading/extraction, presentation-domain audit, and existing artwork/content-identity verification.",
+    "algorithm": "Replace the stored six-record array with a bounded immutable list that dispatches mutually exclusive named visual cases. Preserve catalog order and published names. Move native frame identities into the domain catalog with XML identity documentation, and share those constants with the already calculated instruction streams. No generated record cache or retained selector table.",
+    "proof": "VerifyCeresFlightFrameCatalog under --lookup-ceres-flight-programs independently reads all six original instruction operands and OAM header counts, verifies published keys, enumeration order and invalid indices. Existing five-stream byte/word and interpreter checks confirm the shared instruction identities. Build Verification and ResourceAudit to cover all statically identified consumers.",
+    "remaining": "This resolves only the flight frame catalog. Individual OAM layouts and source pixels retain their separate dispositions; destruction catalog remains required. Implementation commit is the commit adding this record."
+  }
 }

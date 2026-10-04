@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -23,19 +25,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
     private const ushort SmallAsteroidStart = 0xcc4f;
     /// <summary>$8B:CC57, two-frame purple-vortex loop.</summary>
     private const ushort VortexStart = 0xcc57;
-    /// <summary>$8C:9150, Ceres under-attack spritemap.</summary>
-    private const ushort UnderAttackFrame = 0x9150;
-    /// <summary>$8C:90FE, Ceres small-asteroid spritemap.</summary>
-    private const ushort SmallAsteroidFrame = 0x90fe;
-    /// <summary>$8C:8FE7, Ceres purple vortex first frame.</summary>
-    private const ushort VortexFrame1 = 0x8fe7;
-    /// <summary>$8C:93D1, Ceres purple vortex second frame.</summary>
-    private const ushort VortexFrame2 = 0x93d1;
-    /// <summary>$8C:9478, shared front/rear Ceres star field.</summary>
-    private const ushort StarsFrame = 0x9478;
-    /// <summary>$8C:94F7, Ceres explosion large asteroids.</summary>
-    private const ushort LargeAsteroidFrame = 0x94f7;
-
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -54,8 +43,8 @@ internal static class CeresFlightSpriteInstructionDefinitions
         ushort word = (offset / 2) switch
         {
             0 or 2 => 1,
-            1 => VortexFrame1,
-            3 => VortexFrame2,
+            1 => CeresFlightSpriteDefinitions.VortexEven,
+            3 => CeresFlightSpriteDefinitions.VortexOdd,
             4 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
             5 => VortexStart,
             _ => throw new InvalidDataException("Ceres vortex cursor is invalid."),
@@ -66,14 +55,14 @@ internal static class CeresFlightSpriteInstructionDefinitions
     {
         if (pointer is >= RearClusterStart and < RearClusterEnd)
             return pointer < SmallAsteroidStart
-                ? LoopByte(pointer - RearClusterStart, RearClusterStart, UnderAttackFrame)
+                ? LoopByte(pointer - RearClusterStart, RearClusterStart, CeresFlightSpriteDefinitions.StationUnderAttack)
                 : pointer < VortexStart
-                    ? LoopByte(pointer - SmallAsteroidStart, SmallAsteroidStart, SmallAsteroidFrame)
+                    ? LoopByte(pointer - SmallAsteroidStart, SmallAsteroidStart, CeresFlightSpriteDefinitions.SmallAsteroids)
                     : VortexByte(pointer - VortexStart);
         if (pointer is >= StarsStart and < StarsEnd)
-            return LoopByte(pointer - StarsStart, StarsStart, StarsFrame);
+            return LoopByte(pointer - StarsStart, StarsStart, CeresFlightSpriteDefinitions.Stars);
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
-            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, LargeAsteroidFrame);
+            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, CeresFlightSpriteDefinitions.LargeAsteroids);
         throw new InvalidDataException(
             $"Ceres flight instruction $8B:{pointer:X4} leaves its compiled lists.");
     }

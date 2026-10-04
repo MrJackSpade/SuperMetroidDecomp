@@ -46,10 +46,10 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
         {
             throw new InvalidDataException("Invalid Ceres flight sprite JSON.", error);
         }
-        ReadOnlySpan<CeresFlightSpriteFrameDefinition> definitions =
+        IReadOnlyList<CeresFlightSpriteFrameDefinition> definitions =
             CeresFlightSpriteDefinitions.Frames;
         if (document.Version != CeresFlightSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Ceres flight requires exactly six named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (CeresFlightSpriteFrameDefinition definition in definitions)
@@ -78,22 +78,6 @@ public sealed record CeresFlightSpriteDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Names, cartridge identities, and stock OAM part counts for Ceres flight art.</summary>
-public static class CeresFlightSpriteDefinitions
-{
-    private static readonly CeresFlightSpriteFrameDefinition[] StockFrames =
-    [
-        new("stars", 0x9478, 25),
-        new("large-asteroid", 0x94f7, 19),
-        new("station-under-attack", 0x9150, 41),
-        new("small-asteroid", 0x90fe, 16),
-        new("vortex-even", 0x8fe7, 36),
-        new("vortex-odd", 0x93d1, 33),
-    ];
-
-    public static ReadOnlySpan<CeresFlightSpriteFrameDefinition> Frames => StockFrames;
 }
 
 /// <summary>One bank-$8C visual spritemap and its expected retail OAM entry count.</summary>

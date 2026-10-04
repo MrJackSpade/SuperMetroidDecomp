@@ -38,6 +38,7 @@ internal static partial class Program
             if (source.Item1 is 0xa472 or 0xa4b0 or 0xa516)
             {
                 InspectEndingGlowPixelBands(pixels, source.Item2);
+                InspectEndingGlowCircleBands(pixels, source.Item2);
                 Console.WriteLine("Original upper-left24x24 color indexes (0 is transparent):");
                 for (int y = 104; y < 128; y++)
                     Console.WriteLine(Convert.ToHexString(pixels.AsSpan(y * 256 + 104, 24)));
@@ -86,6 +87,43 @@ internal static partial class Program
         foreach (byte color in pixels.Where(pixel => pixel != 0).Distinct().Order())
             Console.WriteLine($"color{color:X}: lattice depths " + string.Join(",", Enumerable.Range(0, pixels.Length)
                 .Where(index => pixels[index] == color).Select(index => depths[index]).Distinct().Order()));
+    }
+
+    private static void InspectEndingGlowCircleBands(byte[] pixels, string name)
+    {
+        // A symmetric circle centered at(c,c) requires every inside pixel to have
+        // smaller squared distance than every outside pixel. Subtracting the two
+        // distances cancels c*c and gives an exact linear bound on c. This reports
+        // feasibility, not a historical generator or a production conversion.
+        foreach (int innerLimit in new[] { 9, 10, 12, 13, 14 })
+        {
+            var inside = new List<(int X, int Y, int Sum, int Squared)>();
+            var outside = new List<(int X, int Y, int Sum, int Squared)>();
+            for (int y = 0; y < 24; y++)
+            for (int x = 0; x < 24; x++)
+            {
+                byte color = pixels[(104 + y) * 256 + 104 + x];
+                var point = (x, y, x + y, x * x + y * y);
+                (color > 0 && color <= innerLimit ? inside : outside).Add(point);
+            }
+            double lower = double.NegativeInfinity, upper = double.PositiveInfinity;
+            int contradictions = 0;
+            string? witness = null;
+            foreach (var included in inside)
+            foreach (var excluded in outside)
+            {
+                int constant = included.Squared - excluded.Squared;
+                int coefficient = 2 * (included.Sum - excluded.Sum);
+                if (coefficient > 0) lower = Math.Max(lower, (double)constant / coefficient);
+                else if (coefficient < 0) upper = Math.Min(upper, (double)constant / coefficient);
+                else if (constant >= 0)
+                {
+                    contradictions++;
+                    witness ??= $"inside({included.X},{included.Y}) versus outside({excluded.X},{excluded.Y})";
+                }
+            }
+            Console.WriteLine($"{name} inner<={innerLimit:X}: circle center interval({lower:R},{upper:R}), equal-sum contradictions={contradictions}; {witness}");
+        }
     }
 
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)

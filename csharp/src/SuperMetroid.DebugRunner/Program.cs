@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--rescued-animals-ship-audit", var animalsInstallation])
+        return RescuedAnimalsShipAudit.Run(animalsInstallation);
     if (args is ["--mother-brain-drool-timing-audit", var droolInstallation])
         return MotherBrainDroolTimingAudit.Run(droolInstallation);
     if (args is ["--screw-attack-palette-audit", var screwInstallation])

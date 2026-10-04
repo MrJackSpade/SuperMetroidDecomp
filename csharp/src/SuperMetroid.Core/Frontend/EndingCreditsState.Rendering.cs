@@ -158,6 +158,7 @@ internal sealed partial class EndingCreditsState
                     >= EndingSpriteRole.OperationWasText and
                         <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
                     EndingSpriteRole.RewardSamus => objectArtwork?.RewardSprites,
+                    EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
                     _ => null,
                 };
                 wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);

@@ -23,6 +23,7 @@ internal sealed partial class EndingCreditsState
     private readonly ushort gameTimeMinutes;
     private readonly EndingInventorySnapshot inventory;
     private readonly bool japaneseText;
+    private readonly bool crittersEscaped;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly List<EndingSprite> sprites = [];
@@ -66,7 +67,8 @@ internal sealed partial class EndingCreditsState
         ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default,
         bool japaneseText = false,
-        EndingTextPresentation? endingText = null)
+        EndingTextPresentation? endingText = null,
+        bool crittersEscaped = false)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
@@ -74,6 +76,7 @@ internal sealed partial class EndingCreditsState
         this.gameTimeMinutes = gameTimeMinutes;
         this.inventory = inventory;
         this.japaneseText = japaneseText;
+        this.crittersEscaped = crittersEscaped;
         this.endingText = endingText;
         Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
@@ -778,6 +781,7 @@ internal sealed partial class EndingCreditsState
                 >= EndingSpriteRole.OperationWasText and
                     <= EndingSpriteRole.ClearTimeDigit => EndingCompletionTextInstructionDefinitions.ReadWord,
                 EndingSpriteRole.RewardSamus => EndingRewardInstructionDefinitions.ReadWord,
+                EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.ReadWord,
                 _ => null,
             };
             wrapper.Sprite.Step(bus, (opcode, cursor) =>
@@ -931,6 +935,7 @@ internal sealed partial class EndingCreditsState
             EndingSpriteRole.ExplosionStarsRight => EndingSpriteSlots.RightStars,
             EndingSpriteRole.ExplosionStarsLeft => EndingSpriteSlots.LeftStars,
             EndingSpriteRole.ExplosionAfterglow => EndingSpriteSlots.Afterglow,
+            EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.NativeSlot,
             _ => Enumerable.Range(0, EndingSpriteSlots.Count).Reverse()
                 .FirstOrDefault(candidate => !sprites.Any(actor => actor.NativeSlot == candidate && actor.Sprite.IsActive), -1)
         };
@@ -989,6 +994,18 @@ internal sealed partial class EndingCreditsState
             planetVelocityWhole = 0;
             planetVelocityFraction = EndingCreditsRomData.Motion.InitialAccelerationFraction;
             Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
+            if (crittersEscaped)
+            {
+                SpawnSprite(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin,
+                    EndingAnimalEscapeDefinitions.Palette, EndingAnimalEscapeDefinitions.InstructionStart,
+                    EndingSpriteRole.AnimalEscape);
+                IntroDiscoverySprite pod = sprites[^1].Sprite;
+                pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
+                // Native cinematic dispatch precedes actors, so a newly spawned pod
+                // moves and selects its first animation frame on this same call.
+                StepEndingSpritePreInstruction(sprites[^1]);
+                pod.Step(bus, instructionWord: EndingAnimalEscapeDefinitions.ReadWord);
+            }
         }
     }
 
@@ -1137,6 +1154,7 @@ internal enum EndingSpriteRole
     ClearTimeText,
     ClearTimeDigit,
     RewardSamus,
+    AnimalEscape,
 }
 
 internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role)

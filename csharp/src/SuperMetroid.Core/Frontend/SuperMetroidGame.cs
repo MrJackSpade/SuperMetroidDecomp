@@ -1026,7 +1026,8 @@ public sealed partial class SuperMetroidGame
                             endingSamus.MaxPowerBombs,
                             endingSamus.CollectedItems,
                             endingSamus.CollectedBeams),
-                        runtime.JapaneseText);
+                        runtime.JapaneseText,
+                        crittersEscaped: runtime.System.HasEvent(EventNumber.CrittersEscaped));
                     endingCredits.BindEndingText(mapPresentation?.EndingText);
                     endingCredits.BindFlightArtwork(introCinematicArt?.CeresFlight);
                     endingCredits.BindMode7Artwork(endingMode7Art);

@@ -19,8 +19,10 @@ internal static partial class Program
             AssertTrue(!stock.StoresComposition(role.NativeId), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];
             bool worldLabel = role.NativeId is >= 0x39 and <= 0x3e;
-            AssertEqual(original.Length, worldLabel ? stock.StoredLabelHorizontalCount(role.NativeId) : MapMarkerGeometry.PartCount(role.NativeId),
-                "original part count; only pending horizontal positions remain stored for area labels");
+            if (worldLabel)
+                AssertEqual(role.NativeId switch { 0x39 => 3, 0x3a => 4, 0x3b => 2, 0x3c => 3, 0x3d => 3, 0x3e => 5, _ => 0 },
+                    stock.StoredLabelHorizontalCount(role.NativeId), "only line origins and nonstandard advances remain stored");
+            else AssertEqual(original.Length, MapMarkerGeometry.PartCount(role.NativeId), "original marker part count");
             for (int index = 0; index < original.Length; index++)
             {
                 var part = original[index];

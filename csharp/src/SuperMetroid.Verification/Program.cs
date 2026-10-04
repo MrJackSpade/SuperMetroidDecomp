@@ -540,6 +540,15 @@ if (args is ["--lookup-spc-allocation-addresses"])
     Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
     return 0;
 }
+if (args is ["--lookup-spc-dsp-publication"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC publication oracle revision");
+    VerifySpcDspPublication(rom);
+    Console.WriteLine("SPC DSP publication: native destination/source maps, echo gates and pending-key reset pass.");
+    return 0;
+}
 if (args is ["--lookup-spc-pan-samples"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -9770,4 +9770,17 @@
     "next": "Investigate a construction with a quantized intermediate gain or variable total power; do not repeat a single-scale quadratic or constant-power model as though it could explain the bytes. Preserve the separate FIR index21 alias and mutable neighboring-RAM branch. No correction blob, fitted polynomial, numerical switch or replacement approximation is authorized by these constraints.",
     "scope": "Static mathematical source analysis only. No production change, new test, gameplay execution, table completion or retention exception. Failed hypotheses do not establish arbitrary content or impossibility. The pan generator remains required work. Existing sample/interpolation checks were not rerun because their implementation did not change. Evidence commit is the commit adding this record."
   }
+,
+  "spcDspPublicationDispatchReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.State.cs",
+    "mappings": [
+      { "id": "spc-dsp-publication-destinations", "state": "converted" },
+      { "id": "spc-dsp-publication-source-selection", "state": "converted" }
+    ],
+    "nativeIdentity": "SPC1E52..1E5B destination bytes and1E5C..1E65 direct-page source bytes, ROMCF8A5A..8A6D",
+    "evidence": "Read both complete original maps and pinned PJBoy engine-data labels, plus pinned upstream-sm Spc_Loop_Part1 and its direct-page field mapping. Native descending order publishes KOF/keyOff, PMON/zero, NON/noise, KOF/zero, KON/keyOn, FLG/flags, EON/enable, EFB/feedback, EVOLR/right high byte, EVOLL/left high byte. The shared zero source is direct-page0E; the other zero is pitch-modulation state4B, represented as constant zero by the managed driver.",
+    "implementation": "LoopPartOne already replaces both indexed maps with the exact named register writes and typed source fields. Keep that implementation unchanged and document its independently reviewed contract. Both KOF writes and their order are explicit. Negative echoStoredTime omits FLG and all echo fields; a nonnegative unsettled delay publishes FLG but omits the four echo fields; settled delay publishes all ten. Clear pending key masks afterward. There is no runtime fixed dispatch array or cartridge read to remove.",
+    "proof": "One new VerifySpcDspPublication under --lookup-spc-dsp-publication runs the real private LoopPartOne with distinct field values and a minimal silent sample bank. Its oracle reads both original maps directly and models their descending selection. Compare all128 DSP registers for the three native echo gating paths, with preseeded destinations making skipped writes observable; also verify both pending key masks clear. The complete write order, including transient first KOF, is cross-checked statically against the pinned native port; this fixture does not claim cycle-level DSP timing validation. Existing guarded Verification entry point pins the supported ROM SHA. Initial fixture omitted the sample bank required by key-on; fix the fixture before the passing confirmation.",
+    "scope": "Independent disposition of an existing semantic dispatch conversion, not a new audio behavior change or proof of whole-owner completion. Lossless source uploads still retain original provenance/mutable neighboring bytes for the separately documented overread contract; this does not grant a retention exception to FIR coefficients or pan samples. Implementation/evidence commit is the commit adding this record."
+  }
 }

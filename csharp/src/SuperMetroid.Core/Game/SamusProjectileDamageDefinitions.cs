@@ -3,17 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native projectile damage headers, independent of their adjacent animation pointers.</summary>
 internal static class SamusProjectileDamageDefinitions
 {
-    /// <summary>
-    /// $93:8431..8640 ProjectileDataTable_Uncharged_* and ProjectileDataTable_Charged_*:
-    /// twenty-four headers separated by ten direction pointers. Physical table order
-    /// differs between the charged and uncharged halves; this is not a beam-bit index.
-    /// </summary>
-    private static ReadOnlySpan<ushort> BeamDamage =>
-    [
-        20, 40, 60, 100, 300, 30, 50, 150, 60, 70, 250, 200,
-        60, 120, 180, 300, 900, 90, 450, 150, 180, 210, 600, 750,
-    ];
-
     /// <summary>$93:8431 ProjectileDataTable_Uncharged_Power, first beam header.</summary>
     private const int BeamHeaderStart = 0x938431;
     /// <summary>Each beam header occupies one damage word and ten direction-pointer words.</summary>
@@ -55,8 +44,8 @@ internal static class SamusProjectileDamageDefinitions
     internal static ushort Read(int address)
     {
         int offset = address - BeamHeaderStart;
-        if (offset >= 0 && offset % BeamHeaderStride == 0 && offset / BeamHeaderStride < BeamDamage.Length)
-            return BeamDamage[offset / BeamHeaderStride];
+        if (offset >= 0 && offset % BeamHeaderStride == 0 && offset / BeamHeaderStride < 24)
+            return BeamDamage(offset / BeamHeaderStride);
 
         // Match exact headers, not arbitrary bytes in this mixed mechanics/art region.
         // Unaligned, null and out-of-table addresses retain the original bus behavior.
@@ -74,5 +63,46 @@ internal static class SamusProjectileDamageDefinitions
             _ => throw new InvalidDataException(
                 $"Projectile damage header ${address:X6} is outside the compiled cartridge definitions."),
         };
+    }
+    /// <summary>
+    /// $93:8431..8640 ProjectileDataTable_Uncharged_* / Charged_*: twelve
+    /// weapon headers per charge state, each followed by ten direction pointers.
+    /// The charged half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
+    /// </summary>
+    private static ushort BeamDamage(int header)
+    {
+        bool charged = header >= 12;
+        int row = header % 12;
+        SamusBeamFlags beam = row switch
+        {
+            0 => SamusBeamFlags.None,
+            1 => SamusBeamFlags.Spazer,
+            2 => SamusBeamFlags.Spazer | SamusBeamFlags.Ice,
+            3 => SamusBeamFlags.Spazer | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
+            4 => SamusBeamFlags.Plasma | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
+            5 => SamusBeamFlags.Ice,
+            6 => charged ? SamusBeamFlags.Plasma : SamusBeamFlags.Wave,
+            7 => charged ? SamusBeamFlags.Wave : SamusBeamFlags.Plasma,
+            8 => SamusBeamFlags.Ice | SamusBeamFlags.Wave,
+            9 => SamusBeamFlags.Spazer | SamusBeamFlags.Wave,
+            10 => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Ice : SamusBeamFlags.Wave),
+            _ => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Wave : SamusBeamFlags.Ice),
+        };
+        int damage = beam switch
+        {
+            SamusBeamFlags.None => 20,
+            SamusBeamFlags.Ice => 30,
+            SamusBeamFlags.Wave => 50,
+            SamusBeamFlags.Ice | SamusBeamFlags.Wave => 60,
+            SamusBeamFlags.Spazer => 40,
+            SamusBeamFlags.Spazer | SamusBeamFlags.Ice => 60,
+            SamusBeamFlags.Spazer | SamusBeamFlags.Wave => 70,
+            SamusBeamFlags.Spazer | SamusBeamFlags.Ice | SamusBeamFlags.Wave => 100,
+            SamusBeamFlags.Plasma => 150,
+            SamusBeamFlags.Plasma | SamusBeamFlags.Ice => 200,
+            SamusBeamFlags.Plasma | SamusBeamFlags.Wave => 250,
+            _ => 300,
+        };
+        return (ushort)(damage * (charged ? 3 : 1));
     }
 }

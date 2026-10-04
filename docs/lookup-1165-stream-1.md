@@ -502,7 +502,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs
 
-- [ ] **SamusProjectileDamageDefinitions.BeamDamage** ([L12](../csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusProjectileDamageDefinitions.BeamDamage** ([L12](../csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs
 
@@ -575,7 +575,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 28 definitions in batches 1 through 5 below.
+- Completed conversions: 29 definitions in batches 1 through 6 below.
 - Justified retained entries: none.
 - Confirmation results: isolated Verification build passed (1431 existing warnings, zero errors); --lookup-stream-1 passed.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -633,3 +633,10 @@ Two more definitions converted; 28 complete and 198 remain. No retained exceptio
 - `SamusBeamCallbackDefinitions`: Wave selects terrain-passing movement. Uncharged Wave/Ice-Wave select the three-frame trail; charge, Spazer or Plasma select four frames. Non-Wave beams select ordinary motion. The bounded invalid-combination adjacent-code observations dispatch explicitly to their existing named identities, preserving unsupported-null and translated behavior separately.
 - Original evidence: pinned bank90 `$B96E..B98D` and `$BA3E..BA5D`, including twelve native callback words and four adjacent instruction words per producer. No callback array or generated cache remains.
 - Confirmation: Verification build passed (25 warnings, zero errors); `--lookup-stream-1` passed all32 original callback identities and actual `TryFireBeam` initialization for all24 legal charge/combination cases with source ranges forbidden. The verifier's original full-frame path remains available; the scoped command uses the new initialization-only option because the older full-frame fixture reaches unrelated unsupported animation mechanics `$9386F5`.
+## Batch 6: beam damage by weapon identity
+
+One more definition converted; 29 complete and 197 remain. No retained exception.
+
+- `SamusProjectileDamageDefinitions.BeamDamage`: resolves physical header rows to named equipment combinations, selects uncharged weapon damage through cases, then multiplies by three for charge. Preserves the charged half's swapped Wave/Plasma and Plasma-Ice/Plasma-Wave header order, exact header alignment, all non-beam cases and rejection boundaries.
+- Evidence: pinned bank93 `$8431..8640`, `ProjectileDataTable_Uncharged_*` and `ProjectileDataTable_Charged_*`. All24 original damage words agree; the charged multiplier is exact across all twelve weapon combinations.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed including existing `VerifyProjectileDamage` original40-header/357-selector checks and seven actual projectile initializer paths with selection/damage ROM reads forbidden. Existing assertions and oracles are unchanged.

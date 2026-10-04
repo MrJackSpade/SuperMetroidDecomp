@@ -10088,4 +10088,16 @@
     "proof": "One VerifyIntroEggRemnantParts joins --lookup-intro-baby-discovery-instructions. Extract all21 original parts independently,require calculated selection,compare full compiled identity and native visible/wrapped OAM. Independently edit each field on each piece,preserve changed counts,and reject invalid part indices. Existing discovery program/catalog/input/collision proofs remain separate.",
     "remaining": "All seven remnant layouts converted. Intact/cracking egg and baby layouts,source pixels,and other1165 mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introConfusedBabyPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroConfusedBabyParts.cs",
+    "id": "intro-confused-baby-three-centered-poses",
+    "state": "converted",
+    "nativeIdentity": "Three one-part compositions8C:8FCB..8FDF",
+    "evidence": "Complete pinned bank8C records use centered sixteen-pixel sprites at(-8,-8),priority3,no flips and actor palette. First tile11E occupies the last two columns of its atlas-row pair;remaining13C/13E form an adjacent pair in the next atlas-row pair.",
+    "algorithm": "Generate centered geometry,size and common attributes. Select named first drawing or lowerPair+2*(frame-1). Loader substitutes the immutable view only after complete field/count equality and preserves independent custom edits. No generated part cache.",
+    "proof": "One VerifyIntroConfusedBabyParts joins --lookup-intro-baby-discovery-instructions. Independently extract all three native records,require calculated selection,compare complete identities and native visible/wrapped OAM. Preserve independent edits to each field and custom count;reject invalid calculated part indices.",
+    "catalogCorrection": "Native8C:909D is explicitly SpaceSpritemaps_CeresUnderAttackLargeAsteroids,not a large baby drawing. The second confused-baby list at8B:CC3F references it and the published catalog key remains hatched-baby. Corrected XML identity without changing the pointer,key or behavior. Its nineteen-part composition remains separate required review.",
+    "remaining": "Three small-baby layouts converted. Intact/cracking egg,aliased asteroid layout,source pixels and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

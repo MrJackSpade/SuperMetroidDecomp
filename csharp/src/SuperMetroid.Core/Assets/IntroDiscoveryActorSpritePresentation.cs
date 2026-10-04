@@ -53,8 +53,9 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
                 visual is null)
                 throw new InvalidDataException($"Intro discovery actor frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroEggRemnantParts.CalculateIfMatching(definition.Pointer,
-                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
+                IntroConfusedBabyParts.CalculateIfMatching(definition.Pointer,
+                    IntroEggRemnantParts.CalculateIfMatching(definition.Pointer,
+                        IntroCinematicSpriteCompiler.Compile(visual, definition.Name))));
         }
         return new IntroDiscoveryActorSpritePresentation(frames);
     }

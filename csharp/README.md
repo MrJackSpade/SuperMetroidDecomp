@@ -202,9 +202,11 @@ a file and line number.
 
 Battery-backed data is stored as `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.save.json`. Each
 slot names its checkpoint, resources, equipment, controller bindings, game time, progression
-bit sets, boss state, and explored map coordinates. A clearly labelled preservation section
-retains untranslated native SRAM bytes, while the named fields remain authoritative when the
-file is loaded or edited. Writes use a same-directory temporary file and atomic replacement;
+bit sets, boss state, and explored map coordinates. Schema v2 also names reserve missiles,
+text language, the item-load counter, and global game completion; it has no raw SRAM blob.
+Old v1 JSON is upgraded automatically with its original retained in `.bak`.
+See [the save schema inventory](../docs/save-schema-v2.md) for field meanings and migration.
+Writes use a same-directory temporary file and atomic replacement;
 the previous JSON is retained as `.save.json.bak`.
 
 When no JSON save exists, an existing 8 KiB `.srm` is imported once and immediately written

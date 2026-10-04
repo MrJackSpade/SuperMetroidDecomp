@@ -117,6 +117,9 @@ public sealed class Bank80SystemState
     /// <summary>Restores the raw cartridge word loaded from one checksummed save slot.</summary>
     public void LoadSavedLoadingGameState(ushort value) => SavedLoadingGameState = value;
 
+    /// <summary>$7E:D91A; cumulative item PLM initializations, including repeat visits.</summary>
+    public ushort LoadedItemCount { get; set; }
+
     /// <summary>
     /// Publishes the translated progression owners into their literal live-SRAM mirror.
     /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
@@ -132,6 +135,8 @@ public sealed class Bank80SystemState
         WriteBytes(bus, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
         WriteBytes(bus, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
         WriteBytes(bus, SaveRamLayout.MapStationsWramAddress, _mapStations);
+        bus.WriteByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset, (byte)LoadedItemCount);
+        bus.WriteByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset + 1, (byte)(LoadedItemCount >> 8));
         bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress,
             unchecked((byte)SavedLoadingGameState));
         bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress + 1,
@@ -154,6 +159,8 @@ public sealed class Bank80SystemState
         ReadBytes(memory, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
         ReadBytes(memory, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
         ReadBytes(memory, SaveRamLayout.MapStationsWramAddress, _mapStations);
+        LoadedItemCount = (ushort)(memory.ReadWorkRamByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset) |
+            memory.ReadWorkRamByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset + 1) << 8);
         SavedLoadingGameState = unchecked((ushort)(
             memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress) |
             memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));

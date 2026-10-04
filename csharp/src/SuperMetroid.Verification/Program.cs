@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--game-save-json"])
+{
+    VerifyGameSaveJsonPersistence();
+    VerifySaveSchemaTranslation();
+    return 0;
+}
 if (args is ["--torizo-palette-shake"]) return VerifyTorizoPaletteShake();
 if (args is ["--gunship-escape-timer"]) return VerifyGunshipEscapeTimer();
 if (args is ["--baby-metroid-theme"]) return VerifyBabyMetroidTheme();

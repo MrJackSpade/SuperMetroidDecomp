@@ -180,6 +180,8 @@ public sealed partial class RoomPlmSystem
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
+        // Both native item setup paths increment the saved load counter, even for collected items.
+        system.LoadedItemCount = unchecked((ushort)(system.LoadedItemCount + 1));
         slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 

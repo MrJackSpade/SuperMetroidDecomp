@@ -35,7 +35,7 @@ internal static class AutomaticCheckpointSaver
         new SuperMetroidSaveRam(bus).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(
             samus, runtime.System, area: (ushort)AreaId.Ceres, saveStation: 0,
             gameTime: runtime.GameTime, controllerBindings: runtime.ControllerBindings,
-            moonwalkEnabled: runtime.MoonwalkEnabled, iconCancelEnabled: runtime.IconCancelEnabled));
+            moonwalkEnabled: runtime.MoonwalkEnabled, iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ internal static class AutomaticCheckpointSaver
                 gameTime: runtime.GameTime,
                 controllerBindings: runtime.ControllerBindings,
                 moonwalkEnabled: runtime.MoonwalkEnabled,
-                iconCancelEnabled: runtime.IconCancelEnabled));
+                iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
         return true;
     }
 }

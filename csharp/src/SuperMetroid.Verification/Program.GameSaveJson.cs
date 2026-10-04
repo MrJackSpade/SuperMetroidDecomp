@@ -6,7 +6,7 @@ using SuperMetroid.Core.Input;
 internal static partial class Program
 {
     /// <summary>
-    /// Exercises the named JSON schema, lossless native preservation, strict parsing,
+    /// Exercises the named JSON schema, canonical native encoding, strict parsing,
     /// atomic replacement, and one-time legacy migration against the retail map packer.
     /// </summary>
     private static void VerifyGameSaveJsonPersistence()
@@ -65,11 +65,10 @@ internal static partial class Program
             iconCancelEnabled: true);
         saveRam.SaveSlot(1, snapshot);
 
-        // This gap is intentionally not represented by the translated snapshot. Preserve a
-        // sentinel there and rebuild the checksum so migration proves unknown bytes survive.
-        int untranslatedOffset = SaveRamLayout.SlotOffsets[1] + SaveRamLayout.ReserveEnergyOffset + 2;
-        source.WriteByte((int)new SnesAddress(SaveRamLayout.SramBank, (ushort)untranslatedOffset), 0xa5);
-        saveRam.SaveSlotPreservingUntranslatedBytes(1, snapshot);
+        // The former preservation-only word is the native reserve-missile accumulator.
+        snapshot = snapshot with { ReserveMissiles = 165, JapaneseText = true, LoadedItemCount = 321 };
+        saveRam.SaveSlot(1, snapshot);
+        saveRam.SetGameCompleted(true);
         saveRam.SelectSlot(1);
         byte[] expectedSram = source.SaveRam.ToArray();
 
@@ -85,7 +84,7 @@ internal static partial class Program
         SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored);
         AssertTrue(expectedSram.SequenceEqual(restored.SaveRam),
-            "JSON save round trip preserves complete translated and untranslated SRAM");
+            "JSON save round trip rebuilds canonical SRAM from named state");
         SuperMetroidSaveSlot restoredSlot = new SuperMetroidSaveRam(restored).ReadSlot(1) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertEqual((ushort)AreaId.Brinstar, restoredSlot.Area, "JSON checkpoint area");
@@ -103,7 +102,7 @@ internal static partial class Program
         AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
 
         AssertInvalidJsonSave(
-            json.Replace("\"schemaVersion\": 1", "\"schemaVersion\": 99", StringComparison.Ordinal),
+            json.Replace("\"schemaVersion\": 2", "\"schemaVersion\": 99", StringComparison.Ordinal),
             "schemaVersion");
         AssertInvalidJsonSave(
             json.Replace("\"selectedSlot\": 1,", "\"selectedSlot\": 1,\n  \"unknownField\": true,",
@@ -166,7 +165,7 @@ internal static partial class Program
         }
 
         Console.WriteLine(
-            "  JSON saves: named schema, all slot domains, native preservation, strict errors, atomic writes, and legacy migration agree.");
+            "  JSON saves: named schema, all slot domains, canonical SRAM, strict errors, atomic writes, and legacy migration agree.");
     }
 
     private static void AssertInvalidJsonSave(string json, string expectedMessagePart)

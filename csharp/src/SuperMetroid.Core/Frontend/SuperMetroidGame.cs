@@ -326,6 +326,7 @@ public sealed partial class SuperMetroidGame
                         optionSlot?.ControllerBindings,
                         optionSlot?.IconCancelEnabled ?? false,
                         optionSlot?.MoonwalkEnabled ?? false,
+                        japaneseText: optionSlot?.JapaneseText ?? false,
                         mapPresentation: mapPresentation);
                     GameState = SuperMetroidGameState.GameOptionsMenu;
                     PublishMenu(options);
@@ -701,6 +702,7 @@ public sealed partial class SuperMetroidGame
                     {
                         options = new GameOptionsMenuState(bus, audio, mapSlot.ControllerBindings,
                             mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
+                            japaneseText: mapSlot.JapaneseText,
                             mapPresentation: mapPresentation);
                         fileSelectMap = null;
                         GameState = SuperMetroidGameState.GameOptionsMenu;
@@ -1042,7 +1044,14 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.EndingAndCredits:
-                endingCredits!.Step();
+                EndingCreditsPhase previousEndingPhase = endingCredits!.Phase;
+                endingCredits.Step();
+                if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
+                    endingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
+                {
+                    saveRam.SetGameCompleted(true);
+                    SaveRamChanged?.Invoke();
+                }
                 PublishEnding(endingCredits);
                 break;
 
@@ -1642,7 +1651,7 @@ public sealed partial class SuperMetroidGame
                 gameTime: runtime.GameTime,
                 controllerBindings: runtime.ControllerBindings,
                 moonwalkEnabled: runtime.MoonwalkEnabled,
-                iconCancelEnabled: runtime.IconCancelEnabled));
+                iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
         SaveRamChanged?.Invoke();
     }
 

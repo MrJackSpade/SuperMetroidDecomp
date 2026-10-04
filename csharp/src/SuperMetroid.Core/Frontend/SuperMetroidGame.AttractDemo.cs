@@ -141,8 +141,6 @@ public sealed partial class SuperMetroidGame
         // Do not mutate an invalid save's marker merely to evaluate demo eligibility.
         if (saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null)
             return AttractDemoRomData.DefaultSetCount;
-        // The completion marker is a fixed cartridge literal, not mutable save state.
-        // The extracted demo catalog already validates that source at import time.
-        return AttractDemoRomData.SetCount;
+        return saveRam.HasCompletedGame ? AttractDemoRomData.SetCount : AttractDemoRomData.DefaultSetCount;
     }
 }

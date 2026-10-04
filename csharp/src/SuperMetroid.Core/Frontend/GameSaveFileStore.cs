@@ -24,6 +24,8 @@ public static class GameSaveFileStore
                 File.ReadAllText(jsonPath),
                 jsonPath);
             GameSaveJsonCodec.Apply(document, addressSpace);
+            if (document.SourceSchemaVersion < GameSaveJsonFormat.SchemaVersion)
+                WriteAtomic(addressSpace, jsonPath);
             return new GameSaveLoadResult(jsonPath, MigratedLegacySram: false);
         }
         if (!File.Exists(legacySramPath))

@@ -14,6 +14,7 @@ public sealed class PauseSelectorPresentation
     public int InitialDurationTicks { get; }
     public ushort PaletteBits { get; }
     public int PhaseCount { get; }
+    internal bool StoresCompositionParts => reserve.StoresParts || beam.StoresParts || equipment.StoresParts;
     internal int StoredCompositionOverrideCount => reserve.OverrideCount + beam.OverrideCount + equipment.OverrideCount;
     private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
         PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
@@ -61,11 +62,11 @@ public sealed class PauseSelectorPresentation
             if (point.X != basis.X || point.Y != basis.Y)
                 anchorOverrides.Add(definition.Name, (point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }
-        var frames = new Dictionary<string, SpriteComposition>();
+        var frames = new Dictionary<string, PauseSelectorVisual>();
         foreach (var frame in document.Frames)
         {
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
-            frames.Add(frame.Key, MenuSpriteCompiler.Compile(frame.Value, frame.Key));
+            frames.Add(frame.Key, PauseSelectorVisual.Compile(frame.Value, frame.Key));
         }
         PhaseComposition? reservePhases = null, beamPhases = null, equipmentPhases = null;
         Dictionary<int, int>? durationOverrides = null;
@@ -92,16 +93,17 @@ public sealed class PauseSelectorPresentation
     }
     /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
-    private sealed class PhaseComposition(SpriteComposition basis)
+    private sealed class PhaseComposition(PauseSelectorVisual basis)
     {
-        private readonly SpriteComposition basis = basis;
-        private Dictionary<int, SpriteComposition>? overrides;
+        private readonly PauseSelectorVisual basis = basis;
+        private Dictionary<int, PauseSelectorVisual>? overrides;
+        public bool StoresParts => basis.StoresParts || (overrides?.Values.Any(value => value.StoresParts) ?? false);
         public int OverrideCount => overrides?.Count ?? 0;
-        public void Capture(int phase, SpriteComposition value)
+        public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
         }
-        public SpriteComposition Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
+        public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }
     public static void Write(Stream output, PauseSelectorDocument document)

@@ -12,6 +12,33 @@ internal static partial class Program
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
+        AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
+        foreach (string name in new[] { "Reserve", "Beam", "Equipment" })
+        {
+            int category = name == "Reserve" ? 0 : name == "Beam" ? 1 : 2;
+            var original = document.Frames[name];
+            for (int index = 0; index < original.Length; index++)
+            {
+                var part = original[index];
+                foreach (var change in new[] { part with { OffsetX = 17 }, part with { OffsetY = 13 },
+                    part with { TileColumn = 0 }, part with { TileRow = 0 }, part with { Size = 16 },
+                    part with { Priority = 0 }, part with { Palette = 7 }, part with { FlipX = true }, part with { FlipY = true } })
+                {
+                    var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
+                    var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[name] = parts;
+                    var edited = PauseSelectorPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+                        document with { Frames = frames }, MapPresentationFormat.JsonOptions)));
+                    AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
+                    var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                    var anchor = edited.Anchor(category, 0);
+                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, (ushort)anchor.X, (ushort)anchor.Y, edited.PaletteBits);
+                    edited.Draw(actual, category, 0, 0);
+                    expected.FinalizeFrame(); actual.FinalizeFrame();
+                    AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                        "all selector part fields remain independently editable");
+                }
+            }
+        }
         for (int group = 0; group < 3; group++)
         for (int changed = 0; changed < document.Animation.Length; changed++)
         {

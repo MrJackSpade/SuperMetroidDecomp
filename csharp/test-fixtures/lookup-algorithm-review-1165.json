@@ -9605,4 +9605,18 @@
     "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with all20 original parts, bringing the focused comparison to131 parts across twelve compositions. Verify calculated selection, full visual identities, native on/offscreen OAM, independent nine-field edits and bounds. Existing160 instruction words and seventeen480-call actor streams remain checked. Assertion labels now describe reward compositions rather than only heads.",
     "remaining": "Other reward poses, arm/hair layouts and independently unreviewed pixel artwork remain required. No retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardSuitlessGridReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardSuitlessGridParts.cs",
+    "mappings": [
+      { "id": "ending-reward-suitless-lower-body-composition", "state": "converted" },
+      { "id": "ending-reward-suitless-jump-preparation-composition", "state": "converted" },
+      { "id": "ending-reward-suitless-jumping-composition", "state": "converted" }
+    ],
+    "source": "Original8C:A243 lower body14 parts,9F30 jump preparation20 parts and9F96 jumping19 parts. Lower-body grid origin is atlas column0 atX=-16,row0 atY=-40. Jump-preparation uses column6 atX=-16,row0 atY=-32. Jumping body uses column12 atX=-16,row0 atY=-40, while its two small-tile arm strips have independent placements.",
+    "algorithm": "Traverse foot tips/pairs left-to-right, edge and leg strips bottom-to-top, outer hips right then left, and paired jumping-body rows bottom-right first. Atlas row/column strides calculate selection and placement; named inner-hip/crouch-cap/left-leg-edge identities account for isolated boundary pieces. Jumping arm strips advance one atlas row per8-pixel step. Edge/interior roles determine size; all parts are unflipped, priority3 and actor-palette inherited.",
+    "implementation": "A bounded pose view calculates all53 parts and ordered selections without stored part/selection arrays or generated caches. The loader recognizes existing semantic frame identities and substitutes only after every compiled field matches. Independently edited artwork retains its supplied composition.",
+    "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs to all53 native parts. The focused comparison now covers184 parts across fifteen compositions, requiring calculation selection, complete visual identity, native positive/negative-origin low/high OAM, nine-field edit preservation and bounds. Existing160 instruction words and seventeen480-call actor streams remain in the same proof.",
+    "remaining": "Other suitless standing/hair, suited arm and small shooting-scene compositions and unreviewed pixels remain required. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
+  }
 }

@@ -1359,6 +1359,15 @@ if (args is ["--lookup-kraid-room-visual-selection"])
     VerifyKraidRoomVisualSelection();
     return 0;
 }
+if (args is ["--lookup-fake-kraid-spike-rows"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Fake Kraid spike-row oracle revision");
+    VerifyFakeKraidSpikeRowSelection(rom);
+    Console.WriteLine("Fake Kraid spike rows: all three original signed launch positions and invalid selectors pass.");
+    return 0;
+}
 if (args is ["--lookup-fake-kraid-spit-velocities"])
 {
     var velocityOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

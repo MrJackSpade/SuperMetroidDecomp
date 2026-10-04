@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed launch definitions for Fake Kraid's spit and body-spike projectiles.</summary>
 internal static class FakeKraidProjectileDefinitions
 {
-    /// <summary>
-    /// Top, middle, and bottom body-spike Y offsets from <c>$86:9E7D-$86:9E82</c>.
-    /// </summary>
-    private static readonly short[] SpikeYOffsets = [-2, 12, 24];
-
     /// <summary>Computes the signed8.8 near/far launches from $A6:9A48-9A57, mirrored by facing.</summary>
     internal static FakeKraidSpitLaunch SpitLaunch(bool movingRight, int projectile)
     {
@@ -24,17 +19,30 @@ internal static class FakeKraidProjectileDefinitions
             unchecked((ushort)(-5 * 256)));
     }
 
-    /// <summary>Returns the authored Y offset for one of Fake Kraid's three spike rows.</summary>
-    internal static short SpikeYOffset(int row)
+    /// <summary>Selects a fixed body launch position from $86:9E7D..9E82.
+    /// Native $A6:9AC2..9B10 selects one of three independent spike timers at byte
+    /// offsets0/2/4; the managed boundary divides that selector by two. The selected
+    /// top/middle/bottom port is respectively2 pixels above,12 below or24 below body Y.
+    /// $86:9E4E adds this signed integer offset with16-bit wrap, independently of
+    /// animation and facing. This is port selection, not an interpolated motion curve.</summary>
+    internal static short SpikeYOffset(int row) => (FakeKraidSpikeRow)row switch
     {
-        if ((uint)row >= SpikeYOffsets.Length)
-        {
-            throw new InvalidDataException(
-                $"Fake Kraid spike row {row} exceeds its three-entry table.");
-        }
+        FakeKraidSpikeRow.Top => -2,
+        FakeKraidSpikeRow.Middle => 12,
+        FakeKraidSpikeRow.Bottom => 24,
+        _ => throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port."),
+    };
+}
 
-        return SpikeYOffsets[row];
-    }
+/// <summary>Mutually exclusive body-spike ports selected by the three native timers.</summary>
+internal enum FakeKraidSpikeRow
+{
+    /// <summary>Top timer at native byte offset0; launch offset word at86:9E7D.</summary>
+    Top = 0,
+    /// <summary>Middle timer at native byte offset2; launch offset word at86:9E7F.</summary>
+    Middle = 1,
+    /// <summary>Bottom timer at native byte offset4; launch offset word at86:9E81.</summary>
+    Bottom = 2,
 }
 
 /// <summary>One signed 8.8 Fake Kraid spit launch-velocity pair.</summary>

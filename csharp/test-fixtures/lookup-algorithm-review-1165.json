@@ -2635,7 +2635,7 @@
         ],
         "rationale": "The pair differs only by horizontal launch magnitude; facing mirrors it and gravity acts on an identical initial upward velocity. No empirical fit or cached sequence is required.",
         "confirmation": "Verification build and --lookup-fake-kraid-spit-velocities pass. Existing aggregate delegates the extracted field proofs. Four-record SpitLaunches storage is removed.",
-        "remainingScope": "SpikeYOffsets remains pending, not accepted retention: native86:9E7D stores-2,12,24 and the initializer adds the selected word to body Y. Inspected A6:9C64 onward walking OAM has pose-dependent component Y coordinates, whereas launch Y ignores animation; projectile8D:8427/842E has a fixed-4 local Y origin. A direct current-OAM-origin mapping is not established. Further geometry review or a demonstrated nonsense justification is still required. Actual artwork and broader repository mappings also remain outstanding."
+        "remainingScope": "Spike-row launch positions are now converted through named top/middle/bottom cases; see fakeKraidSpikePortSelectionReview. The earlier search for animation-dependent geometry was unnecessary: the independent timers select fixed body ports, not curve samples. Actual artwork and broader repository mappings remain outstanding."
     }
 ,
     "kraidRoomVisualSelectionReview": {
@@ -7328,5 +7328,16 @@
     "storage":"Remove64 planar bytes. The two stock cells have zero retained deviations; independently supplied edits remain supported. Remaining105 raw atlas cells occupy3360 bytes and remain required review.",
     "proof":"One independent VerifyMenuThinBorderPixels / --lookup-menu-thin-border-pixels proof explicitly listsAD/AE, compares all128 original pixels, checks both8192-byte uploads, every independently edited pixel, all16 colors at selected locations, complete-region replacement and invalid domains. Twelve existing atlas-family proofs confirm the changed shared compaction and independent edit ownership.",
     "confirmation":"Verification build0 errors; full build1429 existing warnings, final incremental build25. New thin-border proof and all twelve affected existing atlas proofs pass. Closed source dependencies/hashes and maintained-source index refreshed. Implementation commit is the commit adding this entry. No retention exception is assigned."
+  }
+,
+  "fakeKraidSpikePortSelectionReview": {
+    "status":"converted the three spike-row offsets to meaningful named port cases",
+    "owner":"csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileDefinitions.cs",
+    "nativeIdentity":"86:9E7D..9E82, signed integer words FFFE/000C/0018",
+    "consumers":"A6:9AC2 cycles byte offsets0/2/4. A6:9ADC indexes the three adjacent top/middle/bottom clocks and forwards the expired clock selector as spikeIndex. 86:9E4E reads the selected Y word and adds it to body Y. Managed RunFakeKraidMain shifts the byte selector once and SpawnFakeKraidSpike consumes that row without additional table aliases.",
+    "evidence":"Pinned memory.asm names topSpikeTimer/middleSpikeTimer/bottomSpikeTimer at7E:7806/7808/780A; A6:9A6F/77/7F initialize each independently. The launch offset does not depend on walking pose, facing or elapsed flight time. These are three independently triggered physical launch ports, not a numerical trajectory or chronological sample sequence. The prior demand for an OAM-derived spacing formula was unwarranted.",
+    "implementation":"Remove SpikeYOffsets storage. Switch on mutually exclusive FakeKraidSpikeRow.Top/Middle/Bottom to select2 pixels above,12 below or24 below body Y. Keep the existing int-row boundary and InvalidDataException for unsupported values. Preserve signed short outputs and the existing caller's unchecked16-bit addition. No interpolation, fitting, masking, caching or runtime ROM reads.",
+    "proof":"Extract the existing original-table loop into the single VerifyFakeKraidSpikeRowSelection proof and have the previous aggregate delegate it. New early --lookup-fake-kraid-spike-rows flag pins the original ROM SHA. It compares all three original little-endian signed words and rejects negative, adjacent, wide and integer-extreme selectors. Existing spawn integration is unchanged; no unrelated gameplay matrix was run.",
+    "confirmation":"Final Verification build0 errors/25 existing incremental warnings. Focused original-word proof passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry. This is a case-selection conversion, not a retention exception."
   }
 }

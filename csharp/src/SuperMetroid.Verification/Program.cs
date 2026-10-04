@@ -218,6 +218,15 @@ if (args is ["--lookup-ending-mode7-roles"])
     Console.WriteLine("Ending Mode7 roles: supplied references, original hash ordering, bounds and null checks pass.");
     return 0;
 }
+if (args is ["--lookup-ending-logo-fade"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo fade oracle revision");
+    VerifyEndingLogoPaletteFade(rom);
+    Console.WriteLine("Ending logo fade: all512 original colors, computed transfers, independent edits and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-palette-metadata"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

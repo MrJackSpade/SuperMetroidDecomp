@@ -9,6 +9,80 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
+    {
+        var original = new byte[512 * 2];
+        var colors = new PaletteRgb5[512];
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        // The original pointer list and reverse-copy operand order are the oracle.
+        // Neither the production source selector nor the proposed arithmetic supplies it.
+        for (int step = 0; step < 16; step++)
+        for (int palette = 0; palette < 2; palette++)
+        for (int color = 0; color < 16; color++)
+        {
+            int last = Word(0x8be5e7 + (step * 2 + palette) * 2);
+            ushort word = Word(0x8c0000 | (last - (15 - color) * 2));
+            int index = step * 32 + palette * 16 + color;
+            original[index * 2] = (byte)word;
+            original[index * 2 + 1] = (byte)(word >> 8);
+            colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(original)
+            ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
+        EndingPalette Load(PaletteRgb5[] supplied)
+        {
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+                new EndingPaletteDocument { Version = 1, Colors = supplied }, MapPresentationFormat.JsonOptions));
+            return EndingPalette.Load(json, EndingPaletteId.LogoCrossfade);
+        }
+        EndingPalette loaded = Load(colors);
+        int remaindersSeen = 0;
+        for (int index = 0; index < 512; index++)
+        {
+            ushort expected = (ushort)(original[index * 2] | original[index * 2 + 1] << 8);
+            AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
+            AssertEqual(expected, loaded.Color(index), "computed fade reaches palette accessor");
+            int palette = index / 16 % 2, step = index / 32;
+            PaletteRgb5 endpoint = colors[(palette == 0 ? 15 * 32 : 16) + index % 16];
+            foreach (int channel in new[] { endpoint.Red, endpoint.Green, endpoint.Blue })
+                remaindersSeen |= 1 << (channel * (palette == 0 ? step : 15 - step) % 15);
+        }
+        AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
+        AssertTrue(loaded.Transfer.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
+        var cgram = new SnesCgram();
+        for (int step = 0; step < 16; step++)
+        {
+            loaded.LoadTo(cgram, step * 32, 32, 64);
+            for (int color = 0; color < 32; color++)
+            {
+                int offset = (step * 32 + color) * 2;
+                AssertEqual((ushort)(original[offset] | original[offset + 1] << 8), cgram.Colors[64 + color],
+                    "computed fade partial CGRAM transfer");
+            }
+        }
+        // Independent edits to a dark frame, an intermediate frame and an endpoint
+        // must survive even though they no longer describe a linear fade.
+        foreach (int edited in new[] { 1, 7 * 32 + 19, 15 * 32 + 1 })
+            colors[edited] = colors[edited] with { Red = (colors[edited].Red + 11) & 31 };
+        EndingPalette custom = Load(colors);
+        for (int index = 0; index < 512; index++)
+        {
+            PaletteRgb5 color = colors[index];
+            AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.Color(index),
+                "independent edited fade samples survive unchanged");
+        }
+        AssertTrue(EndingLogoPaletteFade.TryCreate(custom.Transfer.Span) is null, "nonlinear edits remain caller-owned content");
+        foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => loaded.Color(invalid), "loaded fade index domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 511, 2, 0), "computed fade source transfer bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 0, 32, 240), "computed fade destination transfer bounds");
+        loaded.LoadTo(cgram, 512, 0, 256);
+        AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
+    }
+
     private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship

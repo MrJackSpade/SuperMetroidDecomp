@@ -60,6 +60,7 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
             var compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
             compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresStationParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresFlightSpritePresentation(frames);

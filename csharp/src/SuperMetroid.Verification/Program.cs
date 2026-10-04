@@ -492,6 +492,7 @@ if (args is ["--lookup-ceres-flight-programs"])
     VerifyCeresFlightPrograms(rom);
     VerifyCeresFlightFrameCatalog(rom);
     VerifyCeresStationParts(rom);
+    VerifyCeresSmallAsteroidParts(rom);
     Console.WriteLine("Ceres flight programs: five original streams, byte/word boundaries, shared aliases and interpreter loops pass.");
     return 0;
 }

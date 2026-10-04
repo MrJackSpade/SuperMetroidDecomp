@@ -10046,4 +10046,22 @@
     "proof": "Extract existing source-byte comparison from VerifyIntroMotherBrainDemoInput into one VerifyIntroMotherBrainInputSource reused there and exposed under --lookup-intro-mother-brain-input. Compare all112 original bytes and110 complete aligned/overlapping word views plus terminal and outside boundaries against SHA-pinned ROM. Existing interpreter/owner checks remain intact;no exploratory gameplay.",
     "remaining": "Mother Brain input program/header converted. Sprite instruction programs,OAM/pixel mappings and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainInstructionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroMotherBrainInstructionDefinitions.cs",
+    "id": "intro-mother-brain-animation-and-page-two-programs",
+    "state": "converted",
+    "nativeIdentity": "8B:CB05..CB32",
+    "algorithm": "Replace46-byte Program span with shared sixteen-tick0/1/2/1 animation-loop generation. Second list emits named start-page2,set-pre-instruction and crossfading callback before that loop;each goto returns to its own animation start. Byte halves and composed overlapping words preserve admission and exception types.",
+    "proof": "Extract existing byte comparison from VerifyIntroMotherBrainDefinitions into one VerifyIntroMotherBrainInstructions,reused there and exposed under --lookup-intro-mother-brain-instructions. Compare all46 bytes,45 complete word views,terminal crossing and outside boundaries against SHA-pinned ROM. Complete pinned bank8B source independently identifies loop and callback semantics.",
+    "remaining": "Instruction mapping converted;OAM fields,pixels and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
+  },
+  "introMotherBrainFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpriteDefinitions.cs",
+    "id": "intro-mother-brain-three-frame-catalog",
+    "state": "converted",
+    "algorithm": "Replace three stored records with bounded FramePointer=FrameZero+frame*(2+5*9) and a stateless indexed/enumerable view. Generate published names and derive the existing second/third aliases from the same record width. Loader consumes Count. Review and update both affected closed-contract source hashes.",
+    "proof": "One VerifyIntroMotherBrainFrameCatalog reads three original instruction operands and original OAM counts,compares pointers,names and aliases,and checks bounds/enumeration. Run alongside the separate instruction proof. Verification and ResourceAudit builds pass.",
+    "remaining": "Frame metadata converted. Individual OAM fields and original pixels still need independent review. No whole-file artwork exception. Implementation commit is the commit adding this record."
+  }
 }

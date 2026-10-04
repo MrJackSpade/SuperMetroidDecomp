@@ -602,6 +602,16 @@ if (args is ["--lookup-intro-collision-art"])
     ExportIntroCollisionArtwork(rom);
     return 0;
 }
+if (args is ["--lookup-intro-mother-brain-instructions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain instruction oracle revision");
+    VerifyIntroMotherBrainInstructions(rom);
+    VerifyIntroMotherBrainFrameCatalog(rom);
+    Console.WriteLine("Mother Brain programs/catalog: all46 bytes,45 word views,three frames and boundaries pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-mother-brain-input"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

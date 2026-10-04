@@ -8,11 +8,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int pointer = IntroMotherBrainInstructionDefinitions.StartPointer;
-             pointer < IntroMotherBrainInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain instruction byte $8B:{pointer:X4}");
+        VerifyIntroMotherBrainInstructions(retail);
         VerifyIntroMotherBrainExplosionPrograms(retail);
 
         IntroMotherBrainActorDefinition[] actors =

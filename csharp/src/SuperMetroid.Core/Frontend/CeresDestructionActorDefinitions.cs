@@ -86,94 +86,69 @@ internal static class CeresDestructionActorDefinitions
         };
     }
 
-    /// <summary>Returns the planet, four star sheets, and PLANET ZEBES title in spawn order.</summary>
+    /// <summary>Returns planet, four grid-aligned star sheets and title in native spawn order.</summary>
     /// <remarks>
-    /// Issues #625 and #1017: the six X immediates at $8B:C83C/C944/
-    /// C958/C96C/C980/C993 match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm: $0088, $0030, $00D0, $0030, $00D0, $0080 in native
-    /// spawn order. For bounded star index i=1..4, odd i selects left
-    /// column $0030 and even i selects right column $00D0. Planet i=0
-    /// and title i=5 retain their authored $0088/$0080 centers. This
-    /// parity-and-exception rule exactly covers the six actor types;
-    /// ZebesActor rejects any index outside 0..5.
-    ///
-    /// Issues #625 and #1018: the six Y immediates at $8B:C842/C94A/
-    /// C95E/C972/C986/C999 match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm: $006F, $002F, $002F, $00CF, $00CF, $00BA in the same
-    /// spawn order. Star-sheet indices 1..2 use top row $002F; indices
-    /// 3..4 use bottom row $00CF. Combined with their proven X parity,
-    /// those four sheets occupy the four corners of a bounded two-by-two
-    /// layout. Planet index 0 and title index 5 retain authored $006F
-    /// and $00BA. No value is extrapolated outside actor indices 0..5.
-    ///
-    /// Issues #625 and #1019: the six OAM attribute immediates at
-    /// $8B:C848/C950/C964/C978/C98C/C99F match pinned NTSC J/U v1.0
-    /// ROM and bank_8B.asm: $0E00, $0800, $0800, $0800, $0800, $0000.
-    /// The exact bounded classification is planet index 0 -> $0E00,
-    /// star-sheet indices 1..4 -> $0800, and title index 5 -> $0000.
-    /// IntroDiscoverySprite.Draw applies those bits to OAM. Retain the
-    /// authored attribute category for each visual role; this case rule
-    /// does not define attributes for indices outside the six spawns.
-    ///
-    /// Issues #625 and #1020: pinned NTSC J/U v1.0 ROM and bank_8B.asm
-    /// put unsigned 8.8 slide-timer increments $0040 at $8B:C862 for
-    /// planet index 0, and $0020 at $C90D/$C8BE for star indices 1..4.
-    /// Title index 5 has no slide callback or increment. The exact bounded
-    /// selector is therefore i==0 ? $0040 : i&lt;5 ? $0020 : 0 for
-    /// i=0..5. StepZebesActors adds it to the 16-bit timer with wrap,
-    /// then subtracts the resulting 8.8 velocity from Y. The last star
-    /// owns scene completion but shares the same acceleration magnitude.
-    ///
-    /// Issues #625 and #1021: native slide-callback immediates at
-    /// $8B:C857/C902/C8B3 match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm: $C85D for planet index 0, $C908 for star indices
-    /// 1..3, and $C8B9 for completion star index 4. Title index 5 has
-    /// no slide callback and must be gone before this phase. All four
-    /// moving stars share the acceleration above, but only $C8B9 writes
-    /// cinematic function $CADF at $8B:C8F2 after Y crosses below -128;
-    /// the other callbacks delete their actors. StepZebesActors identifies
-    /// that completion owner by actor reference as native slots shift.
-    /// Retain this bounded callback/transition classification.
-    ///
-    /// Issues #625 and #1022: all eighteen definition words at
-    /// $8B:CEA3/CEF7/CEFD/CF03/CF09/CEAF match pinned NTSC J/U v1.0
-    /// ROM and bank_8B.asm. Their (initializer, pre-instruction, list)
-    /// triples are (C83B,C84E,CCAB), (C942,C8F9,CD83),
-    /// (C956,C8F9,CD8B), (C96A,C8F9,CD93), (C97E,C8AA,CD9B),
-    /// (C992,93D9,CCBB) in spawn order. For bounded star index i=1..4,
-    /// definition address is $CEF7+6*(i-1), initializer is
-    /// $C942+$14*(i-1), and list is $CD83+8*(i-1). The special fourth
-    /// star uses pre-instruction $C8AA rather than $C8F9 to own scene
-    /// completion. Planet and title have separate authored identities;
-    /// retain the six bounded triples despite these star-address strides.
-    ///
-    /// The four star-sheet programs at $8B:CD83/CD8B/CD93/CD9B select
-    /// named upper-left, upper-right, lower-left and lower-right frames and
-    /// loop at ten calls. The planet list at $8B:CCAB uses the same loop
-    /// structure with its own frame identity. The title list at $8B:CCBB
-    /// sequences its blank/visible waits and fade/subtitle/flight callbacks,
-    /// then deletes. CeresDestructionSpriteInstructionDefinitions generates
-    /// these operations directly; no copied program-byte table remains.
-    /// Independent #1165 proofs cover every original byte and per-frame
-    /// callback timing. The former authored-content retention claims for
-    /// these programs are withdrawn; artwork is a separate review subject.
+    /// #1165: $C810..C831 selects these six roles. Star quadrant q=index-1 is bounded to 0..3:
+    /// X=48+160*(q mod 2), Y=47+160*(q/2). The native initializers $C942..C991 place
+    /// all four sheets on this two-by-two grid with the same palette and acceleration.
+    /// Their definitions are six bytes apart, initializers twenty bytes apart (including
+    /// each leading NOP), and single-frame loop programs eight bytes apart. Only the
+    /// lower-right sheet installs the completion callback. Planet and title are separate
+    /// named roles with their own initializer operands and programs, not curve exceptions.
+    /// One original-ROM metadata proof checks every field and invalid-index rejection.
+    /// Instruction programs have their existing separate byte/interpreter proofs.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {
-        0 => new(0xcea3, 0xc83b, 0xc84e, 0xc84e, 0xccab,
-            0x0088, 0x006f, 0x0e00, 0, false, 0x0040, 0xc85d, false),
-        1 => new(0xcef7, 0xc942, 0xc8f9, 0xc8f9, 0xcd83,
-            0x0030, 0x002f, 0x0800, 0, false, 0x0020, 0xc908, false),
-        2 => new(0xcefd, 0xc956, 0xc8f9, 0xc8f9, 0xcd8b,
-            0x00d0, 0x002f, 0x0800, 0, false, 0x0020, 0xc908, false),
-        3 => new(0xcf03, 0xc96a, 0xc8f9, 0xc8f9, 0xcd93,
-            0x0030, 0x00cf, 0x0800, 0, false, 0x0020, 0xc908, false),
-        4 => new(0xcf09, 0xc97e, 0xc8aa, 0xc8aa, 0xcd9b,
-            0x00d0, 0x00cf, 0x0800, 0, false, 0x0020, 0xc8b9, true),
-        5 => new(0xceaf, 0xc992, 0x93d9, 0x93d9, 0xccbb,
-            0x0080, 0x00ba, 0x0000, 0, false, 0, 0, false),
+        0 => ZebesPlanet,
+        >= 1 and <= 4 => ZebesStarSheet(index - 1),
+        5 => ZebesTitle,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+
+    /// <summary>$8B:CEA3, CinematicSpriteObjectDefinitions_Zebes: initializer C83B,
+    /// waiting callback C84E, list CCAB; operands C83C/C842/C848 set its placement/palette.
+    /// C857 selects slide callback C85D, whose C862 operand accelerates by 64/256 pixels.</summary>
+    private static CeresDestructionActorDefinition ZebesPlanet =>
+        new(0xcea3, 0xc83b, 0xc84e, 0xc84e, CeresDestructionSpriteInstructionDefinitions.PlanetStart,
+            136, 111, 0x0e00, 0, false, 64, 0xc85d, false);
+
+    /// <summary>$8B:CEAF, CinematicSpriteObjectDefinitions_PlanetZebesText: initializer C992,
+    /// no-op 93D9, list CCBB. Operands C993/C999/C99F center the title at (128,186), palette zero.
+    /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
+    private static CeresDestructionActorDefinition ZebesTitle =>
+        new(0xceaf, 0xc992, 0x93d9, 0x93d9, CeresDestructionSpriteInstructionDefinitions.TitleStart,
+            128, 186, 0, 0, false, 0, 0, false);
+
+    /// <summary>$8B:CEF7, first six-byte definition, CinematicSpriteObjectDefinitions_ZebesStars2.</summary>
+    private const ushort FirstZebesStarDefinition = 0xcef7;
+    /// <summary>$8B:C942, first twenty-byte initializer, InitFunction_CinematicSpriteObject_ZebesStars2.</summary>
+    private const ushort FirstZebesStarInitializer = 0xc942;
+    /// <summary>$8B:C8F9, PreInstruction_CinematicSpriteObject_ZebesStars_2_3_4 waits for scene sliding.</summary>
+    private const ushort StarWaitCallback = 0xc8f9;
+    /// <summary>$8B:C8AA, PreInstruction_CinematicSpriteObject_ZebesStars5 waits for completion-owner sliding.</summary>
+    private const ushort CompletionStarWaitCallback = 0xc8aa;
+    /// <summary>$8B:C908, PreInstruction_ZebesStars_2_3_4_SlideSceneAway moves and deletes ordinary sheets.</summary>
+    private const ushort StarSlideCallback = 0xc908;
+    /// <summary>$8B:C8B9, PreInstruction_ZebesStars5_SlideSceneAway additionally installs game load at C8F2.</summary>
+    private const ushort CompletionStarSlideCallback = 0xc8b9;
+
+    /// <summary>Constructs a star-sheet definition for an already validated row-major quadrant 0..3.</summary>
+    private static CeresDestructionActorDefinition ZebesStarSheet(int quadrant)
+    {
+        bool completesScene = quadrant == 3;
+        ushort wait = completesScene ? CompletionStarWaitCallback : StarWaitCallback;
+        return new(
+            (ushort)(FirstZebesStarDefinition + 6 * quadrant),
+            (ushort)(FirstZebesStarInitializer + 20 * quadrant),
+            wait, wait,
+            (ushort)(CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 8 * quadrant),
+            (ushort)(48 + 160 * (quadrant & 1)),
+            (ushort)(47 + 160 * (quadrant >> 1)),
+            0x0800, 0, false, 32,
+            completesScene ? CompletionStarSlideCallback : StarSlideCallback,
+            completesScene);
+    }
 }
 
 /// <summary>One cinematic-object definition, initializer result, and translated motion policy.</summary>

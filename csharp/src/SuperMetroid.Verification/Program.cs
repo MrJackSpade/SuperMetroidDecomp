@@ -540,6 +540,16 @@ if (args is ["--lookup-spc-allocation-addresses"])
     Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
     return 0;
 }
+if (args is ["--lookup-intro-egg-effect-programs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro egg-effect oracle revision");
+    VerifyIntroEggEffectPrograms(rom);
+    VerifyIntroEggEffectFrameCatalog(rom);
+    Console.WriteLine("Intro egg effects: all76 bytes, overlapping words, eleven original frame identities/counts/names and boundaries pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-rinka-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -1,7 +1,11 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Fixed bank-$8B instruction lists for the six egg-shell fragments and
+/// Calculated native8B:CD39..CD82 programs: seven one-tick self-loops and
+/// four ten-tick impact frames followed by deletion. Byte/overlapping-word views
+/// are independently verified for the six egg-shell fragments and
 /// the slime drop's moving/impact phases. Visual spritemaps live in bank $8C.
 /// </summary>
 internal static class IntroEggEffectInstructionDefinitions
@@ -17,20 +21,23 @@ internal static class IntroEggEffectInstructionDefinitions
     /// <summary>$8B:CE53, shared cinematic sprite delete list used by shell fragments.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
-    private static ReadOnlySpan<byte> Programs =>
-    [
-        0x01, 0x00, 0x7e, 0x8f, 0xbc, 0x94, 0x39, 0xcd,
-        0x01, 0x00, 0x85, 0x8f, 0xbc, 0x94, 0x41, 0xcd,
-        0x01, 0x00, 0x8c, 0x8f, 0xbc, 0x94, 0x49, 0xcd,
-        0x01, 0x00, 0x93, 0x8f, 0xbc, 0x94, 0x51, 0xcd,
-        0x01, 0x00, 0x9a, 0x8f, 0xbc, 0x94, 0x59, 0xcd,
-        0x01, 0x00, 0xa1, 0x8f, 0xbc, 0x94, 0x61, 0xcd,
-        0x01, 0x00, 0xa8, 0x8f, 0xbc, 0x94, 0x69, 0xcd,
-        0x0a, 0x00, 0xaf, 0x8f, 0x0a, 0x00, 0xb6, 0x8f,
-        0x0a, 0x00, 0xbd, 0x8f, 0x0a, 0x00, 0xc4, 0x8f,
-        0x38, 0x94,
-    ];
-
+    private static ushort ProgramWord(int word)
+    {
+        if (word < 28)
+        {
+            int frame = word / 4;
+            return (word % 4) switch
+            {
+                0 => 1,
+                1 => IntroEggEffectSpriteDefinitions.FramePointer(frame),
+                2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+                _ => (ushort)(StartPointer + frame * 8),
+            };
+        }
+        int impactWord = word - 28;
+        if (impactWord == 8) return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+        return (impactWord & 1) == 0 ? (ushort)10 : IntroEggEffectSpriteDefinitions.FramePointer(7 + impactWord / 2);
+    }
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
@@ -39,7 +46,8 @@ internal static class IntroEggEffectInstructionDefinitions
             return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
         if (pointer < StartPointer || pointer >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return Programs[pointer - StartPointer];
+        int offset = pointer - StartPointer;
+        return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
     internal static ushort ReadWord(ushort pointer)
@@ -49,7 +57,6 @@ internal static class IntroEggEffectInstructionDefinitions
         if (pointer < StartPointer || pointer >= EndPointer - 1)
             throw new InvalidDataException(
                 $"Intro egg effect read $8B:{pointer:X4} leaves its compiled lists.");
-        int offset = pointer - StartPointer;
-        return (ushort)(Programs[offset] | Programs[offset + 1] << 8);
+        return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
     }
 }

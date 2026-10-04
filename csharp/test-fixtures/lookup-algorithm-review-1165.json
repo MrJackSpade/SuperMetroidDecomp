@@ -9871,4 +9871,24 @@
     "proof": "One VerifyIntroRinkaFrameCatalog compares every pointer to its independently read native instruction operand, all three counts to original OAM headers, and all names to published asset identities; check pointer/collection bounds and enumeration order. Run with the distinct instruction proof under the focused flag. Compiler checks cover migrated loader, extractor and audit enumeration consumers.",
     "scope": "Frame metadata converted; quadrant layouts/pixels remain independent obligations. No retention or whole-ticket completion claim. Implementation commit is the commit adding this record."
   }
+,
+  "introEggEffectProgramReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroEggEffectInstructionDefinitions.cs",
+    "id": "intro-egg-shell-and-slime-programs",
+    "state": "converted",
+    "nativeIdentity": "8B:CD39..CD82 seven single-frame loops and four-frame impact/delete; shared deleteCE53..54",
+    "evidence": "Complete pinned bank8B lists use one-tick single-frame/goto/self-target records for six shell fragments and moving slime. Slime impactCD71 selects four successive frames at10 ticks then deletes. Bank8C confirms eleven consecutive one-part records8F7E..8FCA. The existing reader permits arbitrary byte/overlapping-word views across internal list boundaries and separately admits the shared delete operation, but not unrelatedCD83.",
+    "algorithm": "For first28 words, calculate loop ordinal and duration/frame/goto/self-target field; all seven loops share the same structure. Generate four impact duration/frame pairs from the next eight words and terminate with the named delete opcode. Byte halves and composed word reads preserve existing bounds and exception types. Remove74-byte Programs span; keep the separate named shared-delete cases. No generated cache or runtime ROM reader.",
+    "proof": "Extract the existing native-byte/delete checks from VerifyIntroEggEffectDefinitions into one VerifyIntroEggEffectPrograms, reused by that suite and exposed under --lookup-intro-egg-effect-programs. Compare all76 bytes including shared delete, all74 complete aligned/overlapping word views, terminal crossings and outside-range rejection against SHA-pinned ROM. No expanded gameplay checks.",
+    "scope": "Instruction mapping converted; effect motion and artwork remain separate. Implementation commit is the commit adding this record."
+  },
+  "introEggEffectFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroEggEffectSpriteDefinitions.cs",
+    "id": "intro-egg-effect-frame-catalog",
+    "state": "converted",
+    "nativeIdentity": "8C:8F7E..8FCA,eleven consecutive seven-byte one-part OAM records",
+    "algorithm": "Bound frame0..10 and calculate Start+7*frame from2-byte count plus5-byte part. Stateless IReadOnlyList emits semantic fragment/slime-moving/slime-impact names and the calculated pointer. Remove eleven-record stored array. Instruction generation and asset enumeration share FramePointer; loader uses Count. Existing extractor/identity/audit consumers enumerate the same ordered identities.",
+    "proof": "One VerifyIntroEggEffectFrameCatalog compares all eleven pointers against independently read original instruction operands, counts against original OAM headers and names against prior published identities. Check invalid indexing/pointer inputs and enumeration agreement. Run together with the separate logical instruction proof; compiler checks cover loader/extractor/audit migration.",
+    "remaining": "OAM fields and source pixels remain independent required work; their simple metadata does not exempt them. Other unresolved1165 mappings remain required. Implementation commit is the commit adding this record."
+  }
 }

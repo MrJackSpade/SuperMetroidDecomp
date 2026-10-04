@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Six shell fragments and five slime-drop OAM frames from the SR388 scene.</summary>
@@ -9,22 +11,29 @@ internal static class IntroEggEffectSpriteDefinitions
     internal const ushort End = 0x8fcb;
     internal const int StockPartCount = 1;
 
-    private static readonly IntroEggEffectSpriteFrameDefinition[] frames =
-    [
-        new(0x8f7e, "fragment-0"),
-        new(0x8f85, "fragment-1"),
-        new(0x8f8c, "fragment-2"),
-        new(0x8f93, "fragment-3"),
-        new(0x8f9a, "fragment-4"),
-        new(0x8fa1, "fragment-5"),
-        new(0x8fa8, "slime-moving"),
-        new(0x8faf, "slime-impact-0"),
-        new(0x8fb6, "slime-impact-1"),
-        new(0x8fbd, "slime-impact-2"),
-        new(0x8fc4, "slime-impact-3"),
-    ];
-
-    internal static ReadOnlySpan<IntroEggEffectSpriteFrameDefinition> Frames => frames;
+    /// <summary>Eleven native one-part records, each two count bytes plus five part bytes.</summary>
+    internal static ushort FramePointer(int frame)
+    {
+        if ((uint)frame >= 11) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(Start + frame * 7);
+    }
+    internal static IReadOnlyList<IntroEggEffectSpriteFrameDefinition> Frames { get; } = new FrameList();
+    private sealed class FrameList : IReadOnlyList<IntroEggEffectSpriteFrameDefinition>
+    {
+        public int Count => 11;
+        public IntroEggEffectSpriteFrameDefinition this[int index]
+        {
+            get
+            {
+                ushort pointer = FramePointer(index);
+                return new(pointer, index < 6 ? $"fragment-{index}" : index == 6 ? "slime-moving" : $"slime-impact-{index - 7}");
+            }
+        }
+        public IEnumerator<IntroEggEffectSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
-
 internal readonly record struct IntroEggEffectSpriteFrameDefinition(ushort Pointer, string Name);

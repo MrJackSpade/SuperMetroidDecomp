@@ -9,6 +9,12 @@ public static class PauseReserveTankDefinitions
     public const string FileName = "pause-reserve-tanks.json";
     /// <summary>$82:C1D6 supplies six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
+    /// <summary>$82:C1D6..C1E2: six eight-pixel columns starting at24, at Y96 minus the draw bias.</summary>
+    public static MapLabelPoint StockAnchor(int index)
+    {
+        if ((uint)index >= AnchorCount) throw new IndexOutOfRangeException();
+        return new(24 + index * 8, 95);
+    }
     public const int XPositions = PauseReserveTankRomData.XPositions;
     /// <summary>$82:C1E2 supplies Y plus one; import applies the draw routine's decrement.</summary>
     public const int YPosition = PauseReserveTankRomData.YPosition;

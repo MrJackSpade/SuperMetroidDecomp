@@ -17,6 +17,7 @@ internal static partial class Program
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new ReserveTankAssetReadGuard(bus);
+        VerifyPauseReserveAnchors(bus);
         int comparisons = 0;
         foreach (var frame in PauseReserveTankDefinitions.Frames())
         for (int index = 0; index < 6; index++)
@@ -26,7 +27,6 @@ internal static partial class Program
             for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(12, 34, 56); actual.AddRawSmallSprite(12, 34, 56); }
             ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
             ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
-            AssertEqual(new MapLabelPoint(x, y), catalog.PauseReserveTanks.Anchor(index), "reserve anchor matches native X and decremented Y");
             int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(bus, expected, pointer, x, y, 0x600);
             catalog.PauseReserveTanks.Draw(actual, frame.Id, index);

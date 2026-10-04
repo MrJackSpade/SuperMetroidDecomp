@@ -6918,4 +6918,17 @@
     "domain":"Exactly16 category/item controls. Both negative and large unsupported indices reject before arithmetic. Authored X0..255/Y0..223 and complete names remain required. Stock arithmetic is bounded and exact. Same error and validation ordering is retained.",
     "confirmation":"Build passes with0 errors. Early SHA-pinned --lookup-pause-selector-anchors passes original names,32 coordinate components,64 independent axis edits, zero stock storage and invalid bounds. --lookup-pause-selector-compositions also passes native actual OAM for all anchors/phases. Older duplicate coordinate assertions are consolidated into this proof. Closed resource contract pins both changed owners and the newly used category-count source. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "pauseReserveAnchorReview": {
+    "status":"converted six reserve-strip coordinate pairs to regular geometry",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs","csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs"],
+    "source":"Supported SHA-pinned ROM and pinned bank_82.asm EquipmentScreen_ReserveTank_Xpositions82:C1D6..C1E1 plus Yposition82:C1E2. Six X values24,32,40,48,56,64 and a shared native Y96 with the existing draw bias1.",
+    "xField":{"state":"converted","algorithm":"24+8*index for bounded index0..5, including trailing cap placement.","proof":"VerifyPauseReserveAnchorField(horizontal:true) independently reads all six original X words, compares direct and loaded results, checks independent0/255 edits, unchanged other fields and actual edited OAM."},
+    "yField":{"state":"converted","algorithm":"Constant95 from native96 minus the draw bias.","proof":"The vertical field proof independently reads the native Y word and checks every loaded Y plus all independent0/223 edits and actual edited OAM."},
+    "ownership":"Remove persistent six-point array. Stock getter calculates both coordinates and storage contains zero coordinate components; loader captures only nullable independent authored X/Y differences. Complete version1 JSON and frame validation remain unchanged. Arbitrary custom positions remain author-supplied inputs; calculating those choices from index alone would encode the inputs or move the artwork.",
+    "domain":"Index0..5 only; unsupported int indices preserve IndexOutOfRangeException before multiplication. Authored X0..255/Y0..223 validation and anchor-before-frame error ordering remain unchanged. Consumer uses point values rather than reference identity.",
+    "proof":"VerifyPauseReserveAnchors invokes separate X/Y proofs, checks all12 native components and zero stock storage,24 single-axis boundary edits, exact one-component capture, unchanged fields, actual full-tank native OAM at edited anchors, invalid authored coordinates and invalid indices. Existing reserve asset verifier calls this proof instead of repeating coordinate assertions within every frame/capacity comparison.",
+    "remainingObligations":"The ten-frame identity dictionary and underlying reserve sprite artwork remain separate review obligations. No retention exception is assigned to them by this coordinate conversion.",
+    "confirmation":"Verification build and early SHA-pinned --lookup-pause-reserve-anchors pass. Reviewed resource contract ownership text and both source hashes refreshed. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

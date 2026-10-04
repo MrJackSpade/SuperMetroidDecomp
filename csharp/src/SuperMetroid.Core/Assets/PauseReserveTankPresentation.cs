@@ -6,12 +6,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve-strip artwork and origins, independent of reserve energy and fill selection.</summary>
 public sealed class PauseReserveTankPresentation
 {
-    private readonly MapLabelPoint[] anchors;
+    private readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
     private readonly Dictionary<ushort, SpriteComposition> frames;
     private readonly ushort paletteBits;
-    private PauseReserveTankPresentation(MapLabelPoint[] anchors, Dictionary<ushort, SpriteComposition> frames, int palette)
-    { this.anchors = anchors; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
-    public MapLabelPoint Anchor(int index) => anchors[index];
+    private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, Dictionary<ushort, SpriteComposition> frames, int palette)
+    { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    internal int StoredAnchorComponentCount => anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
+    public MapLabelPoint Anchor(int index)
+    {
+        var basis = PauseReserveTankDefinitions.StockAnchor(index);
+        return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+    }
     public void Draw(OamBuffer oam, ushort nativeIdentity, int index)
     {
         var anchor = Anchor(index);
@@ -38,7 +43,15 @@ public sealed class PauseReserveTankPresentation
                 throw new InvalidDataException($"Missing reserve tank frame {definition.Name}.");
             frames.Add(definition.Id, MenuSpriteCompiler.Compile(parts, definition.Name));
         }
-        return new(document.Anchors, frames, document.Palette);
+        var anchorOverrides = new Dictionary<int, (int? X, int? Y)>();
+        for (int index = 0; index < document.Anchors.Length; index++)
+        {
+            var point = document.Anchors[index];
+            var basis = PauseReserveTankDefinitions.StockAnchor(index);
+            if (point.X != basis.X || point.Y != basis.Y)
+                anchorOverrides.Add(index, (point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
+        }
+        return new(anchorOverrides, frames, document.Palette);
     }
     public static void Write(Stream output, PauseReserveTankDocument document)
     {

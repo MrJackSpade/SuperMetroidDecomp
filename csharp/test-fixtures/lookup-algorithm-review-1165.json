@@ -8426,4 +8426,18 @@
     "remainingPayload":"The four conventional FIR coefficient sets atSPC1E32..1E51 remain a separate fixed-data review obligation. Mutable container classification does not exempt those initial coefficient values, nor their neighboring compatibility payloads.",
     "validation":"Source-review behavior correction under1165; player confirmation pending. No player report or affected build version is inferred."
   }
+,
+  "spcFirPresetOwnershipReview": {
+    "owner":"csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
+    "evidence":"PJBoy/SM-SPC17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/engine data.asm defines four8-byte filters atSPC1E32..1E51. Sharp echo is7F followed by seven zeros; echo+reverb is58 BF DB F0 FE07 0C0C; smooth echo is0C21 2B2B13 FEF3F9; the fourth is343300 D9E501 FCEB. Native F7 consumes them as signed FIR coefficients but admits32 mutable groups after byte-index wrapping, including adjacent driver data.",
+    "ownership":"SpcAudioAssetExtractor.Extract writes lossless stream bytes to streams/*.spcu, records their exact SHA256/length in the manifest, and separately applies uploads into commonRam for decoding instruments/programs/samples. ExtractedAudioAssetCatalog validates and supplies those uploads. ManagedSpcPlayer.Upload copies every record into mutable RAM with16-bit destination wrap. F7 then reads current RAM; DSP firValues are writable register state, not the fixed preset owner.",
+    "constraint":"Do not call mutable-storage classification a retention disposition for these32 original bytes. Do not replace F7 reads with four immutable host presets or clamp the preset index: that would lose edits and bounded neighboring-data behavior. A conversion must resolve source/default preset generation and its lossless upload/identity contract, while preserving native RAM state and compatibility views. Do not silently add a generated lookup cache.",
+    "tables":[
+      {"id":"spc-fir-sharp-default","state":"pending","nativeIdentity":"SPC1E32..1E39 / ROMCF8A3A..8A41","knownRule":"Unit impulse at maximum positive signed coefficient: tap0=127, taps1..7=0. No production generator integrated yet."},
+      {"id":"spc-fir-reverb-default","state":"pending","nativeIdentity":"SPC1E3A..1E41 / ROMCF8A42..8A49","requiredWork":"Derive a meaningful exact filter construction or establish concrete permitted exception; no retention justification currently established."},
+      {"id":"spc-fir-smooth-default","state":"pending","nativeIdentity":"SPC1E42..1E49 / ROMCF8A4A..8A51","requiredWork":"Derive a meaningful exact filter construction or establish concrete permitted exception; no retention justification currently established."},
+      {"id":"spc-fir-fourth-default","state":"pending","nativeIdentity":"SPC1E4A..1E51 / ROMCF8A52..8A59","requiredWork":"Review full coefficients and filter role; unnamed source annotation is not a retention justification."}
+    ],
+    "scope":"Static ownership investigation only, no new tests or gameplay execution. The published FIR address correction remains independently proven. None of these four preset entries is completed or granted a retention exception."
+  }
 }

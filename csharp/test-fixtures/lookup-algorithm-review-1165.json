@@ -9421,4 +9421,17 @@
     "proof": "Extend the one original-part decoder in VerifyEndingExplosionCalculatedParts under --lookup-ending-explosion-frame-catalog to include all53 star parts, for145 total original parts across fourteen calculated compositions. Complete visual identity and native positive/negative-origin OAM match; independent field, order, count and coordinate-edge edits retain exact supplied identity. Existing catalog checks remain. Build0 errors and focused proof pass. The source-art exporter builds/runs successfully and its outputs were viewed.",
     "scope": "This starfield only. Other larger compositions and base-quadrant layouts remain required. Implementation commit is the commit adding this record."
   }
+,
+  "endingExplosionAfterglowPlacementReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingExplosionAfterglowParts.cs",
+    "mappings": [
+      { "id": "ending-explosion-afterglow-tile-placement", "state": "converted" },
+      { "id": "ending-explosion-afterglow-size-and-attributes", "state": "converted" }
+    ],
+    "source": "Original37-part8C:A5E2 OAM composition and first512 four-bit tiles at988304. Source atlas and assembled afterglow ring were independently exported/viewed in endingExplosionArtworkEvidence. Native parts select tiles180..1EA from a packed image region, with no flips, priority0 and inherited actor palette.",
+    "algorithm": "Atlas rows19..1E use X=8*(column-8), Y=8*(row-1B). Rows1A..1D use16-pixel sprites; upper/lower wing rows19/1E use8-pixel sprites. Atlas row18 packs three regions: columns0..3 are8-pixel upper cap atX=8*(column-2),Y=-32; columns4..11 are16-pixel upper body atX=8*(column-8),Y=-24; columns12..15 are8-pixel lower cap atX=8*(column-14),Y=32. This is spatial tile-sheet packing, not a fitted chronological sequence.",
+    "implementation": "Store only the supplied tile sequence and calculate each complete part on access. Apply only to the afterglow role and its atlas region, after comparing every compiled supplied field. Arbitrary changes that do not match the placement/attribute rules retain their original compiled composition; compatible tile/order/count changes remain supplied inputs. No cache of generated parts, source schema change or runtime ROM dependency.",
+    "proof": "Extend the sole original-part decoder VerifyEndingExplosionCalculatedParts under --lookup-ending-explosion-frame-catalog with all37 native afterglow parts, for182 parts across fifteen compositions. Compare complete visual identity and native OAM at both positive and negative origins; independent field, order, count and coordinate-edge edits preserve exact supplied identity. Existing catalog checks remain. No exploratory gameplay or duplicate oracle.",
+    "remaining": "The selected37-tile sequence and source pixel artwork still require their own disposition. This record converts placement and shared fields only; it grants no retention exception. Silhouette and quadrant basis layouts also remain required work. Implementation commit is the commit adding this record."
+  }
 }

@@ -691,51 +691,59 @@ internal static partial class Program
     private static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        int mechanicsWords = 0;
-        for (ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                 .ProgramStart;
-             pointer <= ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                 .DeleteInstructionPointer;
-             pointer = unchecked((ushort)(pointer + 1)))
+        ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
+        AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
+        AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
+        AssertEqual(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
+        AssertEqual(PaletteFxSetupCodes.Null, Word(0xe1e4), "native gunship reveal setup callback");
+        var original = new Dictionary<ushort, ushort> { [0xd6ba] = Word(0xd6ba), [0xd6bc] = Word(0xd6bc) };
+        int cursor = 0xd6be, frame = 0;
+        while (true)
         {
-            if (!ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                    .TryReadMechanicsWord(pointer, out ushort value))
+            ushort operation = Word(cursor);
+            original.Add((ushort)cursor, operation);
+            if (operation == 0xc5cf) break;
+            AssertEqual((ushort)24, operation, "native gunship reveal frame duration");
+            AssertEqual((ushort)cursor, ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FramePointer(frame), "decoded gunship reveal frame pointer");
+            cursor += 2;
+            int color = 0;
+            while (Word(cursor) < 0x8000)
             {
-                continue;
+                AssertTrue(color < 16, "native gunship reveal record has bounded color payload");
+                AssertEqual((ushort)cursor, ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color), "decoded gunship reveal color pointer");
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord((ushort)cursor, out _), "gunship reveal colors remain presentation-owned");
+                color++;
+                cursor += 2;
             }
-            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                    pointer,
-                    out ushort compiled),
-                $"Zebes explosion gunship catalogs word $8D:{pointer:X4}");
-            AssertEqual(value, compiled,
-                $"Zebes explosion gunship compiled word $8D:{pointer:X4}");
-            AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
-                $"Zebes explosion gunship cartridge word $8D:{pointer:X4}");
-            mechanicsWords++;
+            AssertEqual(16, color, "native gunship reveal color count");
+            AssertEqual((ushort)0xc595, Word(cursor), "native gunship reveal wait opcode");
+            original.Add((ushort)cursor, Word(cursor));
+            cursor += 2;
+            frame++;
+            AssertTrue(frame <= 16, "native gunship reveal has bounded frame count");
         }
-        AssertEqual(35, mechanicsWords,
-            "compiled Zebes explosion gunship mechanics words");
-
-        for (int frame = 0;
-             frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount;
-             frame++)
+        AssertEqual(16, frame, "decoded gunship reveal frame count");
+        AssertEqual(0xd8fe, cursor, "decoded gunship reveal delete address");
+        AssertEqual(35, original.Count, "decoded gunship reveal control-word count");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            ushort firstColor = unchecked((ushort)(
-                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
-            for (int color = 0;
-                 color < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                     .ColorsPerFrame;
-                 color++)
+            ushort pointer = (ushort)raw;
+            bool owned = original.TryGetValue(pointer, out ushort expected);
+            AssertEqual(owned, ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort actual), "complete gunship reveal control ownership");
+            AssertEqual(expected, actual, "gunship reveal control value and rejected-pointer zero result");
+            if (owned)
             {
-                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
-                        out _),
-                    "Zebes explosion gunship colors remain presentation-owned");
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled), "gunship reveal registered control word");
+                AssertEqual(expected, compiled, "gunship reveal registered native control value");
             }
         }
-
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FramePointer(invalid), "gunship reveal frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(invalid, 0), "gunship reveal color frame bounds");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(0, invalid), "gunship reveal color column bounds");
         var guarded = new PaletteFxMechanicsForbiddenBus(bus);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
@@ -743,22 +751,26 @@ internal static partial class Program
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
-             step <= ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames;
              step++)
         {
             paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         }
+        AssertTrue(paletteFx.IsDefinitionActive(
+                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "ending gunship reveal remains active through its final hold");
+        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
-            "Zebes explosion gunship deletes after its final hold");
+            "ending gunship reveal deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "Zebes explosion gunship avoids mechanics ROM reads");
+            "ending gunship reveal avoids mechanics ROM reads");
         AssertEqual(
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount *
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guarded.PresentationReadCount,
-            "Zebes explosion gunship retains every live color");
+            "ending gunship reveal retains every live color");
     }
 
     private static void VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(

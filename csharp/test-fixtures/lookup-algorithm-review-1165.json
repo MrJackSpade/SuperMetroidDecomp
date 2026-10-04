@@ -7340,4 +7340,21 @@
     "proof":"Extract the existing original-table loop into the single VerifyFakeKraidSpikeRowSelection proof and have the previous aggregate delegate it. New early --lookup-fake-kraid-spike-rows flag pins the original ROM SHA. It compares all three original little-endian signed words and rejects negative, adjacent, wide and integer-extreme selectors. Existing spawn integration is unchanged; no unrelated gameplay matrix was run.",
     "confirmation":"Final Verification build0 errors/25 existing incremental warnings. Focused original-word proof passes. Maintained-source index refreshed. Implementation commit is the commit adding this entry. This is a case-selection conversion, not a retention exception."
   }
+,
+  "fileSelectIdentityCaseReview": {
+    "status":"converted five schema identity lists and removed their four cached audit views",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs","csharp/src/SuperMetroid.ResourceAudit/NamedPresentationAudit.cs"],
+    "source":"Project-owned file-select.json schema at parent7b44a2b30cce75206009b1e75ca7a6b815cae210, independently cross-checked against FileSelectPresentationExtractor's explicit document construction and frontend page/patch/anchor/border consumers. These strings are maintained schema identities, not cartridge text or numerical samples.",
+    "tables":[
+      {"identity":"pageNames","domain":"10 ordered page roles","status":"converted","implementation":"Named Background/Main/Copy/Clear page cases","proof":"VerifyFileSelectPageNames"},
+      {"identity":"patchNames","domain":"3 ordered patch roles","status":"converted","implementation":"Named Energy/NoData/TimeColon cases","proof":"VerifyFileSelectPatchNames"},
+      {"identity":"borderNames","domain":"3 ordered border roles","status":"converted","implementation":"Named Main/Copy/Clear cases","proof":"VerifyFileSelectBorderNames"},
+      {"identity":"dynamicAnchorNames","domain":"4 ordered source/destination anchor roles","status":"converted","implementation":"Named copy destination/source, copy confirmation source/destination and clear confirmation source cases","proof":"VerifyFileSelectDynamicAnchorNames"},
+      {"identity":"spriteNames","domain":"15 ordered sprite roles","status":"converted","implementation":"Compose Border names for the three named borders, then bounded Cursor0..3 and Helmet0..7 frame names using existing role factories","proof":"VerifyFileSelectSpriteNames"}
+    ],
+    "consumers":"Loader validation and compilation enumerate cases directly. Exact count and case-sensitive required membership remain enforced. NamedPresentationSelection.Names now accepts enumeration; its four file-select entries retain no generated ToArray copies. Other audit descriptor/name families are separate outstanding mappings, not certified by this change.",
+    "storage":"Remove35 production name entries plus their four duplicate audit arrays. Enumeration creates no stored or generated name cache. Actual installed document dictionaries remain editable asset payloads and are outside this identity-list conversion.",
+    "proofScope":"One proof per logical list, using independent original literal names and shared confirmation mechanics. --lookup-file-select-names checks every ordinal, original ordered enumeration twice, invalid bounds, independent extractor key membership and actual loader admission. For every identity it rejects omission, same-count replacement and changed case; each family also rejects an extra entry. The extracted fixture pins the supported ROM SHA, while the project-owned literal schema is the independent identity oracle.",
+    "confirmation":"Verification build0 errors/1429 existing warnings. ResourceAudit builds with0 errors/0 warnings. All five focused identity proofs pass. Closed loader source hash and maintained-source index refreshed. Implementation commit is the commit adding this entry. No retention exception or unrelated gameplay confirmation is claimed."
+  }
 }

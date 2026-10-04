@@ -26,6 +26,20 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-names"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select identity fixture revision");
+    byte[] source = FileSelectPresentationExtractor.Extract(rom);
+    VerifyFileSelectPageNames(source);
+    VerifyFileSelectPatchNames(source);
+    VerifyFileSelectBorderNames(source);
+    VerifyFileSelectDynamicAnchorNames(source);
+    VerifyFileSelectSpriteNames(source);
+    Console.WriteLine("File-select names: all five original identity domains, ordered cases, bounds and exact loader membership pass.");
+    return 0;
+}
 if (args is ["--lookup-map-sprite-cases"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

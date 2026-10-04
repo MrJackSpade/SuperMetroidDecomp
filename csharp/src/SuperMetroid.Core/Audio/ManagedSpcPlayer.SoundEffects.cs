@@ -42,13 +42,13 @@ public sealed partial class ManagedSpcPlayer
             channel.Legato = 0;
 
         int tableIndex = command - 1;
-        if ((uint)tableIndex >= SpcSoundEffectTables.StreamPointerTables[libraryIndex].Length)
+        if ((uint)tableIndex >= SpcSoundEffectTables.CommandCount(libraryIndex))
         {
             throw new InvalidDataException(
                 $"SPC sound library {libraryIndex + 1} has no command ${command:X2}.");
         }
         library.CurrentSoundIndex = unchecked((byte)(tableIndex * 2));
-        library.CurrentPointer = SpcSoundEffectTables.StreamPointerTables[libraryIndex][tableIndex];
+        library.CurrentPointer = SpcSoundEffectTables.StreamPointer(libraryIndex, command);
         library.CurrentSound = command;
 
         byte configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);

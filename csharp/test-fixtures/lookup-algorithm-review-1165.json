@@ -7432,4 +7432,19 @@
     "proof": "One focused proof per original logical table, sharing only mechanics. SHA-pinned original ROM jump words choose each of240 handlers. Read actual CALL targets to identify original policy bytes; inspect bounded MOV-immediate/MOV-absolute/RET code to independently derive native writes. Invoke the real production policy consumer and compare voices, priority and mode for zero and nonzero prior fields, including preservation. Compare asset voice count, all policy identities and invalid bounds. No expected240-byte selector copy and no gameplay search.",
     "confirmation": "Incremental Verification build0 errors/240 existing warnings; --lookup-spc-sound-policies passes all three proofs. Maintained-source index refreshed. No retention exception assigned."
   }
+,
+  "spcSoundStreamDispatchReview": {
+    "status": "converted all three sound-command instruction-stream pointer tables to named dispatch cases",
+    "owners": ["csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs", "csharp/src/SuperMetroid.Core/Audio/SpcSoundStreamDefinitions.cs"],
+    "tables": [
+      {"library":1,"native":"CF:96F5, SPC2AED","commands":"01..42","proof":"VerifySpcSoundStream1"},
+      {"library":2,"native":"CF:A5BB, SPC39B3","commands":"01..7F","proof":"VerifySpcSoundStream2"},
+      {"library":3,"native":"CF:BA97, SPC4E8F","commands":"01..2F","proof":"VerifySpcSoundStream3"}
+    ],
+    "evidence": "PJBoy/SM-SPC 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library N.asm soundNInstructionLists dispatches each one-based command to a named sound sublabel containing its channel instruction-list pointers. For example library1 command1 selects Power Bomb explosion, command3 Missile, command8 Charging beam. These are independent stream identities, not samples of a numerical curve. Retain neither the old array nor any irregular-spacing justification.",
+    "implementation": "Remove all240 stored pointer entries and the outer array. Three explicit command switches select domain catalog constants. Every catalog member documents original SPC target, native sound sublabel, ROM pointer-entry address and original descriptive label where one exists; unnamed commands retain their precise native identity without invented behavior. CommandCount expresses library extents66/127/47. No pointer cache or runtime ROM read.",
+    "consumers": "Runtime playback keeps command rejection, zero sentinel, one-based command identity, byte-sized doubled current-sound index, stream assignment and policy order. Asset extraction enumerates the existing library count and command extent, selecting each stream through the same cases. Manifest validation keeps exact command count and compares every stream identity through the shared selector.",
+    "proof": "Exactly one original-pointer proof per logical library. Extend the existing library2 proof rather than duplicate it; old aggregate calls delegate that proof and no longer silently skip absent ROM. SHA-pinned --lookup-spc-sound-streams checks all240 original little-endian pointer words, independent66/127/47 extents, negative/zero/adjacent/wide/extreme command bounds, library bounds and actual ManagedSpcPlayer zero acknowledgment/first-undefined-command rejection for each library. No exploratory audio playback or unrelated tests.",
+    "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-spc-sound-streams passes all three proofs. Maintained-source index refreshed. The six reopened SPC dispatch/policy tables are now converted, not retained. Pan and all other unresolved mappings remain required work."
+  }
 }

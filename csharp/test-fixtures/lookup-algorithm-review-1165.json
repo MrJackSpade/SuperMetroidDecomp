@@ -10217,4 +10217,15 @@
     },
     "remaining": "Geometry is calculated and the four drawing selections have the narrow authored-animation disposition above. Source pixels and other inventory entries remain required. Geometry commit is4fa5675d; disposition commit is the commit adding Program.CeresLargeBlastArtwork.cs."
   }
+,
+  "planetZebesTitlePartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/PlanetZebesTitleParts.cs",
+    "id": "planet-zebes-title-text-and-glyph-layout",
+    "state": "converted",
+    "nativeIdentity": "8C:9654, SpaceSpritemaps_PlanetZebes, eleven parts",
+    "evidence": "Read the complete original title record and its CCBB cinematic consumer. Original small parts spell PLANET ZEBES right-to-left at Y=-8, with eight-pixel advances and the blank between words. P selects8F; L,A,N,E,T,Z,B,S select97..9E; all three E occurrences share9A. Priority0, no flips and actor palette inheritance are common.",
+    "algorithm": "Generate the non-space characters of the literal title in reverse order. X=-4*textLength+8*column centers the twelve-cell phrase; skip the space cell. Use explicit character-to-glyph semantic cases, rather than per-part numeric tile recitation. Generate common size, Y and attributes. The destruction loader adopts the immutable calculated view only after all supplied fields/count match; independent edits remain supplied.",
+    "proof": "VerifyPlanetZebesTitleParts under --lookup-ceres-backdrop-programs independently extracts all eleven native parts, requires calculated selection and compares complete compiled identities and visible/wrapped native OAM. Verify every independent field edit, changed count and invalid index. Real Ceres JSON writer/loader checks original and edited compositions. Existing backdrop program and23-entry frame-catalog checks remain included.",
+    "remaining": "Title OAM and glyph selection are converted. Glyph pixels and other scene mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

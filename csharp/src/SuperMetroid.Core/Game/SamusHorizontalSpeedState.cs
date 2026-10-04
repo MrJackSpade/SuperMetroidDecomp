@@ -374,17 +374,17 @@ public sealed class SamusHorizontalSpeedState
         {
             if (animationFrame == 0)
             {
-                // `$91:D9F8` resets only the palette-list byte offset. Frame zero retains
+                // `$91:DA43` resets only the palette-list byte offset. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
                 SpecialPaletteFrame = 0;
                 return paletteCopied;
             }
 
-            if (animationFrame < 0x1b)
+            if (unchecked((short)(animationFrame - 0x1b)) >= 0)
             {
-                // Returning zero at `$91:D9EC` asks the outer palette dispatcher to copy
-                // the normal suit palette for Screw frames 1..26. Perform that copy here
-                // because CGRAM is the desktop runtime's directly visible palette buffer.
+                // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
+                // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
+                // CGRAM is the desktop runtime's directly visible palette buffer.
                 LoadNormalSuitPalette(bus, cgram, equippedItems, suitColors);
                 return true;
             }

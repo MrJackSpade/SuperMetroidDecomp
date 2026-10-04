@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--screw-attack-palette-audit", var screwInstallation])
+        return ScrewAttackPaletteAudit.Run(screwInstallation);
     if (args is ["--statue-release-sound-audit", var statueInstallation])
         return StatueReleaseSoundAudit.Run(statueInstallation);
     if (args is ["--immune-plasma-hit-audit", var plasmaInstallation])

@@ -807,13 +807,13 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SnesCgram();
     AssertTrue(palettes.UpdateSpeedBoosterPalette(
-        bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 1, equippedItems: 0x0008),
-        "early Screw frame copies normal suit palette");
-    AssertEqual(0x0111, cgram.Colors[192], "early Screw frame normal palette");
+        bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008),
+        "ending Screw frame copies normal suit palette");
+    AssertEqual(0x0111, cgram.Colors[192], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
         AssertTrue(palettes.UpdateSpeedBoosterPalette(
-            bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008),
+            bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 1, equippedItems: 0x0008),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");

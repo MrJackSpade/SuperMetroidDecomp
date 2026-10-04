@@ -33,6 +33,4 @@ Acid still rises/falls through Y=160..224. A Landing Site control retains its
 horizontal sky HDMA and 32x64 map.
 
 Release DebugRunner build and PLM, enemy visual, and door static audits pass.
-The queued VRAM audit is blocked by the pre-existing TourianStatueSequence.StepTiles
-certificate mismatch introduced with the tester-option change (7eab2d0c); the
-sky producer contract is unchanged. Player confirmation remains pending.
+The queued VRAM audit also passes after re-reviewing the Tourian tester-option early return and updating its producer fingerprint: 38 producer sites, 511 source/count descriptors, zero findings. The early return adds no transfers, so the existing finite transfer domain remains valid. The sky producer contract is unchanged. Player confirmation remains pending.

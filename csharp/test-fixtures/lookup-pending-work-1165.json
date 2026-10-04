@@ -1,6 +1,6 @@
 {
   "issue": 1165,
-  "status": "Ceres shaft timers, SPC pan gain and FIR presets pending; Tourian outline corner, Ceres burst choreography, Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
+  "status": "SPC pan gain and FIR presets pending; Ceres shaft timers converted; Tourian outline corner, Ceres burst choreography, Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
@@ -21,8 +21,8 @@
       "id": "ceres-shaft-rotation-timers",
       "owner": "csharp/src/SuperMetroid.Core/Runtime/CeresShaftRotationDefinitions.cs",
       "nativeIdentity": "89:AD5F timer column of69 six-byte records;35 independent symmetric values",
-      "status": "pending",
-      "task": "Derive and implement the timing rule or establish concrete evidence of a permitted impossibility/nonsense exception. Previous failed-fit and missing-provenance retention claims are withdrawn. DEC/BMI holds each loaded timer for timer+1 room-main calls. The independently verified sine/cosine calculation does not resolve this timing column."
+      "status": "converted",
+      "resolution": "ceresShaftTimerRampReview replaces all35 stored magnitudes with four quantized linear delay bands whose slopes double from1/4 to1/2 to1 to2, plus minimum delay and endpoint hold. All69 original words and138 wrapped aliases pass the existing independent ROM/pinned-assembly proof. Countdown semantics remain unchanged; no retention exception or generated cache."
     },
     {
       "id": "spc-sound-command-dispatch",

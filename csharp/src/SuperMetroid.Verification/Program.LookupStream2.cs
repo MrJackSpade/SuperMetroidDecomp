@@ -5,6 +5,37 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
+    {
+        var transfers = GunshipLiftoffTransferDefinitions.Frames;
+        AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
+        var enemies = new RoomEnemySystem();
+        var slot = enemies.Slots[0];
+        var queue = new VramWriteQueue();
+        var append = typeof(RoomEnemySystem).GetMethod("QueueGunshipTakeoffTiles",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemySlot, VramWriteQueue>>(enemies);
+        int enumerated = 0;
+        foreach (var transfer in transfers)
+        {
+            int source = 0x940000 | ReadVerificationWord(rom, 0xa2ac07 + 2 * enumerated);
+            ushort destination = ReadVerificationWord(rom, 0xa2ac11 + 2 * enumerated);
+            AssertEqual(source, transfer.SourceAddress, "Gunship original source");
+            AssertEqual(destination, transfer.DestinationWord, "Gunship original destination");
+            AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
+            AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
+            append(slot, queue);
+            AssertEqual(destination, queue.Entries[enumerated].EncodedVramDestination, "Gunship actual queued destination");
+            AssertEqual(source, queue.Entries[enumerated].SourceAddress, "Gunship actual queued source");
+            enumerated++;
+        }
+        AssertEqual(5, enumerated, "Gunship enumerates every transfer");
+        AssertEqual((ushort)0, slot.VariableB, "Gunship completes transfer phase");
+        AssertEqual(GunshipCodePointers.FireUpEngines, slot.VariableF, "Gunship starts engines after fifth transfer");
+        AssertThrows<IndexOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
+        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
+    }
     private static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);

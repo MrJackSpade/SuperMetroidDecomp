@@ -53,12 +53,14 @@ if (args is ["--lookup-stream2-crawler-animations"])
     VerifyWaverAnimationDefinitions(rom);
     return 0;
 }
-if (args is ["--lookup-stream2-reserve-geometry"] or ["--lookup-stream2-ghost-norfair"] or ["--lookup-stream2-palette-mechanics"] or ["--lookup-stream2-yard-directions"] or ["--lookup-stream2-crystal-body"] or ["--lookup-stream2-kraid-ramps"])
+if (args is ["--lookup-stream2-gunship-transfers"] or ["--lookup-stream2-reserve-geometry"] or ["--lookup-stream2-ghost-norfair"] or ["--lookup-stream2-palette-mechanics"] or ["--lookup-stream2-yard-directions"] or ["--lookup-stream2-crystal-body"] or ["--lookup-stream2-kraid-ramps"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 original oracle revision");
-    if (args[0] == "--lookup-stream2-reserve-geometry")
+    if (args[0] == "--lookup-stream2-gunship-transfers")
+        VerifyLookupStream2GunshipTransfers(rom);
+    else if (args[0] == "--lookup-stream2-reserve-geometry")
         VerifyLookupStream2ReserveGeometry(rom);
     else if (args[0] == "--lookup-stream2-ghost-norfair")
         VerifyLookupStream2GhostAndNorfair(rom);

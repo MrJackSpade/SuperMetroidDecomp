@@ -176,7 +176,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs
 
-- [ ] **GunshipLiftoffTransferDefinitions.Entries** ([L31](../csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GunshipLiftoffTransferDefinitions.Entries** ([L31](../csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GunshipDustInstructionProgramDefinitions.cs
 
@@ -783,3 +783,10 @@ Verification build passed (1436 warnings, zero errors). `--lookup-stream2-pipe-p
 Stock digit words now calculate as $0804+digit, matching the ADC operands at $82:8FB6/$8FC1/$8FCB. Stock arrow positions calculate the eight-cell vertical stem at byte$102 with64-byte stride and two-cell horizontal arm at byte$302, matching $82:AE07-$AE41. Loaders compare every supplied word/coordinate before selecting calculation; independent custom glyph fields, anchors, cell positions and palette indices remain exact. No stock digit/offset array is retained or rebuilt. Labels and animated arrow colors remain separately required.
 
 Verification build passed (1436 warnings, zero errors). `--lookup-stream2-reserve-geometry` passed10 stock glyphs across all three positions,10 stock arrow cells, actual tilemap writes, all20 independent glyph/position edits, edited digit anchors and arrow palettes, and preservation of every unrelated tile/priority/flip field. Static native-instruction inspection establishes the source arithmetic; confirmation does not search gameplay. Thirty-five named definitions complete in stream2;191 remain required.
+### Batch 11: gunship takeoff transfer geometry
+
+Removed the five transfer records and their independently stored First..Fifth values. The computed immutable view advances source addresses by1024 bytes from $94:C800 and VRAM destinations by512 words from$7600; the contiguous typed asset identity advances with the same frame. All original Length/index/enumeration consumers remain supported without storing or rebuilding a transfer table. Coordinator-assigned `Program.EnemyTileArtwork.GunshipLiftoff.cs` changed only its explicit view type; its full existing artwork/rebinding proof remains intact.
+
+Verification build passed (25 incremental warnings, zero errors); ResourceAudit restore/build passed (zero warnings/errors), confirming audit consumers compile. `--lookup-stream2-gunship-transfers` passed all10 original source/destination words, five typed asset identities, actual production queued source/destination fields, fifth-transfer engine phase transition, enumeration and bounds. No full artwork/whole-game test was claimed for this transfer-layout change.
+
+Thirty-six named definitions complete in stream2;190 remain required. Work rotates to stream5 by coordinator instruction; no unchecked stream2 entry is exempted, completed or abandoned. In particular Kraid endpoint/deviation payloads, the single Crystal Flash bubble residual, ghost/Norfair color payloads, Chozo velocity magnitudes, Torizo swipe trajectory and reserve labels/arrow colors remain explicit required work.

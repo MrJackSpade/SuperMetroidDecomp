@@ -13,7 +13,7 @@ internal static partial class Program
     {
         GunshipLiftoffArtworkCatalog installed = stock.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");
-        ReadOnlySpan<GunshipLiftoffTransferDefinition> transfers =
+        GunshipLiftoffTransferDefinitions.TransferSequence transfers =
             GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "gunship has five native takeoff transfers");
         for (int index = 0; index < transfers.Length; index++)

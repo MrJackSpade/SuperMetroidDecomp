@@ -50,6 +50,15 @@ if (args is ["--lookup-menu-title-font"] or ["--lookup-menu-large-font"])
     Console.WriteLine("Large font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-elevator-lettering"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator lettering pixel oracle revision");
+    VerifyElevatorLetteringPixels(rom);
+    Console.WriteLine("Elevator lettering pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-menu-small-font"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -7,15 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// a one-pixel eight-neighbor black outline15 across adjacent cells of the same strip.
 /// Bevel each row's outer diagonal-only corner when its ink is inset from a neighboring
 /// row. This accounts for all thirty original corner/notch trims without stored exceptions.
-/// Authored ink silhouettes select the lettering design; tracing their chosen strokes
-/// in numerical cases would disguise that art. Only independent pixel edits are captured.
+/// Seventeen authored six-row glyph silhouettes select the lettering design; each label
+/// places these glyphs with a one-pixel gap. Tracing the chosen glyph strokes in numerical
+/// cases would disguise that art. Only independent pixel edits are captured.
 /// </summary>
 internal sealed class MenuElevatorLetteringArtwork
 {
     internal const int TileCount = 22;
-    private readonly byte[] ink = new byte[TileCount * 8];
+    private readonly Dictionary<char, uint> glyphs = [];
     private readonly Dictionary<int, byte>? edits;
-    internal int StoredInkByteCount => ink.Length;
+    internal int StoredInkByteCount => glyphs.Count * sizeof(uint);
     internal int StoredEditCount => edits?.Count ?? 0;
 
     internal static bool Contains(int tile) => tile is >= 0 and <= 7 or 0x10 or >= 0x12 and <= 0x16 or
@@ -23,16 +24,20 @@ internal sealed class MenuElevatorLetteringArtwork
 
     /// <summary>Physical strip layout: Crateria, Brinstar, Norfair, Maridia, Ship and Wrecked.
     /// Norfair and Maridia skip the intervening large-font stem cells11 and17.</summary>
-    private static (int Start, int Count, int Gap, int Offset) Layout(int tile) => tile switch
+    private static (int Start, int Gap, string Text, int X, int Y) Layout(int tile) => tile switch
     {
-        >= 0 and <= 3 => (0, 4, -1, 0),
-        >= 4 and <= 7 => (4, 4, -1, 4),
-        0x10 or >= 0x12 and <= 0x14 => (0x10, 4, 0x11, 8),
-        0x15 or 0x16 or 0x18 or 0x19 => (0x15, 4, 0x17, 12),
-        0x44 or 0x45 => (0x44, 2, -1, 16),
-        >= 0x53 and <= 0x56 => (0x53, 4, -1, 18),
+        >= 0 and <= 3 => (0, -1, "CRATERIA", 1, 1),
+        >= 4 and <= 7 => (4, -1, "BRINSTAR", 1, 1),
+        0x10 or >= 0x12 and <= 0x14 => (0x10, 0x11, "NORFAIR", 3, 1),
+        0x15 or 0x16 or 0x18 or 0x19 => (0x15, 0x17, "MARIDIA", 3, 1),
+        0x44 or 0x45 => (0x44, -1, "SHIP", 1, 0),
+        >= 0x53 and <= 0x56 => (0x53, -1, "WRECKED", 1, 1),
         _ => throw new ArgumentOutOfRangeException(nameof(tile)),
     };
+
+    /// <summary>Six-row font metrics: I is a single stem, N spans four columns,
+    /// M/W span five, and the other authored letters span three.</summary>
+    private static int Width(char letter) => letter switch { 'I' => 1, 'N' => 4, 'M' or 'W' => 5, _ => 3 };
 
     internal MenuElevatorLetteringArtwork(IndexedPngImage image)
     {
@@ -40,10 +45,26 @@ internal sealed class MenuElevatorLetteringArtwork
         {
             if (!Contains(tile)) continue;
             var row = Layout(tile);
-            int column = tile - row.Start - (row.Gap >= 0 && tile > row.Gap ? 1 : 0);
-            for (int y = 0; y < 8; y++)
-            for (int x = 0; x < 8; x++)
-                if (Source(tile, x, y) == 11) ink[(row.Offset + column) * 8 + y] |= (byte)(1 << x);
+            if (tile != row.Start) continue;
+            int position = row.X;
+            foreach (char letter in row.Text)
+            {
+                int width = Width(letter);
+                if (!glyphs.ContainsKey(letter))
+                {
+                    uint ink = 0;
+                    for (int y = 0; y < 6; y++)
+                    for (int x = 0; x < width; x++)
+                    {
+                        int sourceX = position + x;
+                        int sourceTile = row.Start + sourceX / 8;
+                        if (row.Gap >= 0 && sourceTile >= row.Gap) sourceTile++;
+                        if (Source(sourceTile, sourceX % 8, row.Y + y) == 11) ink |= 1u << (y * width + x);
+                    }
+                    glyphs.Add(letter, ink);
+                }
+                position += width + 1;
+            }
         }
         for (int tile = 0; tile <= 0x56; tile++)
         {
@@ -82,10 +103,16 @@ internal sealed class MenuElevatorLetteringArtwork
 
         uint RowInk(int py)
         {
-            if ((uint)py >= 8) return 0;
+            int glyphY = py - row.Y;
+            if ((uint)glyphY >= 6) return 0;
             uint bits = 0;
-            for (int cell = 0; cell < row.Count; cell++)
-                bits |= (uint)ink[(row.Offset + cell) * 8 + py] << (cell * 8);
+            int position = row.X;
+            foreach (char letter in row.Text)
+            {
+                int width = Width(letter);
+                bits |= ((glyphs[letter] >> (glyphY * width)) & ((1u << width) - 1)) << position;
+                position += width + 1;
+            }
             return bits;
         }
     }

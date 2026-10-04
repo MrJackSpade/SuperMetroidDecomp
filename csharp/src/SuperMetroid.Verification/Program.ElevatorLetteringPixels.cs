@@ -11,7 +11,7 @@ internal static partial class Program
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
         var font = new MenuElevatorLetteringArtwork(image);
-        AssertEqual(176, font.StoredInkByteCount, "one-bit authored silhouettes only");
+        AssertEqual(68, font.StoredInkByteCount, "seventeen shared six-row glyph silhouettes only");
         AssertEqual(0, font.StoredEditCount, "all stock outlines and bevels are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(4384, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");

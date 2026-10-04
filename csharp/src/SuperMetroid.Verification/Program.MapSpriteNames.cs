@@ -2,10 +2,7 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
-    private static void VerifyMapSpriteNameCases()
-    {
-        // Independent original table from9b54e512, retained only for verification.
-        (ushort NativeId, string Name)[] original =
+    private static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
         [
             (0x4, "Arrow.Right"),
             (0x5, "Arrow.Left"),
@@ -34,6 +31,11 @@ internal static partial class Program
             (0x3d, "World.Maridia"),
             (0x3e, "World.Tourian")
         ];
+
+    private static void VerifyMapSpriteNameCases()
+    {
+        // Independent original table from9b54e512, retained only for verification.
+        var original = MapSpriteRoleOracle();
         AssertEqual(original.Length, MapSpriteDefinitions.Count, "map sprite complete role count");
         AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames), "original map sprite document order");
         foreach (var entry in original)

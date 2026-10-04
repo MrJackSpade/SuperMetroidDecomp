@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-map-sprite-cases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map sprite case oracle revision");
+    VerifyMapSpriteCompositionCases(rom);
+    Console.WriteLine("Map sprite cases: all original OAM, independent role edits, required membership and invalid identities pass.");
+    return 0;
+}
 if (args is ["--lookup-map-sprite-names"])
 {
     VerifyMapSpriteNameCases();

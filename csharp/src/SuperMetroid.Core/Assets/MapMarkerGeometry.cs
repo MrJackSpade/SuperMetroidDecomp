@@ -8,13 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// Arrows join mirrored halves seven pixels apart; pulse corners expand at radius4..6.
 /// Boss corners use the native seven-pixel horizontal/eight-pixel vertical spacing;
 /// gunship halves are eight pixels apart. Native draw order is preserved before clipping.
-/// All parts are small, inherit the caller palette, and use priority2 (arrows priority3).
+/// All parts are small, inherit the caller palette, and use priority2 (arrows and title priority3).
 /// Elevator labels at82:C4DB/C4F1/C507/C533/C549 draw contiguous text strips right-to-left.
 /// Norfair and Maridia skip atlas cells11/17 containing vertical-bar art, not label text.
 /// Wrecked Ship draws its centered two-tile bottom line before its four-tile top line.
+/// World title82:CBFB spells PLANET ZEBES on an eight-pixel grid using two tiles per letter.
+/// Letters draw right-to-left, bottom before top except the leading P, which draws top first.
 /// </summary>
 internal static class MapMarkerGeometry
 {
+    /// <summary>The authored map title at82:CBFB; its wording is text content, not a numerical mapping.</summary>
+    private const string WorldTitleText = "PLANET ZEBES";
+
     internal static int PartCount(ushort id) => id switch
     {
         MapSpriteDefinitions.ArrowRight or MapSpriteDefinitions.ArrowLeft or
@@ -26,6 +31,7 @@ internal static class MapMarkerGeometry
         MapSpriteDefinitions.ElevatorCrateria or MapSpriteDefinitions.ElevatorBrinstar or
         MapSpriteDefinitions.ElevatorNorfair or MapSpriteDefinitions.ElevatorMaridia => 4,
         MapSpriteDefinitions.ElevatorWreckedShip => 6,
+        MapSpriteDefinitions.WorldTitle => (WorldTitleText.Length - 1) * 2,
         _ => 0,
     };
 
@@ -36,6 +42,13 @@ internal static class MapMarkerGeometry
         bool flipX = false, flipY = false;
         switch (id)
         {
+            case MapSpriteDefinitions.WorldTitle:
+                int letter = WorldTitleText.Length - 2 - index / 2;
+                int textColumn = letter < 6 ? letter : letter + 1;
+                bool top = letter == 0 ? (index & 1) == 0 : (index & 1) != 0;
+                x = 8 * (textColumn - 6); y = top ? -8 : 0; priority = 3;
+                tile = TitleGlyphTile(WorldTitleText[textColumn], top);
+                break;
             case MapSpriteDefinitions.ElevatorCrateria:
             case MapSpriteDefinitions.ElevatorBrinstar:
             case MapSpriteDefinitions.ElevatorNorfair:
@@ -97,6 +110,31 @@ internal static class MapMarkerGeometry
         var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
         return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
             SnesObjAttributeWord.Create(tile, 0, priority, flips), true);
+    }
+
+    /// <summary>
+    /// Named glyph selection in the shared menu alphabet. Lower halves are one atlas row below
+    /// upper halves except P, whose top shares D's cell0D and bottom uses38, and T, whose stem
+    /// shares cell11. These are glyph-part aliases established from the original indexed pixels.
+    /// </summary>
+    private static int TitleGlyphTile(char letter, bool top)
+    {
+        if (!top && letter == 'P') return 0x38;
+        if (!top && letter == 'T') return 0x11;
+        int upper = letter switch
+        {
+            'A' => 0x0a,
+            'B' => 0x0b,
+            'E' => 0x0e,
+            'L' => 0x25,
+            'N' => 0x27,
+            'P' => 0x0d,
+            'S' => 0x2b,
+            'T' => 0x2c,
+            'Z' => 0x42,
+            _ => throw new ArgumentOutOfRangeException(nameof(letter)),
+        };
+        return upper + (top ? 0 : 16);
     }
 
     internal static bool Matches(ushort id, SpriteVisualPart[] parts)

@@ -14,7 +14,7 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions)!;
         var stock = MapSpriteCatalog.Load(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         VerifyMapSpriteNativeCompositions(rom, stock);
-        foreach (var role in MapSpriteRoleOracle().Take(19))
+        foreach (var role in MapSpriteRoleOracle().Take(20))
         {
             AssertTrue(!stock.StoresComposition(role.NativeId), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];

@@ -7015,4 +7015,18 @@
     "remainingObligations":"Supersedes the five elevator composition obligations in mapMarkerGeometryReview and mapSpriteCompositionCaseReview. Seven world-label/title compositions and remaining247 atlas tiles still need independent dispositions. This resolves strip geometry and tile selection, not the chosen lettering pixels, and grants no blanket artwork retention.",
     "confirmation":"Verification build passes with0 errors; early SHA-pinned --lookup-map-sprite-cases passes. Source ownership pin and maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "worldMapTitleGeometryReview": {
+    "status":"converted world-map title composition to text-grid drawing",
+    "owner":"csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "source":"Supported SHA-pinned ROM spritemap38 at82:CBFB,22 original parts. Statically decoded every source part and the paired atlas tiles fromB6:C000; they spell PLANET ZEBES, eleven non-space letters across twelve eight-pixel columns. Consumers select WorldTitle in the map catalog, inheriting the live caller palette.",
+    "coordinatesAndOrder":"Enumerate non-space letters right-to-left. Text columns0..5 and7..11 give X=8*(column-6); upper Y=-8,lowerY=0. Each letter uses two small sprites. Original order is lower then upper for every letter except the leading P, which is upper then lower. This single boundary-order exception is explicitly preserved rather than sorting the emitted parts.",
+    "tileField":"Named alphabet cases select the upper glyph regions A0A,B0B,E0E,L25,N27,P0D,S2B,T2C,Z42. Lower halves are one16-tile atlas row below except P lower38 and T lower11. Original pixels independently establish those two reused glyph-part regions; they are semantic glyph selection, not an arbitrary chronological numerical switch.",
+    "otherFields":"Count derives from eleven printed letters times two. All parts small8x8, priority3, unflipped, caller-palette inherited. Exact stock JSON parts match the calculated basis and leave no stored SpriteComposition; independent authored edits remain compiled with the unchanged loader and emitter contracts.",
+    "textContent":"The phrase PLANET ZEBES is the authored title, directly established by the original glyph pixels and map-title role. Retaining those literal words preserves semantic text content; generating its particular wording from an index would merely recite the chosen phrase. This does not exempt the geometry, glyph selection or underlying font pixels, which are separate fields.",
+    "domain":"Title indices0..21 only; no extrapolation. Original signed offsets, word-space gap, draw order, clipping and OAM capacity remain exact. Catalog identity and palette error ordering remain unchanged.",
+    "proof":"Reuse VerifyMapSpriteNativeCompositions as the one original-record proof and extend its existing edit/storage companion to the twentieth role. Original OAM matches throughout the established coordinate/palette/capacity domain. Every title part is independently edited across differing visual field families, hidden-title behavior remains supported, and stock composition storage is absent. Verification build0 errors/1429 existing warnings and early SHA-pinned --lookup-map-sprite-cases pass.",
+    "remainingObligations":"Supersedes world-title composition work in elevatorLabelGeometryReview. Six world-area label compositions and remaining247 atlas tiles still need independent dispositions; no blanket artwork or unknown-formula exception is assigned.",
+    "confirmation":"Source ownership pins and maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

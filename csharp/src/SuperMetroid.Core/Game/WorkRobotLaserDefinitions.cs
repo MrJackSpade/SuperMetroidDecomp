@@ -45,28 +45,27 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
 
-    private static readonly WorkRobotLaserInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0004),
-        new(0xd2f0, 0x0004),
-        new(0xd2f4, 0x0004),
-        new(Loop, 0x0004),
-        new(0xd2fc, 0x0004),
-        new(0xd300, 0x0004),
-        new(0xd304, 0x0004),
-        new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd30a, Loop),
-    ];
+    internal static int MechanicsWordCount => 9;
+    internal static int PresentationWordCount => 7;
 
-    private static readonly ushort[] PresentationWords =
-        [0xd2ee, 0xd2f2, 0xd2f6, 0xd2fa, 0xd2fe, 0xd302, 0xd306];
+    internal static WorkRobotLaserInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        return index switch
+        {
+            7 => new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            8 => new(LoopCommand + 2, Loop),
+            _ => new((ushort)(Initial + 4 * index), 4),
+        };
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static WorkRobotLaserInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Initial + 4 * index + 2);
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
@@ -76,20 +75,13 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            WorkRobotLaserInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (address == LoopCommand)
+            return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (address == LoopCommand + 2)
+            return Loop;
+        int frameOffset = address - Initial;
+        if (frameOffset >= 0 && frameOffset < 28 && frameOffset % 4 == 0)
+            return 4;
         throw new InvalidDataException(
             $"Work Robot laser instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
@@ -98,18 +90,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        int offset = unchecked((ushort)address) - Initial;
+        return offset >= 0 && offset < 28 && offset % 4 < 2 || offset >= 28 && offset < 32;
     }
 }

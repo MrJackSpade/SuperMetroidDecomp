@@ -657,8 +657,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs
 
-- [ ] **WorkRobotLaserInstructionProgramDefinitions.Words** ([L49](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **WorkRobotLaserInstructionProgramDefinitions.PresentationWords** ([L62](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WorkRobotLaserInstructionProgramDefinitions.Words** ([L49](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WorkRobotLaserInstructionProgramDefinitions.PresentationWords** ([L62](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs
 
@@ -804,6 +804,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Preserved index exceptions, direction domain, mechanics-word rejection and exact byte ownership. Verification compares all 49 native words and all 65,536 bank-byte ownership decisions to an independent address-set oracle.
 - Existing fixture initially failed its obsolete requirement for 21 runtime cartridge spritemap reads. The additionally assigned fixture now asserts all 21 exact native operand identities on actual production pose/smoke frames, installed presentation membership, placeholder behavior and zero runtime presentation reads. Existing real turret producers, all eight bullet selectors, smoke timing, deletion and mechanics source guards remain intact.
 - Full build passed (1433 warnings, zero errors), followed by the final verifier rebuild (25 warnings, zero errors); `--lookup-stream-3` passed after the fixture correction. Four inventory entries completed, bringing converted entries to 51 plus one separately justified decorative retention. No external source-hash dependency found.
+### Confirmed batch 20: Work Robot laser prefix and loop
+
+- Converted the nine-word mechanics catalog and seven-word presentation address catalog. Seven four-tick frames calculate a four-byte stride; the closing Goto and its fourth-frame target are named control cases. Address reads and byte ownership calculate the mechanics gaps directly.
+- The additionally assigned existing fixture now follows native ROM instruction control flow as its oracle, comparing actual installed presentation operand identities and frame durations while requiring zero runtime presentation reads. All five real laser definitions, the complete prefix and loop, and shared shot deletion remain covered.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed all nine native words and the actual producer/animation/deletion checks. Two inventory entries completed, bringing converted entries to 53 plus the separate decorative-anchor retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

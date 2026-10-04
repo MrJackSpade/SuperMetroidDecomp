@@ -104,6 +104,7 @@ internal static partial class Program
         VerifyStream3PainfulWalking(rom);
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
+        VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
         VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);
         VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
         var turretMechanics = new HashSet<int>();

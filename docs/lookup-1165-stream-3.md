@@ -1,0 +1,675 @@
+﻿# Issue 1165 - agent stream 3
+
+GitHub child ticket: [#1240](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1240).
+
+Assignment: **105 files / 226 named table definitions**. [Ownership rules and all streams](lookup-1165-streams.md). Inventory snapshot: 2026-10-04T20:43:25.3086366Z.
+
+## Agent instructions
+
+Work through every entry below under issue 1165. Check current source and review dispositions first. Convert the original mapping into calculation or meaningful cases, or document a concrete impossible/nonsense justification. Preserve behavior and supplied content edits. Independently resolve each value field; checking off a container does not excuse its unresolved payloads.
+
+Edit only source files listed here and this stream checklist/report. Read other files as needed. Ask the coordinator to assign any additional dependency or new source/test file before writing it. Route shared review-ledger, project, verification-entry-point and master-inventory changes through the coordinator. Do not stage, commit or publish other agents' work. Use focused confirmation of identified changes, not exploratory test discovery.
+
+For each completed entry, record the conversion or precise retention evidence, changed files and focused confirmation. Report cross-stream dependencies by path and required contract. Report pending entries honestly; definition counts are not effort estimates.
+
+## Exclusive source files
+
+| File | Definitions |
+| --- | ---: |
+| [csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs) | 8 |
+| [csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs](../csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs](../csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs](../csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs) | 4 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs) | 7 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs](../csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs) | 4 |
+| [csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs](../csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs](../csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs](../csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs) | 4 |
+| [csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs](../csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs) | 4 |
+| [csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyDropChanceDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyDropChanceDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs) | 6 |
+| [csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Game/HopperAnimationDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/HopperAnimationDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs) | 3 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs) | 6 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs) | 8 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs) | 4 |
+| [csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs) | 5 |
+| [csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs) | 2 |
+| [csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs](../csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs](../csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs) | 1 |
+| [csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs) | 1 |
+
+## Work checklist
+
+### csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs
+
+- [ ] **ChootFallingPathDefinitions.Normal** ([L59](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ChootFallingPathDefinitions.Wide** ([L92](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ChootFallingPathDefinitions.VeryWide** ([L125](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L125)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs
+
+- [ ] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ChootInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs
+
+- [ ] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs
+
+- [ ] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Durations** ([L59](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L61](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs
+
+- [ ] **CrateriaLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L41](../csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs
+
+- [ ] **CreditsPresentation.rows** ([L9](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs#L9)) - installed stock table. Original/default payload behind CreditsPresentation.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs
+
+- [ ] **CreditsPresentationDefinitions.Lines** ([L28](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs
+
+- [ ] **DoorTransitionState.BuildSourceFadeTarget / alwaysPreserved** ([L250](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L250)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [ ] **DoorTransitionState.BuildSourceFadeTarget / commonCreColors** ([L261](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L261)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [ ] **DoorTransitionState.BuildSourceFadeTarget / timerColors** ([L266](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L266)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs
+
+- [ ] **DoorScrollPrograms.Programs** ([L33](../csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs
+
+- [ ] **EnemyAuxiliaryColorCatalog.frames** ([L19](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs#L19)) - installed stock table. Original/default payload behind EnemyAuxiliaryColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs
+
+- [ ] **EnemyAuxiliaryColorDefinitions.Definitions** ([L29](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs
+
+- [ ] **EnemyBg2FrameCatalog.frames** ([L31](../csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs#L31)) - installed stock table. Original/default payload behind EnemyBg2FrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs
+
+- [ ] **EnemyExtendedFrameCatalog.frames** ([L39](../csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs#L39)) - installed stock table. Original/default payload behind EnemyExtendedFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs
+
+- [ ] **EnemyPaletteSheet.colors** ([L16](../csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs#L16)) - installed stock table. Original/default payload behind EnemyPaletteSheet.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs
+
+- [ ] **EnemyProjectileSpritemapCatalog.frames** ([L26](../csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs#L26)) - installed stock table. Original/default payload behind EnemyProjectileSpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **EnemyProjectileSpritemapCatalog.programFrames** ([L27](../csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs#L27)) - installed stock table. Original/default payload behind EnemyProjectileSpritemapCatalog.programFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **EnemyProjectileSpritemapDefinitions.Frames** ([L289](../csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs#L289)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs
+
+- [ ] **EnemySpritemapCatalog.frames** ([L25](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs#L25)) - installed stock table. Original/default payload behind EnemySpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs
+
+- [ ] **EnemySpritemapDefinitions.NamedFrameDefinitions** ([L183](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs#L183)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs
+
+- [ ] **EnemyDeathExplosionDefinitions.InstructionPointers** ([L21](../csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs
+
+- [ ] **EnemyDeathInstructionProgramDefinitions.Words** ([L33](../csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyDeathInstructionProgramDefinitions.PresentationWords** ([L127](../csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs#L127)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyDropChanceDefinitions.cs
+
+- [ ] **EnemyDropChanceDefinitions.PackedChances** ([L41](../csharp/src/SuperMetroid.Core/Game/EnemyDropChanceDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs
+
+- [ ] **EnemyPickupDefinitions.InstructionLists** ([L17](../csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs
+
+- [ ] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyPickupInstructionProgramDefinitions.PresentationWords** ([L64](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs
+
+- [ ] **EnemyProjectileInstructionMechanicsDefinitions.BlueRingDurations** ([L76](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyProjectileInstructionMechanicsDefinitions.MiscDustInitialPointers** ([L84](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L84)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyProjectileInstructionMechanicsDefinitions.TimedPrograms** ([L93](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L93)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyProjectileInstructionMechanicsDefinitions.MechanicsWords** ([L162](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L162)) - factory-built stock table. Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **EnemyProjectileInstructionMechanicsDefinitions.PresentationFrames** ([L165](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L165)) - factory-built stock table. Stored EnemyProjectilePresentationFrameDefinition[] initialized by BuildPresentationFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs
+
+- [ ] **EnemyVulnerabilityDefinitions.PackedVulnerabilities** ([L74](../csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs#L74)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs
+
+- [ ] **ExploredMapPackingDefinitions.CrateriaIndexes** ([L20](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ExploredMapPackingDefinitions.BrinstarIndexes** ([L31](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ExploredMapPackingDefinitions.NorfairIndexes** ([L41](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ExploredMapPackingDefinitions.WreckedShipIndexes** ([L52](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ExploredMapPackingDefinitions.MaridiaIndexes** ([L58](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ExploredMapPackingDefinitions.TourianIndexes** ([L68](../csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs#L68)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs
+
+- [ ] **FileSelectPresentation.pages** ([L14](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs#L14)) - installed stock table. Original/default payload behind FileSelectPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **FileSelectPresentation.patches** ([L15](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs#L15)) - installed stock table. Original/default payload behind FileSelectPresentation.patches. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **FileSelectPresentation.digits** ([L16](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs#L16)) - installed stock table. Original/default payload behind FileSelectPresentation.digits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **FileSelectPresentation.slotLetters** ([L17](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs#L17)) - installed stock table. Original/default payload behind FileSelectPresentation.slotLetters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **FileSelectPresentation.sprites** ([L18](../csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs#L18)) - installed stock table. Original/default payload behind FileSelectPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs
+
+- [ ] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **FirefleaInstructionProgramDefinitions.PresentationWords** ([L21](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L21)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs
+
+- [ ] **GameOptionsPresentation.pages** ([L16](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L16)) - installed stock table. Original/default payload behind GameOptionsPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.controllerLabels** ([L17](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L17)) - installed stock table. Original/default payload behind GameOptionsPresentation.controllerLabels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.controllerLabelAnchors** ([L18](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L18)) - installed stock table. Original/default payload behind GameOptionsPresentation.controllerLabelAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.languageRegions** ([L19](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L19)) - installed stock table. Original/default payload behind GameOptionsPresentation.languageRegions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.specialToggles** ([L20](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L20)) - installed stock table. Original/default payload behind GameOptionsPresentation.specialToggles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.sprites** ([L21](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L21)) - installed stock table. Original/default payload behind GameOptionsPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.headingAnchors** ([L22](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L22)) - installed stock table. Original/default payload behind GameOptionsPresentation.headingAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOptionsPresentation.cursorAnchors** ([L23](../csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs#L23)) - installed stock table. Original/default payload behind GameOptionsPresentation.cursorAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs
+
+- [ ] **GameOverPresentation.tilemap** ([L16](../csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs#L16)) - installed stock table. Original/default payload behind GameOverPresentation.tilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **GameOverPresentation.sprites** ([L17](../csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs#L17)) - installed stock table. Original/default payload behind GameOverPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs
+
+- [ ] **GrappleSpriteCatalog.segments** ([L10](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs#L10)) - installed stock table. Original/default payload behind GrappleSpriteCatalog.segments. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs
+
+- [ ] **GrappleSpriteDefinitions.SegmentAttributeAddresses** ([L11](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs
+
+- [ ] **GrappleSwingFrameCatalog.frames** ([L9](../csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs#L9)) - installed stock table. Original/default payload behind GrappleSwingFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs
+
+- [ ] **GrappleTileAtlas.tiles** ([L8](../csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs#L8)) - installed stock table. Original/default payload behind GrappleTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs
+
+- [ ] **GrappleTileDefinitions.transfers** ([L20](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleTileDefinitions.segments** ([L33](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs
+
+- [ ] **GrappleBodyPlacementDefinitions.LeftOffsets** ([L8](../csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleBodyPlacementDefinitions.RightOffsets** ([L17](../csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs
+
+- [ ] **GrappleConnectionDefinitions.Cancellation** ([L11](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleConnectionDefinitions.Handlers** ([L15](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleConnectionDefinitions.SpecialAngleRecords** ([L29](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleConnectionDefinitions.StandingDrops** ([L42](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GrappleConnectionDefinitions.CrouchingDrops** ([L50](../csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/HopperAnimationDefinitions.cs
+
+- [ ] **HopperAnimationDefinitions.Variants** ([L18](../csharp/src/SuperMetroid.Core/Game/HopperAnimationDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs
+
+- [ ] **HopperInstructionProgramDefinitions.Words** ([L55](../csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **HopperInstructionProgramDefinitions.PresentationWords** ([L121](../csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs#L121)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs
+
+- [ ] **IntroCaretSpriteDefinitions.frameDefinitions** ([L20](../csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs
+
+- [ ] **IntroCinematicArtworkCatalog.BackgroundPages** ([L76](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs#L76)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [ ] **IntroCinematicArtworkCatalog.PortraitTilemap** ([L78](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs#L78)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [ ] **IntroCinematicArtworkCatalog.InitialNarrationTilemap** ([L80](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs#L80)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs
+
+- [ ] **IntroCinematicPalette.nativeBytes** ([L10](../csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs#L10)) - installed stock table. Original/default payload behind IntroCinematicPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs
+
+- [ ] **IntroEyeTilemapPresentation.frames** ([L9](../csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs#L9)) - installed stock table. Original/default payload behind IntroEyeTilemapPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs
+
+- [ ] **IntroFinalLineTilemap.words** ([L9](../csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs#L9)) - installed stock table. Original/default payload behind IntroFinalLineTilemap.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs
+
+- [ ] **IntroFontAtlas.transfer** ([L6](../csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs#L6)) - installed stock table. Original/default payload behind IntroFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs
+
+- [ ] **IntroNarrationDefinitions.NativePages** ([L70](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs#L70)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs
+
+- [ ] **IntroNarrationPresentation.pages** ([L12](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs#L12)) - installed stock table. Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs
+
+- [ ] **IntroCinematicRomData.Palette.GameplayRegions** ([L92](../csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **IntroCinematicRomData.Palette.GameplayClearRegions** ([L98](../csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs#L98)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **IntroCinematicRomData.Palette.NarrationRegions** ([L104](../csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs#L104)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **IntroCinematicRomData.Palette.DiscoveryRegions** ([L111](../csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs#L111)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs
+
+- [ ] **MochtroidVisualDefinitions.Selectors** ([L14](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MochtroidVisualDefinitions.Frames / literal at L22** ([L22](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L22)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs
+
+- [ ] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MochtroidInstructionProgramDefinitions.PresentationWords** ([L28](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs
+
+- [ ] **RoomEnemySystem.RunMochtroidShake / xOffsets** ([L212](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L212)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [ ] **RoomEnemySystem.RunMochtroidShake / yOffsets** ([L213](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L213)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs
+
+- [ ] **BabyMetroidCutsceneColorCatalog.initial** ([L17](../csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs#L17)) - installed stock table. Original/default payload behind BabyMetroidCutsceneColorCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **BabyMetroidCutsceneColorCatalog.fade** ([L18](../csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs#L18)) - installed stock table. Original/default payload behind BabyMetroidCutsceneColorCatalog.fade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs
+
+- [ ] **MotherBrainCorpseArtworkDefinitions.VramPageSources** ([L20](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainCorpseArtworkDefinitions.VramPageDestinations** ([L24](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs
+
+- [ ] **MotherBrainDeathColorCatalog.bodyFade** ([L19](../csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs#L19)) - installed stock table. Original/default payload behind MotherBrainDeathColorCatalog.bodyFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainDeathColorCatalog.legFade** ([L20](../csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs#L20)) - installed stock table. Original/default payload behind MotherBrainDeathColorCatalog.legFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainDeathColorCatalog.corpseFade** ([L21](../csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs#L21)) - installed stock table. Original/default payload behind MotherBrainDeathColorCatalog.corpseFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainDeathColorCatalog.explodedDoor** ([L22](../csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs#L22)) - installed stock table. Original/default payload behind MotherBrainDeathColorCatalog.explodedDoor. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs
+
+- [ ] **MotherBrainEscapeTextArtworkDefinitions.PageSources** ([L17](../csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainEscapeTextArtworkDefinitions.PageByteCounts** ([L21](../csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainEscapeTextArtworkDefinitions.PageDestinations** ([L25](../csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs
+
+- [ ] **MotherBrainHealthPalettePresentation.body** ([L10](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L10)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainHealthPalettePresentation.backLegs** ([L11](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L11)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.backLegs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs
+
+- [ ] **MotherBrainRainbowPalettePresentation.rainbow** ([L10](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs#L10)) - installed stock table. Original/default payload behind MotherBrainRainbowPalettePresentation.rainbow. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRainbowPalettePresentation.toGrey** ([L11](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs#L11)) - installed stock table. Original/default payload behind MotherBrainRainbowPalettePresentation.toGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRainbowPalettePresentation.fromGrey** ([L12](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs#L12)) - installed stock table. Original/default payload behind MotherBrainRainbowPalettePresentation.fromGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRainbowPalettePresentation.fakeDeathToGrey** ([L13](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs#L13)) - installed stock table. Original/default payload behind MotherBrainRainbowPalettePresentation.fakeDeathToGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRainbowPalettePresentation.beamCycle** ([L16](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs#L16)) - installed stock table. Original/default payload behind MotherBrainRainbowPalettePresentation.beamCycle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs
+
+- [ ] **MotherBrainRoomColorPresentation.flash** ([L10](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L10)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.flash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.finalRoom** ([L11](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L11)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.finalRoom. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.phaseTwoAttack** ([L12](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L12)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoAttack. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.phaseTwoRearLeg** ([L13](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L13)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoRearLeg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.initialGlassShard** ([L14](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L14)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.initialGlassShard. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.initialTubeProjectile** ([L15](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L15)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.initialTubeProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MotherBrainRoomColorPresentation.recoveryLights** ([L16](../csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs#L16)) - installed stock table. Original/default payload behind MotherBrainRoomColorPresentation.recoveryLights. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs
+
+- [ ] **MotherBrainSpecialSpriteArtworkDefinitions.All** ([L58](../csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs
+
+- [ ] **MotherBrainVisualDefinitions.NativePointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs
+
+- [ ] **ShitroidColorCatalog.normal** ([L19](../csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs#L19)) - installed stock table. Original/default payload behind ShitroidColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **ShitroidColorCatalog.sidehopper** ([L20](../csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs#L20)) - installed stock table. Original/default payload behind ShitroidColorCatalog.sidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **ShitroidColorCatalog.shitroid** ([L21](../csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs#L21)) - installed stock table. Original/default payload behind ShitroidColorCatalog.shitroid. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **ShitroidColorCatalog.deadSidehopper** ([L22](../csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs#L22)) - installed stock table. Original/default payload behind ShitroidColorCatalog.deadSidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs
+
+- [ ] **BabyMetroidCutsceneState.ShakingXOffsets** ([L35](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **BabyMetroidCutsceneState.ShakingYOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **BabyMetroidCutsceneState.DeathExplosionXOffsets** ([L42](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **BabyMetroidCutsceneState.DeathExplosionYOffsets** ([L45](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs
+
+- [ ] **BabyMetroidRouteDefinitions.Records** ([L53](../csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainBabyInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainBabyInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs
+
+- [ ] **MotherBrainBeamRomData.QuadrantDirections** ([L10](../csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainBodyInstructionProgramDefinitions.TryWalkFrame / frames** ([L94](../csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs#L94)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [ ] **MotherBrainBodyInstructionProgramDefinitions.Words** ([L145](../csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs#L145)) - factory-built stock table. Stored MotherBrainBodyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs
+
+- [ ] **MotherBrainContactHitboxDefinitions.Body** ([L43](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainContactHitboxDefinitions.Brain** ([L49](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainContactHitboxDefinitions.Neck** ([L55](../csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs
+
+- [ ] **MotherBrainCorpseRottingState.TileRowOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainCorpseRottingState.ColumnOffsets** ([L41](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainCorpseRottingState.ColumnMinimumY** ([L47](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainCorpseRottingState.InitialGraphicsCopies** ([L52](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainCorpseRottingState.VramTransfers** ([L64](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs
+
+- [ ] **MotherBrainDeathExplosionDefinitions.InstructionLists** ([L11](../csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs
+
+- [ ] **MotherBrainDoorFragmentDefinitions.Definitions** ([L18](../csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs
+
+- [ ] **MotherBrainEnemyProjectileSystem.BombYAccelerations** ([L42](../csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainEnemyProjectileSystem.EscapeDoorParticleYOffsets** ([L44](../csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs#L44)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainEnemyProjectileSystem.EscapeDoorParticleYVelocities** ([L46](../csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs
+
+- [ ] **MotherBrainFallingTubeInstructionDefinitions.VisualPointers** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs
+
+- [ ] **MotherBrainFallingTubePopulationDefinitions.Pointers** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs
+
+- [ ] **MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands** ([L28](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.StageStarts** ([L25](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.Durations** ([L26](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.MechanicsWords** ([L27](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L27)) - factory-built stock table. Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L29)) - factory-built stock table. Stored ushort[] initialized by BuildExternalCallInstructions(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.PresentationWords** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L30)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.EarlyWords** ([L63](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L63)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoWords** ([L82](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L82)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.NeutralWords** ([L90](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L90)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsWords** ([L100](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L100)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.BombAndLaserWords** ([L118](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L118)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainHeadInstructionProgramDefinitions.RainbowChargeWords** ([L130](../csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs#L130)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs
+
+- [ ] **MotherBrainRainbowBeamAttackSequence.PainfulWalkingAnimationDelays** ([L58](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.PainfulWalkingNeckAngleDeltas** ([L61](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.PainfulWalkingFunctionTimers** ([L64](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.EscapeTimerTileTransfers** ([L76](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.ExplodedDoorTileTransfers** ([L99](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L99)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.DeathExplosionOffsets** ([L114](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L114)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.ExplosionXOffsets** ([L127](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L127)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRainbowBeamAttackSequence.ExplosionYOffsets** ([L130](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs#L130)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs
+
+- [ ] **MotherBrainRainbowBeamAttackSequence.Step / literal at L995** ([L995](../csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs#L995)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs
+
+- [ ] **MotherBrainRoomPaletteProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainRoomPaletteProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainTopTubeInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainTopTubeInstructionProgramDefinitions.PresentationWords** ([L38](../csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs
+
+- [ ] **MotherBrainTurretDefinitions.Turrets** ([L50](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainTurretDefinitions.Directions** ([L71](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs#L71)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs
+
+- [ ] **MotherBrainTurretInstructionProgramDefinitions.TurretPrograms** ([L46](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainTurretInstructionProgramDefinitions.BulletPrograms** ([L52](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MotherBrainTurretInstructionProgramDefinitions.Words** ([L54](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs#L54)) - factory-built stock table. Stored MotherBrainTurretInstructionMechanicsWord[] initialized by BuildWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **MotherBrainTurretInstructionProgramDefinitions.PresentationWords** ([L55](../csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs#L55)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs
+
+- [ ] **RoomEnemySystem.MotherBrainFakeDeathExplosionPositions** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.MotherBrainFallingTubeXRadius** ([L26](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.MotherBrainFallingTubeYRadius** ([L27](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.MotherBrainFallingTubeFloor** ([L28](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.MotherBrainFallingTubeSmokeXOffsets** ([L29](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs
+
+- [ ] **RoomEnemySystem.MotherBrainAscentDustXPositions** ([L23](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.ChooseMotherBrainSecondPhaseAttack / thresholds** ([L558](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs#L558)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration. Additional source branches/rows at lines 558, 559.
+
+### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs
+
+- [ ] **RoomEnemySystem.MotherBrainDroolXOffsets** ([L11](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.MotherBrainDroolYOffsets** ([L14](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs
+
+- [ ] **ShitroidInstructionProgramDefinitions.Words** ([L36](../csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ShitroidInstructionProgramDefinitions.PresentationWords** ([L65](../csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs#L65)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs
+
+- [ ] **MultiviolaInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MultiviolaInstructionProgramDefinitions.PresentationWords** ([L26](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs
+
+- [ ] **NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions** ([L72](../csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs#L72)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs
+
+- [ ] **RioInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RioInstructionProgramDefinitions.PresentationWords** ([L57](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs
+
+- [ ] **RipperVisualDefinitions.Shared** ([L15](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RipperVisualDefinitions.Ordinary** ([L27](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs
+
+- [ ] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RipperInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs
+
+- [ ] **ShaktoolVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs
+
+- [ ] **RoomEnemySystem.ShaktoolCircleXOffsets** ([L8](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RoomEnemySystem.ShaktoolCircleYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs
+
+- [ ] **ShaktoolInstructionDefinitions.OrientationInstructions** ([L13](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ShaktoolInstructionDefinitions.SegmentInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs
+
+- [ ] **ShaktoolInstructionProgramDefinitions.Words** ([L62](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ShaktoolInstructionProgramDefinitions.PresentationWords** ([L146](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs#L146)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs
+
+- [ ] **ShaktoolProjectileInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ShaktoolProjectileInstructionProgramDefinitions.PresentationWords** ([L47](../csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs
+
+- [ ] **SparkInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **SparkInstructionProgramDefinitions.PresentationWords** ([L43](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs
+
+- [ ] **SparkMovementDefinitions.InitialStates** ([L13](../csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs
+
+- [ ] **StockAttractDemoScenes.Sets** ([L12](../csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs
+
+- [ ] **StockAttractInputPrograms.Commands** ([L49](../csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs#L49)) - factory-built stock table. Stored Dictionary<ushort, Command> initialized by CreateCommands(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+
+### csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs
+
+- [ ] **SuperMetroidRuntime.RunCeresFallingDebrisRoomMain / xPositions** ([L4319](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs#L4319)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs
+
+- [ ] **WorkRobotPaletteCycle.frames** ([L20](../csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs#L20)) - installed stock table. Original/default payload behind WorkRobotPaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+
+### csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs
+
+- [ ] **WorkRobotVisualDefinitions.Frames / literal at L17** ([L17](../csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs#L17)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+
+### csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs
+
+- [ ] **WorkRobotInstructionProgramDefinitions.Words** ([L62](../csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs
+
+- [ ] **WorkRobotLaserInstructionProgramDefinitions.Words** ([L49](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L49)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **WorkRobotLaserInstructionProgramDefinitions.PresentationWords** ([L62](../csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+### csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs
+
+- [ ] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **YellowPipeBugInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+
+## Agent handoff
+
+- Completed conversions: pending.
+- Justified retained entries: pending.
+- Confirmation results: pending.
+- Cross-stream dependencies and proposed shared-file patches: pending.
+- Remaining entries: all unchecked entries above.
+

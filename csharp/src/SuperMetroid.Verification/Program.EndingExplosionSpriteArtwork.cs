@@ -35,6 +35,12 @@ internal static partial class Program
             }
             PngWriter.WriteIndexedAsRgba(Path.Combine(directory, source.Item2 + ".png"), 256, 256, pixels, palette, 2);
             Console.WriteLine($"{source.Item2}: {count} original parts, {pixels.Count(pixel => pixel != 0)} visible pixels");
+            if (source.Item1 is 0xa472 or 0xa4b0 or 0xa516)
+            {
+                Console.WriteLine("Original upper-left24x24 color indexes (0 is transparent):");
+                for (int y = 104; y < 128; y++)
+                    Console.WriteLine(Convert.ToHexString(pixels.AsSpan(y * 256 + 104, 24)));
+            }
         }
         Console.WriteLine(directory);
     }

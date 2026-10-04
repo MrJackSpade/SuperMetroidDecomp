@@ -8989,4 +8989,105 @@
   "proof": "VerifyEndingObjectFragmentMetadata compares four source results to independent native bank/address immediates, asserts LDA opcodes, checks all four published filenames and invalid int bounds. Called by artwork aggregate and SHA-pinned --lookup-ending-fragment-metadata. Existing full extracted-sheet comparisons migrate to the shared source selector; no duplicate production array remains.",
   "scope": "Two mappings only. Compressed payloads, fragment content and upload behavior retain their independent review obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingLoadedContentClassification": {
+  "basis": "Static inspection of each assignment/load/consumer in the current maintained source. Immutable-after-load does not make caller-selected content a fixed mathematical lookup. These entries classify container ownership only; no runtime behavior is changed.",
+  "containers": [
+    {
+      "id": "ending-cloud-installed-compositions",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingCloudSpritePresentation.cs",
+      "member": "frames / Load.frames / document.Frames",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load reads caller-supplied JSON, checks required catalog keys, then compiles each supplied SpriteVisualPart[] with IntroCinematicSpriteCompiler and inserts by the catalog pointer. Draw resolves the selected compiled composition; ContentIdentity hashes the actual selected composition. Dictionary entries are variable installed/override content, not fixed sampled outputs. The separate metadata catalog has its own review."
+    },
+    {
+      "id": "ending-explosion-installed-compositions",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingExplosionSpritePresentation.cs",
+      "member": "frames / Load.frames / document.Frames",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load reads caller-supplied JSON, checks required catalog keys, then compiles each supplied SpriteVisualPart[] with IntroCinematicSpriteCompiler and inserts by the catalog pointer. Draw resolves the selected compiled composition; ContentIdentity hashes the actual selected composition. Dictionary entries are variable installed/override content, not fixed sampled outputs. The separate metadata catalog has its own review."
+    },
+    {
+      "id": "ending-completiontext-installed-compositions",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingCompletionTextSpritePresentation.cs",
+      "member": "frames / Load.frames / document.Frames",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load reads caller-supplied JSON, checks required catalog keys, then compiles each supplied SpriteVisualPart[] with IntroCinematicSpriteCompiler and inserts by the catalog pointer. Draw resolves the selected compiled composition; ContentIdentity hashes the actual selected composition. Dictionary entries are variable installed/override content, not fixed sampled outputs. The separate metadata catalog has its own review."
+    },
+    {
+      "id": "ending-reward-installed-compositions",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardSpritePresentation.cs",
+      "member": "frames / Load.frames / document.Frames",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load reads caller-supplied JSON, checks required catalog keys, then compiles each supplied SpriteVisualPart[] with IntroCinematicSpriteCompiler and inserts by the catalog pointer. Draw resolves the selected compiled composition; ContentIdentity hashes the actual selected composition. Dictionary entries are variable installed/override content, not fixed sampled outputs. The separate metadata catalog has its own review."
+    },
+    {
+      "id": "ending-logo-installed-compositions",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoSpritePresentation.cs",
+      "member": "frames / Load.frames / document.Frames",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load reads caller-supplied JSON, checks required catalog keys, then compiles each supplied SpriteVisualPart[] with IntroCinematicSpriteCompiler and inserts by the catalog pointer. Draw resolves the selected compiled composition; ContentIdentity hashes the actual selected composition. Dictionary entries are variable installed/override content, not fixed sampled outputs. The separate metadata catalog has its own review."
+    },
+    {
+      "id": "ending-text-resultpanel-compiled-content",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+      "member": "resultPanel",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load copies document.ResultPanel.Template raw cells, clears the produced-by region and applies document.ResultPanel.Text through Compile/Apply. BuildResultPanel returns a copy of this selected document output."
+    },
+    {
+      "id": "ending-text-copyrightpanel-compiled-content",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+      "member": "copyrightPanel",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load creates a blank tilemap and writes document.CopyrightYear/Company through Compile/Apply. BuildCopyrightPanel returns a copy of compiled caller text."
+    },
+    {
+      "id": "ending-text-japanesesubtitle-compiled-content",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+      "member": "japaneseSubtitle",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load copies each caller-supplied JapaneseSubtitle cell.Raw after exact-size validation; the span exposes that selected document payload."
+    },
+    {
+      "id": "ending-text-percentage-compiled-content",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+      "member": "percentage",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load concatenates compiled caller PercentageHeading and PercentageDetail characters. Each result holds the selected text glyph and computed row/column."
+    },
+    {
+      "id": "ending-text-finalmessage-compiled-content",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+      "member": "finalMessage",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load compiles caller FinalMessage text into one EndingTextCharacter per input character, using bounded region and glyph operations."
+    },
+    {
+      "id": "ending-font-loaded-planar-storage",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs",
+      "member": "transfer",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Load decodes the supplied indexed PNG and encodes its actual pixels with SnesPlanarTileEncoder. FromPlanarBytes copies supplied bytes for legacy verification. Transfer exposes the selected compiled image. This does not resolve the stock160-tile artwork or encoder algorithm review."
+    },
+    {
+      "id": "ending-palette-loaded-color-storage",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs",
+      "member": "EndingPalette.nativeBytes",
+      "state": "not-a-fixed-lookup",
+      "evidence": "EndingPalette.Load validates caller Colors[] RGB5 components then packs each into a new little-endian BGR555 output buffer. Color and LoadTo consume this selected document content. This disposition does not cover EndingPaletteCatalog.palettes, fixed ID selectors, source/size/file metadata, or any stock color values."
+    },
+    {
+      "id": "ending-object-loaded-fragment-storage",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs",
+      "member": "EndingObjectArtworkCatalog.fragments",
+      "state": "not-a-fixed-lookup",
+      "evidence": "Constructor validates the four caller-supplied RoomCharacterAtlas references and their transfer lengths then copies the list. Fragment(id) returns the selected supplied object; ContentIdentity hashes each actual transfer. Classification covers the content container, not native source/name/upload metadata, enum selection semantics, or stock fragment contents."
+    }
+  ],
+  "notAnException": "No performance, complexity, small-table, provenance or generic artistic exception is asserted. Stock OAM compositions, font pixels, text templates, palette colors and other original payloads still require independent conversion-or-impossible/nonsense dispositions. Compiled containers must not be used as a place to hide a generated fixed lookup cache.",
+  "remainingSelectors": "EndingPaletteCatalog constructor-order palette indexing and SourceAddress/ColorCount/FileName cases, EndingTextDefinitions glyph/region mappings, and Fragment(id) semantic selection remain separate review targets unless independently resolved elsewhere. The previous ending metadata/program conversions do not exempt their payloads.",
+  "validation": "Read-only source tracing and JSON parsing; no gameplay or exploratory tests. Regenerated the static source index solely to link these explicit member classifications. Index counts are not completion evidence.",
+  "scope": "13 content-container classifications across9 owners. No whole-owner completion is inferred. Implementation record is the commit adding this inventory section."
+}
 }

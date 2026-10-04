@@ -19,20 +19,7 @@ internal static partial class Program
         var guard = new ReserveTankAssetReadGuard(bus);
         VerifyPauseReserveAnchors(bus);
         int comparisons = 0;
-        foreach (var frame in PauseReserveTankDefinitions.Frames())
-        for (int index = 0; index < 6; index++)
-        foreach (int occupied in new[] { 0, 127, 128 })
-        {
-            var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-            for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(12, 34, 56); actual.AddRawSmallSprite(12, 34, 56); }
-            ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
-            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + frame.Id * 2);
-            DrawImportedSpritemap(bus, expected, pointer, x, y, 0x600);
-            catalog.PauseReserveTanks.Draw(actual, frame.Id, index);
-            expected.FinalizeFrame(); actual.FinalizeFrame();
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "reserve composition matches native OAM including capacity cutoff");
-        }
+        VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks);
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
             var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };

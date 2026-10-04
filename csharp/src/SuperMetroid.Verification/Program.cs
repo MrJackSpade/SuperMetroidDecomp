@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pause-reserve-frames"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve frame oracle revision");
+    VerifyPauseReserveFrameCases(rom);
+    Console.WriteLine("Reserve frames: all native role identities and OAM, independent edits, required membership and invalid inputs pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-reserve-anchors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

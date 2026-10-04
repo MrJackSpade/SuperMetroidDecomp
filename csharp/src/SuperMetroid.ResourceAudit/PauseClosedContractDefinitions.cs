@@ -35,9 +35,9 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "965C7A5234E0AD1256900579421573E9DEE3AB921C1EF90D561AD984786E2188")],
             "Private construction requires all sixteen named category/item anchors and nonempty positive-timing phases. Anchor coordinates use bounded category geometry with independently captured author edits. Every phase is validated against installed Reserve/Beam/Equipment compositions before publication; each group stores its first composition and only authored phase differences. Nonnegative phases normalize modulo the installed count. Unknown category/item tuples and negative phases fail; controller/navigation behavior is not certified."),
         new("SuperMetroid.Core.Assets.PauseReserveTankPresentation", "pause-reserve-complete-anchors-and-sprites", ["Anchor", "Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "6B407165E87C773F07F4306987CE47C50C70E0AA6A27D8DE145A8CC4236C6469"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "9E26E10E5940CC53D1F4A284EC153439ECAC3D94931D53A4410CA082C960591A"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs", "D03042610709C578B3BFEFD69E5389833D0B2986D355805ABBE7CE6E46AE7B52"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseReserveTankRomData.cs", "6081A77E52F44FCF02F2A93F7BFAF662EA405F501BF4081A3B2CD37F542E8D06")],
-            "Private construction validates six bounded anchor inputs, calculates stock strip geometry and captures independent coordinate edits. It requires every one of ten sparse named reserve compositions. Draw selects only installed identities with explicitly checked anchor indices. Supply/fill selection and tank animation are not certified."),
+            "Private construction validates six bounded anchor inputs, calculates stock strip geometry and captures independent coordinate edits. It requires every one of ten named reserve compositions and stores named fields. Draw selects explicit visual-role cases with explicitly checked anchor indices. Supply/fill selection and tank animation are not certified."),
     ];
 }

@@ -7,18 +7,7 @@ internal static partial class Program
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         VerifyEndingLogoDefinitions(bus);
-        for (int pointer = EndingLogoInstructionDefinitions.Start;
-             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
-                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
-            "logo instruction reader rejects the following definition table");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
-            "logo instruction reader rejects an unaligned address");
+        VerifyEndingLogoPrograms(bus);
         var guarded = new EndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
@@ -63,6 +52,40 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "ending logo never rereads compiled actor definitions");
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
+    }
+
+    private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
+    {
+        for (int pointer = EndingLogoInstructionDefinitions.Start;
+             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
+                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
+                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
+            "logo instruction reader rejects the following definition table");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(
+                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
+            "logo instruction reader rejects an unaligned address");
+        foreach (ushort start in new ushort[] { 0xee5d, 0xee65, 0xee6d, 0xee87 })
+        {
+            var native = new IntroDiscoverySprite(0, 0, 0, start);
+            var generated = new IntroDiscoverySprite(0, 0, 0, start);
+            for (int frame = 0; frame < 200; frame++)
+            {
+                ushort nativeCallback = 0, generatedCallback = 0;
+                native.Step(bus, (opcode, cursor) => { nativeCallback = opcode; return cursor; },
+                    pointer => (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                generated.Step(bus, (opcode, cursor) => { generatedCallback = opcode; return cursor; },
+                    EndingLogoInstructionDefinitions.ReadWord);
+                AssertEqual(native.InstructionPointer, generated.InstructionPointer, "logo program cursor");
+                AssertEqual(native.SpriteMapPointer, generated.SpriteMapPointer, "logo program frame");
+                AssertEqual(nativeCallback, generatedCallback, "logo callback timing");
+            }
+        }
+        foreach (ushort invalid in new ushort[] { 0, 0xee5c, 0xee9b, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
     }
 
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)

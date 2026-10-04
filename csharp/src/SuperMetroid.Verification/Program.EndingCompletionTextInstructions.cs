@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -67,7 +68,10 @@ internal static partial class Program
             AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
         }
         for (int i = 0; i < expectedKeys.Length; i++)
+        {
             AssertEqual(expectedKeys[i], catalog[i].Name, "completion published artwork key");
+            VerifyEndingCompletionTextParts(bus, i, catalog[i]);
+        }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(expectedKeys), "completion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 56, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "completion catalog bounds");
@@ -99,5 +103,44 @@ internal static partial class Program
                     $"completion actor ${start:X4} lifetime at frame {frame}");
             }
         }
+    }
+
+    private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, EndingCompletionTextSpriteFrameDefinition definition)
+    {
+        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, definition.Pointer, definition.StockPartCount, definition.Name);
+        SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+        var parts = new EndingCompletionTextParts(frame);
+        SpriteComposition calculated = supplied.CalculateIfMatching(parts);
+        AssertTrue(!ReferenceEquals(supplied, calculated), "original completion text uses calculated layout");
+        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("completion-text", value.AppendIdentity);
+        AssertEqual(Identity(supplied), Identity(calculated), "all original completion text fields and order");
+        foreach (ushort y in new ushort[] { 72, 0xfff8 })
+        {
+            var originalOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
+            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "completion text preserves native OAM and clipping");
+        }
+        SpriteVisualPart first = visual[0];
+        foreach (SpriteVisualPart edit in new[]
+        {
+            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+            first with { TileColumn = (first.TileColumn + 1) % 16 }, first with { TileRow = first.TileRow + 1 },
+            first with { Size = 16, TileColumn = Math.Min(14, first.TileColumn) },
+            first with { Priority = 2 }, first with { Palette = 3 },
+            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+        })
+        {
+            visual[0] = edit;
+            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited completion text");
+            AssertTrue(ReferenceEquals(edited, edited.CalculateIfMatching(parts)), "independent completion artwork edits stay supplied");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, parts.Count, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[invalid], "completion part bounds");
     }
 }

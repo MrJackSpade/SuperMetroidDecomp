@@ -9495,4 +9495,17 @@
     "proof": "Extend existing VerifyEndingCloudDefinitions and --lookup-ending-cloud-definitions. Original list operands identify every map, the original extractor reads all128 parts, and comparison requires calculation selection plus identical complete visual identity. Native/generated low/high OAM matches at positive/negative Y origins. Independently alter all nine supplied fields for each role and preserve supplied composition. Role/part bounds, existing24 program words and six120-call actor streams pass. Build0 errors/1429 existing warnings. No new parallel oracle or exploratory gameplay.",
     "remaining": "Cloud composition fields converted without retention. Cloud source pixels and other asset families remain independent review obligations. Unresolved glow-pixel construction remains recorded in endingExplosionGlowPixelInvestigation; this conversion does not exempt it. Implementation commit is the commit adding this record."
   }
+,
+  "endingCompletionTextLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingCompletionTextParts.cs",
+    "mappings": [
+      { "id": "ending-completion-message-prefix-layouts", "state": "converted" },
+      { "id": "ending-completion-digit-colon-layouts", "state": "converted" }
+    ],
+    "source": "Original8C:A69D..B6F2 contains56 compositions and814 parts: prefixes of THE OPERATION WAS, COMPLETED SUCCESSFULLY and CLEAR TIME, ten digits and a colon. Original8B instruction operands independently identify their order and map addresses. Each nonspace letter uses two vertically stacked font tiles; each prefix draws newest letters first.",
+    "algorithm": "Select the message by its semantic frame range, count revealed nonspace letters, and traverse them backwards while preserving spaces in horizontal layout. Columns advance8 pixels from X=-72/-88/-64; second message bottom Y=24, other messages Y=0. Bottom halves precede top halves8 pixels above. Reuse reviewed EndingTextDefinitions.CompileGlyph with OBJ tile base100. Digits use X=-4; colon uses tile15A twice with vertical flip on the bottom. All parts use small-object flag, priority3 and inherited actor palette.",
+    "implementation": "Immutable bounded view stores only frame identity and computes every part on access. Loader substitutes it only when all supplied compiled fields and order match. Edited artwork remains supplied. No generated part cache, schema change or runtime cartridge reads.",
+    "proof": "Extend existing VerifyEndingCompletionTextInstructions under --lookup-ending-completion-programs with all56 original compositions read through the existing extractor. Require calculated-view selection and identical complete visual identity; compare native/generated low/high OAM at positive and negative origins. Independent edits to nine visual fields preserve supplied parts, and invalid part indices throw. Existing164 original program words and fourteen480-call actor streams pass. Build0 errors/1429 existing warnings. No exploratory gameplay or duplicate source oracle.",
+    "scope": "All814 completion-text composition parts converted. Font pixel drawings remain separately reviewable; no retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
+  }
 }

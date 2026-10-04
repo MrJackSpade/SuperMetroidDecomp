@@ -49,14 +49,16 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
             throw new InvalidDataException(
                 $"Ending completion text requires exactly {definitions.Count} named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (EndingCompletionTextSpriteFrameDefinition definition in definitions)
+        for (int index = 0; index < definitions.Count; index++)
         {
+            EndingCompletionTextSpriteFrameDefinition definition = definitions[index];
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Ending completion text frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroCinematicSpriteCompiler.Compile(visual, definition.Name)
+                    .CalculateIfMatching(new EndingCompletionTextParts(index)));
         }
         return new EndingCompletionTextSpritePresentation(frames);
     }

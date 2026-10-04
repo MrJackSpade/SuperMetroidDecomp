@@ -2977,6 +2977,11 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.DownwardGateProjectileInstructionProgramDefinitions.cs",
       "purpose": "Confirm converted program and replace stale visual ROM read assertions with exact compiled selector evidence"
     }
+    ,{
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresSteamCollisionDefinitions.cs",
+      "purpose": "Adapt explicit component span to calculated view and confirm native component collision contract"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

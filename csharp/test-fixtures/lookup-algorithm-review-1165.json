@@ -10518,4 +10518,15 @@
     "confirmation": "Verification build1436warnings,zeroerrors; focused command passes. Source index refreshed.",
     "remaining": "209 of1128 snapshot definitions converted;919 pending. Reserve labels and arrow color payloads remain required. No new retention disposition."
   }
+,
+  "gunshipTransferIntegration": {
+    "id": "gunship-takeoff-transfer-layout",
+    "state": "converted",
+    "implementationCommit": "64531d9ba",
+    "scope": "GunshipLiftoffTransferDefinitions.Entries",
+    "algorithm": "Five consecutive 1024-byte graphics chunks calculate source addresses, VRAM word destinations and typed asset identities from a validated frame index. No records are cached.",
+    "evidence": "Native A2:AC07 and A2:AC11 provide the five source/destination pairs. Integrated --lookup-stream2-gunship-transfers passes all ten native fields, five actual queued uploads, enumeration, bounds and final engine-start handoff.",
+    "confirmation": "Verification build completed with 1436 warnings and zero errors; focused command passed. Source index refreshed.",
+    "remaining": "210 of 1128 snapshot definitions converted; 918 pending. No retention exception."
+  }
 }

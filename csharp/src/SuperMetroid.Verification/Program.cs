@@ -174,6 +174,15 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ceres-flight-metadata"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight metadata oracle revision");
+    VerifyCeresFlightActorMetadata(rom);
+    Console.WriteLine("Ceres flight metadata: native spawn identities, initializer branches, motion operands, star aliases and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ceres-zebes-metadata"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

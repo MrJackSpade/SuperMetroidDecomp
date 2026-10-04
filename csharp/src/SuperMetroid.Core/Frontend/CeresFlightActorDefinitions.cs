@@ -58,116 +58,69 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta: 0,
         WrapX: false);
 
-    /// <summary>
-    /// Returns the five actors spawned in native order by <c>$8B:BE3B-$8B:BE5C</c>.
-    /// Their instruction lists use the separate compiled Ceres-flight catalog;
-    /// visual spritemaps remain cartridge-backed until their art is installed.
-    /// </summary>
-    /// <remarks>
-    /// Issues #625 and #1005: row zero selects the large-asteroid list at
-    /// $8B:CE4B..CE52, reused by the Ceres destruction scene. All four
-    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration $000A,
-    /// bank-$8C spritemap $94F7, goto opcode $94BC, target $CE4B. The exact
-    /// bounded rule is to display that same authored asteroid spritemap for
-    /// ten handler calls, then repeat indefinitely while the owning scene
-    /// keeps the actor alive. IntroDiscoverySprite.Step follows the goto;
-    /// it never falls into the adjacent delete list at $CE53. The frame art
-    /// is installed separately, while this constant-period loop is compiled.
-    ///
-    /// Issues #625 and #1006: native spawn order at $8B:BE3B..BE5C
-    /// selects the five initial X words at $8B:BF23/$BF4D/$BF77/$BFB4/
-    /// $BEA3. They match pinned NTSC J/U v1.0 ROM and bank_8B.asm:
-    /// $0050, $0074, $0080, $00E0, $FFE0 for index 0..4. The fourth and
-    /// fifth initializers take their nonzero-parameter branches. The last
-    /// word is signed -32, stored as wrapped 16-bit X. These unrelated
-    /// asteroid, station, vortex and star placements do not share a useful
-    /// exact stride or geometry rule; retain the five authored positions.
-    /// RearViewActor rejects indices outside this bounded native spawn set.
-    ///
-    /// Issues #625 and #1007: the five independent Y immediates at
-    /// $8B:BF29/$BF53/$BF7D/$BFBA/$BEA9 match pinned NTSC J/U v1.0 ROM
-    /// and bank_8B.asm: $009F, $00A0, $0060, $0057, $0057 in that same
-    /// native spawn order. The first three actor types occupy distinct
-    /// station/debris heights, while vortex and rear stars share $0057.
-    /// These are unsigned scene placements, without an exact useful
-    /// progression across all five actor types. Retain the bounded Y choices
-    /// rather than fit arithmetic to unrelated visual roles.
-    ///
-    /// Issues #625 and #1008: the five initializer attribute words at
-    /// $8B:BF2F/$BF59/$BF83/$BFC0/$BEAF match pinned NTSC J/U v1.0 ROM
-    /// and bank_8B.asm: $0800, $0C00, $0800, $0800, $0800. For bounded
-    /// actor index i=0..4, the exact selector is $0800 OR ($0400 when
-    /// i=1, otherwise zero). Index one is the station-under-attack actor;
-    /// its palette bits differ from the asteroid, vortex and star actors.
-    /// IntroDiscoverySprite.Draw applies the selected attributes to OAM.
-    /// The rule covers only the five native spawn rows, without assigning
-    /// meaning to an invalid index or altering their authored palette.
-    ///
-    /// Issues #625 and #1009: pinned NTSC J/U v1.0 ROM and bank_8B.asm
-    /// give fractional X increments $4000, $1000, $0800 at
-    /// $8B:BF3A/$BF64/$BF8E for rows 0..2. Each native pre-instruction
-    /// then masks whole X with $01FF at $BF46/$BF70/$BF9A. Rows 3 and 4
-    /// share callback $BFC6: its immediate at $BFCB subtracts $2000 from
-    /// the fractional word with borrow into whole X, without that mask.
-    /// Thus bounded row deltas in signed 16.16 are +$4000, +$1000,
-    /// +$0800, -$2000, -$2000. The positive rates vary by actor and do
-    /// not follow a useful common step; retain these authored motion choices
-    /// and their native wrap policy instead of fitting an index formula.
-    ///
-    /// Issues #625 and #1010: all fifteen definition words at
-    /// $8B:CF39/CE85/CE8B/CE91/CF0F match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. Their (initializer, definition pre-instruction, list)
-    /// triples in spawn order are (BF22,BF35,CE4B), (BF4C,BF5F,CC47),
-    /// (BF76,BF89,CC4F), (BFA0,BFC6,CC57), (BE7E,BEB5,CDA3).
-    /// Definition addresses for rows 1..3 step by six bytes, but their
-    /// callback/list identities do not derive from that stride; rows 0
-    /// and 4 live elsewhere. Row 4 aliases the front-star definition;
-    /// initializer parameter one replaces its active BEB5 callback with
-    /// BFC6. Retain these five bounded actor identities and that override.
-    ///
-    /// Issues #625 and #1011: row one's list at $8B:CC47..CC4E has four
-    /// words $000A, $9150, $94BC, $CC47 in pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. Its exact bounded rule is to show bank-$8C under-attack
-    /// spritemap $9150 for ten handler calls, then repeat from $CC47 while
-    /// the scene owns the actor. IntroDiscoverySprite.Step follows the
-    /// goto, so it cannot run into the adjacent small-asteroid list $CC4F.
-    /// Keep the authored frame in the installed visual catalog rather than
-    /// mixing it with this constant-period mechanics list.
-    ///
-    /// Issues #625 and #1012: row two's list at $8B:CC4F..CC56 has four
-    /// words $000A, $90FE, $94BC, $CC4F in pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. It displays the authored bank-$8C small-asteroid
-    /// spritemap $90FE for ten handler calls and jumps back to $CC4F.
-    /// IntroDiscoverySprite.Step confines the cursor to that loop in both
-    /// Ceres scenes; $CC57 is the neighboring vortex list. The exact period
-    /// remains compiled mechanics, while the visual spritemap is installed.
-    ///
-    /// Issues #625 and #1013: row three's six-word list at $8B:CC57..CC62
-    /// matches pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration one /
-    /// bank-$8C spritemap $8FE7, duration one / spritemap $93D1, then
-    /// goto $94BC targeting $CC57. For handler call number n beginning
-    /// with the first visible call at zero, the exact frame choice is
-    /// $8FE7 when n is even and $93D1 when n is odd. The destruction scene
-    /// changes this actor's initialization parameter, not its frame list.
-    /// IntroDiscoverySprite.Step keeps the cursor inside the loop, before
-    /// adjacent $CC63. The instruction reader now generates this two-frame loop
-    /// through named frame cases; artwork remains a separate review subject.
-    /// </remarks>
+    /// <summary>Selects the five named actors spawned by $8B:BE3B..BE5C.</summary>
+    /// <remarks>#1165 independently verifies each native spawn identity, definition triple,
+    /// initializer branch and motion callback. This is actor-type dispatch: large debris,
+    /// station, small debris, vortex and rear stars select their own native behavior and
+    /// placement. The selected initializer parameters are not samples of a numerical curve.
+    /// Named cases replace the earlier blanket retention claims; no output table or cache
+    /// is retained. Inputs outside 0..4 still throw. The instruction programs have separate
+    /// existing original-byte proofs shared across both Ceres scenes.</remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {
-        0 => new(0xcf39, 0xbf22, 0xbf35, 0xbf35, 0xce4b,
-            0x0050, 0x009f, 0x0800, 0, 0x0000_4000, true),
-        1 => new(0xce85, 0xbf4c, 0xbf5f, 0xbf5f, 0xcc47,
-            0x0074, 0x00a0, 0x0c00, 0, 0x0000_1000, true),
-        2 => new(0xce8b, 0xbf76, 0xbf89, 0xbf89, 0xcc4f,
-            0x0080, 0x0060, 0x0800, 0, 0x0000_0800, true),
-        3 => new(0xce91, 0xbfa0, 0xbfc6, 0xbfc6, 0xcc57,
-            0x00e0, 0x0057, 0x0800, 0, unchecked((int)0xffff_e000), false),
-        // Parameter one makes the CF0F initializer replace BEB5 with the vortex callback.
-        4 => new(0xcf0f, 0xbe7e, 0xbeb5, 0xbfc6, 0xcda3,
-            0xffe0, 0x0057, 0x0800, 0, unchecked((int)0xffff_e000), false),
+        0 => LargeAsteroids,
+        1 => StationUnderAttack,
+        2 => SmallAsteroids,
+        3 => MovingVortex,
+        4 => RearStars,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+
+    /// <summary>$8B:CF39, CinematicSpriteObjectDefs_CeresExplosionLargeAsteroids.
+    /// BF22 initializes (80,159), palette0800; BF35 adds 1/4 pixel and masks X to nine bits;
+    /// CE4B selects the large-asteroid loop. The destruction scene substitutes CE7F/CC3F.</summary>
+    private static CeresFlightActorDefinition LargeAsteroids =>
+        new(0xcf39, 0xbf22, 0xbf35, 0xbf35, 0xce4b,
+            80, 159, 0x0800, 0, 0x4000, true);
+
+    /// <summary>$8B:CE85, CinematicSpriteObjectDefinitions_CeresUnderAttack.
+    /// BF4C initializes (116,160), palette0C00; BF5F adds 1/16 pixel with nine-bit X wrap;
+    /// CC47 selects the station-under-attack loop.</summary>
+    private static CeresFlightActorDefinition StationUnderAttack =>
+        new(0xce85, 0xbf4c, 0xbf5f, 0xbf5f, 0xcc47,
+            116, 160, 0x0c00, 0, 0x1000, true);
+
+    /// <summary>$8B:CE8B, CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
+    /// BF76 initializes (128,96), palette0800; BF89 adds 1/32 pixel with nine-bit X wrap;
+    /// CC4F selects the small-asteroid loop. Both Ceres scenes share this identity.</summary>
+    private static CeresFlightActorDefinition SmallAsteroids =>
+        new(0xce8b, 0xbf76, 0xbf89, 0xbf89, 0xcc4f,
+            128, 96, 0x0800, 0, 0x0800, true);
+
+    /// <summary>$8B:CE91, CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
+    /// BFA0 takes the nonzero branch to (224,87), palette0800, preserving BFC6 movement;
+    /// CC57 alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
+    private static CeresFlightActorDefinition MovingVortex =>
+        new(0xce91, 0xbfa0, VortexMotionCallback, VortexMotionCallback, 0xcc57,
+            224, 87, 0x0800, 0, VortexHorizontalDelta, false);
+
+    /// <summary>$8B:CF0F, CinematicSpriteObjectDefinitions_CeresStars, parameter1.
+    /// BE7E takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
+    /// BE9C replaces BEB5 with BFC6. The definition and CDA3 program alias FrontStars.</summary>
+    private static CeresFlightActorDefinition RearStars => FrontStars with
+    {
+        ActivePreInstruction = VortexMotionCallback,
+        X = unchecked((ushort)-32),
+        InitialTimer = 0,
+        HorizontalDelta = VortexHorizontalDelta,
+    };
+
+    /// <summary>$8B:BFC6, PreInstruction_CinematicSpriteObject_CeresPurpleSpaceVortex;
+    /// also installed by the rear-star initializer at BE9C.</summary>
+    private const ushort VortexMotionCallback = 0xbfc6;
+    /// <summary>$8B:BFCB, subtraction immediate2000: signed16.16 movement of -1/8 pixel,
+    /// with borrow into the whole X word and no nine-bit mask.</summary>
+    private const int VortexHorizontalDelta = -0x2000;
 }
 
 /// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>

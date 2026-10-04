@@ -19,32 +19,61 @@ internal static class CeresFlightSpriteInstructionDefinitions
     /// <summary>$8B:CE53, exclusive end before the shared deletion opcode.</summary>
     internal const ushort LargeAsteroidEnd = 0xce53;
 
-    private static ReadOnlySpan<byte> RearCluster =>
-    [
-        0x0a, 0x00, 0x50, 0x91, 0xbc, 0x94, 0x47, 0xcc,
-        0x0a, 0x00, 0xfe, 0x90, 0xbc, 0x94, 0x4f, 0xcc,
-        0x01, 0x00, 0xe7, 0x8f, 0x01, 0x00, 0xd1, 0x93,
-        0xbc, 0x94, 0x57, 0xcc,
-    ];
+    /// <summary>$8B:CC4F, small-asteroid loop following the under-attack loop.</summary>
+    private const ushort SmallAsteroidStart = 0xcc4f;
+    /// <summary>$8B:CC57, two-frame purple-vortex loop.</summary>
+    private const ushort VortexStart = 0xcc57;
+    /// <summary>$8C:9150, Ceres under-attack spritemap.</summary>
+    private const ushort UnderAttackFrame = 0x9150;
+    /// <summary>$8C:90FE, Ceres small-asteroid spritemap.</summary>
+    private const ushort SmallAsteroidFrame = 0x90fe;
+    /// <summary>$8C:8FE7, Ceres purple vortex first frame.</summary>
+    private const ushort VortexFrame1 = 0x8fe7;
+    /// <summary>$8C:93D1, Ceres purple vortex second frame.</summary>
+    private const ushort VortexFrame2 = 0x93d1;
+    /// <summary>$8C:9478, shared front/rear Ceres star field.</summary>
+    private const ushort StarsFrame = 0x9478;
+    /// <summary>$8C:94F7, Ceres explosion large asteroids.</summary>
+    private const ushort LargeAsteroidFrame = 0x94f7;
 
-    private static ReadOnlySpan<byte> Stars =>
-    [
-        0x0a, 0x00, 0x78, 0x94, 0xbc, 0x94, 0xa3, 0xcd,
-    ];
+    private static byte LoopByte(int offset, ushort start, ushort frame)
+    {
+        ushort word = (offset / 2) switch
+        {
+            0 => 10,
+            1 => frame,
+            2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => start,
+            _ => throw new InvalidDataException("Ceres flight loop cursor is invalid."),
+        };
+        return (byte)(word >> (8 * (offset & 1)));
+    }
 
-    private static ReadOnlySpan<byte> LargeAsteroid =>
-    [
-        0x0a, 0x00, 0xf7, 0x94, 0xbc, 0x94, 0x4b, 0xce,
-    ];
-
+    private static byte VortexByte(int offset)
+    {
+        ushort word = (offset / 2) switch
+        {
+            0 or 2 => 1,
+            1 => VortexFrame1,
+            3 => VortexFrame2,
+            4 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            5 => VortexStart,
+            _ => throw new InvalidDataException("Ceres vortex cursor is invalid."),
+        };
+        return (byte)(word >> (8 * (offset & 1)));
+    }
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= RearClusterStart and < RearClusterEnd)
-            return RearCluster[pointer - RearClusterStart];
+            return pointer < SmallAsteroidStart
+                ? LoopByte(pointer - RearClusterStart, RearClusterStart, UnderAttackFrame)
+                : pointer < VortexStart
+                    ? LoopByte(pointer - SmallAsteroidStart, SmallAsteroidStart, SmallAsteroidFrame)
+                    : VortexByte(pointer - VortexStart);
         if (pointer is >= StarsStart and < StarsEnd)
-            return Stars[pointer - StarsStart];
+            return LoopByte(pointer - StarsStart, StarsStart, StarsFrame);
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
-            return LargeAsteroid[pointer - LargeAsteroidStart];
+            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, LargeAsteroidFrame);
         throw new InvalidDataException(
             $"Ceres flight instruction $8B:{pointer:X4} leaves its compiled lists.");
     }

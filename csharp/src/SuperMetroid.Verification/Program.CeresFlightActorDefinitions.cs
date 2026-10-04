@@ -62,12 +62,6 @@ internal static partial class Program
                 CeresFlightActorDefinitions.RearViewActorCount),
             "Ceres rear-view actor definition boundary");
 
-        VerifyProgram(CeresFlightSpriteInstructionDefinitions.RearClusterStart,
-            CeresFlightSpriteInstructionDefinitions.RearClusterEnd);
-        VerifyProgram(CeresFlightSpriteInstructionDefinitions.StarsStart,
-            CeresFlightSpriteInstructionDefinitions.StarsEnd);
-        VerifyProgram(CeresFlightSpriteInstructionDefinitions.LargeAsteroidStart,
-            CeresFlightSpriteInstructionDefinitions.LargeAsteroidEnd);
         AssertThrows<InvalidDataException>(() =>
             CeresFlightSpriteInstructionDefinitions.ReadWord(
                 CeresFlightSpriteInstructionDefinitions.RearClusterEnd - 1),
@@ -77,9 +71,7 @@ internal static partial class Program
                 CeresFlightSpriteInstructionDefinitions.StarsEnd),
             "Ceres flight instruction reader cannot enter the adjacent explosion list");
 
-        VerifyList(front, "front stars");
-        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
-            VerifyList(CeresFlightActorDefinitions.RearViewActor(index), $"rear actor {index}");
+        VerifyCeresFlightPrograms(retail);
 
         var guard = new CeresFlightActorDefinitionReadGuard(retail);
         var state = new IntroCeresFlightState(guard);
@@ -91,34 +83,6 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Ceres flight actors: 43 metadata words and 44 instruction bytes match ROM; all six lists and the complete production approach pass with source reads forbidden.");
-
-        void VerifyProgram(ushort start, ushort end)
-        {
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(CeresFlightActorDefinitions.NativeBank | pointer),
-                    CeresFlightSpriteInstructionDefinitions.ReadByte((ushort)pointer),
-                    $"Ceres flight instruction byte $8B:{pointer:X4}");
-        }
-
-        void VerifyList(CeresFlightActorDefinition definition, string name)
-        {
-            var native = new IntroDiscoverySprite(definition.X, definition.Y,
-                definition.Attributes, definition.InstructionList);
-            var compiled = new IntroDiscoverySprite(definition.X, definition.Y,
-                definition.Attributes, definition.InstructionList);
-            for (int frame = 0; frame < 80; frame++)
-            {
-                native.Step(retail);
-                compiled.Step(retail, instructionWord:
-                    CeresFlightSpriteInstructionDefinitions.ReadWord);
-                AssertEqual(native.InstructionPointer, compiled.InstructionPointer,
-                    $"{name} instruction cursor at frame {frame}");
-                AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer,
-                    $"{name} visual frame at frame {frame}");
-                AssertEqual(native.IsActive, compiled.IsActive,
-                    $"{name} lifetime at frame {frame}");
-            }
-        }
 
         static void VerifyActor(
             SuperMetroidAddressSpace source,

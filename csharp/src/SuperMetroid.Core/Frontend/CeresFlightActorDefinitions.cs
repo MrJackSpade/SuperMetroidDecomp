@@ -145,7 +145,8 @@ internal static class CeresFlightActorDefinitions
     /// $8FE7 when n is even and $93D1 when n is odd. The destruction scene
     /// changes this actor's initialization parameter, not its frame list.
     /// IntroDiscoverySprite.Step keeps the cursor inside the loop, before
-    /// adjacent $CC63. Retain the two authored visual spritemaps.
+    /// adjacent $CC63. The instruction reader now generates this two-frame loop
+    /// through named frame cases; artwork remains a separate review subject.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

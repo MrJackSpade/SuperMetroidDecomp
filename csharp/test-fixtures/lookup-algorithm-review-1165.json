@@ -7502,4 +7502,15 @@
     "disposition": "Withdraw old #1023/#1024/#1025 retention claims for these instruction programs. All locally owned Ceres destruction programs are now generated; the delegated approach/rear-cluster byte programs and visual artwork remain separate required review subjects. The outstanding spawner-schedule and irregular placement entries are not resolved by this change.",
     "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-ceres-backdrop-programs passes all seven proofs. Maintained-source index refreshed."
   }
+,
+  "ceresFlightProgramReview": {
+    "status": "converted all five shared approach/rear-view sprite programs",
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+    "programs": ["8B:CC47..CC4E under attack", "8B:CC4F..CC56 small asteroids", "8B:CC57..CC62 purple vortex", "8B:CDA3..CDAA front/rear stars", "8B:CE4B..CE52 large asteroids"],
+    "nativeEvidence": "Pinned bank8B defines four duration10/frame/Goto-self loops and one duration1/frame1,duration1/frame2,Goto-self vortex loop. Pinned bank8C names the frame identities at9150/90FE/8FE7/93D1/9478/94F7. The front and rear stars use one native program, and destruction actors reuse the rear cluster; these are aliases, not additional independent tables.",
+    "implementation": "Remove44 copied bytes from RearCluster, Stars and LargeAsteroid. Generate loop instruction fields using named visual identities, duration, native Goto and each program's own start. Generate the vortex's alternating frame instructions explicitly. Each frame/address constant has native identity XML. No generated output cache or runtime ROM read; artwork remains a separate review subject.",
+    "admission": "Preserve existing accepted regions and word boundaries exactly. In particular, unaligned words atCC4E andCC56 may span adjacent programs inside the rear cluster; only the cluster's final byte rejects a cross-region word. The destruction reader continues delegating that same byte view and admits those same internal aliases.",
+    "proof": "One shared independent original-ROM proof per five logical programs; front/rear stars and destruction delegates reuse the proof. --lookup-ceres-flight-programs pins the supported ROM SHA, compares all44 bytes and every admitted aligned/unaligned word, checks cross-list aliases and rejected region boundaries/unowned inputs, and compares actual original-ROM versus generated-reader interpreter cursor/frame/lifetime for32 calls. Both static and alternating loops must remain active. Remove duplicate numeric and interpreter helpers from the flight/destruction aggregates; they delegate these focused proofs. Unrelated full-scene aggregates are not run.",
+    "confirmation": "Verification build0 errors/1429 existing warnings; final incremental build0 errors/25 warnings. --lookup-ceres-flight-programs passes all five program proofs and admission checks. Maintained-source index refreshed. No retention exception assigned. Ceres actor metadata, spawner schedule, irregular placements and remaining inventory retain their separate review obligations."
+  }
 }

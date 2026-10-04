@@ -9,6 +9,36 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void ExportEndingExplosionArtworkEvidence(CartridgeImportAddressSpace rom)
+    {
+        string directory = Path.GetFullPath("csharp/test-temp/1165-ending-explosion-art");
+        Directory.CreateDirectory(directory);
+        byte[] native = RomDataReader.Decompress(rom, 0x988304, EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] tiles = SnesGraphics.DecodePlanarTiles(native.AsSpan(0, 0x4000), 4, 16, out int width, out _);
+        Rgba32[] palette = Enumerable.Range(0, 16).Select(index => new Rgba32((byte)(index * 17), (byte)(index * 17), (byte)(index * 17))).ToArray();
+        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-tile-indexes.png"), width, tiles.Length / width, tiles, palette, 3);
+        foreach (var source in new[] { (0xa472, "glow"), (0xa4b0, "supernova-one"), (0xa516, "supernova-two"), (0xa28b, "starfield"), (0xa57c, "silhouette"), (0xa5e2, "afterglow") })
+        {
+            int address = 0x8c0000 | source.Item1;
+            int count = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;
+            var pixels = new byte[256 * 256];
+            foreach (SpriteVisualPart part in IntroCinematicSpriteFrameExtractor.Extract(rom, (ushort)source.Item1, count, source.Item2))
+            for (int y = 0; y < part.Size; y++)
+            for (int x = 0; x < part.Size; x++)
+            {
+                int sx = part.FlipX ? part.Size - 1 - x : x, sy = part.FlipY ? part.Size - 1 - y : y;
+                int tile = part.TileRow * 16 + part.TileColumn + sy / 8 * 16 + sx / 8;
+                byte color = tiles[(tile / 16 * 8 + sy % 8) * width + tile % 16 * 8 + sx % 8];
+                int dx = 128 + part.OffsetX + x, dy = 128 + part.OffsetY + y;
+                if (color != 0 && (uint)dx < 256 && (uint)dy < 256 && pixels[dy * 256 + dx] == 0)
+                    pixels[dy * 256 + dx] = color;
+            }
+            PngWriter.WriteIndexedAsRgba(Path.Combine(directory, source.Item2 + ".png"), 256, 256, pixels, palette, 2);
+            Console.WriteLine($"{source.Item2}: {count} original parts, {pixels.Count(pixel => pixel != 0)} visible pixels");
+        }
+        Console.WriteLine(directory);
+    }
+
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
         VerifyEndingExplosionCalculatedParts(bus);
@@ -45,10 +75,10 @@ internal static partial class Program
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
-            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, supplied));
-        for (int pose = 0; pose < 13; pose++)
+            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, supplied)));
+        for (int pose = 0; pose < 14; pose++)
         {
-            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : (ushort)0xa516;
+            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : (ushort)0xa28b;
             int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
@@ -82,7 +112,7 @@ internal static partial class Program
                     "calculated grid preserves native OAM and clipping");
             }
             SpriteVisualPart first = visual[0];
-            if (pose >= 10)
+            if (pose is >= 10 and <= 12)
             {
                 SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
                     visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
@@ -101,15 +131,15 @@ internal static partial class Program
             {
                 visual[0] = edited;
                 SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(ReferenceEquals(supplied, Calculate(pointer, supplied)),
+                AssertTrue(pose == 13 ? Identity(supplied) == Identity(Calculate(pointer, supplied)) : ReferenceEquals(supplied, Calculate(pointer, supplied)),
                     "independent edited field keeps supplied composition");
             }
             visual[0] = first;
             (visual[0], visual[1]) = (visual[1], visual[0]);
             SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
+            AssertTrue(pose == 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
-            AssertTrue(ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
+            AssertTrue(pose == 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
         }
     }
 

@@ -59,6 +59,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
             composition = EndingRewardHeadParts.CalculateIfMatching(definition.Pointer, composition);
             composition = EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, composition);
             composition = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, composition);
+            composition = EndingRewardJumpParts.CalculateIfMatching(definition.Pointer, composition);
             frames.Add(definition.Pointer, composition);
         }
         return new EndingRewardSpritePresentation(frames);

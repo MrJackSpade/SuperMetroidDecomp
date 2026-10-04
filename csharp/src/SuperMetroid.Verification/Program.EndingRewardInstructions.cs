@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            if (i is >= 17 and <= 20 or >= 29 and <= 32 or >= 34)
+            if (i is >= 17 and <= 20 or >= 29)
                 VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
@@ -109,12 +109,13 @@ internal static partial class Program
         {
             value = EndingRewardHeadParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, value);
-            return EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardJumpParts.CalculateIfMatching(definition.Pointer, value);
         }
         SpriteComposition calculated = Calculate(supplied);
-        AssertTrue(!ReferenceEquals(supplied, calculated), "original reward head uses calculated layout");
+        AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
-        AssertEqual(Identity(supplied), Identity(calculated), "original reward head fields and ordering");
+        AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();
@@ -125,7 +126,7 @@ internal static partial class Program
             else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
             AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
-                "reward head preserves native OAM and clipping");
+                "reward composition preserves native OAM and clipping");
         }
         SpriteVisualPart first = visual[0];
         foreach (SpriteVisualPart edit in new[]
@@ -138,10 +139,10 @@ internal static partial class Program
         })
         {
             visual[0] = edit;
-            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited reward head");
-            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent reward head edits stay supplied");
+            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited reward composition");
+            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent reward composition edits stay supplied");
         }
         foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward head part bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward composition part bounds");
     }
 }

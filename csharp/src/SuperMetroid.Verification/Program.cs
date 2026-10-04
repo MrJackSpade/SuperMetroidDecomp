@@ -174,6 +174,15 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-reward-programs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending reward oracle revision");
+    VerifyEndingRewardInstructions(rom);
+    Console.WriteLine("Ending reward programs: all160 native words,17 actor streams, callback timing, head record layout and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-explosion-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

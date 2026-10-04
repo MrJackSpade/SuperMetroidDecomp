@@ -23,6 +23,10 @@ internal static partial class Program
                 unchecked((ushort)(EndingRewardInstructionDefinitions.Start + 1))),
             "ending reward reader rejects unaligned instructions");
 
+        for (int stage = 0; stage < 4; stage++)
+            AssertEqual((ushort)2, (ushort)(bus.ReadByte(0x8c9c7c + 12 * stage) | bus.ReadByte(0x8c9c7d + 12 * stage) << 8),
+                $"helmetless head stage {stage} has a two-part OAM record");
+
         ushort[] starts =
         [
             0xed1d, 0xed25, 0xed2d, 0xed59, 0xed7f, 0xed95, 0xed9d,
@@ -37,9 +41,14 @@ internal static partial class Program
             {
                 // Scene callbacks own actor allocation and velocity; the
                 // independent list interpreters advance across each callback.
-                native.Step(bus, (_, cursor) => cursor);
-                installed.Step(bus, (_, cursor) => cursor,
+                var nativeCallbacks = new List<ushort>();
+                var generatedCallbacks = new List<ushort>();
+                native.Step(bus, (opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                    (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                installed.Step(bus, (opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
                     EndingRewardInstructionDefinitions.ReadWord);
+                AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
+                    $"reward actor ${start:X4} callback order/timing at frame {frame}");
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,
                     $"reward actor ${start:X4} cursor at frame {frame}");
                 AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,

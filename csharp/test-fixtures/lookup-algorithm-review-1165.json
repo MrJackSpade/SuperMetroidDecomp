@@ -8637,4 +8637,118 @@
   "proof": "Extract the existing word/stream portion of VerifyEndingExplosionActorArtwork into VerifyEndingExplosionPrograms; aggregate delegates. SHA-pinned --lookup-ending-explosion-programs compares all65 original words, bounds and eight actor streams for500 calls each using independent native ROM and generated readers. Compare cursor, map, pre-instruction, timer, lifetime and callback order/timing on each call. Check all ten original OAM count headers for the22-byte stride. Focused confirmation of identified program conversions; no gameplay discovery or whole-ending validation.",
   "scope": "These eight programs only. The sprite-definition catalog, installed compositions, reward programs and remaining inventory have independent review obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingRewardProgramReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardInstructionDefinitions.cs",
+  "source": "Supported SHA-pinned ROM8B:ED1D..EE5C; pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank8B identifies the17 reward programs and scene operations. Named frame identities are bank8C EndingSequenceSpritemaps definitions. NTSC timings match the supported revision.",
+  "programs": [
+    {
+      "id": "ending-reward-suitless-idle-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED1D",
+      "algorithm": "128-frame standing pose and branch to own start."
+    },
+    {
+      "id": "ending-reward-suitless-legs-idle-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED25",
+      "algorithm": "128-frame lower-body pose and branch to own start."
+    },
+    {
+      "id": "ending-reward-hair-release-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED2D",
+      "algorithm": "Named standing/open-hair/ready display stages, spawn suitless jump, delete."
+    },
+    {
+      "id": "ending-reward-hair-release-legs-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED59",
+      "algorithm": "Share upper hair-release stage timing for nine stages while displaying lower body; delete before the upper ready pose."
+    },
+    {
+      "id": "ending-reward-suitless-jump-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED7F",
+      "algorithm": "Standing48, prepare10, launch, install body flight pre-instruction, jumping48 self-loop."
+    },
+    {
+      "id": "ending-reward-falling-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED95",
+      "algorithm": "Falling pose10 and branch to own start."
+    },
+    {
+      "id": "ending-reward-landing-program",
+      "state": "converted",
+      "nativeIdentity": "8B:ED9D",
+      "algorithm": "Landing10, landed16, shooting48, shot callback, shooting128, delete."
+    },
+    {
+      "id": "ending-reward-suited-idle-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EDB1",
+      "algorithm": "Suited standing10 self-loop."
+    },
+    {
+      "id": "ending-reward-helmet-idle-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EDB9",
+      "algorithm": "Helmeted head10 self-loop."
+    },
+    {
+      "id": "ending-reward-head-idle-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EDC1",
+      "algorithm": "Helmetless head10 self-loop."
+    },
+    {
+      "id": "ending-reward-gesture-body-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EDC9",
+      "algorithm": "Full body64, headless/armless body264, delete."
+    },
+    {
+      "id": "ending-reward-gesture-arm-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EDD3",
+      "algorithm": "Named wait, raising, thumb-up, turn, lowering and rest stages; spawn suited jump, delete."
+    },
+    {
+      "id": "ending-reward-gesture-helmet-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EE0F",
+      "algorithm": "Helmet display328 and delete."
+    },
+    {
+      "id": "ending-reward-gesture-head-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EE15",
+      "algorithm": "Four head-turn stages with durations128/5/5/190; addresses follow two-part12-byte OAM records; delete."
+    },
+    {
+      "id": "ending-reward-suited-jump-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EE27",
+      "algorithm": "Prepare head, prepare body10, launch head, launch body, install body flight pre-instruction, jumping5 self-loop."
+    },
+    {
+      "id": "ending-reward-helmet-jump-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EE3D",
+      "algorithm": "Preparing helmet10, install head-flight pre-instruction, jumping helmet5 self-loop."
+    },
+    {
+      "id": "ending-reward-head-jump-program",
+      "state": "converted",
+      "nativeIdentity": "8B:EE4D",
+      "algorithm": "Jumping head10, install head-flight pre-instruction, jumping head5 self-loop."
+    }
+  ],
+  "implementation": "Remove160-word320-byte Program span. Shared display/hold generators calculate word selection and branch targets. Named actor-list, visual-frame and animation-stage cases express the authored sequence; explicit jump/landing operations reuse existing callback catalogs. Upper/lower hair release shares timing. Head-turn addresses use original two-part OAM record layout. No numeric word-recitation switch, generated word array, cache or runtime ROM fallback.",
+  "consumer": "EndingCreditsState supplies ReadWord to idle actors, EndingRewardGesture and EndingRewardJump during gesture/jump/shot/white-flash phases. Those owners execute through IntroDiscoverySprite; velocity, allocation, rendering and editable compositions remain separate.",
+  "contract": "All160 aligned words beginning at oddED1D and ending beforeEE5D. Preserve InvalidDataException outside this range or at opposite alignment. Preserve upper/lower lifetime difference, helmet variants, launch callbacks, installed pre-instructions and internal flight loops.",
+  "proof": "Reuse VerifyEndingRewardInstructions as sole compound original-program proof. Early SHA-pinned --lookup-ending-reward-programs compares all160 original words, bounds, and17 native/generated actor streams for480 calls each. Explicit independent ROM reader replaces stale omitted reader in verification only. Cursor, visual frame, pre-instruction, lifetime and callback order/timing match on every call. Four native OAM headers independently establish the12-byte head-frame stride. Build0 errors/1429 existing warnings; focused proof passes.",
+  "scope": "Only these17 programs. Actor metadata, sprite catalog and individual artwork/motion mappings retain independent review obligations. These are control/animation cases, not a retention exception. Implementation commit is the commit adding this record."
+}
 }

@@ -8,24 +8,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
-    // `$8C:D629` writes one English character into BG1 every $10 frames. These are
-    // complete SNES tilemap words: bit $2000 selects BG1's high-priority plane and the
-    // low ten bits select the already-resident character from the cinematic OBJ set.
-    private static readonly (int Column, ushort Tile)[] SpaceColonyLetters =
-    [
-        (0x0a, 0x21ed), // S
-        (0x0b, 0x21ee), // P
-        (0x0c, 0x21ef), // A
-        (0x0d, 0x21f7), // C
-        (0x0e, 0x21f8), // E
-        (0x10, 0x21f7), // C
-        (0x11, 0x21f9), // O
-        (0x12, 0x21fa), // L
-        (0x13, 0x21f9), // O
-        (0x14, 0x21fb), // N
-        (0x15, 0x21b9), // Y
-    ];
-
     private readonly ISnesAddressSpace bus;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
@@ -346,7 +328,7 @@ internal sealed class IntroCeresFlightState
         if (--spaceColonyTimer > 0)
             return;
 
-        if (spaceColonyLetterIndex < SpaceColonyLetters.Length)
+        if (spaceColonyLetterIndex < SpaceColonyCaptionDefinitions.LetterCount)
         {
             WriteNextSpaceColonyLetter();
             spaceColonyTimer = 0x10;
@@ -368,7 +350,7 @@ internal sealed class IntroCeresFlightState
 
     private void WriteNextSpaceColonyLetter()
     {
-        (int column, ushort tile) = SpaceColonyLetters[spaceColonyLetterIndex++];
+        (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 0x18;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
         vram.ExecuteWordTransfer(spaceColonyTilemap,

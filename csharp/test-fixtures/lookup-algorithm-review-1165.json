@@ -10324,4 +10324,16 @@
     },
     "remaining": "This resolves the source/odd star placement and vortex anchor previously pending in ceresVortexPartLayoutReview and ceresReflectedStarLayoutReview. Their historical remaining fields are superseded only for this explicit scope. All source pixels and other inventory items remain required."
   }
+,
+  "spaceColonyCaptionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/SpaceColonyCaptionDefinitions.cs",
+    "id": "space-colony-caption-text-layout",
+    "state": "converted",
+    "nativeIdentity": "8C:D629..D66A eleven English drawing instructions; glyph operationsD7C1..D7F6",
+    "consumer": "IntroCeresFlightState.WriteNextSpaceColonyLetter and its eleven-letter completion boundary",
+    "algorithm": "Emit non-space characters of SPACE COLONY, advancing columns from10 and skipping the word-space column. Select glyph words by meaningful character cases, so repeated C/O use the same identity. Remove the eleven stored column/tile tuples. Preserve sixteen-tick cadence, row24, final hold and transfer behavior.",
+    "evidence": "Read complete pinned native instruction list and all nine glyph operations; columns are the text positions and each drawing is one cell with high-priority bit2000. This is text layout and glyph dispatch, not an arbitrary numeric case transcription.",
+    "proof": "VerifySpaceColonyCaption under --lookup-ceres-flight-programs independently follows all eleven original ROM instruction operands to their drawing records. Compare columns, tile words, original row/duration and one-cell dimensions; reject out-of-domain indices. No retention exception.",
+    "implementation": "The commit adding SpaceColonyCaptionDefinitions removes the production tuple table and migrates its sole shipped-game consumer. Glyph pixels remain separate inventory scope."
+  }
 }

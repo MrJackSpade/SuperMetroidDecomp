@@ -491,6 +491,7 @@ if (args is ["--lookup-ceres-flight-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight program oracle revision");
     VerifyCeresFlightPrograms(rom);
     VerifyCeresFlightFrameCatalog(rom);
+    VerifySpaceColonyCaption(rom);
     VerifyCeresStationParts(rom);
     VerifyCeresSmallAsteroidParts(rom);
     VerifyCeresVortexParts(rom);

@@ -162,7 +162,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs
 
-- [ ] **CrystalFlashColorCatalog.body** ([L14](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L14)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CrystalFlashColorCatalog.body** ([L14](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L14)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **CrystalFlashColorCatalog.bubble** ([L15](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L15)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.bubble. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs
@@ -715,3 +715,12 @@ Verification build passed (1431 existing warnings, zero errors). `--lookup-strea
 `YardDirectionDefinitions` now dispatches physical surface states directly to their named animation/callback operations, computes sign/axis property bits and adjacent opposite direction, and dispatches airborne facing. `YardTurnDefinitions` directly dispatches ordinary and suppressed callbacks by movement state; seven-pixel directional lookahead and zero suppressed lookahead retain every native field. Native mismatched callback identities are preserved, not corrected. Four dispatch tables removed; no remaining payload or retention exception in those two files.
 
 Eight named definitions in this batch are now complete. BGR555 color payloads and every other unchecked entry remain required. Earlier 'confirmation pending' notes above describe the pre-verification handoff; this result supersedes them.
+### Batch 2: Crystal Flash body color payload
+
+Resolved all 100 stock body colors in `CrystalFlashColorCatalog.body`. Original $91:DC00 records select ten body palettes from $9B:96C0 onward. Each has transparent RGB5(0,0,14), and all nine visible colors are equal greys. The opening frame is neutral16; subsequent greys follow the four-frame triangular pulse 19,23,27,23, ending at19. `CalculateBody` implements the pulse and channel packing. The loader compares every supplied field before discarding the stock rows; any independent edit retains the supplied palette. Runtime resolution and CGRAM application now calculate stock colors without a cached body table.
+
+Verification build passed (1432 warnings, zero errors). `--lookup-stream2-crystal-body` passed all 100 original RGB5 words, actual CGRAM writes, every independently edited body cell with preservation of all other cells, and bounds. All 36 original bubble colors were also confirmed unchanged. No gameplay search was run.
+
+The bubble payload remains unresolved, independently of completed body colors. Static source inspection shows a rotated six-step white-to-pink ramp for the first five frames; the final frame leading color is white instead of the expected rotated ramp value. This is evidence to investigate, not a retention justification. No bubble cells are marked complete or exempted here.
+
+Nine named definitions complete in stream2; 217 remain required.

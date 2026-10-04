@@ -11,12 +11,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
-    private readonly ushort[][] body;
+    private readonly ushort[][]? body;
     private readonly ushort[][] bubble;
 
     private CrystalFlashColorCatalog(ushort[][] body, ushort[][] bubble)
     {
-        this.body = body;
+        // Discard stock body rows only after checking every supplied color. Edited
+        // resources keep their complete, independent palette content.
+        bool calculated = true;
+        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
+        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+            calculated &= body[frame][color] == CalculateBody(frame, color);
+        this.body = calculated ? null : body;
         this.bubble = bubble;
     }
 
@@ -27,12 +33,37 @@ public sealed class CrystalFlashColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveBody(int frame, int color) => Resolve(body, frame, color);
+    public ushort ResolveBody(int frame, int color)
+    {
+        if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)color >= CrystalFlashColorFormat.BodyColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return body is null ? CalculateBody(frame, color) : body[frame][color];
+    }
+
+    /// <summary>
+    /// $9B:96C0-$9773 body colors, selected by ten $91:DC00 records: the first
+    /// frame is neutral grey16; subsequent frames pulse 19,23,27,23 twice and
+    /// return to19. All nine visible body colors share that intensity. The
+    /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
+    /// </summary>
+    private static ushort CalculateBody(int frame, int color)
+    {
+        if (color == 0)
+            return 14 << 10;
+        int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
+        return (ushort)(grey | grey << 5 | grey << 10);
+    }
     public ushort ResolveBubble(int frame, int color) => Resolve(bubble, frame, color);
 
-    public void ApplyBody(SnesCgram cgram, int frame) => Apply(cgram, body, frame,
-        SamusPaletteRomData.CrystalFlash.BodyCgramStart);
-
+    public void ApplyBody(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+            cgram.SetColor(SamusPaletteRomData.CrystalFlash.BodyCgramStart + color,
+                ResolveBody(frame, color));
+    }
     public void ApplyBubble(SnesCgram cgram, int frame) => Apply(cgram, bubble, frame,
         SamusPaletteRomData.CrystalFlash.BubbleCgramStart);
 

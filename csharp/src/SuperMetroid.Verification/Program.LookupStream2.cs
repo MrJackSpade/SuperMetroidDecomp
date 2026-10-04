@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -78,4 +80,54 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
-}
+    private static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
+    {
+        byte[] source = CrystalFlashColorExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<CrystalFlashColorDocument>(
+            source, MapPresentationFormat.JsonOptions)!;
+        var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
+        var storedBody = typeof(CrystalFlashColorCatalog).GetField("body",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        AssertTrue(storedBody.GetValue(stock) is null, "Original Crystal Flash body selects calculation without stored rows");
+        var cgram = new SnesCgram();
+        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
+        {
+            ushort pointer = ReadVerificationWord(rom, SamusPaletteRomData.CrystalFlash.BodyRecords + frame * 4);
+            stock.ApplyBody(cgram, frame);
+            for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+            {
+                ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
+                AssertEqual(expected, stock.ResolveBody(frame, color), "Original Crystal Flash body RGB5 word");
+                AssertEqual(expected, cgram.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + color], "Calculated body color reaches CGRAM");
+                var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
+                rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
+                var changedDocument = document with { Body = rows };
+                var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+                AssertTrue(storedBody.GetValue(changed) is not null, "Independent supplied body edit retains its rows");
+                for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
+                {
+                    changed.ApplyBody(cgram, verifyFrame);
+                    for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
+                    {
+                        var rgb = rows[verifyFrame][verifyColor];
+                        ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                        AssertEqual(word, changed.ResolveBody(verifyFrame, verifyColor), "All supplied body fields preserved");
+                        AssertEqual(word, cgram.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + verifyColor], "Supplied body color reaches CGRAM");
+                    }
+                }
+                // Restore stock CGRAM for the remaining checks in this original frame.
+                stock.ApplyBody(cgram, frame);
+            }
+        }
+        for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
+        for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
+        {
+            ushort pointer = ReadVerificationWord(rom, SamusPaletteRomData.CrystalFlash.BubblePointers + frame * 2);
+            AssertEqual(ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color), stock.ResolveBubble(frame, color), "Independent bubble payload preserved");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(-1, 0), "Calculated body lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(10, 0), "Calculated body upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
+        Console.WriteLine("Stream 2 Crystal Flash body: all100 native colors, CGRAM application and independent supplied edits pass; bubble36 colors unchanged.");
+    }}

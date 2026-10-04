@@ -135,6 +135,8 @@ public static class EndingPaletteDefinitions
     public const int Version = 1;
     public const string ManifestFileName = "ending-palettes-manifest.json";
 
+    /// <summary>Six named contiguous resources selected by native ending load operations.
+    /// Crossfade has two interleaved sources per step and deliberately has no single address.</summary>
     public static int SourceAddress(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape => EndingCreditsRomData.Assets.EscapePalette,
@@ -146,6 +148,9 @@ public static class EndingPaletteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
+    /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs
+    /// of 16-color crossfade palettes. Native credits transfers can select a subset.</summary>
     public static int ColorCount(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
@@ -156,6 +161,8 @@ public static class EndingPaletteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Published asset-file identities selected by semantic palette role.
+    /// Explicit cases preserve independently editable stock and override filenames.</summary>
     public static string FileName(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape => "ending-escape-palette.json",

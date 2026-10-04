@@ -9181,4 +9181,26 @@
   "proof": "VerifyEndingTextRegions independently locates native producer/year/company starts from tilemap blank runs; checks exact original labels and producer span. Reads the three original typewriter lines until row change or opcode, checks every packed position, complete line widths, text and styles. Early SHA-pinned --lookup-ending-text-regions covers all six named regions. It uses the independently completed glyph decoder to read labels; the glyph proof remains separate.",
   "scope": "Four region fields over six named roles. Text timing, other definition sets and stock pixel/tile contents remain independent obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingPaletteMetadataReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs",
+    "mappings": [
+      { "id": "ending-palette-native-source-role", "state": "converted" },
+      { "id": "ending-palette-resource-color-count", "state": "converted" },
+      { "id": "ending-palette-file-role", "state": "converted" }
+    ],
+    "source": "Supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72; pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Six indexed loads at8B:D4A5,F70C,DE8D,D97E,DE37,E57D independently identify resources. Bank8C allocation boundariesE7E9/E9E9/EBE9/EDE9/EFE9 establish four256-color documents. Reverse-copy LDX operandsDE34/E57A establish16-color resources. E5E7..E627 contains32 crossfade source pointers, each selecting16colors. Published managed filenames are a compatibility contract, not native data.",
+    "implementation": "Existing explicit semantic SourceAddress/ColorCount/FileName cases independently reviewed and preserved without churn. XML now distinguishes whole editable allocation sizes from partial native CGRAM transfers; credits setup copies only128 of its256-color allocation. Correct importer comment: crossfade destinations are BG and OBJ, not two OBJ palettes.",
+    "consumers": "EndingPaletteArtworkFiles extraction, stock/override loading and manifest identity; EndingPalette JSON shape validation and serialization. Runtime consumes caller-owned color resources. Crossfade deliberately rejects SourceAddress because it has two sources per step.",
+    "proof": "One compound VerifyEndingPaletteMetadata under SHA-pinned --lookup-ending-palette-metadata checks all six sources against original indexed-load operands/opcodes; all seven sizes against allocation or native copy metadata; all seven published filenames; invalid enum roles and crossfade single-address rejection. This does not duplicate prior palette-reference or crossfade-pointer proofs.",
+    "scope": "Three independently reviewed selector mappings; no new numerical conversion or retention exception. Stock colors and logo fade generation remain required. Implementation commit is the commit adding this record."
+  },
+  "endingLogoFadeColorInvestigation": {
+    "owner": "csharp/src/SuperMetroid.AssetExtraction/EndingPaletteArtworkFiles.cs",
+    "id": "ending-logo-stock-fade-color-progression",
+    "state": "unreviewed",
+    "source": "Full original sixteen16-color rows starting8C:EFE9 andF1E9; source labels denote the preceding palette last word, so actual rows start two bytes after those labels. Runtime receives BG rows in reverse order and sprite rows forward, as resolved in the separate pointer review.",
+    "finding": "Static analytical inspection finds all1536 RGB5 channel samples equal floor((initialChannel*(15-row)+1)/15), rows0..15. Equal initial component values share the same progression across colors and both families. Ordinary floor(initialChannel*(15-row)/15) differs when the numerator remainder is14, including31 atrow1,26 atrow11,17 atrow8 and13 atrow7. The shared +1 is a promising quantization lead, not yet an independently explained historical convention; do not implement it as an unexplained correction or claim arbitrary authored data.",
+    "remaining": "Explain and independently justify the quantization convention, then implement the exact progression while preserving independent player-authored palette overrides. Endpoint colors also need their own disposition. No retention exception and no completed-conversion claim. No gameplay or exploratory test was run."
+  }
 }

@@ -123,7 +123,7 @@ public static class EndingPaletteArtworkFiles
 
     /// <summary>
     /// $8B:E58A copies each logo fade palette backwards from its selected $8C pointer.
-    /// Flatten the native destination order as [step][OBJ palette][color], keeping the
+    /// Flatten the native destination order as [step][BG or OBJ palette][color], keeping the
     /// pointer table and copy direction in code while making every color replaceable.
     /// </summary>
     internal static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id,

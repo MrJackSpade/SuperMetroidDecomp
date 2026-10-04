@@ -9,6 +9,66 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
+    {
+        // Original indexed LDA operands select the six contiguous resources. The gunship
+        // uses absolute,X in bank8B; the others use long,X. No production source constants.
+        (EndingPaletteId Role, int Load, bool Long)[] loads =
+        [
+            (EndingPaletteId.Escape, 0x8bd4a5, true),
+            (EndingPaletteId.PostCredits, 0x8bf70c, true),
+            (EndingPaletteId.Credits, 0x8bde8d, true),
+            (EndingPaletteId.Explosion, 0x8bd97e, true),
+            (EndingPaletteId.FinalGunship, 0x8bde37, false),
+            (EndingPaletteId.LogoInitial, 0x8be57d, true),
+        ];
+        foreach (var load in loads)
+        {
+            AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadByte(load.Load), "native palette indexed load opcode");
+            int address = rom.ReadByte(load.Load + 1) | rom.ReadByte(load.Load + 2) << 8 |
+                (load.Long ? rom.ReadByte(load.Load + 3) << 16 : load.Load & 0xff0000);
+            AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
+        }
+        // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
+        foreach (var allocation in new[]
+        {
+            (EndingPaletteId.PostCredits, 0x8ce7e9, 0x8ce9e9),
+            (EndingPaletteId.Credits, 0x8ce9e9, 0x8cebe9),
+            (EndingPaletteId.Explosion, 0x8cebe9, 0x8cede9),
+            (EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
+        })
+            AssertEqual((allocation.Item3 - allocation.Item2) / 2,
+                EndingPaletteDefinitions.ColorCount(allocation.Item1), "complete palette allocation size");
+        foreach (var single in new[] { (EndingPaletteId.FinalGunship, 0x8bde34), (EndingPaletteId.LogoInitial, 0x8be57a) })
+        {
+            AssertEqual(0xa2, (int)rom.ReadByte(single.Item2), "native reverse palette LDX opcode");
+            int lastOffset = rom.ReadByte(single.Item2 + 1) | rom.ReadByte(single.Item2 + 2) << 8;
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.Item1), "single palette reverse-copy size");
+        }
+        AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
+            EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
+        (EndingPaletteId Role, string Name)[] published =
+        [
+            (EndingPaletteId.Escape, "ending-escape-palette.json"),
+            (EndingPaletteId.PostCredits, "ending-post-credits-palette.json"),
+            (EndingPaletteId.Credits, "ending-credits-palette.json"),
+            (EndingPaletteId.Explosion, "ending-explosion-palette.json"),
+            (EndingPaletteId.FinalGunship, "ending-final-gunship-palette.json"),
+            (EndingPaletteId.LogoInitial, "ending-logo-initial-palette.json"),
+            (EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
+        ];
+        foreach (var file in published)
+            AssertEqual(file.Name, EndingPaletteDefinitions.FileName(file.Role), "published palette filename compatibility");
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress(EndingPaletteId.LogoCrossfade),
+            "crossfade has no contiguous source");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress((EndingPaletteId)invalid), "invalid palette source role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.FileName((EndingPaletteId)invalid), "invalid palette file role");
+        }
+    }
+
     private static void VerifyEndingPaletteRoleSelection()
     {
         // Distinct caller-owned values exercise the original constructor-position contract.

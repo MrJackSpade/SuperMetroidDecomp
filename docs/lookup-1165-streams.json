@@ -2982,6 +2982,11 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.CeresSteamCollisionDefinitions.cs",
       "purpose": "Adapt explicit component span to calculated view and confirm native component collision contract"
     }
+    ,{
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DraygonProjectileInstructionProgramDefinitions.cs",
+      "purpose": "Replace obsolete presentation ROM read count with exact native selector evidence while retaining mechanics and behavior assertions"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -10560,4 +10560,15 @@
     "confirmation": "Integrated --lookup-stream-3 passed all native pulse words, 96 independent channel edits, original content identity, calculated-path assertion and frame/color bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
     "remaining": "Color origins, shared minimum and separate fixed palettes still require disposition. No checklist entry closed or retention exception accepted. Snapshot remains 218 converted, 910 pending."
   }
+,
+  "motherBrainCorpseGeometryIntegration": {
+    "id": "mother-brain-corpse-seven-definitions",
+    "state": "converted",
+    "implementationCommit": "a5356ea7f",
+    "scope": "Corpse row offsets, column offsets, outline minimum Y, initial graphics copies, rotting transfers and full-page source/destination mappings; two sequence aliases removed.",
+    "algorithm": "Seven 32-byte columns define row strides, six source pages select right-frame artwork, visible-column geometry determines each transfer, and semantic outline gates preserve native missing-column branches.",
+    "evidence": "Native A9:E262 row offsets, A9:E1F4 six rotting records, A9:9003 six page records and A9:EA40/EB0B outline gates. Every transfer remains ordered and calculated without a generated record cache.",
+    "confirmation": "Integrated --lookup-stream-3 passed native fields, enumeration, bounds, all 48 actual pixel-copy/move rows, independent staging oracle, room/sequence staging, six cartridge-free VRAM uploads and edited PNG/reload behavior. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Source index refreshed.",
+    "remaining": "225 of 1128 snapshot definitions converted; 903 pending. No retention exception."
+  }
 }

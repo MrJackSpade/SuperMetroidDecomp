@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  910,
+    "remainingTableDefinitionCount":  903,
     "fileCount":  523,
     "entries":  [
                     {
@@ -1243,14 +1243,18 @@
                         "line":  20,
                         "name":  "MotherBrainCorpseArtworkDefinitions.VramPageSources",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs",
                         "line":  24,
                         "name":  "MotherBrainCorpseArtworkDefinitions.VramPageDestinations",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
@@ -4459,35 +4463,45 @@
                         "line":  36,
                         "name":  "MotherBrainCorpseRottingState.TileRowOffsets",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
                         "line":  41,
                         "name":  "MotherBrainCorpseRottingState.ColumnOffsets",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
                         "line":  47,
                         "name":  "MotherBrainCorpseRottingState.ColumnMinimumY",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
                         "line":  52,
                         "name":  "MotherBrainCorpseRottingState.InitialGraphicsCopies",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
                         "line":  64,
                         "name":  "MotherBrainCorpseRottingState.VramTransfers",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a5356ea7f"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs",
@@ -20746,5 +20760,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  218
+    "convertedSinceSnapshot":  225
 }

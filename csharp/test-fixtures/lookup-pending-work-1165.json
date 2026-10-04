@@ -1,6 +1,6 @@
 {
   "issue": 1165,
-  "status": "Ceres explosion residuals, Ceres shaft timers, SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
+  "status": "Ceres explosion residuals, Ceres shaft timers, SPC pan gain, FIR presets and Tourian outline corner pending; Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
@@ -35,15 +35,15 @@
       "id": "large-font-t-w-n-shadow-differences",
       "owner": "csharp/src/SuperMetroid.Core/Assets/MenuLargeFontArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile11 pixel(3,6), tile2F pixel(4,7), tile37 pixel(1,6)",
-      "status": "pending",
-      "task": "Explain and convert the T shadow addition and W/N removals or establish a concrete permitted retention rationale. Seven former M/Q/X shading additions are now geometric corner/notch joins. The earlier blanket artistic-retouch justification is withdrawn."
+      "status": "retained drawing",
+      "resolution": "Fresh menuFontDrawingChoiceReview records matching native ink regions with different shading: N/M lower contours, W's four repeated ink rows and translated large/small T terminals. Retain these particular drawn choices under the nonsense exception; coordinate cases would only recite them. Seven earlier M/Q/X joins remain calculated. No blanket font or shading exemption."
     },
     {
       "id": "small-font-b-k-shadow-removals",
       "owner": "csharp/src/SuperMetroid.Core/Assets/MenuSmallFontArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile6B pixel(1,7), tile74 pixels(6,2)/(5,3)",
-      "status": "pending",
-      "task": "Explain and convert the three removed shadow pixels or establish a concrete permitted retention rationale. Six other former retouches are now calculated by geometric corner/notch joins. The earlier blanket artistic-retouch justification is withdrawn; these three source differences remain captured only to preserve exact output during review."
+      "status": "retained drawing",
+      "resolution": "Fresh menuFontDrawingChoiceReview records B/D identical lower ink contours and K/Z matching diagonal neighborhoods with different native shading. Retain the particular B bevel and two K arm trims under the nonsense exception; glyph/coordinate cases would recite the drawing. Six earlier geometric joins remain calculated."
     },
     {
       "id": "tourian-left-t-cap-outline",

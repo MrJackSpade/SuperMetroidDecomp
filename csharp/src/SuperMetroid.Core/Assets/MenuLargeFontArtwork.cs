@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// by82:CBFB. Join touching upper/left ink corners and continue an incoming diagonal
 /// shadow into a left/right/lower-ink notch with both upper diagonals open. These rules
 /// calculate seven former M/Q/X shading additions without glyph-specific corrections.
-/// The chosen letter silhouettes remain font artwork. Three T/W/N shadow differences
-/// remain unresolved required review, with no artistic-retention disposition.</summary>
+/// The chosen letter silhouettes and three particular T/W/N shading choices remain art:
+/// T extends its shadow left of its stem; W interrupts a shadow between identical ink
+/// rows; N trims its bottom shadow where M's identical lower contour does not. These
+/// unequal treatments of matching ink are drawing content, not a uniform lighting rule.
+/// Replacing their coordinates with cases would merely recite the artwork.</summary>
 internal sealed class MenuLargeFontArtwork
 {
     internal const int TileCount = 43;

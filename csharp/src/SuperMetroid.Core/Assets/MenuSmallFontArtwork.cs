@@ -6,9 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// Join touching upper/left ink corners with13. Continue an existing upper-left diagonal
 /// shadow into a notch bounded by left/right/lower ink with both upper diagonals open;
 /// a bare notch or a vertical-sided gap is not filled.
-/// These rules calculate all six extra0/M/Q/V shading pixels. Three removed B/K shadow
-/// pixels remain unresolved required review, with no artistic-retention disposition.
-/// Only the chosen letter silhouettes are font artwork; supplied differences remain editable.
+/// These rules calculate all six extra0/M/Q/V shading pixels. Preserve three particular
+/// B/K drawing choices: B bevels its lower-left shadow where D's identical lower ink
+/// contour does not; K trims its descending arm where Z keeps shadows on matching local
+/// ink. A glyph/coordinate switch for these choices would only recite the artwork.
+/// The chosen silhouettes and these particular trims are art; supplied differences remain editable.
 /// </summary>
 internal sealed class MenuSmallFontArtwork
 {

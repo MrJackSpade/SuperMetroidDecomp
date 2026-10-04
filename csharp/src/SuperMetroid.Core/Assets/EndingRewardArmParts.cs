@@ -5,7 +5,9 @@ using Pose = SuperMetroid.Core.Assets.EndingRewardSpriteFrame;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Reward arms calculate a shared shoulder and stock tile selection.
-/// Pose-specific positions remain independent inputs pending their own review.</summary>
+/// Independent positions place hand-drawn pieces in authored thumbs-up poses;
+/// the fixed-origin pose consumer supplies no joint parameters to derive them.
+/// Shoulder geometry and the split-pose grid are calculated separately.</summary>
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
     private readonly record struct Piece(int X, int Y);

@@ -125,6 +125,16 @@ internal static partial class Program
         if (definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2)
             && definition.Pointer <= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4))
         {
+            var opposite = EndingRewardHairParts.OppositeForearm((visual[2].OffsetX, visual[2].OffsetY));
+            AssertEqual(visual[3].OffsetX, opposite.X, "original hair forearm reflection X");
+            AssertEqual(visual[3].OffsetY, opposite.Y, "original hair forearm registration Y");
+            SpriteVisualPart[] paired = (SpriteVisualPart[])visual.Clone();
+            paired[2] = paired[2] with { OffsetX = paired[2].OffsetX - 2, OffsetY = paired[2].OffsetY + 3 };
+            paired[3] = paired[3] with { OffsetX = paired[3].OffsetX + 2, OffsetY = paired[3].OffsetY + 3 };
+            SpriteComposition pairedSource = IntroCinematicSpriteCompiler.Compile(paired, "moved paired forearms");
+            SpriteComposition pairedResult = Calculate(pairedSource);
+            AssertTrue(!ReferenceEquals(pairedSource, pairedResult), "paired forearms remain calculated after anchor edit");
+            AssertEqual(Identity(pairedSource), Identity(pairedResult), "paired forearm edit remains exact");
             for (int piece = 2; piece <= 3; piece++)
             {
                 SpriteVisualPart[] moved = (SpriteVisualPart[])visual.Clone();

@@ -4,25 +4,32 @@ using Pose = SuperMetroid.Core.Assets.EndingRewardSpriteFrame;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Hair-release compositions use packed atlas regions. Six independent
-/// placements in poses2..4 remain supplied pending their own disposition.</summary>
+/// <summary>Hair-release compositions use packed atlas regions and paired forearms.
+/// Three authored anchors place the hands beside the hair in held drawings;
+/// opposite-side geometry is calculated separately from those pose choices.</summary>
 internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
 {
     private readonly int stage;
     private readonly (int X, int Y)[]? moving;
+    private readonly (int X, int Y) forearmAnchor;
     private EndingRewardHairParts(int stage, SpriteComposition supplied)
     {
         this.stage = stage;
         if (stage is >= 1 and <= 3)
         {
-            moving = new (int, int)[2];
+            var positions = new (int X, int Y)[2];
             for (int index = 0; index < 2; index++)
             {
                 CompiledSpritePart part = supplied.Part(index + 2);
-                moving[index] = (part.X.SignedOffset, unchecked((sbyte)part.Y));
+                positions[index] = (part.X.SignedOffset, unchecked((sbyte)part.Y));
             }
+            forearmAnchor = positions[0];
+            moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
         }
     }
+    internal static (int X, int Y) OppositeForearm((int X, int Y) anchor)
+        // Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.
+        => (1 - 16 - anchor.X, anchor.Y - 1);
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 8; stage++)
@@ -65,7 +72,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 case >= 1 and <= 3:
                     if (index < 2) tile = index == (stage == 2 ? 0 : 1)
                         ? EndingRewardHairAtlas.TiedHeadRightEdge : EndingRewardHairAtlas.TiedHead;
-                    else if (index < 4) tile = 0x1b6 + 2 * (index - 2); // independently placed pair
+                    else if (index < 4) tile = 0x1b6 + 2 * (index - 2); // paired forearms
                     else if (index == 4) tile = EndingRewardHairAtlas.TiedHeadTopRight;
                     else if (index < 7) tile = 0x100 + 2 * (index - 5); // upper-body pair
                     else tile = 0x123 - (index - 7); // lower edge, right to left
@@ -127,7 +134,9 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                     break;
             }
             int x = originX + 8 * (tile & 15), y = originY + 8 * (tile / 16);
-            if (moving is not null && index is 2 or 3) (x, y) = moving[index - 2];
+            if (stage is >= 1 and <= 3 && index is 2 or 3)
+                (x, y) = moving is not null ? moving[index - 2]
+                    : index == 2 ? forearmAnchor : OppositeForearm(forearmAnchor);
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }

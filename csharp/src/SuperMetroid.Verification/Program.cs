@@ -174,12 +174,12 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
-if (args is ["--lookup-ending-reward-arm-art"])
+if (args is ["--lookup-ending-reward-arm-art"] or ["--lookup-ending-reward-hair-art"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reward arm artwork oracle revision");
-    ExportEndingRewardArmArtwork(rom);
+    ExportEndingRewardGestureArtwork(rom, args[0] == "--lookup-ending-reward-hair-art");
     return 0;
 }
 if (args is ["--lookup-ending-explosion-art"])

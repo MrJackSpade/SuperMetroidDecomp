@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4DraygonColors(rom);
         VerifyLookupStream4KzanCeresPrograms(rom);
         VerifyLookupStream4GeometryLayout(rom);
         VerifyLookupStream4PowerBombColors(rom);
@@ -414,5 +415,60 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(invalid), "Ceres presentation index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
+    }
+    private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
+    {
+        byte[] original = DraygonColorExtractor.Extract(rom);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var stock = DraygonColorCatalog.Load(new MemoryStream(original));
+        int Stored(string field) => ((System.Collections.IDictionary)typeof(DraygonColorCatalog)
+            .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
+        AssertEqual(0, Stored("whiteFlash"), "Draygon stock flash is calculated without stored colors");
+        AssertEqual(8, Stored("healthBands"), "Draygon health stores only unresolved endpoint colors");
+        for (int variation = -1; variation < 4; variation++)
+        {
+            var document = JsonSerializer.Deserialize<DraygonColorDocument>(original, options)!;
+            var edited = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
+            if (variation == 0) document.WhiteFlash[0] = edited;
+            if (variation == 1) document.WhiteFlash[9] = edited;
+            if (variation == 2) document.HealthBands[3][2] = edited;
+            if (variation == 3) document.HealthBands[0][1] = edited;
+            var catalog = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            string identity = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+            {
+                content.AppendWords("intro", document.Intro.Select(Native).ToArray());
+                content.AppendWords("background", document.Background.Select(Native).ToArray());
+                content.AppendWords("sprite", document.Sprite.Select(Native).ToArray());
+                content.AppendWords("whiteFlash", document.WhiteFlash.Select(Native).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Native).ToArray()).ToArray());
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "Draygon calculated palette preserves selected content identity");
+            for (int color = 0; color < 16; color++)
+                AssertEqual(Native(document.WhiteFlash[color]), catalog.ResolveWhiteFlash(color), "Draygon native/edited flash remains independent");
+            for (int band = 0; band < 8; band++)
+            {
+                var cgram = new SnesCgram();
+                catalog.ApplyHealthBand(cgram, (ushort)(2 * band));
+                for (int color = 0; color < 4; color++)
+                {
+                    ushort expected = Native(document.HealthBands[band][color]);
+                    AssertEqual(expected, catalog.ResolveHealthBand(band, color), "Draygon native/edited health color remains independent");
+                    AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
+                }
+            }
+            var flashCgram = new SnesCgram();
+            catalog.ApplyHurt(flashCgram, true, ushort.MaxValue);
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[80 + color], "Draygon flash background transfer");
+                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[240 + color], "Draygon flash sprite transfer");
+            }
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
+        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
 }

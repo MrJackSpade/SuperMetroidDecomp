@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--captured-ground-shot-audit", var groundState, var groundInstallation, var groundOutput])
+        return CapturedGroundShotAudit.Run(groundState, groundInstallation, groundOutput);
     if (args is ["--pause-suit-appearance-audit", var suitInstallation])
         return PauseSuitAppearanceAudit.Run(suitInstallation);
     if (args is ["--fireflea-contact-death-audit", var firefleaInstallation])

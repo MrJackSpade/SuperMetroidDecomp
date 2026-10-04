@@ -82,7 +82,7 @@ public sealed partial class SamusProjectileSystem
             int index = byteOffset >> 1;
             if (index < level.WidthInBlocks * level.HeightInBlocks)
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms, out bool endSpan);
+                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms, out bool endSpan, horizontalMovement: false);
                 if (endSpan) return;
             }
             byteOffset = unchecked((ushort)(byteOffset + 2));

@@ -33,6 +33,13 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
             return current.Where(field => field.Name != "shootingStars").ToArray();
         }
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 111 && current.Length == 114)
+        {
+            Console.Error.WriteLine("WARNING: Older runtime predates inventory/Tourian tester policy; restoring disabled options and no inventory recipient.");
+            return current.Where(field => field.Name is not "testerInventoryRecipient"
+                and not "<GrantAllEquipmentEnabled>k__BackingField"
+                and not "<UnlockTourianEnabled>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "_roomSpikes"))
         {
@@ -506,6 +513,12 @@ internal static class DebuggerStateFieldMigrations
                 and not "<PreventEscapeTimeout>k__BackingField"
                 and not "<RoomTreadmills>k__BackingField" &&
                 (count == 106 || field.Name != "<CeresHaze>k__BackingField")).ToArray();
+        }
+        if (type == typeof(SuperMetroidGameOptions) && count is 9 or 11 && current.Length == 13)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger options predate full-inventory and Tourian tester settings; leaving both disabled.");
+            return SelectSerializedFields(type, current.Where(field => field.Name is not
+                "<GrantAllEquipment>k__BackingField" and not "<UnlockTourian>k__BackingField").ToArray(), count);
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGameOptions) && count == 9 && current.Length == 11)
         {

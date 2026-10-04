@@ -48,13 +48,15 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Ending clouds require exactly six named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (EndingCloudSpriteFrameDefinition definition in definitions)
+        for (int index = 0; index < definitions.Count; index++)
         {
+            EndingCloudSpriteFrameDefinition definition = definitions[index];
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Ending cloud sprite {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroCinematicSpriteCompiler.Compile(visual, definition.Name)
+                    .CalculateIfMatching(new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)index)));
         }
         return new EndingCloudSpritePresentation(frames);
     }
@@ -87,7 +89,7 @@ public static class EndingCloudSpriteDefinitions
     private const int FrameCount = 6;
     // Native storage order is distinct from the actor/list order.
     private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
-    private enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
+    internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
 
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
 

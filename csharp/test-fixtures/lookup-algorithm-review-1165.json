@@ -10199,7 +10199,7 @@
   "ceresLargeBlastPartLayoutReview": {
     "owner": "csharp/src/SuperMetroid.Core/Assets/CeresLargeBlastParts.cs",
     "id": "ceres-four-large-blast-layouts-and-atlas-selection",
-    "state": "unreviewed",
+    "state": "retained",
     "geometry": {
       "id": "ceres-large-blast-rising-single-sprite-geometry",
       "state": "converted",
@@ -10210,9 +10210,11 @@
     },
     "atlas": {
       "id": "ceres-four-large-blast-atlas-choices",
-      "state": "unreviewed",
-      "scope": "Original tile selections76,78,98,9E remain supplied. Review the shared source atlas9A:D200 and their functional/artwork relationship. No retention exception is accepted and the geometry conversion does not resolve this mapping."
+      "state": "retained",
+      "scope": "Only the four tile selections76,78,98,9E in this animation; no blanket source-pixel or atlas disposition.",
+      "evidence": "Static exporter --lookup-ceres-large-blast-art checks the supported ROM SHA, reads the original raw shared OBJ bytes9A:D200, decodes the atlas and independently assembles all four native records. Both atlas and four-frame output were inspected. The sequence changes a compact irregular cloud into an open cloud, broken rim and dispersed specks. The top/side contours, central opening and individual fragments change independently. Native8B:CD1B..CD38 displays each chosen drawing for five ticks, then eight ticks blank, repeating seven times before deletion. It has no radius, erosion threshold, rotation angle or physical cloud state controlling selection.",
+      "rationale": "These are chosen drawing identities in a specific authored breakup animation. Atlas packing places the first pair together and the later drawings among other effects; those addresses do not represent samples of the already derived rising position. The evolving irregular contours and markings are content of different drawings, not translations/reflections of a shared patch. Interpolating tile addresses or inventing ordinal cases that repeat them would simply encode the same drawing sequence. Retain this narrow authored-animation selection under the nonsense exception. This decision rests on the complete consumer and original visual content, not table size, performance, complexity or a failed curve search."
     },
-    "remaining": "Atlas selection and source pixels remain required, along with other inventory entries. Geometry implementation commit is the commit adding this record."
+    "remaining": "Geometry is calculated and the four drawing selections have the narrow authored-animation disposition above. Source pixels and other inventory entries remain required. Geometry commit is4fa5675d; disposition commit is the commit adding Program.CeresLargeBlastArtwork.cs."
   }
 }

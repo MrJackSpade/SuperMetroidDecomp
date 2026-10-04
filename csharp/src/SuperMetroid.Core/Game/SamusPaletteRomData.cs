@@ -753,10 +753,11 @@ public static class SamusPaletteRomData
         /// match all 96 bytes in the pinned NTSC J/U v1.0 ROM and native
         /// listing. For yellow-phase index <c>i = 0..13</c>, red and green
         /// are <c>min(14+i,26)</c> and blue is <c>max(10-i,0)</c>.
-        /// The white-phase indices 14..31 contain a 26,26,27,27,28,27,26
-        /// grayscale crest followed by authored unequal-channel shades and
-        /// plateaus; keep those live presentation bytes rather than encoding
-        /// the irregular tail as another lookup disguised as arithmetic.
+        /// White-crest indices 14..18 use equal channels 26+(i-14)/2;
+        /// indices 19..20 use 46-i. The installed color catalog calculates
+        /// both phases on demand and preserves independent supplied edits.
+        /// Indices 21..31 still require their own conversion or concrete
+        /// impossible/nonsense evidence; they have no retention disposition.
         /// Ordinary Power Bomb and Crystal Flash explosion callers derive
         /// <c>i = (radius &gt;&gt; 11) &amp; $1F</c> from a 16-bit radius and
         /// read the three components in order. The next word at

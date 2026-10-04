@@ -103,6 +103,7 @@ if (args is ["--lookup-stream-4"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 4 oracle revision");
     VerifyLookupStream4(rom);
+    VerifyPowerBombFixedColors();
     VerifyRidleyAttackChoices(rom);
     VerifyRidleyMovementTargets(rom);
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");

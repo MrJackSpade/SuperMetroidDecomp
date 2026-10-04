@@ -362,7 +362,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs
 
-- [ ] **PowerBombFixedColorCatalog.preExplosion** ([L17](../csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs#L17)) - installed stock table. Original/default payload behind PowerBombFixedColorCatalog.preExplosion. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PowerBombFixedColorCatalog.preExplosion** ([L17](../csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs#L17)) - installed stock table. Original/default payload behind PowerBombFixedColorCatalog.preExplosion. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **PowerBombFixedColorCatalog.explosion** ([L18](../csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs#L18)) - installed stock table. Original/default payload behind PowerBombFixedColorCatalog.explosion. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs
@@ -757,3 +757,12 @@ Six definitions converted; 32 complete and 193 unchecked. No retained exception.
 - Eye Door sweat mechanics and presentation locations derive from the six-frame falling loop and impact sequence (clear movement, three six-frame drawings, delete) at `$86:B615..B62C`.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed all changed native words, enumeration order/count, exact presentation/mechanics byte ownership, unaligned-read rejection and index bounds. Existing unrelated presentation data remain supplied.
 - Stream4 worktree now pauses for the coordinator-requested rotation back to stream1. All193 unchecked entries and Tourian endpoint/container scopes remain explicit pending work; no exception was inferred for them.
+## Batch 7: installed Power Bomb color calculation
+
+One more complete definition (`preExplosion`);33 complete and192 unchecked. `explosion` also has21 of32 triplets converted, but stays unchecked. No retained exception.
+
+- `PowerBombFixedColorCatalog` calculates all16 stock pre-explosion RGB triplets, the14 yellow explosion triplets and seven grayscale-crest triplets on demand. Stock pre-explosion storage is empty; explosion storage contains only the11 still-unresolved tail colors. No generated color cache is retained.
+- JSON validation and public sequence/index domains are preserved. Only supplied values differing from the calculation stay in the override dictionaries; explicit independent channel changes retain read priority. Serialization documents remain complete, so editing one value does not alter any neighboring color.
+- Evidence: pinned bank88 `PowerBomb_PreExplosion_Colors` `$9079..90A8`, `PowerBombExplosion_Colors` `$8D85..8DE4`. Source comments identify white/yellow phases; linear channel ramps and the two-frame grayscale ascent/one-frame descent reproduce all111 converted component bytes exactly.
+- Removed the obsolete irregular-tail retention rationale from the granted `SamusPaletteRomData.PowerBomb` XML and documented the now-applied crest formulas. Tail indices21..31 still require conversion or concrete impossible/nonsense evidence; irregularity alone grants no exemption.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed all48 original installed RGB triplets, exact calculated/storage domains, five independent real-JSON edits across pre-explosion/opening/crest/tail, unchanged neighbors and rejected bounds. Existing Power Bomb/Crystal Flash guarded lifecycles and95-frame Ceres explosion checks also pass.

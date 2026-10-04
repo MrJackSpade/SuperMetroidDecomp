@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4PowerBombColors(rom);
         VerifyLookupStream4SporeAndFly(rom);
         VerifyLookupStream4Burial(rom);
         VerifyLookupStream4StatueColors(rom);
@@ -285,6 +286,51 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "stream4 program mechanics enumeration bounds");
             foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream4 program presentation enumeration bounds");
+        }
+    }
+    private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
+    {
+        byte[] original = PowerBombFixedColorExtractor.Extract(rom);
+        var catalog = PowerBombFixedColorCatalog.Load(new MemoryStream(original));
+        int Stored(PowerBombFixedColorCatalog value, string field) =>
+            ((System.Collections.IDictionary)typeof(PowerBombFixedColorCatalog)
+                .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
+        AssertEqual(0, Stored(catalog, "preExplosion"), "stock pre-explosion colors are entirely calculated");
+        AssertEqual(11, Stored(catalog, "explosion"), "only unresolved explosion tail remains stored");
+        foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+        {
+            int count = PowerBombFixedColorFormat.Count(sequence);
+            for (int index = 0; index < count; index++)
+            {
+                int address = PowerBombFixedColorFormat.SourceAddress(sequence) + index * 3;
+                var native = (rom.ReadByte(address), rom.ReadByte(address + 1), rom.ReadByte(address + 2));
+                AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
+                bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
+                AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
+                    "Power Bomb exact calculated versus unresolved domain");
+                if (calculated) AssertEqual(native, color, "Power Bomb direct color calculation");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombFixedColorSequence)2, 0), "Power Bomb sequence domain");
+        foreach (var edit in new[] { (PowerBombFixedColorSequence.PreExplosion, 0), (PowerBombFixedColorSequence.PreExplosion, 12),
+            (PowerBombFixedColorSequence.Explosion, 0), (PowerBombFixedColorSequence.Explosion, 18), (PowerBombFixedColorSequence.Explosion, 31) })
+        {
+            var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, MapPresentationFormat.JsonOptions)!;
+            var rows = edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
+            var before = rows[edit.Item2];
+            rows[edit.Item2] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
+            var installed = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorCatalog.Write(document)));
+            foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+            for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
+            {
+                var source = (sequence == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion)[index];
+                AssertEqual(((byte)source.Red, (byte)source.Green, (byte)source.Blue), installed.Resolve(sequence, index),
+                    "Power Bomb supplied JSON color edits remain independent");
+            }
+            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, Stored(installed, "preExplosion"), "only changed pre-explosion content stays stored");
+            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, Stored(installed, "explosion"), "only changed calculated explosion content joins unresolved tail");
         }
     }
 }

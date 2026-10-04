@@ -10496,4 +10496,15 @@
     "confirmation": "Verification build1436warnings,zeroerrors; focused placement command passes. Existing swipe and walking checks remain intact. Source index refreshed.",
     "remaining": "203 of1128 snapshot definitions converted;925 pending. Torizo swipe payload and Chozo velocity magnitudes remain required; rejected magnitude retention rationale removed. No new exception."
   }
+,
+  "pipeBugProgramIntegration": {
+    "id": "pipe-bug-four-definitions",
+    "state": "converted",
+    "implementationCommit": "8c6a6ab53",
+    "scope": "Two normal/strong animation selector arrays and Norfair instruction mechanics/presentation arrays.",
+    "algorithm": "Named species/facing/shooting dispatch; each facing half has eight two-tick rising frames and six one-tick flying frames followed by goto operations. Addresses calculate from physical record layout.",
+    "evidence": "PinnedB3:882B-883A and8AE1-8B60. Integrated --lookup-stream2-pipe-programs confirms eight native selectors and all eight actual handoffs with pointer reads forbidden;36 mechanics words,28 visual selectors and all four complete loops with source reads forbidden.",
+    "confirmation": "Integrated Verification build1436warnings,zeroerrors; focused command passes. Source index refreshed.",
+    "remaining": "207 of1128 snapshot definitions converted;921 pending. No new retention disposition integrated in this batch; all streams remain open."
+  }
 }

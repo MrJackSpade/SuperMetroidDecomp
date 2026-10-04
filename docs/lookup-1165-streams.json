@@ -2926,6 +2926,46 @@
       "stream": 3,
       "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainPainfulWalkingDefinitions.cs",
       "purpose": "Calculate painful walking stagger curves in a dedicated domain catalog"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainContactHitboxes.cs",
+      "purpose": "Adapt contact geometry view API while preserving original native and contact behavior fixture"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DraygonProjectiles.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EyeDoorProjectiles.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.RidleyClawOffsets.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/SuperMetroidSaveRam.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.DebugRunner/ReplaySaveRamExporter.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GameSaveJson.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.SaveRamLayout.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
     }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

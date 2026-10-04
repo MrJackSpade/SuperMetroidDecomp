@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  925,
+    "remainingTableDefinitionCount":  921,
     "fileCount":  523,
     "entries":  [
                     {
@@ -4879,14 +4879,18 @@
                         "line":  20,
                         "name":  "NorfairPipeBugInstructionProgramDefinitions.Words",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "8c6a6ab5384a83a1b64164f50d36c9d96da606ac"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs",
                         "line":  36,
                         "name":  "NorfairPipeBugInstructionProgramDefinitions.PresentationWords",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "8c6a6ab5384a83a1b64164f50d36c9d96da606ac"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs",
@@ -5133,14 +5137,18 @@
                         "line":  35,
                         "name":  "PipeBugDefinitions.BrinstarInstructionLists",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "8c6a6ab5384a83a1b64164f50d36c9d96da606ac"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs",
                         "line":  47,
                         "name":  "PipeBugDefinitions.StrongBrinstarInstructionLists",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "8c6a6ab5384a83a1b64164f50d36c9d96da606ac"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs",
@@ -20716,5 +20724,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  203
+    "convertedSinceSnapshot":  207
 }

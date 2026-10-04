@@ -671,12 +671,7 @@ internal static partial class Program
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        for (int offset = IntroCaretInstructionDefinitions.StartPointer;
-             offset < IntroCaretInstructionDefinitions.EndPointer; offset++)
-            AssertEqual(bus.ReadByte((int)new SnesAddress(
-                    IntroCinematicRomData.Banks.CinematicCode >> 16, (ushort)offset)),
-                IntroCaretInstructionDefinitions.ReadByte((ushort)offset),
-                $"opening caret instruction byte {offset:X4} matches cartridge");
+        VerifyIntroCaretInstructions(bus);
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;

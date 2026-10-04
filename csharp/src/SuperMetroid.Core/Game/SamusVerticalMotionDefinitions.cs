@@ -9,44 +9,52 @@ internal static class SamusVerticalMotionDefinitions
     /// <summary>$90:9EB7 YSubSpeedWhenBouncingInMorphBall; both NTSC rebounds have zero fractional speed.</summary>
     internal const ushort BallBounceSubspeed = 0;
 
-    /// <summary>$90:9EB9/9EBF InitialYSpeeds/InitialYSubSpeeds_Jumping, air/water/lava.</summary>
-    private static ReadOnlySpan<ushort> Jump => [4, 0xe000, 1, 0xc000, 2, 0xc000];
+    /// <summary>Native medium selector zero: ordinary air physics, also used when liquid resistance is disabled.</summary>
+    private const ushort Air = 0;
+    /// <summary>Native medium selector one: water physics.</summary>
+    private const ushort Water = 1;
+    /// <summary>Native medium selector two: lava/acid physics.</summary>
+    private const ushort LavaAcid = 2;
 
-    /// <summary>$90:9EC5/9ECB InitialYSpeeds/InitialYSubSpeeds_HiJumpJumping.</summary>
-    private static ReadOnlySpan<ushort> HighJump => [6, 0, 2, 0x8000, 3, 0x8000];
-
-    /// <summary>$90:9ED1/9ED7 InitialYSpeeds/InitialYSubSpeeds_WallJumping.</summary>
-    private static ReadOnlySpan<ushort> WallJump => [4, 0xa000, 0, 0x4000, 2, 0xa000];
-
-    /// <summary>$90:9EDD/9EE3 InitialYSpeeds/InitialYSubSpeeds_HiJumpWallJumping.</summary>
-    private static ReadOnlySpan<ushort> HighWallJump => [5, 0x8000, 0, 0x8000, 3, 0x8000];
-
-    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration, air/water/lava.</summary>
-    private static ReadOnlySpan<ushort> GravityFractions => [0x1c00, 0x0800, 0x0900];
-
-    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback, air/water/lava.</summary>
-    private static ReadOnlySpan<ushort> KnockbackWords => [5, 0, 2, 0, 2, 0];
-
-    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump, air/water/lava.</summary>
-    private static ReadOnlySpan<ushort> BombJumpWords => [2, 0xc000, 0, 0x1000, 0, 0x1000];
-
-    /// <summary>Bomb launch does not apply Hi-Jump or extra-run bonuses and does not refresh gravity.</summary>
-    internal static (ushort Whole, ushort Fraction) BombJump(ushort medium) =>
-        (BombJumpWords[medium * 2], BombJumpWords[medium * 2 + 1]);
-
-    /// <summary>Hurt launch has its own magnitude, independent of jump equipment and dash speed.</summary>
-    internal static (ushort Whole, ushort Fraction) Knockback(ushort medium) =>
-        (KnockbackWords[medium * 2], KnockbackWords[medium * 2 + 1]);
-
-    /// <summary>Selects the independently stored whole/fraction launch words after native medium selection.</summary>
-    internal static (ushort Whole, ushort Fraction) Launch(ushort medium, bool highJump, bool wallJump)
+    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids.</summary>
+    internal static (ushort Whole, ushort Fraction) BombJump(ushort medium) => SplitSpeed(medium switch
     {
-        ReadOnlySpan<ushort> words = wallJump
-            ? highJump ? HighWallJump : WallJump
-            : highJump ? HighJump : Jump;
-        return (words[medium * 2], words[medium * 2 + 1]);
-    }
+        Air => 0x02c0,
+        Water or LavaAcid => 0x0010,
+        _ => throw new IndexOutOfRangeException(),
+    });
 
-    /// <summary>Native whole acceleration is zero in all three media; preserve the fractional word exactly.</summary>
-    internal static (ushort Whole, ushort Fraction) Gravity(ushort medium) => (0, GravityFractions[medium]);
+    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed.</summary>
+    internal static (ushort Whole, ushort Fraction) Knockback(ushort medium) => SplitSpeed(medium switch
+    {
+        Air => 0x0500,
+        Water or LavaAcid => 0x0200,
+        _ => throw new IndexOutOfRangeException(),
+    });
+
+    /// <summary>
+    /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: choose the launch magnitude
+    /// by medium, jump equipment and whether Samus kicks away from a wall. Each
+    /// original whole/fraction pair is the split representation of one 8.8 speed.
+    /// </summary>
+    internal static (ushort Whole, ushort Fraction) Launch(ushort medium, bool highJump, bool wallJump) =>
+        SplitSpeed(medium switch
+        {
+            Air => wallJump ? highJump ? 0x0580 : 0x04a0 : highJump ? 0x0600 : 0x04e0,
+            Water => wallJump ? highJump ? 0x0080 : 0x0040 : highJump ? 0x0280 : 0x01c0,
+            LavaAcid => highJump ? 0x0380 : wallJump ? 0x02a0 : 0x02c0,
+            _ => throw new IndexOutOfRangeException(),
+        });
+
+    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: whole acceleration is zero in all three media.</summary>
+    internal static (ushort Whole, ushort Fraction) Gravity(ushort medium) => (0, medium switch
+    {
+        Air => 0x1c00,
+        Water => 0x0800,
+        LavaAcid => 0x0900,
+        _ => throw new IndexOutOfRangeException(),
+    });
+
+    private static (ushort Whole, ushort Fraction) SplitSpeed(int speed) =>
+        ((ushort)(speed >> 8), (ushort)((speed & 0xff) << 8));
 }

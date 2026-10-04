@@ -4,30 +4,6 @@ namespace SuperMetroid.Core.Game;
 internal static class CacatacProjectileDefinitions
 {
     /// <summary>
-    /// Cacatac spike instruction-list pointers at $86:D96A: ten word entries
-    /// selected by the even <see cref="CacatacSpikeDirection"/> byte offset.
-    /// For selector index j = direction / 2 in 0..9, the physical six-byte
-    /// program index is {0, 2, 4, 5, 7, 9, 1, 3, 6, 8}[j] and its pointer is
-    /// $D92E + 6*index. The first six selectors are cardinal directions;
-    /// the final four are diagonals. Odd or out-of-range selectors are rejected.
-    /// The selected programs share the compiled control definitions while retaining live
-    /// cartridge spritemap operands.
-    /// </summary>
-    private static ReadOnlySpan<ushort> InstructionLists =>
-    [
-        CacatacProjectileInstructionProgramDefinitions.LeftFacingUp,
-        CacatacProjectileInstructionProgramDefinitions.Up,
-        CacatacProjectileInstructionProgramDefinitions.RightFacingUp,
-        CacatacProjectileInstructionProgramDefinitions.LeftFacingDown,
-        CacatacProjectileInstructionProgramDefinitions.Down,
-        CacatacProjectileInstructionProgramDefinitions.RightFacingDown,
-        CacatacProjectileInstructionProgramDefinitions.UpLeft,
-        CacatacProjectileInstructionProgramDefinitions.UpRight,
-        CacatacProjectileInstructionProgramDefinitions.DownLeft,
-        CacatacProjectileInstructionProgramDefinitions.DownRight,
-    ];
-
-    /// <summary>
     /// Native immediate operands $86:D9BB/$86:D9C1: cardinal signed 8.8
     /// negative/positive speed pair ($FE00, $0200).
     /// </summary>
@@ -39,6 +15,10 @@ internal static class CacatacProjectileDefinitions
     /// </summary>
     private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(0xfe80, 0x0180);
 
+    /// <summary>
+    /// $86:D96A CacatacSpike_InstListPointers: dispatch the spike direction and
+    /// facing to its corresponding named animation program.
+    /// </summary>
     internal static ushort InstructionList(CacatacSpikeDirection direction)
     {
         ushort raw = (ushort)direction;
@@ -48,7 +28,20 @@ internal static class CacatacProjectileDefinitions
                 $"Cacatac spike direction ${raw:X4} is outside the ten even native selectors.");
         }
 
-        return InstructionLists[raw >> 1];
+        return direction switch
+        {
+            CacatacSpikeDirection.LeftFacingUp => CacatacProjectileInstructionProgramDefinitions.LeftFacingUp,
+            CacatacSpikeDirection.Up => CacatacProjectileInstructionProgramDefinitions.Up,
+            CacatacSpikeDirection.RightFacingUp => CacatacProjectileInstructionProgramDefinitions.RightFacingUp,
+            CacatacSpikeDirection.LeftFacingDown => CacatacProjectileInstructionProgramDefinitions.LeftFacingDown,
+            CacatacSpikeDirection.Down => CacatacProjectileInstructionProgramDefinitions.Down,
+            CacatacSpikeDirection.RightFacingDown => CacatacProjectileInstructionProgramDefinitions.RightFacingDown,
+            CacatacSpikeDirection.UpLeft => CacatacProjectileInstructionProgramDefinitions.UpLeft,
+            CacatacSpikeDirection.UpRight => CacatacProjectileInstructionProgramDefinitions.UpRight,
+            CacatacSpikeDirection.DownLeft => CacatacProjectileInstructionProgramDefinitions.DownLeft,
+            CacatacSpikeDirection.DownRight => CacatacProjectileInstructionProgramDefinitions.DownRight,
+            _ => throw new InvalidDataException(),
+        };
     }
 
     /// <summary>

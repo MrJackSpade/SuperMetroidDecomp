@@ -145,15 +145,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BullAccelerationDelta = 0x0018;
     private const ushort BullMovementDelayFrames = 0x0010;
 
-    // Directions zero through nine are Samus's native projectile direction nibble. Entries
-    // four/five and zero/nine intentionally duplicate straight vertical movement for the
-    // two facing-dependent gun poses.
-    private static readonly ushort[] BullShotAngles =
-    [
-        0x00c0, 0x00e0, 0x0000, 0x0020, 0x0040,
-        0x0040, 0x0060, 0x0080, 0x00a0, 0x00c0,
-    ];
-
     private readonly BullEnemyState?[] _bullStates = new BullEnemyState?[MaximumEnemyCount];
     private readonly ushort[] _bullMaxSpeeds = new ushort[MaximumEnemyCount];
     private readonly ushort[] _bullAnglesToSamus = new ushort[MaximumEnemyCount];
@@ -368,15 +359,7 @@ public sealed partial class RoomEnemySystem
         bull.Timer = 0;
         bull.CurrentInstruction = BullInstructionProgramDefinitions.Shot;
         int direction = projectileDirection & 0x000f;
-        if ((uint)direction >= BullShotAngles.Length)
-        {
-            // Native code reads beyond the ten-word table for malformed direction nibbles.
-            // Live Samus projectiles are constrained to zero through nine, so surface a bad
-            // producer instead of inventing a host angle from adjacent animation data.
-            throw new InvalidDataException(
-                $"Bull immune-shot reaction received invalid projectile direction {direction}.");
-        }
-        state.Angle = BullShotAngles[direction];
+        state.Angle = BullMovementDefinitions.ShotAngle(direction);
         state.Acceleration = 0x0100;
         state.Speed = 0x0600;
         state.Function = BullEnemyFunction.Decelerating;

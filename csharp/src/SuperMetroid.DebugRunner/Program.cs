@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--pause-map-cursor-audit", var cursorInstallation])
+        return PauseMapCursorAudit.Run(cursorInstallation);
     if (args is ["--hud-select-sound-audit", var selectInstallation])
         return HudSelectSoundAudit.Run(selectInstallation);
     if (args is ["--captured-ground-shot-audit", var groundState, var groundInstallation, var groundOutput])

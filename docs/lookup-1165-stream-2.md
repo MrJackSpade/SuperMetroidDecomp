@@ -724,3 +724,11 @@ Verification build passed (1432 warnings, zero errors). `--lookup-stream2-crysta
 The bubble payload remains unresolved, independently of completed body colors. Static source inspection shows a rotated six-step white-to-pink ramp for the first five frames; the final frame leading color is white instead of the expected rotated ramp value. This is evidence to investigate, not a retention justification. No bubble cells are marked complete or exempted here.
 
 Nine named definitions complete in stream2; 217 remain required.
+### Batch 3: Kraid health-color interpolation (partial payload resolution)
+
+Original health and secondary sources at $A7:B3D3/$B513 are identical nine-by-sixteen palettes. Their first bands are saturated white flashes. In normal bands1..8, nearest-integer per-channel interpolation between the first/last bands reproduces every word except two interior samples of color6; the transparent slot switches from the first to final backdrop after the first normal band. `KraidColorCatalog` now computes those channels, stores only endpoints and exact deviations, and shares an identical secondary source. Independent custom edits remain exact, including different secondary colors and edits to endpoints/flash entries. Content identity serializes the resulting colors in the original order.
+
+This is partial resolution: endpoint artwork and the two deviating original color6 samples remain required, and neither `health` nor `secondary` is checked off. No irregularity-based retention exception has been introduced. The other three Kraid source palettes remain unchanged and required.
+
+Added `--lookup-stream2-kraid-ramps` to check all336 original colors, all288 independent health/secondary cell edits with preservation of every other source, exact content identity, shared stock selection, the two residual samples, and bounds. Confirmation pending.
+Batch 3 confirmation passed: Verification build (1432 warnings, zero errors); --lookup-stream2-kraid-ramps passed all original336 colors, all288 independent edited cells, source independence, canonical identity, residual accounting and bounds. Both Kraid palette entries remain unchecked for their explicitly identified residual data. Stream2 completion count remains nine.

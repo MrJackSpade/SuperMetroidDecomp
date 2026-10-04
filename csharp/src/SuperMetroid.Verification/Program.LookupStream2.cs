@@ -130,4 +130,72 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
         Console.WriteLine("Stream 2 Crystal Flash body: all100 native colors, CGRAM application and independent supplied edits pass; bubble36 colors unchanged.");
+    }    private static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
+    {
+        PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
+            .Select(index =>
+            {
+                ushort word = ReadVerificationWord(rom, KraidPaletteRomData.SourceAddress(source) + 2 * index);
+                return new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+            }).ToArray();
+        var document = new KraidColorDocument
+        {
+            Version = KraidColorFormat.Version,
+            RoomBackdrop = ReadSource(KraidPaletteSource.RoomBackdrop),
+            InitialTarget = ReadSource(KraidPaletteSource.InitialTarget),
+            Health = ReadSource(KraidPaletteSource.Health),
+            Secondary = ReadSource(KraidPaletteSource.Secondary),
+            DeathArm = ReadSource(KraidPaletteSource.DeathArm),
+        };
+        var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object health = typeof(KraidColorCatalog).GetField("health", fields)!.GetValue(stock)!;
+        object secondary = typeof(KraidColorCatalog).GetField("secondary", fields)!.GetValue(stock)!;
+        AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
+        var deviations = (System.Collections.IDictionary)health.GetType().GetField("deviations", fields)!.GetValue(health)!;
+        AssertEqual(2, deviations.Count, "Only the two original color-six deviations remain outside interpolation");
+        Check(stock, document);
+        string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
+        {
+            foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
+            {
+                content.Append("source", (int)source);
+                content.AppendWords("colors", Source(document, source).Select(Pack).ToArray());
+            }
+        });
+        AssertEqual(expectedIdentity, stock.ContentIdentity, "Calculated Kraid colors preserve canonical content identity");
+        foreach (KraidPaletteSource source in new[] { KraidPaletteSource.Health, KraidPaletteSource.Secondary })
+        for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
+        {
+            var editedColors = (PaletteRgb5[])Source(document, source).Clone();
+            editedColors[index] = editedColors[index] with { Red = (editedColors[index].Red + 1) % 32 };
+            var editedDocument = source == KraidPaletteSource.Health
+                ? document with { Health = editedColors } : document with { Secondary = editedColors };
+            var edited = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(editedDocument)));
+            Check(edited, editedDocument);
+            AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Every independent Kraid color edit changes content identity");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Health, -1), "Kraid calculated lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Secondary, 144), "Kraid calculated upper bound");
+        Console.WriteLine("Stream 2 Kraid health ramps: original336 colors, both288 edited cells, source independence and canonical identity pass; endpoints and2 deviations remain pending.");
+
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        static PaletteRgb5[] Source(KraidColorDocument value, KraidPaletteSource source) => source switch
+        {
+            KraidPaletteSource.RoomBackdrop => value.RoomBackdrop,
+            KraidPaletteSource.InitialTarget => value.InitialTarget,
+            KraidPaletteSource.Health => value.Health,
+            KraidPaletteSource.Secondary => value.Secondary,
+            KraidPaletteSource.DeathArm => value.DeathArm,
+            _ => throw new ArgumentOutOfRangeException(nameof(source)),
+        };
+        static void Check(KraidColorCatalog actual, KraidColorDocument expected)
+        {
+            foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
+            {
+                var colors = Source(expected, source);
+                for (int index = 0; index < colors.Length; index++)
+                    AssertEqual(Pack(colors[index]), actual.Resolve(source, index), "Every original or independently supplied Kraid color");
+            }
+        }
     }}

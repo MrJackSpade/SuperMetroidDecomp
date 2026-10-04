@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  918,
+    "remainingTableDefinitionCount":  910,
     "fileCount":  523,
     "entries":  [
                     {
@@ -3136,7 +3136,9 @@
                         "line":  28,
                         "name":  "DragonAnimationDefinitions.InstructionLists",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "2c8042ba1"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/DragonFireballInstructionProgramDefinitions.cs",
@@ -3370,7 +3372,9 @@
                         "line":  22,
                         "name":  "EscapeEtecoonDefinitions.Initializations",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "2c8042ba1"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/EscapeEtecoonInstructionProgramDefinitions.cs",
@@ -3514,14 +3518,18 @@
                         "line":  27,
                         "name":  "FallingSparkInstructionProgramDefinitions.Words",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "95af5ceaa"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/FallingSparkInstructionProgramDefinitions.cs",
                         "line":  49,
                         "name":  "FallingSparkInstructionProgramDefinitions.PresentationWords",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "95af5ceaa"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs",
@@ -3991,7 +3999,9 @@
                         "line":  29,
                         "name":  "HibashiDefinitions.ActivityFrames",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "2c8042ba1"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/HibashiInstructionProgramDefinitions.cs",
@@ -5196,14 +5206,18 @@
                         "line":  26,
                         "name":  "PowampSpikeInstructionProgramDefinitions.Words",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "95af5ceaa"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/PowampSpikeInstructionProgramDefinitions.cs",
                         "line":  35,
                         "name":  "PowampSpikeInstructionProgramDefinitions.PresentationWords",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "95af5ceaa"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
@@ -6204,7 +6218,9 @@
                         "line":  8,
                         "name":  "SamusBombSpreadLaunchDefinitions.Launches",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "2c8042ba1"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
@@ -20730,5 +20746,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  210
+    "convertedSinceSnapshot":  218
 }

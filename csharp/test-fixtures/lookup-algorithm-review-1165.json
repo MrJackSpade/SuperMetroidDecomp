@@ -10529,4 +10529,15 @@
     "confirmation": "Verification build completed with 1436 warnings and zero errors; focused command passed. Source index refreshed.",
     "remaining": "210 of 1128 snapshot definitions converted; 918 pending. No retention exception."
   }
+,
+  "launchRolesAndSparkSpikeIntegration": {
+    "id": "stream-one-eight-launch-role-program-definitions",
+    "state": "converted",
+    "implementationCommits": ["2c8042ba1", "95af5ceaa"],
+    "scope": "Bomb Spread launch records, Hibashi activity frames, Dragon program dispatch, Etecoon initialization roles, Falling Spark and Powamp Spike mechanics and presentation-address arrays.",
+    "algorithm": "Symmetric bomb launch distance controls fuse and velocity; Hibashi rises five pixels per step with a final shrinking radius; named Dragon and Etecoon roles dispatch directly. Spark and spike draw durations, loops, termination and operand addresses calculate from program layout.",
+    "evidence": "Focused native comparisons cover all 85 launch/role fields plus odd Etecoon aliases, 23 mechanics words and 17 presentation addresses, ordered access, byte ownership and rejection boundaries.",
+    "confirmation": "Integrated Verification build completed with 1436 warnings and zero errors. --lookup-stream-1 passed its focused conversion checks. Source index refreshed.",
+    "remaining": "218 of 1128 snapshot definitions converted; 910 pending. No retention exception."
+  }
 }

@@ -96,7 +96,75 @@ internal static partial class Program
         VerifyStream3RipperMappings(rom);
         VerifyStream3UniformEnemyLoops(rom);
         VerifyStream3MotherBrainFades(rom);
+        VerifyStream3BabyFade(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3BabyFade(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var initial = new ushort[15];
+        var fade = new ushort[6][];
+        for (int color = 0; color < initial.Length; color++)
+            initial[color] = Read(0xa994d4 + 2 * color);
+        for (int frame = 0; frame < fade.Length; frame++)
+        {
+            fade[frame] = new ushort[14];
+            for (int color = 0; color < fade[frame].Length; color++)
+                fade[frame][color] = Read(0xade90c + 28 * frame + 2 * color);
+        }
+        static PaletteRgb5 Rgb(ushort value) => new()
+        {
+            Red = value & 31, Green = (value >> 5) & 31, Blue = (value >> 10) & 31,
+        };
+        BabyMetroidCutsceneColorCatalog Load() => BabyMetroidCutsceneColorCatalog.Load(new MemoryStream(
+            BabyMetroidCutsceneColorCatalog.Write(new BabyMetroidCutsceneColorDocument
+            {
+                Version = 1,
+                Initial = initial.Select(Rgb).ToArray(),
+                Fade = fade.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+            }), writable: false));
+        void Check(BabyMetroidCutsceneColorCatalog catalog)
+        {
+            for (int color = 0; color < initial.Length; color++)
+                AssertEqual(initial[color], catalog.InitialColor(color), "stream 3 Baby initial color");
+            for (int frame = 0; frame < fade.Length; frame++)
+            for (int color = 0; color < fade[frame].Length; color++)
+                AssertEqual(fade[frame][color], catalog.FadeColor(frame + 1, color), "stream 3 Baby fade selected color");
+            string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", initial);
+                content.AppendWordFrames("fade", fade);
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "stream 3 Baby fade selected identity");
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object selectedFade = typeof(BabyMetroidCutsceneColorCatalog).GetField("fade", fields)!.GetValue(stock)!;
+        AssertTrue(selectedFade.GetType().GetField("supplied", fields)!.GetValue(selectedFade) is null,
+            "stream 3 original Baby fade discards its stored frame table");
+        uint[] endpoints = (uint[])selectedFade.GetType().GetField("endpointColors", fields)!.GetValue(selectedFade)!;
+        for (int color = 0; color < endpoints.Length; color++)
+        {
+            uint value = endpoints[color];
+            ushort rgb5 = (ushort)(((value & 255) >> 3) | (((value >> 8 & 255) >> 3) << 5) | (((value >> 16 & 255) >> 3) << 10));
+            AssertEqual(Read(0xade8f0 + 2 * color), rgb5,
+                "stream 3 compatible RGB8 endpoint also matches original undisplayed RGB5 palette");
+        }
+        for (int frame = 0; frame < fade.Length; frame++)
+        for (int color = 0; color < fade[frame].Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = fade[frame][color];
+            fade[frame][color] ^= (ushort)(1 << (5 * channel));
+            Check(Load());
+            fade[frame][color] = original;
+        }
+        foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
+        foreach (int invalid in new[] { -1, 14, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
     }
 
     private static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)

@@ -11,16 +11,16 @@ public sealed class BabyMetroidCutsceneColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
         {
             content.AppendWords("initial", initial);
-            content.AppendWordFrames("fade", fade);
+            fade.AppendIdentity(content);
         });
 
     private readonly ushort[] initial;
-    private readonly ushort[][] fade;
+    private readonly ColorFade fade;
 
     private BabyMetroidCutsceneColorCatalog(ushort[] initial, ushort[][] fade)
     {
         this.initial = initial;
-        this.fade = fade;
+        this.fade = new(fade);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -37,9 +37,79 @@ public sealed class BabyMetroidCutsceneColorCatalog
     public ushort FadeColor(int paletteIndex, int color) =>
         paletteIndex is >= 1 and <= BabyMetroidCutsceneColorRomData.FadeFrameCount &&
         (uint)color < BabyMetroidCutsceneColorRomData.FadeColorCount
-            ? fade[paletteIndex - 1][color]
+            ? fade.Resolve(paletteIndex - 1, color)
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");
+
+    /// <summary>
+    /// $AD:E90C-$E9B3 displays six RGB5 steps of a linear RGB8 fade to black.
+    /// Recover a compatible endpoint interval from each channel's quantization
+    /// bounds, choosing its midpoint. Endpoints are not unique; every supplied
+    /// step must match exactly before its frame table can be discarded.
+    /// </summary>
+    private sealed class ColorFade
+    {
+        private const int FadeDivisor = 8 * BabyMetroidCutsceneColorRomData.FadeFrameCount;
+        private readonly uint[]? endpointColors;
+        private readonly ushort[][]? supplied;
+
+        internal ColorFade(ushort[][] frames)
+        {
+            var endpoints = new uint[BabyMetroidCutsceneColorRomData.FadeColorCount];
+            for (int color = 0; color < endpoints.Length; color++)
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int low = 0, high = 255;
+                for (int frame = 0; frame < frames.Length; frame++)
+                {
+                    int value = (frames[frame][color] >> (channel * 5)) & 31;
+                    int remaining = frames.Length - 1 - frame;
+                    if (remaining == 0)
+                    {
+                        if (value != 0)
+                            high = -1;
+                        break;
+                    }
+                    // value <= endpoint*remaining/48 < value+1, with integer RGB8 endpoints.
+                    low = Math.Max(low, (value * FadeDivisor + remaining - 1) / remaining);
+                    high = Math.Min(high, ((value + 1) * FadeDivisor + remaining - 1) / remaining - 1);
+                }
+                if (low > high)
+                {
+                    supplied = frames;
+                    return;
+                }
+                endpoints[color] |= (uint)((low + high) / 2) << (channel * 8);
+            }
+            endpointColors = endpoints;
+        }
+
+        internal ushort Resolve(int frame, int color)
+        {
+            if (endpointColors is null)
+                return supplied![frame][color];
+            int result = 0;
+            int remaining = BabyMetroidCutsceneColorRomData.FadeFrameCount - 1 - frame;
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int endpoint = (int)((endpointColors[color] >> (channel * 8)) & 255);
+                result |= (endpoint * remaining / FadeDivisor) << (channel * 5);
+            }
+            return (ushort)result;
+        }
+
+        internal void AppendIdentity(SelectedPresentationHash content)
+        {
+            content.Append("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount);
+            Span<ushort> row = stackalloc ushort[BabyMetroidCutsceneColorRomData.FadeColorCount];
+            for (int frame = 0; frame < BabyMetroidCutsceneColorRomData.FadeFrameCount; frame++)
+            {
+                for (int color = 0; color < row.Length; color++)
+                    row[color] = Resolve(frame, color);
+                content.AppendWords("row", row);
+            }
+        }
+    }
 
     public static BabyMetroidCutsceneColorCatalog Load(Stream json)
     {

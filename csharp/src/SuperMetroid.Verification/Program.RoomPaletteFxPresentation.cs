@@ -286,13 +286,7 @@ internal static partial class Program
             [ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation);
-        VerifyInstalledPaletteFxFamily(
-            bus, presentation, "post-credits icon glare",
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
-            [PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyExtractedLogoGlarePaletteFxPresentation(bus, presentation);
         foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
                  TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -355,6 +349,62 @@ internal static partial class Program
         Console.WriteLine(
             "  Room palette presentation: 5108 editable palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
+    }
+
+    private static void VerifyExtractedLogoGlarePaletteFxPresentation(
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
+    {
+        VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare",
+            14, 16, (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), [0xe200], 15);
+        var original = new Dictionary<ushort, ushort>();
+        var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
+        for (int frame = 0; frame < 14; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            ushort pointer = (ushort)(0xdf9a + frame * 36 + color * 2);
+            original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
+            coordinates.Add(pointer, (frame, color));
+        }
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort pointer = (ushort)raw;
+            bool owned = coordinates.TryGetValue(pointer, out var expected);
+            AssertEqual(owned, LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color),
+                "glare owns exact original color words, excluding controls and odd bytes");
+            if (owned)
+            {
+                AssertEqual(expected.Frame, frame, "glare original frame identity");
+                AssertEqual(expected.Color, color, "glare original color column");
+            }
+            bool computed = owned && expected.Frame < 13;
+            AssertEqual(computed, LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, original, out ushort calculated),
+                "glare intermediate-color calculation domain");
+            if (computed) AssertEqual(original[pointer], calculated, "glare calculated word matches original ROM");
+        }
+        ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
+        AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
+        AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
+        var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
+            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions)!;
+        // An intermediate, its return-side counterpart, white peak and base can be
+        // edited independently. Unchanged rows must not inherit a changed base value.
+        foreach (var edit in new[] { (0, 1), (12, 2), (6, 0), (13, 3) })
+        {
+            PaletteRgb5 current = document.PostCreditsIconGlare[edit.Item1][edit.Item2];
+            document.PostCreditsIconGlare[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
+        }
+        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+        RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
+        for (int frame = 0; frame < 14; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            PaletteRgb5 expected = document.PostCreditsIconGlare[frame][color];
+            AssertTrue(edited.TryReadColor((ushort)(0xdf9a + frame * 36 + color * 2), out ushort actual), "edited glare remains readable");
+            AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
+                "glare preserves every independently supplied frame color");
+        }
+        AssertTrue(!LogoGlarePaletteColorDefinitions.TryCalculatedColor(0xdf9a, new Dictionary<ushort, ushort>(), out _),
+            "glare does not invent a missing base color");
     }
 
     private static void VerifyExtractedSamusLoadingPaletteFxPresentation(

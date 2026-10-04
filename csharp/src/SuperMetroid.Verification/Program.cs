@@ -218,6 +218,16 @@ if (args is ["--lookup-ending-mode7-roles"])
     Console.WriteLine("Ending Mode7 roles: supplied references, original hash ordering, bounds and null checks pass.");
     return 0;
 }
+if (args is ["--lookup-ending-logo-glare"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Logo glare oracle revision");
+    byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+    VerifyExtractedLogoGlarePaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json)));
+    Console.WriteLine("Logo glare: all224 native colors, full pointer domain, guarded program and independent edits pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-logo-color-art"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

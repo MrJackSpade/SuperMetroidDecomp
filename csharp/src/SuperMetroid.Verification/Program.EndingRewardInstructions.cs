@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            if (i is >= 17 and <= 20 or >= 29 and <= 31 or >= 34)
+            if (i is >= 17 and <= 20 or >= 29 and <= 32 or >= 34)
                 VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
@@ -105,8 +105,12 @@ internal static partial class Program
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             definition.Pointer, definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-        SpriteComposition Calculate(SpriteComposition value) => EndingRewardHeadParts.CalculateIfMatching(definition.Pointer,
-            EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, value));
+        SpriteComposition Calculate(SpriteComposition value)
+        {
+            value = EndingRewardHeadParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, value);
+        }
         SpriteComposition calculated = Calculate(supplied);
         AssertTrue(!ReferenceEquals(supplied, calculated), "original reward head uses calculated layout");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);

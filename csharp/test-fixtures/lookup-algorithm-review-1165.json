@@ -9583,4 +9583,15 @@
     "proof": "Extend the existing original-source reward composition helper, renamed VerifyEndingRewardCalculatedParts, under --lookup-ending-reward-programs. All64 original standing/body parts join25 head parts for89 parts across ten compositions. Require calculated selection, identical full visual identity and native low/high OAM at positive/negative origins. Existing nine-field edit preservation and part bounds cover each composition, alongside160 instruction words and seventeen480-call actor streams.",
     "remaining": "Other reward body/arm/hair poses and all independently unreviewed pixel art remain required. This conversion claims no retention exception or whole-ticket completion. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardPrepareJumpLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardPrepareJumpParts.cs",
+    "id": "ending-reward-suited-jump-preparation-composition",
+    "state": "converted",
+    "source": "Original twenty-two-part8C:9A82 suited jump-preparation pose. Every piece uses the same atlas coordinate mapping: X=8*column-38 and Y=8*(row-16)-35. Native order places boundary pieces before interior rows.",
+    "algorithm": "Traverse outer-left edge top-to-bottom, then upper-right and upper-left cap strips right-to-left. Named left-side/right-side/lower-endpoint pieces precede four paired interior rows traversed bottom-right first. Finish with four upper-interior pieces right-to-left. Tile-row and column strides calculate the complete selection. Edge/interior role determines size; every part is unflipped, priority3 and inherits actor palette.",
+    "implementation": "Immutable bounded view computes all22 parts without a stored selection or generated cache. Loader recognizes the existing semantic frame identity and substitutes only after complete supplied-part equality. Independent artwork edits remain supplied. Existing head and standing conversions remain unchanged in behavior.",
+    "proof": "Extend VerifyEndingRewardCalculatedParts under existing --lookup-ending-reward-programs with this original composition. Now111 original parts across eleven compositions participate in calculated-view selection, complete identity, native positive/negative-origin OAM, nine-field edit preservation and part bounds. Existing160 instruction words and seventeen480-call actor streams remain checked.",
+    "remaining": "Jumping, other reward body/arm/hair compositions and unreviewed pixel art remain required independently. No retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
+  }
 }

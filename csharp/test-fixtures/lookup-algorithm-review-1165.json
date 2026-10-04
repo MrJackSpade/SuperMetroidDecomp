@@ -8301,4 +8301,18 @@
     ],
     "scope": "Only the policy-to-voice-count selectors are resolved here. Other helper mappings and the pending pan curve retain their own review obligations; this is not whole-owner or ticket completion."
   }
+,
+  "spcRuntimePolicyApplicationReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.SoundEffects.cs",
+    "member": "ConfigureSoundLibrary",
+    "evidence": "Native handler identities and original MOV writes are the same independently decoded evidence in spcSoundPolicyDispatchReview. Runtime policy application is a distinct policy-to-state mapping: libraries1/2 set voices and priority while preserving mode; ordinary library3 handlers also preserve mode; cancel sets voices1/mode0/priority1; low-health sets voices1/mode2 while preserving priority.",
+    "implementation": "Replace numeric byte case labels with the existing SpcLibrary1Policy/SpcLibrary2Policy/SpcLibrary3Policy names, preserving every original assignment, return and default exception. This is explicit semantic native-handler dispatch, not fitted numeric content. Private caller supplies a validated library; the existing fallback shape for other library values is unchanged, not newly advertised as an accepted public domain. No output table, cache or runtime ROM access.",
+    "proof": "Reuse VerifySpcSoundPolicy1/2/3, which decode SHA-pinned original-ROM handler writes and compare actual ConfigureSoundLibrary state after all240 native command dispatches with prior mode/priority0 andA5. Use a typed delegate to the actual private method so expected invalid-policy exceptions can be caught directly inside the harness. Extend each existing proof across every unsupported policy byte through255 and require InvalidDataException with voices/priority/mode unchanged fromA5/5A/3C. No duplicate original oracle or test-driven search.",
+    "tables": [
+      {"id":"spc-library-1-policy-state-writes","state":"converted","domain":"validated library0, policy bytes0..5; other policy bytes rejected","proof":"VerifySpcSoundPolicy1"},
+      {"id":"spc-library-2-policy-state-writes","state":"converted","domain":"validated library1, policy bytes0..3; other policy bytes rejected","proof":"VerifySpcSoundPolicy2"},
+      {"id":"spc-library-3-policy-state-writes","state":"converted","domain":"validated library2, policy bytes0..5; other policy bytes rejected","proof":"VerifySpcSoundPolicy3"}
+    ],
+    "scope": "Only runtime allocation-policy state selection is resolved. Command rejection/priority admission and other audio mappings remain independently scoped; pan gain is still pending. No player-visible behavior change is claimed."
+  }
 }

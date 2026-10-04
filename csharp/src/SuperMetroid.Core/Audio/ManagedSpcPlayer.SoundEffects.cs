@@ -55,6 +55,10 @@ public sealed partial class ManagedSpcPlayer
         ConfigureSoundLibrary(libraryIndex, library, configuration);
     }
 
+    /// <summary>Applies native allocation-policy writes for a validated sound library.</summary>
+    /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
+    /// except for library-three cancel/low-health operations; low-health preserves priority.
+    /// Native handler identities are documented on the SpcLibraryNPolicy catalog members.</remarks>
     private static void ConfigureSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
@@ -62,13 +66,13 @@ public sealed partial class ManagedSpcPlayer
     {
         if (libraryIndex == 0)
         {
-            (byte voices, byte priority) = configuration switch
+            (byte voices, byte priority) = (SpcLibrary1Policy)configuration switch
             {
-                0 => ((byte)1, (byte)0),
-                1 => ((byte)1, (byte)1),
-                2 => ((byte)2, (byte)0),
-                3 => ((byte)3, (byte)1),
-                4 or 5 => ((byte)4, (byte)0),
+                SpcLibrary1Policy.OneVoiceLowPriority => ((byte)1, (byte)0),
+                SpcLibrary1Policy.OneVoiceHighPriority => ((byte)1, (byte)1),
+                SpcLibrary1Policy.TwoVoicesLowPriority => ((byte)2, (byte)0),
+                SpcLibrary1Policy.ThreeVoicesHighPriority => ((byte)3, (byte)1),
+                SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => ((byte)4, (byte)0),
                 _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
             };
             library.VoicesToSetup = voices;
@@ -77,12 +81,12 @@ public sealed partial class ManagedSpcPlayer
         }
         if (libraryIndex == 1)
         {
-            (byte voices, byte priority) = configuration switch
+            (byte voices, byte priority) = (SpcLibrary2Policy)configuration switch
             {
-                0 => ((byte)1, (byte)0),
-                1 => ((byte)1, (byte)1),
-                2 => ((byte)2, (byte)0),
-                3 => ((byte)2, (byte)1),
+                SpcLibrary2Policy.OneVoiceLowPriority => ((byte)1, (byte)0),
+                SpcLibrary2Policy.OneVoiceHighPriority => ((byte)1, (byte)1),
+                SpcLibrary2Policy.TwoVoicesLowPriority => ((byte)2, (byte)0),
+                SpcLibrary2Policy.TwoVoicesHighPriority => ((byte)2, (byte)1),
                 _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
             };
             library.VoicesToSetup = voices;
@@ -90,30 +94,30 @@ public sealed partial class ManagedSpcPlayer
             return;
         }
 
-        switch (configuration)
+        switch ((SpcLibrary3Policy)configuration)
         {
-            case 0:
+            case SpcLibrary3Policy.CancelAndClearLowHealthMode:
                 library.VoicesToSetup = 1;
                 library.Mode = 0;
                 library.Priority = 1;
                 break;
-            case 1:
+            case SpcLibrary3Policy.LowHealthModePreservePriority:
                 library.VoicesToSetup = 1;
                 library.Mode = 2;
                 break;
-            case 2:
+            case SpcLibrary3Policy.OneVoiceLowPriority:
                 library.VoicesToSetup = 1;
                 library.Priority = 0;
                 break;
-            case 3:
+            case SpcLibrary3Policy.TwoVoicesLowPriority:
                 library.VoicesToSetup = 2;
                 library.Priority = 0;
                 break;
-            case 4:
+            case SpcLibrary3Policy.TwoVoicesHighPriority:
                 library.VoicesToSetup = 2;
                 library.Priority = 1;
                 break;
-            case 5:
+            case SpcLibrary3Policy.OneVoiceHighPriority:
                 library.VoicesToSetup = 1;
                 library.Priority = 1;
                 break;

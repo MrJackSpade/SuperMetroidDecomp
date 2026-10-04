@@ -17,6 +17,7 @@ internal static partial class Program
         int Word(int address) => Read(address) | Read(address + 1) << 8;
         MethodInfo configure = typeof(ManagedSpcPlayer).GetMethod("ConfigureSoundLibrary", BindingFlags.Static | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException("Missing production sound policy consumer.");
+        var applyPolicy = configure.CreateDelegate<Action<int, ManagedSpcSoundLibrary, byte>>();
         var checkedVoicePolicies = new HashSet<byte>();
         for (int command = 1; command <= count; command++)
         {
@@ -55,7 +56,7 @@ internal static partial class Program
                 }
                 AssertEqual((byte)0x6f, Read(pc), "native policy ends after bounded writes");
                 var state = new ManagedSpcSoundLibrary { Priority = prior, Mode = prior };
-                configure.Invoke(null, new object[] { library, state, actualPolicy });
+                applyPolicy(library, state, actualPolicy);
                 AssertEqual(expectedVoices, state.VoicesToSetup, "production policy voices");
                 AssertEqual(expectedPriority, state.Priority, "production policy priority and preservation");
                 AssertEqual(expectedMode, state.Mode, "production policy mode and preservation");
@@ -67,7 +68,14 @@ internal static partial class Program
         for (int policy = 0; policy < nativePolicyCount; policy++)
             AssertTrue(checkedVoicePolicies.Contains((byte)policy), "every native voice policy has an original-handler proof");
         for (int invalid = nativePolicyCount; invalid <= byte.MaxValue; invalid++)
+        {
             AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.GetVoiceCount(library, (byte)invalid), "unknown manifest policy byte");
+            var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = 0x3c };
+            AssertThrows<InvalidDataException>(() => applyPolicy(library, untouched, (byte)invalid), "unknown runtime policy byte");
+            AssertEqual((byte)0xa5, untouched.VoicesToSetup, "rejected policy preserves voices");
+            AssertEqual((byte)0x5a, untouched.Priority, "rejected policy preserves priority");
+            AssertEqual((byte)0x3c, untouched.Mode, "rejected policy preserves mode");
+        }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })

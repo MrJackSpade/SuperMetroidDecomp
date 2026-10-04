@@ -9632,4 +9632,19 @@
     "proof": "Extend the existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs to56 additional original parts. Now240 parts across seventeen compositions undergo calculation-selection, full-identity, native on/offscreen OAM, independent nine-field edit and bounds checks. Existing160 instruction words and seventeen480-call actor streams remain checked.",
     "remaining": "Hair, suited-arm and small shooting-scene layouts and independently unreviewed pixels remain required. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardShootingSceneReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardShootingSceneParts.cs",
+    "mappings": [
+      { "id": "ending-reward-small-falling-composition", "state": "converted" },
+      { "id": "ending-reward-small-landing-composition", "state": "converted" },
+      { "id": "ending-reward-small-landed-composition", "state": "converted" },
+      { "id": "ending-reward-small-shooting-composition", "state": "converted" }
+    ],
+    "source": "Original8C:9D5A/9DA7/9DEA/9E55,15/13/21/15 parts. All64 parts occupy pose-specific atlas grids: X=8*column+originX,Y=8*row+originY. Origins are(-24,-32),(-72,-33),(-24,-112),(-76,-112). Unlike the large reward figures, every part here uses priority0.",
+    "algorithm": "Native draw order traverses short edge strips, cap/foot pairs, central columns and paired body rows. Atlas-row/column strides calculate their selections; named boundary pieces account for isolated cap, hip and foot endpoints. Edge versus interior role determines small/large flags. Grid arithmetic computes positions, while no flips and inherited actor palette are shared.",
+    "implementation": "Immutable bounded pose view generates every part and selection without stored part/selection arrays or generated caches. Loader recognizes the existing semantic frame identities and substitutes only on complete supplied-field equality. Independently edited artwork remains supplied. No schema change or runtime ROM access.",
+    "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with all64 original parts. The focused comparison now covers304 parts across21 compositions, requiring calculation selection, complete visual identity, native on/offscreen low/high OAM, independent nine-field edits and bounds. Existing160 original instruction words and seventeen480-call actor streams remain checked.",
+    "remaining": "The eight suited-arm and eight hair compositions still need independent disposition, as does unreviewed source pixel art. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
+  }
 }

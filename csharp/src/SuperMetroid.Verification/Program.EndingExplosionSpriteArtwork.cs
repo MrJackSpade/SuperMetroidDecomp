@@ -75,10 +75,10 @@ internal static partial class Program
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
-            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, supplied))));
-        for (int pose = 0; pose < 15; pose++)
+            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, EndingExplosionSilhouetteParts.CalculateIfMatching(pointer, supplied)))));
+        for (int pose = 0; pose < 16; pose++)
         {
-            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : (ushort)0xa5e2;
+            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
             int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)

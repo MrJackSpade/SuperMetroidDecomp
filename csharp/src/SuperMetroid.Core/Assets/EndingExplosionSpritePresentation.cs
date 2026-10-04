@@ -59,6 +59,7 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
             compiled = EndingExplosionQuadrantParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = EndingExplosionStarfieldParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = EndingExplosionAfterglowParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = EndingExplosionSilhouetteParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, EndingExplosionGridParts.CalculateIfMatching(definition.Pointer, compiled));
         }
         return new EndingExplosionSpritePresentation(frames);

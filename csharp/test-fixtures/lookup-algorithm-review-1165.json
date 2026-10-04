@@ -9432,7 +9432,7 @@
     "algorithm": "Atlas rows19..1E use X=8*(column-8), Y=8*(row-1B). Rows1A..1D use16-pixel sprites; upper/lower wing rows19/1E use8-pixel sprites. Atlas row18 packs three regions: columns0..3 are8-pixel upper cap atX=8*(column-2),Y=-32; columns4..11 are16-pixel upper body atX=8*(column-8),Y=-24; columns12..15 are8-pixel lower cap atX=8*(column-14),Y=32. This is spatial tile-sheet packing, not a fitted chronological sequence.",
     "implementation": "Store only the supplied tile sequence and calculate each complete part on access. Apply only to the afterglow role and its atlas region, after comparing every compiled supplied field. Arbitrary changes that do not match the placement/attribute rules retain their original compiled composition; compatible tile/order/count changes remain supplied inputs. No cache of generated parts, source schema change or runtime ROM dependency.",
     "proof": "Extend the sole original-part decoder VerifyEndingExplosionCalculatedParts under --lookup-ending-explosion-frame-catalog with all37 native afterglow parts, for182 parts across fifteen compositions. Compare complete visual identity and native OAM at both positive and negative origins; independent field, order, count and coordinate-edge edits preserve exact supplied identity. Existing catalog checks remain. No exploratory gameplay or duplicate oracle.",
-    "remaining": "The selected37-tile sequence is now converted in endingExplosionAfterglowSequenceReview; source pixel artwork still requires its own disposition. This record converts placement and shared fields only; it grants no retention exception. Silhouette and quadrant basis layouts also remain required work. Implementation commit is the commit adding this record."
+    "remaining": "The selected37-tile sequence is now converted in endingExplosionAfterglowSequenceReview; source pixel artwork still requires its own disposition. This record converts placement and shared fields only; it grants no retention exception. Silhouette layout is now converted in endingExplosionSilhouetteReview; quadrant basis layouts remain required work. Implementation commit is the commit adding this record."
   }
 ,
   "endingExplosionAfterglowSequenceReview": {
@@ -9444,5 +9444,18 @@
     "implementation": "StockTile computes the37-entry sequence with exact bounds. Matching supplied tile arrays are discarded; Count and part generation use the stock calculation with no replacement cache. Nonmatching sequences remain editable inputs and still use placement calculation if every supplied field agrees. Complete stock afterglow composition now calculates all part fields.",
     "proof": "Extend the existing afterglow block of VerifyEndingExplosionCalculatedParts; compare each StockTile result to independently decoded original operands and check invalid indices. Existing complete visual identity, positive/negative-origin native OAM and independent field/order/count/edge edits confirm the composed behavior. Reuse --lookup-ending-explosion-frame-catalog; no duplicate oracle or gameplay exploration.",
     "scope": "Afterglow OAM selection/layout only. Source pixels and other explosion layouts retain independent obligations. No retention exception. Implementation commit is the commit adding this record."
+  }
+,
+  "endingExplosionSilhouetteReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingExplosionSilhouetteParts.cs",
+    "mappings": [
+      { "id": "ending-explosion-silhouette-ordered-tile-layout", "state": "converted" },
+      { "id": "ending-explosion-silhouette-size-and-attributes", "state": "converted" }
+    ],
+    "source": "Original20-part8C:A57C, pinned bank8C ZebesSupernovaPart3. Independently viewed original988304 tile sheet and assembled streaked silhouette in endingExplosionArtworkEvidence. The source packs lower body/tip pieces and four rows of ray/body tiles into different atlas regions.",
+    "algorithm": "Begin with the two lower-right body tilesCC/CE atX0/16,Y8, an8-pixel lower tipEC at0,24, and lower-left rayD8 at-32,16. Then four rows each traverse X16,0,-16,-32 in16-pixel steps while tile indices decrement by2. Named body/inner-ray/middle-ray/outer-ray regions startBE/E6/D6/B6 atY0/-16/-24/-40. All but the tip are16-pixel sprites; every part is unflipped, priority3 and inherits actor palette. Meaningful spatial region cases and regular row arithmetic preserve native overlap/draw order.",
+    "implementation": "Immutable twenty-part view computes every stock field on demand, without a stored tile/coordinate array or generated cache. Loader substitutes it only after equality with every compiled supplied part; differing edits preserve the original compiled composition. No source-schema or runtime cartridge access change.",
+    "proof": "Extend the existing VerifyEndingExplosionCalculatedParts original-ROM decoder under --lookup-ending-explosion-frame-catalog to the silhouette. All202 parts across all16 explosion compositions now participate in complete identity and native on/offscreen OAM checks. Independent field/order/count/coordinate-edge edits remain exact. This is the existing focused composition proof, not a new oracle or gameplay search.",
+    "remaining": "All silhouette composition fields are converted. Its source pixel drawing, other source pixels and the remaining glow/supernova base-quadrant layouts require separate review; no retention exemption claimed. Implementation commit is the commit adding this record."
   }
 }

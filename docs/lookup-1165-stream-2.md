@@ -405,8 +405,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs
 
-- [ ] **DeadTorizoVramTransferDefinitions.Even** ([L28](../csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DeadTorizoVramTransferDefinitions.Odd** ([L39](../csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DeadTorizoVramTransferDefinitions.Even** ([L28](../csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DeadTorizoVramTransferDefinitions.Odd** ([L39](../csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs
 
@@ -566,8 +566,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs
 
-- [ ] **TorizoExplosiveSwipeInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWords** ([L29](../csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoExplosiveSwipeInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWords** ([L29](../csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftCollisionDefinitions.cs
 
@@ -790,3 +790,10 @@ Removed the five transfer records and their independently stored First..Fifth va
 Verification build passed (25 incremental warnings, zero errors); ResourceAudit restore/build passed (zero warnings/errors), confirming audit consumers compile. `--lookup-stream2-gunship-transfers` passed all10 original source/destination words, five typed asset identities, actual production queued source/destination fields, fifth-transfer engine phase transition, enumeration and bounds. No full artwork/whole-game test was claimed for this transfer-layout change.
 
 Thirty-six named definitions complete in stream2;190 remain required. Work rotates to stream5 by coordinator instruction; no unchecked stream2 entry is exempted, completed or abandoned. In particular Kraid endpoint/deviation payloads, the single Crystal Flash bubble residual, ghost/Norfair color payloads, Chozo velocity magnitudes, Torizo swipe trajectory and reserve labels/arrow colors remain explicit required work.
+### Batch 12: Dead Torizo DMA geometry and explosive swipe sequence
+
+Removed both Dead Torizo descriptor arrays. Each phase calculates six of twelve ten-tile body rows with their clipped left/right bounds, source tile stride and VRAM row stride, then the corresponding sand strip. Phase parity and every live-WRAM source are preserved. The calculated view supports existing indexed/enumerated consumers without storing descriptors; assigned artwork verifier changes only its explicit view binding. Removed swipe mechanics and visual-address arrays: one packed sound instruction precedes five five-tick frames and deletion.
+
+Verification build passed (1436 full-build warnings,25 incremental warnings, zero errors); ResourceAudit build passed without warnings/errors. New `--lookup-stream2-dead-torizo-transfers` passed all56 native descriptor fields, both terminators, fourteen actual queued transfers, phase advancement/parity, enumeration and bounds. `--torizo-explosive-swipe-instruction-mechanics` passed all7 native mechanics words, actual producer and exact25-frame lifetime,5 native compiled selectors and zero forbidden reads. Its initial run reached the obsolete visual assertion (expected5 reads, actual0); the coordinator-assigned verifier now checks zero reads plus exact native compiled operands, retaining all producer/lifetime checks. No production behavior changed for this fixture correction. The full Dead Torizo artwork test was preserved but not run for this descriptor-only change. Coordinator must refresh the DMA source review hash at integration.
+
+Forty stream2 named definitions complete;186 remain required. Variable Torizo explosion timing, separate artwork and all previously pending palette residuals remain required.

@@ -5,6 +5,46 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
+    {
+        var enemies = new RoomEnemySystem();
+        var state = new DeadTorizoEnemyState(enemies.Slots[0], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var build = typeof(RoomEnemySystem).GetMethod("BuildDeadTorizoVramTransfers",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .CreateDelegate<Action<DeadTorizoEnemyState>>(enemies);
+        for (ushort phase = 0; phase < 2; phase++)
+        {
+            var rows = DeadTorizoVramTransferDefinitions.ForPhase(phase);
+            ushort table = phase == 0 ? DeadTorizoVramTransferDefinitions.EvenTable : DeadTorizoVramTransferDefinitions.OddTable;
+            AssertEqual(7, rows.Length, "Dead Torizo six body rows plus sand strip");
+            int count = 0;
+            foreach (var row in rows)
+            {
+                int address = 0xa90000 | table + 8 * count;
+                AssertEqual(ReadVerificationWord(rom, address), row.SizeInBytes, "Dead Torizo native DMA size");
+                AssertEqual(ReadVerificationWord(rom, address + 2), row.SourceBankWord, "Dead Torizo native DMA bank");
+                AssertEqual(ReadVerificationWord(rom, address + 4), row.SourceOffset, "Dead Torizo native DMA source");
+                AssertEqual(ReadVerificationWord(rom, address + 6), row.EncodedVramDestination, "Dead Torizo native DMA destination");
+                AssertEqual(rows[count++], row, "Dead Torizo enumeration order");
+            }
+            AssertEqual(7, count, "Dead Torizo enumeration count");
+            AssertEqual((ushort)0, ReadVerificationWord(rom, 0xa90000 | table + count * 8), "Dead Torizo native terminator");
+            state.VramTransferPhase = unchecked((ushort)(phase - 1));
+            build(state);
+            AssertEqual(phase, state.VramTransferPhase, "Dead Torizo phase advancement");
+            for (int index = 0; index < rows.Length; index++)
+            {
+                var actual = enemies.LastDeadTorizoVramTransfers[phase * 7 + index];
+                AssertEqual(rows[index].SizeInBytes, actual.SizeInBytes, "Dead Torizo queued size");
+                AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
+                AssertEqual(rows[index].EncodedVramDestination, actual.EncodedVramDestination, "Dead Torizo queued VRAM destination");
+                AssertEqual(rows[index], DeadTorizoVramTransferDefinitions.ForPhase((ushort)(phase + 2))[index], "Dead Torizo phase parity");
+            }
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
+        }
+        Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
+    }
     private static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;

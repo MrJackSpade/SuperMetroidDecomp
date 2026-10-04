@@ -121,7 +121,7 @@ internal static partial class Program
             ushort table = phase == 0
                 ? DeadTorizoVramTransferDefinitions.EvenTable
                 : DeadTorizoVramTransferDefinitions.OddTable;
-            ReadOnlySpan<DeadTorizoVramTransferDefinition> records =
+            DeadTorizoVramTransferDefinitions.PhaseRows records =
                 DeadTorizoVramTransferDefinitions.ForPhase(phase);
             AssertEqual(7, records.Length,
                 $"Dead Torizo phase {phase} compiled descriptor count");

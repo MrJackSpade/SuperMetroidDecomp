@@ -341,20 +341,20 @@ public sealed partial class RoomEnemySystem
             TileArtwork is not null)
         {
             int page = -1;
-            for (int index = 0; index < MotherBrainEscapeTextArtworkDefinitions.PageSources.Length;
+            for (int index = 0; index < MotherBrainEscapeTextArtworkDefinitions.PageCount;
                  index++)
             {
                 if (transfer.SourceAddress ==
-                    MotherBrainEscapeTextArtworkDefinitions.PageSources[index])
+                    MotherBrainEscapeTextArtworkDefinitions.PageSource(index))
                 {
                     page = index;
                     break;
                 }
             }
             if (page < 0 ||
-                transfer.Size != MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[page] ||
+                transfer.Size != MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page) ||
                 transfer.VramDestination !=
-                    MotherBrainEscapeTextArtworkDefinitions.PageDestinations[page])
+                    MotherBrainEscapeTextArtworkDefinitions.PageDestination(page))
                 throw new InvalidDataException(
                     $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
 

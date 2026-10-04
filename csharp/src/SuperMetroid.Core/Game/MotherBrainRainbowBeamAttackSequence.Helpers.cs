@@ -409,10 +409,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
-        if ((uint)index >= (uint)EscapeTimerTileTransfers.Length)
+        if ((uint)index >= (uint)MotherBrainEscapeTextArtworkDefinitions.TransferCount)
             throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
 
-        MotherBrainSpriteTileTransferRequest request = EscapeTimerTileTransfers[index];
+        MotherBrainSpriteTileTransferRequest request = MotherBrainEscapeTextArtworkDefinitions.Transfer(index);
         EscapeTimerTileTransferIndex++;
         return request;
     }
@@ -420,10 +420,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
     {
         int index = ExplodedDoorTileTransferIndex;
-        if ((uint)index >= (uint)ExplodedDoorTileTransfers.Length)
+        if ((uint)index >= (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
             throw new InvalidOperationException("Exploded-door sprite-tile transfer list is already complete.");
 
-        MotherBrainSpriteTileTransferRequest request = ExplodedDoorTileTransfers[index];
+        MotherBrainSpriteTileTransferRequest request = MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
         ExplodedDoorTileTransferIndex++;
         return request;
     }

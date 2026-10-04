@@ -100,7 +100,56 @@ internal static partial class Program
         VerifyStream3DrainFades(rom);
         VerifyStream3ShitroidPulse(rom);
         VerifyStream3CorpseGeometry(rom);
+        VerifyStream3EscapeGeometry(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var timer = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("CreateNextEscapeTimerTileTransfer", flags)!;
+        var door = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("CreateNextExplodedDoorTileTransfer", flags)!;
+        foreach (bool timerList in new[] { true, false })
+        {
+            int count = timerList ? 7 : 2;
+            int start = timerList ? 0xa6c4cb : 0xa9902f;
+            var method = timerList ? timer : door;
+            for (int index = 0; index < count; index++)
+            {
+                int address = start + index * 7;
+                var expected = new MotherBrainSpriteTileTransferRequest((ushort)index, Read(address),
+                    (uint)(Read(address + 2) | rom.ReadByte(address + 4) << 16), Read(address + 5));
+                var calculated = timerList ? MotherBrainEscapeTextArtworkDefinitions.Transfer(index)
+                    : MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
+                AssertEqual(expected, calculated, "stream 3 native escape graphics record");
+                AssertEqual(expected, (MotherBrainSpriteTileTransferRequest)method.Invoke(sequence, null)!,
+                    "stream 3 production escape transfer selection");
+                AssertEqual((ushort)(index + 1), timerList ? sequence.EscapeTimerTileTransferIndex : sequence.ExplodedDoorTileTransferIndex,
+                    "stream 3 production escape cursor advances once");
+            }
+            try
+            {
+                method.Invoke(sequence, null);
+                throw new InvalidDataException("Completed escape transfer list unexpectedly produced another entry.");
+            }
+            catch (System.Reflection.TargetInvocationException error) when (error.InnerException is InvalidOperationException) { }
+        }
+        foreach (int invalid in new[] { -1, 5, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
+        }
+        foreach (int invalid in new[] { -1, 7, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
+        foreach (int invalid in new[] { -1, 2, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
+        using var temporary = new MapCatalogTestDirectory();
+        SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
+        VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
+            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null));
     }
 
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)

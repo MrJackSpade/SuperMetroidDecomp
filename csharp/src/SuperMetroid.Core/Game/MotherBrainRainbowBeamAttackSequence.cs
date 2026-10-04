@@ -63,44 +63,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
         [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
 
-    // NTSC `$A6:C4CB-$C4FC`: two number pages followed by five typewriter-text pages.
-    // The final text page is only `$100` bytes. ProcessSpriteTilesTransfers emits one
-    // record per call and reports completion on the same call that emits entry six.
-    private static readonly MotherBrainSpriteTileTransferRequest[] EscapeTimerTileTransfers =
-    [
-        new(0, 0x0200, 0xb0c000, 0x7e00),
-        new(1, 0x0120, 0xb0c200, 0x7f00),
-        new(2, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[0],
-            MotherBrainEscapeTextArtworkDefinitions.PageSources[0],
-            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[0]),
-        new(3, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[1],
-            MotherBrainEscapeTextArtworkDefinitions.PageSources[1],
-            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[1]),
-        new(4, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[2],
-            MotherBrainEscapeTextArtworkDefinitions.PageSources[2],
-            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[2]),
-        new(5, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[3],
-            MotherBrainEscapeTextArtworkDefinitions.PageSources[3],
-            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[3]),
-        new(6, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[4],
-            MotherBrainEscapeTextArtworkDefinitions.PageSources[4],
-            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[4]),
-    ];
-
-    // `$A9:902F-$903E` replaces the destroyed escape door's two sprite pages. Because the
-    // escape-timer list falls through, entry zero is emitted on the timer list's final call.
-    private static readonly MotherBrainSpriteTileTransferRequest[] ExplodedDoorTileTransfers =
-    [
-        new(0, MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-            unchecked((uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress),
-            MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.FirstDestinationWord),
-        new(1, MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-            unchecked((uint)(MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress +
-                MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
-            unchecked((ushort)(MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.FirstDestinationWord +
-                MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride))),
-    ];
-
     // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native
     // explosion index counts backward and wraps to six, so a zero-initialized sequence emits
     // record six first. Signed offsets are added to the body enemy's current world position.

@@ -970,7 +970,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles:
                 escapeSequenceTileTransfers.Add(CreateNextEscapeTimerTileTransfer());
-                if (EscapeTimerTileTransferIndex == EscapeTimerTileTransfers.Length)
+                if (EscapeTimerTileTransferIndex == MotherBrainEscapeTextArtworkDefinitions.TransferCount)
                 {
                     // Carry set after entry six clears the shared list cursor, installs
                     // `$B26D`, and falls through far enough to emit exploded-door entry zero
@@ -982,7 +982,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape:
                 escapeSequenceTileTransfers.Add(CreateNextExplodedDoorTileTransfer());
-                if (ExplodedDoorTileTransferIndex != ExplodedDoorTileTransfers.Length)
+                if (ExplodedDoorTileTransferIndex != MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
                     break;
 
                 // The second door record observes the zero terminator and performs the full

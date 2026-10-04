@@ -9508,4 +9508,17 @@
     "proof": "Extend existing VerifyEndingCompletionTextInstructions under --lookup-ending-completion-programs with all56 original compositions read through the existing extractor. Require calculated-view selection and identical complete visual identity; compare native/generated low/high OAM at positive and negative origins. Independent edits to nine visual fields preserve supplied parts, and invalid part indices throw. Existing164 original program words and fourteen480-call actor streams pass. Build0 errors/1429 existing warnings. No exploratory gameplay or duplicate source oracle.",
     "scope": "All814 completion-text composition parts converted. Font pixel drawings remain separately reviewable; no retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingLogoCompositionRelationshipsReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoRelatedParts.cs",
+    "mappings": [
+      { "id": "ending-logo-opposite-half-rotation", "state": "converted" },
+      { "id": "ending-logo-wrap-stage-composition-reuse", "state": "converted" }
+    ],
+    "source": "Original8C:B97F..BC40 contains eight compositions and138 parts. The lower S mirrors both coordinates and flips of the fourteen upper-S parts. Every left-wrap stage similarly rotates its right counterpart. Right stage1 is the first twelve parts of stage2; the complete right stage prepends seven new parts to all eighteen stage2 parts.",
+    "algorithm": "Reference the supplied upper S and complete right wrap. Rotation computes x=-x-size,y=-y-size and toggles both flips. Earlier wrap stages select twelve/eighteen parts at offset7 within the complete right composition. Preserve every other field and native part order. This shares39 supplied basis parts instead of separately storing138 parts across all frames.",
+    "implementation": "A read-only composition view references the basis without a generated part cache. Substitute only after complete supplied-part equality; independent frame edits retain their original parts. Reject calculation for arbitrary basis edits whose rotation is outside signed coordinate bounds. Basis compositions remain independent required review work, not approved retention.",
+    "proof": "Extend existing VerifyEndingLogoPrograms under --lookup-ending-logo-programs. Original instruction operands and OAM headers establish all eight definitions; original extractor reads all138 parts. Confirm expected relationship selection, complete visual identities, native positive/negative-origin low/high OAM, preservation of independent edits to nine fields and part bounds. Existing31 instruction words and four200-call actor streams remain checked.",
+    "remaining": "Upper-S fourteen-part basis and complete-right twenty-five-part basis still require conversion or a concrete acceptable exception, including their layouts, tile choices and common fields. Source pixel art remains separate. No exception is claimed by this relationship conversion. Implementation commit is the commit adding this record."
+  }
 }

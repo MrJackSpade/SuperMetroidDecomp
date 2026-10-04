@@ -58,6 +58,13 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
             frames.Add(definition.Pointer,
                 IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
+        SpriteComposition upper = frames[definitions[0].Pointer];
+        SpriteComposition completeRight = frames[definitions[4].Pointer];
+        for (int index = 0; index < definitions.Count; index++)
+        {
+            ushort pointer = definitions[index].Pointer;
+            frames[pointer] = EndingLogoRelatedParts.CalculateIfMatching(index, frames[pointer], upper, completeRight);
+        }
         return new EndingLogoSpritePresentation(frames);
     }
 

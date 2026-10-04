@@ -31,6 +31,13 @@ public sealed class HudState
     /// The frontend consumes it after the runtime frame has completed.
     /// </summary>
     public bool SelectionSoundRequestedThisFrame { get; private set; }
+    /// <summary>Transfers the pending HUD sound once, including across frontend frame boundaries.</summary>
+    public bool ConsumeSelectionSoundRequest()
+    {
+        bool requested = SelectionSoundRequestedThisFrame;
+        SelectionSoundRequestedThisFrame = false;
+        return requested;
+    }
 
     /// <summary>
     /// Native queue suppression captured when the HUD requests its sound, rather than

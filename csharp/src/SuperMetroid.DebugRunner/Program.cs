@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--hud-select-sound-audit", var selectInstallation])
+        return HudSelectSoundAudit.Run(selectInstallation);
     if (args is ["--captured-ground-shot-audit", var groundState, var groundInstallation, var groundOutput])
         return CapturedGroundShotAudit.Run(groundState, groundInstallation, groundOutput);
     if (args is ["--pause-suit-appearance-audit", var suitInstallation])

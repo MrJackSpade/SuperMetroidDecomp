@@ -42,7 +42,9 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         }
         if (runtime.Samus is not { } samus)
             return;
-        if (!selectionPublished && runtime.Hud.SelectionSoundRequestedThisFrame)
+        // The early beta/echo pass can run before this frame refreshes the HUD.
+        // Consume the request so the next frontend frame cannot replay the old flag.
+        if (!selectionPublished && runtime.Hud.ConsumeSelectionSoundRequest())
         {
             audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.HudWeaponSelect, 6,
                 soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);

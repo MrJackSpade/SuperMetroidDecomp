@@ -10128,7 +10128,7 @@
   "ceresLargeAsteroidPartGeometryReview": {
     "owner": "csharp/src/SuperMetroid.Core/Assets/CeresLargeAsteroidParts.cs",
     "id": "ceres-large-asteroid-shapes-and-placement",
-    "state": "unreviewed",
+    "state": "retained",
     "converted": {
       "id": "ceres-large-asteroid-atlas-aligned-shapes",
       "state": "converted",
@@ -10138,9 +10138,12 @@
     },
     "placement": {
       "id": "ceres-large-asteroid-three-scene-anchors",
-      "state": "unreviewed",
-      "scope": "Original anchors(-113,-65),(88,-36),(0,8) remain supplied placement data,not accepted retention. Their relationship must be independently reviewed against original scene composition/motion. Whole-shape translation support does not justify retaining original positions."
+      "state": "retained",
+      "scope": "Only the six coordinates of original anchors (-113,-65), (88,-36), (0,8); all nineteen local part layouts remain calculated.",
+      "evidence": "Read both complete original OAM records and native 8B:BF22..BF4B. The two cinematic object definitions CF39 and CE7F share that initializer and pre-instruction. One origin starts at (80,159); a shared quarter-pixel horizontal increment wraps X to nine bits. There is no per-rock time, angle, radius, collision, or attachment input. SHA-pinned source export --lookup-ceres-asteroid-art independently decodes 96:D10A and palette 8C:E5E9, then assembles 8C:94F7. Both exported atlas and complete composition were inspected: three distinct irregular rock drawings occupy separately chosen left-upper, right-middle and lower-middle locations.",
+      "rationale": "The six coordinates are the content of a fixed foreground arrangement, not samples of the shared translation. Atlas placement explains each rock's internal grid but does not determine gaps or relative heights between drawings. Neither evenly spaced tiling nor mirror placement describes the three different drawings. Angular or polynomial interpolation through these three spatial anchors would introduce an artificial ordinal trajectory that the native consumer does not have; numeric cases would simply repeat the composition. Retain this specific authored arrangement under the nonsense exception. This is positive source/consumer/artwork evidence, not a failed numerical fit, performance objection, or blanket art exemption.",
+      "confirmation": "Existing VerifyCeresLargeAsteroidParts compares all original fields and native OAM for both identities, and independently translates each whole rock while preserving the calculated local shape. The new export is static source inspection, not gameplay discovery."
     },
-    "remaining": "Shape geometry is converted in all three consumers;three placement anchors and source pixels remain required review. No retention exception or whole-layout completion claim. Implementation commit is the commit adding this record."
+    "remaining": "OAM geometry is resolved: all local parts are calculated in three consumers and only the six scene-anchor coordinates are retained with the narrow rationale above. Source pixels and all other inventory entries retain their independent review requirements. Placement-disposition commit is the commit updating this record and adding Program.CeresAsteroidArtwork.cs."
   }
 }

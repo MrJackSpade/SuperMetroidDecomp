@@ -4,6 +4,16 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Three atlas-aligned asteroid shapes with independently supplied scene anchors.</summary>
+/// <remarks>
+/// The complete original compositions at 8C:909D and 8C:94F7 place three distinct
+/// drawings at (-113,-65), (88,-36), and (0,8). Their local geometry follows atlas
+/// offsets; their relative scene placement is authored composition. Native BF22
+/// initializes one shared origin and BF35 translates the entire group horizontally,
+/// with no per-rock trajectory or placement calculation. A numeric case or fitted
+/// curve for these six coordinates would only re-encode that drawing arrangement.
+/// Retain those independent anchors, while calculating all nineteen local parts.
+/// This disposition does not extend to source pixels or other scene placements.
+/// </remarks>
 internal sealed class CeresLargeAsteroidParts(
     (int X, int Y) left, (int X, int Y) right, (int X, int Y) lower, int priority)
     : IReadOnlyList<CompiledSpritePart>

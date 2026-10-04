@@ -734,6 +734,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Both entries remain unchecked because their independent endpoint colors are still required. Revival/from-grey also remains required: direct endpoint interpolation differs in two channels of one intermediate body color; no approximation or retention exception was introduced.
 - Changed production: `MotherBrainRainbowPalettePresentation.cs`; confirmation extends the assigned stream partial.
 
+### Confirmed batch 10: Rainbow back-leg shading (partial payload disposition)
+
+- All 150 back-leg colors in the ten rainbow frames selected by $AD:E434 are the corresponding body RGB5 channel divided by two, rounded upward. Matching per-frame leg arrays are discarded; each consumer calculates the shadow color directly. An independently edited body or leg color that breaks this relationship keeps its exact supplied leg image.
+- Body palettes remain required, and the rainbow checklist entry stays unchecked. Their frame differences show shared color-channel tint offsets with prequantization variation; this is further calculation work, not an authored-data exception. Normal-restoration colors likewise retain their required disposition.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed all 300 rainbow words, 30 normal-restoration words, calculated-shadow path selection in all ten frames, all 990 independent body/leg RGB channel edits, original bounds, and the preceding drain/legacy checks.
+- Changed production: `MotherBrainRainbowPalettePresentation.cs`; confirmation extends the owned partial. The coordinator-owned source hash dependency remains the same file in `SequenceColorClosedContractDefinitions.cs`.
+
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

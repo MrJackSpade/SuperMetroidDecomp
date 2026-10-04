@@ -134,8 +134,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, selected.Body[color]);
             cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, selected.Body[color]);
         }
-        for (int color = 0; color < selected.BackLegs.Length; color++)
-            cgram.SetColor(legDestination + color, selected.BackLegs[color]);
+        for (int color = 0; color < selected.LegCount; color++)
+            cgram.SetColor(legDestination + color, selected.Leg(color));
     }
 
     public static MotherBrainRainbowPalettePresentation Load(Stream json,
@@ -221,7 +221,33 @@ public sealed class MotherBrainRainbowPalettePresentation
         json.Write(bytes);
     }
 
-    private sealed record PaletteFrame(ushort[] Body, ushort[] BackLegs, ushort? TrailingColor);
+    private sealed class PaletteFrame
+    {
+        private readonly ushort[]? backLegs;
+
+        public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
+        {
+            Body = body;
+            LegCount = legs.Length;
+            TrailingColor = trailingColor;
+            // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
+            // Select this relationship only when every supplied color agrees.
+            if (body.Length != legs.Length)
+            { backLegs = legs; return; }
+            for (int color = 0; color < legs.Length; color++)
+                if (HalfIntensity(body[color]) != legs[color])
+                { backLegs = legs; return; }
+        }
+
+        public ushort[] Body { get; }
+        public int LegCount { get; }
+        public ushort? TrailingColor { get; }
+        public ushort Leg(int color) => backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
+
+        private static ushort HalfIntensity(ushort color) => (ushort)(
+            ((color & 31) + 1) / 2 | (((color >> 5 & 31) + 1) / 2) << 5
+            | (((color >> 10 & 31) + 1) / 2) << 10);
+    }
 
     private sealed class PaletteFade
     {
@@ -242,7 +268,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                     if (Body(frame, color) != frames[frame].Body[color])
                     { supplied = frames; return; }
                 for (int color = 0; color < LegCount; color++)
-                    if (Leg(frame, color) != frames[frame].BackLegs[color])
+                    if (Leg(frame, color) != frames[frame].Leg(color))
                     { supplied = frames; return; }
                 if (Trailing(frame) != frames[frame].TrailingColor)
                 { supplied = frames; return; }
@@ -251,11 +277,11 @@ public sealed class MotherBrainRainbowPalettePresentation
 
         public int Length { get; }
         public int BodyCount => first.Body.Length;
-        public int LegCount => first.BackLegs.Length;
+        public int LegCount => first.LegCount;
         public ushort Body(int frame, int color) => supplied is null
             ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
         public ushort Leg(int frame, int color) => supplied is null
-            ? Interpolate(first.BackLegs[color], last.BackLegs[color], frame) : supplied[frame].BackLegs[color];
+            ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
         public ushort? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
             : first.TrailingColor is ushort start && last.TrailingColor is ushort end
                 ? Interpolate(start, end, frame) : null;

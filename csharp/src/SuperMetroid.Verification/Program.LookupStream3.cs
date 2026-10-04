@@ -109,6 +109,16 @@ internal static partial class Program
         PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
         MotherBrainRainbowPaletteFrameDocument Empty(int bodies, int legs, bool trailing) => new()
         { Body = Zeros(bodies), BackLegs = Zeros(legs), TrailingColor = trailing ? Color(0) : null };
+        MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
+        {
+            Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
+            BackLegs = Enumerable.Range(0, 15).Select(color => Color(Read(legSource + 2 * color))).ToArray(),
+        };
+        var rainbow = Enumerable.Range(0, 10).Select(frame =>
+        {
+            int source = 0xad0000 | Read(0xade434 + 2 * frame);
+            return ReadFull(source, source + 30);
+        }).ToArray();
         var drain = new MotherBrainRainbowPaletteFrameDocument[8];
         var fake = new PaletteRgb5[8][];
         for (int frame = 0; frame < 8; frame++)
@@ -125,9 +135,9 @@ internal static partial class Program
         }
         var document = new MotherBrainRainbowPaletteDocument
         {
-            Version = 3, Rainbow = Enumerable.Range(0, 10).Select(_ => Empty(15, 15, false)).ToArray(),
+            Version = 3, Rainbow = rainbow,
             ToGrey = drain, FromGrey = Enumerable.Range(0, 8).Select(_ => Empty(13, 5, true)).ToArray(),
-            FakeDeathToGrey = fake, Normal = Empty(15, 15, false), BeamInitial = Color(0), BeamCycle = Zeros(38),
+            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0), BeamCycle = Zeros(38),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
             MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
@@ -155,6 +165,42 @@ internal static partial class Program
         }
         var stock = Load(document);
         Check(stock);
+        void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
+        {
+            var cgram = new SnesCgram();
+            for (int frame = 0; frame <= 10; frame++)
+            {
+                var expected = frame == 10 ? document.Normal : rainbow[frame];
+                if (frame == 10) palette.ApplyNormal(cgram);
+                else palette.ApplyRainbow(cgram, frame);
+                for (int color = 0; color < 15; color++)
+                {
+                    AssertEqual(Word(expected.Body[color]), cgram.Colors[0x41 + color], "stream 3 rainbow body");
+                    AssertEqual(Word(expected.Body[color]), cgram.Colors[0x91 + color], "stream 3 rainbow brain");
+                    AssertEqual(Word(expected.BackLegs[color]), cgram.Colors[0xb1 + color], "stream 3 rainbow shadow");
+                }
+            }
+        }
+        CheckRainbow(stock);
+        var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        foreach (object frame in storedRainbow)
+            AssertTrue(frame.GetType().GetField("backLegs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(frame) is null, "stream 3 rainbow shadow tables discarded");
+        for (int frame = 0; frame <= 10; frame++)
+        for (int color = 0; color < 30; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var selected = frame == 10 ? document.Normal : rainbow[frame];
+            PaletteRgb5[] row = color < 15 ? selected.Body : selected.BackLegs;
+            int index = color % 15;
+            PaletteRgb5 original = row[index];
+            row[index] = Color((ushort)(Word(original) ^ 1 << (5 * channel)));
+            CheckRainbow(Load(document));
+            row[index] = original;
+        }
+        foreach (int invalid in new[] { -1, 10, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
         foreach (string field in new[] { "toGrey", "fakeDeathToGrey" })
         {
             var fade = typeof(MotherBrainRainbowPalettePresentation).GetField(field,

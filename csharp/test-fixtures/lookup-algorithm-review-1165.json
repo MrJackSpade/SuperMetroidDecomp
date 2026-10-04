@@ -9521,4 +9521,15 @@
     "proof": "Extend existing VerifyEndingLogoPrograms under --lookup-ending-logo-programs. Original instruction operands and OAM headers establish all eight definitions; original extractor reads all138 parts. Confirm expected relationship selection, complete visual identities, native positive/negative-origin low/high OAM, preservation of independent edits to nine fields and part bounds. Existing31 instruction words and four200-call actor streams remain checked.",
     "remaining": "Upper-S fourteen-part basis and complete-right twenty-five-part basis still require conversion or a concrete acceptable exception, including their layouts, tile choices and common fields. Source pixel art remains separate. No exception is claimed by this relationship conversion. Implementation commit is the commit adding this record."
   }
+,
+  "endingLogoUpperLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoUpperParts.cs",
+    "id": "ending-logo-upper-s-base-layout",
+    "state": "converted",
+    "source": "Original fourteen-part upper S at8C:B97F. Native tile operands identify seven spatial regions in overlap order: lower edge, narrow upper tip, inner base, upper-right cap, shoulder, middle bar and left stem. The lower S already uses exact180-degree rotation of this basis.",
+    "algorithm": "Traverse horizontal regions right-to-left in16-pixel/two-tile steps; narrow tip bottom-to-top in8-pixel/one-atlas-row steps; left stem bottom-to-top in16-pixel/two-atlas-row steps. Named spatial regions supply atlas origins and placement origins. Only the narrow tip uses small sprites. All parts have priority3, no flips and inherited actor palette.",
+    "implementation": "Immutable bounded fourteen-part view computes every field without a stored sequence or generated cache. Loader substitutes only when the supplied composition matches every field. Existing related-part views use this calculated upper basis for the lower S; differing supplied artwork remains supported.",
+    "proof": "Extend the existing --lookup-ending-logo-programs original-source comparison to require calculated selection for the upper S and use its calculated view as the lower-S basis. All138 logo parts participate in visual-identity and native positive/negative-origin OAM comparisons. Existing nine-field edit preservation, bounds and31-word/four-actor timing checks remain in the same proof.",
+    "remaining": "The complete right-wrap twenty-five-part basis and source pixel artwork remain required independent review. No retention exception claimed. Implementation commit is the commit adding this record."
+  }
 }

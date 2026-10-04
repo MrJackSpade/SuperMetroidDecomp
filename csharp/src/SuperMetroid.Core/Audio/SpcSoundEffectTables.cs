@@ -49,33 +49,71 @@ internal static class SpcSoundEffectTables
         ],
     ];
 
-    /// <summary>Authored sound-command selectors for voice allocation and priority.</summary>
-    /// <remarks>Conversion to explicit sound-command policy remains required by #1165.</remarks>
-    internal static readonly byte[][] Configurations =
-    [
-        [
-            5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0,
-            0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
-            2, 2,
-        ],
-        [
-            1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 0, 1, 0, 3, 1, 0,
-            0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 1, 3, 0, 0,
-            0, 0, 0, 0, 1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3,
-            3, 0, 0, 1, 0, 2, 0, 2, 3, 2, 0, 0, 0, 0, 0, 0,
-            0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0,
-            0, 3, 3, 3, 3, 0, 3, 2, 2, 2, 2, 1, 1, 1, 2,
-        ],
-        [
-            0, 1, 2, 3, 3, 2, 4, 4, 2, 5, 3, 2, 2, 4, 3, 2,
-            2, 5, 2, 4, 4, 2, 2, 2, 4, 2, 4, 2, 2, 2, 2, 5,
-            5, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 2,
-        ],
-    ];
+    /// <summary>
+    /// Dispatches one-based CPU sound commands to their native voice-allocation policy.
+    /// Native jump tables at SPC $1F4D/$31B1/$4776 choose handlers, not numeric samples.
+    /// The byte result preserves the extracted audio manifest's library-relative policy identity.
+    /// </summary>
+    internal static byte Configuration(int libraryIndex, int command) => libraryIndex switch
+    {
+        0 => (byte)Library1Configuration(command),
+        1 => (byte)Library2Configuration(command),
+        2 => (byte)Library3Configuration(command),
+        _ => throw new IndexOutOfRangeException(),
+    };
+    private static SpcLibrary1Policy Library1Configuration(int command) => command switch
+    {
+        0x02 or 0x03 or 0x04 or 0x05 or 0x06 or 0x07 or 0x09 or 0x0a or
+        0x0b or 0x0c or 0x0d or 0x0e or 0x0f or 0x10 or 0x11 or 0x12 or
+        0x13 or 0x14 or 0x15 or 0x16 or 0x17 or 0x18 or 0x19 or 0x1a or
+        0x1b or 0x1c or 0x1d or 0x1e or 0x1f or 0x20 or 0x21 or 0x22 or
+        0x23 or 0x25 or 0x26 or 0x28 or 0x29 or 0x2a or 0x2b or 0x2c or
+        0x2d or 0x2f or 0x30 or 0x31 or 0x32 or 0x34 or 0x36 or 0x37 or
+        0x38 or 0x39 or 0x3a or 0x3b or 0x3c or 0x3d or 0x3e or 0x3f => SpcLibrary1Policy.OneVoiceLowPriority,
+        0x35 => SpcLibrary1Policy.OneVoiceHighPriority,
+        0x08 or 0x24 or 0x27 or 0x33 or 0x41 or 0x42 => SpcLibrary1Policy.TwoVoicesLowPriority,
+        0x40 => SpcLibrary1Policy.ThreeVoicesHighPriority,
+        0x2e => SpcLibrary1Policy.FourVoicesLowPriority,
+        0x01 => SpcLibrary1Policy.PowerBombFourVoices,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static SpcLibrary2Policy Library2Configuration(int command) => command switch
+    {
+        0x06 or 0x07 or 0x08 or 0x09 or 0x0a or 0x0b or 0x0c or 0x0d or
+        0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or
+        0x18 or 0x1b or 0x1d or 0x20 or 0x21 or 0x22 or 0x23 or 0x24 or
+        0x25 or 0x26 or 0x28 or 0x29 or 0x2a or 0x2b or 0x2f or 0x30 or
+        0x31 or 0x32 or 0x33 or 0x34 or 0x36 or 0x39 or 0x3a or 0x3b or
+        0x3c or 0x3d or 0x3e or 0x3f or 0x40 or 0x41 or 0x42 or 0x43 or
+        0x44 or 0x45 or 0x47 or 0x48 or 0x49 or 0x4a or 0x4b or 0x4c or
+        0x4d or 0x4f or 0x52 or 0x53 or 0x55 or 0x57 or 0x5b or 0x5c or
+        0x5d or 0x5e or 0x5f or 0x60 or 0x61 or 0x62 or 0x64 or 0x65 or
+        0x66 or 0x67 or 0x68 or 0x69 or 0x6a or 0x6b or 0x6c or 0x6d or
+        0x70 or 0x71 or 0x76 => SpcLibrary2Policy.OneVoiceLowPriority,
+        0x01 or 0x02 or 0x03 or 0x04 or 0x05 or 0x16 or 0x17 or 0x1c or
+        0x1f or 0x2d or 0x35 or 0x46 or 0x54 or 0x7c or 0x7d or 0x7e => SpcLibrary2Policy.OneVoiceHighPriority,
+        0x19 or 0x1a or 0x37 or 0x38 or 0x56 or 0x58 or 0x5a or 0x63 or
+        0x78 or 0x79 or 0x7a or 0x7b or 0x7f => SpcLibrary2Policy.TwoVoicesLowPriority,
+        0x1e or 0x27 or 0x2c or 0x2e or 0x4e or 0x50 or 0x51 or 0x59 or
+        0x6e or 0x6f or 0x72 or 0x73 or 0x74 or 0x75 or 0x77 => SpcLibrary2Policy.TwoVoicesHighPriority,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static SpcLibrary3Policy Library3Configuration(int command) => command switch
+    {
+        0x01 => SpcLibrary3Policy.CancelAndClearLowHealthMode,
+        0x02 => SpcLibrary3Policy.LowHealthModePreservePriority,
+        0x03 or 0x06 or 0x09 or 0x0c or 0x0d or 0x10 or 0x11 or 0x13 or
+        0x16 or 0x17 or 0x18 or 0x1a or 0x1c or 0x1d or 0x1e or 0x1f or
+        0x22 or 0x23 or 0x25 or 0x26 or 0x27 or 0x28 or 0x29 or 0x2a or
+        0x2b or 0x2d or 0x2f => SpcLibrary3Policy.OneVoiceLowPriority,
+        0x04 or 0x05 or 0x0b or 0x0f => SpcLibrary3Policy.TwoVoicesLowPriority,
+        0x07 or 0x08 or 0x0e or 0x14 or 0x15 or 0x19 or 0x1b or 0x2c or
+        0x2e => SpcLibrary3Policy.TwoVoicesHighPriority,
+        0x0a or 0x12 or 0x20 or 0x21 or 0x24 => SpcLibrary3Policy.OneVoiceHighPriority,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>
     /// SPC allocation structure layout: contiguous per-channel bitsets and masks,
@@ -99,15 +137,6 @@ internal static class SpcSoundEffectTables
             _ => throw new IndexOutOfRangeException(),
         };
         return (ushort)(baseAddress + offset);
-    }
-
-    static SpcSoundEffectTables()
-    {
-        for (int library = 0; library < StreamPointerTables.Length; library++)
-        {
-            if (StreamPointerTables[library].Length != Configurations[library].Length)
-                throw new InvalidDataException($"SPC sound library {library + 1} table lengths disagree.");
-        }
     }
 
     internal static int GetVoiceCount(int libraryIndex, byte configuration) => libraryIndex switch

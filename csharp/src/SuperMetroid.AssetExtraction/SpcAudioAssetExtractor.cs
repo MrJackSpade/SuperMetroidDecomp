@@ -218,12 +218,11 @@ public static class SpcAudioAssetExtractor
         for (int library = 0; library < SpcSoundEffectTables.StreamPointerTables.Length; library++)
         {
             ushort[] pointers = SpcSoundEffectTables.StreamPointerTables[library];
-            byte[] configurations = SpcSoundEffectTables.Configurations[library];
             List<AudioSoundEffectMetadata> effects = [];
             for (int index = 0; index < pointers.Length; index++)
             {
                 ushort streamPointer = pointers[index];
-                byte configuration = configurations[index];
+                byte configuration = SpcSoundEffectTables.Configuration(library, index + 1);
                 int voiceCount = SpcSoundEffectTables.GetVoiceCount(library, configuration);
                 var channelPrograms = new string[voiceCount];
                 for (int channel = 0; channel < voiceCount; channel++)

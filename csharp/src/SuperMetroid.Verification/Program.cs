@@ -174,6 +174,17 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-spc-sound-policies"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC policy oracle revision");
+    VerifySpcSoundPolicy1(rom);
+    VerifySpcSoundPolicy2(rom);
+    VerifySpcSoundPolicy3(rom);
+    Console.WriteLine("SPC sound policies: all240 native dispatches, handler writes, preserved fields, voice counts and invalid inputs pass.");
+    return 0;
+}
 if (args is ["--lookup-spc-allocation-addresses"])
 {
     VerifySpcAllocationAddresses();

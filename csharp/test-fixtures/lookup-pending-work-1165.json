@@ -1,14 +1,14 @@
 {
   "issue": 1165,
-  "status": "SPC sound dispatch/policy, SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
+  "status": "SPC sound dispatch, SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
-      "id": "spc-sound-command-dispatch-and-policy",
+      "id": "spc-sound-command-dispatch",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
-      "nativeIdentity": "Three pointer maps CF:96F5/CF:A5BB/CF:BA97 and upstream kSfx1Conf/kSfx2Conf/kSfx3Conf",
+      "nativeIdentity": "Three pointer maps CF:96F5/CF:A5BB/CF:BA97",
       "status": "pending",
-      "task": "Convert all three sound-command dispatch maps and all three allocation-policy maps to meaningful dispatch cases. Old irregular-gap, no-shorter-rule and per-sound-policy retention claims are withdrawn. Preserve library3 prior-field semantics. These are not accepted retention exceptions."
+      "task": "Convert all three sound-command stream-pointer maps to meaningful dispatch cases. Old irregular-gap and no-shorter-rule retention claims are withdrawn. These are not accepted retention exceptions. All three allocation-policy maps are now converted; see spcSoundPolicyDispatchReview in the review inventory."
     },
     {
       "id": "large-font-t-w-n-shadow-differences",

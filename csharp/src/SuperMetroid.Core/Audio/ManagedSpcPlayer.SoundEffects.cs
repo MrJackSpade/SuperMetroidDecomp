@@ -51,7 +51,7 @@ public sealed partial class ManagedSpcPlayer
         library.CurrentPointer = SpcSoundEffectTables.StreamPointerTables[libraryIndex][tableIndex];
         library.CurrentSound = command;
 
-        byte configuration = SpcSoundEffectTables.Configurations[libraryIndex][tableIndex];
+        byte configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);
         ConfigureSoundLibrary(libraryIndex, library, configuration);
     }
 

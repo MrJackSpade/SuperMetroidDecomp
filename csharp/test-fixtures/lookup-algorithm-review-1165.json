@@ -7417,4 +7417,19 @@
     "panResearch": "Bounded source inspection: AddMusicKFF b553d29c83d31cb07fea7018662e6c765435d5bb asm/main.asm PanValues repeats the samples and interpolation; loveemu/spc_converters_legacy 64e535fb26dfa1239769f1e6ed0c8fb11ad98ce9 nintspc/src/nintspc.c translates the pan command; vgmtrans 33673176917c122627d4c317b69130c4ffbdffcc NinSnesProfile.cpp interpolates a supplied table. None of these inspected locations establishes a generating formula or arbitrariness. SPC pan conversion remains required, with no retention conclusion. VGMTrans bounds policy is not imported into the managed SPC RAM overread path.",
     "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-spc-allocation-addresses passes. Maintained-source index refreshed. No broader audio or gameplay validation claimed."
   }
+,
+  "spcSoundPolicyDispatchReview": {
+    "status": "converted all three command-to-allocation-policy tables to native dispatch cases",
+    "owners": ["csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs", "csharp/src/SuperMetroid.Core/Audio/SpcSoundAllocationPolicies.cs"],
+    "nativeTables": [
+      {"library":1,"spc":"1F4D","rom":"CF:8B55","commands":"01..42","proof":"VerifySpcSoundPolicy1"},
+      {"library":2,"spc":"31B1","rom":"CF:9DB9","commands":"01..7F","proof":"VerifySpcSoundPolicy2"},
+      {"library":3,"spc":"4776","rom":"CF:B37E","commands":"01..2F","proof":"VerifySpcSoundPolicy3"}
+    ],
+    "evidence": "PJBoy/SM-SPC 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library1/2/3.asm handleCpuIoN calls goToJumpTableEntry into command-indexed handlers. These handlers call named nSoundNVoices_X_soundNPriority_Y functions. Library3 commands1/2 directly set distinct low-health state. This is control dispatch, not arbitrary sampled content. Managed selector bytes correspond to the original handler identities in pinned upstream-sm kSfx1Conf/kSfx2Conf/kSfx3Conf.",
+    "implementation": "Remove all240 stored selector bytes and the outer array. Configuration selects explicitly enumerated one-based command cases returning library-specific named policy enums. Preserve all legacy manifest byte identities, including library1's distinct duplicate Power Bomb four-voice handler. The runtime command consumer, audio extractor and extracted asset manifest validator call the same selector; no generated policy cache. Remove obsolete pointer/configuration array-length comparison because the policy arrays no longer exist. Stream-pointer arrays remain separate required work.",
+    "stateContract": "Existing ConfigureSoundLibrary continues applying the selected policy. Library3 cancel clears mode and sets priority1; low-health sets mode2 while preserving prior priority; ordinary handlers preserve mode. GetVoiceCount still supplies the manifest's exact required channel-program count. Unsupported commands/libraries throw IndexOutOfRangeException; the actual runtime retains its existing no-sound, rejection and explicit invalid-command handling before dispatch.",
+    "proof": "One focused proof per original logical table, sharing only mechanics. SHA-pinned original ROM jump words choose each of240 handlers. Read actual CALL targets to identify original policy bytes; inspect bounded MOV-immediate/MOV-absolute/RET code to independently derive native writes. Invoke the real production policy consumer and compare voices, priority and mode for zero and nonzero prior fields, including preservation. Compare asset voice count, all policy identities and invalid bounds. No expected240-byte selector copy and no gameplay search.",
+    "confirmation": "Incremental Verification build0 errors/240 existing warnings; --lookup-spc-sound-policies passes all three proofs. Maintained-source index refreshed. No retention exception assigned."
+  }
 }

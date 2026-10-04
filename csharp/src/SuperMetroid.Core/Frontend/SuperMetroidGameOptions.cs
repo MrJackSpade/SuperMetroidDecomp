@@ -44,6 +44,12 @@ public sealed record SuperMetroidGameOptions
     /// </remarks>
     public bool InfiniteAmmo { get; init; }
 
+    /// <summary>Grants and fills the complete collectible inventory on player initialization; normal saves retain it.</summary>
+    public bool GrantAllEquipment { get; init; }
+
+    /// <summary>Opens the Tourian statue passage without changing boss defeat flags.</summary>
+    public bool UnlockTourian { get; init; }
+
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
@@ -109,6 +115,8 @@ public static partial class SuperMetroidGameOptionsIni
         bool? skipOpeningCinematic = null;
         bool? invincibility = null;
         bool? infiniteAmmo = null;
+        bool? grantAllEquipment = null;
+        bool? unlockTourian = null;
         bool? preventEscapeTimeout = null;
         ushort? endingTimeOverrideMinutes = null;
         bool endingTimeOverrideSeen = false;
@@ -195,6 +203,20 @@ public static partial class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.GrantAllEquipment), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (grantAllEquipment.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    grantAllEquipment = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+                if (key.Equals(nameof(SuperMetroidGameOptions.UnlockTourian), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (unlockTourian.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    unlockTourian = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
                 if (key.Equals(nameof(SuperMetroidGameOptions.PreventEscapeTimeout), StringComparison.OrdinalIgnoreCase))
                 {
                     if (preventEscapeTimeout.HasValue)
@@ -294,6 +316,8 @@ public static partial class SuperMetroidGameOptionsIni
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
             Invincibility = invincibility ?? false,
             InfiniteAmmo = infiniteAmmo ?? false,
+            GrantAllEquipment = grantAllEquipment ?? false,
+            UnlockTourian = unlockTourian ?? false,
             PreventEscapeTimeout = preventEscapeTimeout ?? false,
             EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
             MapReveal = mapReveal ?? MapRevealMode.None,

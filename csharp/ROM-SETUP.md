@@ -1299,3 +1299,27 @@ game runs with audio. The existing game package and its saves were left intact.
 The import integration suite and full Core verification suite passed using private
 fixtures. The APK and desktop publish output were inspected and contained no ROM,
 SPC upload streams, audio manifest, or WAV samples.
+
+## Tester inventory and Tourian access
+
+Add these independent options under `[Game]` in the active `SuperMetroid.ini`,
+then restart. Both default to `false`; existing INI files are not overwritten.
+
+```ini
+GrantAllEquipment=false
+UnlockTourian=false
+```
+
+`GrantAllEquipment=true` grants every normal collectible upgrade on game start/load:
+1499 energy, 400 reserve energy, 230 missiles, 50 super missiles, 50 power bombs,
+all equipment and all collectible beams. Plasma is equipped and Spazer is available
+in the equipment menu (the two cannot be equipped together). Hyper Beam remains
+part of the Mother Brain sequence. Reserve tanks start in Auto mode. Pickups are
+marked collected to prevent duplicate capacity upgrades. This is a one-time grant
+per initialized player, not invincibility or infinite ammo; equipment can still be
+unequipped. Saving retains the granted inventory after the option is turned off.
+
+`UnlockTourian=true` opens the four-statue entrance without defeating the four
+bosses or setting their defeat flags. It does not teleport Samus or skip Tourian's
+rooms or Mother Brain's encounter. Both settings are preserved in input recordings
+and excluded from attract demos.

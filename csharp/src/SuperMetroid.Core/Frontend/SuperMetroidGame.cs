@@ -1360,7 +1360,9 @@ public sealed partial class SuperMetroidGame
             infiniteAmmoEnabled: !forAttractDemo && gameOptions.InfiniteAmmo,
             mapRevealMode: forAttractDemo ? MapRevealMode.None : gameOptions.MapReveal,
             preventEscapeTimeout: !forAttractDemo && gameOptions.PreventEscapeTimeout,
-            initialPaletteArt: gameplayBasePalettes);
+            initialPaletteArt: gameplayBasePalettes,
+            grantAllEquipment: !forAttractDemo && gameOptions.GrantAllEquipment,
+            unlockTourian: !forAttractDemo && gameOptions.UnlockTourian);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
@@ -1499,6 +1501,7 @@ public sealed partial class SuperMetroidGame
                 ?? throw new InvalidOperationException(
                     "SpaceTime restart did not create the Ceres Samus state.");
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
+            runtime.ApplyTesterInventory(restoredInventory: true);
             restartedSamus.SelectedHudItem = 0;
             restartedSamus.AutoCancelHudItemIndex = 0;
             AutomaticCheckpointSaver.SaveCeresArrival(bus, runtime, selectedSaveSlot);
@@ -1529,6 +1532,7 @@ public sealed partial class SuperMetroidGame
                 runtime.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Samus ?? throw new InvalidOperationException(
                     "Ceres initialization did not create Samus."));
+                runtime.ApplyTesterInventory(restoredInventory: true);
                 runtime.Samus.SelectedHudItem = 0;
                 runtime.Samus.AutoCancelHudItemIndex = 0;
                 ApplySelectedGameOptions();

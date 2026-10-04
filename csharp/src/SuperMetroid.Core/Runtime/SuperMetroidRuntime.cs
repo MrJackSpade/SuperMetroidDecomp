@@ -41,10 +41,14 @@ public sealed partial class SuperMetroidRuntime
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false,
-        GameplayBasePaletteCatalog? initialPaletteArt = null)
+        GameplayBasePaletteCatalog? initialPaletteArt = null,
+        bool grantAllEquipment = false,
+        bool unlockTourian = false)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         InitialPaletteArt = initialPaletteArt;
+        GrantAllEquipmentEnabled = grantAllEquipment;
+        UnlockTourianEnabled = unlockTourian;
         PlayerInvincibilityEnabled = playerInvincibilityEnabled;
         InfiniteAmmoEnabled = infiniteAmmoEnabled;
         PreventEscapeTimeout = preventEscapeTimeout;
@@ -1369,6 +1373,7 @@ public sealed partial class SuperMetroidRuntime
         Func<ushort>? queueEchoSound = null,
         Action? checkLowHealth = null)
     {
+        ApplyTesterInventory();
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
         try

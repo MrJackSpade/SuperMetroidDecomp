@@ -175,6 +175,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         slot.ApplyTo(Samus, System);
+        ApplyTesterInventory();
         // $91:E00D clears both persisted HUD selection words after mirror restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.
         Samus.SelectedHudItem = 0;
@@ -1385,6 +1386,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, mapPresentation?.SamusSuitColors);
+        ApplyTesterInventory();
 
         // Fresh-game loading has one deliberately non-general palette write after copying
         // every target color into the live palette: `$82:8190` clears color $DF (CGRAM

@@ -68,6 +68,7 @@ internal static class Program
                     $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic}, " +
                     $"Invincibility={configuration.Options.Invincibility}, " +
                     $"InfiniteAmmo={configuration.Options.InfiniteAmmo}, " +
+                    $"GrantAllEquipment={configuration.Options.GrantAllEquipment}, UnlockTourian={configuration.Options.UnlockTourian}, " +
                     $"MapReveal={configuration.Options.MapReveal}, " +
                     $"AudioEnabled={configuration.Options.AudioEnabled}, " +
                     $"MasterVolumePercent={configuration.Options.MasterVolumePercent}, " +
@@ -90,6 +91,7 @@ internal static class Program
                     $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
                     $"Invincibility={gameOptions.Invincibility}, " +
                     $"InfiniteAmmo={gameOptions.InfiniteAmmo}, " +
+                    $"GrantAllEquipment={gameOptions.GrantAllEquipment}, UnlockTourian={gameOptions.UnlockTourian}, " +
                     $"MapReveal={gameOptions.MapReveal}, " +
                     $"ReportErrorsToGitHub={gameOptions.ReportErrorsToGitHub}, " +
                     $"started {replay.StartedUtc:O}");

@@ -285,6 +285,10 @@ public sealed partial class RoomEnemySystem
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = unchecked((ushort)(hurtTime + 8));
         head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0002));
+        // The shared native no-death tail still grants Plasma's hit immunity.
+        // A surviving penetrating beam cannot damage this head again every frame.
+        if ((projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
+            head.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));

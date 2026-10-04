@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--immune-plasma-hit-audit", var plasmaInstallation])
+        return ImmunePlasmaHitAudit.Run(plasmaInstallation);
     if (args is ["--colosseum-sand-fade-audit", var sandInstallation])
         return ColosseumSandFadeAudit.Run(sandInstallation);
     if (args is ["--pause-map-cursor-audit", var cursorInstallation])

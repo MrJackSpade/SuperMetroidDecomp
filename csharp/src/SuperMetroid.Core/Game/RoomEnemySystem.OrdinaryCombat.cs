@@ -1566,6 +1566,12 @@ public sealed partial class RoomEnemySystem
                 }
 
                 int damage = (projectileDamage >> 1) * shotVulnerability.Multiplier;
+                if (damage == 0)
+                {
+                    // $A0:A75B enters the dud branch even for Plasma: immunity removes
+                    // the projectile instead of letting its ordinary piercing rule win.
+                    CreateEnemyProjectileDudShot(projectile);
+                }
                 if (damage != 0)
                 {
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;

@@ -409,9 +409,7 @@ internal static partial class Program
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
         PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
-        MotherBrainRainbowPaletteFrameDocument Empty(int bodies, int legs, bool trailing) => new()
-        { Body = Zeros(bodies), BackLegs = Zeros(legs), TrailingColor = trailing ? Color(0) : null };
-        MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
+MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
             Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
             BackLegs = Enumerable.Range(0, 15).Select(color => Color(Read(legSource + 2 * color))).ToArray(),
@@ -423,6 +421,7 @@ internal static partial class Program
         }).ToArray();
         var drain = new MotherBrainRainbowPaletteFrameDocument[8];
         var fake = new PaletteRgb5[8][];
+        var revival = new MotherBrainRainbowPaletteFrameDocument[8];
         for (int frame = 0; frame < 8; frame++)
         {
             int source = 0xad0000 | Read(0xadef87 + 2 * frame);
@@ -432,13 +431,20 @@ internal static partial class Program
                 BackLegs = Enumerable.Range(0, 5).Select(color => Color(Read(source + 30 + 2 * color))).ToArray(),
                 TrailingColor = Color(Read(source + 40)),
             };
+            int revivalSource = 0xad0000 | Read(0xaded9c + 2 * frame);
+            revival[frame] = new()
+            {
+                Body = Enumerable.Range(0, 13).Select(color => Color(Read(revivalSource + 2 * color))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(Read(revivalSource + 26 + 2 * color))).ToArray(),
+                TrailingColor = Color(Read(revivalSource + 36)),
+            };
             int fakeSource = 0xad0000 | Read(0xaded8a + 2 * frame);
             fake[frame] = Enumerable.Range(0, 3).Select(color => Color(Read(fakeSource + 2 * color))).ToArray();
         }
         var document = new MotherBrainRainbowPaletteDocument
         {
             Version = 3, Rainbow = rainbow,
-            ToGrey = drain, FromGrey = Enumerable.Range(0, 8).Select(_ => Empty(13, 5, true)).ToArray(),
+            ToGrey = drain, FromGrey = revival,
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0), BeamCycle = Zeros(38),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
@@ -482,6 +488,55 @@ internal static partial class Program
                     AssertEqual(Word(expected.BackLegs[color]), cgram.Colors[0xb1 + color], "stream 3 rainbow shadow");
                 }
             }
+        }
+        void CheckRevival(MotherBrainRainbowPalettePresentation palette)
+        {
+            var bus = new TestAddressSpace();
+            var cgram = new SnesCgram();
+            for (int frame = 0; frame < 8; frame++)
+            {
+                cgram.SetColor(0x4e, 123);
+                cgram.SetColor(0x9e, 123);
+                palette.ApplyFromGrey(bus, cgram, frame);
+                for (int color = 0; color < 13; color++)
+                {
+                    AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x41 + color], "stream 3 revival body");
+                    AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 revival brain");
+                }
+                AssertEqual((ushort)123, cgram.Colors[0x4e], "stream 3 revival preserves body tail");
+                AssertEqual((ushort)123, cgram.Colors[0x9e], "stream 3 revival preserves brain tail");
+                for (int color = 0; color < 5; color++)
+                    AssertEqual(Word(revival[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 revival legs");
+                AssertEqual(Word(revival[frame].TrailingColor!), (ushort)(bus.ReadByte(0x7e017c) | bus.ReadByte(0x7e017d) << 8), "stream 3 revival trailing word");
+                palette.ApplyFakeDeathFromGrey(cgram, frame);
+                for (int color = 0; color < 3; color++)
+                    AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 fake-death revival");
+            }
+        }
+        CheckRevival(stock);
+        const System.Reflection.BindingFlags privateFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object revivalFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fromGrey", privateFields)!.GetValue(stock)!;
+        var revivalChannels = (Array)revivalFade.GetType().GetField("channels", privateFields)!.GetValue(revivalFade)!;
+        int suppliedChannels = 0;
+        foreach (object channel in revivalChannels)
+            if (channel.GetType().GetField("supplied", privateFields)!.GetValue(channel) is not null)
+                suppliedChannels++;
+        AssertEqual(1, suppliedChannels, "stream 3 calculates 56 revival channel curves; only unmatched green remains supplied");
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 19; color++)
+        for (int component = 0; component < 3; component++)
+        {
+            var row = revival[frame];
+            PaletteRgb5 original = color < 13 ? row.Body[color] : color < 18 ? row.BackLegs[color - 13] : row.TrailingColor!;
+            void Set(PaletteRgb5 value)
+            {
+                if (color < 13) row.Body[color] = value;
+                else if (color < 18) row.BackLegs[color - 13] = value;
+                else revival[frame] = row with { TrailingColor = value };
+            }
+            Set(Color((ushort)(Word(original) ^ 1 << (5 * component))));
+            CheckRevival(Load(document));
+            Set(original);
         }
         CheckRainbow(stock);
         var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",

@@ -9,7 +9,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 {
     private readonly PaletteFrame[] rainbow;
     private readonly PaletteFade toGrey;
-    private readonly PaletteFrame[] fromGrey;
+    private readonly QuantizedPaletteFade fromGrey;
     private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
@@ -21,7 +21,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     {
         this.rainbow = rainbow;
         this.toGrey = new PaletteFade(toGrey);
-        this.fromGrey = fromGrey;
+        this.fromGrey = new QuantizedPaletteFade(fromGrey);
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
@@ -76,13 +76,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
-        ApplyBrainColors(cgram, fromGrey[frame].Body);
-    }
-
-    private static void ApplyBrainColors(SnesCgram cgram, ushort[] colors)
-    {
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, colors[color]);
+            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, fromGrey.Body(frame, color));
     }
 
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
@@ -94,7 +89,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
-        PaletteFade frames, int frame)
+        IPaletteFade frames, int frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -109,20 +104,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         for (int color = 0; color < frames.LegCount; color++)
             cgram.SetColor(MotherBrainDrainedPaletteRomData.BackLegColor + color, frames.Leg(frame, color));
         ushort trailing = frames.Trailing(frame)!.Value;
-        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, (byte)trailing);
-        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, (byte)(trailing >> 8));
-    }
-
-    private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
-        PaletteFrame[] frames, int frame)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= frames.Length)
-            throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
-        PaletteFrame selected = frames[frame];
-        ApplyColors(cgram, selected, MotherBrainDrainedPaletteRomData.BackLegColor);
-        ushort trailing = selected.TrailingColor!.Value;
         bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, (byte)trailing);
         bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, (byte)(trailing >> 8));
     }
@@ -249,7 +230,80 @@ public sealed class MotherBrainRainbowPalettePresentation
             | (((color >> 10 & 31) + 1) / 2) << 10);
     }
 
-    private sealed class PaletteFade
+    private interface IPaletteFade
+    {
+        int Length { get; }
+        int BodyCount { get; }
+        int LegCount { get; }
+        ushort Body(int frame, int color);
+        ushort Leg(int frame, int color);
+        ushort? Trailing(int frame);
+    }
+
+    // Revival colors interpolate before RGB5 quantization. Endpoint intervals are inferred
+    // from supplied colors; every row must agree before a channel's samples are discarded.
+    // Unmatched channels remain explicit supplied content, with no retention exemption.
+    private sealed class QuantizedPaletteFade : IPaletteFade
+    {
+        private readonly Channel[] channels;
+
+        public QuantizedPaletteFade(PaletteFrame[] frames)
+        {
+            Length = frames.Length;
+            BodyCount = frames[0].Body.Length;
+            LegCount = frames[0].LegCount;
+            channels = new Channel[(BodyCount + LegCount + 1) * 3];
+            for (int color = 0; color < channels.Length / 3; color++)
+                for (int component = 0; component < 3; component++)
+                {
+                    var values = new byte[Length];
+                    for (int frame = 0; frame < Length; frame++)
+                    {
+                        ushort packed = color < BodyCount ? frames[frame].Body[color]
+                            : color < BodyCount + LegCount ? frames[frame].Leg(color - BodyCount)
+                            : frames[frame].TrailingColor!.Value;
+                        values[frame] = (byte)(packed >> (5 * component) & 31);
+                    }
+                    channels[color * 3 + component] = new Channel(values);
+                }
+        }
+
+        public int Length { get; }
+        public int BodyCount { get; }
+        public int LegCount { get; }
+        public ushort Body(int frame, int color) => Color(frame, color);
+        public ushort Leg(int frame, int color) => Color(frame, BodyCount + color);
+        public ushort? Trailing(int frame) => Color(frame, BodyCount + LegCount);
+        private ushort Color(int frame, int color) => (ushort)(channels[color * 3].At(frame, Length)
+            | channels[color * 3 + 1].At(frame, Length) << 5 | channels[color * 3 + 2].At(frame, Length) << 10);
+
+        private sealed class Channel
+        {
+            private readonly int first;
+            private readonly int last;
+            private readonly byte[]? supplied;
+
+            public Channel(byte[] values)
+            {
+                int intervals = values.Length - 1;
+                for (int start = values[0] * 8; start < values[0] * 8 + 8; start++)
+                    for (int end = values[^1] * 8; end < values[^1] * 8 + 8; end++)
+                    {
+                        bool matches = true;
+                        for (int frame = 0; frame < values.Length; frame++)
+                            if ((start * (intervals - frame) + end * frame) / (8 * intervals) != values[frame])
+                            { matches = false; break; }
+                        if (matches)
+                        { first = start; last = end; return; }
+                    }
+                supplied = values;
+            }
+
+            public int At(int frame, int length) => supplied is not null ? supplied[frame]
+                : (first * (length - 1 - frame) + last * frame) / (8 * (length - 1));
+        }
+    }
+    private sealed class PaletteFade : IPaletteFade
     {
         private readonly PaletteFrame first;
         private readonly PaletteFrame last;

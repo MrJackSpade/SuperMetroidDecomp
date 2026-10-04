@@ -70,7 +70,8 @@ internal static partial class Program
                 $"Zero presentation word $A3:{address:X4} has a compiled selector");
             AssertEqual(ReadZeroInstructionWord(rom, address), actual,
                 $"Zero compiled visual selector $A3:{address:X4} matches original operand");
-        }        AssertEqual(0, guard.ForbiddenReadAttempts,
+        }
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zero mechanics byte");
 
         AssertThrows<InvalidDataException>(

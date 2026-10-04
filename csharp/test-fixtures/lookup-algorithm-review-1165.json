@@ -10421,4 +10421,15 @@
     "confirmation": "Integrated Verification build1432warnings,zeroerrors; focused command passes. Source index refreshed. Legacy whole-frame beam fixture has an unrelated unsupported animation boundary; dedicated actual initializer verification confirms this changed contract without modifying that fixture or unrelated runtime.",
     "remaining": "104 of1128 snapshot definitions converted;1024 pending. All five streams remain open. No new retention exception."
   }
+,
+  "crawlerAndSbugIntegration": {
+    "id": "crawler-sbug-eleven-definitions",
+    "state": "converted",
+    "implementationCommit": "2cddb0f4f",
+    "scope": "Viola, Zero and Sbug mechanics/presentation6; Sbug facing/activation2; Waver selection1; crawler family/species2.",
+    "algorithm": "Timed-frame instruction layout with axis setup and branch operations; named facing, species and activation dispatch; native odd Sbug direction folding retained.",
+    "evidence": "Stream2 batch5 and owning definitions identify pinned bankA3 addresses. Integrated checks confirm44 crawler selectors and24 actual surface handoffs;4 Waver selectors and both facing initializers;8 Sbug lists,7 callbacks,48 control words and8 loops;40 Zero words and4 loops;30 Viola words and14-frame loop. Mechanics and compiled visual-selector source reads are forbidden in production fixtures.",
+    "confirmation": "Integrated Verification build1432warnings,zeroerrors. --lookup-stream2-crawler-animations,--sbug-instruction-mechanics,--zero-instruction-program-definitions,--viola-instruction-program-definitions pass. Obsolete Zero live-ROM-read expectation corrected to current compiled-selector ownership with exact24 native operands verified.",
+    "remaining": "115 of1128 snapshot definitions converted;1013 pending. All streams remain open and independent payloads still require disposition. No retention exception."
+  }
 }

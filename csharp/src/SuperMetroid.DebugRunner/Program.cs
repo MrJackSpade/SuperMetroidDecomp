@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--file-select-energy-tanks-audit", var tanksInstallation])
+        return FileSelectEnergyTanksAudit.Run(tanksInstallation);
     if (args is ["--rescued-animals-ship-audit", var animalsInstallation])
         return RescuedAnimalsShipAudit.Run(animalsInstallation);
     if (args is ["--mother-brain-drool-timing-audit", var droolInstallation])

@@ -77,6 +77,24 @@ public sealed partial class FileSelectMenuState
         int health = slot.Health % 100;
         presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 0, health / 10);
         presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 1, health % 10);
+        int tankCell = (layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset) *
+            FileSelectPresentationDefinitions.Width + layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset;
+        int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
+        int filledTanks = slot.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
+        ushort palette = (ushort)(bg1Tilemap[layout.HealthAnchor.Y * FileSelectPresentationDefinitions.Width +
+            layout.HealthAnchor.X] & FileSelectEnergyTankDefinitions.PaletteMask);
+        for (int tank = 0; tank < slot.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank; tank++)
+        {
+            if ((uint)tankCell >= bg1Tilemap.Length)
+                throw new InvalidDataException("File-select energy tanks escaped the menu tilemap.");
+            bg1Tilemap[tankCell++] = (ushort)(palette | (tank < filledTanks
+                ? FileSelectEnergyTankDefinitions.FilledTile : FileSelectEnergyTankDefinitions.EmptyTile));
+            if (--rowRemaining == 0)
+            {
+                tankCell -= FileSelectEnergyTankDefinitions.RowRewindCells;
+                rowRemaining = FileSelectEnergyTankDefinitions.WrappedRowCount;
+            }
+        }
         int hours = Math.Min(slot.GameTimeHours, (ushort)99);
         int minutes = Math.Min(slot.GameTimeMinutes, (ushort)99);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 0, hours / 10);

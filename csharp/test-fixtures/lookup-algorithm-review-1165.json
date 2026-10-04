@@ -10453,4 +10453,15 @@
     "confirmation": "Verification build1436warnings,zeroerrors; focused check passes. Position correction awaits player validation. Source inspection of the requested conversion identified the mismatch; no exploratory gameplay discovery.",
     "remaining": "118 of1128 snapshot definitions converted;1010 pending. Ghost and Norfair independent palette values remain required. No retention exception."
   }
+,
+  "projectileDispatchIntegration": {
+    "id": "projectile-callback-damage-and-pointer-four-definitions",
+    "state": "converted",
+    "implementationCommits": "751fa97da,9c6b68de3,fac3dfa90",
+    "scope": "Two beam callback arrays, beam damage table, and complete357-entry selection dictionary.",
+    "algorithm": "Wave/charge/family callback dispatch with named existing adjacent-code identities; physical-header to weapon mapping and triple charged damage; weapon selectors and compass/axis program strides with explicit non-beam cases. No stored replacement dictionary or cache.",
+    "evidence": "Stream1 batches5-7 and XML identify native bank90/93 definitions. Integrated --lookup-stream-1 verifies32 callback words and24 actual firing initializations, all397 selectors/damage words, unaligned and bank/domain rejection, and seven actual initializer paths with selection/damage source reads forbidden.",
+    "confirmation": "Verification build1436warnings,zeroerrors; focused command passes. Legacy whole-frame callback fixture remains intact; scoped option directly exercises TryFireBeam to isolate the changed initialization contract from its unrelated unsupported animation boundary.",
+    "remaining": "122 of1128 snapshot definitions converted;1006 pending. No retention exception. All streams remain unfinished."
+  }
 }

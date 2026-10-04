@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  1010,
+    "remainingTableDefinitionCount":  1006,
     "fileCount":  523,
     "entries":  [
                     {
@@ -6168,14 +6168,18 @@
                         "line":  10,
                         "name":  "SamusBeamCallbackDefinitions.UnchargedDefinitions",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "751fa97daf34149cb2d5af040dbd694ae2942803"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs",
                         "line":  32,
                         "name":  "SamusBeamCallbackDefinitions.ChargedDefinitions",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "751fa97daf34149cb2d5af040dbd694ae2942803"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs",
@@ -6834,7 +6838,9 @@
                         "line":  12,
                         "name":  "SamusProjectileDamageDefinitions.BeamDamage",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "fac3dfa90929f6f3f6f30de84a8c18b6941b1e2c"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs",
@@ -6889,7 +6895,9 @@
                         "line":  15,
                         "name":  "SamusProjectileSelectionDefinitions.Pointers",
                         "kind":  "factory-built stock table",
-                        "note":  "Stored FrozenDictionary\u003cint, ushort\u003e initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+                        "note":  "Stored FrozenDictionary\u003cint, ushort\u003e initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+                        "state":  "converted",
+                        "implementationCommit":  "fac3dfa90929f6f3f6f30de84a8c18b6941b1e2c"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusProjectileSoundRoutingDefinitions.cs",
@@ -20546,5 +20554,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  118
+    "convertedSinceSnapshot":  122
 }

@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            if (i is 1 or 11 or 12 or >= 17 and <= 20 or >= 29)
+            if (i is 0 or 1 or >= 10 and <= 12 or >= 17 and <= 20 or >= 29)
                 VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
@@ -111,7 +111,8 @@ internal static partial class Program
             value = EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardJumpParts.CalculateIfMatching(definition.Pointer, value);
-            return EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pointer, value);
         }
         SpriteComposition calculated = Calculate(supplied);
         AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");

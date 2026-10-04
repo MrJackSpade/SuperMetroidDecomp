@@ -9619,4 +9619,17 @@
     "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs to all53 native parts. The focused comparison now covers184 parts across fifteen compositions, requiring calculation selection, complete visual identity, native positive/negative-origin low/high OAM, nine-field edit preservation and bounds. Existing160 instruction words and seventeen480-call actor streams remain in the same proof.",
     "remaining": "Other suitless standing/hair, suited arm and small shooting-scene compositions and unreviewed pixels remain required. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardSuitlessStandingReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardSuitlessStandingParts.cs",
+    "mappings": [
+      { "id": "ending-reward-suitless-standing-composition", "state": "converted" },
+      { "id": "ending-reward-suitless-arms-straight-composition", "state": "converted" }
+    ],
+    "source": "Original8C:9EA2 and9FF7: two28-part suitless standing compositions. The arms-straight pose repeats thirteen already reviewed lower-body parts in three consecutive groups. Its head occupies a separately offset atlas grid; both arms use vertical small-tile strips. The other standing pose uses the body atlas grid plus separately packed arms.",
+    "algorithm": "Reuse calculated lower-body parts with native ordering. Traverse arm strips bottom-to-top, head row edges before center, lower head pair right-to-left, and top head last. In the other standing pose traverse cap, leg, left-edge and central-column strips with atlas strides; named knee, shoulder, foot and upper-body boundary pieces preserve overlap order. Body coordinates derive from atlas rows/columns; head and arms use their own origins. Calculate sizes by region role, priority3, no flips and actor-palette inheritance.",
+    "implementation": "One immutable28-part view selects the pose with an armsStraight flag and calculates every part/selection. It references the calculated lower-body view rather than storing copied parts. Loader substitutes only after complete field equality; independently edited compositions remain supplied. No generated part cache, schema change or runtime cartridge read.",
+    "proof": "Extend the existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs to56 additional original parts. Now240 parts across seventeen compositions undergo calculation-selection, full-identity, native on/offscreen OAM, independent nine-field edit and bounds checks. Existing160 instruction words and seventeen480-call actor streams remain checked.",
+    "remaining": "Hair, suited-arm and small shooting-scene layouts and independently unreviewed pixels remain required. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
+  }
 }

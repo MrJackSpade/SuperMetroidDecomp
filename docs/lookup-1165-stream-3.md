@@ -645,7 +645,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs
 
-- [ ] **WorkRobotPaletteCycle.frames** ([L20](../csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs#L20)) - installed stock table. Original/default payload behind WorkRobotPaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **WorkRobotPaletteCycle.frames** ([L20](../csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs#L20)) - installed stock table. Original/default payload behind WorkRobotPaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs
 
@@ -678,6 +678,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Confirmation passed: Verification build (1431 warnings, zero errors) and `dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-stream-3`. Covers all ushort Grapple angles and Spark population parameters, all byte Shaktool angles, every transfer field/order, valid orientation/segment records and rejected domains.
 - Integration dependency: coordinator must refresh the reviewed GrappleTileDefinitions source hashes in `VramDmaPresentationContractDefinitions.cs` and `VramDmaSourceContracts.cs` after review. No other stream production dependency.
 
+### Confirmed batch 2: Work Robot colors
+
+- Converted the installed six-by-four stock color payload in `WorkRobotPaletteCycle.cs`; no retained exception. Phase advances three positions then reverses. With p = (color + min(frame, 6-frame)) & 3, RGB5 red is 31 - 16*(p/2) - 7*(p%2), green and blue zero.
+- The loader discards a fully matching stock payload and resolves colors on demand. Independently supplied changes retain their exact compiled values. ContentIdentity keeps the existing domain and row framing, so identical visible colors retain their identity.
+- Evidence: all 24 original words at $A8:CCC1 + 10*frame + 2*color, cross-checked against the pinned bank_A8 assembly palette records.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed original colors, ApplyFrame CGRAM writes, identical stock ContentIdentity, all 72 independent RGB channel edits, their selected identities, and frame/color bounds. Tests reside in the assigned `Program.LookupStream3.cs` partial.
+- No new dependencies or shared-file edits.
 ### Remaining scope
 
-All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes Work Robot palette rotation, enemy pickup/death dispatch, pickup instruction layout and Fireflea record calculations.
+All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes enemy pickup/death dispatch, pickup instruction layout and Fireflea record calculations.

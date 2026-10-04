@@ -90,6 +90,77 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.AttackForSegment(invalid),
                 "stream 3 invalid Shaktool attack segment");
         }
-        Console.WriteLine("Lookup stream 3: grapple sectors/transfers, Spark initial states, and Shaktool circle/selector mappings match their originals.");
+        VerifyStream3WorkRobotColors(rom);
+        Console.WriteLine("Lookup stream 3: grapple sectors/transfers, Spark initial states, Shaktool circle/selectors, and Work Robot colors match their originals.");
+    }
+
+    private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
+    {
+        var words = new ushort[6][];
+        var colors = new PaletteRgb5[6][];
+        for (int frame = 0; frame < 6; frame++)
+        {
+            words[frame] = new ushort[4];
+            colors[frame] = new PaletteRgb5[4];
+            for (int color = 0; color < 4; color++)
+            {
+                int address = 0xa8ccc1 + 10 * frame + 2 * color;
+                ushort value = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                words[frame][color] = value;
+                colors[frame][color] = new PaletteRgb5
+                {
+                    Red = value & 31,
+                    Green = (value >> 5) & 31,
+                    Blue = (value >> 10) & 31,
+                };
+            }
+        }
+        var document = new WorkRobotPaletteCycleDocument { Version = 1, Frames = colors };
+        WorkRobotPaletteCycle Load() => WorkRobotPaletteCycle.Load(
+            new MemoryStream(WorkRobotPaletteCycle.Write(document), writable: false));
+        void Check(WorkRobotPaletteCycle cycle)
+        {
+            var cgram = new SnesCgram();
+            for (int frame = 0; frame < 6; frame++)
+            {
+                cycle.ApplyFrame(cgram, frame, 9);
+                for (int color = 0; color < 4; color++)
+                {
+                    AssertEqual(words[frame][color], cycle.Resolve(frame, color),
+                        "stream 3 Work Robot selected color");
+                    AssertEqual(words[frame][color], cgram.Colors[9 + color],
+                        "stream 3 Work Robot applied color");
+                }
+            }
+            string expectedIdentity = SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1",
+                content => content.AppendWordFrames("frames", words));
+            AssertEqual(expectedIdentity, cycle.ContentIdentity,
+                "stream 3 Work Robot identity preserves original row framing");
+        }
+        var stock = Load();
+        Check(stock);
+        for (int frame = 0; frame < 6; frame++)
+        for (int color = 0; color < 4; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            PaletteRgb5 original = colors[frame][color];
+            ushort originalWord = words[frame][color];
+            colors[frame][color] = channel switch
+            {
+                0 => original with { Red = original.Red ^ 1 },
+                1 => original with { Green = original.Green ^ 1 },
+                _ => original with { Blue = original.Blue ^ 1 },
+            };
+            words[frame][color] ^= (ushort)(1 << (channel * 5));
+            Check(Load());
+            colors[frame][color] = original;
+            words[frame][color] = originalWord;
+        }
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
+                "stream 3 Work Robot frame bounds");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
+                "stream 3 Work Robot color bounds");
     }
 }

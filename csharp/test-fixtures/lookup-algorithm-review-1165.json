@@ -10169,4 +10169,19 @@
     "proof": "VerifyCeresDestructionFrameCatalog under --lookup-ceres-backdrop-programs reads all23 native instruction operands and original OAM counts independently, checks published names, enumeration and bounded helpers. Existing backdrop and explosion program checks compare original bytes, overlapping words, interpreter lifetimes and boundaries. Verification and ResourceAudit builds cover identified consumers.",
     "remaining": "This resolves the catalog and shared frame selectors only. Individual compositions, pixels and other lookup inventory entries remain independently required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "ceresSmallBlastLayoutIntegrationReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs",
+    "id": "ceres-small-blast-shared-calculated-layout-consumer",
+    "state": "unreviewed",
+    "converted": {
+      "id": "ceres-six-small-blast-layouts",
+      "state": "converted",
+      "nativeIdentity": "8C:97F7,97FE,9805,981B,9831,9847, eighteen OAM parts shared with the Mother Brain small explosion",
+      "evidence": "Static consumer review found that CeresDestructionSpritePresentation still compiled these six aliases to stored full-part arrays even though IntroMotherBrainExplosionParts already calculated their centered flash and mirrored quadrants. The source pointers, all visual fields and ordering are identical, not similar alternate art. The original bank8C records and both consuming catalogs were inspected.",
+      "implementation": "Ceres destruction loading now applies the shared full-field/count matcher after asteroid layout selection. Matching original small blasts use the immutable calculated parts; independent edits remain supplied. This closes an additional consumer of the existing conversion without adding a duplicate layout generator.",
+      "proof": "Extend VerifyIntroMotherBrainExplosionParts under --lookup-intro-mother-brain-explosion-programs: original compiled identities and native visible/wrapped OAM remain checked, while every shared original frame, each independently edited field on each part, and changed counts also round-trip the real Ceres JSON writer/loader and match reference OAM at visible and wrapped origins. Verification build confirms integration."
+    },
+    "remaining": "This resolves only the six shared small-blast compositions in this loader. Other destruction layouts and source pixels require their independent reviews. Root remains unreviewed to avoid treating the entire loader as completed. Implementation commit is the commit adding this record."
+  }
 }

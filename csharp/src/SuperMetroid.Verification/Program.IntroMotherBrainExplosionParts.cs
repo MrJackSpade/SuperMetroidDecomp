@@ -10,6 +10,7 @@ internal static partial class Program
         foreach (var definition in IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
+            CheckCeresSmallBlastLoader(definition.Pointer, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
             SpriteComposition result = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, source);
             AssertTrue(!ReferenceEquals(source, result), "original MotherBrainExplosion selects calculated parts");
@@ -29,11 +30,13 @@ internal static partial class Program
                 {
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
+                    CheckCeresSmallBlastLoader(definition.Pointer, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited MotherBrainExplosion");
                     AssertTrue(ReferenceEquals(supplied, IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, supplied)),
                         "independent MotherBrainExplosion field edit stays supplied");
                 }
             }
+            CheckCeresSmallBlastLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom MotherBrainExplosion");
             AssertTrue(ReferenceEquals(extra, IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
@@ -52,4 +55,28 @@ internal static partial class Program
             }
         }
     }
-}
+    private static void CheckCeresSmallBlastLoader(ushort pointer, SpriteVisualPart[] visual)
+    {
+        var definition = CeresDestructionSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);
+        if (definition.Name is null) return;
+        var frames = CeresDestructionSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        frames[definition.Name] = visual;
+        using var json = new MemoryStream();
+        CeresDestructionSpritePresentation.Write(json, new() { Version = CeresDestructionSpriteFormat.Version, Frames = frames });
+        json.Position = 0;
+        var presentation = CeresDestructionSpritePresentation.Load(json);
+        var reference = IntroCinematicSpriteCompiler.Compile(visual, "Ceres small blast reference");
+        foreach (ushort y in new ushort[] { 72, 0xfff8 })
+        {
+            var expected = new OamBuffer(); expected.BeginFrame();
+            if (y == 72) reference.DrawOnScreen(expected, 120, y, 0x0a00);
+            else reference.DrawOffScreen(expected, 120, y, 0x0a00);
+            expected.FinalizeFrame();
+            var actual = new OamBuffer(); actual.BeginFrame();
+            presentation.Draw(pointer, actual, 120, y, 0x0a00, y == 72);
+            actual.FinalizeFrame();
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable)
+                && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
+                "Ceres alias loader preserves original and independently edited small blast compositions");
+        }
+    }}

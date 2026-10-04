@@ -2836,6 +2836,11 @@
                                     "stream":  3,
                                     "path":  "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectilePlacementDefinitions.cs",
                                     "purpose":  "Shaktool projectile placement domain catalog"
+                                },
+                                {
+                                    "stream":  5,
+                                    "path":  "csharp/src/SuperMetroid.Verification/Program.CeresEscapeVramTransferDefinitions.cs",
+                                    "purpose":  "Existing focused DMA proof collection API adaptation"
                                 }
                             ],
     "scheduling":  "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

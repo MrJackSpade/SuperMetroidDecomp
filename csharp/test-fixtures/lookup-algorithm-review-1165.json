@@ -10348,4 +10348,21 @@
     "proof": "Isolated Verification build passed; --lookup-stream2-palette-mechanics and --lookup-stream2-yard-directions passed original-ROM mechanics, address and domain checks plus focused existing Yard production branches. Coordinator reviewed source changes and guarded wiring before cherry-pick.",
     "remaining": "All other unchecked stream2 definitions and all independent BGR555 payloads remain required. Unsupported irregularity/authored retention prose was removed. No stream or parent completion claim."
   }
+,
+  "stream1FirstIntegration": {
+    "id": "stream1-twelve-launch-cadence-and-enemy-conversions",
+    "state": "converted",
+    "implementationCommit": "5632944ce",
+    "scope": "Twelve checked definitions in docs/lookup-1165-stream-1.md: seven vertical-motion mappings, projectile cooldowns, Bull deceleration/shot angle, Cacatac travel/animation selection.",
+    "algorithm": "Semantic medium/equipment/weapon cases, fixed-point splitting, half-rate timer ramps with native extra hold, compass octants with duplicate vertical poses, patrol block widths and named spike-direction dispatch. Preserve bounded adjacent cooldown byte and invalid input rejection including int.MinValue.",
+    "evidence": "Owning APIs and stream1 report cite complete original bank90, A8, A2 and86 definitions/consumers. --lookup-stream-1 compares every original field and supported boundary. Isolated and integrated checks/builds pass. No retention exception."
+  },
+  "stream3FirstIntegration": {
+    "id": "stream3-seven-grapple-spark-shaktool-conversions",
+    "state": "converted",
+    "implementationCommit": "3745227f3",
+    "scope": "Seven checked definitions in docs/lookup-1165-stream-3.md: Grapple sectors/transfers, Spark states, Shaktool orientation/segment selectors and X/Y circle placement.",
+    "algorithm": "Fold/reflection sectors; source/atlas strides; semantic behavior cases with bounded adjacent opcode identity; rotated eight-byte program sequence; physical segment dispatch; radius16 octants with outward-rounded diagonals and quarter-turn Y. No stored generated lookup.",
+    "evidence": "Pinned banks9B/A8/AA/86 and original-ROM verification over complete relevant domains; owning XML and report contain source addresses and consumers. --lookup-stream-3 and integrated Verification/ResourceAudit builds pass. Reviewed Grapple source hashes refreshed after API review. No retention exception."
+  }
 }

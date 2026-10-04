@@ -18,7 +18,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "A27811EFCBD8940CD241D7C3498E5DDD8EC39B3906CC523E93BFC4248DA58F9E"),
         new("csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs", "6CC0DC440CF5944DAB7C3B07603FA7D1D2EC032B12928E2799C2273229F101FA"),
         new("csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.ProjectilePresentation.cs", "D706327F64E76EF1904738CD6F4694B29DB8594098162908445A2D2C9FE55807"),
-        new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "6A0F8917D9FB2B55391C61341DBB0E03901A2FE21AB009AFBE63D41F8E54FFDA"),
+        new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "F52A359EFB79D9FEA24B7D4569A4AD1467DD8A94B90CDA79CE3A7BE4654B9C74"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs", "BC5746B3F1D6426D890E40033CDD392EA94AD807FB81115659071386094FB18B"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlasDefinitions.cs", "9E44730047C8A47B51636EA8B4598B186B2AAC2EB90A5E6CD7DDFD7FCA7CFB9B"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "1C1E490CCACF0ECC2DD5DCEC9D20531D405509461DDC875DAB7316D39A6D5133"),

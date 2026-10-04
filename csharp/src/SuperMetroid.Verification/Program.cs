@@ -562,6 +562,15 @@ if (args is ["--lookup-intro-rinka-programs"])
     Console.WriteLine("Intro Rinka: program/catalog, twelve calculated parts, native OAM, independent edits and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-intro-baby-discovery-instructions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro discovery oracle revision");
+    VerifyIntroBabyDiscoveryInstructions(rom);
+    Console.WriteLine("Intro discovery programs: all138 bytes, overlapping words, operations and boundaries pass.");
+    return 0;
+}
 if (args is ["--lookup-intro-scientist-instructions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

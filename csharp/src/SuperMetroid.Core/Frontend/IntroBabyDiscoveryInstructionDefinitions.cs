@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -17,64 +19,97 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
     /// <summary>$8B:CE53, shared actor-delete instruction after the reverse crossfade.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
-    private static ReadOnlySpan<byte> EggProgram =>
-    [
-        0x05, 0x00, 0x6f, 0x8d, 0xbc, 0x94, 0x33, 0xcb,
-        0x20, 0x00, 0x6f, 0x8d, 0xd6, 0x94, 0x04, 0x00,
-        0x05, 0x00, 0x6f, 0x8d, 0x05, 0x00, 0x8f, 0x8d,
-        0x05, 0x00, 0x6f, 0x8d, 0x05, 0x00, 0xbe, 0x8d,
-        0xc3, 0x94, 0x43, 0xcb, 0x0a, 0x00, 0x6f, 0x8d,
-        0x0a, 0x00, 0xed, 0x8d, 0x0a, 0x00, 0x1c, 0x8e,
-        0x0a, 0x00, 0x4b, 0x8e, 0x0a, 0x00, 0x7a, 0x8e,
-        0x0a, 0x00, 0xa9, 0x8e, 0x50, 0x00, 0xd8, 0x8e,
-        0x18, 0xa9, 0x0a, 0x00, 0x07, 0x8f, 0x0a, 0x00,
-        0x18, 0x8f, 0x0a, 0x00, 0x29, 0x8f, 0x0a, 0x00,
-        0x3a, 0x8f, 0x0a, 0x00, 0x4b, 0x8f, 0x0a, 0x00,
-        0x5c, 0x8f, 0x40, 0x01, 0x6d, 0x8f, 0x3e, 0xb3,
-        0x4c, 0x94, 0x03, 0xa9, 0x50, 0x00, 0x6d, 0x8f,
-        0xbc, 0x94, 0x97, 0xcb,
-    ];
+    private static ushort EggWord(int word)
+    {
+        if (word is >= 8 and < 16)
+        {
+            int phase = (word - 8) / 2;
+            return (word & 1) == 0 ? (ushort)5
+                : IntroDiscoveryActorSpriteDefinitions.EggFramePointer((phase & 1) == 0 ? 0 : (phase + 1) / 2);
+        }
+        if (word is >= 18 and < 32)
+        {
+            int phase = (word - 18) / 2;
+            return (word & 1) == 0 ? (ushort)(phase == 6 ? 80 : 10)
+                : IntroDiscoveryActorSpriteDefinitions.EggFramePointer(phase == 0 ? 0 : phase + 2);
+        }
+        if (word is >= 33 and < 47)
+        {
+            int offset = word - 33;
+            int phase = offset / 2;
+            return (offset & 1) == 0 ? (ushort)(phase == 6 ? 320 : 10)
+                : IntroDiscoveryActorSpriteDefinitions.EggFramePointer(9 + phase);
+        }
+        return word switch
+        {
+            0 => 5,
+            1 or 5 => IntroDiscoveryActorSpriteDefinitions.EggFramePointer(0),
+            2 or 52 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => EggStart,
+            4 => 32,
+            6 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer,
+            7 => 4,
+            16 => CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto,
+            17 => EggStart + 16,
+            32 => CinematicCodePointers.Instruction_SpawnMetroidEggParticles,
+            47 => CinematicCodePointers.Instruction_StartIntroPage3,
+            48 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction,
+            49 => CinematicCodePointers.PreInstruction_MetroidEgg_DeleteAfterCrossFade,
+            50 => 80,
+            51 => IntroDiscoveryActorSpriteDefinitions.EggFramePointer(15),
+            53 => EggStart + 100,
+            _ => throw new ArgumentOutOfRangeException(nameof(word)),
+        };
+    }
 
-    private static ReadOnlySpan<byte> BabyProgram =>
-    [
-        0x0a, 0x00, 0xcb, 0x8f, 0x0a, 0x00, 0xd2, 0x8f,
-        0x0a, 0x00, 0xd9, 0x8f, 0x0a, 0x00, 0xd2, 0x8f,
-        0xbc, 0x94, 0x2b, 0xcc, 0x0a, 0x00, 0x9d, 0x90,
-        0xbc, 0x94, 0x3f, 0xcc,
-    ];
+    private static ushort BabyWord(int word)
+    {
+        if (word < 8)
+        {
+            int phase = word / 2;
+            return (word & 1) == 0 ? (ushort)10
+                : IntroDiscoveryActorSpriteDefinitions.BabyFramePointer(phase <= 2 ? phase : 4 - phase);
+        }
+        return word switch
+        {
+            8 or 12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            9 => BabyStart,
+            10 => 10,
+            11 => IntroDiscoveryActorSpriteDefinitions.BabyLarge,
+            13 => BabyStart + 20,
+            _ => throw new ArgumentOutOfRangeException(nameof(word)),
+        };
+    }
 
     internal static byte ReadByte(ushort pointer)
     {
-        if (pointer == DeletePointer)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete & 0xff);
-        if (pointer == DeletePointer + 1)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
+        ushort word;
+        int offset;
         if (pointer >= EggStart && pointer < EggEnd)
-            return EggProgram[pointer - EggStart];
-        if (pointer >= BabyStart && pointer < BabyEnd)
-            return BabyProgram[pointer - BabyStart];
-        throw new ArgumentOutOfRangeException(nameof(pointer));
+        {
+            offset = pointer - EggStart;
+            word = EggWord(offset / 2);
+        }
+        else if (pointer >= BabyStart && pointer < BabyEnd)
+        {
+            offset = pointer - BabyStart;
+            word = BabyWord(offset / 2);
+        }
+        else if (pointer == DeletePointer || pointer == DeletePointer + 1)
+        {
+            offset = pointer - DeletePointer;
+            word = CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+        }
+        else throw new ArgumentOutOfRangeException(nameof(pointer));
+        return (byte)(word >> (8 * (offset & 1)));
     }
 
     internal static ushort ReadWord(ushort pointer)
     {
-        if (pointer == DeletePointer)
-            return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
-        ReadOnlySpan<byte> source;
-        int offset;
-        if (pointer >= EggStart && pointer < EggEnd - 1)
-        {
-            source = EggProgram;
-            offset = pointer - EggStart;
-        }
-        else if (pointer >= BabyStart && pointer < BabyEnd - 1)
-        {
-            source = BabyProgram;
-            offset = pointer - BabyStart;
-        }
-        else
-            throw new InvalidDataException(
-                $"Intro baby-discovery instruction read $8B:{pointer:X4} leaves its compiled lists.");
-        return (ushort)(source[offset] | source[offset + 1] << 8);
+        if (pointer == DeletePointer || pointer >= EggStart && pointer < EggEnd - 1
+            || pointer >= BabyStart && pointer < BabyEnd - 1)
+            return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        throw new InvalidDataException(
+            $"Intro baby-discovery instruction read $8B:{pointer:X4} leaves its compiled lists.");
     }
 }

@@ -9950,4 +9950,15 @@
     "proof": "Extend the existing VerifyIntroScientistParts logical mapping proof rather than duplicating its native oracle. For its caret frame, load both schema versions with original content, every independently edited field, and changed part count; compare complete OAM and sprite counts with the supplied compiled composition. The same proof already requires original calculated selection and compares native visible/wrapped output.",
     "remaining": "Caret layout integration is complete in both consumers. Caret catalog metadata, pixel drawing and other1165 mappings remain separate required review; no retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introBabyDiscoveryInstructionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryInstructionDefinitions.cs",
+    "id": "intro-egg-hatching-and-confused-baby-programs",
+    "state": "converted",
+    "nativeIdentity": "8B:CB33..CB9E egg,CC2B..CC46 confused baby,shared deleteCE53..54",
+    "evidence": "Complete pinned bank8B lists show an initial five-tick egg self-loop;32-tick hold;four repeats of five-tick poses0,1,0,2;ten-tick cracking progression ending in an80-tick hatched hold;particle spawn;seven remnant poses with320-tick last hold;page3 request and delete-after-crossfade callback;80-tick final self-loop. Confused baby cycles0,1,2,1 at10 ticks then separately holds the large pose. Bank8C records give six-part intact, eight nine-part cracking, seven three-part remnant and three one-part small-baby compositions.",
+    "algorithm": "Generate repeated duration/frame pairs from phase ordinals and use named native commands for timers,gotos,particle spawn,page transition and pre-instruction installation. Compute egg record pointers from32/47/17-byte packed record widths and small-baby pointers from seven-byte records. Remove both stored byte programs totaling136 bytes. ReadByte splits generated words; ReadWord composes bytes so odd overlapping views and all three region boundaries retain their prior contract.",
+    "proof": "Extract the existing native-byte check from VerifyIntroBabyActorDefinitions into one VerifyIntroBabyDiscoveryInstructions reused there and by --lookup-intro-baby-discovery-instructions. Compare all138 bytes including shared delete,all135 complete aligned/overlapping word views,terminal crossings and outside-range failures against SHA-pinned ROM. Preserve ArgumentOutOfRangeException for byte reads and InvalidDataException for words.",
+    "remaining": "Instruction programs are converted. The existing discovery visual catalog still stores its records and must separately adopt the new pointer functions; OAM layouts,pixel drawings,input lists and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

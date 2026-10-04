@@ -9,19 +9,7 @@ internal static partial class Program
     private static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach ((int start, int end) in new[]
-        {
-            (IntroBabyDiscoveryInstructionDefinitions.EggStart,
-                IntroBabyDiscoveryInstructionDefinitions.EggEnd),
-            (IntroBabyDiscoveryInstructionDefinitions.BabyStart,
-                IntroBabyDiscoveryInstructionDefinitions.BabyEnd),
-            (IntroBabyDiscoveryInstructionDefinitions.DeletePointer,
-                IntroBabyDiscoveryInstructionDefinitions.DeletePointer + 2),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
-                    IntroBabyDiscoveryInstructionDefinitions.ReadByte((ushort)pointer),
-                    $"SR388 egg/baby instruction byte $8B:{pointer:X4}");
+        VerifyIntroBabyDiscoveryInstructions(retail);
         VerifyIntroScientistInstructions(retail);
         foreach ((int start, int end) in new[]
         {

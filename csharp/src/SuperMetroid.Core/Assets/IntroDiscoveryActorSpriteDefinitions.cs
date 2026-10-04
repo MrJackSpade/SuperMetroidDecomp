@@ -16,6 +16,19 @@ internal static class IntroDiscoveryActorSpriteDefinitions
     /// <summary>$8C:90FE, exclusive end of the large hatched-baby composition.</summary>
     internal const ushort BabyEnd = 0x90fe;
 
+    /// <summary>Six-part intact record, eight nine-part cracking records, then seven three-part remnants.</summary>
+    internal static ushort EggFramePointer(int frame)
+    {
+        if ((uint)frame >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(EggStart + (frame > 0 ? 32 : 0) + 47 * Math.Clamp(frame - 1, 0, 8) + 17 * Math.Max(frame - 9, 0));
+    }
+
+    /// <summary>Three consecutive one-part confused-baby records, seven bytes each.</summary>
+    internal static ushort BabyFramePointer(int frame)
+    {
+        if ((uint)frame >= 3) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(BabyStart + 7 * frame);
+    }
     private static readonly IntroDiscoveryActorSpriteFrameDefinition[] frames =
     [
         new(0x8d6f, "egg-intact", 6),

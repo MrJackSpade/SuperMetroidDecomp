@@ -122,6 +122,12 @@ internal static partial class Program
             SpriteVisualPart first = visual[0];
             if (pose is >= 10 and <= 12)
             {
+                var role = (EndingExplosionSpriteDefinitions.Pose)pose;
+                int basisCount = pose == 10 ? 3 : 5;
+                for (int index = 0; index < basisCount; index++)
+                    AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
+                foreach (int invalid in new[] { int.MinValue, -1, basisCount, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
                 SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
                     visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
                 SpriteComposition calculatedBasis = Calculate(pointer, editedBasis);
@@ -149,6 +155,9 @@ internal static partial class Program
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
             AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
         }
+        foreach (int invalid in new[] { int.MinValue, -1, 0, 9, 13, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(
+                (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)

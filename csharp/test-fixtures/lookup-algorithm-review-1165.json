@@ -10582,4 +10582,15 @@
     "confirmation": "Integrated --lookup-stream-3 passed native fields, bounds, five guarded text uploads, visible artwork edit, reload and invalid overrides. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
     "remaining": "230 of 1128 snapshot definitions converted; 898 pending. No retention exception."
   }
+,
+  "motherBrainStaggerContactIntegration": {
+    "id": "mother-brain-stagger-and-contact-six-definitions",
+    "state": "converted",
+    "implementationCommits": ["68f0f0912", "464de5240"],
+    "scope": "Three stagger curves and three component contact-region arrays.",
+    "algorithm": "Forward/backward stage pairs calculate animation delay, pause duration and decaying neck angle. Body, brain and neck regions dispatch explicitly in their native first-hit order without stored lists.",
+    "evidence": "All 24 native stagger fields at A9:BEEE/BEFE/C049 and 20 contact extent words match. Actual walking timer preserves terminal-stage clamping; actual collision checks run without a ROM bus.",
+    "confirmation": "Integrated --lookup-stream-3 passed stagger domains, real timer stages 0 through 8 and 65535, all 49155 existing production collision comparisons and region bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Source index refreshed.",
+    "remaining": "236 of 1128 snapshot definitions converted; 892 pending. No retention exception."
+  }
 }

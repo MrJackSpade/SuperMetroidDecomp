@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  898,
+    "remainingTableDefinitionCount":  892,
     "fileCount":  523,
     "entries":  [
                     {
@@ -4448,21 +4448,27 @@
                         "line":  43,
                         "name":  "MotherBrainContactHitboxDefinitions.Body",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "464de5240"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs",
                         "line":  49,
                         "name":  "MotherBrainContactHitboxDefinitions.Brain",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "464de5240"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs",
                         "line":  55,
                         "name":  "MotherBrainContactHitboxDefinitions.Neck",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "464de5240"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
@@ -4647,21 +4653,27 @@
                         "line":  58,
                         "name":  "MotherBrainRainbowBeamAttackSequence.PainfulWalkingAnimationDelays",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "68f0f0912"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
                         "line":  61,
                         "name":  "MotherBrainRainbowBeamAttackSequence.PainfulWalkingNeckAngleDeltas",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "68f0f0912"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
                         "line":  64,
                         "name":  "MotherBrainRainbowBeamAttackSequence.PainfulWalkingFunctionTimers",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "68f0f0912"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
@@ -20770,5 +20782,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  230
+    "convertedSinceSnapshot":  236
 }

@@ -9816,4 +9816,15 @@
     "proof": "One VerifyIntroMotherBrainExplosionFrameCatalog compares each calculated pointer against its independently read original instruction operand, each count against that original OAM record, and all twelve names against prior format identities. Check collection/pointer bounds and enumeration agreement. Run alongside the distinct instruction-program proof under the focused flag. Update the two reviewed presentation-source hashes after inspecting the loader Count migration and bounded catalog.",
     "scope": "Catalog identities/counts/names converted, not OAM pixel content. No retention exception or whole-ticket completion claim. Implementation commit is the commit adding this record."
   }
+,
+  "introEyeInstructionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroEyeAnimationDefinitions.cs",
+    "id": "intro-eye-blink-and-deadpan-programs",
+    "state": "converted",
+    "nativeIdentity": "8C:D5DF..D628,74 bytes: pages1..5 blink loopD5DF, page6 transitionD613, deadpan self-loopD61F",
+    "evidence": "Read all pinned bank8C CinematicBGObjectInstLists_SamusBlinking/Page6/Deadpan records and current IntroCinematicObjectSystem.ReadBank8C consumer. Normal stream performs two open/half-open/closed/half-open cycles: first open128 and transitions10 ticks, second open80 and transitions8 ticks. Page6 holds closed64, half-open8, then deadpan16 repeatedly. Every draw uses tile position17,13 and one of four consecutive16-byte indirect draw records startingD781. Native971E goto targets normal start or deadpan record, not page6 start.",
+    "algorithm": "Generate normal blink phase with triangular frame ordinal0,1,2,1 and first/second-cycle timing roles. Named page6 Closed/HalfOpen/Deadpan cases select semantic duration and pose. Generate fixed packed column/row, frame address from stride, named goto and exact self-target. Generate byte halves on demand and combine adjacent bytes for odd-address word views. Remove74-byte Program span without cache, fallback table or runtime ROM reads.",
+    "proof": "Extract the existing original eye-byte comparison from VerifyIntroCinematicArtwork into one VerifyIntroEyeInstructions, called by that integration suite and exposed under --lookup-intro-eye-instructions. Compare all74 bytes and73 complete aligned/overlapping words against the SHA-pinned ROM, including every duration, packed position, frame operand, opcode and loop target. Confirm unsupported word false/zero results, byte exceptions and terminal-word crossing exception. No cinematic replay or unrelated artwork checks are required for this exact program conversion.",
+    "scope": "Instruction/timing/position selection is converted. Frame artwork and unrelated intro mappings remain independently required. Existing TryFrameIndex behavior is unchanged and is not newly claimed as reviewed here. Implementation commit is the commit adding this record."
+  }
 }

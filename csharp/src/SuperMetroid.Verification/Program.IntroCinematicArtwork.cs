@@ -66,12 +66,7 @@ internal static partial class Program
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
-            for (int offset = IntroEyeAnimationDefinitions.StartPointer;
-                 offset < IntroEyeAnimationDefinitions.EndPointer; offset++)
-                AssertEqual(bus.ReadByte((int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, (ushort)offset)),
-                    IntroEyeAnimationDefinitions.ReadByte((ushort)offset),
-                    $"opening eye timing byte {offset:X4} matches cartridge");
+            VerifyIntroEyeInstructions(bus);
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             {
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,

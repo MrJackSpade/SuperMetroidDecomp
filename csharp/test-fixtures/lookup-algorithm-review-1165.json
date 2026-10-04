@@ -9647,4 +9647,18 @@
     "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with all64 original parts. The focused comparison now covers304 parts across21 compositions, requiring calculation selection, complete visual identity, native on/offscreen low/high OAM, independent nine-field edits and bounds. Existing160 original instruction words and seventeen480-call actor streams remain checked.",
     "remaining": "The eight suited-arm and eight hair compositions still need independent disposition, as does unreviewed source pixel art. No retention exception or whole-ticket completion claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingRewardArmStructureReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardArmParts.cs",
+    "mappings": [
+      { "id": "ending-reward-arm-shared-shoulder", "state": "converted" },
+      { "id": "ending-reward-arm-size-and-common-attributes", "state": "converted" },
+      { "id": "ending-reward-arm-pose-selection-and-positions", "state": "unreviewed" }
+    ],
+    "source": "Original8C:9B9F..9C7B contains eight arm compositions,41 parts. Each ends with large tile159 at the shoulder anchor followed by small tiles14A/149 at anchor+(8,-8)/(0,-8). Pose2 has two small arm pieces and one large; other poses have two large arm pieces. All parts are unflipped, priority3 and inherit actor palette.",
+    "algorithm": "Compute the three-piece shoulder from one supplied anchor, atlas base149 and one-row/eight-pixel offsets. Compute arm size from its split/unsplit pose role and piece ordinal; calculate all shared attributes. Keep only the remaining ordered arm tile/X/Y inputs and shoulder anchor, rather than full compiled parts.",
+    "implementation": "Bounded immutable composition view stores17 arm tile/position triples across the eight poses plus their eight anchors; it generates the24 shoulder parts and shared fields on access. Substitute only after complete supplied-field equality. Consistent shoulder translations remain calculated inputs; independent shoulder edits and coordinate limits preserve the original compiled composition. No generated part cache or runtime cartridge reads.",
+    "proof": "Extend existing VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with all41 original arm parts, bringing the comparison to345 parts across29 compositions. Complete identity and native on/offscreen OAM checks cover each composition. Independent nine-field arm edits remain exact; shared shoulder translations remain calculated; independent tile/coordinate-edge shoulder edits stay supplied. Existing bounds and160-word/seventeen480-call instruction checks remain.",
+    "remaining": "All17 ordered arm tile/position triples and eight shoulder anchors still require independent conversion or concrete acceptable exceptions. This structural conversion does not justify retaining them. Eight hair compositions and unreviewed pixel art also remain required. Implementation commit is the commit adding this record."
+  }
 }

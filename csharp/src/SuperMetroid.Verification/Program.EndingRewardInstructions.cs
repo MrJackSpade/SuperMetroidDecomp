@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
-            if (i is 0 or 1 or >= 10 and <= 20 or >= 29)
+            if (i is 0 or 1 or >= 10)
                 VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
@@ -113,12 +113,38 @@ internal static partial class Program
             value = EndingRewardJumpParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pointer, value);
             value = EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pointer, value);
-            return EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardArmParts.CalculateIfMatching(definition.Pointer, value);
         }
         SpriteComposition calculated = Calculate(supplied);
+        bool isArm = definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SamusArmFromEndingFrame1)
+            && definition.Pointer <= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SamusArmFromEndingFrame8);
         AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
+        if (isArm)
+        {
+            int shoulder = visual.Length - 3;
+            SpriteVisualPart[] shifted = (SpriteVisualPart[])visual.Clone();
+            for (int part = shoulder; part < shifted.Length; part++)
+                shifted[part] = shifted[part] with { OffsetX = shifted[part].OffsetX + 2, OffsetY = shifted[part].OffsetY + 1 };
+            SpriteComposition shiftedSource = IntroCinematicSpriteCompiler.Compile(shifted, "shifted shoulder");
+            SpriteComposition shiftedResult = Calculate(shiftedSource);
+            AssertTrue(!ReferenceEquals(shiftedSource, shiftedResult), "shared shoulder translation remains calculated");
+            AssertEqual(Identity(shiftedSource), Identity(shiftedResult), "supplied shoulder anchor remains exact");
+            foreach (SpriteVisualPart edit in new[]
+            {
+                visual[shoulder] with { OffsetX = 255 },
+                visual[shoulder] with { OffsetY = -128 },
+                visual[shoulder] with { TileColumn = visual[shoulder].TileColumn + 1 },
+            })
+            {
+                SpriteVisualPart[] changed = (SpriteVisualPart[])visual.Clone();
+                changed[shoulder] = edit;
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(changed, "independent shoulder edit");
+                AssertTrue(ReferenceEquals(source, Calculate(source)), "independent shoulder and coordinate-edge edits remain supplied");
+            }
+        }
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();
@@ -143,7 +169,9 @@ internal static partial class Program
         {
             visual[0] = edit;
             SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited reward composition");
-            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent reward composition edits stay supplied");
+            SpriteComposition editedCalculation = Calculate(edited);
+            AssertEqual(Identity(edited), Identity(editedCalculation), "independent reward composition edits stay exact");
+            if (!isArm) AssertTrue(ReferenceEquals(edited, editedCalculation), "independent reward composition edits stay supplied");
         }
         foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward composition part bounds");

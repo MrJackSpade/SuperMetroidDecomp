@@ -10485,4 +10485,15 @@
     "confirmation": "Integrated --lookup-stream2-crystal-body passes all136 body/bubble native words, CGRAM application, every individual supplied color edit and bounds; stock bubble storage contains exactly one residual. Verification build1436warnings,zeroerrors; ResourceAudit build zeroerrors. Reviewed Crystal source hash and static index refreshed.",
     "remaining": "White residual remains required and bubble checklist stays unchecked. No retention exception. Snapshot completion unchanged at201 of1128,927 pending."
   }
+,
+  "torizoChozoPlacementIntegration": {
+    "id": "torizo-explosion-and-chozo-carry-two-definitions",
+    "state": "converted",
+    "implementationCommit": "e24371f9d",
+    "scope": "BombTorizoAttackDefinitions.ExplosionPlacements and ChozoCarryMotionDefinitions.YOffsets.",
+    "algorithm": "Gut/face anchor distances and centered/right/left facing signs; acquisition/release poses and a two-pixel triangular bob through two stride cycles.",
+    "evidence": "Pinned86:A859-A870 andAA:E6B0 offsets; native stride/release programsAA:E4C1-E54D andE55B-E573. Integrated --lookup-stream2-body-placements confirms34 native attack fields and18 actual bounded explosion spawns,96 Chozo fields and actual carried coordinates with original geometry reads forbidden or no bus.",
+    "confirmation": "Verification build1436warnings,zeroerrors; focused placement command passes. Existing swipe and walking checks remain intact. Source index refreshed.",
+    "remaining": "203 of1128 snapshot definitions converted;925 pending. Torizo swipe payload and Chozo velocity magnitudes remain required; rejected magnitude retention rationale removed. No new exception."
+  }
 }

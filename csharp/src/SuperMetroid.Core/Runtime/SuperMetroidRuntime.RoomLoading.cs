@@ -758,24 +758,18 @@ public sealed partial class SuperMetroidRuntime
             BackgroundScroll.Layer1YPosition = cameraY;
         }
 
-        // The selected room-state main pointer, rather than the room or entry door, owns
-        // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
-        // calls that same routine before its escape-quake work. The ocean wrapper selects
-        // its own source chunk table but shares this geometry and HDMA. All set BG2SC=$4A and use
-        // a 32x64 circular map at $4800. Ordinary gameplay instead uses BG2SC=$49 and keeps
-        // its second 32x32 screen horizontally adjacent at $4C00.
-        //
-        // This distinction must be established in the shared loader. The older dedicated
-        // Landing Site cinematic path already did so, but loading station 0 from SRAM came
-        // through this method and therefore interpreted the vertical sky page at $4C00 as
-        // the right half of a 64x32 map. Depending on BG2HOFS, that stale neighboring page
-        // appeared as a broad vertical band of repeating purple tiles.
-        bool usesScrollingSky =
-            ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback);
+        // The main callback streams offscreen tilemap rows even in Crateria's rock room.
+        // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
+        // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
+        ushort selectedFx = RoomFxRecordDefinitions.Select(room.State.FxPointer, door.Pointer);
+        bool skyHdmaConfigured =
+            (selectedFx != 0 && RoomFxRecordDefinitions.Get(selectedFx).Type == (byte)RoomFxType.ScrollingSky) ||
+            room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
+                RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(
-            sizeOfBg2: usesScrollingSky ? (ushort)0 : (ushort)0x0800);
-        ScrollingSky = usesScrollingSky
-            ? new ScrollingSkyState()
+            sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)0x0800);
+        ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
+            ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);

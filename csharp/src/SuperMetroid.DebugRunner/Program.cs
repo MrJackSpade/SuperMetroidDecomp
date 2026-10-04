@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--crateria-acid-background-audit", var acidInstallation])
+        return CrateriaAcidBackgroundAudit.Run(acidInstallation);
     if (args is ["--tester-options-audit", var testerInstallation])
         return TesterOptionsAudit.Run(testerInstallation);
     if (args is ["--reported-running-footsteps", var runningRecording, var runningInstallation, var runningTrace])

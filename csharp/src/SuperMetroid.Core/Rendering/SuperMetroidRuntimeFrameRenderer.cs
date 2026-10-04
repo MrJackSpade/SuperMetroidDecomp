@@ -114,9 +114,9 @@ public static class SuperMetroidRuntimeFrameRenderer
             KraidEnemyState? kraid = runtime.Enemies.Kraid;
             bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
             ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
-            ushort[]? skyHorizontalScrolls = scrollingSky?.BuildGameplayHorizontalScrolls(
+            ushort[]? skyHorizontalScrolls = scrollingSky is { HorizontalHdmaConfigured: true } ? scrollingSky.BuildGameplayHorizontalScrolls(
                 runtime.Camera?.YPosition
-                    ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera."));
+                    ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
             if (skyHorizontalScrolls is not null && shake.Bg2X != 0)
             {
                 // Room shake is added to the live BG2HOFS register after HDMA supplies
@@ -171,11 +171,11 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg2TilemapWidthInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapWidthInTiles
                     : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
-                    : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 64 : 32,
+                    : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 64 : 32,
                 bg2TilemapHeightInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapHeightInTiles
                     : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
-                    : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 32 : 64,
+                    : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 32 : 64,
                 bg2TilemapBaseWord: kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
                     : SnesPpuLayout.GameplayBg2TilemapWord,

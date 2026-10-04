@@ -804,3 +804,10 @@ Removed equipment-label and reserve-region arrays. Membership now calculates dir
 Verification build passed (1436 full-build warnings,25 incremental warnings, zero errors). `--lookup-stream2-pause-ownership` passed all1024 tilemap cells and both adjacent out-of-range values against all16 original destination words, checking equipment, total-live and noninventory ownership separately. The first reference fixture omitted the$3800 WRAM tilemap base; source inspection corrected that address normalization before the successful run. No production change was made in response to the fixture mistake. This proves the unchanged ownership masks used during custom-resource rebinding without requiring a full menu playthrough.
 
 Forty-two stream2 named definitions complete;184 remain required.
+### Batch 14: tube-crack palette partial derivation
+
+The tube palette at$AA:E2DD contains two identical16-color halves. Colors8..15 interpolate RGB5(31,27,29) to(0,0,1) by seven nearest-integer steps. Those ramp values and the repeated half now calculate; only the first eight independent colors remain as seeds. Supplied resources preserve every independent edit through exact per-color deviations, including edits to one half without changing the other. The selected-content hash uses a temporary serialization buffer; no regenerated runtime palette is cached.
+
+Verification build passed (1437 warnings, zero errors). `--lookup-stream2-tube-ramp` passed32 native colors, actual CGRAM writes, all32 independent color edits with unchanged other cells and statue palettes, canonical identity preservation and bounds. Stock content retains eight seed colors and zero deviations.
+
+This is a partial conversion. `ChozoAndTubeColorCatalog.tubeCracks` remains unchecked: the eight seed color choices still require derivation or concrete impossible/nonsense evidence. Neither duplication nor the interpolation establishes an exception for those choices. The two statue palettes also remain required. Counts remain42 complete and184 required.

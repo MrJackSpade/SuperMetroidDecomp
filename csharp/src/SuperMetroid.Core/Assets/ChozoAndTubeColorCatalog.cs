@@ -14,19 +14,27 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
         {
-            content.AppendWords("tubeCracks", tubeCracks);
+            Span<ushort> tube = stackalloc ushort[ChozoAndTubeColorRomData.ColorCount];
+            for (int color = 0; color < tube.Length; color++) tube[color] = ResolveTubeCracks(color);
+            content.AppendWords("tubeCracks", tube);
             content.AppendWords("wreckedShip", wreckedShip);
             content.AppendWords("lowerNorfair", lowerNorfair);
         });
 
-    private readonly ushort[] tubeCracks;
+    private readonly ushort[] tubeColorSeeds;
+    private readonly Dictionary<int, ushort> tubeColorEdits = [];
     private readonly ushort[] wreckedShip;
     private readonly ushort[] lowerNorfair;
 
     private ChozoAndTubeColorCatalog(ushort[] tubeCracks, ushort[] wreckedShip,
         ushort[] lowerNorfair)
     {
-        this.tubeCracks = tubeCracks;
+        // Eight independent stock colors remain unresolved. The remaining stock
+        // values are a linear ramp and an exact repeated palette half.
+        tubeColorSeeds = tubeCracks[..8];
+        for (int color = 8; color < tubeCracks.Length; color++)
+            if (tubeCracks[color] != CalculateTubeColor(color))
+                tubeColorEdits.Add(color, tubeCracks[color]);
         this.wreckedShip = wreckedShip;
         this.lowerNorfair = lowerNorfair;
     }
@@ -38,11 +46,33 @@ public sealed class ChozoAndTubeColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveTubeCracks(int color) => Get(tubeCracks, color);
+    public ushort ResolveTubeCracks(int color)
+    {
+        if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return tubeColorEdits.TryGetValue(color, out ushort edited) ? edited : CalculateTubeColor(color);
+    }
+
+    /// <summary>$AA:E2DD: two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
+    private ushort CalculateTubeColor(int color)
+    {
+        int local = color % 16;
+        if (local < 8) return tubeColorSeeds[local];
+        int step = local - 8;
+        int red = 31 - (31 * step + 3) / 7;
+        int green = 27 - (27 * step + 3) / 7;
+        int blue = 29 - 4 * step;
+        return (ushort)(red | green << 5 | blue << 10);
+    }
     public ushort ResolveWreckedShip(int color) => Get(wreckedShip, color);
     public ushort ResolveLowerNorfair(int color) => Get(lowerNorfair, color);
 
-    public void ApplyTubeCracks(SnesCgram cgram) => Apply(cgram, tubeCracks);
+    public void ApplyTubeCracks(SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveTubeCracks(color));
+    }
     public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, wreckedShip);
     public void ApplyLowerNorfair(SnesCgram cgram) => Apply(cgram, lowerNorfair);
 

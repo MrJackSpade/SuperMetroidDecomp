@@ -5,6 +5,59 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
+    {
+        PaletteRgb5[] Read(int address) => Enumerable.Range(0, 32).Select(index =>
+        {
+            ushort word = ReadVerificationWord(rom, address + index * 2);
+            return new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }).ToArray();
+        var original = new ChozoAndTubeColorDocument { Version = 1,
+            TubeCracks = Read(ChozoAndTubeColorRomData.TubeCracksSource),
+            WreckedShip = Read(ChozoAndTubeColorRomData.WreckedShipSource),
+            LowerNorfair = Read(ChozoAndTubeColorRomData.LowerNorfairSource) };
+        ChozoAndTubeColorCatalog Load(ChozoAndTubeColorDocument document) =>
+            ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
+        var stock = Load(original);
+        Check(stock, original);
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertEqual(8, ((ushort[])typeof(ChozoAndTubeColorCatalog).GetField("tubeColorSeeds", flags)!.GetValue(stock)!).Length,
+            "tube stores only eight unresolved independent colors");
+        AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("tubeColorEdits", flags)!.GetValue(stock)!).Count,
+            "stock tube ramp and repeated half need no residuals");
+        for (int color = 0; color < 32; color++)
+        {
+            var changed = (PaletteRgb5[])original.TubeCracks.Clone();
+            changed[color] = changed[color] with { Red = (changed[color].Red + 1) % 32 };
+            var document = original with { TubeCracks = changed };
+            Check(Load(document), document);
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(-1), "tube negative color");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(32), "tube past last color");
+        Console.WriteLine("Tube palette:32 native colors, full CGRAM writes,32 independent edits, unchanged statue palettes and canonical identity pass; eight seed colors remain unresolved.");
+
+        static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
+        {
+            static ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            var cgram = new SnesCgram();
+            catalog.ApplyTubeCracks(cgram);
+            for (int color = 0; color < 32; color++)
+            {
+                ushort word = Word(document.TubeCracks[color]);
+                AssertEqual(word, catalog.ResolveTubeCracks(color), "independent tube color preserved");
+                AssertEqual(word, cgram.Colors[ChozoAndTubeColorRomData.Destination + color], "tube color reaches CGRAM");
+                AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
+                AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
+            }
+            string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
+            {
+                content.AppendWords("tubeCracks", document.TubeCracks.Select(Word).ToArray());
+                content.AppendWords("wreckedShip", document.WreckedShip.Select(Word).ToArray());
+                content.AppendWords("lowerNorfair", document.LowerNorfair.Select(Word).ToArray());
+            });
+            AssertEqual(expected, catalog.ContentIdentity, "tube canonical identity preserved");
+        }
+    }
     private static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
     {
         for (int cell = -1; cell <= PauseEquipmentBaseDefinitions.Cells; cell++)

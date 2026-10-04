@@ -37,6 +37,24 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
+    {
+        static ushort Word(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        AssertEqual((byte)0x29, rom.ReadByte(0x82b212), "native AND immediate opcode");
+        AssertEqual((byte)0xdd, rom.ReadByte(0x82b218), "native CMP absolute-X opcode");
+        AssertEqual((ushort)0xb257, Word(rom, 0x82b219), "native comparison table operand");
+        ushort nativeMask = Word(rom, 0x82b213);
+        ushort[] original = new ushort[4];
+        for (int index = 0; index < original.Length; index++) original[index] = Word(rom, 0x82b257 + index * 2);
+        for (int word = 0; word <= ushort.MaxValue; word++)
+        {
+            int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
+            AssertTrue(expected >= 0, "native masked input has a table match");
+            AssertEqual(expected, PauseEquipmentRules.WireframeIndex((ushort)word), "complete native wireframe selection domain");
+        }
+    }
+
     private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         VerifyPauseBeamMasks(bus);
@@ -71,9 +89,7 @@ internal static partial class Program
         }
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
-        for (int word = 0; word <= ushort.MaxValue; word++)
-            AssertEqual(Array.IndexOf(wireframeMasks, (ushort)(word & 0x0101)), PauseEquipmentRules.WireframeIndex((ushort)word),
-                "all equipped words preserve native wireframe selection, including ignored Gravity bit");
+        VerifyPauseWireframeSelection(bus);
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | (ushort)SamusEquipmentFlags.GravitySuit) }))
         {
             var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterEquipment(pause);

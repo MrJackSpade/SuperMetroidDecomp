@@ -9,7 +9,7 @@ internal static class PauseEquipmentRules
     public const ushort ReserveEnergyPerFrame = 1;
 
     /// <summary>Selects the upgrade flag belonging to a named category/item control.
-    /// Native82:C04C..C065 has five beam, six suit/misc and three boot words in menu
+    /// Native82:C04C..C067 has five beam, six suit/misc and three boot words in menu
     /// order. These are independent bit identities, not a numeric sequence; callers
     /// use the selected bit to test inventory or toggle exactly that upgrade.
     /// Reserve/unknown categories reject before item selection; category-local holes reject.</summary>
@@ -36,7 +36,11 @@ internal static class PauseEquipmentRules
             _ => throw new ArgumentOutOfRangeException(nameof(item)),
         };
     }
-    /// <summary>$82:B20C/$82:B257 selects [neither, Hi-Jump, Varia, both]. Gravity and other bits do not participate.</summary>
+    /// <summary>Exact inverse of the four equipment words at $82:B257..B25E.
+    /// Native $82:B212 masks the entire equipped-items word to Varia/Hi-Jump, then
+    /// searches [neither, Hi-Jump, Varia, both]. Pack Hi-Jump into result bit0 and
+    /// Varia into bit1. All65536 input words are supported; every other bit, including
+    /// Gravity, is ignored. The resulting0..3 ordinal selects the matching wireframe kind.</summary>
     public static int WireframeIndex(ushort equippedItems) =>
         (equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots) ? 1 : 0) |
         (equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0);

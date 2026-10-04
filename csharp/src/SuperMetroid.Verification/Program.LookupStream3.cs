@@ -123,6 +123,39 @@ internal static partial class Program
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.InstructionList(invalid),
                 "stream 3 death explosion selector bounds");
+        // Confirm the retained visual payload's catalog move and the independent group arithmetic.
+        for (int index = 0; index < 28; index++)
+            AssertEqual(((short)Read(0xa9b099 + 4 * index), (short)Read(0xa9b09b + 4 * index)),
+                MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
+        var generate = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("GenerateDeathExplosions",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        foreach (bool mixed in new[] { false, true })
+        {
+            var scatter = new MotherBrainRainbowBeamAttackSequence();
+            scatter.Body.XPosition = 320;
+            scatter.Body.YPosition = 192;
+            for (int burst = 0; burst < 8; burst++)
+            {
+                typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("DeathExplosionIntervalTimer")!.SetValue(scatter, (ushort)0);
+                int calls = 0;
+                Func<ushort> random = () => { calls++; return ushort.MaxValue; };
+                var requests = new List<MotherBrainDeathExplosionRequest>();
+                generate.Invoke(scatter, [mixed, random, requests]);
+                int group = 6 - burst % 7;
+                AssertEqual(mixed ? 4 : 2, requests.Count, "stream 3 death scatter burst size");
+                AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
+                for (int item = 0; item < requests.Count; item++)
+                {
+                    short x = (short)Read(0xa9b099 + 16 * group + 4 * item);
+                    short y = (short)Read(0xa9b09b + 16 * group + 4 * item);
+                    AssertEqual((ushort)group, requests[item].PatternIndex, "stream 3 death scatter reverse group order");
+                    AssertEqual((x, y), (requests[item].XOffset, requests[item].YOffset), "stream 3 selected death scatter anchors");
+                    AssertEqual((ushort)(320 + x), requests[item].XPosition, "stream 3 death scatter body-relative X");
+                    AssertEqual((ushort)(192 + y), requests[item].YPosition, "stream 3 death scatter body-relative Y");
+                    AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
+                }
+            }
+        }
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("Phase")!.SetValue(sequence,
             MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape);

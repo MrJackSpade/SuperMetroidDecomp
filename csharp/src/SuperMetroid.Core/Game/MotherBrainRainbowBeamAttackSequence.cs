@@ -51,20 +51,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public const ushort BodyCrouchingFastInstructionList = 0x9a26;
     public const ushort HeadDyingDroolInstructionList = 0x9c39;
 
-    // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native
-    // explosion index counts backward and wraps to six, so a zero-initialized sequence emits
-    // record six first. Signed offsets are added to the body enemy's current world position.
-    private static readonly (short X, short Y)[] DeathExplosionOffsets =
-    [
-        (0x0024, -0x0025), (-0x0013, -0x000f), (-0x0004, 0x000d), (0x001d, 0x0019),
-        (0x0011, -0x0037), (0x001e, -0x0016), (-0x0003, -0x0005), (0x0000, 0x0028),
-        (0x0034, -0x0022), (-0x0003, -0x000f), (0x000c, 0x0013), (0x0019, 0x002c),
-        (0x0004, -0x002b), (-0x000c, -0x0016), (0x000d, -0x0002), (-0x0008, 0x0034),
-        (-0x0002, -0x0021), (0x000a, -0x000a), (-0x000e, 0x0010), (0x0006, 0x003b),
-        (0x0014, -0x0029), (0x0004, -0x0016), (-0x0014, 0x0003), (-0x001b, 0x0039),
-        (0x000a, -0x001f), (-0x0014, -0x0008), (0x0000, 0x0017), (0x001e, 0x003d),
-    ];
-
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
     private static ReadOnlySpan<short> ExplosionXOffsets =>

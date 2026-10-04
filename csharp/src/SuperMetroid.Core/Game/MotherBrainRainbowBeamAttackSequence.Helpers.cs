@@ -443,10 +443,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         DeathExplosionIntervalTimer = mixed ? (ushort)0x0008 : (ushort)0x0010;
         DeathExplosionIndex = unchecked((ushort)(DeathExplosionIndex - 1));
         if ((DeathExplosionIndex & 0x8000) != 0)
-            DeathExplosionIndex = 6;
+            DeathExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
 
-        int simultaneousCount = mixed ? 4 : 2;
-        int pairIndex = DeathExplosionIndex * 4;
+        int simultaneousCount = mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
+        int pairIndex = DeathExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -462,7 +462,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             ushort parameter = mixed
                 ? random < 0x4000 ? (ushort)0 : random < 0xe000 ? (ushort)1 : (ushort)2
                 : (ushort)1;
-            (short xOffset, short yOffset) = DeathExplosionOffsets[pairIndex + explosionIndex];
+            (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
                 PatternIndex: DeathExplosionIndex,
                 XOffset: xOffset,

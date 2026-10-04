@@ -14,7 +14,7 @@ internal sealed class MapObjectTileArtwork
     private readonly byte[] otherCharacters;
     private readonly MenuSmallFontArtwork smallFont;
     private readonly MenuLargeFontArtwork largeFont;
-    private readonly MenuElevatorLetteringArtwork elevatorLettering;
+    private readonly MenuOutlinedLetteringArtwork elevatorLettering;
     private readonly MenuPanelTileArtwork panel;
     private readonly MenuShoulderButtonArtwork shoulderButtons;
     private readonly MenuShoulderHighlightArtwork shoulderHighlight;
@@ -37,11 +37,11 @@ internal sealed class MapObjectTileArtwork
         shoulderHighlight = new(image);
         markers = new(image);
         squares = new(image);
-        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount + MenuLargeFontArtwork.TileCount + MenuElevatorLetteringArtwork.TileCount + MenuPanelTileArtwork.TileCount + MenuShoulderButtonArtwork.TileCount + MenuShoulderHighlightArtwork.TileCount + MapMarkerTileArtwork.TileCount + MenuBeveledSquareArtwork.TileCount) * 32];
+        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount + MenuLargeFontArtwork.TileCount + MenuOutlinedLetteringArtwork.TileCount + MenuPanelTileArtwork.TileCount + MenuShoulderButtonArtwork.TileCount + MenuShoulderHighlightArtwork.TileCount + MapMarkerTileArtwork.TileCount + MenuBeveledSquareArtwork.TileCount) * 32];
         int stored = 0;
         for (int tile = 0; tile < encoded.Length / 32; tile++)
         {
-            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile) || MenuLargeFontArtwork.Contains(tile) || MenuElevatorLetteringArtwork.Contains(tile) || MenuPanelTileArtwork.Contains(tile) || MenuShoulderButtonArtwork.Contains(tile) || MenuShoulderHighlightArtwork.Contains(tile) || MapMarkerTileArtwork.Contains(tile) || MenuBeveledSquareArtwork.Contains(tile)) continue;
+            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile) || MenuLargeFontArtwork.Contains(tile) || MenuOutlinedLetteringArtwork.Contains(tile) || MenuPanelTileArtwork.Contains(tile) || MenuShoulderButtonArtwork.Contains(tile) || MenuShoulderHighlightArtwork.Contains(tile) || MapMarkerTileArtwork.Contains(tile) || MenuBeveledSquareArtwork.Contains(tile)) continue;
             encoded.AsSpan(tile * 32, 32).CopyTo(otherCharacters.AsSpan(stored, 32));
             stored += 32;
         }
@@ -77,7 +77,7 @@ internal sealed class MapObjectTileArtwork
             int pixel = 0;
             int cursorOffset = 0;
             for (int sourceTile = 0; sourceTile < CursorTile; sourceTile++)
-                if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuLargeFontArtwork.Contains(sourceTile) && !MenuElevatorLetteringArtwork.Contains(sourceTile) && !MenuPanelTileArtwork.Contains(sourceTile) && !MenuShoulderButtonArtwork.Contains(sourceTile) && !MenuShoulderHighlightArtwork.Contains(sourceTile) && !MapMarkerTileArtwork.Contains(sourceTile) && !MenuBeveledSquareArtwork.Contains(sourceTile)) cursorOffset += 32;
+                if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuLargeFontArtwork.Contains(sourceTile) && !MenuOutlinedLetteringArtwork.Contains(sourceTile) && !MenuPanelTileArtwork.Contains(sourceTile) && !MenuShoulderButtonArtwork.Contains(sourceTile) && !MenuShoulderHighlightArtwork.Contains(sourceTile) && !MapMarkerTileArtwork.Contains(sourceTile) && !MenuBeveledSquareArtwork.Contains(sourceTile)) cursorOffset += 32;
             for (int plane = 0; plane < 4; plane++)
                 pixel |= ((otherCharacters[cursorOffset + plane / 2 * 16 + y * 2 + plane % 2] >> (8 - x)) & 1) << plane;
             return (byte)(pixel == 1 ? 2 : pixel == 2 ? 1 : pixel);
@@ -107,7 +107,7 @@ internal sealed class MapObjectTileArtwork
             bool reserve = IsReserve(tile);
             bool font = MenuSmallFontArtwork.Contains(tile);
             bool title = MenuLargeFontArtwork.Contains(tile);
-            bool lettering = MenuElevatorLetteringArtwork.Contains(tile);
+            bool lettering = MenuOutlinedLetteringArtwork.Contains(tile);
             bool panelTile = MenuPanelTileArtwork.Contains(tile);
             bool shoulder = MenuShoulderButtonArtwork.Contains(tile);
             bool shoulderFrame = MenuShoulderHighlightArtwork.Contains(tile);

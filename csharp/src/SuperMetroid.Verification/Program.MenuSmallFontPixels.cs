@@ -13,7 +13,7 @@ internal static partial class Program
         AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
         AssertEqual(9, font.StoredEditCount, "nine independently observed shadow retouches");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3680, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
+        AssertEqual(3616, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

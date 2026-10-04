@@ -13,7 +13,7 @@ internal static partial class Program
         var highlight = new MenuShoulderHighlightArtwork(image);
         AssertEqual(0, highlight.StoredEditCount, "all stock highlight frame and quadratic cutout are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3680, stock.StoredArtworkByteCount, "highlight planar tiles absent from retained atlas");
+        AssertEqual(3616, stock.StoredArtworkByteCount, "highlight planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

@@ -3,26 +3,32 @@ using System.Numerics;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Seven elevator-label strips, selected by82:C4DB..C568, including unused Tourian.
+/// Seven elevator-label strips, selected by82:C4DB..C568, and EXIT cells5F/B7.
 /// Authored ink index11 casts
 /// a one-pixel eight-neighbor black outline15 across adjacent cells of the same strip.
 /// Bevel each row's outer diagonal-only corner when its ink is inset from a neighboring
-/// row, except a squared horizontal-to-vertical stroke junction (the T cap). This
-/// calculates the original corners and notches without stored pixel exceptions.
-/// Eighteen authored six-row glyph silhouettes select the lettering design; each label
+/// row. Tourian's extra left T-cap pixel remains unresolved required review; EXIT's
+/// mirrored T cap disproves the former symmetric stroke-junction explanation.
+/// Nineteen authored six-row glyph silhouettes select the lettering design; each label
 /// places these glyphs with a one-pixel gap. Tracing the chosen glyph strokes in numerical
-/// cases would disguise that art. Only independent pixel edits are captured.
+/// cases would disguise that art. Capture supplied differences, including that one
+/// pending original pixel; it has no accepted artistic-retention disposition.
 /// </summary>
-internal sealed class MenuElevatorLetteringArtwork
+internal sealed class MenuOutlinedLetteringArtwork
 {
-    internal const int TileCount = 26;
+    internal const int TileCount = 28;
     private readonly Dictionary<char, uint> glyphs = [];
     private readonly Dictionary<int, byte>? edits;
     internal int StoredInkByteCount => glyphs.Count * sizeof(uint);
     internal int StoredEditCount => edits?.Count ?? 0;
+    internal bool HasPixelOverride(int tile, int x, int y)
+    {
+        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.ContainsKey(tile * 64 + y * 8 + x);
+    }
 
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
-        0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56;
+        0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or 0xb7;
 
     /// <summary>Physical strip layout: Crateria, Brinstar, Norfair, Maridia, Ship and Wrecked.
     /// Norfair and Maridia skip the intervening large-font stem cells11 and17.</summary>
@@ -35,6 +41,7 @@ internal sealed class MenuElevatorLetteringArtwork
         0x15 or 0x16 or 0x18 or 0x19 => (0x15, 0x17, "MARIDIA", 3, 1),
         0x44 or 0x45 => (0x44, -1, "SHIP", 1, 0),
         >= 0x53 and <= 0x56 => (0x53, -1, "WRECKED", 1, 1),
+        0x5f or 0xb7 => (0x5f, -1, "EXIT", 1, 1),
         _ => throw new ArgumentOutOfRangeException(nameof(tile)),
     };
 
@@ -48,19 +55,21 @@ internal sealed class MenuElevatorLetteringArtwork
     {
         0x20 => 2,
         0x32 => 3,
+        0xb7 => 1,
         _ => tile - start - (gap >= 0 && tile > gap ? 1 : 0),
     };
 
     private static int SourceTile(int column, int start, int gap)
     {
         if (start == 8) return column switch { 0 => 8, 1 => 9, 2 => 0x20, 3 => 0x32, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
+        if (start == 0x5f) return column switch { 0 => 0x5f, 1 => 0xb7, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
         int tile = start + column;
         return gap >= 0 && tile >= gap ? tile + 1 : tile;
     }
 
-    internal MenuElevatorLetteringArtwork(IndexedPngImage image)
+    internal MenuOutlinedLetteringArtwork(IndexedPngImage image)
     {
-        for (int tile = 0; tile <= 0x56; tile++)
+        for (int tile = 0; tile <= 0xb7; tile++)
         {
             if (!Contains(tile)) continue;
             var row = Layout(tile);
@@ -84,7 +93,7 @@ internal sealed class MenuElevatorLetteringArtwork
                 position += width + 1;
             }
         }
-        for (int tile = 0; tile <= 0x56; tile++)
+        for (int tile = 0; tile <= 0xb7; tile++)
         {
             if (!Contains(tile)) continue;
             for (int y = 0; y < 8; y++)
@@ -116,12 +125,8 @@ internal sealed class MenuElevatorLetteringArtwork
 
         int left = BitOperations.TrailingZeroCount(neighboring);
         int right = 31 - BitOperations.LeadingZeroCount(neighboring);
-        // Three ink pixels forming an inward L are a squared stroke junction,
-        // rather than a diagonal contour to bevel. Preserve its outside corner.
-        uint leftJoins = (current >> 1) & ((previous & (previous >> 1)) | (next & (next >> 1)));
-        uint rightJoins = (current << 1) & ((previous & (previous << 1)) | (next & (next << 1)));
-        if (position == left - 1 && BitOperations.TrailingZeroCount(current) > left && (leftJoins & (1u << left)) == 0) return 0;
-        if (position == right + 1 && 31 - BitOperations.LeadingZeroCount(current) < right && (rightJoins & (1u << right)) == 0) return 0;
+        if (position == left - 1 && BitOperations.TrailingZeroCount(current) > left) return 0;
+        if (position == right + 1 && 31 - BitOperations.LeadingZeroCount(current) < right) return 0;
         return 15;
 
         uint RowInk(int py)

@@ -1,8 +1,15 @@
 {
   "issue": 1165,
-  "status": "SPC pan gain pending; Crocomire shuffle and Draygon trace independently resolved",
+  "status": "SPC pan gain and Tourian outline corner pending; Crocomire shuffle and Draygon trace independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
+    {
+      "id": "tourian-left-t-cap-outline",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/MenuOutlinedLetteringArtwork.cs",
+      "nativeIdentity": "B6:C000 atlas tile08 pixelX2,Y2; Tourian stripX2,Y2",
+      "status": "pending",
+      "task": "Explain and convert the extra black pixel or establish a concrete permitted retention rationale. EXIT tileB7 pixelX6,Y2 is transparent at the mirrored T-cap junction, disproving the former symmetric-junction claim. That unsupported rule has been removed. This pixel remains captured from the source to preserve output, with no accepted retention exception."
+    },
     {
       "id": "spc-pan-gain-curve",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",

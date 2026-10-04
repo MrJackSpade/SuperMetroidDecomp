@@ -4,17 +4,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyElevatorLetteringPixels(ISnesAddressSpace rom)
+    private static void VerifyMenuOutlinedLetteringPixels(ISnesAddressSpace rom)
     {
-        int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56];
+        int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56,0x5f,0xb7];
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
-        var font = new MenuElevatorLetteringArtwork(image);
-        AssertEqual(72, font.StoredInkByteCount, "eighteen shared six-row glyph silhouettes only");
-        AssertEqual(0, font.StoredEditCount, "all stock outlines and bevels are calculated without retained pixel exceptions");
+        var font = new MenuOutlinedLetteringArtwork(image);
+        AssertEqual(76, font.StoredInkByteCount, "nineteen shared six-row glyph silhouettes only");
+        AssertEqual(1, font.StoredEditCount, "only the unresolved Tourian T-cap pixel remains pending; EXIT needs no deviations");
+        AssertTrue(font.HasPixelOverride(8, 2, 2), "the pending source pixel is Tourian's left T-cap corner");
+        AssertTrue(!font.HasPixelOverride(0xb7, 6, 2), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3680, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
+        AssertEqual(3616, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

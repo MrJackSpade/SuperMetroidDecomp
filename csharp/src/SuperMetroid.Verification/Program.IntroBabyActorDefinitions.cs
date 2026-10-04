@@ -11,17 +11,7 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyIntroBabyDiscoveryInstructions(retail);
         VerifyIntroScientistInstructions(retail);
-        foreach ((int start, int end) in new[]
-        {
-            (IntroBabyDiscoveryInputDefinitions.ListStart,
-                IntroBabyDiscoveryInputDefinitions.ListEnd),
-            (IntroBabyDiscoveryInputDefinitions.HeaderStart,
-                IntroBabyDiscoveryInputDefinitions.HeaderEnd),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(DemoInputRomData.BankBase | pointer),
-                    IntroBabyDiscoveryInputDefinitions.ReadByte((ushort)pointer),
-                    $"SR388 discovery demo byte $91:{pointer:X4}");
+        VerifyIntroBabyDiscoveryInput(retail);
         AssertThrows<InvalidDataException>(() =>
             IntroBabyDiscoveryInputDefinitions.ReadWord(
                 IntroBabyDiscoveryInputDefinitions.ListEnd),

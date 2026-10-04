@@ -9971,4 +9971,15 @@
     "proof": "One VerifyIntroDiscoveryFrameCatalog under --lookup-intro-baby-discovery-instructions walks original ROM OAM record headers for all sixteen eggs and three small babies, reads the large-baby pointer independently from its native instruction operand, and compares all twenty pointers,counts and published names. Check all three record-region ends,index/pointer bounds and enumeration agreement. Build covers extraction and verification consumers; ResourceAudit build covers its consumers.",
     "remaining": "Catalog and instruction mappings are calculated. OAM fields,pixel drawings,input/collision mappings and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introBabyDiscoveryInputReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryInputDefinitions.cs",
+    "id": "intro-discovery-demo-input-program-and-header",
+    "state": "converted",
+    "nativeIdentity": "91:860D..864E demo lists and877E..8783 object header",
+    "evidence": "Complete pinned bank91 lists describe90-tick initial pause,one-tick left press then one-tick left-hold loop;stop-and-look redirects to300-tick pause,one-tick R press,170-tick R hold,240-tick release,then left press/hold loop. End list calls named end-demo instruction followed by delete. Header selects no-op initialization,running-left pre-instruction and initial list.",
+    "algorithm": "Replace66-byte list and6-byte header with named input records and opcode/header cases. InputWord emits duration,held buttons and optional press edge. Share both left press/hold constructions; derive loop destinations from input-record width and record ordinal. Use SnesButton.Left/R and existing routine/command catalog identities. Split generated words for byte reads and compose neighboring bytes for arbitrary word alignment; preserve both region boundaries and InvalidDataException contracts.",
+    "proof": "Extract existing byte checks from VerifyIntroBabyActorDefinitions into one VerifyIntroBabyDiscoveryInput, reused there and under --lookup-intro-baby-discovery-instructions. Independently compare all72 original bytes and70 complete word views,terminal crossings and outside-range rejection. Existing actor integration check remains intact; no exploratory gameplay or expanded test matrix.",
+    "remaining": "Discovery input program/header converted. Collision definitions,OAM fields,pixels and other1165 mappings remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

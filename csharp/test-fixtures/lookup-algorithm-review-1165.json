@@ -10274,4 +10274,23 @@
     },
     "remaining": "Local shapes are calculated and the specific scene anchors/orientations have the narrow disposition above. Source pixels and other inventory entries remain independently required. Shape commit is5ee5e982; placement-disposition commit is the commit extending the asteroid artwork exporter."
   }
+,
+  "ceresVortexPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresVortexParts.cs",
+    "id": "ceres-two-vortex-and-star-compositions",
+    "state": "unreviewed",
+    "drawing": {
+      "id": "ceres-shared-thirteen-part-vortex-grid",
+      "state": "converted",
+      "evidence": "Read complete36-part8C:8FE7 and33-part8C:93D1. Both embed the same eleven large vortex parts plus two small lower-edge parts. Large pieces form a three-column grid with the final lower-right cell replaced by two repeated small tiles. Native order reverses grid cells10..0. The atlas packs eight large pieces per pair of rows, starting1C0; both small pieces use1E6. All share priority0, no flips and actor palette inheritance.",
+      "algorithm": "Derive large local X/Y=16*(cell%3,cell/3), tile=1C0+32*(cell/8)+2*(cell%8); emit two small pieces at(40,48)/(32,48). Preserve their different insertion positions in each star composition. Store only the shared drawing anchor and remaining star parts, removing the duplicated thirteen-part layouts. Full field/count matching preserves independent edits, and the shared flight loader serves both scenes.",
+      "proof": "VerifyCeresVortexParts under --lookup-ceres-flight-programs independently extracts both complete compositions, requires calculated selection, compares all69 parts and native visible/wrapped OAM. Independent drawing edits remain supplied; star edits preserve calculated drawing geometry and exact full identity. Real flight JSON loader checks original and every edited field/count variant; invalid calculated indices are rejected."
+    },
+    "remaining": {
+      "id": "ceres-vortex-anchor-and-two-star-fields",
+      "state": "unreviewed",
+      "scope": "Drawing anchor(70,-80),23 even-frame star parts and20 odd-frame star parts remain required independent review. Analyze any relationship with the separate25-star composition8C:9478 before accepting an authored-scatter disposition. Source pixels remain separate. No retention exception."
+    },
+    "implementation": "The commit adding this record calculates the shared drawing only; complete scene layouts remain unresolved."
+  }
 }

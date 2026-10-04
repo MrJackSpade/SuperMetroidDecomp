@@ -61,6 +61,7 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
             compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresStationParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = CeresVortexParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresFlightSpritePresentation(frames);

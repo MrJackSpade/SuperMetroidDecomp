@@ -10100,4 +10100,16 @@
     "catalogCorrection": "Native8C:909D is explicitly SpaceSpritemaps_CeresUnderAttackLargeAsteroids,not a large baby drawing. The second confused-baby list at8B:CC3F references it and the published catalog key remains hatched-baby. Corrected XML identity without changing the pointer,key or behavior. Its nineteen-part composition remains separate required review.",
     "remaining": "Three small-baby layouts converted. Intact/cracking egg,aliased asteroid layout,source pixels and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
   }
+,
+  "introEggRockingPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroEggRockingParts.cs",
+    "id": "intro-egg-intact-and-row-sheared-rocking-layouts",
+    "state": "converted",
+    "nativeIdentity": "Three compositions8C:8D6F..8DEC,total24 OAM parts",
+    "evidence": "Complete pinned bank8C records share a24x24 egg grid. Top strip122..124,lower-left two-by-two patch110/111/120/121,and right-column100/101 supply the same drawings. Intact pose packs lower-left into one sixteen-pixel sprite;rocking poses split it into four eight-pixel parts and translate top/middle/bottom rows by-3/-2/-1 or+3/+2/+1. Y and all common attributes remain unchanged.",
+    "algorithm": "Derive native part order and grid coordinates from top strip,right column and lower-left patch. X=-12+8*column+direction*(3-row),Y=-12+8*row;intact direction0 preserves its large lower-left part and original order. Derive atlas cells from strip/patch origins and row/column strides. Generate priority3,no flips and palette inheritance. Immutable view stores only frame identity.",
+    "implementation": "Discovery loader substitutes calculated intact/rocking parts after complete field/count equality and preserves independent authored edits. Existing remnant/baby conversions remain in the same loader.",
+    "proof": "One VerifyIntroEggRockingParts joins --lookup-intro-baby-discovery-instructions. Independently extract all24 native parts,require calculated selection,compare complete compiled identities and native visible/wrapped OAM. Preserve independent edits to every field on each part and changed counts;reject invalid calculated indices.",
+    "remaining": "Intact and two rocking layouts converted. Six progressive cracking layouts,aliased asteroid layout,source pixels and other1165 mappings remain required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

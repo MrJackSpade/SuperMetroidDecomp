@@ -52,10 +52,12 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro discovery actor frame {definition.Name} is missing.");
+            SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+            compiled = IntroEggRockingParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer,
                 IntroConfusedBabyParts.CalculateIfMatching(definition.Pointer,
                     IntroEggRemnantParts.CalculateIfMatching(definition.Pointer,
-                        IntroCinematicSpriteCompiler.Compile(visual, definition.Name))));
+                        compiled)));
         }
         return new IntroDiscoveryActorSpritePresentation(frames);
     }

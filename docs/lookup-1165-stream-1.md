@@ -169,7 +169,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs
 
-- [ ] **DragonAnimationDefinitions.InstructionLists** ([L28](../csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DragonAnimationDefinitions.InstructionLists** ([L28](../csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DragonFireballInstructionProgramDefinitions.cs
 
@@ -205,7 +205,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs
 
-- [ ] **EscapeEtecoonDefinitions.Initializations** ([L22](../csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EscapeEtecoonDefinitions.Initializations** ([L22](../csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeEtecoonInstructionProgramDefinitions.cs
 
@@ -223,7 +223,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/HibashiDefinitions.cs
 
-- [ ] **HibashiDefinitions.ActivityFrames** ([L29](../csharp/src/SuperMetroid.Core/Game/HibashiDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **HibashiDefinitions.ActivityFrames** ([L29](../csharp/src/SuperMetroid.Core/Game/HibashiDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/HibashiInstructionProgramDefinitions.cs
 
@@ -377,7 +377,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs
 
-- [ ] **SamusBombSpreadLaunchDefinitions.Launches** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusBombSpreadLaunchDefinitions.Launches** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs
 
@@ -575,7 +575,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: 109 definitions in batches 1 through 8 below.
+- Completed conversions: 113 definitions in batches 1 through 9 below.
 - Justified retained entries: none.
 - Confirmation results: isolated Verification build passed (1431 existing warnings, zero errors); --lookup-stream-1 passed.
 - Cross-stream dependencies and proposed shared-file patches: pending.
@@ -657,3 +657,13 @@ Seventy-nine more definitions converted; 109 complete and 117 remain. No retaine
 - `SamusPoseTransitionTable` invokes the selected program and preserves raw-zero-input early fallback, ignored Start/Select bits, allowed extra buttons, first-match priority, self-match direct return, empty-program direct return, exhausted-program fallback, and the exact winning native six-byte entry address. The selected rule record remains diagnostic output, not stored lookup data.
 - Evidence: pinned bank91 `TransitionTable` and `DetermineProspectivePoseFromTransitionTable`, `$9EE2..B00F` and `$81A9..82D8`; source documents all eight canonical bits and ordered subset matching explicitly. Native list symbols and addresses are recorded beside the program/catalog identities.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. The existing independent ROM graph oracle covers253 mappings,86 program identities,598 original conditions and16,580,608 complete decision comparisons, including impossible held/edge combinations, ignored-bit noise, first/self matches, fallback distinction and exact winning metadata, with production ROM reads forbidden. Invalid253..255 poses and existing zero-allocation assertions also pass. Row-span assertions were replaced with direct program emptiness checks; original decision oracle and behavioral assertions are retained.
+## Batch 9: Bomb Spread and enemy role/phase definitions
+
+Four more definitions converted; 113 complete and 113 remain. No retained exception.
+
+- Bomb Spread's five launches calculate fuse and all three velocity fields from distance to the central bomb. Preserves the native X direction bit rather than signed-short interpretation, center2.5-pixel upward launch, and exact slot-domain exception.
+- Hibashi's22 collision frames rise five pixels per frame. Half-height remains24 through frame17 and shrinks by four on each remaining frame. Both fields and rejected bounds are preserved.
+- Dragon animation dispatch selects the named idle/wing/attack program and facing directly. The same six-selector bounds remain in facing/phase helpers.
+- Escape Etecoon initialization dispatches by the three named roles; all five fields are included. Paired odd parameter values still select the same role after clearing bit zero; other values still fail.
+- Evidence: pinned bank90 `$D8CF..D8F6`, bankA6 `$8DBB..8E12`, bankA2 `$E5EF..E5FA`, bankB3 `$E718..E735` and their named launch/hitbox/phase/role consumers.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. New focused check compares all20 Bomb Spread words,44 Hibashi words,six Dragon pointers and all15 Etecoon fields (also through odd-role aliases) directly with the ROM, plus invalid bounds for each API.

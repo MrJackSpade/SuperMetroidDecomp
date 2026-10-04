@@ -158,4 +158,42 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
                 "stream1 selector exact address-domain rejection");
     }
+    private static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int index = 0; index < 5; index++)
+        {
+            var launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
+            AssertEqual(Word(0x90d8cf + index * 2), launch.FuseTimer, "spread native fuse");
+            AssertEqual(Word(0x90d8d9 + index * 2), launch.XVelocity, "spread native direction/magnitude X");
+            AssertEqual(Word(0x90d8e3 + index * 2), launch.YSpeed, "spread native whole Y");
+            AssertEqual(Word(0x90d8ed + index * 2), launch.YSubspeed, "spread native fraction Y");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SamusBombSpreadLaunchDefinitions.ForSlot(invalid), "spread native slot rejection");
+        for (int index = 0; index < 22; index++)
+        {
+            var frame = HibashiDefinitions.ActivityFrame(index);
+            AssertEqual(Word(0xa68dbb + index * 2), frame.YOffset, "Hibashi native collision rise");
+            AssertEqual(Word(0xa68de7 + index * 2), frame.YRadius, "Hibashi native collision radius");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 22, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => HibashiDefinitions.ActivityFrame(invalid), "Hibashi native frame rejection");
+        for (ushort selector = 0; selector < 6; selector++)
+        {
+            AssertEqual(Word(0xa2e5ef + selector * 2), DragonAnimationDefinitions.InstructionList((DragonAnimationSelector)selector), "Dragon native phase/facing program");
+            var role = EscapeEtecoonDefinitions.Initialization(selector);
+            int offset = selector & ~1;
+            AssertEqual(Word(0xb3e718 + offset), role.XPosition, "Etecoon native role X");
+            AssertEqual(Word(0xb3e71e + offset), role.YPosition, "Etecoon native role Y");
+            AssertEqual(Word(0xb3e724 + offset), (ushort)role.PreInstruction, "Etecoon native role action");
+            AssertEqual(Word(0xb3e72a + offset), role.InstructionList, "Etecoon native role program");
+            AssertEqual(Word(0xb3e730 + offset), role.HorizontalSpeed, "Etecoon native role speed");
+        }
+        foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => DragonAnimationDefinitions.InstructionList((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
+        }
+    }
 }

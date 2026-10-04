@@ -89,6 +89,7 @@ if (args is ["--lookup-stream-1"])
     VerifyLookupStream1ProjectileMotion(rom);
     VerifyBeamCallbackTables(initializeOnly: true);
     VerifyLookupStream1Selection(rom);
+    VerifyLookupStream1LaunchRoles(rom);
     VerifyPoseInputDefinitions(rom);
     VerifyProjectileDamage(rom);
     VerifyProjectileSoundRoutingDefinitions(rom);

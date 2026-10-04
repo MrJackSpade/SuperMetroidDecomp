@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-map-arrow-cases"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow oracle revision");
+    VerifyMapArrowCases(rom);
+    Console.WriteLine("Map arrow cases: original anchors and shapes, independent direction edits, phase selection, membership and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-button-spans"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

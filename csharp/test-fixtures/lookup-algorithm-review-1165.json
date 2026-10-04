@@ -6855,4 +6855,17 @@
     "consumerContract":"RefreshPauseButtonArtwork still preserves palette bits word-by-word over precisely these spans when rebinding authored artwork. Its foreach consumer and the existing backdrop verification loop require no behavior changes. Source comments now correctly name native MAP/EXIT/SAMUS labels.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-pause-button-spans passes separate destination/width proofs and invalid bounds. Static owner-pin review finds no dependency hashes. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "mapArrowDirectionCaseReview": {
+    "status":"converted installed direction selector and independently reviewed existing shape cases",
+    "owners":["csharp/src/SuperMetroid.Core/Assets/MapArrowPresentation.cs","csharp/src/SuperMetroid.Core/Frontend/MapArrowDefinitions.cs"],
+    "source":"Supported SHA-pinned ROM and pinned bank_81.asm MapScroll_ArrowData_mapScrollDirection81:AF32..AF59, with original animation IDs resolving shape pointers through82:C1E4.",
+    "disposition":"MapArrowPresentation stores named Left/Right/Up/Down visuals and Get selects explicit direction cases. Remove the positional four-element array and loader's duplicate array. Existing SpriteBase cases already express the same meaningful direction-to-shape operation and are independently verified without changing their values. This is semantic identity selection, not a fitted numerical curve or retention exception.",
+    "xField":{"state":"converted named selection","proof":"VerifyMapArrowXSelection reads four original X words81:AF32+10*i and compares actual imported direction selection."},
+    "yField":{"state":"converted named selection","proof":"VerifyMapArrowYSelection reads original Y words81:AF34+10*i and confirms the existing minus-one OAM bias."},
+    "shapeField":{"state":"existing cases independently reviewed","proof":"VerifyMapArrowShapeCases follows original animation IDs and original base-ID pointers to compare all four shape words and checks invalid directions."},
+    "editableContract":"The complete unchanged version1 JSON document still requires all four directions, bounded anchors and valid durations. Validation occurs Left/Right/Up/Down in the same order. VerifyMapArrowCases independently edits each direction's X/Y and duration sequence, compares every direction/component and phase, preserves visual object identity, and confirms missing-direction/unsupported-enum rejection.",
+    "remainingDurationObligation":"This entry resolves direction selection only. MapArrowVisual still stores phase durations; the original shared14-phase program82:C137 has first delay15 and thirteen delays2. Its direct calculation and arbitrary authored-duration ownership remain separate required work, not a retention exception.",
+    "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-map-arrow-cases passes. The closed resource contract's reviewed ownership text and LF-normalized source hash are updated. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

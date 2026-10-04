@@ -6,13 +6,19 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map-arrow anchors and cosmetic phase durations; no controller bindings.</summary>
 public sealed class MapArrowPresentation
 {
-    private readonly MapArrowVisual[] arrows;
-    private MapArrowPresentation(MapArrowVisual[] arrows) => this.arrows = arrows;
-    public MapArrowVisual Get(MapScrollDirection direction)
+    private readonly MapArrowVisual left, right, up, down;
+    private MapArrowPresentation(MapArrowVisual left, MapArrowVisual right, MapArrowVisual up, MapArrowVisual down)
+    { this.left = left; this.right = right; this.up = up; this.down = down; }
+
+    /// <summary>Selects the authored visual for a named map-scroll direction.</summary>
+    public MapArrowVisual Get(MapScrollDirection direction) => direction switch
     {
-        int index = (int)direction - 1;
-        return (uint)index < arrows.Length ? arrows[index] : throw new ArgumentOutOfRangeException(nameof(direction));
-    }
+        MapScrollDirection.Left => left,
+        MapScrollDirection.Right => right,
+        MapScrollDirection.Up => up,
+        MapScrollDirection.Down => down,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    };
     public static MapArrowPresentation Load(Stream json)
     {
         MapArrowDocument document;
@@ -21,17 +27,15 @@ public sealed class MapArrowPresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid map arrow JSON.", error); }
         if (document.Version != MapArrowFormat.Version || document.Arrows is null || document.Arrows.Count != MapArrowDefinitions.Count)
             throw new InvalidDataException("Map arrows require version 1 and Left/Right/Up/Down definitions.");
-        var arrows = new MapArrowVisual[MapArrowDefinitions.Count];
-        for (int index = 0; index < arrows.Length; index++)
+        return new(Require("Left"), Require("Right"), Require("Up"), Require("Down"));
+        MapArrowVisual Require(string name)
         {
-            string name = ((MapScrollDirection)(index + 1)).ToString();
             if (!document.Arrows.TryGetValue(name, out var entry) || entry is null || entry.X is < 0 or > 255 || entry.Y is < 0 or > 223 ||
                 entry.DurationTicks is null || entry.DurationTicks.Length is < 1 or > MapArrowFormat.MaximumPhases ||
                 entry.DurationTicks.Any(ticks => ticks is < 1 or > MapArrowFormat.MaximumDuration))
                 throw new InvalidDataException($"Map arrow {name} requires screen X=0..255/Y=0..223 and 1-255 phases of 1-254 ticks.");
-            arrows[index] = new(entry.X, entry.Y, entry.DurationTicks.Select(ticks => (byte)ticks).ToArray());
+            return new(entry.X, entry.Y, entry.DurationTicks.Select(ticks => (byte)ticks).ToArray());
         }
-        return new(arrows);
     }
     public static void Write(Stream json, MapArrowDocument document)
     {

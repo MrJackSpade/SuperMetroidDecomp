@@ -94,7 +94,62 @@ internal static partial class Program
         VerifyStream3PickupAndFirefleaPrograms(rom);
         VerifyStream3ChootControl(rom);
         VerifyStream3RipperMappings(rom);
+        VerifyStream3UniformEnemyLoops(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
+    {
+        VerifyMochtroidInstructionProgramDefinitions();
+        VerifyYellowPipeBugInstructionProgramDefinitions();
+        Check(0xa30000, [0xa745, 0xa759],
+            index =>
+            {
+                var word = MochtroidInstructionProgramDefinitions.MechanicsWord(index);
+                return (word.Address, word.Value);
+            }, MochtroidInstructionProgramDefinitions.PresentationWordAddress,
+            MochtroidInstructionProgramDefinitions.ReadMechanicsWord,
+            MochtroidInstructionProgramDefinitions.IsCompiledMechanicsByte);
+        Check(0xb30000, [0x8efc, 0x8f10, 0x8f24, 0x8f38],
+            index =>
+            {
+                var word = YellowPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+                return (word.Address, word.Value);
+            }, YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress,
+            YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord,
+            YellowPipeBugInstructionProgramDefinitions.IsCompiledMechanicsByte);
+
+        void Check(int bank, ushort[] starts,
+            Func<int, (ushort Address, ushort Value)> wordAt, Func<int, ushort> visualAt,
+            Func<ushort, ushort> read, Func<int, bool> ownsByte)
+        {
+            var bytes = new HashSet<int>();
+            int wordIndex = 0, visualIndex = 0;
+            foreach (ushort start in starts)
+            {
+                foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
+                {
+                    ushort address = (ushort)(start + offset);
+                    ushort value = (ushort)(rom.ReadByte(bank | address) | rom.ReadByte(bank | (address + 1)) << 8);
+                    AssertEqual((address, value), wordAt(wordIndex++), "stream 3 uniform loop native mechanic");
+                    AssertEqual(value, read(address), "stream 3 uniform loop mechanic dispatch");
+                    bytes.Add(address);
+                    bytes.Add(address + 1);
+                }
+                for (int frame = 0; frame < 4; frame++)
+                {
+                    ushort address = (ushort)(start + 4 * frame + 2);
+                    AssertEqual(address, visualAt(visualIndex++), "stream 3 uniform loop visual order");
+                    AssertThrows<InvalidDataException>(() => read(address), "stream 3 uniform loop visual excluded");
+                }
+            }
+            for (int address = 0; address <= ushort.MaxValue; address++)
+                AssertEqual(bytes.Contains(address), ownsByte(bank | address), "stream 3 uniform loop byte ownership");
+            foreach (int invalid in new[] { -1, starts.Length * 6, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => wordAt(invalid), "stream 3 uniform loop mechanic bounds");
+            foreach (int invalid in new[] { -1, starts.Length * 4, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => visualAt(invalid), "stream 3 uniform loop visual bounds");
+        }
     }
 
     private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)

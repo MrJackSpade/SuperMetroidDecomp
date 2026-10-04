@@ -363,8 +363,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs
 
-- [ ] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MochtroidInstructionProgramDefinitions.PresentationWords** ([L28](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MochtroidInstructionProgramDefinitions.PresentationWords** ([L28](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs
 
@@ -662,8 +662,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs
 
-- [ ] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **YellowPipeBugInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YellowPipeBugInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff
 
@@ -706,6 +706,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Evidence: all 36 native mechanics and 24 visual operands in the six $A2:E19B/E1AF/E2E0/E2F4/E477/E48B loops, and their $E3C5/$E527 sprite composition sequences.
 - Verification build passed (1431 warnings, zero errors). `--lookup-stream-3` passed direct native records/order/ownership/bounds plus the existing six production animation fixtures with source bytes forbidden, including all twelve distinct selected frames.
 - Changed production: `RipperInstructionProgramDefinitions.cs`, `RipperVisualDefinitions.cs`; tests extend the owned partial. No retained exception or cross-stream dependency.
+### Confirmed batch 6: Mochtroid and Yellow Pipe Bug loops
+
+- Converted four definitions: both families calculate their four-frame loops, Goto commands, branch targets, visual addresses and byte ownership directly. Mochtroid uses fourteen ticks in free flight and five when attached; Yellow Pipe Bug uses four ticks in straight flight and one when arcing, for each facing direction.
+- Evidence: original $A3:A745/$A759 and $B3:8EFC/$8F10/$8F24/$8F38 programs. All 36 mechanics and 24 visual operand addresses match the pinned ROM.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed direct native records and ownership/bounds, plus existing real-initializer/state-switch fixtures, two Mochtroid loops and four Yellow Pipe Bug loops with source reads forbidden.
+- Changed production: `MochtroidInstructionProgramDefinitions.cs`, `YellowPipeBugInstructionProgramDefinitions.cs`; tests extend the owned partial. No retained exceptions or dependencies.
 ### Remaining scope
 
-All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Next work includes Mochtroid and Yellow Pipe Bug instruction layouts.
+All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Next work targets Mother Brain body/leg/corpse fade payload calculations. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

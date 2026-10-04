@@ -4,7 +4,7 @@ internal readonly record struct MochtroidInstructionMechanicsWord(ushort Address
 
 /// <summary>
 /// Compiled engine-control words for Mochtroid's free-flight and attached animation loops.
-/// Their eight spritemap operands remain live cartridge presentation data.
+/// Their eight spritemap operands select independently supplied presentation data.
 /// </summary>
 internal static class MochtroidInstructionProgramDefinitions
 {
@@ -15,29 +15,40 @@ internal static class MochtroidInstructionProgramDefinitions
     /// <summary>The shake-velocity table immediately after the programs, at $A3:A76D.</summary>
     internal const ushort FirstAdjacentMechanicsData = 0xa76d;
 
-    private static readonly MochtroidInstructionMechanicsWord[] Words =
-    [
-        new(FreeFlight, 0x0e), new(0xa749, 0x0e),
-        new(0xa74d, 0x0e), new(0xa751, 0x0e),
-        new(0xa755, CommonEnemyInstructionCodes.Goto), new(0xa757, FreeFlight),
-        new(Attached, 5), new(0xa75d, 5), new(0xa761, 5), new(0xa765, 5),
-        new(0xa769, CommonEnemyInstructionCodes.Goto), new(0xa76b, Attached),
-    ];
+    internal static int MechanicsWordCount => 12;
+    internal static int PresentationWordCount => 8;
 
-    private static readonly ushort[] PresentationWords =
-        [0xa747, 0xa74b, 0xa74f, 0xa753, 0xa75b, 0xa75f, 0xa763, 0xa767];
+    /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
+    internal static MochtroidInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int program = index / 6;
+        int record = index % 6;
+        ushort address = (ushort)(FreeFlight + 20 * program + (record < 4 ? 4 * record : 16 + 2 * (record - 4)));
+        return new(address, ReadMechanicsWord(address));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MochtroidInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(FreeFlight + 20 * (index / 4) + 4 * (index % 4) + 2);
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        int offset = address - FreeFlight;
+        if (offset >= 0 && offset < 40)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            int program = offset / 20;
+            int local = offset % 20;
+            if (local < 16 && (local & 3) == 0)
+                return (ushort)(program == 0 ? 14 : 5);
+            if (local == 16)
+                return CommonEnemyInstructionCodes.Goto;
+            if (local == 18)
+                return (ushort)(FreeFlight + 20 * program);
         }
         throw new InvalidDataException(
             $"Mochtroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
@@ -47,16 +58,10 @@ internal static class MochtroidInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        int offset = unchecked((ushort)address) - FreeFlight;
+        if (offset < 0 || offset >= 40)
+            return false;
+        int local = offset % 20;
+        return local >= 16 || (local & 3) < 2;
     }
 }

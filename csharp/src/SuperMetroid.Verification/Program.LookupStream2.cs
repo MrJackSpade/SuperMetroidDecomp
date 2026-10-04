@@ -5,6 +5,81 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
+    {
+        const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnWreckedShipGhost", methods)!
+            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState, ushort, ushort>>();
+        var flicker = typeof(RoomEnemySystem).GetMethod("AdvanceWreckedShipGhostFlicker", methods)!
+            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState>>();
+        var slot = new RoomEnemySystem().Slots[0];
+        var state = new WreckedShipGhostEnemyState(slot);
+        for (int index = 0; index < 9; index++)
+        {
+            short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));
+            short originalY = unchecked((short)ReadVerificationWord(rom, 0xa89aaa + 4 * index));
+            var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
+            AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
+            AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
+            state.HorizontalMovementClass = (ushort)(4 * (index % 3));
+            state.VerticalMovementClass = (ushort)(12 * (index / 3));
+            spawn(slot, state, 32, 65520);
+            AssertEqual(unchecked((ushort)(32 + originalX)), slot.XPosition, "Ghost actual wrapped spawn X");
+            AssertEqual(unchecked((ushort)(65520 + originalY)), slot.YPosition, "Ghost actual wrapped spawn Y");
+            AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
+            AssertEqual((ushort)64, state.StablePositionTimer, "Ghost appearance position timer");
+            AssertEqual((ushort)16, state.StableDirectionTimer, "Ghost appearance direction timer");
+        }
+        for (int offset = 0; offset < 34; offset++)
+        {
+            short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
+            AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
+            slot.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
+            state.PhaseTimer = 1;
+            state.FlickerTableOffset = (ushort)offset;
+            flicker(slot, state);
+            AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer, "Ghost actual next interval");
+            AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
+            bool remainsInvisible = original < 0 || (offset & 2) != 0;
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : EnemyProperties.None)), slot.Properties, "Ghost actual visibility preserves unrelated flags");
+        }
+        state.PhaseTimer = 2;
+        state.FlickerTableOffset = 2;
+        slot.Properties = (ushort)EnemyProperties.Invisible;
+        flicker(slot, state);
+        AssertEqual((ushort)1, state.PhaseTimer, "Ghost interval countdown");
+        AssertEqual((ushort)2, state.FlickerTableOffset, "Ghost no early interval advance");
+        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
+        state.PhaseTimer = 0;
+        flicker(slot, state);
+        AssertEqual((ushort)EnemyProperties.None, slot.Properties, "Ghost terminal next call clears invisibility");
+        state.PhaseTimer = 1;
+        state.FlickerTableOffset = 34;
+        AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
+        state.HorizontalMovementClass = 1;
+        state.VerticalMovementClass = 0;
+        AssertThrows<InvalidDataException>(() => spawn(slot, state, 0, 0), "Ghost unaligned spawn class remains rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
+        foreach (var definition in NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int total = 0;
+            for (int frame = 0; frame < 16; frame++)
+            {
+                ushort pointer = (ushort)(definition.FramePointer(frame) + (definition.PublishesHeatPhase ? 3 : 0));
+                ushort original = ReadVerificationWord(rom, 0x8d0000 | pointer);
+                AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort duration), "Norfair duration mechanic resolves");
+                AssertEqual(original, duration, "Norfair original duration");
+                total += duration;
+            }
+            AssertEqual(116, total, "Norfair exact cycle duration");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(-1), "Norfair duration lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(16), "Norfair duration upper bound");
+        Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
+    }
     private static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
     {
         int upperWords = 0, oldWords = 0, bellyWords = 0;

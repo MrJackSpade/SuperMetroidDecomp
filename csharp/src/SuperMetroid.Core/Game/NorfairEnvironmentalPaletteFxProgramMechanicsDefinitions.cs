@@ -35,9 +35,6 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>The shared complete-cycle duration.</summary>
     public const int CycleFrames = 116;
 
-    private static readonly ushort[] Durations =
-        [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
-
     private static readonly NorfairEnvironmentalPaletteFxProgramDefinition[] Definitions =
     [
         new(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase,
@@ -91,7 +88,13 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// otherwise min(8,max(4,d+2)). This gives the exact symmetric
     /// 16,4,4,5,6,7,8,8,8,8,7,6,5,4,4,16 ROM schedule, totaling 116 frames.
     /// </remarks>
-    internal static ushort Duration(int frame) => Durations[frame];
+    internal static ushort Duration(int frame)
+    {
+        if ((uint)frame >= FrameCount)
+            throw new IndexOutOfRangeException();
+        int distance = Math.Min(frame, FrameCount - 1 - frame);
+        return (ushort)(distance == 0 ? 16 : Math.Clamp(distance + 2, 4, 8));
+    }
 }
 
 /// <summary>One complete Norfair environmental palette control program.</summary>
@@ -155,26 +158,26 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// The heat-phase owner places them at $F092 + 19*f + 5 + 2*c;
     /// palette-4 and palette-5 owners use base $F1D5 or $F2DD,
     /// respectively, plus 16*f + 2 + 2*c.
-    /// All 144 words match the pinned NTSC J/U v1.0 ROM. Their irregular
-    /// channel steps remain authored, live presentation colors.
+    /// All 144 words match the pinned NTSC J/U v1.0 ROM. These live colors
+    /// still require independent derivation under issue #1165.
     /// For the heat-phase owner, trailing color 3 at $F092 + 19*f + 13
     /// equals leading color 0 at offset 5 for every f=0..15. Trailing
     /// color 4 at offset 15 uses authored values by d=min(f,15-f):
     /// $4A52,$4214,$39F5,$31D7,$29D9,$21BA,$199C,$0D7F.
-    /// All 32 trailing words match the pinned ROM; the irregular color-4
-    /// gradient remains live rather than generated at runtime.
+    /// All 32 trailing words match the pinned ROM; the color-4
+    /// gradient remains pending independent derivation under issue #1165.
     /// For palette-4, trailing colors 3..4 at $F1D5 + 16*f + 10 and +12
     /// use authored pairs by d=min(f,15-f): ($4309,$0C77),
     /// ($36AC,$0CB8), ($328F,$1119), ($2A52,$157A),
     /// ($2214,$15BB), ($1DF7,$1A1C), ($15BA,$1E7D),
-    /// ($0D7F,$22FF). All 32 ROM words match; the irregular pairs
-    /// remain live presentation data.
+    /// ($0D7F,$22FF). All 32 ROM words match; these pairs
+    /// remain pending independent derivation under issue #1165.
     /// For palette-5, trailing colors 3..4 at $F2DD + 16*f + 10 and +12
     /// use authored pairs by d=min(f,15-f): ($2DB3,$38CF),
     /// ($2594,$30D1), ($2176,$28D3), ($1D57,$24D5),
     /// ($1959,$20F7), ($153B,$18F9), ($111C,$14FB),
-    /// ($0D1F,$0D1F). All 32 ROM words match; the irregular pairs
-    /// remain live presentation data.
+    /// ($0D1F,$0D1F). All 32 ROM words match; these pairs
+    /// remain pending independent derivation under issue #1165.
     /// Palette-6 has its own five-color rows at $F3E5 + 16*f, with
     /// color offsets 2,4,6,10,12. For d=min(f,15-f), rows d=0..7 are
     /// ($09DA,$091A,$087A,$08A8,$0C05),
@@ -185,8 +188,8 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// ($1A1A,$11BA,$0D3A,$08F4,$08B3),
     /// ($1A3A,$15DA,$0D7A,$08F6,$08D5),
     /// ($225A,$1A1A,$11BA,$091A,$091A).
-    /// All 80 words match the pinned ROM; their irregular channel steps
-    /// remain authored, live presentation data.
+    /// All 80 words match the pinned ROM; these colors
+    /// remain pending independent derivation under issue #1165.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

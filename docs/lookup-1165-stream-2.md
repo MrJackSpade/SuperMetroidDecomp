@@ -247,7 +247,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs
@@ -657,8 +657,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs
 
-- [ ] **RoomEnemySystem.WreckedShipGhostFlickerDurations** ([L123](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L123)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.WreckedShipGhostSpawnOffsets** ([L130](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L130)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.WreckedShipGhostFlickerDurations** ([L123](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L123)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.WreckedShipGhostSpawnOffsets** ([L130](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L130)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RoomEnemySystem.WreckedShipGhostPalette** ([L139](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L139)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs
@@ -747,3 +747,12 @@ Verification build passed (1432 warnings, zero errors). Focused `--sbug-instruct
 The old Zero verifier expected24 live visual-pointer reads, obsolete after the earlier visual migration. With coordinator-assigned ownership, it now asserts zero such reads and independently compares every24 compiled selector to its original ROM operand; production was not changed to satisfy a stale test. All40 native mechanics words and all four real loops pass.
 
 Twenty-four named definitions complete in stream2; 202 remain required. Kraid endpoint/deviation payloads and Crystal Flash bubble remain expressly unfinished, without a retention exception.
+### Batch 6: Norfair phase timing and ghost appearance
+
+Removed the sixteen-word Norfair duration table using its symmetric distance-to-end formula, and the ghost's seventeen-word flicker schedule using paired intervals in four stages followed by the terminator. Ghost spawn positions calculate a 64-pixel movement grid with the native upper-right approach spawning level with Samus. Definitions live in the dedicated `WreckedShipGhostAppearanceDefinitions` catalog; runtime preserves odd flicker-offset folding, interval/terminator ordering, malformed-state rejection, wrapped position arithmetic and unrelated property flags.
+
+Source inspection identified an existing literal typo: upper-right Y was -64, while pinned NTSC J/U v1.0 ROM SHA256 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72` contains zero at $A8:9AB2. Pinned disassembly agrees, and $A8:9DB9-$9DD4 adds movement classes and directly adds that word to Samus Y. The coordinator authorized correcting this row within the changed mapping. Exact native mapping and produced coordinates are confirmed; the player-facing position correction awaits player validation.
+
+Verification build passed (1221 warnings, zero errors). `--lookup-stream2-ghost-norfair` passed all18 native spawn fields, all17 native flicker intervals, actual production wrapped positions and phase/timer installation, countdown/visibility/terminal behavior, odd offset folding, rejected malformed states, all64 Norfair duration operands and four116-tick cycles. No gameplay discovery was used. Ghost and Norfair color payloads remain independently required; unsupported irregularity-based retention prose was removed from the Norfair color-address documentation.
+
+Twenty-seven named definitions complete in stream2; 199 remain required.

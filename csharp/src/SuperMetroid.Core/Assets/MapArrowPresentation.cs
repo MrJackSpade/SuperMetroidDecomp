@@ -34,7 +34,7 @@ public sealed class MapArrowPresentation
                 entry.DurationTicks is null || entry.DurationTicks.Length is < 1 or > MapArrowFormat.MaximumPhases ||
                 entry.DurationTicks.Any(ticks => ticks is < 1 or > MapArrowFormat.MaximumDuration))
                 throw new InvalidDataException($"Map arrow {name} requires screen X=0..255/Y=0..223 and 1-255 phases of 1-254 ticks.");
-            return new(entry.X, entry.Y, entry.DurationTicks.Select(ticks => (byte)ticks).ToArray());
+            return new(entry.X, entry.Y, entry.DurationTicks);
         }
     }
     public static void Write(Stream json, MapArrowDocument document)
@@ -46,12 +46,32 @@ public sealed class MapArrowPresentation
 }
 public sealed class MapArrowVisual
 {
-    private readonly byte[] durations;
-    internal MapArrowVisual(int x, int y, byte[] durations) { X = (ushort)x; Y = (ushort)y; this.durations = durations; }
+    private readonly Dictionary<int, byte>? durationOverrides;
+    internal MapArrowVisual(int x, int y, int[] durations)
+    {
+        X = (ushort)x;
+        Y = (ushort)y;
+        PhaseCount = durations.Length;
+        for (int phase = 0; phase < durations.Length; phase++)
+            if (durations[phase] != BaseDuration(phase))
+                (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
+    }
     public ushort X { get; }
     public ushort Y { get; }
-    public int PhaseCount => durations.Length;
-    public byte Duration(int phase) => durations[phase];
+    public int PhaseCount { get; }
+    internal int StoredDurationCount => durationOverrides?.Count ?? 0;
+
+    /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>
+    /// <remarks>$82:C137 holds the initial phase for15 ticks and every following
+    /// phase for2. The original14-phase cycle repeats this rule without a cache.
+    /// Custom cycle lengths and individual delays remain document-owned inputs.</remarks>
+    public byte Duration(int phase)
+    {
+        if ((uint)phase >= (uint)PhaseCount) throw new IndexOutOfRangeException();
+        return durationOverrides is not null && durationOverrides.TryGetValue(phase, out byte value)
+            ? value : BaseDuration(phase);
+    }
+    private static byte BaseDuration(int phase) => phase == 0 ? (byte)15 : (byte)2;
 }
 public sealed record MapArrowDocument
 {

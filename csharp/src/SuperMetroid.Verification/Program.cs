@@ -174,6 +174,17 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-pause-equipment-masks"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause equipment mask oracle revision");
+    VerifyPauseBeamMasks(rom);
+    VerifyPauseSuitMasks(rom);
+    VerifyPauseBootMasks(rom);
+    Console.WriteLine("Pause equipment masks: all fourteen native flags and category/item rejection contracts pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-selector-anchors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

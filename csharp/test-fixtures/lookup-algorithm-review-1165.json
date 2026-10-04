@@ -7369,4 +7369,19 @@
     "auditConfirmation":"Expose the existing PausePresentationContractChecks through a focused --pause-presentation-contract-check entry. Its26 constructed calls preserve valid/invalid category-item and Plasma-overrun classification. Changing the label source's Hyper identity revokes all7 affected label call proofs via source hashes. Both old mutable-field production guard and fixture mutation are removed.",
     "confirmation":"Verification build0 errors/1429 existing warnings; ResourceAudit build0 errors/0 warnings. --lookup-pause-selector-anchors and --pause-presentation-contract-check pass. Source pins and maintained-source index refreshed. Implementation commit is the commit adding this entry. Equipment bitmask tables and other remaining mappings are separate required work."
   }
+,
+  "pauseEquipmentMaskCaseReview": {
+    "status":"converted all three equipment-category mask arrays to named upgrade cases",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/PauseEquipmentRules.cs",
+    "consumers":"PauseMenuState.ReadCategoryMask selects inventory/toggle eligibility; PauseEquipmentLabelPresentation.ApplyInventory selects collected/equipped label state. Neither consumer performs arithmetic interpolation or treats neighboring entries as samples.",
+    "tables":[
+      {"identity":"beams","native":"82:C04C..C055","domain":"category1 items0..4","status":"converted","cases":"Charge, Ice, Wave, Spazer, Plasma existing SamusBeamFlags","proof":"VerifyPauseBeamMasks"},
+      {"identity":"suits","native":"82:C056..C061","domain":"category2 items0..5","status":"converted","cases":"VariaSuit, GravitySuit, MorphBall, Bombs, SpringBall, ScrewAttack existing SamusEquipmentFlags","proof":"VerifyPauseSuitMasks"},
+      {"identity":"boots","native":"82:C062..C067","domain":"category3 items0..2","status":"converted","cases":"HiJumpBoots, SpaceJump, SpeedBooster existing SamusEquipmentFlags","proof":"VerifyPauseBootMasks"}
+    ],
+    "evidence":"Pinned bank82 EquipmentScreenData.EquipmentBitmasks explicitly names each of the fourteen upgrade entries. Existing Samus flags encode the independently combinable native inventory bits. The menu tuple selects an upgrade identity, not an arbitrary numerical or chronological sequence.",
+    "implementation":"Remove all three stored arrays and use a tuple switch returning named flags. Reject unsupported/reserve categories before item selection, preserving ArgumentOutOfRangeException category parameter and message; valid-category invalid items preserve the item parameter. Inputs are not masked or clamped. No replacement cache or runtime ROM access.",
+    "proof":"Extract the existing original-mask comparisons into exactly one focused proof for each logical native table. Each supplies independent literal native base/count and compares every original little-endian word. Check negative, adjacent, wide and extreme item/category values and category-first rejection when both are invalid. Existing aggregate delegates these proofs; its redundant exhaustive bitwise-AND equality loop is removed, while its actual toggle/subset integration remains available unchanged.",
+    "confirmation":"Verification build0 errors/1429 existing warnings. Early SHA-pinned --lookup-pause-equipment-masks passes all three proofs. The broader aggregate and unrelated gameplay checks were not run. Maintained-source index refreshed. Implementation commit is the commit adding this entry. WireframeIndex and reserve-rate definitions are separate review obligations; no retention exception is assigned here."
+  }
 }

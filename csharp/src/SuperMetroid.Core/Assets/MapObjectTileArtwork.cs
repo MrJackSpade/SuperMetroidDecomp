@@ -12,6 +12,7 @@ internal sealed class MapObjectTileArtwork
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
     private const int CursorTile = 0x46;
     private readonly byte[] otherCharacters;
+    private readonly MenuSmallFontArtwork smallFont;
     private readonly Dictionary<int, byte>? reserveEdits;
     private readonly Dictionary<int, byte>? highlightEdits;
     internal int StoredHighlightPixelCount => highlightEdits?.Count ?? 0;
@@ -21,11 +22,12 @@ internal sealed class MapObjectTileArtwork
     internal MapObjectTileArtwork(IndexedPngImage image)
     {
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
-        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount) * 32];
+        smallFont = new(image);
+        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount) * 32];
         int stored = 0;
         for (int tile = 0; tile < encoded.Length / 32; tile++)
         {
-            if (IsReserve(tile) || IsHighlight(tile)) continue;
+            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile)) continue;
             encoded.AsSpan(tile * 32, 32).CopyTo(otherCharacters.AsSpan(stored, 32));
             stored += 32;
         }
@@ -86,7 +88,8 @@ internal sealed class MapObjectTileArtwork
         for (int tile = 0; tile < MapSpriteFormat.ByteCount / 32; tile++)
         {
             bool reserve = IsReserve(tile);
-            if (!reserve && !IsHighlight(tile))
+            bool font = MenuSmallFontArtwork.Contains(tile);
+            if (!reserve && !IsHighlight(tile) && !font)
             {
                 otherCharacters.AsSpan(stored, 32).CopyTo(transfer.Slice(tile * 32, 32));
                 stored += 32;
@@ -101,7 +104,7 @@ internal sealed class MapObjectTileArtwork
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = edits is not null && edits.TryGetValue(key, out byte authored)
+                    byte pixel = font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
                         ? authored : reserve ? ReservePixel(tile, x, y) : HighlightPixel(tile, x, y);
                     encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
                 }

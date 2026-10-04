@@ -41,6 +41,15 @@ if (args is ["--lookup-map-sprite-names"])
     Console.WriteLine("Map sprite names: all original identities and order, complete ushort membership and invalid names pass.");
     return 0;
 }
+if (args is ["--lookup-menu-small-font"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small font pixel oracle revision");
+    VerifyMenuSmallFontPixels(rom);
+    Console.WriteLine("Small font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-highlight-tile-pixels"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

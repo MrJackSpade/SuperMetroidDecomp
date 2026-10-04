@@ -11,9 +11,16 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class EndingLogoPaletteFade
 {
     internal const int ColorCount = 16 * 2 * 16;
-    private readonly ushort[] endpoints;
+    private readonly ushort[] spriteEndpoint;
+    private readonly ushort[]? backgroundEndpoint;
+    private readonly EndingLogoBackgroundPalette? backgroundGradient;
 
-    private EndingLogoPaletteFade(ushort[] endpoints) => this.endpoints = endpoints;
+    private EndingLogoPaletteFade(ReadOnlySpan<ushort> endpoints)
+    {
+        backgroundGradient = EndingLogoBackgroundPalette.TryCreate(endpoints[..16]);
+        if (backgroundGradient is null) backgroundEndpoint = endpoints[..16].ToArray();
+        spriteEndpoint = endpoints[16..].ToArray();
+    }
 
     /// <summary>Recognize the complete supplied progression before replacing its samples.
     /// An independently edited sequence that does not follow this rule remains ordinary
@@ -21,7 +28,7 @@ internal sealed class EndingLogoPaletteFade
     internal static EndingLogoPaletteFade? TryCreate(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length != ColorCount * sizeof(ushort)) return null;
-        var endpoints = new ushort[32];
+        Span<ushort> endpoints = stackalloc ushort[32];
         for (int color = 0; color < 16; color++)
         {
             endpoints[color] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice((15 * 32 + color) * 2));
@@ -41,7 +48,9 @@ internal sealed class EndingLogoPaletteFade
         if ((uint)index >= ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
         int step = index / 32;
         int palette = index / 16 % 2;
-        ushort endpoint = endpoints[index % 32];
+        int color = index % 16;
+        ushort endpoint = palette == 1 ? spriteEndpoint[color] :
+            backgroundGradient is not null ? backgroundGradient.Color(color) : backgroundEndpoint![color];
         int remaining = palette == 0 ? step : 15 - step;
         int red = ((endpoint & 31) * remaining + 1) / 15;
         int green = (((endpoint >> 5) & 31) * remaining + 1) / 15;

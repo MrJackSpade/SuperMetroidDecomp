@@ -27,6 +27,30 @@ internal static partial class Program
             original[index * 2 + 1] = (byte)(word >> 8);
             colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
+        var background = new ushort[16];
+        for (int color = 0; color < 16; color++) background[color] = Word(0x8cf1e9 + color * 2);
+        EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(background)
+            ?? throw new InvalidOperationException("Original logo background must use a computed grey gradient.");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(background[color], gradient.Color(color), "all original logo endpoint shades computed exactly");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => gradient.Color(invalid), "logo background gradient bounds");
+        // Swapping two complete source columns preserves each temporal fade but changes
+        // the endpoint's spatial gradient. Recognition must keep these supplied columns.
+        byte[] reordered = (byte[])original.Clone();
+        (background[1], background[2]) = (background[2], background[1]);
+        AssertTrue(EndingLogoBackgroundPalette.TryCreate(background) is null, "independent shade order is not replaced");
+        for (int step = 0; step < 16; step++)
+        for (int lane = 0; lane < 2; lane++)
+        {
+            int first = (step * 32 + 1) * 2 + lane, second = (step * 32 + 2) * 2 + lane;
+            (reordered[first], reordered[second]) = (reordered[second], reordered[first]);
+        }
+        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(reordered)
+            ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
+        for (int index = 0; index < 512; index++)
+            AssertEqual((ushort)(reordered[index * 2] | reordered[index * 2 + 1] << 8), reorderedFade.Color(index),
+                "temporal fade preserves edited endpoint order");
         EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(original)
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
         EndingPalette Load(PaletteRgb5[] supplied)

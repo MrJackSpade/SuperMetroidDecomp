@@ -9102,4 +9102,43 @@
   "supersedes": "Resolves only the pending constructor-order palette selector explicitly separated by endingLoadedContentClassification. EndingPaletteDefinitions source addresses/counts/filenames and original color payloads remain independent review obligations.",
   "scope": "One logical role mapping including its ordered content-identity view. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingMode7RoleReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
+  "id": "ending-mode7-scene-role-selector",
+  "state": "converted",
+  "source": "Previous published managed constructor stores escapeA,escapeB,planetExplosion in that order and selects by EndingMode7SceneId0..2; RewardIcon is a separate named property. This constructor/indexer contract, rather than cartridge visual bytes, defines the selector.",
+  "implementation": "Remove positional scenes array; named fields and explicit scene-role cases preserve references. ContentIdentity explicitly appends each scene map/character pair in original order, then RewardIcon transfer. Preserve constructor null checks and invalid-role ArgumentOutOfRangeException.",
+  "consumer": "EndingCreditsState requests the atmospheric/explosion backdrop by role; ending presentation identity includes every selected scene transfer and the reward icon. No map/pixel payload or scene rendering logic is changed.",
+  "proof": "VerifyEndingMode7RoleSelection builds three distinct synthetic supplied scenes and one icon, checks each named selector by reference, and compares content hash with the original ordered-array append contract. Complete three-role domain, representative invalid int enum values and all four null constructor inputs are checked. Early --lookup-ending-mode7-roles is the one focused selector proof; synthetic maps/pixels are fixtures for selection/identity, not a stock-artwork oracle.",
+  "scope": "One logical scene-role mapping including its ordered identity view. Source/file/dimension selectors, maps and character artwork remain independently required. No retention exception. Implementation commit is the commit adding this record."
+},
+  "endingTextGlyphEvidenceReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs",
+  "finding": "CompileGlyph already uses arithmetic and named style cases; DecodeGlyph searches the forward encoder. Existing VerifyEndingTextPresentation checks extracted producer/copyright panels and two native typewriter streams, plus edited TEST strings. These checks establish the used native text and specific edits, not independent evidence for every supported alphabet/digit and both halves.",
+  "mappings": [
+    {
+      "id": "ending-text-result-small-glyph-map",
+      "state": "pending",
+      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+    },
+    {
+      "id": "ending-text-percentage-small-glyph-map",
+      "state": "pending",
+      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+    },
+    {
+      "id": "ending-text-copyright-large-glyph-map",
+      "state": "pending",
+      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+    },
+    {
+      "id": "ending-text-final-large-glyph-map",
+      "state": "pending",
+      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+    }
+  ],
+  "contract": "A-Z and space for all four styles; digits0-9 additionally for copyright. Large forms have top/bottom rows with split alphabet groups. Decoder accepts ushort words and rejects words outside supported mappings. Region layout/timing and stock pixels remain separate obligations.",
+  "scope": "Records an evidence gap found statically. No retention exception, no decision to skip, no new gameplay/defect search. No implementation or new test is claimed for these four glyph mappings."
+}
 }

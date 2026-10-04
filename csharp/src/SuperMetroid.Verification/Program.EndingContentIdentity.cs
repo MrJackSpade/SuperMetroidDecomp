@@ -6,6 +6,53 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks statically identified ending presentation domains without a cartridge or playthrough.</summary>
+    private static void VerifyEndingMode7RoleSelection()
+    {
+        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+            new EndingMode7MapDocument { Version = 1, Width = 128, Height = height,
+                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, MapPresentationFormat.JsonOptions));
+        static MemoryStream Png(int seed)
+        {
+            var png = new MemoryStream();
+            IndexedPng.Write(png, 128, 128, Enumerable.Repeat((byte)seed, 128 * 128).ToArray(),
+                Enumerable.Range(0, 256).Select(i => new Rgba32((byte)i, 0, 0)).ToArray());
+            png.Position = 0;
+            return png;
+        }
+        var supplied = new EndingMode7SceneArtwork[3];
+        for (int i = 0; i < supplied.Length; i++)
+        {
+            using var map = Map(64, i);
+            using var png = Png(i);
+            supplied[i] = EndingMode7SceneArtwork.Load(map, png);
+        }
+        using var rewardMap = Map(128, 3);
+        using var rewardPng = Png(3);
+        EndingRewardIconArtwork reward = EndingRewardIconArtwork.Load(rewardMap, rewardPng);
+        var catalog = new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], reward);
+        EndingMode7SceneId[] originalOrder = [EndingMode7SceneId.EscapeA, EndingMode7SceneId.EscapeB, EndingMode7SceneId.PlanetExplosion];
+        for (int i = 0; i < originalOrder.Length; i++)
+            AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
+        AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
+        string originalHash = SelectedPresentationHash.Create(nameof(EndingMode7ArtworkCatalog), content =>
+        {
+            content.Append("scene-count", supplied.Length);
+            foreach (var scene in supplied)
+            {
+                content.Append("map", scene.Map.Span);
+                content.Append("characters", scene.Characters.Span);
+            }
+            content.Append("reward-icon", reward.Transfer.Span);
+        });
+        AssertEqual(originalHash, catalog.ContentIdentity, "ending Mode7 original hash ordering");
+        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingMode7SceneId)invalid], "ending Mode7 role bounds");
+        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(null!, supplied[1], supplied[2], reward), "Mode7 null escapeA");
+        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], null!, supplied[2], reward), "Mode7 null escapeB");
+        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], null!, reward), "Mode7 null explosion");
+        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
+    }
+
     private static void VerifyEndingContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();

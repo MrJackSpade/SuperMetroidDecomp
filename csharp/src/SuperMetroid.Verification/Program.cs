@@ -183,6 +183,12 @@ if (args is ["--lookup-ending-explosion-frame-catalog"])
     Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-mode7-roles"])
+{
+    VerifyEndingMode7RoleSelection();
+    Console.WriteLine("Ending Mode7 roles: supplied references, original hash ordering, bounds and null checks pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-palette-roles"])
 {
     VerifyEndingPaletteRoleSelection();

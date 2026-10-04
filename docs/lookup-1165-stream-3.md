@@ -590,13 +590,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs
 
-- [ ] **RipperVisualDefinitions.Shared** ([L15](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RipperVisualDefinitions.Ordinary** ([L27](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RipperVisualDefinitions.Shared** ([L15](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RipperVisualDefinitions.Ordinary** ([L27](../csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs
 
-- [ ] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RipperInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RipperInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs
 
@@ -699,6 +699,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Shared path identities are named once in `ChootFallingPathDefinitions.cs`; selection retains the five original loop advances. The three original motion arrays are still required. Their former retention claims based on correction complexity, readability or scaling were deleted, as were obsolete retention claims in the converted selector/control files. No retained exception is asserted.
 - Confirmation: Verification build passed (1431 warnings, zero errors), `--lookup-stream-3` passed all five pointers and native indirect loop advances ($A2:DF5E/$DF6A), all eleven native control words/five visual operand addresses ($D82C-$D84A), complete word/byte ownership, alias rejection and index boundaries.
 - Changed production: `ChootPatternDefinitions.cs`, `ChootInstructionProgramDefinitions.cs`, `ChootFallingPathDefinitions.cs` (identity sharing and comment cleanup only; motion data unchanged). Tests extend the owned stream partial. No dependencies.
+### Confirmed batch 5: Ripper-family animation and visuals
+
+- Converted four definitions. Six direction programs share four timed records (8,7,8,7 ticks), then Goto and the start address. Mechanics and visual operand addresses calculate directly; no program record arrays remain.
+- Visual selection computes neutral/first/neutral/second wing phase and direction. Shared GRipper/Ripper II compositions occupy four/three/four OAM-part records per direction; ordinary Ripper has three two-part records per direction. Frame pointers derive from those composition sizes. Both shared enemy owners retain their original union of accepted operand addresses.
+- Evidence: all 36 native mechanics and 24 visual operands in the six $A2:E19B/E1AF/E2E0/E2F4/E477/E48B loops, and their $E3C5/$E527 sprite composition sequences.
+- Verification build passed (1431 warnings, zero errors). `--lookup-stream-3` passed direct native records/order/ownership/bounds plus the existing six production animation fixtures with source bytes forbidden, including all twelve distinct selected frames.
+- Changed production: `RipperInstructionProgramDefinitions.cs`, `RipperVisualDefinitions.cs`; tests extend the owned partial. No retained exception or cross-stream dependency.
 ### Remaining scope
 
-All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Next work includes Ripper-family program and visual selectors.
+All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Next work includes Mochtroid and Yellow Pipe Bug instruction layouts.

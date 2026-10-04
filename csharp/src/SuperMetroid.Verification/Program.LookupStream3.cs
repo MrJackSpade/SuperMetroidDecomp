@@ -93,7 +93,56 @@ internal static partial class Program
         VerifyStream3WorkRobotColors(rom);
         VerifyStream3PickupAndFirefleaPrograms(rom);
         VerifyStream3ChootControl(rom);
+        VerifyStream3RipperMappings(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)
+    {
+        VerifyRipperInstructionProgramDefinitions();
+        ushort[] programs = [0xe19b, 0xe1af, 0xe2e0, 0xe2f4, 0xe477, 0xe48b];
+        var bytes = new HashSet<int>();
+        int wordIndex = 0, visualIndex = 0;
+        foreach (ushort start in programs)
+        {
+            foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
+            {
+                ushort address = (ushort)(start + offset);
+                ushort value = (ushort)(rom.ReadByte(0xa20000 | address) | rom.ReadByte(0xa20000 | (address + 1)) << 8);
+                AssertEqual(new RipperInstructionMechanicsWord(address, value), RipperInstructionProgramDefinitions.MechanicsWord(wordIndex++),
+                    "stream 3 Ripper mechanic order and value");
+                bytes.Add(address);
+                bytes.Add(address + 1);
+            }
+            for (int frame = 0; frame < 4; frame++)
+            {
+                ushort address = (ushort)(start + 4 * frame + 2);
+                AssertEqual(address, RipperInstructionProgramDefinitions.PresentationWordAddress(visualIndex++),
+                    "stream 3 Ripper visual operand order");
+                if (start < 0xe477)
+                {
+                    ushort expected = (ushort)(rom.ReadByte(0xa20000 | address) | rom.ReadByte(0xa20000 | (address + 1)) << 8);
+                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(RoomEnemySystem.GRipperDefinition, address),
+                        "stream 3 GRipper preserves shared operand domain");
+                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(RoomEnemySystem.Ripper2Definition, address),
+                        "stream 3 Ripper II preserves shared operand domain");
+                }
+            }
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(bytes.Contains(address), RipperInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+                "stream 3 Ripper byte ownership domain");
+        foreach (int invalid in new[] { -1, 36, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 Ripper mechanic bounds");
+        foreach (int invalid in new[] { -1, 24, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 Ripper visual bounds");
+        foreach (ushort invalid in new ushort[] { 0xe19b, 0xe1ad, 0xe1bf, 0xe477, 0xffff })
+            AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(RoomEnemySystem.GRipperDefinition, invalid),
+                "stream 3 Ripper rejects nonvisual and foreign-family operands");
+        AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(0, 0xe19d),
+            "stream 3 Ripper rejects foreign enemy");
     }
 
     private static void VerifyStream3ChootControl(ISnesAddressSpace rom)

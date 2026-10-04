@@ -2,55 +2,45 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One fixed bank-$A2 Ripper-family visual operand and its OAM frame.</summary>
-internal readonly record struct RipperVisualSelector(ushort Address, ushort Frame);
-
-/// <summary>
-/// Cartridge-authored frame selections for GRipper, Ripper II, and Ripper.
-/// Direction reversal, motion, instruction timing, and freezing stay in game code.
-/// </summary>
+/// <summary>Ripper-family visual selection from direction and the neutral/first/neutral/second wing cycle.</summary>
 internal static class RipperVisualDefinitions
 {
-    private static readonly RipperVisualSelector[] Shared =
-    [
-        new(0xe19d, 0xe3c5), new(0xe1a1, 0xe3db),
-        new(0xe1a5, 0xe3c5), new(0xe1a9, 0xe3ec),
-        new(0xe1b1, 0xe402), new(0xe1b5, 0xe418),
-        new(0xe1b9, 0xe402), new(0xe1bd, 0xe429),
-        new(0xe2e2, 0xe3c5), new(0xe2e6, 0xe3db),
-        new(0xe2ea, 0xe3c5), new(0xe2ee, 0xe3ec),
-        new(0xe2f6, 0xe402), new(0xe2fa, 0xe418),
-        new(0xe2fe, 0xe402), new(0xe302, 0xe429),
-    ];
-
-    private static readonly RipperVisualSelector[] Ordinary =
-    [
-        new(0xe479, 0xe54b), new(0xe47d, 0xe557),
-        new(0xe481, 0xe54b), new(0xe485, 0xe563),
-        new(0xe48d, 0xe527), new(0xe491, 0xe533),
-        new(0xe495, 0xe527), new(0xe499, 0xe53f),
-    ];
+    /// <summary>$A2:E3C5, first shared GRipper/Ripper II direction, followed by four/three/four-part compositions.</summary>
+    private const ushort SharedFirstDirectionFrame = 0xe3c5;
+    /// <summary>$A2:E527, the three left-facing ordinary Ripper two-part compositions, followed by right-facing ones.</summary>
+    private const ushort OrdinaryLeftFrame = 0xe527;
 
     internal static ushort FrameAt(ushort enemyDefinition, ushort address)
     {
-        ReadOnlySpan<RipperVisualSelector> entries = enemyDefinition switch
+        bool ordinary = enemyDefinition switch
         {
-            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition => Shared,
-            RoomEnemySystem.RipperDefinition => Ordinary,
+            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition => false,
+            RoomEnemySystem.RipperDefinition => true,
             _ => throw new InvalidDataException(
                 $"Enemy ${enemyDefinition:X4} has no compiled Ripper visuals."),
         };
-        int low = 0;
-        int high = entries.Length - 1;
-        while (low <= high)
+        int offset = address - (ordinary ? RipperInstructionProgramDefinitions.RipperMovingRight :
+            RipperInstructionProgramDefinitions.GRipperMovingLeft) - 2;
+        if (!ordinary && !IsVisualOffset(offset))
+            offset = address - RipperInstructionProgramDefinitions.Ripper2MovingRight - 2;
+        if (!IsVisualOffset(offset))
+            throw new InvalidDataException(
+                $"Ripper-family ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+
+        int direction = offset / 20;
+        int timedFrame = (offset % 20) / 4;
+        int drawing = (timedFrame & 1) == 0 ? 0 : (timedFrame + 1) / 2;
+        if (ordinary)
         {
-            int middle = low + ((high - low) >> 1);
-            RipperVisualSelector candidate = entries[middle];
-            if (candidate.Address == address) return candidate.Frame;
-            if (candidate.Address < address) low = middle + 1;
-            else high = middle - 1;
+            const int compositionBytes = 2 + 5 * 2;
+            return (ushort)(OrdinaryLeftFrame + ((1 - direction) * 3 + drawing) * compositionBytes);
         }
-        throw new InvalidDataException(
-            $"Ripper-family ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+        const int fullCompositionBytes = 2 + 5 * 4;
+        const int shortCompositionBytes = 2 + 5 * 3;
+        return (ushort)(SharedFirstDirectionFrame + direction * (2 * fullCompositionBytes + shortCompositionBytes) +
+            drawing * fullCompositionBytes - (drawing / 2) * (fullCompositionBytes - shortCompositionBytes));
     }
+
+    private static bool IsVisualOffset(int offset) =>
+        offset >= 0 && offset <= 32 && offset % 20 <= 12 && (offset % 20 & 3) == 0;
 }

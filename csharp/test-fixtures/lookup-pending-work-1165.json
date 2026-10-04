@@ -1,6 +1,6 @@
 {
   "issue": 1165,
-  "status": "Ceres shaft timers, SPC pan gain, FIR presets and Tourian outline corner pending; Ceres burst choreography, Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
+  "status": "Ceres shaft timers, SPC pan gain and FIR presets pending; Tourian outline corner, Ceres burst choreography, Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
@@ -49,8 +49,8 @@
       "id": "tourian-left-t-cap-outline",
       "owner": "csharp/src/SuperMetroid.Core/Assets/MenuCompactLetteringArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile08 pixelX2,Y2; Tourian stripX2,Y2",
-      "status": "pending",
-      "task": "Explain and convert the extra black pixel or establish a concrete permitted retention rationale. EXIT tileB7 pixelX6,Y2 is transparent at the mirrored T-cap junction, disproving the former symmetric-junction claim. That unsupported rule has been removed. This pixel remains captured from the source to preserve output, with no accepted retention exception."
+      "status": "retained drawing",
+      "resolution": "Fresh tourianOutlineDrawingDisposition compares the complete five-column/eight-row T and its outline to reflected EXIT: all40 pixels match except Tourian08 pixel2,2 is black and EXITB7 pixel6,2 is transparent. Identical complete ink selects different authored outline treatment. Retain this one drawing choice under the nonsense exception; common outline/bevel rules stay calculated. A glyph/coordinate case would only recite the pixel."
     },
     {
       "id": "spc-pan-gain-curve",

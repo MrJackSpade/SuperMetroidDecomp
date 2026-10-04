@@ -12,12 +12,14 @@ namespace SuperMetroid.Core.Assets;
 /// Authored ink index11 casts
 /// a one-pixel eight-neighbor black outline15 across adjacent cells of the same strip.
 /// Bevel each row's outer diagonal-only corner when its ink is inset from a neighboring
-/// row. Tourian's extra left T-cap pixel remains unresolved required review; EXIT's
-/// mirrored T cap disproves the former symmetric stroke-junction explanation.
+/// row. Retain Tourian's particular left T-cap outline pixel as drawing content:
+/// its complete five-column/eight-row T region matches reflected EXIT except for
+/// that black pixel. Neither the shared ink nor a symmetric bevel selects the change;
+/// a Tourian-coordinate case would merely recite this independently drawn outline.
 /// Twenty authored six-row glyph silhouettes select the lettering design; each label
 /// places these glyphs with a one-pixel gap. Tracing the chosen glyph strokes in numerical
 /// cases would disguise that art. Capture supplied differences, including that one
-/// pending original pixel; it has no accepted artistic-retention disposition.
+/// original outline choice; this exception does not cover other atlas mappings.
 /// </summary>
 internal sealed class MenuCompactLetteringArtwork
 {

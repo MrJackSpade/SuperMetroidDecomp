@@ -3,10 +3,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// Menu font tiles60..88 atB6:CC00..D11F. Authored letter silhouettes use index14;
 /// index13 shadows those silhouettes one pixel down/right, behind foreground pixels.
-/// Nine original retouches add shading inside0/M/Q/V or remove edge shading fromB/K.
-/// Silhouettes and those particular retouches define the chosen font design: reciting
-/// their strokes in numerical cases would disguise the artwork, not derive a font.
-/// All other shadow/transparent pixels are calculated, with independent edits preserved.
+/// Join touching upper/left ink corners with13. Continue an existing upper-left diagonal
+/// shadow into a notch bounded by left/right/lower ink with both upper diagonals open;
+/// a bare notch or a vertical-sided gap is not filled.
+/// These rules calculate all six extra0/M/Q/V shading pixels. Three removed B/K shadow
+/// pixels remain unresolved required review, with no artistic-retention disposition.
+/// Only the chosen letter silhouettes are font artwork; supplied differences remain editable.
 /// </summary>
 internal sealed class MenuSmallFontArtwork
 {
@@ -15,6 +17,11 @@ internal sealed class MenuSmallFontArtwork
     private readonly Dictionary<int, byte>? edits;
     internal int StoredFaceByteCount => faces.Length;
     internal int StoredEditCount => edits?.Count ?? 0;
+    internal bool HasPixelOverride(int tile, int x, int y)
+    {
+        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.ContainsKey((tile - FirstTile) * 64 + y * 8 + x);
+    }
 
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {
@@ -44,6 +51,14 @@ internal sealed class MenuSmallFontArtwork
     {
         int row = (tile - FirstTile) * 8 + y;
         if ((faces[row] & (1 << x)) != 0) return 14;
-        return x > 0 && y > 0 && (faces[row - 1] & (1 << (x - 1))) != 0 ? (byte)13 : (byte)0;
+        if (Ink(x - 1, y - 1)) return 13;
+        if (Ink(x - 1, y) && (Ink(x, y - 1) ||
+            Ink(x + 1, y) && Ink(x, y + 1) && !Ink(x + 1, y - 1) && Ink(x - 2, y - 2))) return 13;
+        return 0;
+
+        // The two-step ink source establishes an incoming diagonal shadow at the
+        // upper-left neighbor; ordinary one-step shadow/foreground already won above.
+        bool Ink(int px, int py) => (uint)px < 8 && (uint)py < 8 &&
+            (faces[(tile - FirstTile) * 8 + py] & (1 << px)) != 0;
     }
 }

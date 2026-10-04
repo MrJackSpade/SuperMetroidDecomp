@@ -11,7 +11,10 @@ internal static partial class Program
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
         var font = new MenuSmallFontArtwork(image);
         AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
-        AssertEqual(9, font.StoredEditCount, "nine independently observed shadow retouches");
+        AssertEqual(3, font.StoredEditCount, "only three unresolved B/K shadow removals remain");
+        AssertTrue(font.HasPixelOverride(0x6b, 1, 7), "B edge removal remains pending");
+        AssertTrue(font.HasPixelOverride(0x74, 6, 2), "first K arm removal remains pending");
+        AssertTrue(font.HasPixelOverride(0x74, 5, 3), "second K arm removal remains pending");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3424, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];

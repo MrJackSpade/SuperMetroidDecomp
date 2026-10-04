@@ -2,10 +2,11 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Reviewed large menu glyph halves and transparent tile0F. Calculate index13 shadows one pixel down/right
 /// from authored index14 silhouettes, including the shared upper/lower boundary established
-/// by82:CBFB. Literal font silhouettes and independently painted deviations remain artwork;
-/// tracing their chosen strokes in numerical cases would merely re-encode the typeface.
-/// Ten stock retouches shade T-stem/M/Q/X joins or clear N/W edges. These particular
-/// terminal, counter and diagonal treatments are authored design, not cast-shadow samples.</summary>
+/// by82:CBFB. Join touching upper/left ink corners and continue an incoming diagonal
+/// shadow into a left/right/lower-ink notch with both upper diagonals open. These rules
+/// calculate seven former M/Q/X shading additions without glyph-specific corrections.
+/// The chosen letter silhouettes remain font artwork. Three T/W/N shadow differences
+/// remain unresolved required review, with no artistic-retention disposition.</summary>
 internal sealed class MenuLargeFontArtwork
 {
     internal const int TileCount = 43;
@@ -13,6 +14,11 @@ internal sealed class MenuLargeFontArtwork
     private readonly Dictionary<int, byte>? edits;
     internal int StoredFaceByteCount => faces.Length;
     internal int StoredEditCount => edits?.Count ?? 0;
+    internal bool HasPixelOverride(int tile, int x, int y)
+    {
+        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.ContainsKey(tile * 64 + y * 8 + x);
+    }
 
     internal MenuLargeFontArtwork(IndexedPngImage image)
     {
@@ -84,8 +90,22 @@ internal sealed class MenuLargeFontArtwork
         int row = Index(tile) * 8 + y;
         if ((faces[row] & (1 << x)) != 0) return 14;
         if (x == 0) return 0;
-        int upper = UpperHalf(tile);
-        int precedingRow = y > 0 ? row - 1 : upper >= 0 ? Index(upper) * 8 + 7 : -1;
-        return precedingRow >= 0 && (faces[precedingRow] & (1 << (x - 1))) != 0 ? (byte)13 : (byte)0;
+        if (Ink(x - 1, y - 1)) return 13;
+        if (Ink(x - 1, y) && (Ink(x, y - 1) ||
+            Ink(x + 1, y) && Ink(x, y + 1) && !Ink(x + 1, y - 1) && Ink(x - 2, y - 2))) return 13;
+        return 0;
+
+        bool Ink(int px, int py)
+        {
+            if ((uint)px >= 8 || py >= 8) return false;
+            int sourceTile = tile;
+            if (py < 0)
+            {
+                sourceTile = UpperHalf(tile);
+                if (sourceTile < 0) return false;
+                py += 8;
+            }
+            return (faces[Index(sourceTile) * 8 + py] & (1 << px)) != 0;
+        }
     }
 }

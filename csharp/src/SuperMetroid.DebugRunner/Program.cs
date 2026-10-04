@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--colosseum-sand-fade-audit", var sandInstallation])
+        return ColosseumSandFadeAudit.Run(sandInstallation);
     if (args is ["--pause-map-cursor-audit", var cursorInstallation])
         return PauseMapCursorAudit.Run(cursorInstallation);
     if (args is ["--hud-select-sound-audit", var selectInstallation])

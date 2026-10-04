@@ -1609,7 +1609,10 @@ public sealed partial class SuperMetroidRuntime
         // therefore occupies its highest slots; Hyper Beam later takes the next free slot.
         // Running the room owner before the specialized Hyper Beam owner preserves that
         // ordering until both are consolidated behind one allocator.
-        if (Samus?.Xray.ArePaletteFxSuspended != true)
+        // Door destination drawing borrows this frame path, but native state $0B
+        // ($82:E737) does not call the palette-FX handler. Its colors must remain
+        // owned by the gradual room fade until the door transition releases them.
+        if (!Enemies.ElevatorDoorTransitionActive && Samus?.Xray.ArePaletteFxSuspended != true)
         {
             RoomPaletteFx.Step(
                 _addressSpace,

@@ -69,7 +69,8 @@ internal static partial class Program
             return IntroCinematicSpriteCompiler.Compile(IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name), definition.Name);
         }
-        SpriteComposition upper = ReadComposition(0).CalculateIfMatching(new EndingLogoUpperParts()), completeRight = ReadComposition(4);
+        SpriteComposition upper = ReadComposition(0).CalculateIfMatching(new EndingLogoUpperParts()),
+            completeRight = EndingLogoWrapParts.CalculateIfMatching(ReadComposition(4));
         for (int i = 0; i < operands.Length; i++)
         {
             int operand = 0x8b0000 | operands[i];
@@ -127,9 +128,10 @@ internal static partial class Program
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
         SpriteComposition Calculate(SpriteComposition value) => frame == 0
             ? value.CalculateIfMatching(new EndingLogoUpperParts())
+            : frame == 4 ? EndingLogoWrapParts.CalculateIfMatching(value)
             : EndingLogoRelatedParts.CalculateIfMatching(frame, value, upper, completeRight);
         SpriteComposition calculated = Calculate(supplied);
-        AssertEqual(frame == 4, ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
+        AssertTrue(!ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("logo-related", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "all original logo related fields and ordering");
         foreach (ushort y in new ushort[] { 72, 0xfff8 })

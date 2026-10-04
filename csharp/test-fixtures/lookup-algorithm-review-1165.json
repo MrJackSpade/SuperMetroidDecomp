@@ -9532,4 +9532,17 @@
     "proof": "Extend the existing --lookup-ending-logo-programs original-source comparison to require calculated selection for the upper S and use its calculated view as the lower-S basis. All138 logo parts participate in visual-identity and native positive/negative-origin OAM comparisons. Existing nine-field edit preservation, bounds and31-word/four-actor timing checks remain in the same proof.",
     "remaining": "The complete right-wrap twenty-five-part basis and source pixel artwork remain required independent review. No retention exception claimed. Implementation commit is the commit adding this record."
   }
+,
+  "endingLogoWrapPlacementReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
+    "mappings": [
+      { "id": "ending-logo-right-wrap-atlas-placement", "state": "converted" },
+      { "id": "ending-logo-right-wrap-ordered-tile-selection", "state": "unreviewed" }
+    ],
+    "source": "Original twenty-five-part completed right wrap8C:BAA9. Seven closing pieces use atlas rows0/2,columns9..15, rotated into the lower edge. A two-by-two patch uses tiles68/69/78/79. The remaining source regions are overlapping top caps, upper span, left corner, inner/outer side junctions and side endpoints.",
+    "algorithm": "Closing-arc positions derive from atlas coordinates with origin(-39,-57), then rotate by180 degrees accounting for sprite size. The upper-right patch derives both coordinates from its two-by-two tile grid. Horizontal and vertical strips use8-pixel atlas steps. Named corner/junction/endpoint cases preserve separate atlas packing. Tile48 supports both its large cap and small cropped use. Calculate sprite size, priority3, palette inheritance and rotation flips from these region roles.",
+    "implementation": "Keep only ordered supplied tile choices and the cropped-cap choice. Calculate complete parts on access; substitute only after every supplied field matches. Existing rotation/reveal views reuse this calculated completed-right basis. Arbitrary incompatible artwork edits retain the supplied composition. No generated part cache or runtime ROM access.",
+    "proof": "Extend existing --lookup-ending-logo-programs to require calculated selection for all eight original compositions and use the calculated right-wrap basis for earlier stages and opposite half. All138 original parts are compared through complete visual identity and native positive/negative-origin OAM; nine independent field edits, part bounds and existing31-word/four-actor instruction checks remain scoped to this conversion.",
+    "remaining": "The ordered twenty-five tile/crop choices still require their own calculation or concrete acceptable exception. This record does not approve their retention. Pixel artwork remains independently required. Implementation commit is the commit adding this record."
+  }
 }

@@ -10550,4 +10550,14 @@
     "confirmation": "Integrated --lookup-stream-3 passed, including 576 fade channel edits, 990 rainbow/normal channel edits, 30 normal colors, calculated-path assertions, version 2 fallback and bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
     "remaining": "Endpoint colors, rainbow body colors and normal restoration colors still require disposition; from-grey also remains required. No checklist entry closed and no retention exception. Snapshot remains 218 converted, 910 pending."
   }
+,
+  "shitroidPulseIntegration": {
+    "id": "shitroid-normal-pulse-partial",
+    "state": "unreviewed",
+    "implementationCommit": "f1cf6ea9c",
+    "convertedFields": "Eight frames calculate four mirrored dimming levels by subtracting five per RGB channel before clipping. Stock rows are discarded; four color origins and a shared channel minimum remain.",
+    "evidence": "All 32 native pulse words at A9:F6D1 match. The red highlight origin exceeds the RGB5 ceiling, preserving the original clipped bright steps. Independent edits that do not match the calculation retain exact supplied colors.",
+    "confirmation": "Integrated --lookup-stream-3 passed all native pulse words, 96 independent channel edits, original content identity, calculated-path assertion and frame/color bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
+    "remaining": "Color origins, shared minimum and separate fixed palettes still require disposition. No checklist entry closed or retention exception accepted. Snapshot remains 218 converted, 910 pending."
+  }
 }

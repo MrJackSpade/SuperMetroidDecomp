@@ -29,7 +29,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs", "3A4EE38D8359F81AFC08FD54538E40031B1239994E1C922945BD7820A1A42025")],
             "The sole private-constructor loader requires eight two-color pulse frames and compiles independent arrays. Apply guards the frame and uses a fixed loaded row; destinationColor is CGRAM placement. Pulse timing and enemy mechanics are unchanged."),
         new("SuperMetroid.Core.Assets.ShitroidColorCatalog", "shitroid-complete-live-color-images", ["NormalColor", "TargetColor"],
-            [new("csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs", "34CF411095FFF305D4C51537FDCCAD3CA2BD6FA4C81B307130C5ECFEE363328E"),
+            [new("csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs", "12F7860798BE02F0057DE1DCBACC84F9E02F4BCC833E0646C6BCB6855057406F"),
              new("csharp/src/SuperMetroid.Core/Game/ShitroidColorRomData.cs", "69D8E2EB4828CF59C5E5715FEC479A9BA175510F8269091A8C0FBD44A525DE93")],
             "Private construction requires eight four-color normal frames and three sixteen-color targets, compiled independently. NormalColor/TargetColor guard their distinct widths and the exact target enum. Drain/fade timing and actor state are outside this proof."),
         new("SuperMetroid.Core.Assets.CeresRidleyMode7ColorCatalog", "ceres-ridley-mode7-complete-shades", ["Apply", "Resolve"],

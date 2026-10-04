@@ -10289,8 +10289,19 @@
     "remaining": {
       "id": "ceres-vortex-anchor-and-two-star-fields",
       "state": "unreviewed",
-      "scope": "Drawing anchor(70,-80),23 even-frame star parts and20 odd-frame star parts remain required independent review. Analyze any relationship with the separate25-star composition8C:9478 before accepting an authored-scatter disposition. Source pixels remain separate. No retention exception."
+      "scope": "Drawing anchor(70,-80), the25-star source composition8C:9478 and20 odd-frame stars remain required independent review. The23 even-frame stars are now derived by the separately recorded horizontal reflection. Source pixels remain separate. No retention exception."
     },
     "implementation": "The commit adding this record calculates the shared drawing only; complete scene layouts remain unresolved."
+  }
+,
+  "ceresReflectedStarLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/CeresReflectedStarParts.cs",
+    "id": "ceres-even-vortex-reflected-star-field",
+    "state": "converted",
+    "nativeIdentity": "23 star parts in8C:8FE7 are horizontal reflections of parts2..24 in8C:9478",
+    "evidence": "Read both complete original records and independently compared all23 source/target tuples: zero mismatches for X'=-X-8 with nine-bit wrapping, horizontal flip toggled, all other fields unchanged. First two source stars reflect into the vortex drawing rectangle and are absent from this composition. Source order is otherwise unchanged, split around the vortex OAM parts.",
+    "algorithm": "Use an immutable view of source parts2..24, reflecting X by sprite width and toggling horizontal flip. Preserve Y,tile,palette,priority,size and inheritance. The original domain uses eight-pixel stars; a full-field matcher allows only exact supplied equivalence, preserving independent custom source/target edits. Loader provides the earlier named stars composition; unmatched or missing source data keeps supplied target stars. No duplicate23-record cache. Source omission is fixed, not dynamic clipping of edited stars.",
+    "proof": "VerifyCeresReflectedStarParts under --lookup-ceres-flight-programs independently extracts both original compositions, requires reflection-view selection and compares every original field. Check bounds. For every included source star, an independent X edit preserves the target and a matching reflected target edit selects the calculated view. Real flight JSON loader compares original, independent and paired edits at visible/wrapped origins. Existing complete vortex composition proofs cover all other independent target fields/counts.",
+    "remaining": "The25 source-star choices,20 odd-frame stars,vortex scene anchor and source pixels remain required independent reviews. No retention exception. Implementation commit is the commit adding this record."
   }
 }

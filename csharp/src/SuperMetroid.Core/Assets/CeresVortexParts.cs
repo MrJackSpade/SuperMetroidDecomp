@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Shared thirteen-part vortex drawing embedded in two star-field frames.
 /// Scene anchor and independent star placements remain separately unresolved.</summary>
-internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, CompiledSpritePart[] stars)
+internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
         if (pointer is not (CeresFlightSpriteDefinitions.VortexEven or CeresFlightSpriteDefinitions.VortexOdd)) return supplied;
         bool odd = pointer == CeresFlightSpriteDefinitions.VortexOdd;
@@ -22,7 +22,8 @@ internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, Compi
         for (int index = 0; index < supplied.PartCount; index++)
             if (!(index >= tip && index < tip + 2) && !(index >= core && index < core + 11))
                 stars[next++] = supplied.Part(index);
-        return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchorX, unchecked((sbyte)anchor.Y), stars));
+        IReadOnlyList<CompiledSpritePart> selectedStars = odd ? stars : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
+        return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchorX, unchecked((sbyte)anchor.Y), selectedStars));
     }
     public int Count => odd ? 33 : 36;
     public CompiledSpritePart this[int index]

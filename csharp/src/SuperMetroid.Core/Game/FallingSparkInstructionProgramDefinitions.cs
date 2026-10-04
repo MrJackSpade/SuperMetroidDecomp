@@ -23,88 +23,48 @@ internal static class FallingSparkInstructionProgramDefinitions
     /// </summary>
     internal const ushort HitFloorTerminalDelete = 0xf38f;
 
-    private static readonly FallingSparkInstructionMechanicsWord[] Words =
-    [
-        new(0xf353, 0x0003),
-        new(0xf357, 0x0003),
-        new(0xf35b, 0x0003),
-        new(0xf35f, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xf361, Falling),
-        new(0xf363, 0x0001),
-        new(0xf367, 0x0001),
-        new(0xf36b, 0x0001),
-        new(0xf36f, 0x0001),
-        new(0xf373, 0x0001),
-        new(0xf377, 0x0001),
-        new(0xf37b, 0x0001),
-        new(0xf37f, 0x0001),
-        new(0xf383, 0x0001),
-        new(0xf387, 0x0001),
-        new(0xf38b, 0x0001),
-        new(HitFloorTerminalDelete,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    internal static int MechanicsWordCount => 17;
+    internal static int PresentationWordCount => 14;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xf355,
-        0xf359,
-        0xf35d,
-        0xf365,
-        0xf369,
-        0xf36d,
-        0xf371,
-        0xf375,
-        0xf379,
-        0xf37d,
-        0xf381,
-        0xf385,
-        0xf389,
-        0xf38d,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static FallingSparkInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static FallingSparkInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            FallingSparkInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Falling Spark instruction mechanics pointer $86:{address:X4} is not compiled.");
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = index < 3 ? (ushort)(Falling + index * 4)
+            : index < 5 ? (ushort)(HitFloor - 4 + (index - 3) * 2)
+            : index < 16 ? (ushort)(HitFloor + (index - 5) * 4) : HitFloorTerminalDelete;
+        return new(address, ReadMechanicsWord(address));
     }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 3 ? Falling + index * 4 + 2 : HitFloor + (index - 3) * 4 + 2);
+    }
+
+    internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
+        ? value : throw new InvalidDataException($"Falling Spark instruction mechanics pointer $86:{address:X4} is not compiled.");
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (address & 0xffff) - Falling;
+        return offset >= 0 && TryRead((ushort)(Falling + (offset & ~1)), out _);
+    }
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
+    // Three falling drawings loop at three frames each. Eleven one-frame impact
+    // drawings blink through the presentation operands, then delete the projectile.
+    private static bool TryRead(ushort address, out ushort value)
+    {
+        value = 0;
+        if (address >= Falling && address < HitFloor - 4 && (address - Falling) % 4 == 0)
+        { value = 3; return true; }
+        if (address == HitFloor - 4)
+        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY; return true; }
+        if (address == HitFloor - 2) { value = Falling; return true; }
+        if (address >= HitFloor && address < HitFloorTerminalDelete && (address - HitFloor) % 4 == 0)
+        { value = 1; return true; }
+        if (address == HitFloorTerminalDelete)
+        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete; return true; }
         return false;
     }
 }

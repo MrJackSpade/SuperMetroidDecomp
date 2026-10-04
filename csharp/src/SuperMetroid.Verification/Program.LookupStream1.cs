@@ -196,4 +196,54 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
         }
     }
+    private static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
+    {
+        Check(0xf353, 0xf391, 17, 14,
+            a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2,
+            i => { var w = FallingSparkInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            FallingSparkInstructionProgramDefinitions.PresentationWordAddress,
+            FallingSparkInstructionProgramDefinitions.ReadMechanicsWord,
+            FallingSparkInstructionProgramDefinitions.IsCompiledMechanicsByte);
+        Check(0xd208, 0xd21a, 6, 3,
+            a => a < 0xd214 && (a - 0xd208) % 4 == 2,
+            i => { var w = PowampSpikeInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            PowampSpikeInstructionProgramDefinitions.PresentationWordAddress,
+            PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord,
+            PowampSpikeInstructionProgramDefinitions.IsCompiledMechanicsByte);
+
+        void Check(int first, int end, int mechanicsCount, int presentationCount, Func<int, bool> isVisual,
+            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
+            Func<ushort, ushort> read, Func<int, bool> owns)
+        {
+            int mechanical = 0, visual = 0;
+            for (int address = first; address < end; address += 2)
+            {
+                bool art = isVisual(address);
+                if (art)
+                {
+                    AssertEqual((ushort)address, presentation(visual++), "spark/spike original presentation ordering");
+                    AssertThrows<InvalidDataException>(() => read((ushort)address), "spark/spike presentation excluded from mechanics");
+                }
+                else
+                {
+                    var actual = mechanics(mechanical++);
+                    AssertEqual((ushort)address, actual.Address, "spark/spike original mechanics ordering");
+                    ushort native = (ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8);
+                    AssertEqual(native, actual.Value, "spark/spike original mechanics word");
+                    AssertEqual(native, read((ushort)address), "spark/spike direct mechanics read");
+                }
+                AssertEqual(!art, owns(0x860000 | address), "spark/spike low-byte ownership");
+                AssertEqual(!art, owns(0x860000 | (address + 1)), "spark/spike high-byte ownership");
+                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "spark/spike unaligned word rejection");
+            }
+            AssertEqual(mechanicsCount, mechanical, "spark/spike mechanics extent");
+            AssertEqual(presentationCount, visual, "spark/spike presentation extent");
+            foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "spark/spike mechanics index bounds");
+            foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "spark/spike presentation index bounds");
+            foreach (int invalid in new[] { 0x850000 | first, 0x860000 | (first - 1), 0x860000 | end, int.MinValue, int.MaxValue })
+                AssertTrue(!owns(invalid), "spark/spike outside byte-domain rejection");
+        }
+    }
 }

@@ -8,7 +8,7 @@ internal static class SequenceColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.MotherBrainRainbowPalettePresentation", "mother-brain-rainbow-v3-complete-sequences",
             ["BeamColorWord", "ApplyRainbow", "ApplyNormal", "ApplyToGrey", "ApplyFromGrey",
                 "ApplyFakeDeathToGrey", "ApplyFakeDeathFromGrey"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs", "3FCF60FDBF1D65214281DBE1CD890280D02054E46785A843AF8BDDD79780C0A0"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs", "483C84DCB9B1DB067FE2CF3BB7F49AADE5F6DC3B213DC14FE6AD96B2B3540DA8"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowPaletteRomData.cs", "8FF000D50D77216696DF8B2BB3D75D90BBC90B697FEEEFAAFEAA07325CE6135E"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainDrainedPaletteRomData.cs", "FE9739DE495C50D5264953BAF1C871D757E8A147A1FECC9E170407378EFDAAA7"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainFakeDeathPaletteRomData.cs", "C3CC3D0125D864E07ACAFF817517A34519B2B9011261B566BECA227A3EBD736C"),

@@ -10540,4 +10540,14 @@
     "confirmation": "Integrated Verification build completed with 1436 warnings and zero errors. --lookup-stream-1 passed its focused conversion checks. Source index refreshed.",
     "remaining": "218 of 1128 snapshot definitions converted; 910 pending. No retention exception."
   }
+,
+  "motherBrainDrainAndShadowIntegration": {
+    "id": "mother-brain-drain-fake-death-and-rainbow-shadow-partial",
+    "state": "unreviewed",
+    "implementationCommits": ["53db24112", "9296c888c"],
+    "convertedFields": "Drain and fake-death fades calculate nearest-integer RGB5 endpoint interpolation across seven intervals, eliminating 144 intermediate words. Rainbow back legs calculate half-intensity body channels rounded upward, eliminating 150 shadow words.",
+    "evidence": "Native AD:EF87 and AD:ED8A select all 168 drain and 24 fake-death words; AD:E434 selects 300 rainbow body/shadow words. Original CGRAM and trailing WRAM destinations match. Independent edits preserve supplied colors exactly.",
+    "confirmation": "Integrated --lookup-stream-3 passed, including 576 fade channel edits, 990 rainbow/normal channel edits, 30 normal colors, calculated-path assertions, version 2 fallback and bounds. Verification build: 1438 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract hash and static index refreshed.",
+    "remaining": "Endpoint colors, rainbow body colors and normal restoration colors still require disposition; from-grey also remains required. No checklist entry closed and no retention exception. Snapshot remains 218 converted, 910 pending."
+  }
 }

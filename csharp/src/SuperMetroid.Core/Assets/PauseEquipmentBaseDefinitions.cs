@@ -11,38 +11,33 @@ public static class PauseEquipmentBaseDefinitions
     /// <summary>$B6:E800, native 32x32 equipment-page template.</summary>
     public const int Source = PauseMenuRomData.EquipmentTilemap;
 
-    // These are visual ownership footprints resolved from the native destination tables,
-    // not editable navigation or inventory rules. Rebinding base art must not erase them.
-    private static readonly (int Cell, int Count)[] equipmentLabelRegions =
-    [
-        // $82:C06C beam-label destinations. Native beam labels are five words, but the
-        // Boots-to-Plasma simultaneous-input path copies nine and exposes four adjacent
-        // words, so all nine are live state during content rebinding.
-        (0x204, 9), (0x224, 9), (0x244, 9), (0x264, 9), (0x284, 9),
-        // $82:C076 suit/misc destinations, nine words each.
-        (0x135, 9), (0x155, 9), (0x1b5, 9), (0x1d5, 9), (0x1f5, 9), (0x215, 9),
-        // $82:C082 boots destinations, nine words each.
-        (0x275, 9), (0x295, 9), (0x2b5, 9),
-    ];
-
-    private static readonly (int Cell, int Count)[] reserveRegions =
-    [
-        // $82:C068 reserve label destinations, then $82:8FCE's three digits.
-        (0x144, 7), (0x164, 7), (PauseReserveUiDefinitions.DigitCell, PauseReserveUiDefinitions.SupplyDigitPlaces),
-    ];
-
+    /// <summary>
+    /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10
+    /// and13-16, boots rows19-21. All own nine cells, including the Plasma overrun
+    /// into adjacent words used by the native simultaneous-input VAR behavior.
+    /// </summary>
     public static bool IsEquipmentLabelCell(int cell)
     {
-        foreach (var region in equipmentLabelRegions)
-            if ((uint)(cell - region.Cell) < region.Count) return true;
-        return false;
+        if ((uint)cell >= Cells) return false;
+        int row = cell / Columns;
+        int column = cell % Columns;
+        if (row is >= 16 and <= 20 && column is >= 4 and < 13) return true;
+        return column is >= 21 and < 30 &&
+            (row is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21);
     }
 
+    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows10/11; supply digits use their own anchor.</summary>
+    private static bool IsReserveCell(int cell)
+    {
+        if ((uint)(cell - PauseReserveUiDefinitions.DigitCell) < PauseReserveUiDefinitions.SupplyDigitPlaces)
+            return true;
+        if ((uint)cell >= Cells) return false;
+        return cell / Columns is 10 or 11 && cell % Columns is >= 4 and < 11;
+    }
     public static bool IsLiveOwnedCell(int cell)
     {
         if (IsEquipmentLabelCell(cell)) return true;
-        foreach (var region in reserveRegions)
-            if ((uint)(cell - region.Cell) < region.Count) return true;
+        if (IsReserveCell(cell)) return true;
         int wireframeRelative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
         return wireframeRelative >= 0 && wireframeRelative / (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Rows &&
             wireframeRelative % (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Columns;

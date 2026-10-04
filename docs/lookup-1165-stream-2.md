@@ -285,8 +285,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs
 
-- [ ] **PauseEquipmentBaseDefinitions.equipmentLabelRegions** ([L17](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PauseEquipmentBaseDefinitions.reserveRegions** ([L29](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PauseEquipmentBaseDefinitions.equipmentLabelRegions** ([L17](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PauseEquipmentBaseDefinitions.reserveRegions** ([L29](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBasePresentation.cs
 
@@ -797,3 +797,10 @@ Removed both Dead Torizo descriptor arrays. Each phase calculates six of twelve 
 Verification build passed (1436 full-build warnings,25 incremental warnings, zero errors); ResourceAudit build passed without warnings/errors. New `--lookup-stream2-dead-torizo-transfers` passed all56 native descriptor fields, both terminators, fourteen actual queued transfers, phase advancement/parity, enumeration and bounds. `--torizo-explosive-swipe-instruction-mechanics` passed all7 native mechanics words, actual producer and exact25-frame lifetime,5 native compiled selectors and zero forbidden reads. Its initial run reached the obsolete visual assertion (expected5 reads, actual0); the coordinator-assigned verifier now checks zero reads plus exact native compiled operands, retaining all producer/lifetime checks. No production behavior changed for this fixture correction. The full Dead Torizo artwork test was preserved but not run for this descriptor-only change. Coordinator must refresh the DMA source review hash at integration.
 
 Forty stream2 named definitions complete;186 remain required. Variable Torizo explosion timing, separate artwork and all previously pending palette residuals remain required.
+### Batch 13: pause equipment ownership geometry
+
+Removed equipment-label and reserve-region arrays. Membership now calculates directly from native label rows/columns: five beam rows, separated suit/misc groups and three boots rows; reserve labels occupy two seven-cell rows and digits retain their independent anchor. The nine-cell Plasma footprint, including the native VAR overrun, remains exact. Wireframe and arrow ownership calculations are preserved.
+
+Verification build passed (1436 full-build warnings,25 incremental warnings, zero errors). `--lookup-stream2-pause-ownership` passed all1024 tilemap cells and both adjacent out-of-range values against all16 original destination words, checking equipment, total-live and noninventory ownership separately. The first reference fixture omitted the$3800 WRAM tilemap base; source inspection corrected that address normalization before the successful run. No production change was made in response to the fixture mistake. This proves the unchanged ownership masks used during custom-resource rebinding without requiring a full menu playthrough.
+
+Forty-two stream2 named definitions complete;184 remain required.

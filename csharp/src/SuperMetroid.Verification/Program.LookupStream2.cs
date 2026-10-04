@@ -5,6 +5,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
+    {
+        for (int cell = -1; cell <= PauseEquipmentBaseDefinitions.Cells; cell++)
+        {
+            bool equipment = false;
+            for (int index = 0; index < 14; index++)
+            {
+                int start = (ReadVerificationWord(rom, 0x82c06c + 2 * index) - 0x3800) / 2;
+                equipment |= (uint)(cell - start) < 9;
+            }
+            bool reserve = (uint)(cell - PauseReserveUiDefinitions.DigitCell) < PauseReserveUiDefinitions.SupplyDigitPlaces;
+            for (int index = 0; index < 2; index++)
+            {
+                int start = (ReadVerificationWord(rom, 0x82c068 + 2 * index) - 0x3800) / 2;
+                reserve |= (uint)(cell - start) < 7;
+            }
+            int relative = cell - PauseWireframeDefinitions.DestinationByte / 2;
+            bool wireframe = relative >= 0 && relative / (PauseWireframeDefinitions.DestinationStride / 2) < PauseWireframeDefinitions.Rows &&
+                relative % (PauseWireframeDefinitions.DestinationStride / 2) < PauseWireframeDefinitions.Columns;
+            AssertEqual(equipment, PauseEquipmentBaseDefinitions.IsEquipmentLabelCell(cell), "native equipment ownership footprint");
+            AssertEqual(equipment || reserve || wireframe, PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell), "native live ownership footprint");
+            AssertEqual((reserve || wireframe) && !equipment, PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell), "native noninventory footprint");
+        }
+        Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
+    }
     private static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();

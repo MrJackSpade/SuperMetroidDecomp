@@ -17,6 +17,7 @@ internal static partial class Program
         int Word(int address) => Read(address) | Read(address + 1) << 8;
         MethodInfo configure = typeof(ManagedSpcPlayer).GetMethod("ConfigureSoundLibrary", BindingFlags.Static | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException("Missing production sound policy consumer.");
+        var checkedVoicePolicies = new HashSet<byte>();
         for (int command = 1; command <= count; command++)
         {
             int handler = Word(dispatch + (command - 1) * 2);
@@ -58,12 +59,21 @@ internal static partial class Program
                 AssertEqual(expectedVoices, state.VoicesToSetup, "production policy voices");
                 AssertEqual(expectedPriority, state.Priority, "production policy priority and preservation");
                 AssertEqual(expectedMode, state.Mode, "production policy mode and preservation");
-                AssertEqual((int)expectedVoices, SpcSoundEffectTables.GetVoiceCount(library, actualPolicy), "asset channel-program count");
+                if (checkedVoicePolicies.Add(originalPolicy))
+                    AssertEqual((int)expectedVoices, SpcSoundEffectTables.GetVoiceCount(library, originalPolicy), "native policy channel-program count");
             }
         }
+        int nativePolicyCount = library == 1 ? 4 : 6;
+        for (int policy = 0; policy < nativePolicyCount; policy++)
+            AssertTrue(checkedVoicePolicies.Contains((byte)policy), "every native voice policy has an original-handler proof");
+        for (int invalid = nativePolicyCount; invalid <= byte.MaxValue; invalid++)
+            AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.GetVoiceCount(library, (byte)invalid), "unknown manifest policy byte");
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+        {
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(invalid, 1), "unsupported library");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.GetVoiceCount(invalid, 0), "unsupported voice-count library");
+        }
     }
 }

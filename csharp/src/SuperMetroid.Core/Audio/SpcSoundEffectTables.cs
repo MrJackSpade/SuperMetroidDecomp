@@ -368,26 +368,32 @@ internal static class SpcSoundEffectTables
         return (ushort)(baseAddress + offset);
     }
 
+    /// <summary>Number of channel programs required by a named native allocation policy.</summary>
+    /// <remarks>#1165: matches the voice-count writes in the handlers catalogued by
+    /// SpcLibrary1Policy/SpcLibrary2Policy/SpcLibrary3Policy. Library-three cancellation
+    /// and low-health mode both allocate one voice. Unknown manifest bytes are rejected,
+    /// and unsupported library indices preserve ArgumentOutOfRangeException.</remarks>
     internal static int GetVoiceCount(int libraryIndex, byte configuration) => libraryIndex switch
     {
-        0 => configuration switch
+        0 => (SpcLibrary1Policy)configuration switch
         {
-            0 or 1 => 1,
-            2 => 2,
-            3 => 3,
-            4 or 5 => 4,
+            SpcLibrary1Policy.OneVoiceLowPriority or SpcLibrary1Policy.OneVoiceHighPriority => 1,
+            SpcLibrary1Policy.TwoVoicesLowPriority => 2,
+            SpcLibrary1Policy.ThreeVoicesHighPriority => 3,
+            SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => 4,
             _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
         },
-        1 => configuration switch
+        1 => (SpcLibrary2Policy)configuration switch
         {
-            0 or 1 => 1,
-            2 or 3 => 2,
+            SpcLibrary2Policy.OneVoiceLowPriority or SpcLibrary2Policy.OneVoiceHighPriority => 1,
+            SpcLibrary2Policy.TwoVoicesLowPriority or SpcLibrary2Policy.TwoVoicesHighPriority => 2,
             _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
         },
-        2 => configuration switch
+        2 => (SpcLibrary3Policy)configuration switch
         {
-            0 or 1 or 2 or 5 => 1,
-            3 or 4 => 2,
+            SpcLibrary3Policy.CancelAndClearLowHealthMode or SpcLibrary3Policy.LowHealthModePreservePriority or
+                SpcLibrary3Policy.OneVoiceLowPriority or SpcLibrary3Policy.OneVoiceHighPriority => 1,
+            SpcLibrary3Policy.TwoVoicesLowPriority or SpcLibrary3Policy.TwoVoicesHighPriority => 2,
             _ => throw new InvalidDataException($"Unknown SPC SFX3 configuration {configuration}."),
         },
         _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),

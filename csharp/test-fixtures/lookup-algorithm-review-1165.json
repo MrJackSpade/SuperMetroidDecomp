@@ -8287,4 +8287,18 @@
     }
   ]
 }
+,
+  "spcVoiceCountSelectorReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+    "member": "GetVoiceCount",
+    "evidence": "The native allocation handlers catalogued by SpcSoundAllocationPolicies write a voice count at SPC03A1/0441/0479 for libraries1/2/3. Pinned PJBoy/SM-SPC17b0c1ee46eed2f97909fbb6141a5ee6a693c45a names these handlers. Existing original-ROM policy proofs decode each handler's actual MOV immediate/absolute writes, independently of the managed enums or count selector. Library3 cancel and low-health handlers both write one voice despite different mode/priority effects.",
+    "implementation": "Replace bare numeric policy labels with the corresponding named exclusive policy enums. This is semantic policy-to-channel-count dispatch, not a sampled numerical curve. Preserve the byte-facing manifest contract, all16 valid library/policy combinations and exact invalid-byte/library exception types. No lookup storage, generated cache or runtime cartridge read.",
+    "proof": "Extend the existing three VerifySpcSoundPolicyN original-handler proofs. Check GetVoiceCount exactly once per original policy identity instead of repeatedly per command/prior state; require coverage of all6/4/6 policy identities. Compare against the count decoded from the original ROM handler. Reject every remaining byte through255 and representative negative/adjacent/extreme library indices. --lookup-spc-sound-policies confirms this selector and retains the existing command/state checks. No duplicate per-table proof or exploratory audio run.",
+    "tables": [
+      {"id":"spc-library-1-voice-count","state":"converted","domain":"manifest policy byte0..5","proof":"VerifySpcSoundPolicy1"},
+      {"id":"spc-library-2-voice-count","state":"converted","domain":"manifest policy byte0..3","proof":"VerifySpcSoundPolicy2"},
+      {"id":"spc-library-3-voice-count","state":"converted","domain":"manifest policy byte0..5","proof":"VerifySpcSoundPolicy3"}
+    ],
+    "scope": "Only the policy-to-voice-count selectors are resolved here. Other helper mappings and the pending pan curve retain their own review obligations; this is not whole-owner or ticket completion."
+  }
 }

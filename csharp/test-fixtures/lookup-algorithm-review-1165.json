@@ -9915,4 +9915,16 @@
     "proof": "One VerifyIntroRinkaParts joins --lookup-intro-rinka-programs. Extract all three original compositions independently, require calculated selection and compare full compiled identity for all12 parts. Compare native on-screen/wrapped OAM and sprite counts. Edit every quadrant independently across X,Y,tile row/column,size,priority,palette and both flips; preserve supplied compositions. Check changed count and invalid calculated indices. Existing program/catalog checks remain separate logical proofs.",
     "remaining": "All Rinka OAM layouts are calculated; source pixel drawings and the remaining1165 inventory still need independent disposition. No art-wide exemption or whole-ticket completion claim. Implementation commit is the commit adding this record."
   }
+,
+  "introMotherBrainExplosionPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionParts.cs",
+    "id": "intro-mother-brain-explosion-quadrant-layouts",
+    "state": "converted",
+    "nativeIdentity": "Twelve compositions and39 parts8C:97F7..98D1",
+    "evidence": "Complete pinned bank8C records have three centered single-tile flashes, then four reflected quadrants. Small quadrants iterate column first, big quadrants row first, both starting bottom-right. Small strips60..63 advance one tile per frame; big strips90/92/94/96 advance a sixteen-pixel cell. Big frame1 uses eight-pixel quadrant8A before expansion. All parts use priority3 and inherited actor palette.",
+    "algorithm": "Calculate centered single-part offsets or quadrant offsets from index and eight/sixteen-pixel size. Flip right and bottom halves, preserving native part order. Select named initial flash identities and calculate adjacent quadrant atlas progression. Immutable views retain only effect/frame identity, without a generated part cache.",
+    "implementation": "Presentation loader substitutes calculated parts only after full compiled field/count equality. Independent supplied edits retain their compiled composition. Updated the reviewed presentation source hash after reviewing this loader change.",
+    "proof": "One VerifyIntroMotherBrainExplosionParts under --lookup-intro-mother-brain-explosion-programs compares all39 original parts and complete identities from independent extraction, requires calculated selection, compares native visible/wrapped OAM, and preserves each independently edited field and changed count. Invalid part indices throw. Existing program/catalog proofs remain separate.",
+    "remaining": "All twelve OAM layouts are calculated. Pixel drawings and all other unresolved1165 mappings remain independent required work. No artwork-wide exception or completion claim. Implementation commit is the commit adding this record."
+  }
 }

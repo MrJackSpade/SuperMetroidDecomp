@@ -30,7 +30,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainSpriteDefinitions.cs", "51D6B6BD8B56327CD4D18A61468030B20D638E2A466CAEF496B2D510DE012B86")],
             "Private construction requires all three named Mother Brain compositions with exact compiled pointers. Draw guards membership. Intro AI, damage, collision, animation timing and placement are not certified."),
         new("SuperMetroid.Core.Assets.IntroMotherBrainExplosionSpritePresentation", "intro-complete-mother-brain-explosions", ["Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpritePresentation.cs", "A465BC2F8AC1816CC75049CE131736B15F262FCD1596A863AABC218002855966"),
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpritePresentation.cs", "3EC3735AAFA2B97C0DA1C34CCA3A5ED93E202259428E866028E2A26794E97134"),
              new("csharp/src/SuperMetroid.Core/Assets/IntroMotherBrainExplosionSpriteDefinitions.cs", "93ECCBFD42F1D24A39012B9594D0469A3C1D1809F17C4A4592DFECD6A73EBB97")],
             "Private construction requires all twelve named small/large explosion compositions with their exact pointers. Draw guards membership. Fourth-hit spawning, cadence, collision and placement are not certified."),
         new("SuperMetroid.Core.Assets.CeresDoorVisualCatalog", "ceres-door-complete-tile-and-color-images",

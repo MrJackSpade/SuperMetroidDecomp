@@ -588,6 +588,7 @@ if (args is ["--lookup-intro-mother-brain-explosion-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro explosion oracle revision");
     VerifyIntroMotherBrainExplosionPrograms(rom);
     VerifyIntroMotherBrainExplosionFrameCatalog(rom);
+    VerifyIntroMotherBrainExplosionParts(rom);
     Console.WriteLine("Intro Mother Brain explosions: both native programs, word views, delete, twelve frame identities and bounds pass.");
     return 0;
 }

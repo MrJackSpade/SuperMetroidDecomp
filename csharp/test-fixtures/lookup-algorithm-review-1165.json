@@ -9150,4 +9150,35 @@
   "reconciliation": "Updates the four IDs in endingTextGlyphEvidenceReview from pending to converted. Existing panel/typewriter integration checks remain their own higher-level contracts; this does not claim full ending or whole-game validation.",
   "scope": "Glyph-to-word and inverse word-to-glyph mappings only. Individual drawn pixels and layout-region/timing mappings remain independently required. Implementation commit is the commit adding this record."
 }
+,
+  "endingTextRegionReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs",
+  "source": "Supported SHA-pinned original8C:DC9B producer panel row0; DEDB copyright panel row0; item-percentage typewriter first recordsDFE1/E02F and final-message first recordE0B5. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d labels the native panels/messages and packed column/row bytes.",
+  "mappings": [
+    {
+      "id": "ending-text-region-columns",
+      "state": "converted",
+      "algorithm": "Center the producer, heading, detail and final-message widths in32 columns using floor((32-width)/2). Center copyright as year4+gap2+company8, with company after year+gap. Odd spare column remains on right."
+    },
+    {
+      "id": "ending-text-region-rows",
+      "state": "converted",
+      "algorithm": "Named producer/year/company row0, percentage heading/detail rows10/12 and final message row2; existing semantic role choices independently checked against original tilemaps/packed stream rows."
+    },
+    {
+      "id": "ending-text-region-widths",
+      "state": "converted",
+      "algorithm": "Named editable region widths11,4,8,13,19,20 equal original PRODUCED BY/1994/NINTENDO/YOUR RATE FOR/COLLECTING ITEMS IS/SEE YOU NEXT MISSION spans; preserve these compatibility limits."
+    },
+    {
+      "id": "ending-text-region-styles",
+      "state": "converted",
+      "algorithm": "Named roles select result-small, copyright-large, percentage-small or final-large styles; source glyph words and original message roles independently establish these cases."
+    }
+  ],
+  "implementation": "Replace six stored readonly region records with named properties; calculate centering and copyright offsets on demand without a lookup cache. Retain semantic row/width/style definitions. Public property results preserve prior region values and editable text capacities.",
+  "consumer": "EndingTextExtractor validates original rows and streams against these regions. EndingTextPresentation uses the same regions for JSON text bounds and glyph placement. Gameplay reads compiled text positions rather than consulting cartridge data.",
+  "proof": "VerifyEndingTextRegions independently locates native producer/year/company starts from tilemap blank runs; checks exact original labels and producer span. Reads the three original typewriter lines until row change or opcode, checks every packed position, complete line widths, text and styles. Early SHA-pinned --lookup-ending-text-regions covers all six named regions. It uses the independently completed glyph decoder to read labels; the glyph proof remains separate.",
+  "scope": "Four region fields over six named roles. Text timing, other definition sets and stock pixel/tile contents remain independent obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

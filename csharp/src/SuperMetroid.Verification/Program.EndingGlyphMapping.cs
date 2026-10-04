@@ -3,6 +3,57 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyEndingTextRegions(ISnesAddressSpace bus)
+    {
+        ushort Read(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        void Panel(EndingTextRegionDefinition actual, int source, string expectedText, int startColumn)
+        {
+            AssertEqual(0, actual.Row, "ending panel row");
+            AssertEqual(startColumn, actual.Column, "ending panel first native text column");
+            AssertEqual(expectedText.Length, actual.Width, "ending panel text width");
+            string text = new(Enumerable.Range(0, actual.Width).Select(i =>
+                EndingTextDefinitions.DecodeGlyph(Read(source + 2 * (startColumn + i)), actual.Style)).ToArray());
+            AssertEqual(expectedText, text, "ending native panel label");
+        }
+        // Row0 of the two original tilemaps; the blank-run boundaries locate text independently.
+        int producerStart = Enumerable.Range(0, 32).First(i => Read(0x8cdc9b + i * 2) != 0x004f);
+        int producerEnd = Enumerable.Range(0, 32).Last(i => Read(0x8cdc9b + i * 2) != 0x004f);
+        Panel(EndingTextDefinitions.ResultProducedBy, 0x8cdc9b, "PRODUCED BY", producerStart);
+        AssertEqual(producerEnd - producerStart + 1, EndingTextDefinitions.ResultProducedBy.Width, "producer native span");
+        int yearStart = Enumerable.Range(0, 32).First(i => Read(0x8cdedb + i * 2) != 0x007f);
+        int yearEnd = yearStart;
+        while (Read(0x8cdedb + yearEnd * 2) != 0x007f) yearEnd++;
+        int companyStart = yearEnd;
+        while (Read(0x8cdedb + companyStart * 2) == 0x007f) companyStart++;
+        Panel(EndingTextDefinitions.CopyrightYear, 0x8cdedb, "1994", yearStart);
+        Panel(EndingTextDefinitions.CopyrightCompany, 0x8cdedb, "NINTENDO", companyStart);
+        AssertEqual(EndingTextStyle.ResultSmall, EndingTextDefinitions.ResultProducedBy.Style, "producer style");
+        AssertEqual(EndingTextStyle.CopyrightLarge, EndingTextDefinitions.CopyrightYear.Style, "copyright year style");
+        AssertEqual(EndingTextStyle.CopyrightLarge, EndingTextDefinitions.CopyrightCompany.Style, "copyright company style");
+        void Line(int start, EndingTextRegionDefinition actual, string expectedText, EndingTextStyle style)
+        {
+            int cursor = start, count = 0;
+            int nativeRow = bus.ReadByte(start + 3);
+            AssertEqual(nativeRow, actual.Row, "native typewriter row");
+            AssertEqual((int)bus.ReadByte(start + 2), actual.Column, "native first typewriter column");
+            AssertEqual(style, actual.Style, "typewriter style");
+            var text = new System.Text.StringBuilder();
+            while (count < 32 && Read(cursor) < 0x8000 && bus.ReadByte(cursor + 3) == nativeRow)
+            {
+                AssertEqual(actual.Column + count, (int)bus.ReadByte(cursor + 2), "native consecutive typewriter column");
+                int glyph = 0x8c0000 | Read(cursor + 4);
+                text.Append(EndingTextDefinitions.DecodeGlyph(Read(glyph + 4), style));
+                count++;
+                cursor += 6;
+            }
+            AssertEqual(count, actual.Width, "native typewriter width");
+            AssertEqual(expectedText, text.ToString(), "native typewriter label");
+        }
+        Line(0x8cdfe1, EndingTextDefinitions.PercentageHeading, "YOUR RATE FOR", EndingTextStyle.PercentageSmall);
+        Line(0x8ce02f, EndingTextDefinitions.PercentageDetail, "COLLECTING ITEMS IS", EndingTextStyle.PercentageSmall);
+        Line(0x8ce0b5, EndingTextDefinitions.FinalMessage, "SEE YOU NEXT MISSION", EndingTextStyle.FinalLarge);
+    }
+
     private static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {
         // Transcribed from the SHA-pinned Font3 atlas, viewed with --lookup-ending-font-layout.

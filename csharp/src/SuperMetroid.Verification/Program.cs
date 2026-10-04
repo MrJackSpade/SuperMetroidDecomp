@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pause-selector-anchors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector anchor oracle revision");
+    VerifyPauseSelectorAnchors(rom);
+    Console.WriteLine("Pause selector anchors: original names and coordinates, independent axis edits, zero stock storage and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-selector-compositions"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

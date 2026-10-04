@@ -18,14 +18,11 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new PauseSelectorReadGuard(bus);
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c100), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
+        VerifyPauseSelectorAnchors(bus);
         VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors);
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int positions = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c18e + anchor.Category * 2);
-            ushort x = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4) - 1);
-            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4 + 2) - 1);
-            AssertEqual(new MapLabelPoint(x, y), catalog.PauseSelectors.Anchor(anchor.Category, anchor.Item), "authored anchor retains both native minus-one offsets");
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual((anchor.Category, anchor.Item), (pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");

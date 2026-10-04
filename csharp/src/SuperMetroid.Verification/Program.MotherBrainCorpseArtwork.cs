@@ -32,12 +32,12 @@ internal static partial class Program
         // staging run against the same cartridge-incapable memory type as installed games.
         SnesVram stockVram = TransferMotherBrainCorpsePages(stock,
             SuperMetroidAddressSpace.CreateWithoutCartridge());
-        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
+        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
-            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSources[page] -
+            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(page) -
                 MotherBrainCorpseArtworkDefinitions.SourceAddress);
             int destinationOffset =
-                MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page] * 2;
+                MotherBrainCorpseArtworkDefinitions.VramPageDestination(page) * 2;
             AssertTrue(stockVram.Bytes.Slice(destinationOffset,
                     MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset,
@@ -85,7 +85,7 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainCorpsePages(edited,
             SuperMetroidAddressSpace.CreateWithoutCartridge());
-        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestinations[0] * 2 +
+        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
             editedVram.ReadByte(editedVramOffset),
@@ -124,13 +124,13 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
             "ApplyMotherBrainRainbowTileTransfer", flags)!;
-        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
+        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
                 (ushort)page,
                 MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
-                MotherBrainCorpseArtworkDefinitions.VramPageSources[page],
-                MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page]);
+                MotherBrainCorpseArtworkDefinitions.VramPageSource(page),
+                MotherBrainCorpseArtworkDefinitions.VramPageDestination(page));
             transfer.Invoke(enemies, [request]);
         }
         return vram;

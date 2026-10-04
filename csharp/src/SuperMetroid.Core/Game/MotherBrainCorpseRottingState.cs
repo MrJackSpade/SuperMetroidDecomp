@@ -29,47 +29,6 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>One rot entry per visible pixel row.</summary>
     public const int EntryCount = 0x0030;
 
-    // `$A9:E262` maps each group of eight pixel rows to its row of seven 4bpp tiles.
-    // The final two offsets are retained even though the 48-pixel corpse normally indexes
-    // only rows zero through five: the native table itself contains all eight words.
-    private static ReadOnlySpan<ushort> TileRowOffsets =>
-        [0x0000, 0x00e0, 0x01c0, 0x02a0, 0x0380, 0x0460, 0x0540, 0x0620];
-
-    // The Mother Brain corpse is seven tiles wide. Each value is the start of one tile
-    // column inside a `$E0`-byte row: two adjacent `$10`-byte bitplane halves make a tile.
-    private static ReadOnlySpan<ushort> ColumnOffsets =>
-        [0x0000, 0x0020, 0x0040, 0x0060, 0x0080, 0x00a0, 0x00c0];
-
-    // Transparent gaps in the right-hand corpse frame mean not every column exists at every
-    // Y. These lower bounds are the literal CMP/BCC gates in `$EA40/$EB0B`; applying them is
-    // essential because clearing a nonexistent column would corrupt an adjacent tile row.
-    private static ReadOnlySpan<ushort> ColumnMinimumY =>
-        [0x0010, 0x0008, 0x0000, 0x0000, 0x0000, 0x0008, 0x0020];
-
-    // `$A9:E08B` extracts only the right-hand frame from two side-by-side corpse frames.
-    // The first four rows omit their empty final tile; the bottom two copy all seven tiles.
-    private static readonly MotherBrainCorpseGraphicsCopy[] InitialGraphicsCopies =
-    [
-        new(0xb7cec0, 0x0000, 0x00c0),
-        new(0xb7d0c0, 0x00e0, 0x00c0),
-        new(0xb7d2c0, 0x01c0, 0x00c0),
-        new(0xb7d4c0, 0x02a0, 0x00c0),
-        new(0xb7d6c0, 0x0380, 0x00e0),
-        new(0xb7d8c0, 0x0460, 0x00e0),
-    ];
-
-    // `$A9:E1F4-$E225` is not a frame-spread sprite-transfer list. The rotting body function
-    // walks the entire definition on every active call and appends all six records.
-    private static readonly MotherBrainSpriteTileTransferRequest[] VramTransfers =
-    [
-        new(0, 0x0060, 0x7e9040, 0x7a80),
-        new(1, 0x00a0, 0x7e9100, 0x7b70),
-        new(2, 0x00c0, 0x7e91c0, 0x7c60),
-        new(3, 0x00c0, 0x7e92a0, 0x7d60),
-        new(4, 0x00e0, 0x7e9380, 0x7e60),
-        new(5, 0x00e0, 0x7e9460, 0x7f60),
-    ];
-
     /// <summary>True after the head initialization equivalent at <c>$A9:8705</c>.</summary>
     public bool IsInitialized { get; private set; }
 
@@ -97,13 +56,13 @@ public sealed class MotherBrainCorpseRottingState
 
         // MVN copies A+1 bytes. The lengths below already include that 65816 convention,
         // so a host loop uses `< Length` without adding another byte.
-        foreach (MotherBrainCorpseGraphicsCopy copy in InitialGraphicsCopies)
+        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
-            for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
+            for (int byteIndex = 0; byteIndex < MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row); byteIndex++)
             {
-                int sourceAddress = checked((int)copy.SourceAddress) + byteIndex;
+                int sourceAddress = MotherBrainCorpseArtworkDefinitions.InitialCopySource(row) + byteIndex;
                 bus.WriteByte(
-                    GraphicsBufferAddress + copy.DestinationOffset + byteIndex,
+                    GraphicsBufferAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes + byteIndex,
                     installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
             }
         }
@@ -184,7 +143,7 @@ public sealed class MotherBrainCorpseRottingState
         // Carry set from `$DBDF` reaches `$B1DD`, which queues all six records every time.
         return new MotherBrainCorpseRottingStepResult(
             StillRotting: true,
-            VramTransfers,
+            MotherBrainCorpseArtworkDefinitions.RotTransfers,
             DustRequests: dustRequests);
     }
 
@@ -194,7 +153,7 @@ public sealed class MotherBrainCorpseRottingState
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.
         int tileRowIndex = yOffset >> 3;
         int pixelRowIndex = yOffset & 7;
-        int sourceOffset = TileRowOffsets[tileRowIndex] + pixelRowIndex * 2;
+        int sourceOffset = MotherBrainCorpseArtworkDefinitions.TileRowOffset(tileRowIndex) + pixelRowIndex * 2;
 
         // Pixel rows 6/7 cannot be written at +2/+4 without leaving their current tile.
         // `$DC01` adds `$E0-$0C = $D4`; the callee's own +2 then lands at pixel rows 7/0
@@ -203,12 +162,12 @@ public sealed class MotherBrainCorpseRottingState
             ? sourceOffset
             : sourceOffset + 0x00d4;
 
-        for (int columnIndex = 0; columnIndex < ColumnOffsets.Length; columnIndex++)
+        for (int columnIndex = 0; columnIndex < MotherBrainCorpseArtworkDefinitions.ColumnCount; columnIndex++)
         {
-            if (yOffset < ColumnMinimumY[columnIndex])
+            if (yOffset < MotherBrainCorpseArtworkDefinitions.ColumnMinimumY(columnIndex))
                 continue;
 
-            int columnOffset = ColumnOffsets[columnIndex];
+            int columnOffset = columnIndex * MotherBrainCorpseArtworkDefinitions.TileBytes;
             bool sourceCanBeCopied = yOffset < EntryCount - 2;
             if (sourceCanBeCopied)
             {
@@ -247,10 +206,6 @@ public sealed class MotherBrainCorpseRottingState
         bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
     }
 
-    private readonly record struct MotherBrainCorpseGraphicsCopy(
-        uint SourceAddress,
-        int DestinationOffset,
-        int Length);
 }
 
 /// <summary>One native <c>(signed Y offset, timer)</c> corpse-rotting table record.</summary>

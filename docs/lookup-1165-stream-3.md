@@ -378,8 +378,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs
 
-- [ ] **MotherBrainCorpseArtworkDefinitions.VramPageSources** ([L20](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainCorpseArtworkDefinitions.VramPageDestinations** ([L24](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseArtworkDefinitions.VramPageSources** ([L20](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseArtworkDefinitions.VramPageDestinations** ([L24](../csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs
 
@@ -465,11 +465,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs
 
-- [ ] **MotherBrainCorpseRottingState.TileRowOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainCorpseRottingState.ColumnOffsets** ([L41](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainCorpseRottingState.ColumnMinimumY** ([L47](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainCorpseRottingState.InitialGraphicsCopies** ([L52](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainCorpseRottingState.VramTransfers** ([L64](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseRottingState.TileRowOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseRottingState.ColumnOffsets** ([L41](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseRottingState.ColumnMinimumY** ([L47](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseRottingState.InitialGraphicsCopies** ([L52](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainCorpseRottingState.VramTransfers** ([L64](../csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs
 
@@ -748,6 +748,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 - The normal-cycle entry stays unchecked: the independent origin colors and minimum remain required, as do all three target palettes. No retained exception is asserted.
 - Verification build passed (1193 warnings, zero errors on final incremental build); `--lookup-stream-3` passed all 32 native colors, calculated-path selection, all 96 independent RGB channel edits and identities, and original frame/color bounds.
 - Changed production: `ShitroidColorCatalog.cs`; confirmation extends the assigned partial. Coordinator dependency: refresh `RemainingEnemyColorClosedContractDefinitions.cs` reviewed source hash (old 34CF411095FFF305D4C51537FDCCAD3CA2BD6FA4C81B307130C5ECFEE363328E).
+
+### Confirmed batch 12: Mother Brain corpse geometry and transfers
+
+- Converted seven inventoried definitions (five corpse-rotting tables and two corpse page mappings), plus both sequence aliases. Tile rows advance seven 32-byte tiles; columns advance one tile. The minimum-Y cases preserve the native missing-column branches. Initial copies select the right-hand frame in six source pages, omitting the last tile in the first four rows.
+- Rot transfers derive their visible starting column, width, WRAM source and VRAM destination from each row's geometry. All six records remain available in the original order on every active step; no generated record cache remains. Full corpse page sources/destinations are calculated, and all room/sequence callers use those operations.
+- Evidence: all eight native row offsets at $A9:E262, six four-word rot transfers at $A9:E1F4, six seven-byte page records at $A9:9003, and explicit CMP/BCC outline gates in $A9:EA40/$EB0B.
+- Verification build passed (1433 warnings, zero errors); `--lookup-stream-3` passed the native mappings/enumeration/bounds, all 48 pixel rows in both real copy/move modes, and the existing installed-artwork fixture (native staging oracle, room/sequence initialization, six cartridge-free VRAM pages, edited PNG/reload behavior).
+- Production edits: owned corpse artwork catalog, rotting state, sequence and state machine; additionally assigned sequence Helpers and RoomEnemySystem.MotherBrainRainbowBeam caller files. Verification includes the assigned stream partial and additionally assigned Program.MotherBrainCorpseArtwork.cs. No retained exception.
 
 ### Remaining scope
 

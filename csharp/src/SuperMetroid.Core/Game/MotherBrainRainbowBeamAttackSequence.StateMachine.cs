@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core.Rooms;
@@ -871,7 +872,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // ProcessSpriteTilesTransfers handles one record per call and notices the
                 // following zero terminator on the sixth call, just like the Baby tile list.
                 spriteTileTransfer = CreateNextCorpseTileTransfer();
-                if (CorpseTileTransferIndex == CorpseTileSources.Length)
+                if (CorpseTileTransferIndex == MotherBrainCorpseArtworkDefinitions.RowCount)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey;
                     FunctionTimer = 0x0020;

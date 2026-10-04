@@ -394,14 +394,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
     {
         int index = CorpseTileTransferIndex;
-        if ((uint)index >= (uint)CorpseTileSources.Length)
+        if ((uint)index >= (uint)MotherBrainCorpseArtworkDefinitions.RowCount)
             throw new InvalidOperationException("Mother Brain corpse tile transfer list is already complete.");
 
         var request = new MotherBrainSpriteTileTransferRequest(
             EntryIndex: (ushort)index,
             Size: MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
-            SourceAddress: CorpseTileSources[index],
-            VramDestination: CorpseTileDestinations[index]);
+            SourceAddress: MotherBrainCorpseArtworkDefinitions.VramPageSource(index),
+            VramDestination: MotherBrainCorpseArtworkDefinitions.VramPageDestination(index));
         CorpseTileTransferIndex++;
         return request;
     }

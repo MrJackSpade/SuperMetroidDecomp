@@ -374,11 +374,11 @@ public sealed partial class RoomEnemySystem
             // Keep that scheduling intact, but source the transferred pixels from the
             // installed sheet instead of making a visual read from cartridge ROM.
             int page = -1;
-            for (int index = 0; index < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length;
+            for (int index = 0; index < MotherBrainCorpseArtworkDefinitions.RowCount;
                  index++)
             {
                 if (transfer.SourceAddress ==
-                    MotherBrainCorpseArtworkDefinitions.VramPageSources[index])
+                    MotherBrainCorpseArtworkDefinitions.VramPageSource(index))
                 {
                     page = index;
                     break;
@@ -387,7 +387,7 @@ public sealed partial class RoomEnemySystem
             if (page < 0 ||
                 transfer.Size != MotherBrainCorpseArtworkDefinitions.VramPageByteCount ||
                 transfer.VramDestination !=
-                    MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page])
+                    MotherBrainCorpseArtworkDefinitions.VramPageDestination(page))
                 throw new InvalidDataException(
                     $"Invalid Mother Brain corpse sprite transfer {transfer}.");
 

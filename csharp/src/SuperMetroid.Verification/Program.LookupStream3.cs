@@ -99,7 +99,85 @@ internal static partial class Program
         VerifyStream3BabyFade(rom);
         VerifyStream3DrainFades(rom);
         VerifyStream3ShitroidPulse(rom);
+        VerifyStream3CorpseGeometry(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int row = 0; row < 8; row++)
+            AssertEqual((int)Read(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
+                "stream 3 corpse native tile row offset");
+        var transfers = MotherBrainCorpseArtworkDefinitions.RotTransfers;
+        AssertEqual(6, transfers.Count, "stream 3 corpse transfer count");
+        var enumerated = transfers.ToArray();
+        for (int row = 0; row < 6; row++)
+        {
+            int entry = 0xa9e1f4 + row * 8;
+            var expected = new MotherBrainSpriteTileTransferRequest((ushort)row, Read(entry),
+                (uint)(Read(entry + 4) | (Read(entry + 2) >> 8) << 16), Read(entry + 6));
+            AssertEqual(expected, transfers[row], "stream 3 native corpse rot transfer");
+            AssertEqual(expected, enumerated[row], "stream 3 corpse transfer enumeration order");
+            int pageEntry = 0xa99003 + row * 7;
+            uint source = (uint)(Read(pageEntry + 2) | rom.ReadByte(pageEntry + 4) << 16);
+            AssertEqual(source, MotherBrainCorpseArtworkDefinitions.VramPageSource(row), "stream 3 corpse source page");
+            AssertEqual(Read(pageEntry + 5), MotherBrainCorpseArtworkDefinitions.VramPageDestination(row), "stream 3 corpse destination page");
+        }
+        int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
+        for (int column = 0; column < 7; column++)
+            AssertEqual(minimumY[column], MotherBrainCorpseArtworkDefinitions.ColumnMinimumY(column), "stream 3 corpse native outline gate");
+        var copy = typeof(MotherBrainCorpseRottingState).GetMethod("CopyOrMovePixelRow",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        // Confirm the changed row/column geometry through the real pixel-copy path.
+        for (ushort y = 0; y < 48; y++)
+        foreach (bool move in new[] { false, true })
+        {
+            var actual = new TestAddressSpace();
+            var expected = new TestAddressSpace();
+            for (int offset = 0; offset < 0x600; offset++)
+            {
+                byte value = (byte)(offset * 37 + 11);
+                actual.WriteByte(0x7e9000 + offset, value);
+                expected.WriteByte(0x7e9000 + offset, value);
+            }
+            int source = Read(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
+            int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
+            for (int column = 0; column < 7; column++)
+            {
+                if (y < minimumY[column]) continue;
+                int start = 0x7e9000 + column * 32;
+                if (y < 46)
+                {
+                    // Read both plane words before copying or clearing either source.
+                    byte lo = expected.ReadByte(start + source);
+                    byte hi = expected.ReadByte(start + source + 1);
+                    byte lo2 = expected.ReadByte(start + source + 16);
+                    byte hi2 = expected.ReadByte(start + source + 17);
+                    expected.WriteByte(start + destination + 2, lo);
+                    expected.WriteByte(start + destination + 3, hi);
+                    expected.WriteByte(start + destination + 18, lo2);
+                    expected.WriteByte(start + destination + 19, hi2);
+                }
+                if (move)
+                {
+                    expected.WriteByte(start + source, 0);
+                    expected.WriteByte(start + source + 1, 0);
+                    expected.WriteByte(start + source + 16, 0);
+                    expected.WriteByte(start + source + 17, 0);
+                }
+            }
+            copy.Invoke(null, [actual, actual, y, move]);
+            for (int offset = 0; offset < 0x600; offset++)
+                AssertEqual(expected.ReadByte(0x7e9000 + offset), actual.ReadByte(0x7e9000 + offset), "stream 3 corpse row geometry");
+        }
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageSource(invalid), "stream 3 corpse source bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageDestination(invalid), "stream 3 corpse destination bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = transfers[invalid], "stream 3 corpse transfer bounds");
+        }
+        VerifyMotherBrainCorpseStockArtwork();
     }
 
     private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)

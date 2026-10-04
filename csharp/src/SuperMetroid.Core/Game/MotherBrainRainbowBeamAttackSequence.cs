@@ -63,12 +63,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
         [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
 
-    private static ReadOnlySpan<uint> CorpseTileSources =>
-        MotherBrainCorpseArtworkDefinitions.VramPageSources;
-
-    private static ReadOnlySpan<ushort> CorpseTileDestinations =>
-        MotherBrainCorpseArtworkDefinitions.VramPageDestinations;
-
     // NTSC `$A6:C4CB-$C4FC`: two number pages followed by five typewriter-text pages.
     // The final text page is only `$100` bytes. ProcessSpriteTilesTransfers emits one
     // record per call and reports completion on the same call that emits entry six.

@@ -558,7 +558,8 @@ if (args is ["--lookup-intro-rinka-programs"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro Rinka oracle revision");
     VerifyIntroRinkaPrograms(rom);
     VerifyIntroRinkaFrameCatalog(rom);
-    Console.WriteLine("Intro Rinka: all48 program bytes, overlapping words, three frame identities/counts/names and bounds pass.");
+    VerifyIntroRinkaParts(rom);
+    Console.WriteLine("Intro Rinka: program/catalog, twelve calculated parts, native OAM, independent edits and bounds pass.");
     return 0;
 }
 if (args is ["--lookup-intro-scientist-instructions"])

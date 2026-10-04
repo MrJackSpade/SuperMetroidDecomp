@@ -9903,4 +9903,16 @@
     "proof": "One VerifyIntroEggEffectParts joins the existing focused --lookup-intro-egg-effect-programs flag. Independently extract all eleven original records, require calculated selection and compare complete compiled identity; compare native on/offscreen OAM at visible and wrapped origins. Independently change X,Y,tile column,row,priority,palette and both flips; each remains supplied. A size16 edit stays supplied, moving column15 to14 only where needed to keep that larger sprite within the atlas. The initial out-of-bounds size fixture was rejected by the compiler and corrected before the passing run. Also preserve a changed part count and reject invalid calculated part indices. Existing program/catalog proofs remain separate logical proofs.",
     "remaining": "All eleven effect OAM layouts now calculate their complete fields. Source pixels and the wider1165 inventory remain independently required; no artwork-wide exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
+,
+  "introRinkaPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroRinkaParts.cs",
+    "id": "intro-rinka-quadrant-layouts-and-tile-selection",
+    "state": "converted",
+    "nativeIdentity": "Twelve OAM parts in three compositions8C:8C8D..8CCE",
+    "evidence": "Complete pinned bank8C records each reuse one tile196/197/198 in four small sprites at(0,0),(-8,0),(0,-8),(-8,-8), with horizontal/vertical flips on the right/bottom halves respectively. The native ordering is bottom-right,bottom-left,top-right,top-left; all share priority3 and actor-palette inheritance. The adjacent tile identities are the successive animation drawings, not a stored irregular selector.",
+    "algorithm": "Column=index%2,row=index/2; X=-8*column,Y=-8*row. Reflect horizontally when column0 and vertically when row0. Tile=196+bounded frame ordinal. Calculate small size, priority3 and palette inheritance. Keep only frame identity in the immutable IReadOnlyList; no generated part cache.",
+    "implementation": "IntroRinkaSpritePresentation substitutes this view only after full supplied field/count equality via SpriteComposition.CalculateIfMatching. Any independent changed quadrant retains its supplied composition, preserving asymmetry, custom counts and attributes. Runtime drawing keeps the existing OAM path without ROM reads.",
+    "proof": "One VerifyIntroRinkaParts joins --lookup-intro-rinka-programs. Extract all three original compositions independently, require calculated selection and compare full compiled identity for all12 parts. Compare native on-screen/wrapped OAM and sprite counts. Edit every quadrant independently across X,Y,tile row/column,size,priority,palette and both flips; preserve supplied compositions. Check changed count and invalid calculated indices. Existing program/catalog checks remain separate logical proofs.",
+    "remaining": "All Rinka OAM layouts are calculated; source pixel drawings and the remaining1165 inventory still need independent disposition. No art-wide exemption or whole-ticket completion claim. Implementation commit is the commit adding this record."
+  }
 }

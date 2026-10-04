@@ -73,11 +73,7 @@ internal static partial class Program
         }
 
         var guarded = new IntroBabyActorDefinitionReadGuard(retail);
-        byte[] nativeCollision = RomDataReader.ReadFixedBank(retail,
-            IntroBabyDiscoveryCollisionDefinitions.SourceAddress,
-            IntroBabyDiscoveryCollisionDefinitions.SourceByteCount);
-        AssertTrue(IntroBabyDiscoveryCollisionDefinitions.SourceBytes.SequenceEqual(nativeCollision),
-            "SR388 discovery physical level matches every cartridge source byte");
+        byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(guarded);
         var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));

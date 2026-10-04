@@ -218,6 +218,16 @@ if (args is ["--lookup-ending-mode7-roles"])
     Console.WriteLine("Ending Mode7 roles: supplied references, original hash ordering, bounds and null checks pass.");
     return 0;
 }
+if (args is ["--lookup-ending-gunship-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending gunship color oracle revision");
+    byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+    VerifyExtractedEndingGunshipPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json)));
+    Console.WriteLine("Ending gunship colors: all256 original words,239 calculated colors, complete pointer domain, guarded effect and independent edits pass.");
+    return 0;
+}
 if (args is ["--lookup-ending-logo-glare-program"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

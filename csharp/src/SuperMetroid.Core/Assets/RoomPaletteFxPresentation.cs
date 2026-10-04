@@ -25,6 +25,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     public bool TryReadColor(ushort pointer, out ushort color) =>
         LoadingPaletteColorDefinitions.TryReadColor(pointer, loadingInputs, out color) ||
         LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
+        EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
         (HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
@@ -40,7 +41,11 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             foreach (ushort pointer in colors.Keys)
                 if (!HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
                     !LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
-                    !LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out _, out _)) yield return pointer;
+                    !LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
+                    !EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out _, out _)) yield return pointer;
+            for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+                for (int index = 0; index < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+                    yield return ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
             for (int frame = 0; frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
                 for (int index = 0; index < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
                     yield return PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
@@ -527,6 +532,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         {
             ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
             if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
+                colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount - 1; frame++)
+        for (int index = 0; index < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        {
+            ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
+            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);

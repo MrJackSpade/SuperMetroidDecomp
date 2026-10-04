@@ -9283,4 +9283,18 @@
     "evidence": "All16 source words were compared statically, and the prior source-art export/inspection establishes the opaque inks. Existing all224-color original-ROM proof already includes the distinct transparent payload and its intermediate values; no additional test was added for retention. These dispositions do not exempt any other palette/effect or imply completion of the inventory.",
     "scope": "Only final-row base values, no timing or generated animation samples. Implementation commit is the commit adding this record."
   }
+,
+  "endingGunshipColorProgressionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingGunshipPaletteColorDefinitions.cs",
+    "mappings": [
+      { "id": "ending-gunship-white-start-colors", "state": "converted" },
+      { "id": "ending-gunship-dim-endpoint-colors", "state": "converted" },
+      { "id": "ending-gunship-two-stage-color-progression", "state": "converted" }
+    ],
+    "source": "Supported SHA-pinned ROM8D:D6BA..D8FF, gunship-emerging-from-Zebes-explosion effectE1E4. Sixteen records startD6BE with duration24, sixteen RGB5 words and wait, each36 bytes. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d. Full original256-word data inspected; existing XML interpolation claim was independently checked before use.",
+    "derivation": "Frame0 is white in slots1..15 and black in transparent slot0. Dim channels in frame7 slots0..14 and frame8 slots0..15 equal floor(brightFrame15Channel*2/7). Frame7 slot15 is a separate0404 boundary input, whereas frame8 slot15 is the dimmed black final input. Frames0..7 use floor(((7-t)*start+t*dim)/7); frames8..15 use nearest rounding ((7-t)*dim+t*bright+3)/7. Seven intervals preclude half-way ties. This composes239 calculated words from sixteen supplied bright colors plus the one boundary input, exactly matching all256 original words without a generated lookup cache.",
+    "implementation": "EndingGunshipPaletteColorDefinitions owns bounded color-pointer decoding and two-stage interpolation with at most one endpoint-resolution level. RoomPaletteFxPresentation removes only samples equal to calculation and resolves explicit edits first. Unchanged rows that stop matching after an endpoint edit remain explicit. Source schema and independent per-frame color ownership remain intact. ColorPointers enumerates all256 original identities once even when239 stored samples are removed. No runtime cartridge reads introduced.",
+    "proof": "Consolidate the existing installed gunship palette-family check into VerifyExtractedEndingGunshipPaletteFxPresentation; SHA-pinned early --lookup-ending-gunship-colors and the existing aggregate both use it. Read independent original pointersD6C0+36*frame+2*color; compare all256 loaded words and all239 calculated words using only17 original inputs. All65536 pointer values confirm exact ownership/frame/column and reject controls/odd bytes. Existing guarded385-call native-versus-installed effect comparison confirms every CGRAM/audio result without color ROM access. Verify unique auditor identities, missing inputs, and independent white/dim/boundary/intermediate/bright edits while checking every unchanged supplied sample. One compound proof, no exploratory gameplay or additional parallel test.",
+    "remaining": "The sixteen bright endpoint colors, special first-stage boundary color, and independently indexed control/frame/color-pointer mechanics still need their own dispositions. None is declared arbitrary from the failure of a formula. This record resolves the listed generated-color mappings only and grants no retention exception. Implementation commit is the commit adding this record."
+  }
 }

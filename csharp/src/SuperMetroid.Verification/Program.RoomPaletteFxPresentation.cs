@@ -278,13 +278,7 @@ internal static partial class Program
                 definition.ColorPointer, [definition.DefinitionPointer],
                 definition.CycleFrames + 1);
         }
-        VerifyInstalledPaletteFxFamily(
-            bus, presentation, "Zebes explosion gunship",
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
-            [ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyExtractedEndingGunshipPaletteFxPresentation(bus, presentation);
         VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation);
         VerifyExtractedLogoGlarePaletteFxPresentation(bus, presentation);
         foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
@@ -349,6 +343,67 @@ internal static partial class Program
         Console.WriteLine(
             "  Room palette presentation: 5108 editable palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
+    }
+
+    private static void VerifyExtractedEndingGunshipPaletteFxPresentation(
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
+    {
+        VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship",
+            16, 16, (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), [0xe1e4], 385);
+        var original = new Dictionary<ushort, ushort>();
+        var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
+        for (int frame = 0; frame < 16; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            ushort pointer = (ushort)(0xd6c0 + frame * 36 + color * 2);
+            original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
+            coordinates.Add(pointer, (frame, color));
+        }
+        // Restrict the input view to the actual remaining source values, ensuring
+        // the composed calculation works without generated endpoint/sample caches.
+        var inputs = original.Where(pair => coordinates[pair.Key].Frame == 15 || coordinates[pair.Key] == (7, 15))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort pointer = (ushort)raw;
+            bool owned = coordinates.TryGetValue(pointer, out var expected);
+            AssertEqual(owned, EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color),
+                "gunship exact original color-word ownership");
+            if (owned)
+            {
+                AssertEqual(expected.Frame, frame, "gunship original frame identity");
+                AssertEqual(expected.Color, color, "gunship original color column");
+            }
+            bool computed = owned && expected.Frame != 15 && expected != (7, 15);
+            AssertEqual(computed, EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, inputs, out ushort calculated),
+                "gunship calculated color domain");
+            if (computed) AssertEqual(original[pointer], calculated, "gunship calculated color matches original ROM");
+        }
+        ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
+        AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
+        AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
+        var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
+            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions)!;
+        // White, both dim boundaries, the special boundary color, each interpolation
+        // stage and the bright base all remain independently editable.
+        foreach (var edit in new[] { (0, 1), (7, 2), (7, 15), (8, 3), (3, 4), (11, 5), (15, 6) })
+        {
+            PaletteRgb5 current = document.ZebesExplosionGunship[edit.Item1][edit.Item2];
+            document.ZebesExplosionGunship[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
+        }
+        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+        RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
+        for (int frame = 0; frame < 16; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            PaletteRgb5 expected = document.ZebesExplosionGunship[frame][color];
+            AssertTrue(edited.TryReadColor((ushort)(0xd6c0 + frame * 36 + color * 2), out ushort actual), "edited gunship color remains readable");
+            AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
+                "gunship preserves independent edits and unchanged samples");
+        }
+        AssertTrue(!EndingGunshipPaletteColorDefinitions.TryCalculatedColor(0xd6e4, new Dictionary<ushort, ushort>(), out _),
+            "gunship does not invent missing interpolation inputs");
     }
 
     private static void VerifyExtractedLogoGlarePaletteFxPresentation(

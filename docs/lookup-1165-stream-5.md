@@ -134,7 +134,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresDestructionActorLayout.cs
 
-- [ ] **CeresDestructionActorLayout.placements** ([L12](../csharp/src/SuperMetroid.Core/Assets/CeresDestructionActorLayout.cs#L12)) - installed stock table. Original/default payload behind CeresDestructionActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CeresDestructionActorLayout.placements** ([L12](../csharp/src/SuperMetroid.Core/Assets/CeresDestructionActorLayout.cs#L12)) - installed stock table. Original/default payload behind CeresDestructionActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresDestructionArtworkCatalog.cs
 
@@ -162,7 +162,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresFlightActorLayout.cs
 
-- [ ] **CeresFlightActorLayout.placements** ([L12](../csharp/src/SuperMetroid.Core/Assets/CeresFlightActorLayout.cs#L12)) - installed stock table. Original/default payload behind CeresFlightActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CeresFlightActorLayout.placements** ([L12](../csharp/src/SuperMetroid.Core/Assets/CeresFlightActorLayout.cs#L12)) - installed stock table. Original/default payload behind CeresFlightActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresFlightArtworkCatalog.cs
 
@@ -176,7 +176,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresRevealActorLayout.cs
 
-- [ ] **CeresRevealActorLayout.placements** ([L13](../csharp/src/SuperMetroid.Core/Assets/CeresRevealActorLayout.cs#L13)) - installed stock table. Original/default payload behind CeresRevealActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CeresRevealActorLayout.placements** ([L13](../csharp/src/SuperMetroid.Core/Assets/CeresRevealActorLayout.cs#L13)) - installed stock table. Original/default payload behind CeresRevealActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresBabyInstructionProgramDefinitions.cs
 
@@ -721,3 +721,10 @@ Replaced `CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All`, `Cinemat
 
 Added `--lookup-stream5-palette-entries`: checks all eleven definition list operands against original bank 8D, indexed/enumerated order and bounds, and every mechanics result over the full pointer domain against the pinned ROM with exact expected coverage. This verifies the changed entry dispatch routes into the original controls. All live BGR555 color payloads remain independently required; no retention disposition is granted. Confirmation pending.
 Batch 2 confirmed: Verification build passed (1431 existing warnings, zero errors). `--lookup-stream5-palette-entries` passed all eleven entry identities, 44 Ceres-light mechanics words, 64 glow words, 50 shared-red words and 31 statue-grey words, enumeration and bounds. Four more named definitions complete, eight total in stream5; 217 entries remain required. No color payload was exempted or marked complete by these metadata conversions.
+### Batch 3: installed Ceres actor placements
+
+Removed the three stock placement arrays for the approach, destruction and Zebes-reveal scenes. Defaults now resolve through the existing named actor initializer cases: large/small debris, moving/stationary vortex, station, rear stars, planet/title and the calculated two-by-two reveal star-sheet grid. No second stock mapping or regenerated cache remains. Every supplied identity/X/Y is checked before selecting defaults; any independent coordinate edit keeps the complete supplied layout. Canonical selected-content identity remains byte-for-byte equivalent.
+
+Verification build passed (25 incremental warnings, zero errors; full production rebuild1431 warnings). `--lookup-stream5-actor-layouts` passed all14 native actor placements/28 original coordinate operands, all28 independent X/Y edits with all other fields preserved, unchanged canonical identities and both bounds. The stationary-vortex fixture initially addressed the LDA opcode at$8B:BFA5; source inspection corrected the fixture to its immediate operand at$BFA6 before the successful run. No production workaround was made. This confirmation covers the changed layout/indexer contract, not a gameplay playthrough.
+
+Eleven named definitions complete in stream5;214 remain required. Color/Mode7/artwork payloads are not exempted by actor-layout dispatch.

@@ -1,8 +1,100 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5ActorLayouts(ISnesAddressSpace rom)
+    {
+        var flight = Enumerable.Range(0, 5).Select(index =>
+        {
+            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
+            return new CeresFlightActorPlacement { Id = source.Id,
+                X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
+                Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
+        }).ToArray();
+        Check(flight, values =>
+        {
+            using var encoded = new MemoryStream();
+            CeresFlightActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            encoded.Position = 0;
+            var layout = CeresFlightActorLayout.Load(encoded);
+            return (layout, index => layout[index], layout.ContentIdentity);
+        }, value => (value.Id, value.X, value.Y),
+            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+        var reveal = Enumerable.Range(0, 6).Select(index =>
+        {
+            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
+            return new CeresRevealActorPlacement { Id = source.Id,
+                X = ReadVerificationWord(rom, 0x8b0000 | source.XAddress),
+                Y = ReadVerificationWord(rom, 0x8b0000 | source.YAddress) };
+        }).ToArray();
+        Check(reveal, values =>
+        {
+            using var encoded = new MemoryStream();
+            CeresRevealActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            encoded.Position = 0;
+            var layout = CeresRevealActorLayout.Load(encoded);
+            return (layout, index => layout[index], layout.ContentIdentity);
+        }, value => (value.Id, value.X, value.Y),
+            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+        var destruction = Enumerable.Range(0, 3).Select(index =>
+        {
+            var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
+            return new CeresDestructionActorPlacement { Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
+                X = index == 2 ? ReadVerificationWord(rom, 0x8bbfa6) : inherited.X, Y = inherited.Y };
+        }).ToArray();
+        Check(destruction, values =>
+        {
+            using var encoded = new MemoryStream();
+            CeresDestructionActorLayout.Write(encoded, new() { Version = 1, Actors = values });
+            encoded.Position = 0;
+            var layout = CeresDestructionActorLayout.Load(encoded);
+            return (layout, index => layout[index], layout.ContentIdentity);
+        }, value => (value.Id, value.X, value.Y),
+            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+        Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, all28 independent coordinate edits, complete identity preservation and bounds pass.");
+
+        static void Check<T>(T[] original,
+            Func<T[], (object Layout, Func<int, T> Read, string Identity)> load,
+            Func<T, (string Id, int X, int Y)> fields, Func<T, bool, T> edit)
+        {
+            var stock = load(original);
+            var storage = stock.Layout.GetType().GetField("placements",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            AssertTrue(storage.GetValue(stock.Layout) is null, "Ceres stock placements select semantic actor dispatch");
+            Verify(stock, original);
+            for (int index = 0; index < original.Length; index++)
+            foreach (bool horizontal in new[] { false, true })
+            {
+                T[] changed = original.ToArray();
+                changed[index] = edit(changed[index], horizontal);
+                var installed = load(changed);
+                AssertTrue(storage.GetValue(installed.Layout) is not null, "Independent Ceres coordinate edit remains supplied");
+                Verify(installed, changed);
+            }
+            AssertThrows<IndexOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
+
+            void Verify((object Layout, Func<int, T> Read, string Identity) actual, T[] expected)
+            {
+                for (int index = 0; index < expected.Length; index++)
+                    AssertEqual(fields(expected[index]), fields(actual.Read(index)), "Ceres complete selected placement");
+                string identity = SelectedPresentationHash.Create(actual.Layout.GetType().Name, content =>
+                {
+                    content.Append("actors", expected.Length);
+                    foreach (T placement in expected)
+                    {
+                        var value = fields(placement);
+                        content.Append("id", System.Text.Encoding.UTF8.GetBytes(value.Id));
+                        content.Append("x", value.X); content.Append("y", value.Y);
+                    }
+                });
+                AssertEqual(identity, actual.Identity, "Ceres canonical selected content identity");
+            }
+        }
+    }
     private static void VerifyLookupStream5Initialization(ISnesAddressSpace rom)
     {
         for (ushort variant = 0; variant < 7; variant++)

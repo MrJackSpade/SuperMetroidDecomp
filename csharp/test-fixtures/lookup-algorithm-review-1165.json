@@ -9927,4 +9927,16 @@
     "proof": "One VerifyIntroMotherBrainExplosionParts under --lookup-intro-mother-brain-explosion-programs compares all39 original parts and complete identities from independent extraction, requires calculated selection, compares native visible/wrapped OAM, and preserves each independently edited field and changed count. Invalid part indices throw. Existing program/catalog proofs remain separate.",
     "remaining": "All twelve OAM layouts are calculated. Pixel drawings and all other unresolved1165 mappings remain independent required work. No artwork-wide exception or completion claim. Implementation commit is the commit adding this record."
   }
+,
+  "introScientistPartLayoutReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroScientistParts.cs",
+    "id": "intro-scientist-catalog-oam-layouts",
+    "state": "converted",
+    "nativeIdentity": "Ten compositions and28 parts8C:8CCF..8D6E",
+    "evidence": "Complete pinned bank8C records: three arrows mirror the same eight-pixel half atX-1/-8, sharing the seam pixel; the first half is1A8 and remaining halves occupy19F/1AF. Three delivered poses cover three-by-three tile patches. Top three-wide strips startE9/EC/F9, packed two per row. Lower three-by-two patches are adjacent atE0/E3/E6; middle pose uses its sixteen-pixel part on the right, other poses on the left. Examined poses use adjacent sixteen-pixel drawings199/19B/19D. Caret is tileFC at(0,-1). All have priority3 and actor-palette inheritance.",
+    "algorithm": "Generate arrow reflection/seam alignment and vertical atlas progression after the named initial drawing. Generate delivered top strips from three-wide packing and native descending-column order; lower pieces use one two-by-two sprite and a two-sprite column, with the middle pose reversing those roles. Compute lower tile from pose*3, column and row. Center examined sprites and advance tile by two per pose. Express caret as its named domain drawing and fixed origin. No generated part cache.",
+    "implementation": "IntroScientistSpritePresentation substitutes the immutable calculated view only after full compiled field/count equality. Changed artwork remains supplied. Existing published legacy keys and catalog identities are preserved.",
+    "proof": "One VerifyIntroScientistParts under --lookup-intro-scientist-instructions extracts all ten originals independently, requires calculated selection, compares all28 compiled parts and native visible/wrapped OAM. Each field of every piece is independently edited and must remain supplied; changed counts are preserved and invalid calculated indices throw. Verification build and focused proof pass.",
+    "remaining": "These ten scientist-catalog OAM layouts are calculated. The separately loaded caret presentation still needs to adopt the shared calculation; its mapping is not independently complete merely because this catalog aliases it. Source pixels and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
 }

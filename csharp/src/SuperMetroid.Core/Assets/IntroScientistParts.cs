@@ -1,0 +1,91 @@
+using System.Collections;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>Atlas packing and sprite geometry for subtitle arrows, delivered/examined baby and caret.</summary>
+internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpritePart>
+{
+    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    {
+        for (int frame = 0; frame < 10; frame++)
+            if (IntroScientistSpriteDefinitions.FramePointer(frame) == pointer)
+                return supplied.CalculateIfMatching(new IntroScientistParts(frame));
+        return supplied;
+    }
+    public int Count => frame < 3 ? 2 : frame < 6 ? 6 : 1;
+    public CompiledSpritePart this[int index]
+    {
+        get
+        {
+            if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            int x, y, tile;
+            bool large = false;
+            SnesTileFlipFlags flips = 0;
+            if (frame < 3)
+            {
+                x = -1 - 7 * index;
+                y = 0;
+                flips = index == 0 ? SnesTileFlipFlags.Horizontal : 0;
+                tile = frame == 0 ? IntroScientistAtlas.InitialArrow
+                    : IntroScientistAtlas.ArrowColumn + 16 * (frame - 1);
+            }
+            else if (frame < 6)
+            {
+                int pose = frame - 3;
+                if (index < 3)
+                {
+                    x = 4 - 8 * index;
+                    y = -12;
+                    tile = IntroScientistAtlas.DeliveredTop + 3 * (pose % 2) + 16 * (pose / 2) + 2 - index;
+                }
+                else
+                {
+                    // Each lower 3x2 patch uses one 2x2 sprite and a two-sprite side column.
+                    // The middle pose puts that column on the left, preserving native OAM order.
+                    bool leftColumn = (pose & 1) != 0;
+                    large = index == 5;
+                    x = large ? -12 + (leftColumn ? 8 : 0) : leftColumn ? -12 : 4;
+                    y = index == 3 ? 4 : -4;
+                    int column = large ? (leftColumn ? 1 : 0) : leftColumn ? 0 : 2;
+                    tile = IntroScientistAtlas.DeliveredLower + 3 * pose + column + (index == 3 ? 16 : 0);
+                }
+            }
+            else if (frame < 9)
+            {
+                x = y = -8;
+                large = true;
+                tile = IntroScientistAtlas.ExaminedStart + 2 * (frame - 6);
+            }
+            else
+            {
+                x = 0;
+                y = -1;
+                tile = IntroScientistAtlas.Caret;
+            }
+            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+                SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
+        }
+    }
+    public IEnumerator<CompiledSpritePart> GetEnumerator()
+    {
+        for (int index = 0; index < Count; index++) yield return this[index];
+    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+internal static class IntroScientistAtlas
+{
+    /// <summary>Tile$1A8, first subtitle-arrow half in8C:8CCF.</summary>
+    internal const int InitialArrow = 0x1a8;
+    /// <summary>Tile$19F, top of the remaining two arrow drawings packed vertically.</summary>
+    internal const int ArrowColumn = 0x19f;
+    /// <summary>Tile$E9, start of three-wide top strips packed two per atlas row.</summary>
+    internal const int DeliveredTop = 0xe9;
+    /// <summary>Tile$E0, start of three adjacent three-by-two lower baby patches.</summary>
+    internal const int DeliveredLower = 0xe0;
+    /// <summary>Tile$199, first of three adjacent sixteen-pixel examined baby drawings.</summary>
+    internal const int ExaminedStart = 0x199;
+    /// <summary>Tile$FC, blinking typewriter block selected by8C:8D68.</summary>
+    internal const int Caret = 0xfc;
+}

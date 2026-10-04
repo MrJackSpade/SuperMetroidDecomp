@@ -569,6 +569,7 @@ if (args is ["--lookup-intro-scientist-instructions"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro scientist oracle revision");
     VerifyIntroScientistInstructions(rom);
     VerifyIntroScientistFrameCatalog(rom);
+    VerifyIntroScientistParts(rom);
     Console.WriteLine("Intro scientist programs/catalog: all142 bytes, overlapping views, ten original frame records, stable asset names and boundaries pass.");
     return 0;
 }

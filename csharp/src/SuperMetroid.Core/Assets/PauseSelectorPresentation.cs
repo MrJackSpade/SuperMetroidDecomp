@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 
@@ -7,16 +8,24 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseSelectorPresentation
 {
     private readonly Dictionary<string, MapLabelPoint> anchors;
-    private readonly (int Duration, SpriteComposition Reserve, SpriteComposition Beam, SpriteComposition Equipment)[] phases;
+    private readonly (SpriteComposition Reserve, SpriteComposition Beam, SpriteComposition Equipment)[] phases;
+    private readonly Dictionary<int, int>? durationOverrides;
+    internal int StoredDurationCount => durationOverrides?.Count ?? 0;
     public int InitialDurationTicks { get; }
     public ushort PaletteBits { get; }
     public int PhaseCount => phases.Length;
     private PauseSelectorPresentation(Dictionary<string, MapLabelPoint> anchors,
-        (int, SpriteComposition, SpriteComposition, SpriteComposition)[] phases, int initialDuration, int palette)
-    { this.anchors = anchors; this.phases = phases; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+        (SpriteComposition, SpriteComposition, SpriteComposition)[] phases, Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
+    { this.anchors = anchors; this.phases = phases; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
     public MapLabelPoint Anchor(int category, int item) => anchors[PauseSelectorDefinitions.Anchor(category, item)];
     public int NormalizePhase(int phase) => phase >= 0 ? phase % phases.Length : throw new ArgumentOutOfRangeException(nameof(phase));
-    public int Duration(int phase) => phases[NormalizePhase(phase)].Duration;
+    /// <summary>Calculates the shared native dwell rule after cyclic phase normalization.</summary>
+    public int Duration(int phase)
+    {
+        int normalized = NormalizePhase(phase);
+        return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
+            ? duration : MenuSelectorTiming.Duration(normalized);
+    }
     public void Draw(OamBuffer oam, int category, int item, int phase)
     {
         var point = Anchor(category, item);
@@ -48,7 +57,8 @@ public sealed class PauseSelectorPresentation
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
             frames.Add(frame.Key, MenuSpriteCompiler.Compile(frame.Value, frame.Key));
         }
-        var phases = new (int, SpriteComposition, SpriteComposition, SpriteComposition)[document.Animation.Length];
+        var phases = new (SpriteComposition, SpriteComposition, SpriteComposition)[document.Animation.Length];
+        Dictionary<int, int>? durationOverrides = null;
         for (int i = 0; i < phases.Length; i++)
         {
             var phase = document.Animation[i];
@@ -57,9 +67,11 @@ public sealed class PauseSelectorPresentation
                 phase.Beam is null || !frames.TryGetValue(phase.Beam, out var beam) ||
                 phase.Equipment is null || !frames.TryGetValue(phase.Equipment, out var equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            phases[i] = (phase.DurationTicks, reserve, beam, equipment);
+            phases[i] = (reserve, beam, equipment);
+            if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
+                (durationOverrides ??= new()).Add(i, phase.DurationTicks);
         }
-        return new(anchors, phases, document.InitialDurationTicks, document.Palette);
+        return new(anchors, phases, durationOverrides, document.InitialDurationTicks, document.Palette);
     }
     public static void Write(Stream output, PauseSelectorDocument document)
     {

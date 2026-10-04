@@ -53,7 +53,7 @@ public sealed class MapArrowVisual
         Y = (ushort)y;
         PhaseCount = durations.Length;
         for (int phase = 0; phase < durations.Length; phase++)
-            if (durations[phase] != BaseDuration(phase))
+            if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
     public ushort X { get; }
@@ -69,9 +69,8 @@ public sealed class MapArrowVisual
     {
         if ((uint)phase >= (uint)PhaseCount) throw new IndexOutOfRangeException();
         return durationOverrides is not null && durationOverrides.TryGetValue(phase, out byte value)
-            ? value : BaseDuration(phase);
+            ? value : MenuSelectorTiming.Duration(phase);
     }
-    private static byte BaseDuration(int phase) => phase == 0 ? (byte)15 : (byte)2;
 }
 public sealed record MapArrowDocument
 {

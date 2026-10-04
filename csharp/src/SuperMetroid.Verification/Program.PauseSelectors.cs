@@ -18,11 +18,7 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new PauseSelectorReadGuard(bus);
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c100), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
-        AssertEqual((int)bus.ReadByte(0x82c10c), catalog.PauseSelectors.InitialDurationTicks, "selector initial delay matches native initialization");
-        int animation = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c0ec);
-        for (int phase = 0; phase < 14; phase++)
-            AssertEqual((int)bus.ReadByte(animation + phase * 3), catalog.PauseSelectors.Duration(phase), "all native selector phase durations preserved");
-        AssertEqual(14, catalog.PauseSelectors.PhaseCount, "native selector terminator resolves exactly fourteen phases");
+        VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors);
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
             int positions = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c18e + anchor.Category * 2);

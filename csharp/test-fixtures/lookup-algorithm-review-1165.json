@@ -8875,4 +8875,71 @@
   "proof": "Extend existing VerifyEndingLogoPrograms, keeping one compound original-data proof for catalog/program views. SHA-pinned --lookup-ending-logo-programs compares eight catalog pointers to independent native instruction operands, counts to OAM headers, keys/order to previous published fixture, plus catalog/address bounds. Existing all31-word and four200-call actor stream checks confirm the migrated instruction consumer and callback timing.",
   "scope": "Three catalog mappings and shared address aliases only. Individual OAM placements and other catalogs remain independent review obligations. No retention exception. Implementation commit is the commit adding this record."
 }
+,
+  "endingCloudCatalogReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingCloudSpritePresentation.cs",
+  "source": "Supported SHA-pinned original8B:ECED..ED1C contains six cloud loops; native display operands select the compositions. Original8C:B6F3/B745/B797/B7E9/B83B/B8DD headers establish four16-part then two32-part records. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d identifies bottom/top patterns, bottom/top edges, right and left.",
+  "tables": [
+    {
+      "id": "ending-cloud-frame-catalog-pointers",
+      "state": "converted",
+      "algorithm": "Named actor roles choose native storage records; addressB6F3 + precedingHorizontal*(2+16*5) + precedingSide*(2+32*5). Explicit semantic storage-order mapping replaces ordinal pointer samples."
+    },
+    {
+      "id": "ending-cloud-frame-catalog-counts",
+      "state": "converted",
+      "algorithm": "Horizontal pattern/edge roles use16 OAM parts; right/left side roles use32."
+    },
+    {
+      "id": "ending-cloud-frame-catalog-names",
+      "state": "converted",
+      "algorithm": "Named upper-pattern,upper-edge,lower-edge,lower-pattern,right,left cases preserve existing scene-b/scene-a asset keys."
+    }
+  ],
+  "programReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingCloudInstructionDefinitions.cs",
+    "programs": [
+      {
+        "id": "ending-cloud-upper-pattern-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ECED",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      },
+      {
+        "id": "ending-cloud-upper-edge-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ECF5",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      },
+      {
+        "id": "ending-cloud-lower-edge-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ECFD",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      },
+      {
+        "id": "ending-cloud-lower-pattern-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ED05",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      },
+      {
+        "id": "ending-cloud-right-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ED0D",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      },
+      {
+        "id": "ending-cloud-left-program",
+        "state": "converted",
+        "nativeIdentity": "8B:ED15",
+        "algorithm": "Existing generator reviewed independently: display selected composition for one handler call, then goto this eight-byte list start. Frame address now comes from calculated catalog."
+      }
+    ]
+  },
+  "implementation": "Remove six-record StockFrames array. Stateless IReadOnlyList view returns semantic role records; loader uses Count. Program reader already delegates frame selection to catalog and needs no duplicated pointer data. No generated lookup cache or runtime ROM fallback.",
+  "consumer": "EndingCloudSpritePresentation.Load compiles editable artwork by preserved name and pointer; EndingObjectArtworkFiles imports using stock part counts; ResourceAudit checks frame membership; EndingCloudInstructionDefinitions supplies the frame to the shared actor interpreter.",
+  "proof": "Extract existing cloud word/actor-stream checks from VerifyEndingObjectArtwork into VerifyEndingCloudDefinitions; aggregate delegates, leaving artwork rendering checks separate. SHA-pinned --lookup-ending-cloud-definitions compares all24 native program words; six catalog pointers to independent original operands and counts to OAM headers; published names/order and invalid bounds. Six native/generated streams run120 calls each with explicit independent ROM reader, comparing cursor and visual frame. Single compound proof covers catalog fields and program views.",
+  "scope": "Three catalog mappings plus six independently reviewed existing program generators. Cloud positions/motion and individual OAM contents retain separate obligations. No retention exception. Implementation commit is the commit adding this record."
+}
 }

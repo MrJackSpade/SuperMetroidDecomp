@@ -5,7 +5,7 @@
   "items": [
     {
       "id": "tourian-left-t-cap-outline",
-      "owner": "csharp/src/SuperMetroid.Core/Assets/MenuOutlinedLetteringArtwork.cs",
+      "owner": "csharp/src/SuperMetroid.Core/Assets/MenuCompactLetteringArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile08 pixelX2,Y2; Tourian stripX2,Y2",
       "status": "pending",
       "task": "Explain and convert the extra black pixel or establish a concrete permitted retention rationale. EXIT tileB7 pixelX6,Y2 is transparent at the mirrored T-cap junction, disproving the former symmetric-junction claim. That unsupported rule has been removed. This pixel remains captured from the source to preserve output, with no accepted retention exception."

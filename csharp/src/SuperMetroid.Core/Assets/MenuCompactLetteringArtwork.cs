@@ -3,20 +3,25 @@ using System.Numerics;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Seven elevator-label strips, selected by82:C4DB..C568, and EXIT cells5F/B7.
+/// Seven elevator-label strips, selected by82:C4DB..C568, EXIT cells5F/B7,
+/// and SELECT/START cellsA5..AA share a six-row alphabet and one-pixel glyph gaps.
+/// SELECT/START use ink14 with shadow13 displaced one pixel down/right, ink winning.
+/// Fill isolated four-neighbor gaps within glyph columns with shadow13, preserving
+/// the one-pixel spaces between glyphs;
+/// this closes the single-pixel gap at R's bowl/leg junction without a glyph exception.
 /// Authored ink index11 casts
 /// a one-pixel eight-neighbor black outline15 across adjacent cells of the same strip.
 /// Bevel each row's outer diagonal-only corner when its ink is inset from a neighboring
 /// row. Tourian's extra left T-cap pixel remains unresolved required review; EXIT's
 /// mirrored T cap disproves the former symmetric stroke-junction explanation.
-/// Nineteen authored six-row glyph silhouettes select the lettering design; each label
+/// Twenty authored six-row glyph silhouettes select the lettering design; each label
 /// places these glyphs with a one-pixel gap. Tracing the chosen glyph strokes in numerical
 /// cases would disguise that art. Capture supplied differences, including that one
 /// pending original pixel; it has no accepted artistic-retention disposition.
 /// </summary>
-internal sealed class MenuOutlinedLetteringArtwork
+internal sealed class MenuCompactLetteringArtwork
 {
-    internal const int TileCount = 28;
+    internal const int TileCount = 34;
     private readonly Dictionary<char, uint> glyphs = [];
     private readonly Dictionary<int, byte>? edits;
     internal int StoredInkByteCount => glyphs.Count * sizeof(uint);
@@ -28,20 +33,22 @@ internal sealed class MenuOutlinedLetteringArtwork
     }
 
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
-        0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or 0xb7;
+        0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or >= 0xa5 and <= 0xaa or 0xb7;
 
     /// <summary>Physical strip layout: Crateria, Brinstar, Norfair, Maridia, Ship and Wrecked.
     /// Norfair and Maridia skip the intervening large-font stem cells11 and17.</summary>
-    private static (int Start, int Gap, string Text, int X, int Y) Layout(int tile) => tile switch
+    private static (int Start, int Gap, string Text, int X, int Y, bool Shadow) Layout(int tile) => tile switch
     {
-        >= 0 and <= 3 => (0, -1, "CRATERIA", 1, 1),
-        >= 4 and <= 7 => (4, -1, "BRINSTAR", 1, 1),
-        8 or 9 or 0x20 or 0x32 => (8, -1, "TOURIAN", 3, 1),
-        0x10 or >= 0x12 and <= 0x14 => (0x10, 0x11, "NORFAIR", 3, 1),
-        0x15 or 0x16 or 0x18 or 0x19 => (0x15, 0x17, "MARIDIA", 3, 1),
-        0x44 or 0x45 => (0x44, -1, "SHIP", 1, 0),
-        >= 0x53 and <= 0x56 => (0x53, -1, "WRECKED", 1, 1),
-        0x5f or 0xb7 => (0x5f, -1, "EXIT", 1, 1),
+        >= 0 and <= 3 => (0, -1, "CRATERIA", 1, 1, false),
+        >= 4 and <= 7 => (4, -1, "BRINSTAR", 1, 1, false),
+        8 or 9 or 0x20 or 0x32 => (8, -1, "TOURIAN", 3, 1, false),
+        0x10 or >= 0x12 and <= 0x14 => (0x10, 0x11, "NORFAIR", 3, 1, false),
+        0x15 or 0x16 or 0x18 or 0x19 => (0x15, 0x17, "MARIDIA", 3, 1, false),
+        0x44 or 0x45 => (0x44, -1, "SHIP", 1, 0, false),
+        >= 0x53 and <= 0x56 => (0x53, -1, "WRECKED", 1, 1, false),
+        0x5f or 0xb7 => (0x5f, -1, "EXIT", 1, 1, false),
+        >= 0xa5 and <= 0xa7 => (0xa5, -1, "SELECT", 0, 1, true),
+        >= 0xa8 and <= 0xaa => (0xa8, -1, "START", 2, 1, true),
         _ => throw new ArgumentOutOfRangeException(nameof(tile)),
     };
 
@@ -67,7 +74,7 @@ internal sealed class MenuOutlinedLetteringArtwork
         return gap >= 0 && tile >= gap ? tile + 1 : tile;
     }
 
-    internal MenuOutlinedLetteringArtwork(IndexedPngImage image)
+    internal MenuCompactLetteringArtwork(IndexedPngImage image)
     {
         for (int tile = 0; tile <= 0xb7; tile++)
         {
@@ -86,7 +93,7 @@ internal sealed class MenuOutlinedLetteringArtwork
                     {
                         int sourceX = position + x;
                         int sourceTile = SourceTile(sourceX / 8, row.Start, row.Gap);
-                        if (Source(sourceTile, sourceX % 8, row.Y + y) == 11) ink |= 1u << (y * width + x);
+                        if (Source(sourceTile, sourceX % 8, row.Y + y) == (row.Shadow ? 14 : 11)) ink |= 1u << (y * width + x);
                     }
                     glyphs.Add(letter, ink);
                 }
@@ -118,7 +125,16 @@ internal sealed class MenuOutlinedLetteringArtwork
         int column = Column(tile, row.Start, row.Gap);
         int position = column * 8 + x;
         uint current = RowInk(y), bit = 1u << position;
-        if ((current & bit) != 0) return 11;
+        if ((current & bit) != 0) return row.Shadow ? (byte)14 : (byte)11;
+        if (row.Shadow)
+        {
+            uint painted = current | (RowInk(y - 1) << 1);
+            if ((painted & bit) != 0) return 13;
+            uint above = RowInk(y - 1) | (RowInk(y - 2) << 1);
+            uint below = RowInk(y + 1) | (current << 1);
+            uint enclosed = (painted << 1) & (painted >> 1) & above & below;
+            return (enclosed & bit) != 0 && InsideGlyphColumn() ? (byte)13 : (byte)0;
+        }
         uint previous = RowInk(y - 1), next = RowInk(y + 1);
         uint neighboring = current | previous | next;
         if (((neighboring | (neighboring << 1) | (neighboring >> 1)) & bit) == 0) return 0;
@@ -128,6 +144,18 @@ internal sealed class MenuOutlinedLetteringArtwork
         if (position == left - 1 && BitOperations.TrailingZeroCount(current) > left) return 0;
         if (position == right + 1 && 31 - BitOperations.LeadingZeroCount(current) < right) return 0;
         return 15;
+
+        bool InsideGlyphColumn()
+        {
+            int start = row.X;
+            foreach (char letter in row.Text)
+            {
+                int width = Width(letter);
+                if (position >= start && position < start + width) return true;
+                start += width + 1;
+            }
+            return false;
+        }
 
         uint RowInk(int py)
         {

@@ -4,6 +4,48 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    private static void ExportEndingGunshipPaletteEvidence()
+    {
+        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gunship art source revision");
+        byte[] tiles = RomDataReader.Decompress(rom, 0x95a82f, maximumOutputBytes: 0x4000);
+        byte[] maps = RomDataReader.Decompress(rom, 0x96fe69, maximumOutputBytes: 0x1000);
+        const int width = 1024, height = 256;
+        var pixels = new byte[width * height];
+        int left = width, right = 0, top = height, bottom = 0;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            // Native ending staging preserves only map bytes0..2FF and fills the
+            // rest with tile8C; later Ceres artwork in the source is not displayed.
+            int cell = y / 8 * 128 + x / 8;
+            int tile = cell < 0x300 ? maps[cell] : 0x8c;
+            byte pixel = tiles[tile * 64 + (y & 7) * 8 + (x & 7)];
+            if (pixel is >= 0x50 and <= 0x5f)
+            {
+                pixels[y * width + x] = pixel;
+                left = Math.Min(left, x); right = Math.Max(right, x);
+                top = Math.Min(top, y); bottom = Math.Max(bottom, y);
+            }
+        }
+        if (left > right) throw new InvalidDataException("Original map contains no gunship palette pixels.");
+        int croppedWidth = right - left + 1, croppedHeight = bottom - top + 1;
+        var cropped = new byte[croppedWidth * croppedHeight];
+        for (int y = 0; y < croppedHeight; y++)
+            pixels.AsSpan((top + y) * width + left, croppedWidth).CopyTo(cropped.AsSpan(y * croppedWidth));
+        var palette = new Rgba32[256];
+        Array.Fill(palette, new Rgba32(0, 0, 0));
+        for (int color = 0; color < 16; color++)
+            palette[0x50 + color] = SnesGraphics.DecodeBgr555Color(
+                RomDataReader.ReadWordFixedBank(rom, 0x8dd8dc + color * 2));
+        string output = Path.GetFullPath("csharp/test-temp/1165-ending-gunship-original.png");
+        PngWriter.WriteIndexedAsRgba(output, croppedWidth, croppedHeight, cropped, palette, 4);
+        Console.WriteLine($"Original palette5 map bounds ({left},{top})..({right},{bottom}): {output}");
+        for (int color = 0; color < 16; color++)
+            Console.WriteLine($"slot{color}: loaded character pixels={tiles.Count(pixel => pixel == 0x50 + color)}, mapped pixels={pixels.Count(pixel => pixel == 0x50 + color)}");
+    }
+
     // Static source inspection for #1165's unresolved explosion offsets; no scene execution.
     private static void ExportCeresPlacementArtwork()
     {

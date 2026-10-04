@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--pause-suit-appearance-audit", var suitInstallation])
+        return PauseSuitAppearanceAudit.Run(suitInstallation);
     if (args is ["--fireflea-contact-death-audit", var firefleaInstallation])
         return FirefleaContactDeathAudit.Run(firefleaInstallation);
     if (args is ["--crateria-acid-background-audit", var acidInstallation])

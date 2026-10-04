@@ -838,6 +838,9 @@ public sealed partial class SuperMetroidGame
                 // Keep the speed pair until the next gameplay frame, as the cartridge does.
                 resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
                     (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
+                // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
+                // Equipment bits are live, but the restored gameplay palette is cached.
+                resumedSamus.LoadSuitPalette(bus, runtime.Cgram);
                 runtime.Plms.ReleaseMapStationInputOnUnpause(resumedSamus);
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;

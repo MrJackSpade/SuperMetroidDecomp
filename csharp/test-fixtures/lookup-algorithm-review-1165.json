@@ -689,7 +689,7 @@
                                                                     "RoomEnemySystem.EraseNextCrocomireMeltingColumn"
                                                                 ],
                                                   "domain":  "int chronological cursor 0..48, rejected outside. Existing caller stops before adjacent opcodes rather than expanding the compiled domain.",
-                                                  "interpretation":  "Permutation of 49 X columns, selecting physical tile groups independently of the chronological mask."
+                                                  "interpretation":  "Permutation of 49 X columns, selecting physical tile groups independently of the chronological mask.", "review": "crocomireColumnOrderRetentionReview"
                                               }
                                           ],
                                "integrationConfirmation":  "Existing Fireflea shade/timer/freeze/death-offset and COLDATA checks, and Crocomire 49-column four-bitplane production erase silhouette; source reads forbidden. Fireflea fixture updated to select a compiled default-door FX record instead of obsolete synthetic $83:9400."
@@ -2691,8 +2691,8 @@
 ,
     "crocomireColumnOrderRetentionReview": {
         "state": "retained",
-        "id": "crocomire-melt-column-order",
-        "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs:ColumnOrder",
+        "logicalTableId": "crocomire-melt-column-order",
+        "owner": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs", "member": "ColumnOrder",
         "implementationCommit": "Resolve with git log for CrocomireMeltingDefinitions.cs",
         "nativeIdentity": "A4:9697..96C7,49 bytes; following96C8 begins executable erase code",
         "domain": "SelectColumn chronological int cursor0..48 returns unsigned physical X identity; ArgumentOutOfRangeException otherwise. Existing production stop at49 is preserved; no new adjacent-opcode reads are authorized.",
@@ -7590,4 +7590,595 @@
     "disposition": "RepeatingX, repeatingY and finalY remain unresolved. Neither a meaningful exact geometric generator nor positive evidence sufficient for an arbitrary-content/nonsense exception has been established. Do not treat the absence of a fixed landmark match, source-art asymmetry or failed visual inference as a retention reason. Preserve the existing pending obligation.",
     "nextEvidence": "Any proposed placement rule must explain the full original screen-space sequence independently of changing station scale; it must not fit per-index coefficients to the observed points. The artwork-linked hypothesis has now been examined rather than left as an unperformed next step."
   }
+,"ceresReviewReconciliation":{
+  "sourceRevision": "e747c54b9397ade251e7441587d3f9457ad95cb8",
+  "meaning": "Explicit reconciliation of the cited Ceres reviews into source-index navigation. Fields are separate logical entries; aliases share their original proof. Converted states refer to implemented algorithms or independently verified semantic cases. Pending entries remain required. This does not certify entire owners, fixtures or unlisted mappings.",
+  "entries": [
+    {
+      "id": "ceres-blast-initial-x",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "InitialExplosion",
+      "field": "X",
+      "review": "ceresBlastPlacementReview",
+      "proof": "VerifyCeresInitialBlastX"
+    },
+    {
+      "id": "ceres-blast-initial-y",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "InitialExplosion",
+      "field": "Y",
+      "review": "ceresBlastPlacementReview",
+      "proof": "VerifyCeresInitialBlastY"
+    },
+    {
+      "id": "ceres-blast-initial-delay",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "InitialExplosion",
+      "field": "DelayFrames",
+      "review": "ceresBlastPlacementReview",
+      "proof": "VerifyCeresInitialBlastDelay"
+    },
+    {
+      "id": "ceres-blast-final-x",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "FinalExplosion",
+      "field": "X",
+      "review": "ceresBlastPlacementReview",
+      "proof": "VerifyCeresFinalBlastX"
+    },
+    {
+      "id": "ceres-blast-final-delay",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "FinalExplosion",
+      "field": "DelayFrames",
+      "review": "ceresBlastPlacementReview",
+      "proof": "VerifyCeresFinalBlastDelay"
+    },
+    {
+      "id": "ceres-blast-repeating-x",
+      "state": "pending",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "RepeatingExplosion",
+      "field": "X",
+      "review": "ceresExplosionArtworkGeometryReview",
+      "proof": "No conversion proof or retention exception established"
+    },
+    {
+      "id": "ceres-blast-repeating-y",
+      "state": "pending",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "RepeatingExplosion",
+      "field": "Y",
+      "review": "ceresExplosionArtworkGeometryReview",
+      "proof": "No conversion proof or retention exception established"
+    },
+    {
+      "id": "ceres-blast-final-y",
+      "state": "pending",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "FinalExplosion",
+      "field": "Y",
+      "review": "ceresExplosionArtworkGeometryReview",
+      "proof": "No conversion proof or retention exception established"
+    },
+    {
+      "id": "ceres-program-initial",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CCDB..CCF4",
+      "review": "ceresExplosionProgramReview",
+      "proof": "VerifyCeresInitialExplosionProgram"
+    },
+    {
+      "id": "ceres-program-repeating",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CCF5..CD1A",
+      "review": "ceresExplosionProgramReview",
+      "proof": "VerifyCeresRepeatingExplosionProgram"
+    },
+    {
+      "id": "ceres-program-final-wave",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CD1B..CD38",
+      "review": "ceresExplosionProgramReview",
+      "proof": "VerifyCeresFinalWaveProgram"
+    },
+    {
+      "id": "ceres-program-station-blast",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CE1B..CE34",
+      "review": "ceresExplosionProgramReview",
+      "proof": "VerifyCeresStationBlastProgram"
+    },
+    {
+      "id": "ceres-program-destruction-asteroid",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CC3F..CC46",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-planet",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CCAB..CCB2",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-title",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CCBB..CCD4",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-upper-left",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CD83..CD8A",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-upper-right",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CD8B..CD92",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-lower-left",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CD93..CD9A",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-zebes-lower-right",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CD9B..CDA2",
+      "review": "ceresBackdropProgramReview",
+      "proof": "VerifyCeresBackdropPrograms (one original-list case for this range)"
+    },
+    {
+      "id": "ceres-program-station-under-attack",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CC47..CC4E",
+      "review": "ceresFlightProgramReview",
+      "proof": "VerifyCeresFlightPrograms (one original-list case for this range, including supported aliases)"
+    },
+    {
+      "id": "ceres-program-small-asteroid",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CC4F..CC56",
+      "review": "ceresFlightProgramReview",
+      "proof": "VerifyCeresFlightPrograms (one original-list case for this range, including supported aliases)"
+    },
+    {
+      "id": "ceres-program-vortex",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CC57..CC62",
+      "review": "ceresFlightProgramReview",
+      "proof": "VerifyCeresFlightPrograms (one original-list case for this range, including supported aliases)"
+    },
+    {
+      "id": "ceres-program-flight-stars",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CDA3..CDAA",
+      "review": "ceresFlightProgramReview",
+      "proof": "VerifyCeresFlightPrograms (one original-list case for this range, including supported aliases)"
+    },
+    {
+      "id": "ceres-program-flight-large-asteroid",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightSpriteInstructionDefinitions.cs",
+      "member": "ReadByte",
+      "field": "CE4B..CE52",
+      "review": "ceresFlightProgramReview",
+      "proof": "VerifyCeresFlightPrograms (one original-list case for this range, including supported aliases)"
+    },
+    {
+      "id": "ceres-spawner-events",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "member": "EventsAtFrame",
+      "field": "Initial/Repeating/Final events and mutable countdown state",
+      "review": "ceresSpawnerCountdownCorrectionReview",
+      "proof": "VerifyCeresSpawnerSchedule"
+    },
+    {
+      "id": "ceres-rear-placement-selector",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "RearViewPlacementSource",
+      "field": "Asset role and native operand selection",
+      "review": "ceresPlacementSelectorReview",
+      "proof": "VerifyCeresRearPlacementSelector"
+    },
+    {
+      "id": "ceres-reveal-placement-selector",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesPlacementSource",
+      "field": "Asset role and native operand selection",
+      "review": "ceresPlacementSelectorReview",
+      "proof": "VerifyCeresRevealPlacementSelector"
+    },
+    {
+      "id": "ceres-initial-placement-selector",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialPlacementId",
+      "field": "Asset role and native operand selection",
+      "review": "ceresPlacementSelectorReview",
+      "proof": "VerifyCeresInitialPlacementSelector"
+    },
+    {
+      "id": "ceres-flight-metadata-pointer",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "Pointer",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-initialization",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "Initialization",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-definitionpreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "DefinitionPreInstruction",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-activepreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "ActivePreInstruction",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-instructionlist",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "InstructionList",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-x",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "X",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-y",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "Y",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-attributes",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "Attributes",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-horizontaldelta",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "HorizontalDelta",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-wrapx",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "WrapX",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-flight-metadata-initialtimer",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresFlightActorDefinitions.cs",
+      "member": "FrontStars / RearViewActor",
+      "field": "InitialTimer",
+      "review": "ceresFlightActorMetadataReview",
+      "proof": "VerifyCeresFlightActorMetadata (shared compound proof; one assertion set for this field and aliases)"
+    },
+    {
+      "id": "ceres-initial-metadata-pointer",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "Pointer",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-initialization",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "Initialization",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-definitionpreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "DefinitionPreInstruction",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-activepreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "ActivePreInstruction",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-instructionlist",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "InstructionList",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-x",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "X",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-y",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "Y",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-attributes",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "Attributes",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-horizontaldelta",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "HorizontalDelta",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-wrapx",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "WrapX",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-slideacceleration",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "SlideAcceleration",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-slidepreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "SlidePreInstruction",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-initial-metadata-completesscene",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "InitialActor",
+      "field": "CompletesScene",
+      "review": "ceresInitialActorMetadataReview",
+      "proof": "VerifyCeresInitialActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-pointer",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "Pointer",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-initialization",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "Initialization",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-definitionpreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "DefinitionPreInstruction",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-activepreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "ActivePreInstruction",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-instructionlist",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "InstructionList",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-x",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "X",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-y",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "Y",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-attributes",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "Attributes",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-horizontaldelta",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "HorizontalDelta",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-wrapx",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "WrapX",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-slideacceleration",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "SlideAcceleration",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-slidepreinstruction",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "SlidePreInstruction",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    },
+    {
+      "id": "ceres-zebes-metadata-completesscene",
+      "state": "converted",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs",
+      "member": "ZebesActor",
+      "field": "CompletesScene",
+      "review": "ceresZebesActorMetadataReview",
+      "proof": "VerifyCeresZebesActorMetadata (shared compound proof; one assertion set for this field)"
+    }
+  ]
+}
 }

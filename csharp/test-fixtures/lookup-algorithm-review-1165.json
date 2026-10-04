@@ -9115,30 +9115,39 @@
 },
   "endingTextGlyphEvidenceReview": {
   "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs",
-  "finding": "CompileGlyph already uses arithmetic and named style cases; DecodeGlyph searches the forward encoder. Existing VerifyEndingTextPresentation checks extracted producer/copyright panels and two native typewriter streams, plus edited TEST strings. These checks establish the used native text and specific edits, not independent evidence for every supported alphabet/digit and both halves.",
+  "finding": "Complete original font allocation has now been inspected using SHA-pinned --lookup-ending-font-layout. Small A-Z occupy00..19; large A-P top/bottom20..2F/30..3F and Q-Z40..49/50..59; ten digits60..69/70..79. Original named indirect records independently anchor15 small letters+space and10 large letters+space; producer/copyright panels provide their blank words. Prior used-string-only evidence gap is resolved by this full allocation transcription plus complete mapping proof.",
   "mappings": [
     {
       "id": "ending-text-result-small-glyph-map",
-      "state": "pending",
-      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+      "state": "converted",
+      "algorithm": "Existing forward arithmetic independently reviewed against original font cell identities and native style words. Decoder now directly inverts validated tile ranges instead of scanning CompileGlyph over the alphabet. Both row halves, blank identities, styles and copyright-only digits preserve the supported contract."
     },
     {
       "id": "ending-text-percentage-small-glyph-map",
-      "state": "pending",
-      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+      "state": "converted",
+      "algorithm": "Existing forward arithmetic independently reviewed against original font cell identities and native style words. Decoder now directly inverts validated tile ranges instead of scanning CompileGlyph over the alphabet. Both row halves, blank identities, styles and copyright-only digits preserve the supported contract."
     },
     {
       "id": "ending-text-copyright-large-glyph-map",
-      "state": "pending",
-      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+      "state": "converted",
+      "algorithm": "Existing forward arithmetic independently reviewed against original font cell identities and native style words. Decoder now directly inverts validated tile ranges instead of scanning CompileGlyph over the alphabet. Both row halves, blank identities, styles and copyright-only digits preserve the supported contract."
     },
     {
       "id": "ending-text-final-large-glyph-map",
-      "state": "pending",
-      "requiredWork": "Independently establish complete supported glyph allocation and blank/attributes/row-half rules from original font/layout evidence; confirm all supported glyphs and decoder domain without using the production encoder as its own oracle. Existing arithmetic is not an independently completed disposition."
+      "state": "converted",
+      "algorithm": "Existing forward arithmetic independently reviewed against original font cell identities and native style words. Decoder now directly inverts validated tile ranges instead of scanning CompileGlyph over the alphabet. Both row halves, blank identities, styles and copyright-only digits preserve the supported contract."
     }
   ],
   "contract": "A-Z and space for all four styles; digits0-9 additionally for copyright. Large forms have top/bottom rows with split alphabet groups. Decoder accepts ushort words and rejects words outside supported mappings. Region layout/timing and stock pixels remain separate obligations.",
-  "scope": "Records an evidence gap found statically. No retention exception, no decision to skip, no new gameplay/defect search. No implementation or new test is claimed for these four glyph mappings."
+  "scope": "Four related glyph mappings and their inverse views are independently resolved. Region layout/timing, stock font pixel generation and other owners remain separate obligations. No retention exception."
+}
+,
+  "endingTextGlyphAllocationReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs",
+  "source": "Supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72. Font3 source97:E7DE decompressed and exported by existing EndingFontAtlasExtractor to ignored csharp/test-temp/1165-ending-font-original.png. Visually inspected all small/large letters and digits in the160-cell atlas. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d bank8C E131..E1E8 identifies27 letter/space records; DC9B/DEDB identify producer/copyright blanks.",
+  "implementation": "Keep verified forward alphabet arithmetic; replace inverse26-letter search with direct small-range or two-group large-range decoding. Copyright digit range and style-specific blank handling retain precedence. No lookup array/cache is introduced. Atlas cell identities are transcribed only in verification as original evidence; image/ROM payloads are not committed.",
+  "proof": "VerifyEndingGlyphMapping is the one compound glyph proof. A fixed visual-layout transcription provides every letter/digit tile identity independent of production encoder/decoder. Native records supply palette/priority attributes and blanks; compare all16 small records and11 large records including both large halves. Check all allowed encoder glyphs for four styles and both halves, all524288 ushort decoder/style/half combinations against expected membership, copyright-only digit restriction, invalid characters and invalid styles. Early --lookup-ending-glyphs SHA-pins original evidence. --lookup-ending-font-layout is a reproducible source-art export diagnostic, not another mapping test.",
+  "reconciliation": "Updates the four IDs in endingTextGlyphEvidenceReview from pending to converted. Existing panel/typewriter integration checks remain their own higher-level contracts; this does not claim full ending or whole-game validation.",
+  "scope": "Glyph-to-word and inverse word-to-glyph mappings only. Individual drawn pixels and layout-region/timing mappings remain independently required. Implementation commit is the commit adding this record."
 }
 }

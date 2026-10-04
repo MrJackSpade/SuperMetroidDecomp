@@ -38,6 +38,9 @@ public static class EndingTextDefinitions
     public static readonly EndingTextRegionDefinition FinalMessage =
         new(2, 6, 20, EndingTextStyle.FinalLarge);
 
+    /// <summary>Font3's small alphabet occupies tiles00..19. Large tops occupy20..2F
+    /// and40..49 with bottoms16 tiles later; copyright digits occupy60..69/70..79.
+    /// Native8C ending text records supply each style's attributes and blank identity.</summary>
     public static ushort CompileGlyph(char character, EndingTextStyle style, bool bottom = false)
     {
         if (character == ' ')
@@ -78,8 +81,21 @@ public static class EndingTextDefinitions
             int digit = word - CopyrightDigitTopBase - (bottom ? LargeBottomOffset : 0);
             if ((uint)digit <= 9) return (char)('0' + digit);
         }
-        for (char character = 'A'; character <= 'Z'; character++)
-            if (word == CompileGlyph(character, style, bottom)) return character;
+        int letter;
+        if (style == EndingTextStyle.ResultSmall)
+            letter = word - ResultLetterBase;
+        else if (style == EndingTextStyle.PercentageSmall)
+            letter = word - PercentageLetterBase;
+        else
+        {
+            int tile = word - (style == EndingTextStyle.FinalLarge ? FinalLetterAttributes : 0)
+                - (bottom ? LargeBottomOffset : 0);
+            int first = tile - LargeFirstGroupTopBase;
+            int second = tile - LargeSecondGroupTopBase;
+            letter = (uint)first < LargeSecondGroupFirstLetter ? first :
+                (uint)second < 26 - LargeSecondGroupFirstLetter ? second + LargeSecondGroupFirstLetter : -1;
+        }
+        if ((uint)letter < 26) return (char)('A' + letter);
         throw new InvalidDataException(
             $"Ending {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }

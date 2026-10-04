@@ -183,6 +183,26 @@ if (args is ["--lookup-ending-explosion-frame-catalog"])
     Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-ending-glyphs"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending glyph oracle revision");
+    VerifyEndingGlyphMapping(rom);
+    Console.WriteLine("Ending glyphs: complete four-style alphabet/digit/blank mappings, both halves and all ushort decoder inputs pass.");
+    return 0;
+}
+if (args is ["--lookup-ending-font-layout"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending font layout oracle revision");
+    string output = Path.GetFullPath("csharp/test-temp/1165-ending-font-original.png");
+    Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+    File.WriteAllBytes(output, SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(rom));
+    Console.WriteLine(output);
+    return 0;
+}
 if (args is ["--lookup-ending-mode7-roles"])
 {
     VerifyEndingMode7RoleSelection();

@@ -26,6 +26,20 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-palette-mechanics"] or ["--lookup-stream2-yard-directions"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 original oracle revision");
+    if (args[0] == "--lookup-stream2-palette-mechanics")
+        VerifyLookupStream2PaletteMechanics(rom);
+    else
+    {
+        VerifyYardDirectionDefinitions(rom);
+        VerifyYardTurnDefinitions(rom);
+    }
+    return 0;
+}
 if (args is ["--lookup-file-select-names"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

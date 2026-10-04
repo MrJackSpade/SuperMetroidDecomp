@@ -1,4 +1,4 @@
-﻿# Issue 1165 - agent stream 2
+# Issue 1165 - agent stream 2
 
 GitHub child ticket: [#1239](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1239).
 
@@ -276,7 +276,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorOffsets** ([L39](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorOffsets** ([L39](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs
 
@@ -546,8 +546,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameDurations** ([L24](../csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoBellyPaletteFxProgramMechanicsDefinitions.Definitions** ([L26](../csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameDurations** ([L24](../csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoBellyPaletteFxProgramMechanicsDefinitions.Definitions** ([L26](../csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs
 
@@ -639,7 +639,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs
 
@@ -672,8 +672,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs
 
-- [ ] **YardDirectionDefinitions.Directions** ([L28](../csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **YardDirectionDefinitions.AirborneInstructions** ([L61](../csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardDirectionDefinitions.Directions** ([L28](../csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardDirectionDefinitions.AirborneInstructions** ([L61](../csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/YardInstructionProgramDefinitions.cs
 
@@ -681,8 +681,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs
 
-- [ ] **YardTurnDefinitions.OrdinaryTurns** ([L18](../csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **YardTurnDefinitions.SuppressedTurns** ([L43](../csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardTurnDefinitions.OrdinaryTurns** ([L18](../csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardTurnDefinitions.SuppressedTurns** ([L43](../csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs
 
@@ -697,3 +697,21 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Cross-stream dependencies and proposed shared-file patches: pending.
 - Remaining entries: all unchecked entries above.
 
+
+### Batch 1: palette mechanics (implementation ready; coordinator confirmation pending)
+
+- Removed `UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.Durations`: the fourteen durations are the integer triangle `abs(7-frame)+1`, totaling 63 ticks.
+- Removed `OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorOffsets`: each color address advances past its duration, preceding colors, and the inline commands before colors 3 and 7.
+- Removed `TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameDurations`: six records alternate three-record halves, each holding its first endpoint for 10 ticks and the next two records for 8 ticks (52 total).
+- Removed `TorizoBellyPaletteFxProgramMechanicsDefinitions.Definitions`: an immutable indexed view dispatches by Bomb/Golden owner; first frame follows the four-word setup and loop follows six ten-byte records. No reconstructed table is cached.
+- Unsupported color-retention prose was removed from the upper-Crateria and Torizo files. Independent BGR555 payload derivation remains pending; this batch grants no retention exception.
+- Added `Program.LookupStream2.cs`, method `VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)`. Coordinator should wire a guarded `--lookup-stream2-palette-mechanics` command, load the supported ROM and validate its SHA256 as with existing lookup commands, then call this method. It confirms the changed mechanics against original bank 8D words, all color offsets, cycle totals, owner dispatch/enumeration and rejected bounds. This is confirmation of identified conversions, not gameplay discovery.
+- No builds or tests run by worker; coordinator owns shared build outputs. No custom-resource loading behavior changes: live color words remain excluded from mechanics resolution.
+- Remaining scope: all other unchecked entries and independent color payloads. These four definitions await passing coordinator confirmation before their checkboxes are marked complete.
+### Batch 1 confirmed, including Yard dispatch
+
+Verification build passed (1431 existing warnings, zero errors). `--lookup-stream2-palette-mechanics` passed all original mechanics/address/dispatch/bound checks. `--lookup-stream2-yard-directions` passed 48 direction words, 24 duplicated airborne-list words, initialization/turn/detach/contact/shot handoffs, 48 turn words, four suppression aliases and 24 outside/inside production branches.
+
+`YardDirectionDefinitions` now dispatches physical surface states directly to their named animation/callback operations, computes sign/axis property bits and adjacent opposite direction, and dispatches airborne facing. `YardTurnDefinitions` directly dispatches ordinary and suppressed callbacks by movement state; seven-pixel directional lookahead and zero suppressed lookahead retain every native field. Native mismatched callback identities are preserved, not corrected. Four dispatch tables removed; no remaining payload or retention exception in those two files.
+
+Eight named definitions in this batch are now complete. BGR555 color payloads and every other unchecked entry remain required. Earlier 'confirmation pending' notes above describe the pre-verification handoff; this result supersedes them.

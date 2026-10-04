@@ -8,10 +8,12 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MapSpriteCatalog
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
-    private readonly byte[] characters;
-    private MapSpriteCatalog(Dictionary<ushort, SpriteComposition> frames, byte[] characters) { this.frames = frames; this.characters = characters; }
+    private readonly MapObjectTileArtwork characters;
+    private MapSpriteCatalog(Dictionary<ushort, SpriteComposition> frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     public void Draw(ushort id, OamBuffer oam, ushort x, ushort y, ushort paletteBits) => frames[id].DrawOnScreen(oam, x, y, paletteBits);
-    public void LoadArtworkTo(SnesVram vram, int destinationByte) => vram.LoadBytes(destinationByte, characters);
+    public void LoadArtworkTo(SnesVram vram, int destinationByte) => characters.LoadTo(vram, destinationByte);
+    internal int StoredReservePixelCount => characters.StoredReservePixelCount;
+    internal int StoredArtworkByteCount => characters.StoredOtherByteCount;
     public static MapSpriteCatalog Load(Stream json, Stream png)
     {
         MapSpriteDocument document;
@@ -28,7 +30,7 @@ public sealed class MapSpriteCatalog
             frames.Add(definition.NativeId, MenuSpriteCompiler.Compile(parts, definition.Name));
         }
         var image = IndexedPng.Read(png, MapSpriteFormat.Width, MapSpriteFormat.Height);
-        return new(frames, SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4));
+        return new(frames, new MapObjectTileArtwork(image));
     }
 }
 public sealed record MapSpriteDocument

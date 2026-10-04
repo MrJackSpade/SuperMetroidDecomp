@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-reserve-tile-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve pixel oracle revision");
+    VerifyReserveTilePixels(rom);
+    Console.WriteLine("Reserve pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-reserve-frames"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

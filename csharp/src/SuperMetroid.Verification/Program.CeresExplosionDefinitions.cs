@@ -13,16 +13,11 @@ internal static partial class Program
         VerifyActor(retail, CeresExplosionDefinitions.StationBlastActor, "station blast");
         VerifyActor(retail, CeresExplosionDefinitions.SpawnerActor, "explosion spawner");
 
-        for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
-        {
-            CeresExplosionPlacement placement = CeresExplosionDefinitions.InitialExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc475 + index * 2), unchecked((ushort)placement.X),
-                $"initial explosion {index} X offset");
-            AssertEqual(ReadWord(retail, 0x8bc47f + index * 2), unchecked((ushort)placement.Y),
-                $"initial explosion {index} Y offset");
-            AssertEqual(ReadWord(retail, 0x8bc46b + index * 2), placement.DelayFrames,
-                $"initial explosion {index} delay");
-        }
+        VerifyCeresInitialBlastX(retail);
+        VerifyCeresInitialBlastY(retail);
+        VerifyCeresInitialBlastDelay(retail);
+        VerifyCeresFinalBlastX(retail);
+        VerifyCeresFinalBlastDelay(retail);
 
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
         {
@@ -38,12 +33,8 @@ internal static partial class Program
         for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.FinalExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc572 + index * 2), unchecked((ushort)placement.X),
-                $"final explosion {index} X offset");
             AssertEqual(ReadWord(retail, 0x8bc57a + index * 2), unchecked((ushort)placement.Y),
                 $"final explosion {index} Y offset");
-            AssertEqual(ReadWord(retail, 0x8bc56a + index * 2), placement.DelayFrames,
-                $"final explosion {index} delay");
         }
 
         ushort[] spawnerProgram =

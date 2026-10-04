@@ -7458,4 +7458,21 @@
     "reopened": "Timer symmetry and DEC/BMI semantics are established, but failed quadratic/exponential/reciprocal candidates and absent source-backed timing law do not justify retention. Remove that claim from the owner and explicitly record35 independent timer values as pending. No exception is assigned to the schedule; neither unchanged timer bytes nor coefficient success completes it.",
     "confirmation": "Focused research build0 errors/0 warnings and independent coefficient/phase proof pass; production Verification build0 errors/1429 existing warnings. Maintained-source index refreshed."
   }
+,
+  "ceresBlastPlacementReview": {
+    "status": "converted five numeric placement/delay mappings; reopened unsupported residual dispositions",
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+    "tables": [
+      {"native":"8B:C475","field":"initial X","count":5,"proof":"VerifyCeresInitialBlastX"},
+      {"native":"8B:C47F","field":"initial Y","count":5,"proof":"VerifyCeresInitialBlastY"},
+      {"native":"8B:C46B","field":"initial delay","count":5,"proof":"VerifyCeresInitialBlastDelay"},
+      {"native":"8B:C572","field":"final X","count":4,"proof":"VerifyCeresFinalBlastX"},
+      {"native":"8B:C56A","field":"final delay","count":4,"proof":"VerifyCeresFinalBlastDelay"}
+    ],
+    "nativeConsumer": "Pinned bank8B C404 spawns five initial actors; C434 selects separate delay/X/Y words. C50C spawns four final actors; C533 selects its separate delay/X/Y words. Position offsets add to the Mode7 origin minus scroll with16-bit wrap; delay is the first instruction timer. StepCeresActors enumerates the same bounded ordinals and SpawnCeresExplosion consumes the resulting signed offsets and delay.",
+    "algorithms": "Initial outer X alternates+16/-16; first diagonal Y=-X and second diagonal Y=X, followed by the central(0,0) blast. Initial delays are16*i with a one-call minimum for i0. Final X uses paired magnitudes8+4*(i&1), positive for the first pair and negative for the second. Final delay is2^(i+1) after the initial one-call delay. Validate ordinal bounds before arithmetic; casts are bounded and preserve signed coordinates. These replace bare numeric row cases with geometry/timing calculations and no cache.",
+    "proof": "Extract exactly one original-ROM proof per changed logical field from the existing aggregate. --lookup-ceres-blast-placement pins the supported ROM SHA and checks all23 original words plus negative, adjacent, wide and extreme input rejection and index exception parameter. The aggregate delegates these proofs; its remaining repeating/finalY/actor/schedule checks remain available separately. No scene playback or unrelated confirmation was run.",
+    "reopened": "Repeating X/Y and final Y still require derivation or concrete impossibility/nonsense evidence. Remove unsupported authored-placement/irregular-spacing claims. Four native explosion instruction streams still need independent dispositions, and the already translated spawner schedule needs review; replace old blanket retention claims based on authored ordering/unequal sprite sizes with accurate pending records. This entry does not certify those mappings.",
+    "confirmation": "Verification build0 errors/1429 existing warnings; --lookup-ceres-blast-placement passes all five field proofs and bounds. Maintained-source index refreshed."
+  }
 }

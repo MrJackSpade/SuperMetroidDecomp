@@ -900,6 +900,12 @@ public sealed partial class SuperMetroidRuntime
             Plms.TrySpawnDoorClosingPlm(_addressSpace, LevelData, door, System);
         }
 
+        // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies.
+        // Golden Torizo's code mutates equipment during initialization; its grant must
+        // not retroactively select the artwork uploaded for this room transition.
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+            _addressSpace, VramWrites, Cgram, Samus?.EquippedBeams ?? 0, BeamArtwork);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -961,19 +967,6 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingChozoStatuePlms();
         TourianStatues.Load(this);
         Enemies.QueueGraphicsUploads(VramWrites);
-
-        // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
-        // setup. Power-beam spritemaps address VRAM words $6300-$637F; without this final
-        // $0100-byte transfer, fresh Ceres leaves that range containing the overlapping
-        // standard OBJ sheet. Input and projectile physics still work, but the first shot
-        // appears as a small patch of unrelated pixels—the desktop corruption that made
-        // Shoot look unwired. The starting-room call has no Samus yet and therefore selects
-        // power beam zero; door calls preserve the live equipment combination.
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-            _addressSpace,
-            VramWrites,
-            Cgram,
-            Samus?.EquippedBeams ?? 0, BeamArtwork);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {

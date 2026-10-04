@@ -3,12 +3,55 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Right-wrap atlas placement at $8C:BAA9. The ordered tile choices
-/// remain supplied; coordinates, sizes and attributes follow the packed regions.</summary>
+/// <summary>Right-wrap atlas placement at $8C:BAA9. Stock tile choices and
+/// complete parts are calculated; independently edited choices remain inputs.</summary>
 internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
 {
-    private readonly (int Tile, bool Cropped)[] selection;
-    private EndingLogoWrapParts((int Tile, bool Cropped)[] selection) => this.selection = selection;
+    private readonly (int Tile, bool Cropped)[]? selection;
+    private EndingLogoWrapParts((int Tile, bool Cropped)[] supplied)
+    {
+        bool stock = supplied.Length == 25;
+        for (int index = 0; stock && index < supplied.Length; index++)
+            stock = supplied[index] == StockSelection(index);
+        selection = stock ? null : supplied;
+    }
+
+    private enum ClosingPiece { InnerRightTip, OuterLeftTip, RightSpan, LeftSpan, MiddleSpan, InnerLeftTip, RightCorner }
+
+    internal static (int Tile, bool Cropped) StockSelection(int index)
+    {
+        if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 7)
+        {
+            // Closing arc is rotated. Its native order puts tips before spans.
+            int tile = (ClosingPiece)index switch
+            {
+                ClosingPiece.InnerRightTip => 0x2c,
+                ClosingPiece.OuterLeftTip => 0x0f,
+                ClosingPiece.RightSpan => 0x09,
+                ClosingPiece.LeftSpan => 0x0d,
+                ClosingPiece.MiddleSpan => 0x0b,
+                ClosingPiece.InnerLeftTip => 0x2b,
+                ClosingPiece.RightCorner => 0x29,
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+            return (tile, false);
+        }
+        if (index < 9) return (0x49 - (index - 7), false); // caps, right to left
+        if (index == 9) return (0x48, true); // cropped left cap
+        if (index < 12) return (0x4c + 2 * (index - 10), false); // upper span, left to right
+        if (index == 12) return (EndingLogoWrapAtlas.LeftCorner, false);
+        if (index < 15) return (0x6b - (index - 13), false); // inner edge, right to left
+        if (index < 19)
+        {
+            int cell = index - 15;
+            return (0x79 - cell / 2 * 16 - cell % 2, false); // patch, bottom-right to top-left
+        }
+        if (index == 19) return (EndingLogoWrapAtlas.LowerSideEndpoint, false);
+        if (index == 20) return (EndingLogoWrapAtlas.InnerSideJunction, false);
+        if (index < 23) return (0x10 - (index - 21) * 16, false); // inner side, bottom to top
+        return (index == 23 ? EndingLogoWrapAtlas.OuterSideJunction : EndingLogoWrapAtlas.UpperSideEndpoint, false);
+    }
 
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
     {
@@ -65,11 +108,11 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
             // Separately packed corners and vertical-edge endpoints.
             switch (tile)
             {
-                case 0x5b: x = -8; y = -8; break; // left corner
-                case 0x6c: x = 24; y = 8; break; // inner side junction
-                case 0x20: x = 32; y = 24; large = true; break; // lower side endpoint
-                case 0x6d: x = 32; y = 8; large = true; break; // outer side junction
-                case 0x01: x = 32; y = -8; large = true; break; // upper side endpoint
+                case EndingLogoWrapAtlas.LeftCorner: x = -8; y = -8; break;
+                case EndingLogoWrapAtlas.InnerSideJunction: x = 24; y = 8; break;
+                case EndingLogoWrapAtlas.LowerSideEndpoint: x = 32; y = 24; large = true; break;
+                case EndingLogoWrapAtlas.OuterSideJunction: x = 32; y = 8; large = true; break;
+                case EndingLogoWrapAtlas.UpperSideEndpoint: x = 32; y = -8; large = true; break;
                 default: part = default; return false;
             }
         }
@@ -81,13 +124,13 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return true;
     }
 
-    public int Count => selection.Length;
+    public int Count => selection?.Length ?? 25;
     public CompiledSpritePart this[int index]
     {
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            var chosen = selection[index];
+            var chosen = selection is null ? StockSelection(index) : selection[index];
             _ = TryPlace(chosen.Tile, chosen.Cropped, out CompiledSpritePart part);
             return part;
         }
@@ -97,4 +140,19 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < Count; index++) yield return this[index];
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+/// <summary>Separately packed corner and side pieces in the ending logo atlas.</summary>
+internal static class EndingLogoWrapAtlas
+{
+    /// <summary>Tile$5B, eight-pixel left corner of the right-wrap composition.</summary>
+    internal const int LeftCorner = 0x5b;
+    /// <summary>Tile$6C, eight-pixel junction at the inner side of the right wrap.</summary>
+    internal const int InnerSideJunction = 0x6c;
+    /// <summary>Tile$20, sixteen-pixel lower endpoint of the right side.</summary>
+    internal const int LowerSideEndpoint = 0x20;
+    /// <summary>Tile$6D, sixteen-pixel outer side junction.</summary>
+    internal const int OuterSideJunction = 0x6d;
+    /// <summary>Tile$01, sixteen-pixel upper endpoint of the right side.</summary>
+    internal const int UpperSideEndpoint = 0x01;
 }

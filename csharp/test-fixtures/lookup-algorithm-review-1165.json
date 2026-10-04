@@ -9537,12 +9537,23 @@
     "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
     "mappings": [
       { "id": "ending-logo-right-wrap-atlas-placement", "state": "converted" },
-      { "id": "ending-logo-right-wrap-ordered-tile-selection", "state": "unreviewed" }
+      { "id": "ending-logo-right-wrap-ordered-tile-selection", "state": "converted" }
     ],
     "source": "Original twenty-five-part completed right wrap8C:BAA9. Seven closing pieces use atlas rows0/2,columns9..15, rotated into the lower edge. A two-by-two patch uses tiles68/69/78/79. The remaining source regions are overlapping top caps, upper span, left corner, inner/outer side junctions and side endpoints.",
     "algorithm": "Closing-arc positions derive from atlas coordinates with origin(-39,-57), then rotate by180 degrees accounting for sprite size. The upper-right patch derives both coordinates from its two-by-two tile grid. Horizontal and vertical strips use8-pixel atlas steps. Named corner/junction/endpoint cases preserve separate atlas packing. Tile48 supports both its large cap and small cropped use. Calculate sprite size, priority3, palette inheritance and rotation flips from these region roles.",
     "implementation": "Keep only ordered supplied tile choices and the cropped-cap choice. Calculate complete parts on access; substitute only after every supplied field matches. Existing rotation/reveal views reuse this calculated completed-right basis. Arbitrary incompatible artwork edits retain the supplied composition. No generated part cache or runtime ROM access.",
     "proof": "Extend existing --lookup-ending-logo-programs to require calculated selection for all eight original compositions and use the calculated right-wrap basis for earlier stages and opposite half. All138 original parts are compared through complete visual identity and native positive/negative-origin OAM; nine independent field edits, part bounds and existing31-word/four-actor instruction checks remain scoped to this conversion.",
-    "remaining": "The ordered twenty-five tile/crop choices still require their own calculation or concrete acceptable exception. This record does not approve their retention. Pixel artwork remains independently required. Implementation commit is the commit adding this record."
+    "remaining": "The ordered twenty-five tile/crop choices are now converted in endingLogoWrapSelectionReview; placement alone did not exempt them. Pixel artwork remains independently required. Implementation commit is the commit adding this record."
+  }
+,
+  "endingLogoWrapSelectionReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
+    "id": "ending-logo-wrap-stock-selection-calculation",
+    "state": "converted",
+    "source": "Original twenty-five ordered tile/size operands at8C:BAA9, closing arc followed by the twelve-part first reveal and six additional side pieces. Previously reviewed atlas placement identifies each piece by its spatial role.",
+    "algorithm": "Closing-arc cases name its two tips, three spans, inner tip and right corner, preserving native overlap order. Remaining groups traverse caps right-to-left, upper span left-to-right, inner edge right-to-left, a two-by-two patch bottom-right to top-left, and inner side bottom-to-top. Separate named corner/junction/endpoint atlas identities complete the side. The cropped left cap is explicit. This is spatial region traversal and named piece selection, not fitted numeric interpolation.",
+    "implementation": "StockSelection bounds indices0..24 and calculates each tile/crop pair. Matching supplied sequences are discarded; the view computes selection and placement without a replacement cache. Independently edited compatible order/count remains supplied while still calculating placement. Incompatible field edits retain complete supplied parts.",
+    "proof": "Extend existing --lookup-ending-logo-programs with direct comparisons of all25 StockSelection results to the original extracted tile/size operands and invalid-index checks. Reordered and shortened custom compositions preserve exact identity while retaining calculated placement. Existing all138-part original visual identities, native on/offscreen OAM, nine-field edit preservation and31-word/four-actor timing checks cover composition integration.",
+    "scope": "All stock logo OAM compositions now calculate their part fields and selections. Logo pixel artwork remains an independent obligation; no retention exception or whole-ticket completion is claimed. Implementation commit is the commit adding this record."
   }
 }

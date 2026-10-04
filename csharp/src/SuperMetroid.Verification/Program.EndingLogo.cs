@@ -126,6 +126,18 @@ internal static partial class Program
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             definition.Pointer, definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+        if (frame == 4)
+        {
+            for (int index = 0; index < visual.Length; index++)
+            {
+                var choice = EndingLogoWrapParts.StockSelection(index);
+                int originalTile = visual[index].TileRow * 16 + visual[index].TileColumn;
+                AssertEqual(originalTile, choice.Tile, "original wrap tile selection");
+                AssertEqual(originalTile == 0x48 && visual[index].Size == 8, choice.Cropped, "original cropped cap selection");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoWrapParts.StockSelection(invalid), "wrap selection bounds");
+        }
         SpriteComposition Calculate(SpriteComposition value) => frame == 0
             ? value.CalculateIfMatching(new EndingLogoUpperParts())
             : frame == 4 ? EndingLogoWrapParts.CalculateIfMatching(value)
@@ -134,6 +146,18 @@ internal static partial class Program
         AssertTrue(!ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("logo-related", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "all original logo related fields and ordering");
+        if (frame == 4)
+        {
+            SpriteVisualPart[] reordered = (SpriteVisualPart[])visual.Clone();
+            (reordered[0], reordered[1]) = (reordered[1], reordered[0]);
+            foreach (SpriteVisualPart[] editedParts in new[] { reordered, visual[..^1] })
+            {
+                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(editedParts, "edited wrap selection");
+                SpriteComposition editedCalculation = Calculate(edited);
+                AssertTrue(!ReferenceEquals(edited, editedCalculation), "edited tile sequence retains calculated placement");
+                AssertEqual(Identity(edited), Identity(editedCalculation), "edited tile order and count stay supplied");
+            }
+        }
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();

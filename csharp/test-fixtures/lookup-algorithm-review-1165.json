@@ -10464,4 +10464,15 @@
     "confirmation": "Verification build1436warnings,zeroerrors; focused command passes. Legacy whole-frame callback fixture remains intact; scoped option directly exercises TryFireBeam to isolate the changed initialization contract from its unrelated unsupported animation boundary.",
     "remaining": "122 of1128 snapshot definitions converted;1006 pending. No retention exception. All streams remain unfinished."
   }
+,
+  "poseInputDecisionIntegration": {
+    "id": "pose-input-seventy-nine-definitions",
+    "state": "converted",
+    "implementationCommit": "0a6d60043",
+    "scope": "Pose-to-list mapping and78 nonempty ordered input-rule definitions.",
+    "algorithm": "Named pose dispatch to direct ordered canonical button predicates. Only the winning rule is returned as diagnostic metadata; no stored rows, indexed tuple generator or replacement cache remains.",
+    "evidence": "Pinned bank91 TransitionTable and DetermineProspectivePoseFromTransitionTable. Independent original-ROM oracle compares253 mappings,86 identities,598 native conditions and16,580,608 complete lookup outcomes, preserving first-match priority, self-match return, empty versus exhausted fallback, raw-zero early return, ignored input bits and winning native entry address. Production ROM reads forbidden.",
+    "confirmation": "Integrated Verification build1436warnings,zeroerrors; --lookup-stream-1 passes including complete relevant pose input domain and invalid253..255 handling. Existing behavioral oracle preserved while row-span checks changed to direct program emptiness checks. Source index refreshed.",
+    "remaining": "201 of1128 snapshot definitions converted;927 pending. All streams remain unfinished. No retention exception."
+  }
 }

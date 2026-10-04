@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  1006,
+    "remainingTableDefinitionCount":  927,
     "fileCount":  523,
     "entries":  [
                     {
@@ -6269,553 +6269,711 @@
                         "line":  13,
                         "name":  "SamusPoseInputDefinitions.ListByPose",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  13,
                         "name":  "SamusPoseInputRulesEarly.ListA0DE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  20,
                         "name":  "SamusPoseInputRulesEarly.ListA0EC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  47,
                         "name":  "SamusPoseInputRulesEarly.ListA172",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  74,
                         "name":  "SamusPoseInputRulesEarly.ListA1F8",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  91,
                         "name":  "SamusPoseInputRulesEarly.ListA242",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  108,
                         "name":  "SamusPoseInputRulesEarly.ListA28C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  121,
                         "name":  "SamusPoseInputRulesEarly.ListA2BE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  135,
                         "name":  "SamusPoseInputRulesEarly.ListA2F6",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  161,
                         "name":  "SamusPoseInputRulesEarly.ListA376",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  187,
                         "name":  "SamusPoseInputRulesEarly.ListA3F6",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  195,
                         "name":  "SamusPoseInputRulesEarly.ListA40A",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  203,
                         "name":  "SamusPoseInputRulesEarly.ListA41E",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  221,
                         "name":  "SamusPoseInputRulesEarly.ListA46E",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  239,
                         "name":  "SamusPoseInputRulesEarly.ListA4BE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  257,
                         "name":  "SamusPoseInputRulesEarly.ListA50E",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  275,
                         "name":  "SamusPoseInputRulesEarly.ListA55E",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  293,
                         "name":  "SamusPoseInputRulesEarly.ListA5AE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  311,
                         "name":  "SamusPoseInputRulesEarly.ListA5FE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  320,
                         "name":  "SamusPoseInputRulesEarly.ListA618",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  329,
                         "name":  "SamusPoseInputRulesEarly.ListA632",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  338,
                         "name":  "SamusPoseInputRulesEarly.ListA64C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  362,
                         "name":  "SamusPoseInputRulesEarly.ListA66C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  380,
                         "name":  "SamusPoseInputRulesEarly.ListA6BC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  398,
                         "name":  "SamusPoseInputRulesEarly.ListA70C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  414,
                         "name":  "SamusPoseInputRulesEarly.ListA750",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  430,
                         "name":  "SamusPoseInputRulesEarly.ListA794",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  439,
                         "name":  "SamusPoseInputRulesEarly.ListA7AE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  458,
                         "name":  "SamusPoseInputRulesEarly.ListA7CC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  466,
                         "name":  "SamusPoseInputRulesEarly.ListA7E0",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  484,
                         "name":  "SamusPoseInputRulesEarly.ListA874",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  498,
                         "name":  "SamusPoseInputRulesEarly.ListA8AC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  512,
                         "name":  "SamusPoseInputRulesEarly.ListA8E4",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  518,
                         "name":  "SamusPoseInputRulesEarly.ListA8EC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  524,
                         "name":  "SamusPoseInputRulesEarly.ListA8FC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
                         "line":  530,
                         "name":  "SamusPoseInputRulesEarly.ListA904",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  8,
                         "name":  "SamusPoseInputRulesLate.ListA90C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  17,
                         "name":  "SamusPoseInputRulesLate.ListA926",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  26,
                         "name":  "SamusPoseInputRulesLate.ListA940",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  34,
                         "name":  "SamusPoseInputRulesLate.ListA954",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  42,
                         "name":  "SamusPoseInputRulesLate.ListA968",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  50,
                         "name":  "SamusPoseInputRulesLate.ListA97C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  58,
                         "name":  "SamusPoseInputRulesLate.ListA990",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  64,
                         "name":  "SamusPoseInputRulesLate.ListA998",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  70,
                         "name":  "SamusPoseInputRulesLate.ListA9A0",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  81,
                         "name":  "SamusPoseInputRulesLate.ListA9C6",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  92,
                         "name":  "SamusPoseInputRulesLate.ListA9EC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  103,
                         "name":  "SamusPoseInputRulesLate.ListAA12",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  114,
                         "name":  "SamusPoseInputRulesLate.ListAA38",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  130,
                         "name":  "SamusPoseInputRulesLate.ListAA7C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  146,
                         "name":  "SamusPoseInputRulesLate.ListAAC0",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  171,
                         "name":  "SamusPoseInputRulesLate.ListAB3A",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  196,
                         "name":  "SamusPoseInputRulesLate.ListABB4",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  224,
                         "name":  "SamusPoseInputRulesLate.ListAC40",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  252,
                         "name":  "SamusPoseInputRulesLate.ListACCC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  260,
                         "name":  "SamusPoseInputRulesLate.ListACE0",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  268,
                         "name":  "SamusPoseInputRulesLate.ListACF4",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  276,
                         "name":  "SamusPoseInputRulesLate.ListAD08",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  284,
                         "name":  "SamusPoseInputRulesLate.ListAD1C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  292,
                         "name":  "SamusPoseInputRulesLate.ListAD30",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  300,
                         "name":  "SamusPoseInputRulesLate.ListAD44",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  308,
                         "name":  "SamusPoseInputRulesLate.ListAD58",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  316,
                         "name":  "SamusPoseInputRulesLate.ListAD6C",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  324,
                         "name":  "SamusPoseInputRulesLate.ListAD80",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  332,
                         "name":  "SamusPoseInputRulesLate.ListAD94",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  347,
                         "name":  "SamusPoseInputRulesLate.ListADD2",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  362,
                         "name":  "SamusPoseInputRulesLate.ListAE10",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  368,
                         "name":  "SamusPoseInputRulesLate.ListAE18",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  383,
                         "name":  "SamusPoseInputRulesLate.ListAE56",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  398,
                         "name":  "SamusPoseInputRulesLate.ListAE94",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  415,
                         "name":  "SamusPoseInputRulesLate.ListAEDE",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  432,
                         "name":  "SamusPoseInputRulesLate.ListAF28",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  446,
                         "name":  "SamusPoseInputRulesLate.ListAF60",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  460,
                         "name":  "SamusPoseInputRulesLate.ListAF98",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  468,
                         "name":  "SamusPoseInputRulesLate.ListAFAC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  476,
                         "name":  "SamusPoseInputRulesLate.ListAFC0",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  484,
                         "name":  "SamusPoseInputRulesLate.ListAFD4",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  492,
                         "name":  "SamusPoseInputRulesLate.ListAFE8",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
                         "line":  500,
                         "name":  "SamusPoseInputRulesLate.ListAFFC",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "0a6d600434cd67dd9c042c53abc958c368006e66"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/SamusPoseProjectileOriginDefinitions.cs",
@@ -20554,5 +20712,5 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  122
+    "convertedSinceSnapshot":  201
 }

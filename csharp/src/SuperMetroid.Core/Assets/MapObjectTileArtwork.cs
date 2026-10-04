@@ -19,6 +19,7 @@ internal sealed class MapObjectTileArtwork
     private readonly MenuShoulderButtonArtwork shoulderButtons;
     private readonly MenuShoulderHighlightArtwork shoulderHighlight;
     private readonly MapMarkerTileArtwork markers;
+    private readonly MenuBeveledSquareArtwork squares;
     private readonly Dictionary<int, byte>? reserveEdits;
     private readonly Dictionary<int, byte>? highlightEdits;
     internal int StoredHighlightPixelCount => highlightEdits?.Count ?? 0;
@@ -35,11 +36,12 @@ internal sealed class MapObjectTileArtwork
         shoulderButtons = new(image);
         shoulderHighlight = new(image);
         markers = new(image);
-        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount + MenuLargeFontArtwork.TileCount + MenuElevatorLetteringArtwork.TileCount + MenuPanelTileArtwork.TileCount + MenuShoulderButtonArtwork.TileCount + MenuShoulderHighlightArtwork.TileCount + MapMarkerTileArtwork.TileCount) * 32];
+        squares = new(image);
+        otherCharacters = new byte[encoded.Length - (ReserveTileCount + HighlightTileCount + MenuSmallFontArtwork.TileCount + MenuLargeFontArtwork.TileCount + MenuElevatorLetteringArtwork.TileCount + MenuPanelTileArtwork.TileCount + MenuShoulderButtonArtwork.TileCount + MenuShoulderHighlightArtwork.TileCount + MapMarkerTileArtwork.TileCount + MenuBeveledSquareArtwork.TileCount) * 32];
         int stored = 0;
         for (int tile = 0; tile < encoded.Length / 32; tile++)
         {
-            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile) || MenuLargeFontArtwork.Contains(tile) || MenuElevatorLetteringArtwork.Contains(tile) || MenuPanelTileArtwork.Contains(tile) || MenuShoulderButtonArtwork.Contains(tile) || MenuShoulderHighlightArtwork.Contains(tile) || MapMarkerTileArtwork.Contains(tile)) continue;
+            if (IsReserve(tile) || IsHighlight(tile) || MenuSmallFontArtwork.Contains(tile) || MenuLargeFontArtwork.Contains(tile) || MenuElevatorLetteringArtwork.Contains(tile) || MenuPanelTileArtwork.Contains(tile) || MenuShoulderButtonArtwork.Contains(tile) || MenuShoulderHighlightArtwork.Contains(tile) || MapMarkerTileArtwork.Contains(tile) || MenuBeveledSquareArtwork.Contains(tile)) continue;
             encoded.AsSpan(tile * 32, 32).CopyTo(otherCharacters.AsSpan(stored, 32));
             stored += 32;
         }
@@ -75,7 +77,7 @@ internal sealed class MapObjectTileArtwork
             int pixel = 0;
             int cursorOffset = 0;
             for (int sourceTile = 0; sourceTile < CursorTile; sourceTile++)
-                if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuLargeFontArtwork.Contains(sourceTile) && !MenuElevatorLetteringArtwork.Contains(sourceTile) && !MenuPanelTileArtwork.Contains(sourceTile) && !MenuShoulderButtonArtwork.Contains(sourceTile) && !MenuShoulderHighlightArtwork.Contains(sourceTile) && !MapMarkerTileArtwork.Contains(sourceTile)) cursorOffset += 32;
+                if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuLargeFontArtwork.Contains(sourceTile) && !MenuElevatorLetteringArtwork.Contains(sourceTile) && !MenuPanelTileArtwork.Contains(sourceTile) && !MenuShoulderButtonArtwork.Contains(sourceTile) && !MenuShoulderHighlightArtwork.Contains(sourceTile) && !MapMarkerTileArtwork.Contains(sourceTile) && !MenuBeveledSquareArtwork.Contains(sourceTile)) cursorOffset += 32;
             for (int plane = 0; plane < 4; plane++)
                 pixel |= ((otherCharacters[cursorOffset + plane / 2 * 16 + y * 2 + plane % 2] >> (8 - x)) & 1) << plane;
             return (byte)(pixel == 1 ? 2 : pixel == 2 ? 1 : pixel);
@@ -110,7 +112,8 @@ internal sealed class MapObjectTileArtwork
             bool shoulder = MenuShoulderButtonArtwork.Contains(tile);
             bool shoulderFrame = MenuShoulderHighlightArtwork.Contains(tile);
             bool marker = MapMarkerTileArtwork.Contains(tile);
-            if (!reserve && !IsHighlight(tile) && !font && !title && !lettering && !panelTile && !shoulder && !shoulderFrame && !marker)
+            bool square = MenuBeveledSquareArtwork.Contains(tile);
+            if (!reserve && !IsHighlight(tile) && !font && !title && !lettering && !panelTile && !shoulder && !shoulderFrame && !marker && !square)
             {
                 otherCharacters.AsSpan(stored, 32).CopyTo(transfer.Slice(tile * 32, 32));
                 stored += 32;
@@ -125,7 +128,7 @@ internal sealed class MapObjectTileArtwork
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = marker ? markers.Pixel(tile, x, y) : shoulderFrame ? shoulderHighlight.Pixel(tile, x, y) : shoulder ? shoulderButtons.Pixel(tile, x, y) : panelTile ? panel.Pixel(tile, x, y) : lettering ? elevatorLettering.Pixel(tile, x, y) : title ? largeFont.Pixel(tile, x, y) : font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
+                    byte pixel = square ? squares.Pixel(tile, x, y) : marker ? markers.Pixel(tile, x, y) : shoulderFrame ? shoulderHighlight.Pixel(tile, x, y) : shoulder ? shoulderButtons.Pixel(tile, x, y) : panelTile ? panel.Pixel(tile, x, y) : lettering ? elevatorLettering.Pixel(tile, x, y) : title ? largeFont.Pixel(tile, x, y) : font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
                         ? authored : reserve ? ReservePixel(tile, x, y) : HighlightPixel(tile, x, y);
                     encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
                 }

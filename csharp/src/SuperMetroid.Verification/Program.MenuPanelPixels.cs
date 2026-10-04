@@ -13,7 +13,7 @@ internal static partial class Program
         var panel = new MenuPanelTileArtwork(image);
         AssertEqual(0, panel.StoredEditCount, "all stock panel bands are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3744, stock.StoredArtworkByteCount, "panel planar tiles absent from retained atlas");
+        AssertEqual(3680, stock.StoredArtworkByteCount, "panel planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

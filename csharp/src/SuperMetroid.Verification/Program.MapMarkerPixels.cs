@@ -16,7 +16,7 @@ internal static partial class Program
         var marker = new MapMarkerTileArtwork(image);
         AssertEqual(0, marker.StoredEditCount, "all stock marker pixels are calculated without retained exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3744, stock.StoredArtworkByteCount, "marker planar tiles absent from retained atlas");
+        AssertEqual(3680, stock.StoredArtworkByteCount, "marker planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

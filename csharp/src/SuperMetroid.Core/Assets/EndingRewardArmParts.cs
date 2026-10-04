@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
     private readonly record struct Piece(int X, int Y);
-    private readonly Piece[] arm;
+    private readonly Piece[]? arm;
+    private readonly Piece splitOrigin;
     private readonly int[]? editedTiles;
     private readonly Pose pose;
     private readonly int shoulderX, shoulderY;
@@ -19,20 +20,38 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         this.pose = pose;
         splitArm = pose == Pose.SamusArmFromEndingFrame2;
         int count = splitArm ? 3 : 2;
-        arm = new Piece[count];
+        var positions = new Piece[count];
         var tiles = new int[count];
         bool stock = true;
         for (int index = 0; index < count; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            arm[index] = new(part.X.SignedOffset, unchecked((sbyte)part.Y));
+            positions[index] = new(part.X.SignedOffset, unchecked((sbyte)part.Y));
             tiles[index] = part.Attributes.TileNumber;
             stock &= tiles[index] == StockTile(pose, index);
         }
+        bool grid = splitArm;
+        if (splitArm)
+        {
+            splitOrigin = positions[1];
+            for (int index = 0; grid && index < count; index++)
+            {
+                var offset = SplitOffset(index);
+                grid = positions[index] == new Piece(splitOrigin.X + offset.X, splitOrigin.Y + offset.Y);
+            }
+        }
+        arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
         CompiledSpritePart shoulder = supplied.Part(count);
         shoulderX = shoulder.X.SignedOffset;
         shoulderY = unchecked((sbyte)shoulder.Y);
+    }
+
+    internal static (int X, int Y) SplitOffset(int index)
+    {
+        if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
+        // Small column bottom-to-top, then the adjacent large piece.
+        return (index == 2 ? 8 : 0, index == 0 ? 8 : 0);
     }
 
     internal static int StockTile(Pose pose, int index)
@@ -62,7 +81,8 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
-    public int Count => arm.Length + 3;
+    private int ArmCount => splitArm ? 3 : 2;
+    public int Count => ArmCount + 3;
     public CompiledSpritePart this[int index]
     {
         get
@@ -70,16 +90,22 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tile, x, y;
             bool large;
-            if (index < arm.Length)
+            if (index < ArmCount)
             {
-                Piece piece = arm[index];
+                Piece piece;
+                if (arm is null)
+                {
+                    var offset = SplitOffset(index);
+                    piece = new(splitOrigin.X + offset.X, splitOrigin.Y + offset.Y);
+                }
+                else piece = arm[index];
                 tile = editedTiles is null ? StockTile(pose, index) : editedTiles[index];
                 x = piece.X; y = piece.Y;
                 large = !splitArm || index == 2;
             }
             else
             {
-                int piece = index - arm.Length;
+                int piece = index - ArmCount;
                 large = piece == 0;
                 int column = piece == 1 ? 1 : 0;
                 tile = EndingRewardArmAtlas.ShoulderCap + (large ? 16 : column);

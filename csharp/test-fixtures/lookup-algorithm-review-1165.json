@@ -9683,4 +9683,15 @@
     "next": "Calculate pose2 internal grid relationships and independently resolve shoulder placement stages and remaining wrist/forearm placement choices. Any eventual nonsense exception must be limited to demonstrated authored pose inputs, after removing applicable geometry; no failed-fit or performance rationale applies.",
     "validation": "Guarded existing Verification entry point builds successfully and source-art exporter completes. Initial compile exposed missing Assets namespace import, corrected before the successful run. Final export uses confirmed native actor ordering; all outputs were viewed. This is static source-art inspection, not gameplay exploration. No production behavior changes or new retention disposition in this evidence commit."
   }
+,
+  "endingRewardArmSplitGridReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/EndingRewardArmParts.cs",
+    "id": "ending-reward-arm-split-pose-relative-positions",
+    "state": "converted",
+    "source": "Original pose2 at8C:9BBA, independently rendered and inspected in endingRewardArmArtworkEvidence. Its small tiles11D/10D and adjacent large10E are at(8,-12)/(8,-20)/(16,-20). The three selected pieces are one contiguous atlas region, with the small column drawn bottom-to-top before the large neighbor.",
+    "algorithm": "Use the top small tile as supplied origin. Relative offsets are(0,8) for the lower small piece,(0,0) for the top small piece and(8,0) for the adjacent large piece. Calculate these offsets from the three spatial roles on access.",
+    "implementation": "Recognize complete supplied position agreement and discard the matching three-position array, keeping only one origin. Asymmetric edits retain their supplied positions; translated grids preserve their independent origin. Existing tile-selection, size and shoulder calculations remain composed with this view. No replacement coordinate cache or runtime ROM reads.",
+    "proof": "Extend the existing arm block of VerifyEndingRewardCalculatedParts under --lookup-ending-reward-programs with original relative-coordinate comparisons, translated-grid identity/calculation selection and offset bounds. Existing345-part identity/native OAM, independent field edits, shoulder translation/boundaries and160-word/seventeen480-call instruction checks remain scoped to these conversions.",
+    "remaining": "The seven other poses still supply fourteen arm positions; the split pose supplies one origin. Those fifteen position inputs plus eight shoulder anchors remain required independent review. No authored-position exception is claimed by this grid conversion. Hair layouts and unreviewed pixels remain required. Implementation commit is the commit adding this record."
+  }
 }

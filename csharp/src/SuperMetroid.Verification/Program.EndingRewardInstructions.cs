@@ -133,6 +133,24 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, shoulder, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(pose, invalid), "arm tile selection bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(EndingRewardSpriteFrame.SamusHeadFromEndingFrame1, 0), "arm tile pose bounds");
+            if (pose == EndingRewardSpriteFrame.SamusArmFromEndingFrame2)
+            {
+                for (int piece = 0; piece < shoulder; piece++)
+                {
+                    var offset = EndingRewardArmParts.SplitOffset(piece);
+                    AssertEqual(visual[piece].OffsetX, visual[1].OffsetX + offset.X, "original split-arm grid X");
+                    AssertEqual(visual[piece].OffsetY, visual[1].OffsetY + offset.Y, "original split-arm grid Y");
+                }
+                SpriteVisualPart[] translated = (SpriteVisualPart[])visual.Clone();
+                for (int piece = 0; piece < shoulder; piece++)
+                    translated[piece] = translated[piece] with { OffsetX = translated[piece].OffsetX - 7, OffsetY = translated[piece].OffsetY + 3 };
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(translated, "translated split arm");
+                SpriteComposition result = Calculate(source);
+                AssertTrue(!ReferenceEquals(source, result), "translated split arm keeps calculated structure");
+                AssertEqual(Identity(source), Identity(result), "translated split-arm origin stays supplied");
+                foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.SplitOffset(invalid), "split-arm piece bounds");
+            }
             SpriteVisualPart[] shifted = (SpriteVisualPart[])visual.Clone();
             for (int part = shoulder; part < shifted.Length; part++)
                 shifted[part] = shifted[part] with { OffsetX = shifted[part].OffsetX + 2, OffsetY = shifted[part].OffsetY + 1 };

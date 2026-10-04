@@ -9937,6 +9937,17 @@
     "algorithm": "Generate arrow reflection/seam alignment and vertical atlas progression after the named initial drawing. Generate delivered top strips from three-wide packing and native descending-column order; lower pieces use one two-by-two sprite and a two-sprite column, with the middle pose reversing those roles. Compute lower tile from pose*3, column and row. Center examined sprites and advance tile by two per pose. Express caret as its named domain drawing and fixed origin. No generated part cache.",
     "implementation": "IntroScientistSpritePresentation substitutes the immutable calculated view only after full compiled field/count equality. Changed artwork remains supplied. Existing published legacy keys and catalog identities are preserved.",
     "proof": "One VerifyIntroScientistParts under --lookup-intro-scientist-instructions extracts all ten originals independently, requires calculated selection, compares all28 compiled parts and native visible/wrapped OAM. Each field of every piece is independently edited and must remain supplied; changed counts are preserved and invalid calculated indices throw. Verification build and focused proof pass.",
-    "remaining": "These ten scientist-catalog OAM layouts are calculated. The separately loaded caret presentation still needs to adopt the shared calculation; its mapping is not independently complete merely because this catalog aliases it. Source pixels and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
+    "remaining": "These ten scientist-catalog OAM layouts are calculated. The separately loaded caret presentation adopts this same calculation in introCaretLayoutIntegrationReview. Source pixels and the wider1165 inventory remain independently required. No retention exception. Implementation commit is the commit adding this record."
+  }
+,
+  "introCaretLayoutIntegrationReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroCaretSpritePresentation.cs",
+    "id": "intro-caret-shared-oam-layout-integration",
+    "state": "converted",
+    "nativeIdentity": "Single caret composition8C:8D68, shared with the last scientist-catalog frame",
+    "evidence": "Static consumer review confirms IntroCaretSpritePresentation separately compiled the same frame already calculated for the scientist catalog. Native record has one eight-pixel tileFC at(0,-1),priority3,no flips and actor palette inheritance.",
+    "implementation": "Both loaders now call IntroScientistParts.CalculateIfMatching. This reuses the existing full-field/count comparison and immutable caret calculation, preserving all independently authored overrides and both current/legacy caret document schemas. Reviewed and updated the closed-contract source hash.",
+    "proof": "Extend the existing VerifyIntroScientistParts logical mapping proof rather than duplicating its native oracle. For its caret frame, load both schema versions with original content, every independently edited field, and changed part count; compare complete OAM and sprite counts with the supplied compiled composition. The same proof already requires original calculated selection and compares native visible/wrapped output.",
+    "remaining": "Caret layout integration is complete in both consumers. Caret catalog metadata, pixel drawing and other1165 mappings remain separate required review; no retention exception. Implementation commit is the commit adding this record."
   }
 }

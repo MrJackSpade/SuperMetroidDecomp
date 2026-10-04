@@ -58,7 +58,8 @@ public sealed class IntroCaretSpritePresentation
                 visual is null || visual.Length > IntroCaretSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Opening caret frame {definition.Name} is missing or too large.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroScientistParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroCaretSpritePresentation(frames);
     }

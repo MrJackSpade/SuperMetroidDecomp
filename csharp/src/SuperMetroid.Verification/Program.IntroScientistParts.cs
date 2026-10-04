@@ -10,6 +10,7 @@ internal static partial class Program
         foreach (var definition in IntroScientistSpriteDefinitions.Frames)
         {
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
+            CheckCaretLoader(definition.Pointer, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
             SpriteComposition result = IntroScientistParts.CalculateIfMatching(definition.Pointer, source);
             AssertTrue(!ReferenceEquals(source, result), "original Scientist selects calculated parts");
@@ -29,11 +30,13 @@ internal static partial class Program
                 {
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
+                    CheckCaretLoader(definition.Pointer, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited Scientist");
                     AssertTrue(ReferenceEquals(supplied, IntroScientistParts.CalculateIfMatching(definition.Pointer, supplied)),
                         "independent Scientist field edit stays supplied");
                 }
             }
+            CheckCaretLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom Scientist");
             AssertTrue(ReferenceEquals(extra, IntroScientistParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
@@ -49,6 +52,34 @@ internal static partial class Program
                 actual.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native Scientist OAM at visible and wrapped origins");
+            }
+        }
+
+        static void CheckCaretLoader(ushort pointer, SpriteVisualPart[] visual)
+        {
+            if (pointer != IntroCaretSpriteDefinitions.Still) return;
+            var expected = new OamBuffer(); expected.BeginFrame();
+            IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, 120, 72, 0x0c00);
+            expected.FinalizeFrame();
+            foreach (int version in new[] { IntroCaretSpriteFormat.PreviousVersion, IntroCaretSpriteFormat.Version })
+            {
+                var frames = new Dictionary<string, SpriteVisualPart[]>();
+                if (version == IntroCaretSpriteFormat.PreviousVersion)
+                {
+                    foreach (string name in IntroCaretSpriteDefinitions.PreviousFrameNames) frames.Add(name, []);
+                    frames[IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = visual;
+                }
+                else frames.Add("caret-visible", visual);
+                using var json = new MemoryStream();
+                IntroCaretSpritePresentation.Write(json, new() { Version = version, Frames = frames });
+                json.Position = 0;
+                var presentation = IntroCaretSpritePresentation.Load(json);
+                var actual = new OamBuffer(); actual.BeginFrame();
+                presentation.Draw(pointer, actual, 120, 72, 0x0c00);
+                actual.FinalizeFrame();
+                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable)
+                    && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
+                    "both caret schema loaders preserve original and independently edited compositions");
             }
         }
     }

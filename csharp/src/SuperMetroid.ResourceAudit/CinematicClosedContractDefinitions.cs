@@ -22,7 +22,7 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs", "216CD3CA1BF9968DB46243CEAC79FC6D74F9AED0C9D80ECEFA4DF98371047262")],
             "Private construction requires all four stable ordered six-cell eye rectangles and compiles independent words. FrameWords guards the index and returns a read-only span. Blink phase selection and portrait placement are not certified."),
         new("SuperMetroid.Core.Assets.IntroCaretSpritePresentation", "intro-complete-visible-caret", ["Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpritePresentation.cs", "18E5FC752D61553533F8BFD6F0E8BA36EAB158AEEE8E3D4D4C084FFAFBA020A4"),
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpritePresentation.cs", "E6C84F74F400A0BC0895DD13BBEF8C9885984DE11A2D3E14FE8CFA32BDC34DDE"),
              new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs", "1FF1DCBC7268CE53DD4470B2C34ACA15A633AB6A84DD1F1516EC52CEB9000BDD")],
             "Both current and legacy loader paths bind the sole required visible caret identity before private construction. Legacy artwork aliases its first validated frame, not the discarded blink identities. Draw guards pointer membership; caret position/blink behavior is unchanged and not certified."),
         new("SuperMetroid.Core.Assets.IntroMotherBrainSpritePresentation", "intro-complete-mother-brain-sprites", ["Draw"],

@@ -3,7 +3,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The logo's background endpoint at $8C:F1E9 has eight evenly spaced grey
 /// shades in slots1..8, rounded to the nearest RGB5 level over seven intervals.
 /// Slots0 and9..15 are black. The original endpoints26 and4 produce
-/// 26,23,20,17,13,10,7,4; they remain supplied artwork values, not embedded defaults.</summary>
+/// 26,23,20,17,13,10,7,4. Only the two endpoint levels are retained as the drawing's
+/// chosen contrast range, confirmed against the original $99:ECC4 logo map and
+/// $99:E089 tiles; an invented contrast rule would change that artwork. All intermediate
+/// shades and temporal fades are computed. Endpoint values remain supplied, not defaults.</summary>
 internal sealed class EndingLogoBackgroundPalette
 {
     private readonly int light, dark;

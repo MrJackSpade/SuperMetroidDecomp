@@ -11,6 +11,11 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class EndingLogoPaletteFade
 {
     internal const int ColorCount = 16 * 2 * 16;
+    /// <summary>Caller-supplied drawing colors. Stock $8C:EFE9 uses independent yellow
+    /// face, blue/cyan edging, orange-sector shades and a dark outline, as confirmed by
+    /// the original $99:E089 tiles and final OAM compositions. These selected hues are
+    /// retained artwork; numerical cases would merely recite the drawing's palette.
+    /// Temporal samples are calculated separately, not covered by this disposition.</summary>
     private readonly ushort[] spriteEndpoint;
     private readonly ushort[]? backgroundEndpoint;
     private readonly EndingLogoBackgroundPalette? backgroundGradient;

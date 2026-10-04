@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4BotwoonColors(rom);
         VerifyLookupStream4DraygonColors(rom);
         VerifyLookupStream4KzanCeresPrograms(rom);
         VerifyLookupStream4GeometryLayout(rom);
@@ -470,5 +471,34 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
+    }
+    private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
+    {
+        byte[] original = BotwoonColorExtractor.Extract(rom);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var stock = BotwoonColorCatalog.Load(new MemoryStream(original));
+        int stored = ((System.Collections.IDictionary)typeof(BotwoonColorCatalog)
+            .GetField("health", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
+        AssertEqual(34, stored, "Botwoon only32 endpoint words and2 nonmatching words remain stored");
+        for (int variation = -1; variation < 3; variation++)
+        {
+            var document = JsonSerializer.Deserialize<BotwoonColorDocument>(original, options)!;
+            if (variation >= 0)
+                document.Health[variation == 0 ? 0 : variation == 1 ? 3 : 1][variation == 2 ? 0 : 7]
+                    = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
+            var catalog = BotwoonColorCatalog.Load(new MemoryStream(BotwoonColorCatalog.Write(document)));
+            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            string identity = SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
+                content.AppendWordFrames("health", document.Health.Select(row => row.Select(Native).ToArray()).ToArray()));
+            AssertEqual(identity, catalog.ContentIdentity, "Botwoon calculated palette preserves selected identity");
+            for (int band = 0; band < 8; band++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(Native(document.Health[band][color]), catalog.HealthColor(band, color),
+                    "Botwoon native/edited colors preserve independent endpoint/middle/exception values");
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
     }
 }

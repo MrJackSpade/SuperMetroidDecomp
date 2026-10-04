@@ -82,8 +82,8 @@ public sealed class DraygonColorCatalog
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297 preserves the backdrop; all visible inks are white.</summary>
     private static ushort StockWhiteFlash(int color) => color == 0 ? (ushort)0x3800 : (ushort)0x7fff;
 
-    // $A5:96AF advances RGB5 channels by nearest sevenths between the endpoint rows.
-    // Endpoint colors remain unresolved inputs; independently edited middle rows override this ramp.
+    /// <summary><c>DraygonHealthBasedPaletteTable</c> at $A5:96AF interpolates RGB5 channels by nearest sevenths.</summary>
+    /// <remarks>Endpoint colors remain unresolved inputs; independently edited middle rows override this ramp.</remarks>
     private static ushort InterpolateHealth(ushort first, ushort last, int band)
     {
         int result = 0;

@@ -815,3 +815,12 @@ One full definition converted; 48 complete and 177 unchecked. The healthBands co
 - Content identity keeps the exact prior ordered palette/row encoding. CGRAM destinations, white-frame suppression of health application, native even-index rejection and loader validation remain intact.
 - Evidence: pinned bankA5 `DraygonHealthBasedPaletteTable` `$96AF..96EE`; `Palette_Draygon_WhiteFlash` `$A297..A2B6`.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. New focused checks cover all48 changed native colors, zero stored stock flash words/eight health endpoint words, unchanged content hashes, actual background/sprite/health CGRAM writes, independent JSON edits to backdrop/visible flash/middle health/endpoint health, and invalid bounds/native odd selectors.
+## Batch 13: Botwoon health interpolation
+
+Partial conversion; the container remains unchecked. Totals remain48 complete and177 unchecked. No retained exception.
+
+- Botwoon health colors calculate94 intermediate words through nearest-seventh RGB5 interpolation. Stock storage falls from128 words to32 endpoint words plus the two nonmatching transparent-slot words in bands1/2. Both endpoints and those two words remain explicit unresolved obligations; failing this interpolation does not exempt them.
+- Independently supplied middle, endpoint and transparent-slot edits remain exact; differing colors are stored as overrides. The content identity retains the original ordered eight-row encoding and bounds behavior.
+- Evidence: pinned bankB3 `BotwoonHealthBasedPalettes`, `$971B..981A`. All colored slots interpolate between first/last rows; slot0 has `$2003` at bands1/2 while its endpoints are zero.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks verify all128 native values, exactly34 stored stock words, unchanged content identities, independent JSON edits and index rejection.
+- Also normalized the preceding Draygon interpolation source annotation into member XML documentation; no behavior changed there.

@@ -10,12 +10,28 @@ public sealed class BotwoonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
         {
-            content.AppendWordFrames("health", health);
+            content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
+            Span<ushort> row = stackalloc ushort[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+            for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
+            {
+                for (int color = 0; color < row.Length; color++) row[color] = HealthColor(band, color);
+                content.AppendWords("row", row);
+            }
         });
 
-    private readonly ushort[][] health;
+    private readonly Dictionary<int, ushort> health = new();
 
-    private BotwoonColorCatalog(ushort[][] health) => this.health = health;
+    private BotwoonColorCatalog(ushort[][] rows)
+    {
+        for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
+        {
+            health.Add(color, rows[0][color]);
+            health.Add(7 * 16 + color, rows[7][color]);
+            for (int band = 1; band < 7; band++)
+                if (rows[band][color] != Interpolate(rows[0][color], rows[7][color], band))
+                    health.Add(band * 16 + color, rows[band][color]);
+        }
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -24,13 +40,29 @@ public sealed class BotwoonColorCatalog
         WriteIndented = true,
     };
 
-    public ushort HealthColor(int band, int color) =>
-        (uint)band < health.Length &&
-        (uint)color < BotwoonHealthPaletteDefinitions.ColorsPerPalette
-            ? health[band][color]
-            : throw new ArgumentOutOfRangeException(nameof(band),
+    public ushort HealthColor(int band, int color)
+    {
+        if ((uint)band >= BotwoonHealthPaletteDefinitions.PaletteCount ||
+            (uint)color >= BotwoonHealthPaletteDefinitions.ColorsPerPalette)
+            throw new ArgumentOutOfRangeException(nameof(band),
                 $"Botwoon health band {band}, color {color} is outside the authored images.");
+        return health.TryGetValue(band * 16 + color, out ushort selected) ? selected
+            : Interpolate(health[color], health[7 * 16 + color], band);
+    }
 
+    /// <summary><c>BotwoonHealthBasedPalettes</c> at $B3:971B interpolates RGB5 channels by nearest sevenths.</summary>
+    /// <remarks>Endpoint colors and nonmatching intermediate words remain unresolved data, never a retention exemption.</remarks>
+    private static ushort Interpolate(ushort first, ushort last, int band)
+    {
+        int result = 0;
+        for (int shift = 0; shift <= 10; shift += 5)
+        {
+            int start = first >> shift & 31;
+            int difference = (last >> shift & 31) - start;
+            result |= (start + Math.Sign(difference) * ((Math.Abs(difference) * band + 3) / 7)) << shift;
+        }
+        return (ushort)result;
+    }
     public static BotwoonColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);

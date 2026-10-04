@@ -46,6 +46,16 @@ internal static class CeresExplosionDefinitions
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
+    /// <summary>Selects the translated spawner operation on its one-based handler call.</summary>
+    internal static CeresExplosionWave WaveAtFrame(int frame, bool repeatingEnabled)
+    {
+        if (frame == InitialSpawnFrame) return CeresExplosionWave.Initial;
+        if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame &&
+            (frame - RepeatingFirstFrame) % RepeatingPeriodFrames == 0)
+            return CeresExplosionWave.Repeating;
+        return frame == SpawnerFinalFrame ? CeresExplosionWave.Final : CeresExplosionWave.None;
+    }
+
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>
@@ -175,3 +185,6 @@ internal readonly record struct CeresExplosionActorDefinition(
 
 /// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
 internal readonly record struct CeresExplosionPlacement(short X, short Y, ushort DelayFrames);
+
+/// <summary>Mutually exclusive spawn operations emitted by the Ceres destruction schedule.</summary>
+internal enum CeresExplosionWave { None, Initial, Repeating, Final }

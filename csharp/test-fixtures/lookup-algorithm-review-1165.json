@@ -10410,4 +10410,15 @@
     "confirmation": "Integrated Verification build:1432 warnings,zero errors. --lookup-stream-4 passes. Source index refreshed from tracked source; no dispositions inferred by indexing.",
     "remaining": "90 of1128 snapshot definitions converted;1038 pending. Separate spore movement and independent presentation payloads remain required. No new retention exception."
   }
+,
+  "samusMotionAndCadenceIntegration": {
+    "id": "stream1-fourteen-cadence-motion-sound-definitions",
+    "state": "converted",
+    "implementationCommits": "9c5e6aa1e,a69e69501",
+    "scope": "Charge flare pointers/delays2; Bull and Cacatac instruction mechanics/presentation4; horizontal maximum speeds3; projectile accelerations3; sound routes2.",
+    "algorithm": "Phase-specific cadence and generated timed instructions; named movement/medium speed decisions; compass-component acceleration; charge/family/element sound selection. Bounded native adjacent-table observations are preserved without stored replacement tables.",
+    "evidence": "Stream1 batches3/4 and owning definitions identify pinned banks90/A8/86. Integrated --lookup-stream-1 confirms52 flare bytes,51 overlapping words, native Bull/Cacatac programs and classification,492 speed words,85 projectile motion words,160 actual velocity initializations and32 sound observations. Production Bull loops and flare cadence pass with source reads forbidden.",
+    "confirmation": "Integrated Verification build1432warnings,zeroerrors; focused command passes. Source index refreshed. Legacy whole-frame beam fixture has an unrelated unsupported animation boundary; dedicated actual initializer verification confirms this changed contract without modifying that fixture or unrelated runtime.",
+    "remaining": "104 of1128 snapshot definitions converted;1024 pending. All five streams remain open. No new retention exception."
+  }
 }

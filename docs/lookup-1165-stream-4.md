@@ -305,7 +305,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs
 
-- [ ] **KzanInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KzanInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs
 
@@ -392,8 +392,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs
 
-- [ ] **CeresRidleyProjectileInstructionProgramDefinitions.Words** ([L80](../csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs#L80)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CeresRidleyProjectileInstructionProgramDefinitions.PresentationWords** ([L167](../csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs#L167)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresRidleyProjectileInstructionProgramDefinitions.Words** ([L80](../csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs#L80)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresRidleyProjectileInstructionProgramDefinitions.PresentationWords** ([L167](../csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs#L167)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RidleyAttackChoices.cs
 
@@ -780,3 +780,12 @@ Seven more definitions converted;40 complete and185 unchecked. No retained excep
 - Save-slot origins calculate16+slot*1628, replacing the stored three-word span. Serializer, replay exporter and existing verifier consumers call the new bounded API; payload bytes and directory layout are unchanged.
 - Evidence: pinned bankA5 `$87AA..87F3`, bank86 `$B65B..B682` and `$B6B1..B6B8`, bankA6 `$B9D5..B9DF`, bankA2 `$CB77..CB86`, bank81 `SaveSlotOffsets` `$812B..8130`.
 - Confirmation: Verification build passed (1431 warnings, zero errors), DebugRunner build passed (42 warnings, zero errors), and `--lookup-stream-4` passed. Direct original-word checks cover every changed geometry/dispatch/slot value and rejected bounds. Existing Ridley verification preserves all65536 raw facing/foot-index values,1,179,648 actual carry placements and228,150 collision-boundary checks. Existing SRAM schema assertions pass. No gameplay discovery or expanded unrelated acceptance was performed.
+## Batch 9: Kzan and Ceres Ridley projectile programs
+
+Three definitions converted; 43 complete and 182 unchecked. No retained exception.
+
+- Kzan's program directly selects its one-tick draw and sleep control words.
+- Ceres Ridley's fireball setup and four-frame loop calculate their control and operand locations. Final afterburn calculates five five-tick draws followed by deletion. Horizontal, vertical and directional spawning programs share that draw layout with the appropriate callback inserted after the first frame. Ordered enumeration, native word identities, odd-address vertical layout and exact byte classification are preserved without stored or generated rows.
+- Removed obsolete presentation-pointer retention language from the replaced field. This batch changes operand locations only; it grants no exemption to presentation payloads.
+- Evidence: pinned bank A6 `InstList_Kzan` `$8B29..8B2E`; bank86 fireball `$9552..9573`, final afterburn `$9574..958B`, horizontal `$95A0..95B9`, vertical `$95D3..95EC`, directional `$9606..961F`.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed. The new focused check compares all44 control words with the original ROM and all26 interleaved operand addresses in order, checks both bytes, rejects unaligned reads, adjacent code, wrong banks and invalid enumeration indices. Existing stream checks also pass.

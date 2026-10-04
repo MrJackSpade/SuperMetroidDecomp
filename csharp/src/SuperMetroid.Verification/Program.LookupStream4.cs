@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4KzanCeresPrograms(rom);
         VerifyLookupStream4GeometryLayout(rom);
         VerifyLookupStream4PowerBombColors(rom);
         VerifyLookupStream4SporeAndFly(rom);
@@ -362,5 +363,56 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(invalid), "Oum animation exact domain");
+    }
+    private static void VerifyLookupStream4KzanCeresPrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int mechanical = 0, visual = 0;
+        foreach (var program in new[] { (0x9552, 0x9574), (0x9574, 0x958c), (0x95a0, 0x95ba), (0x95d3, 0x95ed), (0x9606, 0x9620) })
+        {
+            for (int address = program.Item1; address < program.Item2; address += 2)
+            {
+                bool presentation = address is 0x9556 or 0x955e or 0x9562 or 0x9566 or 0x956a or 0x956e
+                    or 0x9578 or 0x957c or 0x9580 or 0x9584 or 0x9588
+                    or 0x95a4 or 0x95aa or 0x95ae or 0x95b2 or 0x95b6
+                    or 0x95d7 or 0x95dd or 0x95e1 or 0x95e5 or 0x95e9
+                    or 0x960a or 0x9610 or 0x9614 or 0x9618 or 0x961c;
+                if (presentation)
+                {
+                    AssertEqual((ushort)address, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(visual++), "Ceres ordered presentation operand");
+                    AssertThrows<InvalidDataException>(() => CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Ceres presentation excluded from control");
+                }
+                else
+                {
+                    var word = CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWord(mechanical++);
+                    AssertEqual((ushort)address, word.Address, "Ceres ordered control word");
+                    AssertEqual(Word(0x860000 | address), word.Value, "Ceres original control word");
+                    AssertEqual(word.Value, CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Ceres direct control word");
+                }
+                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Ceres control low byte");
+                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | (address + 1)), "Ceres control high byte");
+                AssertThrows<InvalidDataException>(() => CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address + 1)), "Ceres unaligned control word");
+            }
+            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x850000 | program.Item1), "Ceres wrong bank rejected");
+        }
+        AssertEqual(42, mechanical, "Ceres total control words");
+        AssertEqual(26, visual, "Ceres total presentation words");
+        foreach (int address in new[] { 0x9551, 0x958c, 0x959f, 0x95ba, 0x95d2, 0x95ed, 0x9605, 0x9620 })
+            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Ceres bounded programs exclude adjacent code");
+        for (int index = 0; index < 2; index++)
+        {
+            var word = KzanInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual((ushort)(0x8b29 + index * 4), word.Address, "Kzan draw then sleep addresses");
+            AssertEqual(Word(0xa60000 | word.Address), word.Value, "Kzan original control word");
+            AssertEqual(word.Value, KzanInstructionProgramDefinitions.ReadMechanicsWord(word.Address), "Kzan direct control word");
+        }
+        for (int offset = -1; offset <= 6; offset++)
+            AssertEqual(offset is 0 or 1 or 4 or 5, KzanInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa68b29 + offset), "Kzan exact byte coverage");
+        foreach (int invalid in new[] { int.MinValue, -1, 42, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWord(invalid), "Ceres control index bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 26, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(invalid), "Ceres presentation index bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
     }
 }

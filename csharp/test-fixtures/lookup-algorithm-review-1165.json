@@ -8413,4 +8413,17 @@
     }
   ]
 }
+,
+  "spcFirAddressingCorrectionReview": {
+    "id":"spc-fir-preset-addressing",
+    "state":"converted",
+    "owner":"csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
+    "member":"HandleEffect ConfigureEcho",
+    "evidence":"PJBoy/SM-SPC17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/music.asm echoParameters atSPC1A86. Original SHA-pinned ROM at CF6C08+1A94 contains MOV Y,#08; MUL YA; MOV X,A. Indexed load at1A9A uses base1E32; INC X at1AA0 advances each tap. MOV X,A discards the high product byte, so all256 preset bytes select32 groups with offset(preset*8) modulo256. Every group ends at or before offset255; mutable reads span1E32..1F31. This preserves preset10 reading version-string bytes1E82, rather than clamping to the four conventional filters.",
+    "reproduction":"Before production changes, --lookup-spc-fir-addressing failed at preset32/tap0: expected44, actual45 from the wrongly carried RAM page. The faithful synthetic fixture writes distinguishable mutable RAM pages and invokes the real F7 handler directly; no gameplay, replay or parameter search selected this defect.",
+    "implementation":"Truncate the preset*8 product to byte before the existing tap loop. Keep current RAM reads and all32 native groups, operand consumption, feedback/delay setup and DSP writes. Update the address catalog XML to document the actual byte-width boundary. No lookup or generated cache introduced.",
+    "proof":"VerifySpcFirAddressing checks original MUL/index/load opcodes and obtains the original scale operand and absolute base from the ROM. Compare every tap produced by the actual F7 handler for all256 preset byte values against the native low-byte register semantics over mutable synthetic RAM. Confirm exactly three operands consumed. Fails before fix, passes afterward; final build0 errors/1189 existing warnings. Existing addressed-preset10 integration fixture remains available; no duplicate of its original music-startup regression added.",
+    "remainingPayload":"The four conventional FIR coefficient sets atSPC1E32..1E51 remain a separate fixed-data review obligation. Mutable container classification does not exempt those initial coefficient values, nor their neighboring compatibility payloads.",
+    "validation":"Source-review behavior correction under1165; player confirmation pending. No player report or affected build version is inferred."
+  }
 }

@@ -278,12 +278,14 @@ public sealed partial class ManagedSpcPlayer
                 SetupEchoDelay(argument);
                 echoFeedback = ram[channel.PatternOrderPointer++];
                 int preset = ram[channel.PatternOrderPointer++];
-                int firOffset = preset * SpcDriverData.Echo.FirTapCount;
+                int firOffset = unchecked((byte)(preset * SpcDriverData.Echo.FirTapCount));
                 // `$F7` indexes from APU `$1E32`, not from an abstract four-entry host
                 // array. Retail sequences use values beyond three: Kraid's post-defeat
                 // room track executes `F7 02 0A 0A` and therefore reads the eight resident
                 // driver bytes at `$1E82`. Reading the actual uploaded address space also
-                // preserves any cartridge revision that changes those adjacent bytes.
+                // preserves changes to those adjacent bytes. Native MUL YA then MOV X,A
+                // keeps only the product's low byte: presets32..255 alias0..31. Each
+                // eight-tap group ends at or before offset255; no tap carries past X.
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
                     WriteDsp(unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +

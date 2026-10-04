@@ -48,7 +48,9 @@ internal static class SpcDriverData
         /// <summary>
         /// APU address `$1E32`, the first FIR coefficient consumed by music effect `$F7`.
         /// The native driver performs byte-addressed arithmetic from this location and does
-        /// not constrain the preset operand to the four conventional filters.
+        /// not constrain the preset operand to the four conventional filters. MUL YA /
+        /// MOV X,A at SPC1A94..1A97 wraps the eight-byte offset to an eight-bit index,
+        /// giving32 mutable RAM groups in1E32..1F31 rather than256 unwrapped groups.
         /// </summary>
         internal const ushort FirCoefficientTableAddress = 0x1e32;
     }

@@ -21,10 +21,33 @@ internal static class PauseMenuLayout
     public const int ButtonRowsByteCount = 0x0080;
     /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
     public const int ButtonSourceWordOrigin = 0x0200;
-    /// <summary>MAP, EQUIPMENT and START row spans recolored by $82:A628-$A84C.</summary>
-    private static readonly (int Word, int Count)[] buttonLabelSpans =
-        [(805, 5), (837, 5), (812, 4), (844, 4), (822, 5), (854, 5)];
-    public static ReadOnlySpan<(int Word, int Count)> ButtonLabelSpans => buttonLabelSpans;
+    /// <summary>MAP, EXIT and SAMUS labels recolored by $82:A628-$A84C.</summary>
+    public static IEnumerable<(int Word, int Count)> ButtonLabelSpans
+    {
+        get
+        {
+            for (int label = 0; label < 3; label++)
+            for (int row = 0; row < 2; row++)
+                yield return ButtonLabelSpan((PauseButtonLabel)label, row);
+        }
+    }
+
+    /// <summary>Projects a named two-row button label into the 32-column BG2 tilemap.</summary>
+    /// <remarks>$82:A633/A66F/A6AB select MAP/EXIT/SAMUS at columns5/12/22.
+    /// Their lower halves are one32-word row below, as at A651/A68D/A6C9.
+    /// The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
+    public static (int Word, int Count) ButtonLabelSpan(PauseButtonLabel label, int row)
+    {
+        int column = label switch
+        {
+            PauseButtonLabel.Map => 5,
+            PauseButtonLabel.Exit => 12,
+            PauseButtonLabel.Samus => 22,
+            _ => throw new ArgumentOutOfRangeException(nameof(label)),
+        };
+        if ((uint)row >= 2) throw new ArgumentOutOfRangeException(nameof(row));
+        return ((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
+    }
     /// <summary>Three-bit BG palette index applied to unavailable equipment labels.</summary>
     public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
@@ -114,4 +137,15 @@ internal static class PauseEquipmentCategories
         Boots => new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
         _ => throw new IndexOutOfRangeException(),
     };
+}
+
+/// <summary>Distinct pause-button label identities in the native recoloring routines.</summary>
+internal enum PauseButtonLabel
+{
+    /// <summary>$82:A633 MAP label at the left of the button row.</summary>
+    Map,
+    /// <summary>$82:A66F EXIT label at the center of the button row.</summary>
+    Exit,
+    /// <summary>$82:A6AB SAMUS label at the right of the button row.</summary>
+    Samus,
 }

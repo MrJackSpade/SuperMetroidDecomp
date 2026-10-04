@@ -6844,4 +6844,15 @@
     "consumerContract":"Initial selection, movement, extraction and label updates use Get. The original dispatched category still owns the copy length even if movement changes the selected category on the same frame, preserving the Boots-to-Plasma overrun contract. Verification-only address guard lazily enumerates the four identities rather than storing another table.",
     "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-pause-categories passes five separate field proofs, reserve contract, all four identities and invalid boundaries. Static reference review finds no former Definitions consumers or source-owner hash pins. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
   }
+,
+  "pauseButtonSpanReview": {
+    "status":"converted six stored span pairs to named label geometry",
+    "owner":"csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs PauseMenuLayout",
+    "source":"Supported SHA-pinned ROM and pinned bank_82.asm recoloring routine82:A628..A6DE. Six LDA long,X sitesA633/A651/A66F/A68D/A6AB/A6C9 select top/bottom MAP, EXIT and SAMUS; corresponding LDY operands define byte widths.",
+    "wordField":{"disposition":"converted","algorithm":"Select columns5/12/22 by semantic Map/Exit/Samus identity; calculate (25+row)*32+column for row0..1. Remove stored duplicate lower-row destinations.","proof":"VerifyPauseButtonSpanWords reads all six original instruction addresses, checks LDA opcode and WRAM bank, converts original WRAM address to the relative word index, then compares named lookup and lazy enumeration order."},
+    "countField":{"disposition":"converted","algorithm":"The center Exit label is four words wide; Map and Samus are five. Named label selection replaces six stored width entries.","proof":"VerifyPauseButtonSpanCounts reads all six original LDY byte counts and compares word widths through both access forms."},
+    "domain":"Three mutually exclusive named labels and rows0..1. New direct API rejects unsupported label/row integers before projection. Existing enumerable contract still yields exactly the same six pairs in the same order; no generated cache remains.",
+    "consumerContract":"RefreshPauseButtonArtwork still preserves palette bits word-by-word over precisely these spans when rebinding authored artwork. Its foreach consumer and the existing backdrop verification loop require no behavior changes. Source comments now correctly name native MAP/EXIT/SAMUS labels.",
+    "confirmation":"Verification build passes with0 errors and1429 existing warnings. Early SHA-pinned --lookup-pause-button-spans passes separate destination/width proofs and invalid bounds. Static owner-pin review finds no dependency hashes. Maintained-source index refreshed. Implementation commit is the commit adding this entry."
+  }
 }

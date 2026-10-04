@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-pause-button-spans"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause button span oracle revision");
+    VerifyPauseButtonSpanWords(rom);
+    VerifyPauseButtonSpanCounts(rom);
+    Console.WriteLine("Pause buttons: all six native row destinations and widths, enumeration order and invalid bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-pause-categories"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

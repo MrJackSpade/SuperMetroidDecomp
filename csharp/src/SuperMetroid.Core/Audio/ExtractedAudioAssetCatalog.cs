@@ -438,13 +438,12 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
             if (library.Library != libraryIndex + 1)
                 throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
-            ushort[] expectedPointers = SpcSoundEffectTables.StreamPointerTables[libraryIndex];
-            byte[] expectedConfigurations = SpcSoundEffectTables.Configurations[libraryIndex];
-            if (library.Effects.Count != expectedPointers.Length)
+            int commandCount = SpcSoundEffectTables.CommandCount(libraryIndex);
+            if (library.Effects.Count != commandCount)
             {
                 throw new InvalidDataException(
                     $"Audio SFX library {library.Library} defines {library.Effects.Count} effects; " +
-                    $"expected {expectedPointers.Length}.");
+                    $"expected {commandCount}.");
             }
             for (int effectIndex = 0; effectIndex < library.Effects.Count; effectIndex++)
             {
@@ -454,8 +453,8 @@ public sealed class ExtractedAudioAssetCatalog
                 byte command = unchecked((byte)(effectIndex + 1));
                 string id = $"sfx-{library.Library}-{command:x2}";
                 if (effect.Command != command || effect.Id != id ||
-                    effect.StreamPointer != expectedPointers[effectIndex] ||
-                    effect.Configuration != expectedConfigurations[effectIndex])
+                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(libraryIndex, command) ||
+                    effect.Configuration != SpcSoundEffectTables.Configuration(libraryIndex, command))
                 {
                     throw new InvalidDataException(
                         $"Audio effect {library.Library}:${command:X2} changes compiled identity, " +

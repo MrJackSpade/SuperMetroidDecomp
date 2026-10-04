@@ -2,176 +2,408 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Sound-effect stream pointers and voice-allocation classes from the resident SPC driver.
-/// Array index is the one-based CPU command minus one.
+/// Stream and policy dispatch use the one-based CPU command.
 /// </summary>
 internal static class SpcSoundEffectTables
 {
-    /// <summary>Authored instruction-stream starts for the three SPC sound libraries.</summary>
-    /// <remarks>
-    /// Issues #625 and #925: library 1 has 66 little-endian SPC RAM pointers,
-    /// indexed by command 1..66 minus one. All 66 words match pinned NTSC
-    /// J/U v1.0 ROM $CF:96F5 (file $2796F5), kSfx1InstrListPtrs in
-    /// upstream-sm/src/spc_player.c, and this array. These are addresses of
-    /// authored instruction streams; their irregular gaps and shared stream
-    /// layout have no independently evidenced shorter index-to-address rule.
-    /// Retain the mapping. The managed caller rejects commands beyond the
-    /// library length before reading; command zero is a no-sound sentinel.
-    /// Issues #625 and #926: library 2 is a separate 127-word pointer map
-    /// at pinned ROM $CF:A5BB (file $27A5BB). Every little-endian word agrees
-    /// with kSfx2InstrListPtrs and this array. Its authored stream starts and
-    /// irregular gaps likewise warrant retaining the bounded mapping for
-    /// commands 1..127, with the same command-zero sentinel.
-    /// Issues #625 and #927: library 3 is a separate 47-word pointer map at
-    /// pinned ROM $CF:BA97 (file $27BA97). Every little-endian word agrees
-    /// with kSfx3InstrListPtrs and this array. Retain the authored stream
-    /// addresses for commands 1..47; zero remains a no-sound sentinel and
-    /// commands above 47 are rejected before lookup.
-    /// </remarks>
-    internal static readonly ushort[][] StreamPointerTables =
-    [
-        [
-            0x2b71, 0x2baf, 0x2bb7, 0x2bc4, 0x2bd1, 0x2bfc, 0x2c2f, 0x2c37,
-            0x2cff, 0x2d12, 0x2d1a, 0x2d27, 0x2d4b, 0x2d5d, 0x2d5f, 0x2d76,
-            0x2d95, 0x2d97, 0x2d99, 0x2da6, 0x2da8, 0x2daa, 0x2dac, 0x2dc8,
-            0x2de7, 0x2dfe, 0x2e00, 0x2e17, 0x2e19, 0x2e1b, 0x2e1d, 0x2e34,
-            0x2e36, 0x2e38, 0x2e3a, 0x2e68, 0x2eaf, 0x2ed0, 0x2ef6, 0x2f2c,
-            0x2f37, 0x2f3f, 0x2f47, 0x2f4a, 0x2f4d, 0x2f50, 0x2fb0, 0x2fb8,
-            0x2fc3, 0x2fdd, 0x2fe5, 0x3040, 0x3048, 0x3055, 0x305d, 0x3065,
-            0x3070, 0x3078, 0x307b, 0x308b, 0x309b, 0x30a8, 0x30d6, 0x30e1,
-            0x312a, 0x313f,
-        ],
-        [
-            0x3ab1, 0x3ac3, 0x3ad5, 0x3af1, 0x3af3, 0x3af5, 0x3b0c, 0x3b28,
-            0x3b2a, 0x3b3a, 0x3b42, 0x3b5e, 0x3b73, 0x3b85, 0x3b92, 0x3ba9,
-            0x3bb4, 0x3bc1, 0x3be7, 0x3c08, 0x3c33, 0x3c3b, 0x3c43, 0x3c56,
-            0x3c90, 0x3cff, 0x3d46, 0x3d4e, 0x3d65, 0x3d81, 0x3d9b, 0x3da8,
-            0x3dbf, 0x3dd6, 0x3ded, 0x3e04, 0x3e20, 0x3e41, 0x3e66, 0x3e94,
-            0x3eb0, 0x3ecc, 0x3ece, 0x3f03, 0x3f18, 0x3f20, 0x3f44, 0x3f5e,
-            0x3f75, 0x3f82, 0x3f8a, 0x3f97, 0x3f9f, 0x401f, 0x4036, 0x4066,
-            0x407c, 0x407e, 0x4086, 0x4088, 0x408a, 0x408c, 0x409e, 0x40a6,
-            0x40b1, 0x40b4, 0x40bc, 0x40ce, 0x40d1, 0x40de, 0x40f5, 0x410c,
-            0x412c, 0x4143, 0x415a, 0x4162, 0x416f, 0x41a9, 0x41c7, 0x41d9,
-            0x41ee, 0x421c, 0x4224, 0x4236, 0x424d, 0x4268, 0x4288, 0x429a,
-            0x42af, 0x42bf, 0x42d4, 0x42d6, 0x42fe, 0x4310, 0x4322, 0x4334,
-            0x433c, 0x4347, 0x4352, 0x43c1, 0x43cc, 0x43e8, 0x43fa, 0x4422,
-            0x442f, 0x4441, 0x4443, 0x4446, 0x444e, 0x446f, 0x447f, 0x448f,
-            0x449c, 0x44a4, 0x44b9, 0x44ce, 0x44ed, 0x4598, 0x459a, 0x4618,
-            0x462d, 0x4642, 0x4657, 0x466c, 0x4679, 0x4686, 0x468e,
-        ],
-        [
-            0x4eed, 0x4ef5, 0x4f00, 0x4f4b, 0x4f5b, 0x4f6b, 0x4f73, 0x4f89,
-            0x4f9f, 0x4fb6, 0x4fe1, 0x4ff7, 0x4fff, 0x500c, 0x5047, 0x50a8,
-            0x50c4, 0x50d1, 0x50d4, 0x50f0, 0x511a, 0x5130, 0x5142, 0x5175,
-            0x5178, 0x5188, 0x518b, 0x51b9, 0x51c1, 0x51d4, 0x51f0, 0x51fd,
-            0x5200, 0x5208, 0x5229, 0x5231, 0x5239, 0x5241, 0x524e, 0x5256,
-            0x5277, 0x5293, 0x52a5, 0x52b0, 0x52c6, 0x52f1, 0x530b,
-        ],
-    ];
-
-    /// <summary>Authored sound-command selectors for voice allocation and priority.</summary>
-    /// <remarks>
-    /// Issues #625 and #928: library 1 has 66 byte selectors for commands
-    /// 1..66. Every byte matches kSfx1Conf in pinned upstream-sm/src/spc_player.c.
-    /// The native switch maps selectors 0..5 to voice count and priority;
-    /// selectors 4 and 5 intentionally share the same four-voice outcome.
-    /// The complete selector sequence does not occur contiguously in the
-    /// pinned ROM, so no ROM address is claimed. Retain this authored per-sound
-    /// policy mapping; deriving it from command number or stream pointer
-    /// would discard sound-specific allocation choices. The managed caller
-    /// checks the command domain before indexing.
-    /// Issues #625 and #929: library 2 has a separate 127-byte policy map
-    /// for commands 1..127. All selectors match native kSfx2Conf; its switch
-    /// maps 0..3 to one/two voices and low/high priority. The complete byte
-    /// sequence has no contiguous ROM match. Retain the authored per-sound
-    /// choices rather than infer them from pointer spacing or command number.
-    /// Issues #625 and #930: library 3 has a separate 47-byte selector map
-    /// for commands 1..47. Every byte matches native kSfx3Conf; selectors
-    /// 0..5 choose voice count, priority and sometimes a mode flag. The switch
-    /// intentionally leaves some fields at their prior values. The complete
-    /// selector sequence has no contiguous ROM match. Retain this per-sound
-    /// state policy and its bounded command domain rather than fold it into
-    /// the other libraries' simpler selector meanings.
-    /// </remarks>
-    internal static readonly byte[][] Configurations =
-    [
-        [
-            5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0,
-            0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
-            2, 2,
-        ],
-        [
-            1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 0, 1, 0, 3, 1, 0,
-            0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 1, 3, 0, 0,
-            0, 0, 0, 0, 1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3,
-            3, 0, 0, 1, 0, 2, 0, 2, 3, 2, 0, 0, 0, 0, 0, 0,
-            0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0,
-            0, 3, 3, 3, 3, 0, 3, 2, 2, 2, 2, 1, 1, 1, 2,
-        ],
-        [
-            0, 1, 2, 3, 3, 2, 4, 4, 2, 5, 3, 2, 2, 4, 3, 2,
-            2, 5, 2, 4, 4, 2, 2, 2, 4, 2, 4, 2, 2, 2, 2, 5,
-            5, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 2,
-        ],
-    ];
-
-    /// <summary>
-    /// Original SPC work-RAM addresses retained in allocation state for save-state parity.
-    /// The managed implementation accesses typed channel objects directly.
-    /// </summary>
-    /// <remarks>
-    /// Issues #625 and #931 exact layout: for library l=0..2, choose base
-    /// B=( $03A6, $0446, $047E )[l] and channel count C=(4,2,2)[l].
-    /// Field 0 (voice bitset) starts at B; field 1 (channel mask) at B+C;
-    /// field 2 (voice index) at B+2*C+1. Each field's channel j adds j,
-    /// with j=0..C-1. The extra byte precedes the voice-index region in
-    /// every library. All nine stored bases and every per-channel address
-    /// agree with the pinned SpcPlayer memory map in upstream-sm/src/spc_player.c.
-    /// These are SPC RAM structure offsets, not a cartridge lookup region.
-    /// Preserve the original addresses for serialized allocation state;
-    /// no runtime migration is part of this proof.
-    /// </remarks>
-    internal static readonly ushort[,] AllocationStateAddresses =
+    /// <summary>Number of defined one-based commands in each native SPC sound library.</summary>
+    internal static int CommandCount(int libraryIndex) => libraryIndex switch
     {
-        { 0x03a6, 0x03aa, 0x03af },
-        { 0x0446, 0x0448, 0x044b },
-        { 0x047e, 0x0480, 0x0483 },
+        0 => 66,
+        1 => 127,
+        2 => 47,
+        _ => throw new IndexOutOfRangeException(),
     };
 
-    static SpcSoundEffectTables()
+    /// <summary>Selects the native instruction-list set for a one-based sound command.</summary>
+    internal static ushort StreamPointer(int libraryIndex, int command) => libraryIndex switch
     {
-        for (int library = 0; library < StreamPointerTables.Length; library++)
+        0 => Library1Stream(command),
+        1 => Library2Stream(command),
+        2 => Library3Stream(command),
+        _ => throw new IndexOutOfRangeException(),
+    };
+    private static ushort Library1Stream(int command) => command switch
+    {
+        0x01 => SpcSoundStreamDefinitions.Library1.Sound01PowerBombExplosion,
+        0x02 => SpcSoundStreamDefinitions.Library1.Sound02Silence,
+        0x03 => SpcSoundStreamDefinitions.Library1.Sound03Missile,
+        0x04 => SpcSoundStreamDefinitions.Library1.Sound04SuperMissile,
+        0x05 => SpcSoundStreamDefinitions.Library1.Sound05GrappleStart,
+        0x06 => SpcSoundStreamDefinitions.Library1.Sound06Grappling,
+        0x07 => SpcSoundStreamDefinitions.Library1.Sound07GrappleEnd,
+        0x08 => SpcSoundStreamDefinitions.Library1.Sound08ChargingBeam,
+        0x09 => SpcSoundStreamDefinitions.Library1.Sound09XRay,
+        0x0a => SpcSoundStreamDefinitions.Library1.Sound0AXRayEnd,
+        0x0b => SpcSoundStreamDefinitions.Library1.Sound0BUnchargedPowerBeam,
+        0x0c => SpcSoundStreamDefinitions.Library1.Sound0CUnchargedIceBeam,
+        0x0d => SpcSoundStreamDefinitions.Library1.Sound0DUnchargedWaveBeam,
+        0x0e => SpcSoundStreamDefinitions.Library1.Sound0EUnchargedIceWaveBeam,
+        0x0f => SpcSoundStreamDefinitions.Library1.Sound0FUnchargedSpazerBeam,
+        0x10 => SpcSoundStreamDefinitions.Library1.Sound10UnchargedSpazerIceBeam,
+        0x11 => SpcSoundStreamDefinitions.Library1.Sound11UnchargedSpazerIceWaveBeam,
+        0x12 => SpcSoundStreamDefinitions.Library1.Sound12UnchargedSpazerWaveBeam,
+        0x13 => SpcSoundStreamDefinitions.Library1.Sound13UnchargedPlasmaBeam,
+        0x14 => SpcSoundStreamDefinitions.Library1.Sound14UnchargedPlasmaIceBeam,
+        0x15 => SpcSoundStreamDefinitions.Library1.Sound15UnchargedPlasmaIceWaveBeam,
+        0x16 => SpcSoundStreamDefinitions.Library1.Sound16UnchargedPlasmaWaveBeam,
+        0x17 => SpcSoundStreamDefinitions.Library1.Sound17ChargedPowerBeam,
+        0x18 => SpcSoundStreamDefinitions.Library1.Sound18ChargedIceBeam,
+        0x19 => SpcSoundStreamDefinitions.Library1.Sound19ChargedWaveBeam,
+        0x1a => SpcSoundStreamDefinitions.Library1.Sound1AChargedIceWaveBeam,
+        0x1b => SpcSoundStreamDefinitions.Library1.Sound1BChargedSpazerBeam,
+        0x1c => SpcSoundStreamDefinitions.Library1.Sound1CChargedSpazerIceBeam,
+        0x1d => SpcSoundStreamDefinitions.Library1.Sound1DChargedSpazerIceWaveBeam,
+        0x1e => SpcSoundStreamDefinitions.Library1.Sound1EChargedSpazerWaveBeam,
+        0x1f => SpcSoundStreamDefinitions.Library1.Sound1FChargedPlasmaBeamHyperBeam,
+        0x20 => SpcSoundStreamDefinitions.Library1.Sound20ChargedPlasmaIceBeam,
+        0x21 => SpcSoundStreamDefinitions.Library1.Sound21ChargedPlasmaIceWaveBeam,
+        0x22 => SpcSoundStreamDefinitions.Library1.Sound22ChargedPlasmaWaveBeam,
+        0x23 => SpcSoundStreamDefinitions.Library1.Sound23IceSBA,
+        0x24 => SpcSoundStreamDefinitions.Library1.Sound24IceSBAEnd,
+        0x25 => SpcSoundStreamDefinitions.Library1.Sound25SpazerSBA,
+        0x26 => SpcSoundStreamDefinitions.Library1.Sound26SpazerSBAEnd,
+        0x27 => SpcSoundStreamDefinitions.Library1.Sound27PlasmaSBA,
+        0x28 => SpcSoundStreamDefinitions.Library1.Sound28WaveSBA,
+        0x29 => SpcSoundStreamDefinitions.Library1.Sound29WaveSBAEnd,
+        0x2a => SpcSoundStreamDefinitions.Library1.Sound2ASelectedSaveFile,
+        0x2b => SpcSoundStreamDefinitions.Library1.Sound2BEmpty,
+        0x2c => SpcSoundStreamDefinitions.Library1.Sound2CEmpty,
+        0x2d => SpcSoundStreamDefinitions.Library1.Sound2DEmpty,
+        0x2e => SpcSoundStreamDefinitions.Library1.Sound2ESaving,
+        0x2f => SpcSoundStreamDefinitions.Library1.Sound2FUnderwaterSpaceJumpWithoutGravitySuit,
+        0x30 => SpcSoundStreamDefinitions.Library1.Sound30ResumedSpinJump,
+        0x31 => SpcSoundStreamDefinitions.Library1.Sound31SpinJump,
+        0x32 => SpcSoundStreamDefinitions.Library1.Sound32SpinJumpEnd,
+        0x33 => SpcSoundStreamDefinitions.Library1.Sound33ScrewAttack,
+        0x34 => SpcSoundStreamDefinitions.Library1.Sound34ScrewAttackEnd,
+        0x35 => SpcSoundStreamDefinitions.Library1.Sound35SamusDamaged,
+        0x36 => SpcSoundStreamDefinitions.Library1.Sound36ScrollingMap,
+        0x37 => SpcSoundStreamDefinitions.Library1.Sound37ToggleReserveModeMovedCursor,
+        0x38 => SpcSoundStreamDefinitions.Library1.Sound38PauseMenuTransitionToggledEquipment,
+        0x39 => SpcSoundStreamDefinitions.Library1.Sound39SwitchHUDItem,
+        0x3a => SpcSoundStreamDefinitions.Library1.Sound3AEmpty,
+        0x3b => SpcSoundStreamDefinitions.Library1.Sound3BHexagonMapSquareMapTransition,
+        0x3c => SpcSoundStreamDefinitions.Library1.Sound3CSquareMapHexagonMapTransition,
+        0x3d => SpcSoundStreamDefinitions.Library1.Sound3DDudShot,
+        0x3e => SpcSoundStreamDefinitions.Library1.Sound3ESpaceJump,
+        0x3f => SpcSoundStreamDefinitions.Library1.Sound3FResumedSpaceJump,
+        0x40 => SpcSoundStreamDefinitions.Library1.Sound40MotherBrainSRainbowBeam,
+        0x41 => SpcSoundStreamDefinitions.Library1.Sound41ResumeChargingBeam,
+        0x42 => SpcSoundStreamDefinitions.Library1.Sound42,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static ushort Library2Stream(int command) => command switch
+    {
+        0x01 => SpcSoundStreamDefinitions.Library2.Sound01CollectedSmallHealthDrop,
+        0x02 => SpcSoundStreamDefinitions.Library2.Sound02CollectedBigHealthDrop,
+        0x03 => SpcSoundStreamDefinitions.Library2.Sound03CollectedMissileDrop,
+        0x04 => SpcSoundStreamDefinitions.Library2.Sound04CollectedSuperMissileDrop,
+        0x05 => SpcSoundStreamDefinitions.Library2.Sound05CollectedPowerBombDrop,
+        0x06 => SpcSoundStreamDefinitions.Library2.Sound06BlockDestroyedByContactDamage,
+        0x07 => SpcSoundStreamDefinitions.Library2.Sound07SuperMissileHitWall,
+        0x08 => SpcSoundStreamDefinitions.Library2.Sound08BombExplosion,
+        0x09 => SpcSoundStreamDefinitions.Library2.Sound09EnemyKilled,
+        0x0a => SpcSoundStreamDefinitions.Library2.Sound0ABlockCrumbledOrDestroyedByShot,
+        0x0b => SpcSoundStreamDefinitions.Library2.Sound0BEnemyKilledByContactDamage,
+        0x0c => SpcSoundStreamDefinitions.Library2.Sound0CBeamHitWall,
+        0x0d => SpcSoundStreamDefinitions.Library2.Sound0DSplashedIntoWater,
+        0x0e => SpcSoundStreamDefinitions.Library2.Sound0ESplashedOutOfWater,
+        0x0f => SpcSoundStreamDefinitions.Library2.Sound0FLowPitchedAirBubbles,
+        0x10 => SpcSoundStreamDefinitions.Library2.Sound10LavaAcidDamagingSamus,
+        0x11 => SpcSoundStreamDefinitions.Library2.Sound11HighPitchedAirBubbles,
+        0x12 => SpcSoundStreamDefinitions.Library2.Sound12PlaysAtRandomInHeatedRooms,
+        0x13 => SpcSoundStreamDefinitions.Library2.Sound13PlaysAtRandomInHeatedRooms,
+        0x14 => SpcSoundStreamDefinitions.Library2.Sound14PlaysAtRandomInHeatedRooms,
+        0x15 => SpcSoundStreamDefinitions.Library2.Sound15MaridiaElevatube,
+        0x16 => SpcSoundStreamDefinitions.Library2.Sound16,
+        0x17 => SpcSoundStreamDefinitions.Library2.Sound17MorphBallEyeSRay,
+        0x18 => SpcSoundStreamDefinitions.Library2.Sound18Beacon,
+        0x19 => SpcSoundStreamDefinitions.Library2.Sound19,
+        0x1a => SpcSoundStreamDefinitions.Library2.Sound1AN00bTubeShattering,
+        0x1b => SpcSoundStreamDefinitions.Library2.Sound1B,
+        0x1c => SpcSoundStreamDefinitions.Library2.Sound1C,
+        0x1d => SpcSoundStreamDefinitions.Library2.Sound1DDachoraCry,
+        0x1e => SpcSoundStreamDefinitions.Library2.Sound1E,
+        0x1f => SpcSoundStreamDefinitions.Library2.Sound1F,
+        0x20 => SpcSoundStreamDefinitions.Library2.Sound20ShotFly,
+        0x21 => SpcSoundStreamDefinitions.Library2.Sound21ShotSkreeWallNinjaSpacePirate,
+        0x22 => SpcSoundStreamDefinitions.Library2.Sound22ShotPipeBugHighRisingSlowFallingEnemy,
+        0x23 => SpcSoundStreamDefinitions.Library2.Sound23ShotSlugSidehopperZoomer,
+        0x24 => SpcSoundStreamDefinitions.Library2.Sound24SmallExplosionEnemyDeath,
+        0x25 => SpcSoundStreamDefinitions.Library2.Sound25CeresDoorExplosionAlsoUsedByMotherBrain,
+        0x26 => SpcSoundStreamDefinitions.Library2.Sound26,
+        0x27 => SpcSoundStreamDefinitions.Library2.Sound27ShotTorizo,
+        0x28 => SpcSoundStreamDefinitions.Library2.Sound28,
+        0x29 => SpcSoundStreamDefinitions.Library2.Sound29MotherBrainRisingIntoPhase2,
+        0x2a => SpcSoundStreamDefinitions.Library2.Sound2A,
+        0x2b => SpcSoundStreamDefinitions.Library2.Sound2BRidleySFireballHitSurface,
+        0x2c => SpcSoundStreamDefinitions.Library2.Sound2CShotSporeSpawn,
+        0x2d => SpcSoundStreamDefinitions.Library2.Sound2D,
+        0x2e => SpcSoundStreamDefinitions.Library2.Sound2E,
+        0x2f => SpcSoundStreamDefinitions.Library2.Sound2FYappingMaw,
+        0x30 => SpcSoundStreamDefinitions.Library2.Sound30ShotSuperDesgeega,
+        0x31 => SpcSoundStreamDefinitions.Library2.Sound31BrinstarPlantChewing,
+        0x32 => SpcSoundStreamDefinitions.Library2.Sound32EtecoonWallJump,
+        0x33 => SpcSoundStreamDefinitions.Library2.Sound33EtecoonCry,
+        0x34 => SpcSoundStreamDefinitions.Library2.Sound34SpikeShootingPlantSpikes,
+        0x35 => SpcSoundStreamDefinitions.Library2.Sound35EtecoonSTheme,
+        0x36 => SpcSoundStreamDefinitions.Library2.Sound36ShotRioNorfairLavaJumpingEnemyLavaSeahorse,
+        0x37 => SpcSoundStreamDefinitions.Library2.Sound37RefillMapStationEngaged,
+        0x38 => SpcSoundStreamDefinitions.Library2.Sound38RefillMapStationDisengaged,
+        0x39 => SpcSoundStreamDefinitions.Library2.Sound39DachoraSpeedBooster,
+        0x3a => SpcSoundStreamDefinitions.Library2.Sound3A,
+        0x3b => SpcSoundStreamDefinitions.Library2.Sound3BDachoraShinespark,
+        0x3c => SpcSoundStreamDefinitions.Library2.Sound3CDachoraShinesparkEnded,
+        0x3d => SpcSoundStreamDefinitions.Library2.Sound3DDachoraStoredShinespark,
+        0x3e => SpcSoundStreamDefinitions.Library2.Sound3EShotMaridiaSpikeyShellsNorfairErraticFireballRippedKamerMaridiaSnailYappingMawWreckedShipOrbs,
+        0x3f => SpcSoundStreamDefinitions.Library2.Sound3F,
+        0x40 => SpcSoundStreamDefinitions.Library2.Sound40,
+        0x41 => SpcSoundStreamDefinitions.Library2.Sound41,
+        0x42 => SpcSoundStreamDefinitions.Library2.Sound42,
+        0x43 => SpcSoundStreamDefinitions.Library2.Sound43,
+        0x44 => SpcSoundStreamDefinitions.Library2.Sound44,
+        0x45 => SpcSoundStreamDefinitions.Library2.Sound45TypewriterStrokeCeresSelfDestructSequence,
+        0x46 => SpcSoundStreamDefinitions.Library2.Sound46,
+        0x47 => SpcSoundStreamDefinitions.Library2.Sound47ShotWaver,
+        0x48 => SpcSoundStreamDefinitions.Library2.Sound48,
+        0x49 => SpcSoundStreamDefinitions.Library2.Sound49ShotFishCrabMaridiaRefillCandy,
+        0x4a => SpcSoundStreamDefinitions.Library2.Sound4AShotMiniDraygon,
+        0x4b => SpcSoundStreamDefinitions.Library2.Sound4B,
+        0x4c => SpcSoundStreamDefinitions.Library2.Sound4CKiHunterEyeDoorAcidSpit,
+        0x4d => SpcSoundStreamDefinitions.Library2.Sound4DGunshipHover,
+        0x4e => SpcSoundStreamDefinitions.Library2.Sound4ECeresRidleyGetaway,
+        0x4f => SpcSoundStreamDefinitions.Library2.Sound4F,
+        0x50 => SpcSoundStreamDefinitions.Library2.Sound50,
+        0x51 => SpcSoundStreamDefinitions.Library2.Sound51ShotWreckedShipGhost,
+        0x52 => SpcSoundStreamDefinitions.Library2.Sound52,
+        0x53 => SpcSoundStreamDefinitions.Library2.Sound53ShotMiniCrocomire,
+        0x54 => SpcSoundStreamDefinitions.Library2.Sound54,
+        0x55 => SpcSoundStreamDefinitions.Library2.Sound55ShotBeetom,
+        0x56 => SpcSoundStreamDefinitions.Library2.Sound56AcquiredSuit,
+        0x57 => SpcSoundStreamDefinitions.Library2.Sound57ShotDoorGateWithDudShotShotReflec,
+        0x58 => SpcSoundStreamDefinitions.Library2.Sound58ShotMochtroid,
+        0x59 => SpcSoundStreamDefinitions.Library2.Sound59RidleySRoar,
+        0x5a => SpcSoundStreamDefinitions.Library2.Sound5AShotMetroid,
+        0x5b => SpcSoundStreamDefinitions.Library2.Sound5BSkreeLaunchesAttack,
+        0x5c => SpcSoundStreamDefinitions.Library2.Sound5CSkreeHitsTheGround,
+        0x5d => SpcSoundStreamDefinitions.Library2.Sound5DSidehopperJumped,
+        0x5e => SpcSoundStreamDefinitions.Library2.Sound5ESidehopperLanded,
+        0x5f => SpcSoundStreamDefinitions.Library2.Sound5FShotLowerNorfairRioDesgeegaNorfairSlowFireballWalkingLavaSeahorseBotwoon,
+        0x60 => SpcSoundStreamDefinitions.Library2.Sound60,
+        0x61 => SpcSoundStreamDefinitions.Library2.Sound61,
+        0x62 => SpcSoundStreamDefinitions.Library2.Sound62,
+        0x63 => SpcSoundStreamDefinitions.Library2.Sound63MotherBrainSKetchupBeam,
+        0x64 => SpcSoundStreamDefinitions.Library2.Sound64,
+        0x65 => SpcSoundStreamDefinitions.Library2.Sound65,
+        0x66 => SpcSoundStreamDefinitions.Library2.Sound66ShotKiHunterWalkingSpacePirate,
+        0x67 => SpcSoundStreamDefinitions.Library2.Sound67SpacePirateMotherBrainLaser,
+        0x68 => SpcSoundStreamDefinitions.Library2.Sound68ShotWreckedShipRobot,
+        0x69 => SpcSoundStreamDefinitions.Library2.Sound69ShotShaktool,
+        0x6a => SpcSoundStreamDefinitions.Library2.Sound6AShotMaridiaFloater,
+        0x6b => SpcSoundStreamDefinitions.Library2.Sound6B,
+        0x6c => SpcSoundStreamDefinitions.Library2.Sound6C,
+        0x6d => SpcSoundStreamDefinitions.Library2.Sound6DCeresTilesFallingFromCeiling,
+        0x6e => SpcSoundStreamDefinitions.Library2.Sound6EShotMotherBrainPhase1,
+        0x6f => SpcSoundStreamDefinitions.Library2.Sound6FMotherBrainSCryLowPitch,
+        0x70 => SpcSoundStreamDefinitions.Library2.Sound70,
+        0x71 => SpcSoundStreamDefinitions.Library2.Sound71Silence,
+        0x72 => SpcSoundStreamDefinitions.Library2.Sound72,
+        0x73 => SpcSoundStreamDefinitions.Library2.Sound73,
+        0x74 => SpcSoundStreamDefinitions.Library2.Sound74,
+        0x75 => SpcSoundStreamDefinitions.Library2.Sound75,
+        0x76 => SpcSoundStreamDefinitions.Library2.Sound76,
+        0x77 => SpcSoundStreamDefinitions.Library2.Sound77,
+        0x78 => SpcSoundStreamDefinitions.Library2.Sound78,
+        0x79 => SpcSoundStreamDefinitions.Library2.Sound79,
+        0x7a => SpcSoundStreamDefinitions.Library2.Sound7A,
+        0x7b => SpcSoundStreamDefinitions.Library2.Sound7B,
+        0x7c => SpcSoundStreamDefinitions.Library2.Sound7C,
+        0x7d => SpcSoundStreamDefinitions.Library2.Sound7D,
+        0x7e => SpcSoundStreamDefinitions.Library2.Sound7EMotherBrainSCryHighPitch,
+        0x7f => SpcSoundStreamDefinitions.Library2.Sound7FMotherBrainChargingHerRainbow,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static ushort Library3Stream(int command) => command switch
+    {
+        0x01 => SpcSoundStreamDefinitions.Library3.Sound01Silence,
+        0x02 => SpcSoundStreamDefinitions.Library3.Sound02LowHealthBeep,
+        0x03 => SpcSoundStreamDefinitions.Library3.Sound03SpeedBooster,
+        0x04 => SpcSoundStreamDefinitions.Library3.Sound04SamusLandedHard,
+        0x05 => SpcSoundStreamDefinitions.Library3.Sound05SamusLandedWallJumped,
+        0x06 => SpcSoundStreamDefinitions.Library3.Sound06SamusFootsteps,
+        0x07 => SpcSoundStreamDefinitions.Library3.Sound07DoorOpened,
+        0x08 => SpcSoundStreamDefinitions.Library3.Sound08DoorClosed,
+        0x09 => SpcSoundStreamDefinitions.Library3.Sound09MissileDoorShotWithMissile,
+        0x0a => SpcSoundStreamDefinitions.Library3.Sound0AEnemyFrozen,
+        0x0b => SpcSoundStreamDefinitions.Library3.Sound0BElevator,
+        0x0c => SpcSoundStreamDefinitions.Library3.Sound0CStoredShinespark,
+        0x0d => SpcSoundStreamDefinitions.Library3.Sound0DTypewriterStrokeIntro,
+        0x0e => SpcSoundStreamDefinitions.Library3.Sound0EGateOpeningClosing,
+        0x0f => SpcSoundStreamDefinitions.Library3.Sound0FShinespark,
+        0x10 => SpcSoundStreamDefinitions.Library3.Sound10ShinesparkEnded,
+        0x11 => SpcSoundStreamDefinitions.Library3.Sound11,
+        0x12 => SpcSoundStreamDefinitions.Library3.Sound12Empty,
+        0x13 => SpcSoundStreamDefinitions.Library3.Sound13MotherBrainSProjectileHitsSurface,
+        0x14 => SpcSoundStreamDefinitions.Library3.Sound14GunshipElevatorActivated,
+        0x15 => SpcSoundStreamDefinitions.Library3.Sound15GunshipElevatorDeactivated,
+        0x16 => SpcSoundStreamDefinitions.Library3.Sound16,
+        0x17 => SpcSoundStreamDefinitions.Library3.Sound17MotherBrainSBlueRings,
+        0x18 => SpcSoundStreamDefinitions.Library3.Sound18Empty,
+        0x19 => SpcSoundStreamDefinitions.Library3.Sound19,
+        0x1a => SpcSoundStreamDefinitions.Library3.Sound1AEmpty,
+        0x1b => SpcSoundStreamDefinitions.Library3.Sound1B,
+        0x1c => SpcSoundStreamDefinitions.Library3.Sound1C,
+        0x1d => SpcSoundStreamDefinitions.Library3.Sound1D,
+        0x1e => SpcSoundStreamDefinitions.Library3.Sound1EEarthquakeKraid,
+        0x1f => SpcSoundStreamDefinitions.Library3.Sound1F,
+        0x20 => SpcSoundStreamDefinitions.Library3.Sound20Empty,
+        0x21 => SpcSoundStreamDefinitions.Library3.Sound21RidleyWhipsItsTail,
+        0x22 => SpcSoundStreamDefinitions.Library3.Sound22,
+        0x23 => SpcSoundStreamDefinitions.Library3.Sound23BabyMetroidCry1,
+        0x24 => SpcSoundStreamDefinitions.Library3.Sound24BabyMetroidCryCeres,
+        0x25 => SpcSoundStreamDefinitions.Library3.Sound25SilenceClearSpeedBoosterElevatorSound,
+        0x26 => SpcSoundStreamDefinitions.Library3.Sound26BabyMetroidCry2,
+        0x27 => SpcSoundStreamDefinitions.Library3.Sound27BabyMetroidCry3,
+        0x28 => SpcSoundStreamDefinitions.Library3.Sound28,
+        0x29 => SpcSoundStreamDefinitions.Library3.Sound29PhantoonRelated,
+        0x2a => SpcSoundStreamDefinitions.Library3.Sound2APauseMenuAmbientBeep,
+        0x2b => SpcSoundStreamDefinitions.Library3.Sound2B,
+        0x2c => SpcSoundStreamDefinitions.Library3.Sound2CCeresDoorOpening,
+        0x2d => SpcSoundStreamDefinitions.Library3.Sound2DGainingLosingIncrementalHealth,
+        0x2e => SpcSoundStreamDefinitions.Library3.Sound2EMotherBrainSGlassShattering,
+        0x2f => SpcSoundStreamDefinitions.Library3.Sound2FEmpty,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    /// <summary>
+    /// Dispatches one-based CPU sound commands to their native voice-allocation policy.
+    /// Native jump tables at SPC $1F4D/$31B1/$4776 choose handlers, not numeric samples.
+    /// The byte result preserves the extracted audio manifest's library-relative policy identity.
+    /// </summary>
+    internal static byte Configuration(int libraryIndex, int command) => libraryIndex switch
+    {
+        0 => (byte)Library1Configuration(command),
+        1 => (byte)Library2Configuration(command),
+        2 => (byte)Library3Configuration(command),
+        _ => throw new IndexOutOfRangeException(),
+    };
+    private static SpcLibrary1Policy Library1Configuration(int command) => command switch
+    {
+        0x02 or 0x03 or 0x04 or 0x05 or 0x06 or 0x07 or 0x09 or 0x0a or
+        0x0b or 0x0c or 0x0d or 0x0e or 0x0f or 0x10 or 0x11 or 0x12 or
+        0x13 or 0x14 or 0x15 or 0x16 or 0x17 or 0x18 or 0x19 or 0x1a or
+        0x1b or 0x1c or 0x1d or 0x1e or 0x1f or 0x20 or 0x21 or 0x22 or
+        0x23 or 0x25 or 0x26 or 0x28 or 0x29 or 0x2a or 0x2b or 0x2c or
+        0x2d or 0x2f or 0x30 or 0x31 or 0x32 or 0x34 or 0x36 or 0x37 or
+        0x38 or 0x39 or 0x3a or 0x3b or 0x3c or 0x3d or 0x3e or 0x3f => SpcLibrary1Policy.OneVoiceLowPriority,
+        0x35 => SpcLibrary1Policy.OneVoiceHighPriority,
+        0x08 or 0x24 or 0x27 or 0x33 or 0x41 or 0x42 => SpcLibrary1Policy.TwoVoicesLowPriority,
+        0x40 => SpcLibrary1Policy.ThreeVoicesHighPriority,
+        0x2e => SpcLibrary1Policy.FourVoicesLowPriority,
+        0x01 => SpcLibrary1Policy.PowerBombFourVoices,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static SpcLibrary2Policy Library2Configuration(int command) => command switch
+    {
+        0x06 or 0x07 or 0x08 or 0x09 or 0x0a or 0x0b or 0x0c or 0x0d or
+        0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or
+        0x18 or 0x1b or 0x1d or 0x20 or 0x21 or 0x22 or 0x23 or 0x24 or
+        0x25 or 0x26 or 0x28 or 0x29 or 0x2a or 0x2b or 0x2f or 0x30 or
+        0x31 or 0x32 or 0x33 or 0x34 or 0x36 or 0x39 or 0x3a or 0x3b or
+        0x3c or 0x3d or 0x3e or 0x3f or 0x40 or 0x41 or 0x42 or 0x43 or
+        0x44 or 0x45 or 0x47 or 0x48 or 0x49 or 0x4a or 0x4b or 0x4c or
+        0x4d or 0x4f or 0x52 or 0x53 or 0x55 or 0x57 or 0x5b or 0x5c or
+        0x5d or 0x5e or 0x5f or 0x60 or 0x61 or 0x62 or 0x64 or 0x65 or
+        0x66 or 0x67 or 0x68 or 0x69 or 0x6a or 0x6b or 0x6c or 0x6d or
+        0x70 or 0x71 or 0x76 => SpcLibrary2Policy.OneVoiceLowPriority,
+        0x01 or 0x02 or 0x03 or 0x04 or 0x05 or 0x16 or 0x17 or 0x1c or
+        0x1f or 0x2d or 0x35 or 0x46 or 0x54 or 0x7c or 0x7d or 0x7e => SpcLibrary2Policy.OneVoiceHighPriority,
+        0x19 or 0x1a or 0x37 or 0x38 or 0x56 or 0x58 or 0x5a or 0x63 or
+        0x78 or 0x79 or 0x7a or 0x7b or 0x7f => SpcLibrary2Policy.TwoVoicesLowPriority,
+        0x1e or 0x27 or 0x2c or 0x2e or 0x4e or 0x50 or 0x51 or 0x59 or
+        0x6e or 0x6f or 0x72 or 0x73 or 0x74 or 0x75 or 0x77 => SpcLibrary2Policy.TwoVoicesHighPriority,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    private static SpcLibrary3Policy Library3Configuration(int command) => command switch
+    {
+        0x01 => SpcLibrary3Policy.CancelAndClearLowHealthMode,
+        0x02 => SpcLibrary3Policy.LowHealthModePreservePriority,
+        0x03 or 0x06 or 0x09 or 0x0c or 0x0d or 0x10 or 0x11 or 0x13 or
+        0x16 or 0x17 or 0x18 or 0x1a or 0x1c or 0x1d or 0x1e or 0x1f or
+        0x22 or 0x23 or 0x25 or 0x26 or 0x27 or 0x28 or 0x29 or 0x2a or
+        0x2b or 0x2d or 0x2f => SpcLibrary3Policy.OneVoiceLowPriority,
+        0x04 or 0x05 or 0x0b or 0x0f => SpcLibrary3Policy.TwoVoicesLowPriority,
+        0x07 or 0x08 or 0x0e or 0x14 or 0x15 or 0x19 or 0x1b or 0x2c or
+        0x2e => SpcLibrary3Policy.TwoVoicesHighPriority,
+        0x0a or 0x12 or 0x20 or 0x21 or 0x24 => SpcLibrary3Policy.OneVoiceHighPriority,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    /// <summary>
+    /// SPC allocation structure layout: contiguous per-channel bitsets and masks,
+    /// then one intervening byte before the per-channel voice indices.
+    /// Library bases are $03A6, $0446 and $047E; channel counts are four, two and two.
+    /// </summary>
+    internal static ushort AllocationStateAddress(int libraryIndex, SpcAllocationField field)
+    {
+        (int baseAddress, int channelCount) = libraryIndex switch
         {
-            if (StreamPointerTables[library].Length != Configurations[library].Length)
-                throw new InvalidDataException($"SPC sound library {library + 1} table lengths disagree.");
-        }
+            0 => (0x03a6, 4),
+            1 => (0x0446, 2),
+            2 => (0x047e, 2),
+            _ => throw new IndexOutOfRangeException(),
+        };
+        int offset = field switch
+        {
+            SpcAllocationField.VoiceBitset => 0,
+            SpcAllocationField.ChannelMask => channelCount,
+            SpcAllocationField.VoiceIndex => 2 * channelCount + 1,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        return (ushort)(baseAddress + offset);
     }
 
+    /// <summary>Number of channel programs required by a named native allocation policy.</summary>
+    /// <remarks>#1165: matches the voice-count writes in the handlers catalogued by
+    /// SpcLibrary1Policy/SpcLibrary2Policy/SpcLibrary3Policy. Library-three cancellation
+    /// and low-health mode both allocate one voice. Unknown manifest bytes are rejected,
+    /// and unsupported library indices preserve ArgumentOutOfRangeException.</remarks>
     internal static int GetVoiceCount(int libraryIndex, byte configuration) => libraryIndex switch
     {
-        0 => configuration switch
+        0 => (SpcLibrary1Policy)configuration switch
         {
-            0 or 1 => 1,
-            2 => 2,
-            3 => 3,
-            4 or 5 => 4,
+            SpcLibrary1Policy.OneVoiceLowPriority or SpcLibrary1Policy.OneVoiceHighPriority => 1,
+            SpcLibrary1Policy.TwoVoicesLowPriority => 2,
+            SpcLibrary1Policy.ThreeVoicesHighPriority => 3,
+            SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => 4,
             _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
         },
-        1 => configuration switch
+        1 => (SpcLibrary2Policy)configuration switch
         {
-            0 or 1 => 1,
-            2 or 3 => 2,
+            SpcLibrary2Policy.OneVoiceLowPriority or SpcLibrary2Policy.OneVoiceHighPriority => 1,
+            SpcLibrary2Policy.TwoVoicesLowPriority or SpcLibrary2Policy.TwoVoicesHighPriority => 2,
             _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
         },
-        2 => configuration switch
+        2 => (SpcLibrary3Policy)configuration switch
         {
-            0 or 1 or 2 or 5 => 1,
-            3 or 4 => 2,
+            SpcLibrary3Policy.CancelAndClearLowHealthMode or SpcLibrary3Policy.LowHealthModePreservePriority or
+                SpcLibrary3Policy.OneVoiceLowPriority or SpcLibrary3Policy.OneVoiceHighPriority => 1,
+            SpcLibrary3Policy.TwoVoicesLowPriority or SpcLibrary3Policy.TwoVoicesHighPriority => 2,
             _ => throw new InvalidDataException($"Unknown SPC SFX3 configuration {configuration}."),
         },
         _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
+}
+
+/// <summary>Distinct per-channel fields in the native SPC voice-allocation structures.</summary>
+internal enum SpcAllocationField
+{
+    VoiceBitset,
+    ChannelMask,
+    VoiceIndex,
 }

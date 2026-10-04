@@ -6,21 +6,12 @@ internal static partial class Program
 {
     private static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int spikeTable = 0x869e7d;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
         VerifyFakeKraidSpitHorizontalVelocity(rom);
         VerifyFakeKraidSpitVerticalVelocity(rom);
 
-        for (int row = 0; row < 3; row++)
-        {
-            short expected = unchecked((short)ReadWord(rom, spikeTable + row * 2));
-            AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
-                $"Fake Kraid spike row {row} Y offset");
-        }
+        VerifyFakeKraidSpikeRowSelection(rom);
 
         AssertThrows<InvalidDataException>(
             () => FakeKraidProjectileDefinitions.SpitLaunch(false, -1),
@@ -28,12 +19,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => FakeKraidProjectileDefinitions.SpitLaunch(true, 2),
             "Fake Kraid spit index past direction set");
-        AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectileDefinitions.SpikeYOffset(-1),
-            "Fake Kraid negative spike row");
-        AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectileDefinitions.SpikeYOffset(3),
-            "Fake Kraid spike row past table");
 
         var guarded = new FakeKraidProjectileReadGuard(rom);
         MethodInfo spawnSpitPair = typeof(RoomEnemySystem).GetMethod(
@@ -116,6 +101,20 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fake Kraid projectile definitions: four spit launches, three spike rows, both facings and every real physical spawn pass with both source tables forbidden.");
+    }
+
+    private static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
+    {
+        for (int row = 0; row < 3; row++)
+        {
+            int address = 0x869e7d + row * 2;
+            short expected = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
+                $"Fake Kraid original signed launch port {row}");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 3, 4, 0x10000, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => FakeKraidProjectileDefinitions.SpikeYOffset(invalid),
+                "Fake Kraid unsupported launch port is rejected without masking");
     }
 
     private static RoomEnemySystem NewFakeKraidProjectileSystem(

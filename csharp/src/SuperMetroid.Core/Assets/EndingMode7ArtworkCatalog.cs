@@ -81,18 +81,15 @@ public sealed class EndingMode7SceneArtwork
 /// <summary>Host-owned visual streams for the escape and planet-explosion scenes.</summary>
 public sealed class EndingMode7ArtworkCatalog
 {
-    private readonly EndingMode7SceneArtwork[] scenes;
+    private readonly EndingMode7SceneArtwork escapeA, escapeB, planetExplosion;
 
     public EndingMode7ArtworkCatalog(EndingMode7SceneArtwork escapeA,
         EndingMode7SceneArtwork escapeB, EndingMode7SceneArtwork planetExplosion,
         EndingRewardIconArtwork rewardIcon)
     {
-        scenes =
-        [
-            escapeA ?? throw new ArgumentNullException(nameof(escapeA)),
-            escapeB ?? throw new ArgumentNullException(nameof(escapeB)),
-            planetExplosion ?? throw new ArgumentNullException(nameof(planetExplosion)),
-        ];
+        this.escapeA = escapeA ?? throw new ArgumentNullException(nameof(escapeA));
+        this.escapeB = escapeB ?? throw new ArgumentNullException(nameof(escapeB));
+        this.planetExplosion = planetExplosion ?? throw new ArgumentNullException(nameof(planetExplosion));
         RewardIcon = rewardIcon ?? throw new ArgumentNullException(nameof(rewardIcon));
     }
 
@@ -102,18 +99,23 @@ public sealed class EndingMode7ArtworkCatalog
     /// <summary>Identity of each decoded scene's two transfer lanes and the full reward-icon transfer.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingMode7ArtworkCatalog), content =>
     {
-        content.Append("scene-count", scenes.Length);
-        foreach (EndingMode7SceneArtwork scene in scenes)
-        {
-            content.Append("map", scene.Map.Span);
-            content.Append("characters", scene.Characters.Span);
-        }
+        content.Append("scene-count", 3);
+        content.Append("map", escapeA.Map.Span);
+        content.Append("characters", escapeA.Characters.Span);
+        content.Append("map", escapeB.Map.Span);
+        content.Append("characters", escapeB.Characters.Span);
+        content.Append("map", planetExplosion.Map.Span);
+        content.Append("characters", planetExplosion.Characters.Span);
         content.Append("reward-icon", RewardIcon.Transfer.Span);
     });
 
-    public EndingMode7SceneArtwork this[EndingMode7SceneId id] =>
-        (uint)id < scenes.Length ? scenes[(int)id] :
-            throw new ArgumentOutOfRangeException(nameof(id));
+    public EndingMode7SceneArtwork this[EndingMode7SceneId id] => id switch
+    {
+        EndingMode7SceneId.EscapeA => escapeA,
+        EndingMode7SceneId.EscapeB => escapeB,
+        EndingMode7SceneId.PlanetExplosion => planetExplosion,
+        _ => throw new ArgumentOutOfRangeException(nameof(id)),
+    };
 }
 
 /// <summary>

@@ -11,12 +11,19 @@ internal static partial class Program
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
         var font = new MenuSmallFontArtwork(image);
         AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
-        AssertEqual(3, font.StoredEditCount, "only three unresolved B/K shadow removals remain");
-        AssertTrue(font.HasPixelOverride(0x6b, 1, 7), "B edge removal remains pending");
-        AssertTrue(font.HasPixelOverride(0x74, 6, 2), "first K arm removal remains pending");
-        AssertTrue(font.HasPixelOverride(0x74, 5, 3), "second K arm removal remains pending");
+        AssertEqual(3, font.StoredEditCount, "three independently reviewed B/K drawing choices");
+        AssertTrue(font.HasPixelOverride(0x6b, 1, 7), "B's selected lower-left bevel");
+        AssertTrue(font.HasPixelOverride(0x74, 6, 2), "first K arm trim");
+        AssertTrue(font.HasPixelOverride(0x74, 5, 3), "second K arm trim");
+        AssertMenuInkRegionEqual(image, 0x6b, 0, 4, 0x6d, 0, 4, 8, 4, "B/D lower contour");
+        AssertMenuInkRegionEqual(image, 0x74, 5, 1, 0x83, 5, 2, 3, 3, "K/Z first diagonal neighborhood");
+        AssertMenuInkRegionEqual(image, 0x74, 4, 2, 0x83, 4, 3, 3, 2, "K/Z second diagonal source/current rows");
+        AssertEqual((byte)0, MenuEvidencePixel(image, 0x6b, 1, 7), "B omits lower-left shadow");
+        AssertEqual((byte)13, MenuEvidencePixel(image, 0x6d, 1, 7), "D keeps shadow below identical lower ink");
+        AssertEqual((byte)13, MenuEvidencePixel(image, 0x83, 6, 3), "Z keeps first matching diagonal shadow");
+        AssertEqual((byte)13, MenuEvidencePixel(image, 0x83, 5, 4), "Z keeps second matching diagonal shadow");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
-        AssertEqual(3424, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
+        AssertEqual(3360, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })

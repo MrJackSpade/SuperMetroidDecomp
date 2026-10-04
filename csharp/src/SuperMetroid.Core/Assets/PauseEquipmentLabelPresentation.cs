@@ -46,7 +46,7 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         if (hyperBeam)
         {
-            for (int item = 0; item < PauseEquipmentLabelDefinitions.Keys[1].Length; item++)
+            for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(1); item++)
             {
                 CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(1, item)];
                 blank.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
@@ -59,7 +59,7 @@ public sealed class PauseEquipmentLabelPresentation
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
         for (int category = 1; category <= 3; category++)
-        for (int item = 0; item < PauseEquipmentLabelDefinitions.Keys[category].Length; item++)
+        for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(category); item++)
         {
             if (category == 1 && hyperBeam) continue;
 
@@ -120,9 +120,9 @@ public sealed class PauseEquipmentLabelPresentation
             (uint)document.DisabledPalette >= 8)
             throw new InvalidDataException("Pause equipment labels require version 1, nine blank cells and a valid disabled palette.");
 
-        string[] expected = [.. PauseEquipmentLabelDefinitions.Keys.Skip(1).SelectMany(value => value),
-            PauseEquipmentLabelDefinitions.HyperKey];
-        if (document.Labels.Count != expected.Length || expected.Any(key => !document.Labels.ContainsKey(key)))
+        IEnumerable<string> expected = PauseEquipmentLabelDefinitions.Labels().Select(label => label.Key)
+            .Append(PauseEquipmentLabelDefinitions.HyperKey);
+        if (document.Labels.Count != expected.Count() || expected.Any(key => !document.Labels.ContainsKey(key)))
             throw new InvalidDataException("Pause equipment labels require the fourteen ordinary labels and Beam.Hyper exactly once.");
 
         var compiled = new Dictionary<string, CompiledLabel>(StringComparer.Ordinal);

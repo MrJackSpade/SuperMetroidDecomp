@@ -48,7 +48,9 @@ internal static class SpcDriverData
         /// <summary>
         /// APU address `$1E32`, the first FIR coefficient consumed by music effect `$F7`.
         /// The native driver performs byte-addressed arithmetic from this location and does
-        /// not constrain the preset operand to the four conventional filters.
+        /// not constrain the preset operand to the four conventional filters. MUL YA /
+        /// MOV X,A at SPC1A94..1A97 wraps the eight-byte offset to an eight-bit index,
+        /// giving32 mutable RAM groups in1E32..1F31 rather than256 unwrapped groups.
         /// </summary>
         internal const ushort FirCoefficientTableAddress = 0x1e32;
     }
@@ -60,6 +62,12 @@ internal static class SpcDriverData
         internal const byte DefaultMasterVolume = 0xc0;
         internal const byte DefaultChannelVolume = byte.MaxValue;
         internal const byte CenterPan = 10;
+        /// <summary>SPC1E1D, panningVolumeMultipliers; indexed SBC/ADC at1C55/1C5F
+        /// use this base, including bounded reads into subsequent mutable RAM.</summary>
+        internal const ushort PanVolumeTableAddress = 0x1e1d;
+        /// <summary>SPC1C7A..1C7F loads1400h and subtracts the current8.8 pan bias
+        /// to obtain the other speaker's bias with16-bit wrap.</summary>
+        internal const ushort FullyLeftPan = 0x1400;
         internal const byte FirstEffect = 0xe0;
         internal const byte CommandMarker = 0x80;
         internal const byte FirstPercussionNote = 0xca;

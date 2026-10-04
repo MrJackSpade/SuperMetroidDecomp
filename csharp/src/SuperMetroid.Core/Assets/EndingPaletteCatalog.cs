@@ -20,19 +20,33 @@ public enum EndingPaletteId
 /// <summary>One exact BGR555 color image, independently editable as RGB5 JSON.</summary>
 public sealed class EndingPalette
 {
-    private readonly byte[] nativeBytes;
+    private readonly byte[]? nativeBytes;
+    private readonly EndingLogoPaletteFade? logoFade;
 
     private EndingPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
+    private EndingPalette(EndingLogoPaletteFade logoFade) => this.logoFade = logoFade;
 
-    public ReadOnlyMemory<byte> Transfer => nativeBytes;
-    public int ColorCount => nativeBytes.Length / sizeof(ushort);
+    /// <summary>Transfer/export view. A computed fade is materialized only for this
+    /// request, never stored as a generated lookup cache; gameplay calls Color directly.</summary>
+    public ReadOnlyMemory<byte> Transfer
+    {
+        get
+        {
+            if (nativeBytes is not null) return nativeBytes;
+            var bytes = new byte[ColorCount * sizeof(ushort)];
+            WriteColors(bytes, 0, ColorCount);
+            return bytes;
+        }
+    }
+    public int ColorCount => nativeBytes is not null ? nativeBytes.Length / sizeof(ushort) : EndingLogoPaletteFade.ColorCount;
 
     public ushort Color(int index)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
+        if (logoFade is not null) return logoFade.Color(index);
         return BinaryPrimitives.ReadUInt16LittleEndian(
-            nativeBytes.AsSpan(index * sizeof(ushort)));
+            nativeBytes!.AsSpan(index * sizeof(ushort)));
     }
 
     /// <summary>Preserves the cartridge's partial source/destination CGRAM transfers.</summary>
@@ -41,8 +55,21 @@ public sealed class EndingPalette
         ArgumentNullException.ThrowIfNull(cgram);
         if (sourceColor < 0 || count < 0 || sourceColor > ColorCount - count)
             throw new ArgumentOutOfRangeException(nameof(sourceColor));
-        cgram.LoadBytes(nativeBytes.AsSpan(sourceColor * sizeof(ushort),
-            count * sizeof(ushort)), destinationColor);
+        if (nativeBytes is not null)
+            cgram.LoadBytes(nativeBytes.AsSpan(sourceColor * sizeof(ushort),
+                count * sizeof(ushort)), destinationColor);
+        else
+        {
+            Span<byte> transfer = stackalloc byte[count * sizeof(ushort)];
+            WriteColors(transfer, sourceColor, count);
+            cgram.LoadBytes(transfer, destinationColor);
+        }
+    }
+
+    private void WriteColors(Span<byte> bytes, int sourceColor, int count)
+    {
+        for (int i = 0; i < count; i++)
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * sizeof(ushort)), Color(sourceColor + i));
     }
 
     public static EndingPalette Load(Stream json, EndingPaletteId id)
@@ -64,6 +91,8 @@ public sealed class EndingPalette
             BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)),
                 (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
         }
+        if (id == EndingPaletteId.LogoCrossfade && EndingLogoPaletteFade.TryCreate(native) is { } fade)
+            return new EndingPalette(fade);
         return new EndingPalette(native);
     }
 
@@ -86,24 +115,44 @@ public sealed record EndingPaletteDocument
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
-    private readonly EndingPalette[] palettes;
+    private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
 
     public EndingPaletteCatalog(EndingPalette escape, EndingPalette postCredits,
         EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,
         EndingPalette logoInitial, EndingPalette logoCrossfade)
     {
-        palettes = [escape, postCredits, credits, explosion, finalGunship,
-            logoInitial, logoCrossfade];
+        this.escape = escape;
+        this.postCredits = postCredits;
+        this.credits = credits;
+        this.explosion = explosion;
+        this.finalGunship = finalGunship;
+        this.logoInitial = logoInitial;
+        this.logoCrossfade = logoCrossfade;
     }
 
-    public EndingPalette this[EndingPaletteId id] => palettes[(int)id];
+    public EndingPalette this[EndingPaletteId id] => id switch
+    {
+        EndingPaletteId.Escape => escape,
+        EndingPaletteId.PostCredits => postCredits,
+        EndingPaletteId.Credits => credits,
+        EndingPaletteId.Explosion => explosion,
+        EndingPaletteId.FinalGunship => finalGunship,
+        EndingPaletteId.LogoInitial => logoInitial,
+        EndingPaletteId.LogoCrossfade => logoCrossfade,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
     {
-        content.Append("palette-count", palettes.Length);
-        foreach (EndingPalette palette in palettes)
-            content.Append("palette", palette.Transfer.Span);
+        content.Append("palette-count", 7);
+        content.Append("palette", escape.Transfer.Span);
+        content.Append("palette", postCredits.Transfer.Span);
+        content.Append("palette", credits.Transfer.Span);
+        content.Append("palette", explosion.Transfer.Span);
+        content.Append("palette", finalGunship.Transfer.Span);
+        content.Append("palette", logoInitial.Transfer.Span);
+        content.Append("palette", logoCrossfade.Transfer.Span);
     });
 }
 
@@ -115,6 +164,8 @@ public static class EndingPaletteDefinitions
     public const int Version = 1;
     public const string ManifestFileName = "ending-palettes-manifest.json";
 
+    /// <summary>Six named contiguous resources selected by native ending load operations.
+    /// Crossfade has two interleaved sources per step and deliberately has no single address.</summary>
     public static int SourceAddress(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape => EndingCreditsRomData.Assets.EscapePalette,
@@ -126,6 +177,9 @@ public static class EndingPaletteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
+    /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs
+    /// of 16-color crossfade palettes. Native credits transfers can select a subset.</summary>
     public static int ColorCount(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
@@ -136,6 +190,8 @@ public static class EndingPaletteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Published asset-file identities selected by semantic palette role.
+    /// Explicit cases preserve independently editable stock and override filenames.</summary>
     public static string FileName(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape => "ending-escape-palette.json",

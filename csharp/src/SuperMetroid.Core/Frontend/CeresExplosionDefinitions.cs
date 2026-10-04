@@ -46,87 +46,46 @@ internal static class CeresExplosionDefinitions
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
+    /// <summary>$8B:C33C, CinematicFunctionTimer seed when the initial fade completes.</summary>
+    internal const ushort RepeatingCountdownSeed = 1;
+
+    /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref ushort countdown)
+    {
+        bool repeat = false;
+        if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
+        {
+            countdown = unchecked((ushort)(countdown - 1));
+            if ((short)countdown <= 0)
+            {
+                repeat = true;
+                countdown = RepeatingPeriodFrames;
+            }
+        }
+        return new(frame == InitialSpawnFrame, repeat, frame == SpawnerFinalFrame);
+    }
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
-    /// <remarks>
-    /// Issues #625 and #1001: all thirteen words in this actor's list at
-    /// $8B:CCDB..CCF4 match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
-    /// Six four-byte entries give duration 3 and bank-$8C spritemap pointers
-    /// $97F7, $97FE, $9805, $981B, $9831, $9847, in that order; $8B:CCF3
-    /// then invokes delete $9438. The six pointers name the distinct small
-    /// explosion frames in bank_8C.asm. Initializer $C434 seeds each actor's
-    /// separate instruction delay; IntroDiscoverySprite.Step consumes these
-    /// bounded entries in sequence and deletes at the terminator, before the
-    /// adjacent repeating-blast list at $CCF5. Uniform duration and cursor
-    /// stride do not determine the authored visual frame identities or their
-    /// variable-size spritemap addresses. Retain the finite animation stream.
-    /// </remarks>
+    /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>
         new(0xcebb, 0xc434, 0xc582, 0xccdb);
 
     /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
-    /// <remarks>
-    /// Issues #625 and #1002: all nineteen words of this actor's list at
-    /// $8B:CCF5..CD1A match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
-    /// Opcode $94D6 seeds the separate loop timer to 6, then six duration-3
-    /// frames use bank-$8C spritemaps $97F7, $97FE, $9805, $981B, $9831,
-    /// $9847. A duration-16 null map follows. Opcode $94C3 decrements the
-    /// loop timer and jumps to $CCF9 while nonzero; otherwise $9438 deletes
-    /// the actor. IntroDiscoverySprite.Step follows those bounded cursors;
-    /// its first-instruction delay does not replace the loop timer. The
-    /// ordered visual frames, blank interval and six-cycle termination are
-    /// authored animation policy. Retain this finite stream rather than
-    /// deriving only its uniform frame durations; $CD1B starts a new list.
-    /// </remarks>
+    /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition RepeatingActor =>
         new(0xcec1, 0xc4b9, 0xc582, 0xccf5);
 
     /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
-    /// <remarks>
-    /// Issues #625 and #1003: all fifteen words at $8B:CD1B..CD38 match
-    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. Opcode $94D6 sets the
-    /// separate loop timer to 7; four duration-5 frames use bank-$8C
-    /// spritemaps $98D2, $98D9, $98E0, $98E7, then a duration-8 null map
-    /// runs before $94C3 decrements and jumps to $CD1F while nonzero.
-    /// Opcode $9438 deletes after the seventh pass. For bounded frame index
-    /// i=0..3, the pointer is exactly $98D2+7*i: bank_8C.asm confirms four
-    /// consecutive one-entry, seven-byte spritemaps. Their tile identities
-    /// remain authored visual data, and the loop, blank frame and deletion
-    /// are authored timing policy. Retain the finite native stream rather
-    /// than replacing only its regular pointer stride; $CD39 is another list.
-    /// </remarks>
+    /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition FinalWaveActor =>
         new(0xcec7, 0xc533, 0xc582, 0xcd1b);
 
     /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
-    /// <remarks>
-    /// Issues #625 and #1004: all thirteen words at $8B:CE1B..CE34 match
-    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. Six duration-5 entries
-    /// select bank-$8C spritemaps $98EE, $9904, $991A, $9930, $996E and
-    /// $9998, then opcode $9438 deletes the actor. IntroDiscoverySprite.Step
-    /// advances through only those six four-byte entries and the terminal
-    /// opcode; the next list begins at $CE35. The six spritemaps have
-    /// different authored tile arrangements and entry counts 4, 4, 4, 12,
-    /// 8, 12 in bank_8C.asm. Pointer differences follow their byte lengths,
-    /// not a single bounded stride or visual-frame formula. Retain this
-    /// finite ordered animation stream and its terminal deletion.
-    /// </remarks>
+    /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition StationBlastActor =>
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 
     /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
-    /// <remarks>
-    /// Issues #625 and #1000: all eleven words at $8B:CE35..CE4A match
-    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. The list waits $0080
-    /// calls with a null frame, invokes $C404 for five initial blasts,
-    /// waits $0050 with a null frame, sets pre-instruction $C489 through
-    /// opcode $944C, waits $0040 with a null frame, invokes $C50C for four
-    /// final blasts, then deletes through $9438. The translated state
-    /// derives host frames 129 for the first wave, 210 for the first
-    /// repeating callback, and 273 for the final wave from those waits
-    /// and the interpreter's pre-instruction ordering. The different waits
-    /// and callbacks are authored timing policy; retain the bounded stream
-    /// ending before the adjacent $CE4B list.
-    /// </remarks>
+    /// <remarks>Native list $8B:CE35..CE4A owns the three-wave schedule translated by StepCeresActors. The native list is translated to EventsAtFrame, with a mutable repeat countdown reset by fade completion. Initial/final instruction timing and repeat-before-final ordering are independently verified under #1165.</remarks>
     public static CeresExplosionActorDefinition SpawnerActor =>
         new(0xcf33, 0x93d9, 0x93d9, 0xce35);
 
@@ -163,50 +122,49 @@ internal static class CeresExplosionDefinitions
     /// selectors describe four corners and a center without extrapolating
     /// into the following pre-instruction bytes.
     /// </remarks>
-    public static CeresExplosionPlacement InitialExplosion(int index) => index switch
+    public static CeresExplosionPlacement InitialExplosion(int index)
     {
-        0 => new(16, -16, 1),
-        1 => new(-16, 16, 16),
-        2 => new(16, 16, 32),
-        3 => new(-16, -16, 48),
-        4 => new(0, 0, 64),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        if ((uint)index >= InitialExplosionCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        int x = index == 4 ? 0 : 16 * (1 - 2 * (index & 1));
+        int y = index < 2 ? -x : x;
+        return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 16 * index));
+    }
 
-    /// <summary>Returns one of the eight interleaved X/Y rows at <c>$8B:C4EB-$C50A</c>.</summary>
+    /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
     /// <remarks>
-    /// Issues #625 and #995: the X word of each four-byte row at
-    /// $8B:C4EB+4*i is +14, +8, -16, -8, 0, +16, -12, -8 for i=0..7.
-    /// All eight signed words match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm. $8B:C489 advances the index with AND #$0007;
-    /// $8B:C4B9 adds the selected X to Mode 7 origin X minus BG1 X with
-    /// 16-bit wrap. The ordinary $40-frame repeating window at a $0C
-    /// cadence can schedule at most six calls, but the physical table has
-    /// eight valid masked entries, including rows 6 and 7. Their irregular
-    /// positions are authored blast placement, so retain the explicit
-    /// bounded X values rather than fit a formula to the reachable subset.
-    ///
-    /// Issues #625 and #996: the interleaved signed Y word at
-    /// $8B:C4ED+4*i is -8, +12, +12, -14, 0, +14, +4, -16 for i=0..7.
-    /// All eight words match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
-    /// The same masked index selects Y, and $8B:C4B9 adds it after Mode 7
-    /// origin Y minus BG1 Y with 16-bit wrap. Rows 6 and 7 remain part of
-    /// the physical table even if the ordinary repeating window ends
-    /// before selecting them. Their spacing has no shared exact step or
-    /// simple relation to X; retain the authored bounded Y choices.
+    /// Retained under #1165's drawing/choreography exception. Each ordinal creates the
+    /// same small blast, then advances modulo eight even if allocation fails. These
+    /// points describe the particular scattered sequence around the station, not sampled
+    /// motion, actor dispatch, or hull attachment points: the offsets stay in screen space
+    /// while the underlying Mode7 image changes scale. A per-index switch or fitted curve
+    /// would just encode this same layout. The initial square/center layout, final X rule,
+    /// instruction delays and shared actor motion are calculated separately.
     /// </remarks>
-    public static CeresExplosionPlacement RepeatingExplosion(int index) => index switch
+    private static readonly (short X, short Y)[] RepeatingBurstLayout =
+    [
+        (14, -8), (8, 12), (-16, 12), (-8, -14),
+        (0, 0), (16, 14), (-12, 4), (-8, -16),
+    ];
+
+    /// <summary>Returns a chosen repeating-burst position with its common first-call delay.</summary>
+    public static CeresExplosionPlacement RepeatingExplosion(int index)
     {
-        0 => new(14, -8, 1),
-        1 => new(8, 12, 1),
-        2 => new(-16, 12, 1),
-        3 => new(-8, -14, 1),
-        4 => new(0, 0, 1),
-        5 => new(16, 14, 1),
-        6 => new(-12, 4, 1),
-        7 => new(-8, -16, 1),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        if ((uint)index >= RepeatingExplosionCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        var position = RepeatingBurstLayout[index];
+        return new(position.X, position.Y, 1);
+    }
+
+    /// <summary>$8B:C57A-$C581, chosen heights of the four final large bursts.</summary>
+    /// <remarks>
+    /// Retained as the final burst's spatial choreography under #1165. These are absolute
+    /// offsets from the scrolling anchor, not successive displacements or a velocity curve.
+    /// The alternating upper/lower placements have individually chosen heights; turning
+    /// their ordinal-to-height list into cases would merely recite the layout. Only this
+    /// Y content is retained: the independent X and delay fields remain calculated.
+    /// </remarks>
+    private static ReadOnlySpan<short> FinalBurstHeights => [-4, 8, -10, 12];
 
     /// <summary>Returns one of the four timer/X/Y rows at <c>$8B:C56A/$C572/$C57A</c>.</summary>
     /// <remarks>
@@ -230,19 +188,18 @@ internal static class CeresExplosionDefinitions
     /// $8B:C57A+2*i are -4, +8, -10, +12 for i=0..3, matching pinned
     /// NTSC J/U v1.0 ROM and bank_8B.asm. Initializer $8B:C533 adds Y
     /// after Mode 7 origin Y minus BG1 Y with native 16-bit wrap.
-    /// Although the signs alternate, the four magnitudes are irregular
-    /// and do not follow the matching X magnitudes. They are authored
-    /// blast placement; retain four explicit bounded Y values rather
-    /// than encode exceptions in a fitted progression.
+    /// These particular vertical placements are retained spatial choreography; see
+    /// FinalBurstHeights for the narrowly scoped nonsense disposition under #1165.
     /// </remarks>
-    public static CeresExplosionPlacement FinalExplosion(int index) => index switch
+    public static CeresExplosionPlacement FinalExplosion(int index)
     {
-        0 => new(8, -4, 1),
-        1 => new(12, 8, 4),
-        2 => new(-8, -10, 8),
-        3 => new(-12, 12, 16),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        if ((uint)index >= FinalExplosionCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        int magnitude = 8 + 4 * (index & 1);
+        int x = index < 2 ? magnitude : -magnitude;
+        int y = FinalBurstHeights[index];
+        return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 1 << (index + 1)));
+    }
 }
 
 /// <summary>One native six-byte bank-$8B cinematic sprite-object definition.</summary>
@@ -254,3 +211,6 @@ internal readonly record struct CeresExplosionActorDefinition(
 
 /// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
 internal readonly record struct CeresExplosionPlacement(short X, short Y, ushort DelayFrames);
+
+/// <summary>Ordered spawner events; repeating and final waves may occur on the same call.</summary>
+internal readonly record struct CeresExplosionSpawnEvents(bool Initial, bool Repeating, bool Final);

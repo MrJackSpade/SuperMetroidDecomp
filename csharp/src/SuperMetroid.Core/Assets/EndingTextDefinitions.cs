@@ -25,19 +25,25 @@ public static class EndingTextDefinitions
     public const ushort LargeBottomOffset = 0x0010;
     public const int LargeSecondGroupFirstLetter = 16;
 
-    public static readonly EndingTextRegionDefinition ResultProducedBy =
-        new(0, 10, 11, EndingTextStyle.ResultSmall);
-    public static readonly EndingTextRegionDefinition CopyrightYear =
-        new(0, 9, 4, EndingTextStyle.CopyrightLarge);
-    public static readonly EndingTextRegionDefinition CopyrightCompany =
-        new(0, 15, 8, EndingTextStyle.CopyrightLarge);
-    public static readonly EndingTextRegionDefinition PercentageHeading =
-        new(10, 9, 13, EndingTextStyle.PercentageSmall);
-    public static readonly EndingTextRegionDefinition PercentageDetail =
-        new(12, 6, 19, EndingTextStyle.PercentageSmall);
-    public static readonly EndingTextRegionDefinition FinalMessage =
-        new(2, 6, 20, EndingTextStyle.FinalLarge);
+    public static EndingTextRegionDefinition ResultProducedBy => Centered(0, 11, EndingTextStyle.ResultSmall);
+    public static EndingTextRegionDefinition PercentageHeading => Centered(10, 13, EndingTextStyle.PercentageSmall);
+    public static EndingTextRegionDefinition PercentageDetail => Centered(12, 19, EndingTextStyle.PercentageSmall);
+    public static EndingTextRegionDefinition FinalMessage => Centered(2, 20, EndingTextStyle.FinalLarge);
 
+    private const int CopyrightYearWidth = 4, CopyrightCompanyWidth = 8, CopyrightGap = 2;
+    private static int CopyrightStart => CenteredColumn(CopyrightYearWidth + CopyrightGap + CopyrightCompanyWidth);
+    public static EndingTextRegionDefinition CopyrightYear => new(0, CopyrightStart, CopyrightYearWidth, EndingTextStyle.CopyrightLarge);
+    public static EndingTextRegionDefinition CopyrightCompany => new(0, CopyrightStart + CopyrightYearWidth + CopyrightGap,
+        CopyrightCompanyWidth, EndingTextStyle.CopyrightLarge);
+
+    // Odd spare columns leave the extra cell on the right, matching native tilemaps.
+    private static int CenteredColumn(int width) => (TilemapWidth - width) / 2;
+    private static EndingTextRegionDefinition Centered(int row, int width, EndingTextStyle style) =>
+        new(row, CenteredColumn(width), width, style);
+
+    /// <summary>Font3's small alphabet occupies tiles00..19. Large tops occupy20..2F
+    /// and40..49 with bottoms16 tiles later; copyright digits occupy60..69/70..79.
+    /// Native8C ending text records supply each style's attributes and blank identity.</summary>
     public static ushort CompileGlyph(char character, EndingTextStyle style, bool bottom = false)
     {
         if (character == ' ')
@@ -78,8 +84,21 @@ public static class EndingTextDefinitions
             int digit = word - CopyrightDigitTopBase - (bottom ? LargeBottomOffset : 0);
             if ((uint)digit <= 9) return (char)('0' + digit);
         }
-        for (char character = 'A'; character <= 'Z'; character++)
-            if (word == CompileGlyph(character, style, bottom)) return character;
+        int letter;
+        if (style == EndingTextStyle.ResultSmall)
+            letter = word - ResultLetterBase;
+        else if (style == EndingTextStyle.PercentageSmall)
+            letter = word - PercentageLetterBase;
+        else
+        {
+            int tile = word - (style == EndingTextStyle.FinalLarge ? FinalLetterAttributes : 0)
+                - (bottom ? LargeBottomOffset : 0);
+            int first = tile - LargeFirstGroupTopBase;
+            int second = tile - LargeSecondGroupTopBase;
+            letter = (uint)first < LargeSecondGroupFirstLetter ? first :
+                (uint)second < 26 - LargeSecondGroupFirstLetter ? second + LargeSecondGroupFirstLetter : -1;
+        }
+        if ((uint)letter < 26) return (char)('A' + letter);
         throw new InvalidDataException(
             $"Ending {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }

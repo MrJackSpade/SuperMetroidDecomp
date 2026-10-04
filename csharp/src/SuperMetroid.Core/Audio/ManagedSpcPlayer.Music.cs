@@ -26,28 +26,31 @@ public sealed partial class ManagedSpcPlayer
             int panIndex = volume >> 8;
             int baseVolume;
             int nextVolume;
-            if (panIndex >= SpcMusicTables.PanVolume.Length - 1)
+            if (panIndex >= SpcMusicTables.PanSampleCount)
             {
-                // The retail driver intentionally reads beyond its 22-byte local curve into
-                // adjacent SPC program data. Preserve that address-level behavior.
-                int address = panIndex + 0x1e1d; // allow(HardwareAddress): native pan-table overread base
+                // Indices21 and above start at the echo FIR data after the21 pan samples.
+                // Preserve the existing mutable SPC-RAM compatibility branch.
+                int address = panIndex + SpcDriverData.Music.PanVolumeTableAddress;
                 baseVolume = ram[address];
                 nextVolume = ram[address + 1];
             }
             else
             {
-                baseVolume = SpcMusicTables.PanVolume[panIndex];
-                nextVolume = SpcMusicTables.PanVolume[panIndex + 1];
+                baseVolume = SpcMusicTables.PanVolume(panIndex);
+                nextVolume = SpcMusicTables.PanVolume(panIndex + 1);
             }
 
+            // SPC SBC stores an eight-bit result before MUL YA. Descending adjacent
+            // RAM bytes therefore wrap the difference instead of multiplying a negative.
+            byte delta = unchecked((byte)(nextVolume - baseVolume));
             byte interpolated = unchecked((byte)(baseVolume +
-                ((nextVolume - baseVolume) * unchecked((byte)volume) >> 8)));
+                (delta * unchecked((byte)volume) >> 8)));
             byte final = unchecked((byte)(interpolated * channel.FinalVolume >> 8));
             if (((channel.PanFlags << side) & 0x80) != 0) // allow(BitMask): phase-inversion bit
                 final = unchecked((byte)-final);
             WriteDsp(unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride +
                 SnesDspRegisterMap.Voice.VolumeLeft + side)), final);
-            volume = unchecked((ushort)(0x1400 - volume)); // allow(HardwareMagnitude): 20-step mirrored pan domain
+            volume = unchecked((ushort)(SpcDriverData.Music.FullyLeftPan - volume));
         }
     }
 
@@ -278,12 +281,14 @@ public sealed partial class ManagedSpcPlayer
                 SetupEchoDelay(argument);
                 echoFeedback = ram[channel.PatternOrderPointer++];
                 int preset = ram[channel.PatternOrderPointer++];
-                int firOffset = preset * SpcDriverData.Echo.FirTapCount;
+                int firOffset = unchecked((byte)(preset * SpcDriverData.Echo.FirTapCount));
                 // `$F7` indexes from APU `$1E32`, not from an abstract four-entry host
                 // array. Retail sequences use values beyond three: Kraid's post-defeat
                 // room track executes `F7 02 0A 0A` and therefore reads the eight resident
                 // driver bytes at `$1E82`. Reading the actual uploaded address space also
-                // preserves any cartridge revision that changes those adjacent bytes.
+                // preserves changes to those adjacent bytes. Native MUL YA then MOV X,A
+                // keeps only the product's low byte: presets32..255 alias0..31. Each
+                // eight-tap group ends at or before offset255; no tap carries past X.
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
                     WriteDsp(unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +

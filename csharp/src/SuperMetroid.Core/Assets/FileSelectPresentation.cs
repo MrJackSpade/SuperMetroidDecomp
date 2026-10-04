@@ -314,10 +314,11 @@ public sealed class FileSelectPresentation
     }
 
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
-        ReadOnlySpan<string> expected, string owner)
+        IEnumerable<string> expected, string owner)
     {
-        if (values is null || values.Count != expected.Length)
-            throw new InvalidDataException($"{owner} requires exactly {expected.Length} entries.");
+        int count = expected.Count();
+        if (values is null || values.Count != count)
+            throw new InvalidDataException($"{owner} requires exactly {count} entries.");
         foreach (string name in expected)
             if (!values.ContainsKey(name))
                 throw new InvalidDataException($"{owner} is missing {name}.");
@@ -408,32 +409,62 @@ public static class FileSelectPresentationDefinitions
     public const string CopyConfirmDestinationAnchor = "Copy.Confirm.Destination";
     public const string ClearConfirmSourceAnchor = "Clear.Confirm.Source";
 
-    private static readonly string[] pageNames =
-    [
-        BackgroundPage, MainWithDataPage, MainEmptyPage,
-        CopySourcePage, CopyDestinationPage, CopyConfirmPage, CopyCompletedPage,
-        ClearSelectionPage, ClearConfirmPage, ClearCompletedPage,
-    ];
-    private static readonly string[] patchNames = [EnergyPatch, NoDataPatch, TimeColonPatch];
-    private static readonly string[] borderNames = [MainBorder, CopyBorder, ClearBorder];
-    private static readonly string[] dynamicAnchorNames =
-    [
-        CopyDestinationSourceAnchor, CopyConfirmSourceAnchor,
-        CopyConfirmDestinationAnchor, ClearConfirmSourceAnchor,
-    ];
-    private static readonly string[] spriteNames =
-    [
-        "Border.Main", "Border.Copy", "Border.Clear",
-        "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
-        "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3",
-        "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7",
-    ];
+    /// <summary>Exact required schema identities, enumerated in the original definition order.
+    /// Each case names a distinct menu page or asset role; these are not numerical samples.
+    /// The enumerators evaluate cases directly and retain no generated name arrays.</summary>
+    public static IEnumerable<string> PageNames => Names(10, PageName);
+    public static IEnumerable<string> PatchNames => Names(3, PatchName);
+    public static IEnumerable<string> BorderNames => Names(3, BorderName);
+    public static IEnumerable<string> DynamicAnchorNames => Names(4, DynamicAnchorName);
+    public static IEnumerable<string> SpriteNames => Names(15, SpriteName);
 
-    public static ReadOnlySpan<string> PageNames => pageNames;
-    public static ReadOnlySpan<string> PatchNames => patchNames;
-    public static ReadOnlySpan<string> BorderNames => borderNames;
-    public static ReadOnlySpan<string> DynamicAnchorNames => dynamicAnchorNames;
-    public static ReadOnlySpan<string> SpriteNames => spriteNames;
+    public static string PageName(int index) => index switch
+    {
+        0 => BackgroundPage,
+        1 => MainWithDataPage,
+        2 => MainEmptyPage,
+        3 => CopySourcePage,
+        4 => CopyDestinationPage,
+        5 => CopyConfirmPage,
+        6 => CopyCompletedPage,
+        7 => ClearSelectionPage,
+        8 => ClearConfirmPage,
+        9 => ClearCompletedPage,
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+    public static string PatchName(int index) => index switch
+    {
+        0 => EnergyPatch,
+        1 => NoDataPatch,
+        2 => TimeColonPatch,
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+    public static string BorderName(int index) => index switch
+    {
+        0 => MainBorder,
+        1 => CopyBorder,
+        2 => ClearBorder,
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+    public static string DynamicAnchorName(int index) => index switch
+    {
+        0 => CopyDestinationSourceAnchor,
+        1 => CopyConfirmSourceAnchor,
+        2 => CopyConfirmDestinationAnchor,
+        3 => ClearConfirmSourceAnchor,
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+    public static string SpriteName(int index) => index switch
+    {
+        >= 0 and < 3 => BorderFrameName(BorderName(index)),
+        >= 3 and < 7 => CursorFrameName(index - 3),
+        >= 7 and < 15 => HelmetFrameName(index - 7),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+    private static IEnumerable<string> Names(int count, Func<int, string> name)
+    {
+        for (int index = 0; index < count; index++) yield return name(index);
+    }
     public static string BorderFrameName(string name) => $"Border.{name}";
     public static string CursorFrameName(int frame) => (uint)frame < 4
         ? $"Cursor.{frame}" : throw new ArgumentOutOfRangeException(nameof(frame));

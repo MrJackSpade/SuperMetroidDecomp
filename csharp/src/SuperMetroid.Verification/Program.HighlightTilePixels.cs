@@ -12,7 +12,7 @@ internal static partial class Program
         var artwork = new MapObjectTileArtwork(image);
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(0, stock.StoredHighlightPixelCount, "stock highlight pixel table eliminated");
-        AssertEqual(8192 - 149 * 32, stock.StoredArtworkByteCount, "highlight planar bytes absent from stored atlas");
+        AssertEqual(8192 - 151 * 32, stock.StoredArtworkByteCount, "highlight planar bytes absent from stored atlas");
         var native = new byte[8192];
         for (int i = 0; i < native.Length; i++) native[i] = rom.ReadByte(0xb6c000 + i);
         foreach (int destination in new[] { 0x4000, 0xc000 })

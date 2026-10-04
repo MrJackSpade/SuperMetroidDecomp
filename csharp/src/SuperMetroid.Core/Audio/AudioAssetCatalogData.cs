@@ -11,37 +11,20 @@ public static class AudioAssetCatalogData
     public static readonly AudioUploadAssetDefinition Common =
         new(AudioUploadAddresses.SpcEngine, 0x00, "SPCEngine");
 
-    /// <summary>Every non-PAL music bank referenced by the retail ROM pointer table.</summary>
-    public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music =
-    [
-        new(AudioUploadAddresses.TitleSequence, 0x03, "Music_TitleSequence"),
-        new(AudioUploadAddresses.EmptyCrateria, 0x06, "Music_EmptyCrateria"),
-        new(AudioUploadAddresses.LowerCrateria, 0x09, "Music_LowerCrateria"),
-        new(AudioUploadAddresses.UpperCrateria, 0x0C, "Music_UpperCrateria"),
-        new(AudioUploadAddresses.GreenBrinstar, 0x0F, "Music_GreenBrinstar"),
-        new(AudioUploadAddresses.RedBrinstar, 0x12, "Music_RedBrinstar"),
-        new(AudioUploadAddresses.UpperNorfair, 0x15, "Music_UpperNorfair"),
-        new(AudioUploadAddresses.LowerNorfair, 0x18, "Music_LowerNorfair"),
-        new(AudioUploadAddresses.Maridia, 0x1B, "Music_Maridia"),
-        new(AudioUploadAddresses.Tourian, 0x1E, "Music_Tourian"),
-        new(AudioUploadAddresses.MotherBrain, 0x21, "Music_MotherBrain"),
-        new(AudioUploadAddresses.BossFight1, 0x24, "Music_BossFight1"),
-        new(AudioUploadAddresses.BossFight2, 0x27, "Music_BossFight2"),
-        new(AudioUploadAddresses.MiniBossFight, 0x2A, "Music_MiniBossFight"),
-        new(AudioUploadAddresses.Ceres, 0x2D, "Music_Ceres"),
-        new(AudioUploadAddresses.WreckedShip, 0x30, "Music_WreckedShip"),
-        new(AudioUploadAddresses.ZebesExplosion, 0x33, "Music_ZebesExplosion"),
-        new(AudioUploadAddresses.Intro, 0x36, "Music_Intro"),
-        new(AudioUploadAddresses.Death, 0x39, "Music_Death"),
-        new(AudioUploadAddresses.Credits, 0x3C, "Music_Credits"),
-        new(AudioUploadAddresses.LastMetroidInCaptivity, 0x3F, "Music_TheLastMetroidIsInCaptivity"),
-        new(AudioUploadAddresses.GalaxyAtPeace, 0x42, "Music_TheGalaxyIsAtPeace"),
-        new(AudioUploadAddresses.BabyMetroidBossFight2, 0x45, "Music_BabyMetroid_BossFight2"),
-        new(AudioUploadAddresses.SamusThemeUpperCrateria, 0x48, "Music_SamusTheme_UpperCrateria"),
-    ];
+    /// <summary>Cartridge-order view of24 named music cases, without a stored lookup or cache.</summary>
+    public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music = new MusicBankView();
 
-    private static readonly Dictionary<byte, AudioUploadAssetDefinition>
-        DefinitionsByDataIndex = All.ToDictionary(definition => definition.DataIndex);
+    private sealed class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
+    {
+        public int Count => 24;
+        public AudioUploadAssetDefinition this[int index] => (uint)index < Count
+            ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new IndexOutOfRangeException();
+        public IEnumerator<AudioUploadAssetDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     /// <summary>Common stream followed by every music stream, in cartridge table order.</summary>
     public static IEnumerable<AudioUploadAssetDefinition> All
@@ -60,11 +43,36 @@ public static class AudioAssetCatalogData
     /// intervals through <c>$48</c>; other byte offsets point into overlapping pointer
     /// bytes or subsequent room data and are not authored music-data identities.
     /// </summary>
-    public static AudioUploadAssetDefinition ResolveDataIndex(byte dataIndex) =>
-        DefinitionsByDataIndex.TryGetValue(dataIndex, out AudioUploadAssetDefinition? definition)
-            ? definition
-            : throw new InvalidDataException(
-                $"Music data index ${dataIndex:X2} is not present in the compiled retail upload catalog.");
+    public static AudioUploadAssetDefinition ResolveDataIndex(byte dataIndex) => dataIndex switch
+    {
+        0 => Common,
+        0x03 => new(AudioUploadAddresses.TitleSequence, dataIndex, "Music_TitleSequence"),
+        0x06 => new(AudioUploadAddresses.EmptyCrateria, dataIndex, "Music_EmptyCrateria"),
+        0x09 => new(AudioUploadAddresses.LowerCrateria, dataIndex, "Music_LowerCrateria"),
+        0x0C => new(AudioUploadAddresses.UpperCrateria, dataIndex, "Music_UpperCrateria"),
+        0x0F => new(AudioUploadAddresses.GreenBrinstar, dataIndex, "Music_GreenBrinstar"),
+        0x12 => new(AudioUploadAddresses.RedBrinstar, dataIndex, "Music_RedBrinstar"),
+        0x15 => new(AudioUploadAddresses.UpperNorfair, dataIndex, "Music_UpperNorfair"),
+        0x18 => new(AudioUploadAddresses.LowerNorfair, dataIndex, "Music_LowerNorfair"),
+        0x1B => new(AudioUploadAddresses.Maridia, dataIndex, "Music_Maridia"),
+        0x1E => new(AudioUploadAddresses.Tourian, dataIndex, "Music_Tourian"),
+        0x21 => new(AudioUploadAddresses.MotherBrain, dataIndex, "Music_MotherBrain"),
+        0x24 => new(AudioUploadAddresses.BossFight1, dataIndex, "Music_BossFight1"),
+        0x27 => new(AudioUploadAddresses.BossFight2, dataIndex, "Music_BossFight2"),
+        0x2A => new(AudioUploadAddresses.MiniBossFight, dataIndex, "Music_MiniBossFight"),
+        0x2D => new(AudioUploadAddresses.Ceres, dataIndex, "Music_Ceres"),
+        0x30 => new(AudioUploadAddresses.WreckedShip, dataIndex, "Music_WreckedShip"),
+        0x33 => new(AudioUploadAddresses.ZebesExplosion, dataIndex, "Music_ZebesExplosion"),
+        0x36 => new(AudioUploadAddresses.Intro, dataIndex, "Music_Intro"),
+        0x39 => new(AudioUploadAddresses.Death, dataIndex, "Music_Death"),
+        0x3C => new(AudioUploadAddresses.Credits, dataIndex, "Music_Credits"),
+        0x3F => new(AudioUploadAddresses.LastMetroidInCaptivity, dataIndex, "Music_TheLastMetroidIsInCaptivity"),
+        0x42 => new(AudioUploadAddresses.GalaxyAtPeace, dataIndex, "Music_TheGalaxyIsAtPeace"),
+        0x45 => new(AudioUploadAddresses.BabyMetroidBossFight2, dataIndex, "Music_BabyMetroid_BossFight2"),
+        0x48 => new(AudioUploadAddresses.SamusThemeUpperCrateria, dataIndex, "Music_SamusTheme_UpperCrateria"),
+        _ => throw new InvalidDataException(
+            $"Music data index ${dataIndex:X2} is not present in the compiled retail upload catalog."),
+    };
 }
 
 /// <summary>Identity of one upload stream before it is materialized on disk.</summary>

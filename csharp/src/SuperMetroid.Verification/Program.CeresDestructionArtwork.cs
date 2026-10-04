@@ -101,7 +101,7 @@ internal static partial class Program
             throw new InvalidDataException("Stock Zebes reveal actor layout is empty.");
         for (int index = 0; index < actorsDocument.Actors.Length; index++)
         {
-            var source = CeresDestructionActorDefinitions.ZebesPlacementSources[index];
+            var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
             AssertEqual(source.Id, actorsDocument.Actors[index].Id,
                 $"Zebes reveal actor {index} retains its native identity");
             AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -175,7 +175,7 @@ internal static partial class Program
         {
             CeresDestructionActorDefinition definition =
                 CeresDestructionActorDefinitions.InitialActor(index);
-            AssertEqual(CeresDestructionActorDefinitions.InitialPlacementIds[index],
+            AssertEqual(CeresDestructionActorDefinitions.InitialPlacementId(index),
                 destructionActorsDocument.Actors[index].Id,
                 $"Ceres destruction actor {index} retains its native role");
             AssertEqual((int)definition.X, destructionActorsDocument.Actors[index].X,

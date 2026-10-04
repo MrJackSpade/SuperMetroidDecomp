@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -7,18 +8,7 @@ internal static partial class Program
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         VerifyEndingLogoDefinitions(bus);
-        for (int pointer = EndingLogoInstructionDefinitions.Start;
-             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
-                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
-            "logo instruction reader rejects the following definition table");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
-            "logo instruction reader rejects an unaligned address");
+        VerifyEndingLogoPrograms(bus);
         var guarded = new EndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
@@ -65,30 +55,96 @@ internal static partial class Program
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
     }
 
+    private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
+    {
+        ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
+        string[] names = ["s-upper", "s-lower", "circle-right-1", "circle-right-2", "circle-right-3",
+            "circle-left-1", "circle-left-2", "circle-left-3"];
+        var catalog = EndingLogoSpriteDefinitions.Frames;
+        AssertEqual(8, catalog.Count, "logo frame count");
+        for (int i = 0; i < operands.Length; i++)
+        {
+            int operand = 0x8b0000 | operands[i];
+            ushort pointer = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            int header = 0x8c0000 | pointer;
+            int count = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");
+            AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
+            AssertEqual(names[i], catalog[i].Name, "logo published asset key");
+        }
+        AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "logo catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "logo catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoSpriteDefinitions.FramePointer(invalid), "logo frame address bounds");
+        }
+        for (int pointer = EndingLogoInstructionDefinitions.Start;
+             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
+                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
+                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
+            "logo instruction reader rejects the following definition table");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(
+                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
+            "logo instruction reader rejects an unaligned address");
+        foreach (ushort start in new ushort[] { 0xee5d, 0xee65, 0xee6d, 0xee87 })
+        {
+            var native = new IntroDiscoverySprite(0, 0, 0, start);
+            var generated = new IntroDiscoverySprite(0, 0, 0, start);
+            for (int frame = 0; frame < 200; frame++)
+            {
+                ushort nativeCallback = 0, generatedCallback = 0;
+                native.Step(bus, (opcode, cursor) => { nativeCallback = opcode; return cursor; },
+                    pointer => (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                generated.Step(bus, (opcode, cursor) => { generatedCallback = opcode; return cursor; },
+                    EndingLogoInstructionDefinitions.ReadWord);
+                AssertEqual(native.InstructionPointer, generated.InstructionPointer, "logo program cursor");
+                AssertEqual(native.SpriteMapPointer, generated.SpriteMapPointer, "logo program frame");
+                AssertEqual(nativeCallback, generatedCallback, "logo callback timing");
+            }
+        }
+        foreach (ushort invalid in new ushort[] { 0, 0xee5c, 0xee9b, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
+    }
+
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
             source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
-        for (int index = 0; index < EndingLogoDefinitions.Actors.Length; index++)
+        for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
             EndingLogoActorDefinition actual = EndingLogoDefinitions.Actor(index);
-            AssertEqual(EndingLogoDefinitions.Actors[index], actual.Pointer,
+            int spawn = 0x8be554 + index * 6;
+            AssertEqual((byte)0xa0, bus.ReadByte(spawn), "native LDY actor definition" );
+            ushort nativePointer = ReadWord(bus, spawn + 1);
+            AssertEqual(nativePointer, EndingLogoDefinitions.ActorPointer(index), "calculated actor pointer" );
+            AssertEqual(nativePointer, actual.Pointer,
                 $"logo actor {index} definition pointer");
-            int address = EndingLogoDefinitions.NativeDefinitionBank | actual.Pointer;
+            int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
             AssertEqual(ReadWord(bus, address), actual.Initialization,
                 $"logo actor {index} initialization callback");
             AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
                 $"logo actor {index} pre-instruction callback");
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
                 $"logo actor {index} initial instruction list");
+            int initialize = 0x8b0000 | ReadWord(bus, address);
+            AssertEqual((byte)0xa9, bus.ReadByte(initialize), "native LDA X origin");
+            AssertEqual((byte)0xa9, bus.ReadByte(initialize + 6), "native LDA Y origin");
+            var origin = EndingLogoDefinitions.Origin(index);
+            AssertEqual(ReadWord(bus, initialize + 1), origin.X, "native actor X origin");
+            AssertEqual(ReadWord(bus, initialize + 7), origin.Y, "native actor Y origin");
         }
-        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
-        for (int palette = 0; palette < 2; palette++)
-            AssertEqual(ReadWord(bus,
-                    EndingLogoPalettePointerDefinitions.NativeTableAddress + step * 4 + palette * 2),
-                EndingLogoPalettePointerDefinitions.Source(step, palette),
-                $"logo fade step {step} palette {palette} source pointer");
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.ActorPointer(invalid), "actor pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Actor(invalid), "actor definition bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Origin(invalid), "actor origin bounds");
+        }
+        VerifyEndingLogoPaletteSources(bus);
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingLogoDefinitions.Actor(4),
             "logo actor definition boundary");
@@ -126,9 +182,9 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Ending logo reread palette pointer byte ${address:X6}.");
             }
-            foreach (ushort pointer in EndingLogoDefinitions.Actors)
+            for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
             {
-                int start = EndingLogoDefinitions.NativeDefinitionBank | pointer;
+                int start = EndingLogoDefinitions.NativeDefinitionBank | EndingLogoDefinitions.ActorPointer(index);
                 if (address >= start && address < start + 3 * sizeof(ushort))
                 {
                     ForbiddenReadAttempts++;

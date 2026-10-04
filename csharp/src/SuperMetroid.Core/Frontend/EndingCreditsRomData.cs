@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -24,6 +25,17 @@ public static class EndingCreditsRomData
         public const int EscapeCharactersA = 0x99d17e;
         public const int EscapeCharactersB = 0x99d65b;
         public const int ExplosionCharacters = 0x99d932;
+        /// <summary>Original ending scene decompression sources. EscapeA: $8B:D4B4/D4D6;
+        /// EscapeB: $8B:D775/D604; explosion: $8B:D87B/D615. Each pair is the
+        /// high-byte character lane followed by the packed low-byte map source.
+        /// The legacy Map/Characters constant names are inverted relative to these lanes.</summary>
+        public static (int Characters, int PackedMap) Mode7Sources(EndingMode7SceneId id) => id switch
+        {
+            EndingMode7SceneId.EscapeA => (EscapeMapA, EscapeCharactersA),
+            EndingMode7SceneId.EscapeB => (EscapeMapB, EscapeCharactersB),
+            EndingMode7SceneId.PlanetExplosion => (ExplosionMap, ExplosionCharacters),
+            _ => throw new ArgumentOutOfRangeException(nameof(id)),
+        };
         /// <summary>$8B:D56C decompresses the explosion OBJ sheet into $7F:8000.</summary>
         public const int EndingObjectCharacters = 0x988304;
         /// <summary>$8B:D4D1 decompresses the atmospheric cloud OBJ sheet for VRAM word $6000.</summary>
@@ -32,6 +44,15 @@ public static class EndingCreditsRomData
         public const int EndingObjectCharacters74 = 0x98b857;
         public const int EndingObjectCharacters78 = 0x98baed;
         public const int EndingObjectCharacters7C = 0x98bccd;
+        /// <summary>$8B:D5AF..D5F2 decompression sources for the four ending fragments.</summary>
+        public static int ObjectFragmentSource(EndingObjectFragmentId id) => id switch
+        {
+            EndingObjectFragmentId.Segment70 => EndingObjectCharacters70,
+            EndingObjectFragmentId.Segment74 => EndingObjectCharacters74,
+            EndingObjectFragmentId.Segment78 => EndingObjectCharacters78,
+            EndingObjectFragmentId.Segment7C => EndingObjectCharacters7C,
+            _ => throw new ArgumentOutOfRangeException(nameof(id)),
+        };
         public const int EndingFontCharacters = 0x97e7de;
         public const int CreditsTilemap = 0x97eeff;
         public const int WaitingForCreditsCharacters = 0x979803;

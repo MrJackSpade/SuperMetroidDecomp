@@ -8,8 +8,58 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 1, 0x82c04c, 5);
+    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 2, 0x82c056, 6);
+    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 3, 0x82c062, 3);
+
+    private static void VerifyPauseMaskCases(ISnesAddressSpace rom, int category, int address, int count)
+    {
+        for (int item = 0; item < count; item++)
+        {
+            ushort expected = (ushort)(rom.ReadByte(address + item * 2) | rom.ReadByte(address + item * 2 + 1) << 8);
+            AssertEqual(expected, PauseEquipmentRules.Mask(category, item), "original native upgrade flag case");
+        }
+        foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
+        foreach (int invalid in new[] { int.MinValue, -1, 0, 4, 256, int.MaxValue })
+        {
+            CheckRejected(invalid, 0, "category");
+            CheckRejected(invalid, -1, "category");
+        }
+        static void CheckRejected(int category, int item, string parameter)
+        {
+            try { _ = PauseEquipmentRules.Mask(category, item); }
+            catch (ArgumentOutOfRangeException error)
+            {
+                AssertEqual(parameter, error.ParamName, "mask domain preserves category-first rejection");
+                return;
+            }
+            throw new InvalidOperationException("Unsupported pause mask selector was accepted.");
+        }
+    }
+
+    private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
+    {
+        static ushort Word(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        AssertEqual((byte)0x29, rom.ReadByte(0x82b212), "native AND immediate opcode");
+        AssertEqual((byte)0xdd, rom.ReadByte(0x82b218), "native CMP absolute-X opcode");
+        AssertEqual((ushort)0xb257, Word(rom, 0x82b219), "native comparison table operand");
+        ushort nativeMask = Word(rom, 0x82b213);
+        ushort[] original = new ushort[4];
+        for (int index = 0; index < original.Length; index++) original[index] = Word(rom, 0x82b257 + index * 2);
+        for (int word = 0; word <= ushort.MaxValue; word++)
+        {
+            int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
+            AssertTrue(expected >= 0, "native masked input has a table match");
+            AssertEqual(expected, PauseEquipmentRules.WireframeIndex((ushort)word), "complete native wireframe selection domain");
+        }
+    }
+
     private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
+        VerifyPauseBeamMasks(bus);
+        VerifyPauseSuitMasks(bus);
+        VerifyPauseBootMasks(bus);
         var guard = new PauseRulesReadGuard(bus);
         for (int category = 1; category <= 3; category++)
         {
@@ -18,9 +68,6 @@ internal static partial class Program
                 .Select(item => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.BitmaskTableAddress + item * 2)).ToArray();
             for (int item = 0; item < masks.Length; item++)
             {
-                AssertEqual(masks[item], PauseEquipmentRules.Mask(category, item), "compiled pause mask matches native ordered table");
-                for (int bits = 0; bits <= ushort.MaxValue; bits++)
-                    AssertEqual(bits & masks[item], bits & PauseEquipmentRules.Mask(category, item), "all inventory words retain native equipment eligibility");
                 var samus = Inventory(category, masks[item]);
                 var pause = Create(samus);
                 EnterEquipment(pause);
@@ -39,15 +86,10 @@ internal static partial class Program
                 int expected = Array.FindIndex(masks, mask => (mask & owned) != 0);
                 AssertEqual(expected < 0 ? (0, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentRules.Mask(category, -1), "negative item index rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentRules.Mask(category, definition.ItemCount), "out-of-category index rejected");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentRules.Mask(0, 0), "reserve subdispatcher is not an equipment bit table");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
-        for (int word = 0; word <= ushort.MaxValue; word++)
-            AssertEqual(Array.IndexOf(wireframeMasks, (ushort)(word & 0x0101)), PauseEquipmentRules.WireframeIndex((ushort)word),
-                "all equipped words preserve native wireframe selection, including ignored Gravity bit");
+        VerifyPauseWireframeSelection(bus);
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | (ushort)SamusEquipmentFlags.GravitySuit) }))
         {
             var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterEquipment(pause);
@@ -79,7 +121,7 @@ internal static partial class Program
                 AssertEqual((health, reserve), ((int)samus.Health, (int)samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
             }
         }
-        Console.WriteLine("Compiled pause rules: 14 native masks/all inventory words, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
+        Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         PauseMenuState Create(SamusState samus) => new(guard, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: catalog);
         static SamusState Inventory(int category, ushort owned) => category == 1
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }

@@ -36,73 +36,84 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>$8B:CE35, exclusive end before the spawner's separate program.</summary>
     internal const ushort StationBlastEnd = 0xce35;
 
-    private static ReadOnlySpan<byte> LargeAsteroid =>
-    [
-        0x0a, 0x00, 0x9d, 0x90, 0xbc, 0x94, 0x3f, 0xcc,
-    ];
+    /// <summary>$8C:909D, Ceres under-attack large-asteroid spritemap.</summary>
+    private const ushort LargeAsteroidFrame = 0x909d;
+    /// <summary>$8C:9558, SpaceSpritemaps_Zebes.</summary>
+    private const ushort PlanetFrame = 0x9558;
+    /// <summary>$8C:9654, SpaceSpritemaps_PlanetZebes title.</summary>
+    private const ushort TitleFrame = 0x9654;
+    /// <summary>$8C:975E, SpaceSpritemaps_ZebesStars2, upper-left sheet.</summary>
+    private const ushort UpperLeftStars = 0x975e;
+    /// <summary>$8C:979C, SpaceSpritemaps_ZebesStars3, upper-right sheet.</summary>
+    private const ushort UpperRightStars = 0x979c;
+    /// <summary>$8C:97BC, SpaceSpritemaps_ZebesStars4, lower-left sheet.</summary>
+    private const ushort LowerLeftStars = 0x97bc;
+    /// <summary>$8C:97D2, SpaceSpritemaps_ZebesStars5, lower-right sheet.</summary>
+    private const ushort LowerRightStars = 0x97d2;
 
-    private static ReadOnlySpan<byte> Planet =>
-    [
-        0x0a, 0x00, 0x58, 0x95, 0xbc, 0x94, 0xab, 0xcc,
-    ];
+    private static byte LoopByte(int offset, ushort start, ushort frame)
+    {
+        ushort word = (offset / 2) switch
+        {
+            0 => 10,
+            1 => frame,
+            2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => start,
+            _ => throw new InvalidDataException("Ceres static-frame loop cursor is invalid."),
+        };
+        return (byte)(word >> (8 * (offset & 1)));
+    }
 
-    private static ReadOnlySpan<byte> Title =>
-    [
-        0x40, 0x00, 0x00, 0x00, 0xa5, 0xc9, 0x20, 0x00,
-        0x54, 0x96, 0xaf, 0xc9, 0xc0, 0x00, 0x54, 0x96,
-        0xbd, 0xc9, 0x60, 0x00, 0x54, 0x96, 0xc7, 0xc9,
-        0x38, 0x94,
-    ];
+    private static byte TitleByte(int offset)
+    {
+        ushort word = (offset / 2) switch
+        {
+            0 => 64, // Blank wait before fading in.
+            1 => 0,
+            2 => CinematicCodePointers.Instruction_FadeInPlanetZebesText,
+            3 => 32,
+            4 or 7 or 10 => TitleFrame,
+            5 => CinematicCodePointers.Instruction_SpawnPlanetZebesJapanTextIfNeeded,
+            6 => 192,
+            8 => CinematicCodePointers.Instruction_FadeOutPlanetZebesText,
+            9 => 96,
+            11 => CinematicCodePointers.Instruction_StartFlyingToZebes,
+            12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Delete,
+            _ => throw new InvalidDataException("Planet Zebes title cursor is invalid."),
+        };
+        return (byte)(word >> (8 * (offset & 1)));
+    }
 
-    private static ReadOnlySpan<byte> Explosions =>
-    [
-        0x03, 0x00, 0xf7, 0x97, 0x03, 0x00, 0xfe, 0x97,
-        0x03, 0x00, 0x05, 0x98, 0x03, 0x00, 0x1b, 0x98,
-        0x03, 0x00, 0x31, 0x98, 0x03, 0x00, 0x47, 0x98,
-        0x38, 0x94, 0xd6, 0x94, 0x06, 0x00, 0x03, 0x00,
-        0xf7, 0x97, 0x03, 0x00, 0xfe, 0x97, 0x03, 0x00,
-        0x05, 0x98, 0x03, 0x00, 0x1b, 0x98, 0x03, 0x00,
-        0x31, 0x98, 0x03, 0x00, 0x47, 0x98, 0x10, 0x00,
-        0x00, 0x00, 0xc3, 0x94, 0xf9, 0xcc, 0x38, 0x94,
-        0xd6, 0x94, 0x07, 0x00, 0x05, 0x00, 0xd2, 0x98,
-        0x05, 0x00, 0xd9, 0x98, 0x05, 0x00, 0xe0, 0x98,
-        0x05, 0x00, 0xe7, 0x98, 0x08, 0x00, 0x00, 0x00,
-        0xc3, 0x94, 0x1f, 0xcd, 0x38, 0x94,
-    ];
-
-    private static ReadOnlySpan<byte> StarSheets =>
-    [
-        0x0a, 0x00, 0x5e, 0x97, 0xbc, 0x94, 0x83, 0xcd,
-        0x0a, 0x00, 0x9c, 0x97, 0xbc, 0x94, 0x8b, 0xcd,
-        0x0a, 0x00, 0xbc, 0x97, 0xbc, 0x94, 0x93, 0xcd,
-        0x0a, 0x00, 0xd2, 0x97, 0xbc, 0x94, 0x9b, 0xcd,
-    ];
-
-    private static ReadOnlySpan<byte> StationBlast =>
-    [
-        0x05, 0x00, 0xee, 0x98, 0x05, 0x00, 0x04, 0x99,
-        0x05, 0x00, 0x1a, 0x99, 0x05, 0x00, 0x30, 0x99,
-        0x05, 0x00, 0x6e, 0x99, 0x05, 0x00, 0x98, 0x99,
-        0x38, 0x94,
-    ];
-
+    private static byte StarSheetByte(int offset)
+    {
+        int quadrant = offset / 8;
+        ushort frame = quadrant switch
+        {
+            0 => UpperLeftStars,
+            1 => UpperRightStars,
+            2 => LowerLeftStars,
+            3 => LowerRightStars,
+            _ => throw new InvalidDataException("Zebes star-sheet quadrant is invalid."),
+        };
+        return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
+    }
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
-            return LargeAsteroid[pointer - LargeAsteroidStart];
+            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, LargeAsteroidFrame);
         if (pointer is >= CeresFlightSpriteInstructionDefinitions.RearClusterStart and
             < CeresFlightSpriteInstructionDefinitions.RearClusterEnd)
             return CeresFlightSpriteInstructionDefinitions.ReadByte(pointer);
         if (pointer is >= PlanetStart and < PlanetEnd)
-            return Planet[pointer - PlanetStart];
+            return LoopByte(pointer - PlanetStart, PlanetStart, PlanetFrame);
         if (pointer is >= TitleStart and < TitleEnd)
-            return Title[pointer - TitleStart];
+            return TitleByte(pointer - TitleStart);
         if (pointer is >= ExplosionsStart and < ExplosionsEnd)
-            return Explosions[pointer - ExplosionsStart];
+            return CeresExplosionInstructionDefinitions.ReadByte(pointer);
         if (pointer is >= StarSheetsStart and < StarSheetsEnd)
-            return StarSheets[pointer - StarSheetsStart];
+            return StarSheetByte(pointer - StarSheetsStart);
         if (pointer is >= StationBlastStart and < StationBlastEnd)
-            return StationBlast[pointer - StationBlastStart];
+            return CeresExplosionInstructionDefinitions.ReadByte(pointer);
         throw new InvalidDataException(
             $"Ceres destruction instruction $8B:{pointer:X4} leaves its compiled lists.");
     }

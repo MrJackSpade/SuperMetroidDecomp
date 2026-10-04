@@ -1,21 +1,49 @@
 {
   "issue": 1165,
-  "status": "SPC pan gain, Tourian outline corner and six small/large-font shadow differences pending; Crocomire shuffle and Draygon trace independently resolved",
+  "status": "Ceres shaft timers, SPC pan gain, FIR presets and Tourian outline corner pending; Ceres burst choreography, Crocomire shuffle, Draygon trace and six font shading choices independently resolved",
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
+    {
+      "id":"spc-fir-default-presets",
+      "owner":"csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
+      "nativeIdentity":"SPC1E32..1E51, four8-byte FIR presets carried in the common lossless upload",
+      "status":"pending",
+      "task":"Resolve all four source/default coefficient mappings and their upload/identity contract; see spcFirPresetOwnershipReview. Sharp impulse has an evident formula but no integrated production generator. Other filters have no accepted retention exception. Preserve mutable RAM, all32 byte-indexed groups and neighboring-data views. The F7 byte-wrap bug is separately fixed in e1a77dacb8d9883a34d5147aab12e66f905e0695."
+    },
+    {
+      "id": "ceres-explosion-placement-and-stream-residuals",
+      "owner": "csharp/src/SuperMetroid.Core/Frontend/CeresExplosionDefinitions.cs",
+      "nativeIdentity": "Repeating X/Y at8B:C4EB..C50A; final Y at8B:C57A..C581",
+      "status": "retained visual choreography; other fields converted",
+      "resolution": "ceresBurstChoreographyReview resolves the three spatial residuals as the particular burst layout under the nonsense exception, using complete native ordinal/coordinate/movement consumers and inspected source artwork. Numeric switches were replaced with explicit retained layout content, not claimed as conversions. Initial X/Y/delay, final X/delay, all four explosion programs and spawner timing remain calculated. The spawner countdown behavior correction still awaits player validation."
+    },
+    {
+      "id": "ceres-shaft-rotation-timers",
+      "owner": "csharp/src/SuperMetroid.Core/Runtime/CeresShaftRotationDefinitions.cs",
+      "nativeIdentity": "89:AD5F timer column of69 six-byte records;35 independent symmetric values",
+      "status": "pending",
+      "task": "Derive and implement the timing rule or establish concrete evidence of a permitted impossibility/nonsense exception. Previous failed-fit and missing-provenance retention claims are withdrawn. DEC/BMI holds each loaded timer for timer+1 room-main calls. The independently verified sine/cosine calculation does not resolve this timing column."
+    },
+    {
+      "id": "spc-sound-command-dispatch",
+      "owner": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectTables.cs",
+      "nativeIdentity": "Three pointer maps CF:96F5/CF:A5BB/CF:BA97",
+      "status": "converted",
+      "resolution": "All three stream-pointer maps now select named native instruction-list identities through explicit sound-command cases; see spcSoundStreamDispatchReview. All three allocation-policy maps are also converted; see spcSoundPolicyDispatchReview. No retention exception is assigned."
+    },
     {
       "id": "large-font-t-w-n-shadow-differences",
       "owner": "csharp/src/SuperMetroid.Core/Assets/MenuLargeFontArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile11 pixel(3,6), tile2F pixel(4,7), tile37 pixel(1,6)",
-      "status": "pending",
-      "task": "Explain and convert the T shadow addition and W/N removals or establish a concrete permitted retention rationale. Seven former M/Q/X shading additions are now geometric corner/notch joins. The earlier blanket artistic-retouch justification is withdrawn."
+      "status": "retained drawing",
+      "resolution": "Fresh menuFontDrawingChoiceReview records matching native ink regions with different shading: N/M lower contours, W's four repeated ink rows and translated large/small T terminals. Retain these particular drawn choices under the nonsense exception; coordinate cases would only recite them. Seven earlier M/Q/X joins remain calculated. No blanket font or shading exemption."
     },
     {
       "id": "small-font-b-k-shadow-removals",
       "owner": "csharp/src/SuperMetroid.Core/Assets/MenuSmallFontArtwork.cs",
       "nativeIdentity": "B6:C000 atlas tile6B pixel(1,7), tile74 pixels(6,2)/(5,3)",
-      "status": "pending",
-      "task": "Explain and convert the three removed shadow pixels or establish a concrete permitted retention rationale. Six other former retouches are now calculated by geometric corner/notch joins. The earlier blanket artistic-retouch justification is withdrawn; these three source differences remain captured only to preserve exact output during review."
+      "status": "retained drawing",
+      "resolution": "Fresh menuFontDrawingChoiceReview records B/D identical lower ink contours and K/Z matching diagonal neighborhoods with different native shading. Retain the particular B bevel and two K arm trims under the nonsense exception; glyph/coordinate cases would recite the drawing. Six earlier geometric joins remain calculated."
     },
     {
       "id": "tourian-left-t-cap-outline",
@@ -27,9 +55,9 @@
     {
       "id": "spc-pan-gain-curve",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
-      "nativeIdentity": "CF:8A25 kVolumeTable,22 bytes; uploaded SPC base1E1D",
+      "nativeIdentity": "CF:8A25..8A39,21 pan bytes atSPC1E1D..1E31; local interpolation additionally aliases the first FIR coefficient atCF:8A3A/SPC1E32",
       "status": "pending",
-      "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence."
+      "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence. The separate interpolation register-width correction is implemented and independently confirmed in spcPanInterpolationCorrectionReview; it does not resolve the curve samples."
     },
     {
       "id": "crocomire-melt-column-order",

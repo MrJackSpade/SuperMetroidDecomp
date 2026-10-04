@@ -7,7 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 
 internal enum NamedSelectionResult { Resolved, Missing, Unresolved }
 internal sealed record NamedPresentationSelection(string Type, string Method, string Parameter,
-    string Domain, string[] Names);
+    string Domain, IEnumerable<string> Names);
 
 /// <summary>Finite named sets already enforced by the reviewed production loaders.</summary>
 internal static class NamedPresentationSelectionDefinitions
@@ -15,13 +15,13 @@ internal static class NamedPresentationSelectionDefinitions
     internal static readonly NamedPresentationSelection[] All =
     [
         new(nameof(FileSelectPresentation), "DynamicAnchor", "name", "file-select-dynamic-anchor",
-            FileSelectPresentationDefinitions.DynamicAnchorNames.ToArray()),
+            FileSelectPresentationDefinitions.DynamicAnchorNames),
         new(nameof(FileSelectPresentation), "ApplyPatch", "name", "file-select-patch",
-            FileSelectPresentationDefinitions.PatchNames.ToArray()),
+            FileSelectPresentationDefinitions.PatchNames),
         new(nameof(FileSelectPresentation), "CopyPage", "name", "file-select-page",
-            FileSelectPresentationDefinitions.PageNames.ToArray()),
+            FileSelectPresentationDefinitions.PageNames),
         new(nameof(FileSelectPresentation), "DrawBorder", "page", "file-select-border",
-            FileSelectPresentationDefinitions.BorderNames.ToArray()),
+            FileSelectPresentationDefinitions.BorderNames),
         new(nameof(GameOptionsPresentation), "CreatePage", "name", "options-page",
             GameOptionsPresentationDefinitions.PageNames.ToArray()),
         new(nameof(GameOptionsPresentation), "ApplySpecialToggle", "name", "options-toggle",

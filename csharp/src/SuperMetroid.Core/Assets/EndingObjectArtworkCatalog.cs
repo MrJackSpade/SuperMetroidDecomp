@@ -146,12 +146,10 @@ public static class EndingObjectArtworkFormat
     public const int PostShotLogoMapByteCount = 0x0800;
     public const int FragmentByteCount = 0x0800;
     public const int FragmentCount = 4;
-    public static string FragmentFileName(int index) => index switch
+    /// <summary>Published fragment keys use the VRAM word-page sequence70,74,78,7c.</summary>
+    public static string FragmentFileName(int index)
     {
-        0 => "ending-explosion-fragment-70.png",
-        1 => "ending-explosion-fragment-74.png",
-        2 => "ending-explosion-fragment-78.png",
-        3 => "ending-explosion-fragment-7c.png",
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        if ((uint)index >= FragmentCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return "ending-explosion-fragment-" + (0x70 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".png";
+    }
 }

@@ -24,16 +24,9 @@ public static class EndingObjectArtworkFiles
         Export(EndingObjectArtworkFormat.ExplosionFileName,
             EndingCreditsRomData.Assets.EndingObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount);
-        int[] fragmentSources =
-        [
-            EndingCreditsRomData.Assets.EndingObjectCharacters70,
-            EndingCreditsRomData.Assets.EndingObjectCharacters74,
-            EndingCreditsRomData.Assets.EndingObjectCharacters78,
-            EndingCreditsRomData.Assets.EndingObjectCharacters7C,
-        ];
-        for (int index = 0; index < fragmentSources.Length; index++)
+        for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             Export(EndingObjectArtworkFormat.FragmentFileName(index),
-                fragmentSources[index], EndingObjectArtworkFormat.FragmentByteCount);
+                EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
             EndingObjectArtworkFormat.RewardByteCount);

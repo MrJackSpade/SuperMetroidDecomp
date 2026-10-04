@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -24,6 +25,55 @@ internal static partial class Program
                 unchecked((ushort)(EndingCompletionTextInstructionDefinitions.Start + 1))),
             "ending completion reader rejects an unaligned address");
 
+        var catalog = EndingCompletionTextSpriteDefinitions.Frames;
+        string[] expectedKeys =
+        [
+            "operation-00", "operation-01", "operation-02", "operation-03", "operation-04",
+            "operation-05", "operation-06", "operation-07", "operation-08", "operation-09",
+            "operation-10", "operation-11", "operation-12", "operation-13", "operation-14",
+            "completed-00", "completed-01", "completed-02", "completed-03", "completed-04",
+            "completed-05", "completed-06", "completed-07", "completed-08", "completed-09",
+            "completed-10", "completed-11", "completed-12", "completed-13", "completed-14",
+            "completed-15", "completed-16", "completed-17", "completed-18", "completed-19",
+            "completed-20", "clear-time-00", "clear-time-01", "clear-time-02", "clear-time-03",
+            "clear-time-04", "clear-time-05", "clear-time-06", "clear-time-07", "clear-time-08",
+            "digit-00", "digit-01", "digit-02", "digit-03", "digit-04",
+            "digit-05", "digit-06", "digit-07", "digit-08", "digit-09",
+            "colon-00",
+        ];
+        AssertEqual(expectedKeys.Length, catalog.Count, "completion catalog count");
+        int catalogIndex = 0;
+        // Original OAM headers independently establish two sprites per revealed
+        // letter, so packed maps grow by two header bytes plus five per sprite.
+        foreach (var line in new[] { (Start: 0xeb91, Letters: 15), (Start: 0xebd7, Letters: 21), (Start: 0xec35, Letters: 9) })
+        for (int letter = 0; letter < line.Letters; letter++)
+        {
+            int operand = 0x8b0000 | (line.Start + letter * 4 + 2);
+            int map = bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8;
+            int address = 0x8c0000 | map;
+            int count = bus.ReadByte(address) | bus.ReadByte(address + 1) << 8;
+            AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
+            AssertEqual((ushort)map, catalog[catalogIndex].Pointer, "completion prefix catalog pointer");
+            AssertEqual(count, catalog[catalogIndex].StockPartCount, "completion prefix catalog part count");
+            catalogIndex++;
+        }
+        for (int glyph = 0; glyph < 11; glyph++, catalogIndex++)
+        {
+            int operand = 0x8bec83 + glyph * 8;
+            ushort map = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            int header = 0x8c0000 | map;
+            int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(map, catalog[catalogIndex].Pointer, "completion glyph catalog pointer");
+            AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
+        }
+        for (int i = 0; i < expectedKeys.Length; i++)
+            AssertEqual(expectedKeys[i], catalog[i].Name, "completion published artwork key");
+        AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(expectedKeys), "completion catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 56, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "completion catalog bounds");
+        foreach (ushort invalid in new ushort[] { 0, 0xeb90, 0xecd9, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingCompletionTextInstructionDefinitions.ReadWord(invalid), "completion program bounds");
+
         ushort[] starts =
         [
             0xeb91, 0xebd7, 0xec35, 0xec81, 0xec89, 0xec91, 0xec99, 0xeca1,
@@ -37,7 +87,8 @@ internal static partial class Program
             {
                 // The scene owns private callbacks; here both actor interpreters
                 // advance across the same callback without duplicating its effects.
-                native.Step(bus, (_, cursor) => cursor);
+                native.Step(bus, (_, cursor) => cursor, pointer => (ushort)(
+                    bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
                 installed.Step(bus, (_, cursor) => cursor,
                     EndingCompletionTextInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,

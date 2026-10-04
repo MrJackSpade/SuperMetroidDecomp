@@ -6,22 +6,40 @@ internal static class EndingLogoDefinitions
     /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
     public const int NativeDefinitionBank = 0x8b0000;
 
-    /// <summary>$8B:EF81/EF87/EF8D/EF93, in native allocation order.</summary>
-    public static ReadOnlySpan<ushort> Actors => [0xef81, 0xef87, 0xef8d, 0xef93];
+    /// <summary>$8B:E554..E569 spawns the upper/lower S and upper/lower circle in this order.</summary>
+    public const int ActorCount = 4;
+    /// <summary>$8B:EF81, first of four consecutive six-byte logo definitions.</summary>
+    private const ushort FirstActor = 0xef81;
 
-    /// <summary>Returns one complete native logo actor definition in allocation order.</summary>
-    public static EndingLogoActorDefinition Actor(int index) => index switch
+    /// <summary>Definition address for native allocation index0..3; six bytes per actor.</summary>
+    public static ushort ActorPointer(int index) => (uint)index < ActorCount
+        ? (ushort)(FirstActor + index * 6) : throw new ArgumentOutOfRangeException(nameof(index));
+
+    /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, displaying list EE5D.</summary>
+    private static EndingLogoActorDefinition UpperS => new(ActorPointer((int)EndingLogoActorKind.UpperS), 0xf18f, 0xf1e7, 0xee5d);
+    /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, displaying list EE65.</summary>
+    private static EndingLogoActorDefinition LowerS => new(ActorPointer((int)EndingLogoActorKind.LowerS), 0xf1a8, 0xf227, 0xee65);
+    /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary with right-wrap list EE6D.</summary>
+    private static EndingLogoActorDefinition UpperCircle => new(ActorPointer((int)EndingLogoActorKind.UpperCircle), 0xf1c1, EndingRewardActorDefinitions.SharedNoOp, 0xee6d);
+    /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary with left-wrap list EE87.</summary>
+    private static EndingLogoActorDefinition LowerCircle => new(ActorPointer((int)EndingLogoActorKind.LowerCircle), 0xf1d4, EndingRewardActorDefinitions.SharedNoOp, 0xee87);
+
+    /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
+    public static EndingLogoActorDefinition Actor(int index) => (EndingLogoActorKind)index switch
     {
-        0 => new(0xef81, 0xf18f, 0xf1e7, 0xee5d),
-        1 => new(0xef87, 0xf1a8, 0xf227, 0xee65),
-        2 => new(0xef8d, 0xf1c1, EndingRewardActorDefinitions.SharedNoOp, 0xee6d),
-        3 => new(0xef93, 0xf1d4, EndingRewardActorDefinitions.SharedNoOp, 0xee87),
+        EndingLogoActorKind.UpperS => UpperS,
+        EndingLogoActorKind.LowerS => LowerS,
+        EndingLogoActorKind.UpperCircle => UpperCircle,
+        EndingLogoActorKind.LowerCircle => LowerCircle,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
     /// <summary>F18F–F1D4 initialize these world-space centers before the $100 scroll subtraction.</summary>
-    public static (ushort X, ushort Y) Origin(int actor) => actor switch
+    public static (ushort X, ushort Y) Origin(int actor) => (EndingLogoActorKind)actor switch
     {
-        0 => (530, 231), 1 => (246, 519), 2 => (385, 366), 3 => (391, 384),
+        EndingLogoActorKind.UpperS => (530, 231),
+        EndingLogoActorKind.LowerS => (246, 519),
+        EndingLogoActorKind.UpperCircle => (385, 366),
+        EndingLogoActorKind.LowerCircle => (391, 384),
         _ => throw new ArgumentOutOfRangeException(nameof(actor)),
     };
     /// <summary>E504 sets both layer-one camera coordinates to $100.</summary>
@@ -38,7 +56,10 @@ internal static class EndingLogoDefinitions
     public const ushort GreyOutInstruction = 0xf25e;
     /// <summary>E58A completes after sixteen palette pointer pairs.</summary>
     public const int PaletteSteps = 16;
-    /// <summary>E504 initializes OBJ palette seven from $8C:EFE9.</summary>
+    /// <summary>E504 initializes OBJ palette seven from $8C:EFE9. The sixteen base
+    /// colors are the logo drawing's authored palette, retained under #1165's nonsense
+    /// exception after original tile/OAM inspection; the temporal fade is calculated
+    /// by EndingLogoPaletteFade. This is not an exemption for animation colors.</summary>
     public const int InitialPalette = 0x8cefe9;
     /// <summary>F1E7 spawns the logo's palette-FX object $8D:E200 at landing.</summary>
     public const ushort LandingPaletteFx = 0xe200;
@@ -54,3 +75,12 @@ internal readonly record struct EndingLogoActorDefinition(
     ushort Initialization,
     ushort PreInstruction,
     ushort InstructionList);
+
+/// <summary>Four mutually exclusive native logo roles, in E554..E569 allocation order.</summary>
+internal enum EndingLogoActorKind
+{
+    UpperS,
+    LowerS,
+    UpperCircle,
+    LowerCircle,
+}

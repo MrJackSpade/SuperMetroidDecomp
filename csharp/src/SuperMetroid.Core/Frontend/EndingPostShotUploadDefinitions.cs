@@ -38,24 +38,17 @@ internal static class EndingPostShotUploadDefinitions
     /// <summary>Logo-map destination VRAM word from the sixth record.</summary>
     private const ushort LogoMapDestinationWord = 0x5400;
 
-    private static readonly EndingPostShotUploadDefinition[] Records =
-    [
-        new(SubtitleLength, EndingPostShotDefinitions.SubtitleSource,
-            SubtitleDestinationWord),
-        new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource,
-            LogoTileDestinationWord),
-        new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + LogoTileChunkLength,
-            LogoTileDestinationWord + LogoTileChunkLength / sizeof(ushort)),
-        new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + 2 * LogoTileChunkLength,
-            LogoTileDestinationWord + LogoTileChunkLength),
-        new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + 3 * LogoTileChunkLength,
-            LogoTileDestinationWord + 3 * LogoTileChunkLength / sizeof(ushort)),
-        new(LogoMapLength, EndingPostShotDefinitions.LogoMapSource,
-            LogoMapDestinationWord),
-    ];
-
-    /// <summary>Returns one of the six native transfer records; unknown indexes fail.</summary>
-    public static EndingPostShotUploadDefinition Get(int index) =>
-        (uint)index < Records.Length ? Records[index] :
-            throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>Subtitle, four consecutive2048-byte logo chunks, then tilemap.
+    /// Source byte offsets advance by chunk length; VRAM word offsets advance by half
+    /// that length. Native8B:E45A..E489 independently confirms all six records for #1165.
+    /// The subtitle/map are semantic transfer cases, not interpolated chunk addresses.</summary>
+    public static EndingPostShotUploadDefinition Get(int index)
+    {
+        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index == 0) return new(SubtitleLength, EndingPostShotDefinitions.SubtitleSource, SubtitleDestinationWord);
+        if (index == Count - 1) return new(LogoMapLength, EndingPostShotDefinitions.LogoMapSource, LogoMapDestinationWord);
+        int offset = (index - 1) * LogoTileChunkLength;
+        return new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + offset,
+            (ushort)(LogoTileDestinationWord + offset / sizeof(ushort)));
+    }
 }

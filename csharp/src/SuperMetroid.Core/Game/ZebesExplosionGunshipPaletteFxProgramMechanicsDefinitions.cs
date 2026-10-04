@@ -12,9 +12,10 @@ namespace SuperMetroid.Core.Game;
 /// 8..15 interpolate from frame 8 to frame 15 with <c>t = f - 8</c> and
 /// nearest rounding: <c>floor(((7 - t)*q8 + t*q15)/7 + 0.5)</c>. These two
 /// rules and the boundary change match all 256 ROM colors exactly. The
-/// endpoint palettes and every intermediate color remain live presentation
-/// data supplied by the presentation compiler; this catalog supplies only
-/// controls to the palette-FX runtime. ROM SHA-256:
+/// bright endpoint colors and frame7's final color remain presentation inputs;
+/// EndingGunshipPaletteColorDefinitions calculates matching white/dim and intermediate
+/// colors while preserving independent edits. This catalog supplies controls to the
+/// palette-FX runtime. ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
@@ -49,7 +50,7 @@ public static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
     /// <summary>The complete gunship reveal lasts 384 frames.</summary>
     public const int CycleFrames = FrameCount * FrameDuration;
 
-    /// <summary>Returns one timed-record pointer.</summary>
+    /// <summary>Frames0..15 occupy36-byte records atD6BE: duration,16 colors, wait.</summary>
     public static ushort FramePointer(int frame)
     {
         if ((uint)frame >= FrameCount)
@@ -57,7 +58,7 @@ public static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    /// <summary>Color0..15 begins two bytes after its frame duration and advances by two.</summary>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)
@@ -66,7 +67,9 @@ public static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
-    /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
+    /// <summary>Named header/delete operations and duration/wait at offsets0/34 of
+    /// each36-byte record. Full pointer ownership excludes colors and odd bytes;
+    /// independently checked by decoding the original stream through its delete.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch
@@ -79,19 +82,14 @@ public static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
         if (value != 0)
             return true;
 
-        for (int frame = 0; frame < FrameCount; frame++)
+        int offset = pointer - FirstFramePointer;
+        if ((uint)offset >= FrameCount * FrameByteCount) return false;
+        value = (offset % FrameByteCount) switch
         {
-            int offset = pointer - FramePointer(frame);
-            value = offset switch
-            {
-                0 => FrameDuration,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
-                _ => 0,
-            };
-            if (value != 0)
-                return true;
-        }
-
-        return false;
+            0 => FrameDuration,
+            FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+            _ => 0,
+        };
+        return value != 0;
     }
 }

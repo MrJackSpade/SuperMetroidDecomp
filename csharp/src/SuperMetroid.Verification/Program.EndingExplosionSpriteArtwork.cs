@@ -9,8 +9,141 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
-        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+    private static void ExportEndingExplosionArtworkEvidence(CartridgeImportAddressSpace rom)
+    {
+        string directory = Path.GetFullPath("csharp/test-temp/1165-ending-explosion-art");
+        Directory.CreateDirectory(directory);
+        byte[] native = RomDataReader.Decompress(rom, 0x988304, EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] tiles = SnesGraphics.DecodePlanarTiles(native.AsSpan(0, 0x4000), 4, 16, out int width, out _);
+        Rgba32[] palette = Enumerable.Range(0, 16).Select(index => new Rgba32((byte)(index * 17), (byte)(index * 17), (byte)(index * 17))).ToArray();
+        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-tile-indexes.png"), width, tiles.Length / width, tiles, palette, 3);
+        foreach (var source in new[] { (0xa472, "glow"), (0xa4b0, "supernova-one"), (0xa516, "supernova-two"), (0xa28b, "starfield"), (0xa57c, "silhouette"), (0xa5e2, "afterglow") })
+        {
+            int address = 0x8c0000 | source.Item1;
+            int count = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;
+            var pixels = new byte[256 * 256];
+            foreach (SpriteVisualPart part in IntroCinematicSpriteFrameExtractor.Extract(rom, (ushort)source.Item1, count, source.Item2))
+            for (int y = 0; y < part.Size; y++)
+            for (int x = 0; x < part.Size; x++)
+            {
+                int sx = part.FlipX ? part.Size - 1 - x : x, sy = part.FlipY ? part.Size - 1 - y : y;
+                int tile = part.TileRow * 16 + part.TileColumn + sy / 8 * 16 + sx / 8;
+                byte color = tiles[(tile / 16 * 8 + sy % 8) * width + tile % 16 * 8 + sx % 8];
+                int dx = 128 + part.OffsetX + x, dy = 128 + part.OffsetY + y;
+                if (color != 0 && (uint)dx < 256 && (uint)dy < 256 && pixels[dy * 256 + dx] == 0)
+                    pixels[dy * 256 + dx] = color;
+            }
+            PngWriter.WriteIndexedAsRgba(Path.Combine(directory, source.Item2 + ".png"), 256, 256, pixels, palette, 2);
+            Console.WriteLine($"{source.Item2}: {count} original parts, {pixels.Count(pixel => pixel != 0)} visible pixels");
+        }
+        Console.WriteLine(directory);
+    }
+
+    private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
+    {
+        VerifyEndingExplosionCalculatedParts(bus);
+        // Independent original list operands select every distinct visual frame.
+        ushort[] operands = [0xeb15, 0xeb19, 0xeb1d, 0xeb21, 0xeb2b, 0xeb2f, 0xeb33, 0xeb37,
+            0xeb5f, 0xeb63, 0xeb3f, 0xeb43, 0xeb47, 0xeb53, 0xeb6b, 0xeb8b];
+        // Published asset keys are compatibility evidence, not generated expected values.
+        string[] names = ["planet-damage-0", "planet-damage-1", "planet-damage-2", "planet-damage-3",
+            "planet-flash-0", "planet-flash-1", "planet-flash-2", "planet-flash-3", "lava-0", "lava-1",
+            "glow-0", "glow-1", "glow-2", "starfield", "silhouette", "afterglow"];
+        var frames = EndingExplosionSpriteDefinitions.Frames;
+        AssertEqual(16, frames.Count, "explosion catalog frame count");
+        for (int i = 0; i < operands.Length; i++)
+        {
+            int address = 0x8b0000 | operands[i];
+            ushort pointer = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            int header = 0x8c0000 | pointer;
+            int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
+            AssertEqual(pointer, EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
+                $"explosion shared pose pointer {i}");
+            AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
+            AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
+        }
+        AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
+                (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
+        }
+    }
+
+    private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
+    {
+        static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
+            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, supplied)));
+        for (int pose = 0; pose < 14; pose++)
+        {
+            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : (ushort)0xa28b;
+            int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
+            var visual = new SpriteVisualPart[count];
+            for (int index = 0; index < count; index++)
+            {
+                int address = 0x8c0000 + pointer + 2 + index * 5;
+                var x = new SnesSpritemapXWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+                var attributes = new SnesObjAttributeWord((ushort)(bus.ReadByte(address + 3) | bus.ReadByte(address + 4) << 8));
+                visual[index] = new SpriteVisualPart
+                {
+                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadByte(address + 2)),
+                    TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
+                    Size = x.IsLarge ? 16 : 8, Priority = attributes.Priority, Palette = null,
+                    FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                };
+            }
+            SpriteComposition original = IntroCinematicSpriteCompiler.Compile(visual, "native grid");
+            SpriteComposition calculated = Calculate(pointer, original);
+            AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
+            string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
+            AssertEqual(Identity(original), Identity(calculated), "calculated grid preserves every compiled visual field and order");
+            foreach (ushort y in new ushort[] { 72, 0xfff8 })
+            {
+                var native = new OamBuffer();
+                var generated = new OamBuffer();
+                native.BeginFrame(); generated.BeginFrame();
+                DrawImportedSpritemap(bus, native, 0x8c0000 | pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+                if (y == 72) calculated.DrawOnScreen(generated, 120, y, 0x0800);
+                else calculated.DrawOffScreen(generated, 120, y, 0x0800);
+                native.FinalizeFrame(); generated.FinalizeFrame();
+                AssertTrue(native.LowTable.SequenceEqual(generated.LowTable) && native.HighTable.SequenceEqual(generated.HighTable),
+                    "calculated grid preserves native OAM and clipping");
+            }
+            SpriteVisualPart first = visual[0];
+            if (pose is >= 10 and <= 12)
+            {
+                SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
+                    visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
+                SpriteComposition calculatedBasis = Calculate(pointer, editedBasis);
+                AssertTrue(!ReferenceEquals(editedBasis, calculatedBasis), "symmetric edits retain calculated quadrants");
+                AssertEqual(Identity(editedBasis), Identity(calculatedBasis), "edited quadrant inputs preserve every field");
+            }
+            foreach (SpriteVisualPart edited in new[]
+            {
+                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+                first with { TileColumn = first.TileColumn == 14 ? 13 : first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
+                first with { Size = first.Size == 8 ? 16 : 8 }, first with { Priority = 1 }, first with { Palette = 3 },
+                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+                first with { OffsetX = 255 }, first with { OffsetY = 127 },
+            })
+            {
+                visual[0] = edited;
+                SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
+                AssertTrue(pose == 13 ? Identity(supplied) == Identity(Calculate(pointer, supplied)) : ReferenceEquals(supplied, Calculate(pointer, supplied)),
+                    "independent edited field keeps supplied composition");
+            }
+            visual[0] = first;
+            (visual[0], visual[1]) = (visual[1], visual[0]);
+            SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
+            AssertTrue(pose == 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
+            SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
+            AssertTrue(pose == 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
+        }
+    }
+
+    private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
              pointer < EndingExplosionInstructionDefinitions.End; pointer += sizeof(ushort))
@@ -38,9 +171,14 @@ internal static partial class Program
             {
                 // Private opcodes affect the containing ending scene. This actor-level
                 // comparison advances their cursor identically without duplicating that scene.
-                native.Step(bus, (_, cursor) => cursor);
-                installed.Step(bus, (_, cursor) => cursor,
+                var nativeCallbacks = new List<ushort>();
+                var generatedCallbacks = new List<ushort>();
+                native.Step(bus, (opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                    (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                installed.Step(bus, (opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
                     EndingExplosionInstructionDefinitions.ReadWord);
+                AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
+                    $"explosion actor ${start:X4} callback order/timing at frame {frame}");
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,
                     $"explosion actor ${start:X4} cursor at frame {frame}");
                 AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,
@@ -53,6 +191,17 @@ internal static partial class Program
                     $"explosion actor ${start:X4} lifetime at frame {frame}");
             }
         }
+
+        for (int frame = 0; frame < 10; frame++)
+            AssertEqual((ushort)4, (ushort)(bus.ReadByte(0x8ca396 + 22 * frame) | bus.ReadByte(0x8ca397 + 22 * frame) << 8),
+                $"explosion frame {frame} has four OAM parts and a 22-byte record");
+    }
+
+    private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
+        ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
+    {
+        VerifyEndingExplosionPrograms(bus);
+        VerifyEndingExplosionFrameCatalog(bus);
 
         foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {

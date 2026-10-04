@@ -42,10 +42,10 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
         {
             throw new InvalidDataException("Invalid ending cloud sprite JSON.", error);
         }
-        ReadOnlySpan<EndingCloudSpriteFrameDefinition> definitions =
+        IReadOnlyList<EndingCloudSpriteFrameDefinition> definitions =
             EndingCloudSpriteDefinitions.Frames;
         if (document.Version != EndingCloudSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Ending clouds require exactly six named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (EndingCloudSpriteFrameDefinition definition in definitions)
@@ -81,17 +81,47 @@ public sealed record EndingCloudSpriteDocument
 /// </summary>
 public static class EndingCloudSpriteDefinitions
 {
-    private static readonly EndingCloudSpriteFrameDefinition[] StockFrames =
-    [
-        new("scene-b-upper-a", 0xb745, 16),
-        new("scene-b-upper-b", 0xb7e9, 16),
-        new("scene-b-lower-a", 0xb797, 16),
-        new("scene-b-lower-b", 0xb6f3, 16),
-        new("scene-a-right", 0xb83b, 32),
-        new("scene-a-left", 0xb8dd, 32),
-    ];
+    /// <summary>$8C:B6F3, EndingCutsceneBottomCloudsPattern; four16-part records
+    /// precede the right and left32-part records.</summary>
+    private const ushort FirstRecord = 0xb6f3;
+    private const int FrameCount = 6;
+    // Native storage order is distinct from the actor/list order.
+    private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
+    private enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
 
-    public static ReadOnlySpan<EndingCloudSpriteFrameDefinition> Frames => StockFrames;
+    public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
+
+    private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
+    {
+        Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
+        Role.UpperEdge => Define("scene-b-upper-b", Record.TopEdge),
+        Role.LowerEdge => Define("scene-b-lower-a", Record.BottomEdge),
+        Role.LowerPattern => Define("scene-b-lower-b", Record.BottomPattern),
+        Role.Right => Define("scene-a-right", Record.Right),
+        Role.Left => Define("scene-a-left", Record.Left),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
+
+    private static EndingCloudSpriteFrameDefinition Define(string name, Record record)
+    {
+        int index = (int)record;
+        int horizontalRecords = Math.Min(index, 4);
+        int sideRecords = Math.Max(index - 4, 0);
+        int offset = horizontalRecords * (2 + 16 * 5) + sideRecords * (2 + 32 * 5);
+        return new(name, (ushort)(FirstRecord + offset), index < 4 ? 16 : 32);
+    }
+
+    private sealed class FrameView : IReadOnlyList<EndingCloudSpriteFrameDefinition>
+    {
+        public int Count => FrameCount;
+        public EndingCloudSpriteFrameDefinition this[int index] => Get(index);
+        public IEnumerator<EndingCloudSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return Get(index);
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
 }
 
 public readonly record struct EndingCloudSpriteFrameDefinition(

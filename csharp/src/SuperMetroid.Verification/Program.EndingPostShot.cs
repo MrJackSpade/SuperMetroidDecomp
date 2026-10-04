@@ -7,21 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
-        for (int index = 0; index < EndingPostShotUploadDefinitions.Count; index++)
-        {
-            int address = EndingPostShotUploadDefinitions.TableAddress +
-                index * EndingPostShotUploadDefinitions.RecordBytes;
-            EndingPostShotUploadDefinition compiled = EndingPostShotUploadDefinitions.Get(index);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), compiled.Length,
-                $"post-shot upload {index} length matches cartridge");
-            int nativeSource = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2) |
-                bus.ReadByte(address + 4) << 16;
-            AssertEqual(nativeSource, compiled.SourceAddress,
-                $"post-shot upload {index} source matches cartridge");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6),
-                compiled.DestinationWord,
-                $"post-shot upload {index} destination matches cartridge");
-        }
+        VerifyEndingPostShotTransferFields(bus);
         var guardedBus = new PostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);

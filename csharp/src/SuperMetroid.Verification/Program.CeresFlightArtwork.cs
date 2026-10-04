@@ -175,7 +175,7 @@ internal static partial class Program
             throw new InvalidDataException("Stock Ceres flight actor layout is empty.");
         for (int index = 0; index < document.Actors.Length; index++)
         {
-            var source = CeresFlightActorDefinitions.RearViewPlacementSources[index];
+            var source = CeresFlightActorDefinitions.RearViewPlacementSource(index);
             AssertEqual(source.Id, document.Actors[index].Id,
                 $"Ceres flight actor {index} retains its native role");
             AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

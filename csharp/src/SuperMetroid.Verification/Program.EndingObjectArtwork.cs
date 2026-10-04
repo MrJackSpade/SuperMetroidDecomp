@@ -9,24 +9,87 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
+    {
+        string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
+            "ending-explosion-fragment-78.png", "ending-explosion-fragment-7c.png"];
+        AssertEqual(names.Length, EndingObjectArtworkFormat.FragmentCount, "ending fragment count");
+        for (int index = 0; index < names.Length; index++)
+        {
+            int load = 0x8bd5af + 17 * index;
+            AssertEqual((byte)0xa9, bus.ReadByte(load), "native fragment bank LDA");
+            AssertEqual((byte)0xa9, bus.ReadByte(load + 5), "native fragment address LDA");
+            int source = bus.ReadByte(load + 2) << 16 | bus.ReadByte(load + 6) | bus.ReadByte(load + 7) << 8;
+            AssertEqual(source, EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), "native fragment compressed source");
+            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)invalid), "fragment source bounds");
+        }
+    }
+
+    private static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
+    {
+        for (int pointer = EndingCloudInstructionDefinitions.Start;
+             pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
+        {
+            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
+            ushort nativeWord = (ushort)(bus.ReadByte(address) |
+                bus.ReadByte(address + 1) << 8);
+            AssertEqual(nativeWord, EndingCloudInstructionDefinitions.ReadWord((ushort)pointer),
+                $"ending cloud instruction $8B:{pointer:X4} matches cartridge");
+        }
+        AssertThrows<InvalidDataException>(() =>
+            EndingCloudInstructionDefinitions.ReadWord(
+                EndingCloudInstructionDefinitions.End),
+            "ending cloud reader cannot escape its six lists");
+        string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
+        var catalog = EndingCloudSpriteDefinitions.Frames;
+        AssertEqual(6, catalog.Count, "cloud catalog count");
+        for (int index = 0; index < catalog.Count; index++)
+        {
+            int operand = 0x8becef + index * 8;
+            ushort map = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            int header = 0x8c0000 | map;
+            int count = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            AssertEqual(map, catalog[index].Pointer, "cloud native pointer operand");
+            AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
+            AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
+            ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
+            var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            for (int frame = 0; frame < 120; frame++)
+            {
+                nativeActor.Step(bus, instructionWord: pointer => (ushort)(
+                    bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                installedActor.Step(bus, instructionWord: EndingCloudInstructionDefinitions.ReadWord);
+                AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
+                    $"ending cloud {index} list cursor at frame {frame}");
+                AssertEqual(nativeActor.SpriteMapPointer, installedActor.SpriteMapPointer,
+                    $"ending cloud {index} selected visual frame at frame {frame}");
+            }
+        }
+        AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "cloud catalog enumeration order");
+        foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "cloud catalog bounds");
+        foreach (ushort invalid in new ushort[] { 0, 0xecec, 0xecee, 0xed1d, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
+    }
+
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        VerifyEndingObjectFragmentMetadata(bus);
         AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
         AssertSheet(stock.Explosion, EndingCreditsRomData.Assets.EndingObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount, "explosion");
-        int[] fragmentSources =
-        [
-            EndingCreditsRomData.Assets.EndingObjectCharacters70,
-            EndingCreditsRomData.Assets.EndingObjectCharacters74,
-            EndingCreditsRomData.Assets.EndingObjectCharacters78,
-            EndingCreditsRomData.Assets.EndingObjectCharacters7C,
-        ];
-        for (int index = 0; index < fragmentSources.Length; index++)
+        for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             AssertSheet(stock.Fragment((EndingObjectFragmentId)index),
-                fragmentSources[index], EndingObjectArtworkFormat.FragmentByteCount,
+                EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
         AssertSheet(stock.WaitingSamus,
             EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
@@ -61,33 +124,9 @@ internal static partial class Program
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
 
-        for (int pointer = EndingCloudInstructionDefinitions.Start;
-             pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
+        VerifyEndingCloudDefinitions(bus);
+        for (int index = 0; index < EndingCloudSpriteDefinitions.Frames.Count; index++)
         {
-            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = (ushort)(bus.ReadByte(address) |
-                bus.ReadByte(address + 1) << 8);
-            AssertEqual(nativeWord, EndingCloudInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending cloud instruction $8B:{pointer:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(() =>
-            EndingCloudInstructionDefinitions.ReadWord(
-                EndingCloudInstructionDefinitions.End),
-            "ending cloud reader cannot escape its six lists");
-        for (int index = 0; index < EndingCloudSpriteDefinitions.Frames.Length; index++)
-        {
-            ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
-            var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
-            var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
-            for (int frame = 0; frame < 120; frame++)
-            {
-                nativeActor.Step(bus);
-                installedActor.Step(bus, instructionWord: EndingCloudInstructionDefinitions.ReadWord);
-                AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
-                    $"ending cloud {index} list cursor at frame {frame}");
-                AssertEqual(nativeActor.SpriteMapPointer, installedActor.SpriteMapPointer,
-                    $"ending cloud {index} selected visual frame at frame {frame}");
-            }
             EndingCloudSpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frames[index];
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

@@ -27,8 +27,7 @@ internal static class PausePresentationDomainAudit
         if (type == typeof(PauseEquipmentLabelPresentation).FullName && method == "ApplyLabel")
         {
             int? category = Constant("category"), item = Constant("item"), words = Constant("wordCount");
-            var candidates = PauseEquipmentLabelDefinitions.Keys.SelectMany((keys, categoryIndex) =>
-                keys.Select((key, itemIndex) => (Category: categoryIndex, Item: itemIndex, Key: key)));
+            var candidates = PauseEquipmentLabelDefinitions.Labels();
             if (!candidates.Any(label => (!category.HasValue || category == label.Category) &&
                 (!item.HasValue || item == label.Item) && (!words.HasValue ||
                     words >= 0 && words <= PauseEquipmentLabelDefinitions.EquipmentWords &&

@@ -22,7 +22,7 @@ public static class EndingMode7ArtworkFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
         {
-            (int characterSource, int packedMapSource) = Sources(id);
+            (int characterSource, int packedMapSource) = EndingCreditsRomData.Assets.Mode7Sources(id);
             byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
             byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
@@ -205,16 +205,6 @@ public static class EndingMode7ArtworkFiles
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    private static (int Characters, int PackedMap) Sources(EndingMode7SceneId id) => id switch
-    {
-        EndingMode7SceneId.EscapeA =>
-            (EndingCreditsRomData.Assets.EscapeMapA, EndingCreditsRomData.Assets.EscapeCharactersA),
-        EndingMode7SceneId.EscapeB =>
-            (EndingCreditsRomData.Assets.EscapeMapB, EndingCreditsRomData.Assets.EscapeCharactersB),
-        EndingMode7SceneId.PlanetExplosion =>
-            (EndingCreditsRomData.Assets.ExplosionMap, EndingCreditsRomData.Assets.ExplosionCharacters),
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

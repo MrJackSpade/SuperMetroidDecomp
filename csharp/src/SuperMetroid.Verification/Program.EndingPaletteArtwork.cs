@@ -9,8 +9,243 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void ExportEndingLogoPaletteEvidence(CartridgeImportAddressSpace rom)
+    {
+        string directory = Path.GetFullPath("csharp/test-temp/1165-ending-logo-colors");
+        Directory.CreateDirectory(directory);
+        byte[] nativeTiles = RomDataReader.Decompress(rom, 0x99e089, EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] tiles = SnesGraphics.DecodePlanarTiles(nativeTiles.AsSpan(0, 0x2000), 4, 16, out int width, out _);
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        Rgba32[] Palette(int address) => Enumerable.Range(0, 16)
+            .Select(color => SnesGraphics.DecodeBgr555Color(Word(address + color * 2))).ToArray();
+        Rgba32[] spritePalette = Palette(0x8cefe9), backgroundPalette = Palette(0x8cf1e9);
+        var spritePixels = new byte[256 * 256];
+        // Final OAM compositions and native landing/origin positions; no cinematic replay.
+        foreach (var frame in new[] { (0, 138, 111), (1, 126, 127), (4, 129, 110), (7, 135, 128) })
+        {
+            EndingLogoSpriteFrameDefinition definition = EndingLogoSpriteDefinitions.Frames[frame.Item1];
+            foreach (SpriteVisualPart part in IntroCinematicSpriteFrameExtractor.Extract(rom,
+                definition.Pointer, definition.StockPartCount, definition.Name))
+            for (int y = 0; y < part.Size; y++)
+            for (int x = 0; x < part.Size; x++)
+            {
+                int sx = part.FlipX ? part.Size - 1 - x : x, sy = part.FlipY ? part.Size - 1 - y : y;
+                int tile = part.TileRow * 16 + part.TileColumn + sy / 8 * 16 + sx / 8;
+                byte color = tiles[(tile / 16 * 8 + sy % 8) * width + tile % 16 * 8 + sx % 8];
+                int dx = frame.Item2 + part.OffsetX + x, dy = frame.Item3 + part.OffsetY + y;
+                if (color != 0 && (uint)dx < 256 && (uint)dy < 256) spritePixels[dy * 256 + dx] = color;
+            }
+        }
+        byte[] nativeMap = RomDataReader.Decompress(rom, 0x99ecc4, EndingCreditsRomData.Rendering.DecompressionLimit);
+        var backgroundPixels = new byte[256 * 256];
+        for (int cell = 0; cell < 1024; cell++)
+        {
+            int word = nativeMap[cell * 2] | nativeMap[cell * 2 + 1] << 8;
+            int tile = word & 0x3ff;
+            for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+            {
+                int sx = (word & 0x4000) != 0 ? 7 - x : x, sy = (word & 0x8000) != 0 ? 7 - y : y;
+                backgroundPixels[(cell / 32 * 8 + y) * 256 + cell % 32 * 8 + x] =
+                    tiles[(tile / 16 * 8 + sy) * width + tile % 16 * 8 + sx];
+            }
+        }
+        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-sprite-logo.png"), 256, 256, spritePixels, spritePalette, 2);
+        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-background-logo.png"), 256, 256, backgroundPixels, backgroundPalette, 2);
+        Console.WriteLine(directory);
+        for (int color = 0; color < 16; color++)
+            Console.WriteLine($"slot{color}: OBJ=${Word(0x8cefe9 + color * 2):X4}, pixels={spritePixels.Count(p => p == color)}; BG=${Word(0x8cf1e9 + color * 2):X4}, pixels={backgroundPixels.Count(p => p == color)}");
+    }
+
+    private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
+    {
+        var original = new byte[512 * 2];
+        var colors = new PaletteRgb5[512];
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        // The original pointer list and reverse-copy operand order are the oracle.
+        // Neither the production source selector nor the proposed arithmetic supplies it.
+        for (int step = 0; step < 16; step++)
+        for (int palette = 0; palette < 2; palette++)
+        for (int color = 0; color < 16; color++)
+        {
+            int last = Word(0x8be5e7 + (step * 2 + palette) * 2);
+            ushort word = Word(0x8c0000 | (last - (15 - color) * 2));
+            int index = step * 32 + palette * 16 + color;
+            original[index * 2] = (byte)word;
+            original[index * 2 + 1] = (byte)(word >> 8);
+            colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        var background = new ushort[16];
+        for (int color = 0; color < 16; color++) background[color] = Word(0x8cf1e9 + color * 2);
+        EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(background)
+            ?? throw new InvalidOperationException("Original logo background must use a computed grey gradient.");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(background[color], gradient.Color(color), "all original logo endpoint shades computed exactly");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => gradient.Color(invalid), "logo background gradient bounds");
+        // Swapping two complete source columns preserves each temporal fade but changes
+        // the endpoint's spatial gradient. Recognition must keep these supplied columns.
+        byte[] reordered = (byte[])original.Clone();
+        (background[1], background[2]) = (background[2], background[1]);
+        AssertTrue(EndingLogoBackgroundPalette.TryCreate(background) is null, "independent shade order is not replaced");
+        for (int step = 0; step < 16; step++)
+        for (int lane = 0; lane < 2; lane++)
+        {
+            int first = (step * 32 + 1) * 2 + lane, second = (step * 32 + 2) * 2 + lane;
+            (reordered[first], reordered[second]) = (reordered[second], reordered[first]);
+        }
+        EndingLogoPaletteFade reorderedFade = EndingLogoPaletteFade.TryCreate(reordered)
+            ?? throw new InvalidOperationException("Reordered endpoint shades still have the original temporal fade.");
+        for (int index = 0; index < 512; index++)
+            AssertEqual((ushort)(reordered[index * 2] | reordered[index * 2 + 1] << 8), reorderedFade.Color(index),
+                "temporal fade preserves edited endpoint order");
+        EndingLogoPaletteFade fade = EndingLogoPaletteFade.TryCreate(original)
+            ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
+        EndingPalette Load(PaletteRgb5[] supplied)
+        {
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+                new EndingPaletteDocument { Version = 1, Colors = supplied }, MapPresentationFormat.JsonOptions));
+            return EndingPalette.Load(json, EndingPaletteId.LogoCrossfade);
+        }
+        EndingPalette loaded = Load(colors);
+        int remaindersSeen = 0;
+        for (int index = 0; index < 512; index++)
+        {
+            ushort expected = (ushort)(original[index * 2] | original[index * 2 + 1] << 8);
+            AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
+            AssertEqual(expected, loaded.Color(index), "computed fade reaches palette accessor");
+            int palette = index / 16 % 2, step = index / 32;
+            PaletteRgb5 endpoint = colors[(palette == 0 ? 15 * 32 : 16) + index % 16];
+            foreach (int channel in new[] { endpoint.Red, endpoint.Green, endpoint.Blue })
+                remaindersSeen |= 1 << (channel * (palette == 0 ? step : 15 - step) % 15);
+        }
+        AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
+        AssertTrue(loaded.Transfer.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
+        var cgram = new SnesCgram();
+        for (int step = 0; step < 16; step++)
+        {
+            loaded.LoadTo(cgram, step * 32, 32, 64);
+            for (int color = 0; color < 32; color++)
+            {
+                int offset = (step * 32 + color) * 2;
+                AssertEqual((ushort)(original[offset] | original[offset + 1] << 8), cgram.Colors[64 + color],
+                    "computed fade partial CGRAM transfer");
+            }
+        }
+        // Independent edits to a dark frame, an intermediate frame and an endpoint
+        // must survive even though they no longer describe a linear fade.
+        foreach (int edited in new[] { 1, 7 * 32 + 19, 15 * 32 + 1 })
+            colors[edited] = colors[edited] with { Red = (colors[edited].Red + 11) & 31 };
+        EndingPalette custom = Load(colors);
+        for (int index = 0; index < 512; index++)
+        {
+            PaletteRgb5 color = colors[index];
+            AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.Color(index),
+                "independent edited fade samples survive unchanged");
+        }
+        AssertTrue(EndingLogoPaletteFade.TryCreate(custom.Transfer.Span) is null, "nonlinear edits remain caller-owned content");
+        foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => loaded.Color(invalid), "loaded fade index domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 511, 2, 0), "computed fade source transfer bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => loaded.LoadTo(cgram, 0, 32, 240), "computed fade destination transfer bounds");
+        loaded.LoadTo(cgram, 512, 0, 256);
+        AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
+    }
+
+    private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
+    {
+        // Original indexed LDA operands select the six contiguous resources. The gunship
+        // uses absolute,X in bank8B; the others use long,X. No production source constants.
+        (EndingPaletteId Role, int Load, bool Long)[] loads =
+        [
+            (EndingPaletteId.Escape, 0x8bd4a5, true),
+            (EndingPaletteId.PostCredits, 0x8bf70c, true),
+            (EndingPaletteId.Credits, 0x8bde8d, true),
+            (EndingPaletteId.Explosion, 0x8bd97e, true),
+            (EndingPaletteId.FinalGunship, 0x8bde37, false),
+            (EndingPaletteId.LogoInitial, 0x8be57d, true),
+        ];
+        foreach (var load in loads)
+        {
+            AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadByte(load.Load), "native palette indexed load opcode");
+            int address = rom.ReadByte(load.Load + 1) | rom.ReadByte(load.Load + 2) << 8 |
+                (load.Long ? rom.ReadByte(load.Load + 3) << 16 : load.Load & 0xff0000);
+            AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
+        }
+        // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
+        foreach (var allocation in new[]
+        {
+            (EndingPaletteId.PostCredits, 0x8ce7e9, 0x8ce9e9),
+            (EndingPaletteId.Credits, 0x8ce9e9, 0x8cebe9),
+            (EndingPaletteId.Explosion, 0x8cebe9, 0x8cede9),
+            (EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
+        })
+            AssertEqual((allocation.Item3 - allocation.Item2) / 2,
+                EndingPaletteDefinitions.ColorCount(allocation.Item1), "complete palette allocation size");
+        foreach (var single in new[] { (EndingPaletteId.FinalGunship, 0x8bde34), (EndingPaletteId.LogoInitial, 0x8be57a) })
+        {
+            AssertEqual(0xa2, (int)rom.ReadByte(single.Item2), "native reverse palette LDX opcode");
+            int lastOffset = rom.ReadByte(single.Item2 + 1) | rom.ReadByte(single.Item2 + 2) << 8;
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.Item1), "single palette reverse-copy size");
+        }
+        AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
+            EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
+        (EndingPaletteId Role, string Name)[] published =
+        [
+            (EndingPaletteId.Escape, "ending-escape-palette.json"),
+            (EndingPaletteId.PostCredits, "ending-post-credits-palette.json"),
+            (EndingPaletteId.Credits, "ending-credits-palette.json"),
+            (EndingPaletteId.Explosion, "ending-explosion-palette.json"),
+            (EndingPaletteId.FinalGunship, "ending-final-gunship-palette.json"),
+            (EndingPaletteId.LogoInitial, "ending-logo-initial-palette.json"),
+            (EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
+        ];
+        foreach (var file in published)
+            AssertEqual(file.Name, EndingPaletteDefinitions.FileName(file.Role), "published palette filename compatibility");
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress(EndingPaletteId.LogoCrossfade),
+            "crossfade has no contiguous source");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.SourceAddress((EndingPaletteId)invalid), "invalid palette source role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteDefinitions.FileName((EndingPaletteId)invalid), "invalid palette file role");
+        }
+    }
+
+    private static void VerifyEndingPaletteRoleSelection()
+    {
+        // Distinct caller-owned values exercise the original constructor-position contract.
+        var supplied = new EndingPalette[7];
+        for (int i = 0; i < supplied.Length; i++)
+        {
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(new EndingPaletteDocument
+            {
+                Version = 1,
+                Colors = Enumerable.Range(0, 256).Select(_ => new PaletteRgb5 { Red = i, Green = 0, Blue = 0 }).ToArray(),
+            }, MapPresentationFormat.JsonOptions));
+            supplied[i] = EndingPalette.Load(json, EndingPaletteId.Escape);
+        }
+        var catalog = new EndingPaletteCatalog(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
+        EndingPaletteId[] originalOrder = [EndingPaletteId.Escape, EndingPaletteId.PostCredits, EndingPaletteId.Credits,
+            EndingPaletteId.Explosion, EndingPaletteId.FinalGunship, EndingPaletteId.LogoInitial, EndingPaletteId.LogoCrossfade];
+        for (int i = 0; i < originalOrder.Length; i++)
+            AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending palette role preserves supplied reference");
+        string originalIdentity = SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
+        {
+            content.Append("palette-count", supplied.Length);
+            foreach (EndingPalette palette in supplied) content.Append("palette", palette.Transfer.Span);
+        });
+        AssertEqual(originalIdentity, catalog.ContentIdentity, "ending palette identity preserves original role order");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
+    }
+
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
+        VerifyEndingPaletteRoleSelection();
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");

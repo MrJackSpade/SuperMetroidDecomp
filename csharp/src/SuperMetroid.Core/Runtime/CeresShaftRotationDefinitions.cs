@@ -26,20 +26,10 @@ public static class CeresShaftRotationDefinitions
 
     /// <summary>Native record timers ordered by absolute sine magnitude, zero through 34.</summary>
     /// <remarks>
-    /// Issues #625 and #950: all 69 timer words match the pinned NTSC J/U v1.0 ROM and
-    /// RoomMainASM_CeresElevatorShaft assembly. They are symmetric by absolute sine,
-    /// leaving 35 independent values. Magnitudes 0..21 form irregular runs of durations
-    /// 1..7; 22..26 rise by one per magnitude, 27..33 rise by two, and 34 dwells for 60.
-    /// The caller uses wrapping DEC/BMI, so a loaded timer lasts timer+1 room-main calls.
-    /// The cartridge routine at $89:AD1A..AD2C decrements the timer, then reads
-    /// the next record's timer word directly; it has no timer-generation step.
-    /// Stored cosine cannot determine duration either: it remains $0100 through
-    /// magnitudes 0..16 while the timers already span 1..5. Quadratic, single-rate
-    /// exponential, and reciprocal rounding candidates miss entries; correcting
-    /// them or encoding the irregular run boundaries would only restate the data.
-    /// Unlike the independently quantized sine/cosine columns, no source-backed
-    /// timing law explains the short runs, two ramps, and separate timer-60 dwell.
-    /// Retain these 35 authored values instead of inventing an opaque generator.
+    /// $89:AD5F supplies 69 timers symmetric in absolute sine, represented here by
+    /// 35 values. Native DEC/BMI makes a loaded timer last timer+1 room-main calls.
+    /// The exact timing rule remains required conversion work under #1165.
+    /// No retention exception has been established for this schedule.
     /// </remarks>
     private static ReadOnlySpan<ushort> Timers =>
     [
@@ -58,7 +48,7 @@ public static class CeresShaftRotationDefinitions
             throw new InvalidDataException($"Ceres shaft rotation phase ${phase:X4} does not select an authored record.");
         int sine = record - 34;
         int magnitude = Math.Abs(sine);
-        ushort cosine = (ushort)(magnitude <= 16 ? 256 : magnitude <= 27 ? 255 : 254);
+        ushort cosine = (ushort)(256 - (magnitude * magnitude + 255) / 512);
         return (Timers[magnitude], unchecked((ushort)sine), cosine);
     }
 }

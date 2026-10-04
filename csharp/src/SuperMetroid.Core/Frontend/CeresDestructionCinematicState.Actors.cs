@@ -10,20 +10,16 @@ internal sealed partial class CeresDestructionCinematicState
         // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
         // it during the final $40-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
-        if (explosionSpawnerFrame == CeresExplosionDefinitions.InitialSpawnFrame)
+        CeresExplosionSpawnEvents events = CeresExplosionDefinitions.EventsAtFrame(explosionSpawnerFrame,
+            Phase < CeresDestructionPhase.FlyingAwayFromExplosion, ref explosionRepeatCountdown);
+        if (events.Initial)
         {
             for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
                 SpawnCeresExplosion(
                     CeresExplosionDefinitions.InitialActor,
                     CeresExplosionDefinitions.InitialExplosion(index));
         }
-        else if (explosionSpawnerFrame is
-                    >= CeresExplosionDefinitions.RepeatingFirstFrame and
-                    <= CeresExplosionDefinitions.SpawnerFinalFrame &&
-                 Phase < CeresDestructionPhase.FlyingAwayFromExplosion &&
-                 (explosionSpawnerFrame -
-                    CeresExplosionDefinitions.RepeatingFirstFrame) %
-                    CeresExplosionDefinitions.RepeatingPeriodFrames == 0)
+        if (events.Repeating)
         {
             int offset = explosionOffsetIndex++ &
                 (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
@@ -31,7 +27,7 @@ internal sealed partial class CeresDestructionCinematicState
                 CeresExplosionDefinitions.RepeatingActor,
                 CeresExplosionDefinitions.RepeatingExplosion(offset));
         }
-        else if (explosionSpawnerFrame == CeresExplosionDefinitions.SpawnerFinalFrame)
+        if (events.Final)
         {
             for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
                 SpawnCeresExplosion(

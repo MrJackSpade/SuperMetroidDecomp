@@ -194,17 +194,44 @@ internal static partial class Program
                 stock.ApplyBody(cgram, frame);
             }
         }
+        var storedBubble = typeof(CrystalFlashColorCatalog).GetField("bubble",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var residuals = (Dictionary<int, ushort>)storedBubble.GetValue(stock)!;
+        AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
+        AssertEqual((ushort)0x7fff, residuals[30], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusPaletteRomData.CrystalFlash.BubblePointers + frame * 2);
-            AssertEqual(ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color), stock.ResolveBubble(frame, color), "Independent bubble payload preserved");
+            ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
+            AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
+            stock.ApplyBubble(cgram, frame);
+            AssertEqual(original, cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color], "Original bubble color reaches CGRAM");
+            var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
+            rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
+            var changedDocument = document with { Bubble = rows };
+            var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+            for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
+            {
+                changed.ApplyBubble(cgram, verifyFrame);
+                for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
+                {
+                    var rgb = rows[verifyFrame][verifyColor];
+                    ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                    AssertEqual(word, changed.ResolveBubble(verifyFrame, verifyColor), "All supplied bubble fields preserved");
+                    AssertEqual(word, cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + verifyColor], "Supplied bubble color reaches CGRAM");
+                }
+            }
+            AssertTrue(storedBody.GetValue(changed) is null, "Independent bubble edit preserves body calculation");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(-1, 0), "Calculated body lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(-1, 0), "Bubble lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(6, 0), "Bubble upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(0, -1), "Bubble lower color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(0, 6), "Bubble upper color bound");        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(-1, 0), "Calculated body lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(10, 0), "Calculated body upper frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
-        Console.WriteLine("Stream 2 Crystal Flash body: all100 native colors, CGRAM application and independent supplied edits pass; bubble36 colors unchanged.");
+        Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors, CGRAM application and every independent supplied edit pass; one bubble residual remains pending.");
     }    private static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))

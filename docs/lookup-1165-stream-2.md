@@ -756,3 +756,10 @@ Source inspection identified an existing literal typo: upper-right Y was -64, wh
 Verification build passed (1221 warnings, zero errors). `--lookup-stream2-ghost-norfair` passed all18 native spawn fields, all17 native flicker intervals, actual production wrapped positions and phase/timer installation, countdown/visibility/terminal behavior, odd offset folding, rejected malformed states, all64 Norfair duration operands and four116-tick cycles. No gameplay discovery was used. Ghost and Norfair color payloads remain independently required; unsupported irregularity-based retention prose was removed from the Norfair color-address documentation.
 
 Twenty-seven named definitions complete in stream2; 199 remain required.
+### Batch 7: Crystal Flash rotating bubble ramp (partial payload resolution)
+
+Replaced the stock six-by-six bubble matrix with a calculated rotating ramp and exact sparse supplied deviations. Each frame rotates six levels; red stays31 and green/blue interpolate31 to25 across five intervals. This reproduces35 native words. The remaining original frame5/color0 white at $9B:9774 is stored as one explicit residual, and `bubble` remains unchecked. Independent custom edits remain exact; body edits and calculations remain independent.
+
+Consumer inspection establishes a uniform six-frame, five-tick cycle at $91:DBA0-$DBBD and direct six-word copying to sprite palette6 colorsA..F at $91:DC88-$DCAE, also reflected by `SamusCrystalFlashState`. There is no special phase branch that establishes a functional rule for the exceptional white sample. No invented seam rule or retention exception has been introduced.
+
+Verification build passed (1436 warnings, zero errors). Expanded `--lookup-stream2-crystal-body` passed all100 body and36 bubble original colors, actual CGRAM writes, every independently edited body/bubble cell, preservation of every other supplied cell, bounds, and stock residual count1. Twenty-seven named definitions remain complete;199 remain required, including this now-isolated residual.

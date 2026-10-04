@@ -88,7 +88,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         if (reachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, (ushort)7);
-            PainfulWalkingFunctionTimer = PainfulWalkingFunctionTimers[timerIndex];
+            PainfulWalkingFunctionTimer = MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex);
         }
         return requested;
     }

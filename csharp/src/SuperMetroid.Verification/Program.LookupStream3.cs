@@ -101,7 +101,36 @@ internal static partial class Program
         VerifyStream3ShitroidPulse(rom);
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
+        VerifyStream3PainfulWalking(rom);
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
+    {
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int stage = 0; stage < 8; stage++)
+        {
+            AssertEqual(Read(0xa9beee + 2 * stage), MotherBrainPainfulWalkingDefinitions.AnimationDelay(stage), "stream 3 native stagger animation delay");
+            AssertEqual(Read(0xa9befe + 2 * stage), MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
+            AssertEqual(Read(0xa9c049 + 2 * stage), MotherBrainPainfulWalkingDefinitions.FunctionTimer(stage), "stream 3 native stagger pause timer");
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.AnimationDelay(invalid), "stream 3 stagger delay bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
+        }
+        var step = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("StepPainfulWalking",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
+        {
+            var sequence = new MotherBrainRainbowBeamAttackSequence();
+            sequence.Body.XPosition = 0;
+            typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("PainfulWalkingStage")!.SetValue(sequence, stage);
+            step.Invoke(sequence, null);
+            AssertEqual(Read(0xa9c049 + 2 * Math.Min(stage, (ushort)7)), sequence.PainfulWalkingFunctionTimer,
+                "stream 3 real stagger timer clamps terminal stages");
+        }
     }
 
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)

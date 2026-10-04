@@ -416,11 +416,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // The outer function updates delay and neck delta after *every* nested call.
                 // Stage six is therefore observed on the exact call which ends its prior
                 // pause, before the stage-six forward walk has even begun.
-                if (PainfulWalkingStage < PainfulWalkingAnimationDelays.Length)
+                if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
                 {
                     PainfulWalkingAnimationDelay =
-                        PainfulWalkingAnimationDelays[PainfulWalkingStage];
-                    NeckAngleDelta = PainfulWalkingNeckAngleDeltas[PainfulWalkingStage];
+                        MotherBrainPainfulWalkingDefinitions.AnimationDelay(PainfulWalkingStage);
+                    NeckAngleDelta = MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(PainfulWalkingStage);
                 }
                 if (PainfulWalkingStage == 6)
                 {

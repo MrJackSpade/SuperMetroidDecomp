@@ -51,18 +51,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public const ushort BodyCrouchingFastInstructionList = 0x9a26;
     public const ushort HeadDyingDroolInstructionList = 0x9c39;
 
-    // `$A9:BEEE-$BF0D` stores 16-bit words, but the animation-delay lookup deliberately
-    // masks to the low byte. Stages 0/1 are the fastest stagger; each later pair slows both
-    // the walk animation and the pause before Mother Brain reverses direction.
-    private static ReadOnlySpan<ushort> PainfulWalkingAnimationDelays =>
-        [0x0002, 0x0002, 0x0006, 0x0006, 0x0008, 0x0008, 0x000a, 0x000a];
-
-    private static ReadOnlySpan<ushort> PainfulWalkingNeckAngleDeltas =>
-        [0x0500, 0x0500, 0x0200, 0x0200, 0x00c0, 0x00c0, 0x0040, 0x0040];
-
-    private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
-        [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
-
     // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native
     // explosion index counts backward and wraps to six, so a zero-initialized sequence emits
     // record six first. Signed offsets are added to the body enemy's current world position.

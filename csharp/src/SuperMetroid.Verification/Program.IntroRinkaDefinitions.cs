@@ -8,15 +8,7 @@ internal static partial class Program
     private static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int pointer = IntroRinkaInstructionDefinitions.StartPointer;
-             pointer < IntroRinkaInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroRinkaDefinitions.NativeBank | pointer),
-                IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Rinka instruction byte $8B:{pointer:X4}");
-        AssertThrows<InvalidDataException>(
-            () => IntroRinkaInstructionDefinitions.ReadWord(
-                IntroRinkaInstructionDefinitions.EndPointer),
-            "intro Rinka instruction reader rejects a cursor outside its two lists");
+        VerifyIntroRinkaPrograms(retail);
         IntroRinkaActorDefinition[] actors =
         [
             IntroRinkaDefinitions.RinkaActor,

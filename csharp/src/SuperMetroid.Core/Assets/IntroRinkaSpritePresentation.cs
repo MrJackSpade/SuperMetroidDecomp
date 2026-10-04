@@ -41,9 +41,9 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
         {
             throw new InvalidDataException("Invalid intro Rinka sprite JSON.", error);
         }
-        ReadOnlySpan<IntroRinkaSpriteFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
+        IReadOnlyList<IntroRinkaSpriteFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
         if (document.Version != IntroRinkaSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Rinkas require three named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroRinkaSpriteFrameDefinition definition in definitions)

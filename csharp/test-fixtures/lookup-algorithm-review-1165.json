@@ -9851,4 +9851,24 @@
     "proof": "One VerifyIntroScientistFrameCatalog walks all ten original OAM records directly using their source count words, compares every production pointer/count and the original published name list, confirms the8D6F terminal boundary and8D68 caret alias, and checks indexing/function bounds plus enumeration. The existing --lookup-intro-scientist-instructions flag runs this catalog proof alongside the unchanged logical program proof, which confirms all142 original bytes and all overlapping word contracts after caller migration. No cinematic playthrough or artwork-wide matrix.",
     "supersedes": "Resolves the separate stored-catalog/shared-identity work left in introScientistInstructionReview. Actual OAM parts and pixels still need independent review; this is not a whole-owner/artwork exception or whole-ticket completion. Implementation commit is the commit adding this record."
   }
+,
+  "introRinkaProgramReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Frontend/IntroRinkaInstructionDefinitions.cs",
+    "id": "intro-rinka-animation-and-spawner-programs",
+    "state": "converted",
+    "nativeIdentity": "8B:CDEB..CE1A,48 bytes spanning Rinka animation and adjacent invisible two-wave spawner",
+    "evidence": "Complete pinned bank8B list expands frames0,1,2 at10 ticks each, calls StartMoving atCDF7, then cycles1,0,1,2 at10 ticks and jumps toCDF9. SpawnerCE0D waits74 with no spritemap, spawns pair0/1, waits128 with no spritemap, spawns pair2/3, then deletes. Existing ReadWord permits odd views across the internal actor/spawner boundary but rejects the terminal crossing and unrelatedCE1B actor.",
+    "algorithm": "Calculate expansion frame ordinal, repeating absolute-distance pulse ordinal and shared ten-tick holds. Emit named movement/goto/spawn/delete operations and loop target. Explicit semantic wait phases retain the two spawn delays. ReadByte selects halves of generated words; ReadWord composes adjacent bytes. Remove48-byte Programs span without cache or runtime ROM reads.",
+    "proof": "Extract the existing original-byte comparison from VerifyIntroRinkaDefinitions into one VerifyIntroRinkaPrograms, reused by the existing suite and exposed under --lookup-intro-rinka-programs. Extend to all47 complete aligned/odd word views and exact boundary exception behavior against SHA-pinned ROM. No gameplay exploration or unrelated actor matrix.",
+    "scope": "Both programs converted; referenced artwork remains separate required review. Implementation commit is the commit adding this record."
+  },
+  "introRinkaFrameCatalogReview": {
+    "owner": "csharp/src/SuperMetroid.Core/Assets/IntroRinkaSpriteDefinitions.cs",
+    "id": "intro-rinka-frame-catalog",
+    "state": "converted",
+    "nativeIdentity": "8C:8C8D..8CCE,three consecutive four-part OAM records",
+    "algorithm": "Bound frame0..2 and calculate First+frame*(2+5*4), using the native count-header/part sizes. A stateless IReadOnlyList emits the pointer and stable rinka-ordinal name. Remove the three-entry stored array. Asset loader uses Count/enumeration; instruction generator calls the same FramePointer so no second pointer mapping survives.",
+    "proof": "One VerifyIntroRinkaFrameCatalog compares every pointer to its independently read native instruction operand, all three counts to original OAM headers, and all names to published asset identities; check pointer/collection bounds and enumeration order. Run with the distinct instruction proof under the focused flag. Compiler checks cover migrated loader, extractor and audit enumeration consumers.",
+    "scope": "Frame metadata converted; quadrant layouts/pixels remain independent obligations. No retention or whole-ticket completion claim. Implementation commit is the commit adding this record."
+  }
 }

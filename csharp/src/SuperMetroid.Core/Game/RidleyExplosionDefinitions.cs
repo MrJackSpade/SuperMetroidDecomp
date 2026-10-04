@@ -38,6 +38,12 @@ internal static class RidleyExplosionDefinitions
     /// <summary><c>EnemyHeaders_RidleyExplosion</c> at <c>$A0:E1BF</c>.</summary>
     public const ushort EnemyDefinition = 0xe1bf;
 
+    /// <summary>$A6:C6FE RidleyExplosionInitialization_0, first of seven tail-fragment initializers.</summary>
+    private const ushort TailInitializerStart = 0xc6fe;
+    /// <summary>$A6:C7DA RidleyExplosionInitialization_E, first of five body-fragment initializers.</summary>
+    private const ushort BodyInitializerStart = 0xc7da;
+    /// <summary>$A6:CA95 InstList_RidleyTailTip_PointingDown, first of sixteen orientation programs.</summary>
+    private const ushort TailTipProgramStart = 0xca95;
     /// <summary>
     /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
     /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
@@ -89,7 +95,7 @@ internal static class RidleyExplosionDefinitions
 
         int part = parameter >> 1;
         if (parameter <= RidleyExplosionParts.TailTip)
-            return new(parameter, (ushort)(0x48 + 8 * part), (ushort)(0xc6fe + 0x18 * part));
+            return new(parameter, (ushort)(0x48 + 8 * part), (ushort)(TailInitializerStart + 0x18 * part));
 
         // Body initializers have the same two-facing layout, so their native
         // addresses advance by 50 bytes. Torso is the last fragment to expire;
@@ -97,7 +103,7 @@ internal static class RidleyExplosionDefinitions
         int body = (parameter - RidleyExplosionParts.Wings) / 2;
         ushort lifetime = parameter == RidleyExplosionParts.Torso ? (ushort)0x80
             : (ushort)(0x28 + 8 * (body - (parameter == RidleyExplosionParts.Claw ? 1 : 0)));
-        return new(parameter, lifetime, (ushort)(0xc7da + 0x32 * body));
+        return new(parameter, lifetime, (ushort)(BodyInitializerStart + 0x32 * body));
     }
 
     /// <summary>Returns one authored small-explosion position selected by its cyclic index.</summary>
@@ -120,7 +126,7 @@ internal static class RidleyExplosionDefinitions
         RidleyExplosionParts.Tail2 or RidleyExplosionParts.Tail3 => 0xca4d,
         RidleyExplosionParts.Tail4 or RidleyExplosionParts.Tail5 => 0xca53,
         RidleyExplosionParts.TailTip when (uint)tailTipOrientation < 16 =>
-            (ushort)(0xca95 + 6 * tailTipOrientation),
+            (ushort)(TailTipProgramStart + 6 * tailTipOrientation),
         RidleyExplosionParts.TailTip =>
             throw new ArgumentOutOfRangeException(nameof(tailTipOrientation)),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),

@@ -17,49 +17,40 @@ internal static class SaveStationElectricityInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_SaveStationElectricity_1</c> at $86:E687.</summary>
     internal const ushort Loop = 0xe687;
 
-    private static readonly SaveStationElectricityInstructionMechanicsWord[] Words =
-    [
-        new(Initial, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xe685, 0x0014),
-        new(Loop, 0x0001),
-        new(0xe68b, 0x0001),
-        new(0xe68f, 0x0001),
-        new(0xe693, 0x0001),
-        new(0xe697, 0x0001),
-        new(0xe69b, 0x0001),
-        new(0xe69f, 0x0001),
-        new(0xe6a3, 0x0001),
-        new(0xe6a7,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xe6a9, Loop),
-        new(0xe6ab, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    /// <summary>Eight one-frame drawing records between timer setup and loop/delete commands.</summary>
+    private const int FrameCount = 8;
+    internal static int MechanicsWordCount => FrameCount + 5;
+    internal static int PresentationWordCount => FrameCount;
 
-    private static readonly ushort[] PresentationWords =
-        [0xe689, 0xe68d, 0xe691, 0xe695, 0xe699, 0xe69d, 0xe6a1, 0xe6a5];
+    internal static SaveStationElectricityInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 2)
+            return new((ushort)(Initial + 2 * index), index == 0
+                ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY : (ushort)20);
+        if (index < FrameCount + 2)
+            return new((ushort)(Loop + 4 * (index - 2)), 1);
+        int terminal = index - FrameCount - 2;
+        return new((ushort)(Loop + 4 * FrameCount + 2 * terminal), terminal switch
+        {
+            0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            1 => Loop,
+            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        });
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SaveStationElectricityInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Loop + 2 + 4 * index);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            int middle = low + ((high - low) >> 1);
-            SaveStationElectricityInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            var word = MechanicsWord(index);
+            if (word.Address == address) return word.Value;
         }
-
         throw new InvalidDataException(
             $"Save-station electricity mechanics pointer $86:{address:X4} is not compiled.");
     }
@@ -70,9 +61,9 @@ internal static class SaveStationElectricityInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

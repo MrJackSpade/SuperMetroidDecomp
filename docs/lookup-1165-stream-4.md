@@ -569,13 +569,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs
 
-- [ ] **SaveStationElectricityInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SaveStationElectricityInstructionProgramDefinitions.PresentationWords** ([L39](../csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SaveStationElectricityInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SaveStationElectricityInstructionProgramDefinitions.PresentationWords** ([L39](../csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs
 
-- [ ] **SkreeMetareeAnimationDefinitions.MetareeInstructionLists** ([L23](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkreeMetareeAnimationDefinitions.SkreeInstructionLists** ([L35](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeAnimationDefinitions.MetareeInstructionLists** ([L23](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeAnimationDefinitions.SkreeInstructionLists** ([L35](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs
 
@@ -586,8 +586,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs
 
-- [ ] **SkreeMetareeParticleInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkreeMetareeParticleInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeParticleInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeParticleInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs
 
@@ -711,3 +711,14 @@ Six definitions converted; no retained exception.
 - Confirmation: isolated Verification build passed (1431 warnings, zero errors). `--lookup-stream-4` passed direct original-ROM comparisons for all 24 pogo records (four fields), all twelve breakup records (parameter/lifetime/callback), all sixteen tip pointers, and rejected pattern/stage/parameter/orientation bounds. Revision SHA is checked by the command.
 - Changed files: two production catalogs, `Program.LookupStream4.cs`, local `Program.cs` command wiring, this report. Coordinator owns shared inventories and publication.
 - Remaining scope: 219 unchecked named definitions. In the partially converted breakup file, `SpawnOrder` and `DeathExplosionPlacements` remain open independently; this batch grants neither a retention justification.
+## Batch 2: Skree/Metaree phases, particle loops and save electricity
+
+Six more definitions converted; 12 total complete and 213 remain. No retained exception.
+
+- `SkreeMetareeAnimationDefinitions`: both four-entry phase selectors now dispatch named idle/preparation/dive/stop phases to their named programs.
+- `SkreeMetareeParticleInstructionProgramDefinitions`: derives both eight-byte drawing/goto-self programs, their six mechanics words and two presentation operand addresses. The sixteen-frame duration, exact program order and mechanics/presentation byte ownership remain unchanged.
+- `SaveStationElectricityInstructionProgramDefinitions`: derives timer setup, eight one-frame drawing records, decrement/branch and deletion, including all thirteen mechanics words and eight presentation operand addresses.
+- Original pinned evidence: bank A3 `$894E..8955` and `$C69C..C6A3`; bank86 `$8ABD..8ACC` and `$E683..E6AC`. Direct native comparisons cover every word, indexed enumeration order, byte ownership and rejected input bounds.
+- Added actual consumer confirmation in `--lookup-stream-4`: twenty complete electricity cycles in exact frame order, one-frame durations, correct installed presentation operands and deletion on the next command; both four-particle debris bursts execute repeated sixteen-frame goto-self loops with their original compiled visual identity. Guards reject mechanics cartridge reads.
+- Verification build passed (1216 warnings, zero errors); `--lookup-stream-4` passed. Two pre-existing legacy commands (`--skree-metaree-particle-instruction-mechanics`, `--save-station-electricity-instruction-mechanics`) failed obsolete assertions requiring presentation ROM reads after executing their loop checks. Current production already uses compiled/installed presentation identities. The new focused fixture confirms those actual identities; shared legacy verifier files were not changed. Initial new fixture assumptions about a uniform presentation route were corrected: electricity uses `PresentationOperandAddress`, debris uses its compiled `SpritemapPointer`.
+- Follow-up review cleanup: Ridley initializer/program address bases now have named XML-documented catalog constants. No production behavior changed by that cleanup.

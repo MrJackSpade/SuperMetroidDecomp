@@ -120,23 +120,50 @@ internal static partial class Program
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
             source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
-        foreach (ushort pointer in EndingRewardActorDefinitions.KnownDefinitions)
+        // Original LDY operands independently identify all ten records.
+        (EndingRewardActorRole Role, int Load)[] spawns =
+        [
+            (EndingRewardActorRole.HairUpper, 0x8be3a1), (EndingRewardActorRole.HairLower, 0x8be3a7),
+            (EndingRewardActorRole.ThumbsUpBody, 0x8be385), (EndingRewardActorRole.ThumbsUpArm, 0x8be37f),
+            (EndingRewardActorRole.ThumbsUpHelmet, 0x8be379), (EndingRewardActorRole.ThumbsUpHead, 0x8be38d),
+            (EndingRewardActorRole.SuitlessJump, 0x8bf51e), (EndingRewardActorRole.SuitedJump, 0x8bf575),
+            (EndingRewardActorRole.JumpHelmet, 0x8bf55d), (EndingRewardActorRole.JumpHead, 0x8bf56a),
+        ];
+        var initializers = new HashSet<ushort>();
+        foreach (var spawn in spawns)
         {
+            AssertEqual((byte)0xa0, bus.ReadByte(spawn.Load), "reward native spawn uses LDY immediate");
+            ushort pointer = ReadWord(bus, spawn.Load + 1);
+            AssertEqual(pointer, EndingRewardActorDefinitions.Pointer(spawn.Role), "reward role selects native spawn record");
             EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(pointer);
-            int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
-            AssertEqual(ReadWord(bus, address), actual.Initialization,
-                $"reward actor $8B:{pointer:X4} initialization callback");
-            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
-                $"reward actor $8B:{pointer:X4} pre-instruction callback");
-            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
-                $"reward actor $8B:{pointer:X4} initial instruction list");
+            int address = 0x8b0000 | pointer;
+            ushort initializer = ReadWord(bus, address);
+            AssertEqual(initializer, actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
+            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
+            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList, $"reward actor ${pointer:X4} instruction list");
+            if (!initializers.Add(initializer)) continue;
+            int code = 0x8b0000 | initializer;
+            for (int offset = 0; offset <= 12; offset += 6)
+                AssertEqual((byte)0xa9, bus.ReadByte(code + offset), "reward initializer uses LDA immediate");
+            var origin = EndingRewardActorDefinitions.GetInitialization(initializer);
+            AssertEqual((int)ReadWord(bus, code + 1), origin.X, "reward native initial X");
+            AssertEqual((int)ReadWord(bus, code + 7), origin.Y, "reward native initial Y");
+            AssertEqual((int)ReadWord(bus, code + 13), origin.Palette, "reward native initial palette");
         }
+        AssertEqual(4, initializers.Count, "reward initializer domain");
+        AssertEqual(spawns.Length, Enum.GetValues<EndingRewardActorRole>().Length, "reward role domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardActorDefinitions.Pointer((EndingRewardActorRole)invalid), "reward role bounds");
+        foreach (ushort invalid in new ushort[] { 0, 0xef32, 0xef34, 0xef45, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingRewardActorDefinitions.Get(invalid), "reward record membership");
+        foreach (ushort invalid in new ushort[] { 0, 0xf142, 0xf144, 0xffff })
+            AssertThrows<InvalidDataException>(() => EndingRewardActorDefinitions.GetInitialization(invalid), "reward initializer membership");
 
         AssertThrows<InvalidDataException>(
             () => EndingRewardActorDefinitions.Get(0),
             "unknown reward actor definition");
         Console.WriteLine(
-            "  Reward definitions: thirty native callback/list words match the compiled catalog.");
+            "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
 
     private sealed class EndingRewardDefinitionReadGuard(ISnesAddressSpace source) :
@@ -164,8 +191,9 @@ internal static partial class Program
         private static HashSet<int> CreateForbidden()
         {
             var result = new HashSet<int>();
-            foreach (ushort pointer in EndingRewardActorDefinitions.KnownDefinitions)
+            foreach (EndingRewardActorRole role in Enum.GetValues<EndingRewardActorRole>())
             {
+                ushort pointer = EndingRewardActorDefinitions.Pointer(role);
                 int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
                 for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
                     result.Add(address + offset);

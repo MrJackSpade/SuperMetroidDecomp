@@ -8803,4 +8803,50 @@
   "proof": "Extend existing VerifyEndingCompletionTextInstructions rather than add another oracle. Existing45 original-header checks now compare catalog pointers/counts; original digit/colon operands and headers cover11 more. Compare all56 keys to the previous published compatibility fixture, check enumeration and invalid int bounds. Existing full164-word/14-stream proof confirms the migrated instruction consumer. SHA-pinned --lookup-ending-completion-programs passes; verification build0 errors/1429 existing warnings.",
   "scope": "These three metadata fields and shared address-calculation aliases only. Individual OAM placements/artwork and other catalogs retain independent obligations. No retention exception; implementation commit is the commit adding this record."
 }
+,
+  "endingRewardActorMetadataReview": {
+  "owner": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
+  "source": "Supported SHA-pinned ROM bank8B:E342 gesture spawns andF51D/F554 jump spawns. Independent LDY operands select ten native recordsEF33/39/57/5D/63/69/3F/6F/75/7B. Original initializersF143/F156/F169/F17C load X,Y,palette as immediate operands. Pinned sm_disassembly362be646929cf8e483f692b73a6561cfc2dc1d0d supplies native role identities.",
+  "tables": [
+    {
+      "id": "ending-reward-actor-membership",
+      "state": "converted",
+      "algorithm": "Remove duplicated ten-word KnownDefinitions span. Named mutually exclusive hair/gesture/jump roles select existing native identity constants; guards enumerate roles and call Pointer."
+    },
+    {
+      "id": "ending-reward-actor-initializers",
+      "state": "converted",
+      "algorithm": "Existing named actor cases select the shared suitless, suited-body, helmeted-head or helmetless-head initializer; independently reviewed here."
+    },
+    {
+      "id": "ending-reward-actor-preinstructions",
+      "state": "converted",
+      "algorithm": "Hair upper uses its distinct native RTS callback; other named roles use shared no-op. Existing cases independently reviewed here."
+    },
+    {
+      "id": "ending-reward-actor-programs",
+      "state": "converted",
+      "algorithm": "Named actor roles select their gesture/jump program; existing cases independently reviewed against each native record."
+    },
+    {
+      "id": "ending-reward-initial-x",
+      "state": "converted",
+      "algorithm": "Named initializer cases reproduce native actor origin X."
+    },
+    {
+      "id": "ending-reward-initial-y",
+      "state": "converted",
+      "algorithm": "Named initializer cases reproduce native actor origin Y."
+    },
+    {
+      "id": "ending-reward-initial-palette",
+      "state": "converted",
+      "algorithm": "Named initializer cases select native OBJ palette five or six."
+    }
+  ],
+  "implementation": "Membership now uses semantic role cases, not a stored pointer span. Retain existing meaningful Get/GetInitialization cases after independent review; replace obsolete claim that programs remain cartridge-backed with current generated-program ownership. No new numeric fitted mapping, cache or retention exception.",
+  "consumer": "EndingRewardGesture.Spawn and EndingRewardJump.Spawn select Get records and GetInitialization values; verification membership/read guards migrate to roles. Idle actors are a separate owner. This review does not claim actor allocation order, movement or complete scene behavior.",
+  "proof": "Upgrade the existing VerifyEndingRewardActorDefinitions; SHA-pinned --lookup-ending-reward-actors invokes it directly. Expected record pointers come from ten original LDY immediates, not production membership; compare30 original record words. Deduplicate four initializers and compare12 original LDA immediate operands for X/Y/palette, checking instruction opcodes. Confirm role domain and invalid role/record/initializer inputs. This is one compound proof of the related record fields and views.",
+  "scope": "Seven mapping dispositions only. Idle actors, jump motion and remaining sprite/artwork mappings retain independent obligations. Implementation commit is the commit adding this record."
+}
 }

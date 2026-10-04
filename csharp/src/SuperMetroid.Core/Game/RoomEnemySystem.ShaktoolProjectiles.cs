@@ -4,11 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private static readonly short[] ShaktoolCircleXOffsets =
-        [0, 12, 16, 12, 0, -12, -16, -12];
-    private static readonly short[] ShaktoolCircleYOffsets =
-        [-16, -12, 0, 12, 16, 12, 0, -12];
-
     /// <summary>
     /// Ports dead retail helper <c>Shaktool_Func_2</c> at <c>$AA:D9A0</c>. The routine has
     /// no caller in the shipped ROM, but retaining its three bank-$86 actors prevents an
@@ -67,11 +62,11 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = ReadShaktoolCommonSineSample(angle + 64);
         projectile.YVelocity = ReadShaktoolCommonSineSample(angle);
 
-        int offsetIndex = angle >> 5;
+        var offset = ShaktoolProjectilePlacementDefinitions.Offset(angle);
         projectile.XPosition = unchecked((ushort)(
-            projectile.XPosition + ShaktoolCircleXOffsets[offsetIndex]));
+            projectile.XPosition + offset.X));
         projectile.YPosition = unchecked((ushort)(
-            projectile.YPosition + ShaktoolCircleYOffsets[offsetIndex]));
+            projectile.YPosition + offset.Y));
 
         // SpawnEnemyProjectileY_ParameterA_XGraphics returns this physical actor in A. The
         // caller converts it to a native index only by virtue of the pool's 2-byte stride;

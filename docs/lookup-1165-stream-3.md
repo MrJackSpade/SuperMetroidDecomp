@@ -1,4 +1,4 @@
-﻿# Issue 1165 - agent stream 3
+# Issue 1165 - agent stream 3
 
 GitHub child ticket: [#1240](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1240).
 
@@ -290,8 +290,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs
 
-- [ ] **GrappleTileDefinitions.transfers** ([L20](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GrappleTileDefinitions.segments** ([L33](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GrappleTileDefinitions.transfers** ([L20](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GrappleTileDefinitions.segments** ([L33](../csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs
 
@@ -604,13 +604,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs
 
-- [ ] **RoomEnemySystem.ShaktoolCircleXOffsets** ([L8](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.ShaktoolCircleYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.ShaktoolCircleXOffsets** ([L8](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.ShaktoolCircleYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs
 
-- [ ] **ShaktoolInstructionDefinitions.OrientationInstructions** ([L13](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ShaktoolInstructionDefinitions.SegmentInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ShaktoolInstructionDefinitions.OrientationInstructions** ([L13](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ShaktoolInstructionDefinitions.SegmentInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs
 
@@ -629,7 +629,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs
 
-- [ ] **SparkMovementDefinitions.InitialStates** ([L13](../csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SparkMovementDefinitions.InitialStates** ([L13](../csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs
 
@@ -667,9 +667,17 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ## Agent handoff
 
-- Completed conversions: pending.
-- Justified retained entries: pending.
-- Confirmation results: pending.
-- Cross-stream dependencies and proposed shared-file patches: pending.
-- Remaining entries: all unchecked entries above.
+### Confirmed batch 1: Grapple, Spark and Shaktool
 
+- Converted seven definitions: Grapple transfer records and angle sectors, Spark initial states, Shaktool orientation/segment selectors and circle X/Y offsets. No retention exceptions.
+- Grapple sectors fold the 64 buckets into a half turn and reflect it, preserving the native 3 vertical / 8 diagonal / 5 horizontal widths. Transfers calculate endpoint source strides ($200), orientation source strides ($800), contiguous atlas offsets and byte counts on demand. Enumeration order and semantic asset dispatch are preserved; no generated record array remains.
+- Spark dispatches steady, intermittent and emitter behavior directly. Selector three still returns the native adjacent pointer/opcode observations, with named compatibility constants; the opcode annotation now correctly identifies LDX $0E54.
+- Shaktool orientation programs are consecutive eight-byte records rotated from left-first storage to up-first buckets. Segment dispatch follows primary saw / back arm / front arm / head / front arm / back arm / final saw. Circle placement computes cardinal radius 16 and outward-rounded diagonal radius / sqrt(2); Y is the quarter-turn component.
+- Evidence: pinned bank_9B.asm $C346-$C3C4, bank_A8.asm $E682/$E688/$E68E, bank_AA selectors $DD15/$DF13/$DF21, bank_86.asm $BDE3/$BDF3. Focused verification independently reads the pinned NTSC J/U v1.0 ROM (SHA-256 asserted by entry point).
+- Changed production: `GrappleTileDefinitions.cs`, `SparkMovementDefinitions.cs`, `ShaktoolInstructionDefinitions.cs`, `RoomEnemySystem.ShaktoolProjectiles.cs`, new assigned `ShaktoolProjectilePlacementDefinitions.cs`. Confirmation: `Program.LookupStream3.cs`, wired through `--lookup-stream-3`.
+- Confirmation passed: Verification build (1431 warnings, zero errors) and `dotnet run --project csharp/src/SuperMetroid.Verification --no-build -- --lookup-stream-3`. Covers all ushort Grapple angles and Spark population parameters, all byte Shaktool angles, every transfer field/order, valid orientation/segment records and rejected domains.
+- Integration dependency: coordinator must refresh the reviewed GrappleTileDefinitions source hashes in `VramDmaPresentationContractDefinitions.cs` and `VramDmaSourceContracts.cs` after review. No other stream production dependency.
+
+### Remaining scope
+
+All unchecked entries remain required. Existing Choot retention prose based on complexity, corrections, address layout or being authored is not an accepted exception; those entries require conversion or new concrete impossible/nonsense evidence. Next work includes Work Robot palette rotation, enemy pickup/death dispatch, pickup instruction layout and Fireflea record calculations.

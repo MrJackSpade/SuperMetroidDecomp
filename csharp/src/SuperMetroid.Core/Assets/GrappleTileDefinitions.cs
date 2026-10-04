@@ -16,34 +16,25 @@ public static class GrappleTileDefinitions
     private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
     private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
     private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
-    private static readonly GrappleTileTransfer[] transfers =
-    [
-        new(VramAssetId.GrapplePointFirstTiles, 0x9a8200, 0, 32),
-        new(VramAssetId.GrapplePointSecondTiles, 0x9a8400, 32, 32),
-        new(VramAssetId.GrapplePointThirdTiles, 0x9a8600, 64, 32),
-        new(VramAssetId.GrapplePointFourthTiles, 0x9a8800, 96, 32),
-        new(Horizontal, 0x9a8220, 128, 128),
-        new(Diagonal, 0x9a8a20, 256, 128),
-        new(Vertical, 0x9a9220, 384, 128),
-    ];
+    /// <summary>$9A:8200, Tiles_GrappleBeam_Horizontal_Beam, the first endpoint character.</summary>
+    private const int FirstPointSource = 0x9a8200;
+    /// <summary>Endpoint animation characters occupy $200-byte source strides.</summary>
+    private const int PointSourceStride = 0x200;
+    /// <summary>Horizontal, diagonal and vertical beam groups occupy $800-byte source strides.</summary>
+    private const int SegmentSourceStride = 0x800;
+    private static readonly TransferList transfers = new();
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
-    public static ReadOnlySpan<GrappleTileTransfer> Transfers => transfers;
-    // Exact 64 entries at $9B:C346..C3C4; repeated sectors retain cartridge boundaries.
-    private static readonly VramAssetId[] segments =
-    [
-        Vertical, Vertical, Vertical,
-        Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal,
-        Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal,
-        Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal,
-        Vertical, Vertical, Vertical, Vertical, Vertical, Vertical,
-        Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal,
-        Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal, Horizontal,
-        Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal, Diagonal,
-        Vertical, Vertical, Vertical,
-    ];
+    public static IReadOnlyList<GrappleTileTransfer> Transfers => transfers;
 
     /// <summary>$9B:C005 folds the unsigned angle into an even table byte offset, equivalent to angle / 1024.</summary>
-    public static VramAssetId SegmentAssetFor(ushort angle) => segments[angle >> 10];
+    public static VramAssetId SegmentAssetFor(ushort angle)
+    {
+        // The 64 sectors repeat after half a turn. Reflect each half-turn about
+        // its midpoint, retaining the native three/eight/five sector widths.
+        int halfTurnSector = (angle >> 10) & 31;
+        int distance = Math.Min(halfTurnSector, 31 - halfTurnSector);
+        return distance < 3 ? Vertical : distance < 11 ? Diagonal : Horizontal;
+    }
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
     public static VramAssetId PointAssetFor(ushort frame) => frame switch
     {
@@ -55,8 +46,49 @@ public static class GrappleTileDefinitions
     };
     public static GrappleTileTransfer TransferFor(VramAssetId asset)
     {
-        foreach (var transfer in transfers) if (transfer.Asset == asset) return transfer;
-        throw new InvalidDataException($"Not a Grapple tile asset: {asset}.");
+        int index = asset switch
+        {
+            VramAssetId.GrapplePointFirstTiles => 0,
+            VramAssetId.GrapplePointSecondTiles => 1,
+            VramAssetId.GrapplePointThirdTiles => 2,
+            VramAssetId.GrapplePointFourthTiles => 3,
+            Horizontal => 4,
+            Diagonal => 5,
+            Vertical => 6,
+            _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
+        };
+        return transfers[index];
+    }
+
+    private sealed class TransferList : IReadOnlyList<GrappleTileTransfer>
+    {
+        public int Count => 7;
+        public GrappleTileTransfer this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                if (index < 4)
+                    return new(PointAssetFor((ushort)index),
+                        FirstPointSource + PointSourceStride * index, 32 * index, 32);
+                int orientation = index - 4;
+                VramAssetId asset = orientation switch
+                {
+                    0 => Horizontal,
+                    1 => Diagonal,
+                    _ => Vertical,
+                };
+                return new(asset, FirstPointSource + 32 + SegmentSourceStride * orientation,
+                    128 * (orientation + 1), 128);
+            }
+        }
+        public IEnumerator<GrappleTileTransfer> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 

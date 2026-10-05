@@ -10667,4 +10667,16 @@
     "confirmation": "Integrated --lookup-stream-4 passes all native geometry/domain checks, 1179648 actual carry placements, 228150 collision comparisons and SRAM region/directory boundaries. Verification build: 1436 warnings, zero errors. DebugRunner build: 56 warnings, zero errors. Source index refreshed.",
     "remaining": "Snapshot: 254 converted, one justified retained, 873 pending. Ridley adjacent-code payload remains independently unresolved; no exception added."
   }
-}
+,"stream1CadenceBehaviorOwnersIntegration":{
+    "scope":  "Seven definitions: Pipe Bug control/presentation; Metroid displacement/cries; common frame banks/delete; blue-spore room programs.",
+    "remaining":  "261 converted, one justified retained, 866 pending. No new retention; independent presentation payload obligations unchanged.",
+    "confirmation":  "Integrated Verification build 1437 warnings, zero errors; --lookup-stream-1 passes native words, eight Pipe Bug programs, all 65536 escape selectors, eight cry selections, 256 bank memberships, delete bounds and both 140-frame blue-spore cycles. ResourceAudit build zero warnings/errors. Reviewed common-frame source contract hash and static index refreshed.",
+    "state":  "converted",
+    "algorithm":  "Shared program cadence and address layout; cardinal displacement; named cry dispatch preserving probabilities; bank-range membership; direct delete instruction; room-owner derived program layout.",
+    "implementationCommits":  [
+                                  "88bcae764",
+                                  "9756a59c0",
+                                  "f894eecb6",
+                                  "d951fc7cc"
+                              ]
+}}

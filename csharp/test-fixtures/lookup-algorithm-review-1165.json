@@ -11727,8 +11727,8 @@
     "scope":  "Only Spark activation flash-on1,ordinary blank2,final blank1,sustained-stage2 at A8:E5A9-E5CD. No original entry completion.",
     "evidence":  "Root inspected pinned bank_A8 E5A7 tangible before duration/spritemap pairs; E5D1 visual loop has no transition callback. A0:C276,C295-C2A3 updates timer/spritemap/cursor. A8:E695/E6B7 functionTimer independently replaces animation; E6DC emission independent. A0:A08C rejects zero pointer,not blank804D; A0:EA3F fixed8x8 radii and A0:A0D0 onward contact geometry.",
     "justification":  "Four cadence choices author the visible flash performance; inventing another rhythm would replace the visual content. This is not a performance,size,complexity or provenance exception.",
-    "remaining":  "Loop cadence3,deactivation1 and its tangible-state boundary,lifetime/RNG,selectors and artwork excluded. Words remains pending. Worker followup will record narrow authored cadence and maintain unresolved remainder.",
-    "state":  "approved-narrow-retention-pending-integration"
+    "remaining":  "Loop cadence3,deactivation1 and its tangible-state boundary,lifetime/RNG,selectors and artwork excluded. Words remains pending. Integrated worker followups preserve the unresolved remainder.",
+    "state":  "integrated-narrow-retention"
 },"sparseDefaultProofFollowup":{
     "workerCommits":  "73f8c24d14900fc2d18d198b7e94d67e4d43f515;19140ab2c6b957abddfb00ff1cdd4b5ae0e60860",
     "confirmation":  "Root1445warnings/0errors. Cannon50direct native defaults and both empty stock override dictionaries pass with existing edits/DMA checks. Beam exact43stored-basis membership and192native outputs/edit/CGRAM isolation pass.",
@@ -11793,5 +11793,5 @@
     "evidence":  "Root native review includes four duration/spritemap pairs plusGoto in each loop,no callbacks. SeparateE6B7functionTimer owns lifetime;E6DC owns emission. Fixed8x8contact/nonzero spritemaps match previously reviewed activation scope.",
     "justification":  "Cadence chooses the repeated visible performance; replacing it invents different visual content.",
     "remaining":  "Deactivation1/E605intangible boundary/E6D3extra8,lifetime/RNG excluded. Words remains pending.",
-    "state":  "approved-narrow-retention-pending-integration"
+    "state":  "integrated-narrow-retention"
 },"endingCreditSpacingIntegration":{"workerCommits":"e1306d8de;4c62bd5fe","algorithm":"Distribute nine panel rows after two small and two large glyph lines evenly across three gaps.","confirmation":"Root Verification build1445warnings/0errors;288 direct native panel cells and64 subtitle cells, zero stock overrides, independent edits and heading precedence pass.","remaining":"Palette6/7 and font pixels remain required;resultPanel remains pending;counts unchanged548/16/564."}}

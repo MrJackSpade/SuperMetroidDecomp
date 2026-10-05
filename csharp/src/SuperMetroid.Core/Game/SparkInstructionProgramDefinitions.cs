@@ -26,12 +26,18 @@ internal static class SparkInstructionProgramDefinitions
     private const ushort SetTangible = 0xe62a;
     /// <summary>$A8:E61D, Instruction_Spark_SetAsIntangible sets IgnoreSamusCollision after deactivation.</summary>
     private const ushort SetIntangible = 0xe61d;
-    /// <summary>$A8:E5A9-E5CD, ten activation poses/blank intervals. Their independent dwell choices remain unresolved.</summary>
-    private static readonly ushort[] UnresolvedFlickerOnDurations = [1, 2, 1, 2, 1, 2, 1, 1, 2, 2];
-    /// <summary>$A8:E5D1-E5DD and E609-E615: both four-pose loops advance at three ticks per pose. This independent cadence remains required under #1165.</summary>
-    private const ushort LoopCadence = 3;
-    /// <summary>$A8:E5E5-E601: every deactivation pose/blank interval advances after one tick. This independent cadence remains required under #1165.</summary>
-    private const ushort FlickerOutCadence = 1;
+    /// <summary>$A8:E5A9/B1/B9/C1: four visible flashes, two each of flickering poses zero and one. Independently reviewed visual choreography: tangible before the sequence; lifetime uses a separate timer.</summary>
+    private const ushort ActivationFlashOnTicks = 1;
+    /// <summary>$A8:E5AD/B5/BD: empty spritemap between the first three flashes. Independently reviewed visual blank cadence; the nonzero empty-map pointer preserves the fixed collision box.</summary>
+    private const ushort ActivationFlashOffTicks = 2;
+    /// <summary>$A8:E5C5: shorter final blank before sustained activation. Independently reviewed final visual gap, without a gameplay callback.</summary>
+    private const ushort ActivationFinalGapTicks = 1;
+    /// <summary>$A8:E5C9/CD: successive poses two and three without an intervening blank. Independently reviewed sustained visual cadence before the continuous loop.</summary>
+    private const ushort ActivationSustainedTicks = 2;
+    /// <summary>$A8:E5D1-E5DD and E609-E615: reviewed three-tick continuous visual cadence. Both four-pose loops have no callbacks; separate function timers own lifetime and emission, and nonzero maps preserve fixed contact radii.</summary>
+    private const ushort ContinuousVisualCadence = 3;
+    /// <summary>$A8:E5E5-E601: every deactivation pose/blank interval advances after one tick; this choice and its later tangibility callback remain outside the activation exception.</summary>
+    private const ushort UnresolvedFlickerOutCadence = 1;
 
     internal static int MechanicsWordCount => 33;
     internal static int PresentationWordCount => 26;
@@ -39,15 +45,21 @@ internal static class SparkInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index == 0) return new(FlickerOn, SetTangible);
-        if (index <= 10) return new((ushort)(FlickerOn + 2 + (index - 1) * 4), UnresolvedFlickerOnDurations[index - 1]);
+        if (index <= 10) return new((ushort)(FlickerOn + 2 + (index - 1) * 4), ActivationDuration(index - 1));
         if (index < 17) return LoopWord(Active, index - 11);
-        if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), FlickerOutCadence);
+        if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), UnresolvedFlickerOutCadence);
         if (index < 27) return new((ushort)(FlickerOut + 32 + (index - 25) * 2),
             index == 25 ? SetIntangible : CommonEnemyInstructionCodes.Sleep);
         return LoopWord(Emitter, index - 27);
     }
+    private static ushort ActivationDuration(int frame)
+    {
+        if (frame >= 8) return ActivationSustainedTicks;
+        if ((frame & 1) == 0) return ActivationFlashOnTicks;
+        return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
+    }
     private static SparkInstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
-        ? new((ushort)(start + index * 4), LoopCadence)
+        ? new((ushort)(start + index * 4), ContinuousVisualCadence)
         : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
     internal static ushort PresentationWordAddress(int index)

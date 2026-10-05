@@ -37,7 +37,7 @@ internal static partial class Program
             "final explosion definition boundary");
 
         var guard = new CeresExplosionDefinitionReadGuard(retail);
-        var state = new CeresDestructionCinematicState(guard);
+        var state = CreateRetailDestructionFixture(guard);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished, "Ceres destruction completes through production actor paths");

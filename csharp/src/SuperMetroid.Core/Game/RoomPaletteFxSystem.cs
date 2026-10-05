@@ -101,7 +101,21 @@ public sealed class RoomPaletteFxSystem
         ushort doorPointer,
         AreaId area,
         ushort equippedItems,
-        bool areaMiniBossDefeated)
+        bool areaMiniBossDefeated) =>
+        LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
+
+    /// <summary>Loads an explicit FX record through the normal room palette-object path.</summary>
+    internal void LoadDefinition(ISnesAddressSpace bus, RoomFxRecordDefinition definition,
+        AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        LoadRoomCore(bus, definition.Pointer, definition.DoorPointer, area,
+            equippedItems, areaMiniBossDefeated, definition);
+    }
+
+    private void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
+        AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
+        RoomFxRecordDefinition? suppliedDefinition)
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (PaletteFxSlot slot in slots)
@@ -113,12 +127,12 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
 
         // Palette FX and animated tiles have separate owners and bitsets.
-        byte paletteFxBits = RoomFxRecordDefinitions.Get(record).PaletteFxBitset;
+        byte paletteFxBits = (suppliedDefinition ?? RoomFxRecordDefinitions.Get(record)).PaletteFxBitset;
         if (paletteFxBits == 0)
             return;
 

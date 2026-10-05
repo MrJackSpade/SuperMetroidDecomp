@@ -80,21 +80,11 @@ internal static partial class Program
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            var bus = new TestAddressSpace();
-            bus.WriteByte(RoomFxRomData.Banks.RoomDefinitions | fxPointer, 0);
-            bus.WriteByte(
-                RoomFxRomData.Banks.RoomDefinitions |
-                    unchecked((ushort)(fxPointer + RoomFxRomData.Record.PaletteFxBitsetOffset)),
-                unchecked((byte)(1 << bit)));
-            var guard = new RoomPaletteFxDefinitionReadGuard(bus, forbidden);
+            var definition = new RoomFxRecordDefinition(fxPointer, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
             var system = new RoomPaletteFxSystem();
-            system.LoadRoom(
-                guard,
-                fxPointer,
-                doorPointer: 0,
-                (AreaId)area,
-                equippedItems: 0,
-                areaMiniBossDefeated: false);
+            system.LoadDefinition(guardedRom, definition, (AreaId)area,
+                equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
                 RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
                 PaletteFxSlotWord(ActivePaletteFxSlot(system), "Id"),
@@ -103,7 +93,9 @@ internal static partial class Program
 
         var hyperBeam = new HyperBeamPaletteFxState();
         hyperBeam.Spawn();
-        HyperBeamPaletteFxStepResult hyperStep = hyperBeam.Step(guardedRom, new SnesCgram());
+        var hyperColors = SuperMetroid.Core.Assets.HyperBeamFxColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(rom)));
+        HyperBeamPaletteFxStepResult hyperStep = hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
         AssertTrue(hyperStep.PaletteWritten,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 

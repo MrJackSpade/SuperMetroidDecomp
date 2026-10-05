@@ -1161,3 +1161,12 @@ Root Verification1445warnings/0errors; --lookup-mochtroid-shake matches16native 
 IntroNarrationDefinitions.NativePages is converted (6d8a8df8f). Named mutually exclusive Page1..Page6 cases preserve source/begin/finish identities and ordered enumeration without a stored registry. Its sole extractor consumer continues to enumerate all pages. This conversion does not dispose of narrative text, placement, delays or glyph artwork.
 
 Root confirmation: Verification build 1445 warnings/zero errors; --lookup-intro-narration-registry passes all six native begin/finish boundaries through extraction, text compilation, ordering and invalid page rejection. ResourceAudit builds with zero warnings/errors. The worker's broader legacy fixture lacked mandatory installed cinematic artwork and was not claimed as passing; this focused check covers the changed registry contract. Inventory 553 converted/17 retained-mixed/558 pending.
+
+
+## Independent pending integration reviews: narration wording and Ripper cadence
+
+Root approved only the six exact English opening-narration page strings and the single authored break before GALACTIC CIVILIZATION. Native spans are 8C:C383-C796,C797-CB44,CB45-CE32,CE33-D15C,D15D-D510,D511-D5DE. These are selected story prose and emphasis; a formula generating other words changes that authored content, while numerical encoding merely disguises it. Row/column geometry, 29-column wrapping, glyph mapping, callbacks, all timings and artwork are excluded. All 31 rows are regular; greedy wrapping explains 24 of 25 within-page boundaries. Complete layout/edit confirmation is still required before any aggregate closure.
+
+Root separately inspected Ripper-family moving loops A2:E19B/E1AF/E2E0/E2F4/E477/E48B: duration/map pairs and Goto only. Ordinary maps keep body101 and vary wing110/113/103; variant maps keep body105 while changing accessory parts. Headers A0:D3FF/D43F/D47F use fixed8x8/8x4 radii. E221/E353/E4DA movement, terrain reversal and frozen-map selection depend on velocities/physical state rather than animation holds. Only the exact8/7 visual cadence is approved as chosen animation content. Speed, collision, grapple, freeze, reset1 and artwork are excluded. Named cadence representation and confirmation of all six production loops remain required before integration.
+
+Both are narrow reviews, not blanket visual-data exemptions. Inventory remains555 converted/17 retained-mixed/556 pending until integration.

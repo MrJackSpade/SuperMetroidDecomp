@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 754,
+  "remainingTableDefinitionCount": 746,
   "fileCount": 523,
   "entries": [
     {
@@ -5066,7 +5066,9 @@
       "line": 21,
       "name": "NoobTubeProjectileInstructionProgramDefinitions.ShardPrograms",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "443825330"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileInstructionProgramDefinitions.cs",
@@ -5080,7 +5082,9 @@
       "line": 24,
       "name": "NoobTubeProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "443825330"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
@@ -5270,21 +5274,27 @@
       "line": 9,
       "name": "PhantoonCasualFlameDefinitions.Pattern / literal at L9",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "d98ce06e0"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs",
       "line": 10,
       "name": "PhantoonCasualFlameDefinitions.Pattern / literal at L10",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "d98ce06e0"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs",
       "line": 11,
       "name": "PhantoonCasualFlameDefinitions.Pattern / literal at L11",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "d98ce06e0"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs",
@@ -5361,14 +5371,18 @@
       "line": 11,
       "name": "PhantoonPatternDefinitions.EyeInstructions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3d871138b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs",
       "line": 37,
       "name": "PhantoonPatternDefinitions.FirstRainColumns",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3d871138b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs",
@@ -5396,7 +5410,9 @@
       "line": 10,
       "name": "PhantoonSoundDefinitions.Materialization",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "d98ce06e0"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonTimerDefinitions.cs",
@@ -21062,6 +21078,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 370,
+  "convertedSinceSnapshot": 378,
   "justifiedRetainedSinceSnapshot": 4
 }

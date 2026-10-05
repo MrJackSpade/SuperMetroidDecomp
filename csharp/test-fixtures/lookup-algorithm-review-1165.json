@@ -10927,4 +10927,16 @@
   "algorithm": "Extended-frame component strides and triangular sizes; semantic crawl/spin/shell cases; eye-door aim/impact duration ramps and control cases. Lightning phase/shade arithmetic and clamped per-channel fading remove195 samples.",
   "remaining": "370 converted,four justified retained,754 pending. Surface lightning base/brightness parameters and seven dark inputs remain required,along with unchecked collision/artwork payloads; no new exception.",
   "state": "partial"
+},"ceresPhantoonTubeIntegration":{
+  "scope": "Eight definitions complete: Phantoon eye/rain mapping,three uniform mouth schedules,sound cycle,tube shard starts and visual operand addresses. Elevator palette and tube mechanics partially calculated.",
+  "algorithm": "Mirrored elevator phases with RGB5 clamping; rain gap follows body column; octant eye dispatch; burst-rank uniform schedules and consecutive sound identifiers; tube/shard/bubble record layouts and regular timing.",
+  "implementationCommits": [
+    "bf7cc3aa6",
+    "3d871138b",
+    "443825330",
+    "d98ce06e0"
+  ],
+  "confirmation": "Verification1442 warnings/zero errors; four focused checks passed elevator48 native colors/48 independent edits/storage identity and bounds,Phantoon8 native columns/eight actual rain populations/nine eye selectors, tube207 mechanics/90 selectors/17 actual producers and lifetimes,Phantoon30 native schedule words/65536 selectors/8192 mouth frames/three sounds/two actual callback cycles. ResourceAudit and DebugRunner build passed; cinematic source hash and static index refreshed.",
+  "state": "partial",
+  "remaining": "378 converted,four justified retained,746 pending. Elevator6 seeds/4 residuals,tube5 irregular crack holds,Phantoon7 irregular intervals and other independent payloads remain required. No new exception."
 }}

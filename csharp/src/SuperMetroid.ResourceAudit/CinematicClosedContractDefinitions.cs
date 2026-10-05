@@ -35,7 +35,7 @@ internal static class CinematicClosedContractDefinitions
             "Private construction requires all twelve named small/large explosion compositions with their exact pointers. Draw guards membership. Fourth-hit spawning, cadence, collision and placement are not certified."),
         new("SuperMetroid.Core.Assets.CeresDoorVisualCatalog", "ceres-door-complete-tile-and-color-images",
             ["LoadTiles", "LoadNormalColors", "LoadEscapeColors", "LoadAnimationColors", "LoadMode7DoorFrame"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs", "FE6742D2EFF787E971E810F5D9FD0EFCA38AF0E87CFF95CF5B46941D521E7033"),
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs", "4543F8095BA757AA98966DA801DE426205F57C517D8BD4605AEA6D3845A1DF74"),
              new("csharp/src/SuperMetroid.Core/Game/CeresDoorVisualRomData.cs", "E228548CA07516CBA4465A124F1B6F97422994CEBA7DD976244A13DDD0DC35DF"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512")],
             "Private construction requires the exact door tile stream, both fifteen-color setup images, eight six-color animation rows and two four-byte Mode-7 maps. Arrays are compiled independently; indexed selections have CLR bounds. CGRAM/VRAM destinations are placement, not resource identities. Door behavior and quake synchronization are not certified."),

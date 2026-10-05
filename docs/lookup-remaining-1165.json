@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 831,
+  "remainingTableDefinitionCount": 827,
   "fileCount": 523,
   "entries": [
     {
@@ -3219,14 +3219,18 @@
       "line": 38,
       "name": "DragonInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ae846e433"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs",
       "line": 61,
       "name": "DragonInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ae846e433"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs",
@@ -3443,14 +3447,18 @@
       "line": 32,
       "name": "EscapeEtecoonInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "218915099"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EscapeEtecoonInstructionProgramDefinitions.cs",
       "line": 85,
       "name": "EscapeEtecoonInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "218915099"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs",
@@ -20905,6 +20913,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 296,
+  "convertedSinceSnapshot": 300,
   "justifiedRetainedSinceSnapshot": 1
 }

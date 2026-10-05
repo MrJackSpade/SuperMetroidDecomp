@@ -3045,6 +3045,7 @@
     ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.NoobTubeProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm native installed visual operands while preserving all tube projectile producer and lifetime assertions"},
     {"stream": 3, "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainRoomPaletteProgramDefinitions.cs", "purpose": "Confirm installed CGRAM, pointer and timer behavior against native room-palette loop"},
     {"stream": 5, "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Phantoon.cs", "purpose": "Narrow consumer binding adjustment for calculated casual-flame sequence; other behavior unchanged"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.DraygonBg2Frames.cs", "purpose": "Adapt explicit component sequence binding while preserving all native BG2 frame assertions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -400,7 +400,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteEnemyDefinition(
         bus,
         definitionPointer,
-        tileDataSize: 0,
+        tileDataSize: 32,
         palettePointer: 0xe457,
         bank: 0xa2,
         tileDataAddress: 0xa28000,
@@ -466,7 +466,30 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         new ushort[foreground.Length],
         new byte[8]);
 
-    var enemies = new RoomEnemySystem();
+    var paletteDocument = new EnemyPaletteSheetDocument
+    {
+        Version = 1,
+        Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(_ =>
+            new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
+    };
+    using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(paletteDocument));
+    var palettes = new Dictionary<ushort, EnemyPaletteSheet>
+    {
+        [definitionPointer] = EnemyPaletteSheet.Load(paletteJson),
+    };
+    // Installed artwork requires complete tiles; one blank tile replaces the old omitted art.
+    using var tilePng = new MemoryStream();
+    IndexedPng.Write(tilePng, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16));
+    tilePng.Position = 0;
+    var sheets = new Dictionary<ushort, RoomCharacterAtlas>
+    {
+        [definitionPointer] = RoomCharacterAtlas.Load(tilePng, 32),
+    };
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            sheets, palettes),
+    };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
     RoomEnemySlot ripper = enemies.Slots[0];
     if (verifyXrayTimers)
@@ -547,10 +570,24 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap
     // origin. One synthetic one-entry map makes both signs and the timer consumption
     // observable without borrowing the production displacement calculation.
-    WriteWord(bus, 0xa2e527, 1);
-    WriteWord(bus, 0xa2e529, 0);
-    bus.WriteByte(0xa2e52b, 0);
-    WriteWord(bus, 0xa2e52c, 0);
+    var frames = EnemySpritemapDefinitions.Frames.ToArray();
+    var spriteDocument = new EnemySpritemapDocument
+    {
+        Version = EnemySpritemapDefinitions.Version,
+        Frames = frames.ToDictionary(frame => frame.Name, frame =>
+            frame.Bank == 0xa2 && frame.Pointer == 0xe527
+                ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
+                    TileColumn = 0, TileRow = 0, Palette = 0, Priority = 0,
+                    FlipX = false, FlipY = false } }
+                : Array.Empty<SpriteVisualPart>()),
+        DisplayFrames = frames.ToDictionary(frame => frame.Name, frame => frame.Name),
+    };
+    using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+        spriteDocument, new System.Text.Json.JsonSerializerOptions
+        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+        sheets, palettes,
+        spritemaps: EnemySpritemapCatalog.Load(spriteJson));
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = 2;
@@ -592,8 +629,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     AssertEqual(1, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
     if (verifyDeferredContact) return;
 
-    var projectiles = new SamusProjectileSystem();
-    var sharedProjectiles = new SamusBombProjectileSystem();
+    var projectiles = CreateProjectileFixture();
+    var sharedProjectiles = CreateBombFixture();
     WriteWord(bus, 0x93867b, 0x9100);
     WriteWord(bus, 0x93867f, 0x9200);
 

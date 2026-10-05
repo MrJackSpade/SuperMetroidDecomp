@@ -11351,4 +11351,11 @@
     "state":  "partial-required",
     "algorithm":  "Mirrored four-step RGB5 interpolation calculates eight rows; supplied independent differences use sparse edits.",
     "remaining":  "Endpoint choices(31,2,0),(23,1,0),(31,0,0) required.495 converted,13 justified retained/mixed,620 pending unchanged."
+},"magdollitePulseIntegration":{
+    "scope":  "MagdollitePaletteCycle.frames remains unchecked",
+    "confirmation":  "Root Verification1444 warnings/zero errors;16 native colors,48 RGB edits,actual CGRAM,canonical identity,bounds and zero stock residuals pass.",
+    "workerCommit":  "30033fbddc42b54b9e6f2d8d45da84668f70bde6",
+    "state":  "partial-required",
+    "algorithm":  "Four phases calculate one-slot cyclic rotation of four seed colors; supplied independent deviations remain exact.",
+    "remaining":  "Four seed colors remain required.495 converted,13 justified retained/mixed,620 pending unchanged."
 }}

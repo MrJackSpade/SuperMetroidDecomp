@@ -431,7 +431,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MagdollitePaletteCycle.cs
 
-- [ ] **MagdollitePaletteCycle.frames** ([L20](../csharp/src/SuperMetroid.Core/Assets/MagdollitePaletteCycle.cs#L20)) - installed stock table. Original/default payload behind MagdollitePaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **MagdollitePaletteCycle.frames** - PARTIAL: native A8:AC2E-AC34 glow colors rotate left one slot per phase; calculate all four phases from four independently supplied seed colors and preserve arbitrary later-row edits sparsely. The four independent seed colors remain REQUIRED, with no claimed artistic exemption. --lookup-stream5-magdollite-pulse confirms all16 native colors,48 independent RGB edits, actual CGRAM, canonical identity, bounds and zero stock residual rows. Root integration build1444 existing warnings/zero errors; integrated counts71 converted,one mixed,153 required unchanged.
 
 ### csharp/src/SuperMetroid.Core/Game/MagdolliteInstructionProgramDefinitions.cs
 

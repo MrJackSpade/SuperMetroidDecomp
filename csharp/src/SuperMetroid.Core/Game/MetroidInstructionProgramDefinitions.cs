@@ -23,108 +23,50 @@ internal static class MetroidInstructionProgramDefinitions
     internal const ushort AdjacentBombedOffVelocities = 0xea3f;
 
     private static readonly ushort[] FrameDurations = [16, 16, 6, 10, 16];
-    private static readonly MetroidInstructionMechanicsWord[] Words = BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MetroidInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>True only for an ordinary-Metroid visual operand in either animation loop.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
-    /// <summary>Returns fixed Metroid control or rejects non-mechanics pointers.</summary>
+    internal static int MechanicsWordCount => 31;
+    internal static int PresentationWordCount => 25;
+    internal static MetroidInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool chasing = index < 23;
+        int local = chasing ? index : index - 23;
+        int frames = chasing ? 20 : 5;
+        ushort start = chasing ? ChasingSamus : DrainingSamus;
+        ushort address = (ushort)(start + (local < frames ? local * 4 : frames * 4 + (local - frames) * 2));
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 20 ? ChasingSamus + index * 4 + 2 : DrainingSamus + (index - 20) * 4 + 2);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - ChasingSamus;
+        if ((uint)offset < 80) return offset % 4 == 2;
+        offset = address - DrainingSamus;
+        return (uint)offset < 20 && offset % 4 == 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MetroidInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Metroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
+        bool chasing = address < DrainingSamus;
+        int start = chasing ? ChasingSamus : DrainingSamus;
+        int offset = address - start;
+        int frames = chasing ? 20 : 5;
+        if ((uint)offset < frames * 4 && offset % 4 == 0) return FrameDurations[offset / 4 % 5];
+        if (offset == frames * 4) return chasing ? EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX :
+            EnemyInstructionCodePointers.Instruction_Metroid_PlayDrainingSamusSFX;
+        if (offset == frames * 4 + 2) return CommonEnemyInstructionCodes.Goto;
+        if (offset == frames * 4 + 4) return (ushort)start;
+        throw new InvalidDataException($"Metroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static MetroidInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<MetroidInstructionMechanicsWord>(capacity: 31);
-        AddLoop(
-            words,
-            ChasingSamus,
-            repetitions: 4,
-            EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX);
-        AddLoop(
-            words,
-            DrainingSamus,
-            repetitions: 1,
-            EnemyInstructionCodePointers.Instruction_Metroid_PlayDrainingSamusSFX);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 25);
-        AddPresentationWords(words, ChasingSamus, frameCount: 20);
-        AddPresentationWords(words, DrainingSamus, frameCount: 5);
-        return words.ToArray();
-    }
-
-    private static void AddLoop(
-        List<MetroidInstructionMechanicsWord> words,
-        ushort entry,
-        int repetitions,
-        ushort callback)
-    {
-        int frameCount = FrameDurations.Length * repetitions;
-        for (int frame = 0; frame < frameCount; frame++)
-        {
-            words.Add(new(
-                unchecked((ushort)(entry + frame * 4)),
-                FrameDurations[frame % FrameDurations.Length]));
-        }
-
-        ushort callbackAddress = unchecked((ushort)(entry + frameCount * 4));
-        words.Add(new(callbackAddress, callback));
-        words.Add(new(unchecked((ushort)(callbackAddress + 2)),
-            CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(callbackAddress + 4)), entry));
-    }
-
-    private static void AddPresentationWords(
-        List<ushort> words,
-        ushort entry,
-        int frameCount)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(entry + frame * 4 + 2)));
+        if ((address & 0xff0000) != 0xa30000) return false;
+        int pointer = (ushort)address;
+        bool chasing = pointer < DrainingSamus;
+        int offset = pointer - (chasing ? ChasingSamus : DrainingSamus);
+        int timedBytes = chasing ? 80 : 20;
+        return (uint)offset < timedBytes + 6 && (offset >= timedBytes || offset % 4 < 2);
     }
 }

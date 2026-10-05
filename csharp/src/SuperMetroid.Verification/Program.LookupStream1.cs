@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1MetroidLayout(rom);
         VerifyLookupStream1PuyoAndQuota(rom);
         VerifyLookupStream1OwtchStoke(rom);
         VerifyLookupStream1VisualCatalogs(rom);
@@ -609,5 +610,48 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.MechanicsWord(invalid), "Puyo control bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.PresentationWordAddress(invalid), "Puyo visual bounds");
+    }
+    private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var frames = MetroidVisualDefinitions.Frames();
+        AssertEqual(4, frames.Length, "Metroid body identities");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            AssertEqual(Word(0xa3e9d1 + frame * 4), frames[frame].Pointer, "native Metroid body identity");
+            AssertEqual((byte)0xa3, frames[frame].Bank, "Metroid body bank");
+            AssertEqual($"metroid_body_{frame}", frames[frame].Name, "Metroid stable editable name");
+            AssertEqual((ushort)(frame == 1 ? 6 : 8), Word(0xa30000 | frames[frame].Pointer), "native Metroid OAM record size");
+        }
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        foreach (var (start, count) in new[] { (0xe9cf, 20), (0xea25, 5) })
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                controls.Add(start + frame * 4);
+                visuals.Add(start + frame * 4 + 2);
+            }
+            for (int control = 0; control < 3; control++) controls.Add(start + count * 4 + control * 2);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0xe9ce; pointer <= 0xea40; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                MetroidInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Metroid exact byte guard");
+            AssertEqual(visuals.Contains(pointer), MetroidInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Metroid exact visual domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = MetroidInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Metroid original control order");
+                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Metroid original control value");
+            }
+            else AssertThrows<InvalidDataException>(() => MetroidInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Metroid noncontrol rejection");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, MetroidInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Metroid original visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 31, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.MechanicsWord(invalid), "Metroid control index bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.PresentationWordAddress(invalid), "Metroid visual index bounds");
     }
 }

@@ -116,6 +116,7 @@ if (args is ["--lookup-stream-1"])
     VerifyPuyoInstructionProgramDefinitions();
     VerifyMiscDustProjectileDefinitions(rom);
     VerifyMetroidsClearedStatePlm(new TestAddressSpace());
+    VerifyMetroidInstructionProgramDefinitions();
     VerifyLookupStream1(rom);
     VerifyBrinstarPipeBugInstructionProgramDefinitions();
     VerifyMetroidBehaviorDefinitions(rom);

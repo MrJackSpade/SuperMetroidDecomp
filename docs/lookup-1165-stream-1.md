@@ -232,7 +232,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MetroidVisualDefinitions.cs
 
-- [ ] **MetroidVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/MetroidVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **MetroidVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/MetroidVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs
 
@@ -242,8 +242,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs
 
 - [ ] **MetroidInstructionProgramDefinitions.FrameDurations** ([L25](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MetroidInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L26)) - factory-built stock table. Stored MetroidInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MetroidInstructionProgramDefinitions.PresentationWords** ([L27](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L27)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MetroidInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L26)) - factory-built stock table. Stored MetroidInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MetroidInstructionProgramDefinitions.PresentationWords** ([L27](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L27)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs
 
@@ -815,3 +815,13 @@ Five more definitions converted; 162 complete and 64 unchecked. No retained exce
 - The Metroid-clear PLM dispatcher calculates nine consecutive one-byte RTS identities and four sixteen-byte quota observer identities. The latter resolve consecutive semantic events beginning FirstMetroidHallCleared; all no-op identities stay distinct and odd/out-of-range arguments still fail.
 - Evidence: pinned bankA2 Puyo `$99AD..9A06`; bank86 smoke placement `$E47E..E4A5`; bank84 quota pointer table `$DB28..DB40`, nine RTS handlers `$DAD5..DADD`, four observers `$DADE..DB1D` with immediate event operands.
 - Confirmation: full Verification build 1432 warnings/zero errors, final focused-check rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Unchanged fixtures execute all three grounded/five airborne Puyo programs, all five real smoke placement families with exact X/Y and one RNG advancement, and real PLM population below/at enemy quota with resident sleep lists and invalid-argument rejection. New checks compare thirteen original dispatch pointers/four native event operands, exact Puyo ordered controls/visuals/byte guards, noncontrol rejection and index domains. No fixture corrections were needed.
+
+## Batch 26: Metroid instruction and body-record layouts
+
+Three layout definitions converted; 165 complete and 61 unchecked. The independently inventoried FrameDurations entry remains unchecked and required. No retained exception.
+
+- Removed both factory-created cached Metroid arrays. Chasing calculates twenty timed records plus random-sound/goto control; draining calculates five records plus draining-sound/goto control. Existing five-duration inputs are still consumed, explicitly pending below; no replacement cache is introduced.
+- The body catalog calculates four pointers from consecutive OAM records containing 8/6/8/8 objects, preserving all editable identities. Actual object artwork remains independently required.
+- Timing obligation: native five-pose pattern 16/16/6/10/16 repeats four times while chasing and once while draining. The 64-tick total and repeated visual cycle do not independently justify its six/ten-tick split. FrameDurations remains required conversion/disposition work, not exempted as authored or small. Layout-cache completion does not complete that separate value input.
+- Evidence: pinned bankA3 programs `$E9CF..EA3E`, body maps `Spritemap_Metroid_Insides_0..3` at `$F10D/$F137/$F157/$F181`.
+- Confirmation: Verification build 1432 warnings/zero errors; `--lookup-stream-1` passed. Unchanged Metroid fixture executes both complete loops, random/draining sound callbacks, initialization and zero mechanics/presentation reads. New assertions verify all 31 native control values/order, 25 visual identities, four original body pointers/names/banks/object counts and exact byte/control/visual/index domains. No fixture corrections were needed.

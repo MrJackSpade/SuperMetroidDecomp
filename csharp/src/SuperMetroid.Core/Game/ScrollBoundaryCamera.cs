@@ -169,20 +169,14 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        ReadOnlySpan<ushort> facingRightOffsets = [0x0060, 0x0040, 0x0020, 0x00e0];
-        ReadOnlySpan<ushort> facingLeftOffsets = [0x00a0, 0x0050, 0x0020, 0x00e0];
-
         // This XOR is a compact but exact projection of $90:95B7-$90:95E5. Knockback,
-        // moonwalk movement type $10, or acceleration mode one reverses which facing table
+        // moonwalk movement type $10, or acceleration mode one reverses which facing target
         // applies; pose X direction four is the ROM's right-facing value.
         bool backwards = context.KnockbackDirection != 0
             || context.MovementType == SamusMovementType.Moonwalking
             || context.XAccelerationMode == 1;
-        bool useFacingRightTable = backwards ^ (context.PoseXDirection != 4);
-        int distanceSlot = context.CameraDistanceIndex >> 1;
-        ushort targetOffset = useFacingRightTable
-            ? facingRightOffsets[distanceSlot]
-            : facingLeftOffsets[distanceSlot];
+        bool useFacingRightTarget = backwards ^ (context.PoseXDirection != 4);
+        ushort targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
         IdealXPosition = unchecked((ushort)(current.XPosition - targetOffset));
 
         if (IdealXPosition == XPosition)

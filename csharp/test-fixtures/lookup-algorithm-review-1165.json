@@ -11206,4 +11206,11 @@
     "state":  "converted",
     "algorithm":  "Opening/closing pose cycles,semantic variant/role/facing groups,four-byte timed records and seven-byte single-part OAM geometry; no selector arrays.",
     "remaining":  "466 converted,11 justified retained/mixed,651 pending. Independent timings/artwork unchanged."
+},"horizontalCameraTargetIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; eight native offsets,32 actual mode/facing/reversal combinations,speed and invalid context pass. Camera audit hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "ScrollBoundaryCamera facingRightOffsets/facingLeftOffsets",
+    "workerCommit":  "9583a17ceb1b2e5bf68cfba47830d903eb2c3887",
+    "state":  "converted",
+    "algorithm":  "Named normal/boss/left-edge/right-edge target geometry; original XOR reversals,domain gate and speed untouched. Mode4 name states coordinate meaning only.",
+    "remaining":  "468 converted,11 justified retained/mixed,649 pending."
 }}

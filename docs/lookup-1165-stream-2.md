@@ -381,8 +381,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs
 
-- [ ] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingRightOffsets** ([L172](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L172)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingLeftOffsets** ([L173](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L173)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingRightOffsets** ([L172](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L172)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingLeftOffsets** ([L173](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L173)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs
 
@@ -934,3 +934,9 @@ Production compilation passed; the first verifier build exposed an incorrect new
 Removed all88 stored visual address/frame pairs across Brinstar, Norfair and yellow variants. Eight-record rising cycles open/close five poses; six-record normal flight cycles skip intermediate pose2. Strong Brinstar and yellow variants use four-record three-pose opening/closing cycles. Timed records occupy four bytes, terminal goto four bytes, and each native sprite composition contains a two-byte count plus one five-byte OAM part. Facing/role groups determine the native frame identity, including strong Brinstar's shooting-before-rising OAM order opposite its program order. Named source constants retain exact native identities. No lookup is regenerated/cached, and independent program timings/artwork are untouched.
 
 Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-visual-geometry runs the existing Brinstar/Norfair/Yellow confirmations unchanged:120 native controls, all16 actual variant programs through complete loops, all88 native selectors and source-read guards. Additional scoped proof confirms all88 one-part native OAM headers and rejects adjacent mechanics/unaligned words. Integrated stream checkpoint: 73 converted, two mixed definitions, 151 required.
+
+## Horizontal camera target modes
+
+Coordinator-approved HorizontalCameraTargetDefinitions replaces both stored facing arrays with named normal/boss/left-edge/right-edge cases. Normal targets are32 pixels either side of the256-pixel viewport center; edge targets sit32 pixels from their respective edges. Boss mode retains its explicit64/80 facing policy. Native90:963F/9647 confirms all eight values; callers88:8347 restore normal, KraidA7:A9E4 and CrocomireA4:8ABA select boss, CrocomireA4:97F3 selects right-edge. No native assignment was found for index4; its name describes only its proven coordinate effect, not an invented historical purpose.
+
+The existing native XOR/reversal rules, accepted context domain, integer-movement gate, speed arithmetic and scroll-boundary consumers are unchanged. Build1437 existing warnings/zero errors. --lookup-stream2-horizontal-camera-targets confirms all eight native offsets and32 actual combinations of mode/facing/normal-knockback-moonwalk-acceleration reversal, exact target positions, unchanged movement speed and invalid-context rejection. Integrated stream checkpoint: 75 converted, two mixed definitions, 149 required.

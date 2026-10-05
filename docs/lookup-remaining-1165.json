@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 651,
+  "remainingTableDefinitionCount": 649,
   "fileCount": 523,
   "entries": [
     {
@@ -7766,14 +7766,18 @@
       "line": 172,
       "name": "ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingRightOffsets",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "9583a17ceb1b2e5bf68cfba47830d903eb2c3887"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs",
       "line": 173,
       "name": "ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingLeftOffsets",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "9583a17ceb1b2e5bf68cfba47830d903eb2c3887"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs",
@@ -21275,6 +21279,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 466,
+  "convertedSinceSnapshot": 468,
   "justifiedRetainedSinceSnapshot": 11
 }

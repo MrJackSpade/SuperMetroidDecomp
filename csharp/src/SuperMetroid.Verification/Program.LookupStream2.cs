@@ -7,6 +7,33 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
+    {
+        var storage = new byte[RoomScrollGrid.StorageByteCount];
+        Array.Fill(storage, (byte)1);
+        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, 3, 2);
+        for (ushort mode = 0; mode <= 6; mode += 2)
+        foreach (byte facing in new byte[] { 4, 8 })
+        for (int reversal = 0; reversal < 4; reversal++)
+        {
+            var context = new HorizontalCameraContext(
+                reversal == 1 ? (ushort)1 : (ushort)0,
+                reversal == 2 ? SamusMovementType.Moonwalking : 0,
+                reversal == 3 ? (ushort)1 : (ushort)0, facing, mode);
+            bool right = reversal == 0 ? facing != 4 : facing == 4;
+            ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + mode);
+            AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");
+            var camera = new ScrollBoundaryCamera(grid);
+            camera.SetPosition(100, 0);
+            camera.TrackMovedSamusHorizontally(new(200, 0, 100, 0), new(204, 0, 100, 0), context);
+            AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealXPosition, "Actual camera target preserves mode and reversal");
+            AssertEqual((ushort)5, camera.CameraXSpeed, "Target dispatch preserves movement speed calculation");
+        }
+        var invalidCamera = new ScrollBoundaryCamera(grid);
+        AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
+            new(200, 0, 100, 0), new(204, 0, 100, 0), new(0, 0, 0, 8, 1)), "Native mode domain remains validated before tracking");
+        Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
+    }
     private static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
     {
         int count = 0;

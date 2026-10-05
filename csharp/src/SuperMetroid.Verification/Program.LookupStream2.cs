@@ -34,6 +34,13 @@ internal static partial class Program
         AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var frames = (System.Collections.IDictionary)typeof(ProjectileSpriteCatalog).GetField("frames", fields)!.GetValue(selected)!;
+        int calculatedCompositions = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.PowerParts)
+                calculatedCompositions++;
+        AssertEqual(8, calculatedCompositions, "All eight stock Power compositions calculate without cached part arrays");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
@@ -69,7 +76,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities calculate; independent frame selection/composition/art inputs remain pending.");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and eight stock Power compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {

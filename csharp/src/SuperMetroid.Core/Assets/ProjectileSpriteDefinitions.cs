@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Stable identities for the spritemaps referenced by native timed projectile records.</summary>
@@ -224,6 +226,36 @@ public static class ProjectileSpriteDefinitions
         int preceding = selectedLength - 1;
         int offset = preceding * sizeof(ushort) + 5 * (diagonal ? 2 : 1) * preceding * (preceding + 1) / 2;
         return (ushort)(PlasmaStartupStart + groupOffset + offset);
+    }
+    /// <summary>$93:A252: Power-beam poses select OBJ tile $30..32 with palette6/priority2; these independent artwork choices remain required.</summary>
+    private const int PowerTile = 0x30, PowerPalette = 6, PowerPriority = 2;
+    internal static bool TryPowerPhase(ushort pointer, out int phase)
+    {
+        int relative = pointer - PowerStart;
+        phase = relative / RecordBytes(1);
+        return relative >= 0 && relative % RecordBytes(1) == 0 && phase < 8;
+    }
+    /// <summary>$93:A24D..A27E: eight centered one-tile Power poses traverse a triangular three-glyph cycle and rotate its horizontal/vertical reflection phases.</summary>
+    internal readonly struct PowerParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 1;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if (index != 0) throw new IndexOutOfRangeException();
+                int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
+                var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
+                    (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(-8 / 2, false), unchecked((byte)(-8 / 2)),
+                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            yield return this[0];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     public static string Name(ushort pointer) => $"sprite_{pointer:X4}";
 }

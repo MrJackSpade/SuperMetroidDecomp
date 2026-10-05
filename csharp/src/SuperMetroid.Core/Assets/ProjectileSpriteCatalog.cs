@@ -7,13 +7,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
-    private readonly Dictionary<ushort, CompiledSpritePart[]> frames;
-    private ProjectileSpriteCatalog(Dictionary<ushort, CompiledSpritePart[]> frames) => this.frames = frames;
+    private readonly Dictionary<ushort, SpriteComposition> frames;
+    private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
     public void Draw(ushort id, OamBuffer oam, ushort x, ushort y)
     {
         if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
-        foreach (var part in parts) oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, x, y);
+        for (int index = 0; index < parts.PartCount; index++)
+        {
+            var part = parts.Part(index);
+            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, x, y);
+        }
     }
 
     public static ProjectileSpriteCatalog Load(Stream json)
@@ -38,7 +42,7 @@ public sealed class ProjectileSpriteCatalog
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
         if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredCount)
             throw new InvalidDataException("Projectile compositions require version 1 and every required sprite identity.");
-        var frames = new Dictionary<ushort, CompiledSpritePart[]>();
+        var frames = new Dictionary<ushort, SpriteComposition>();
         for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
         {
             ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
@@ -59,7 +63,10 @@ public sealed class ProjectileSpriteCatalog
                     p.Palette.Value, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0));
                 compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), unchecked((byte)(sbyte)p.OffsetY), attributes, false);
             }
-            frames.Add(id, compiled);
+            var composition = new SpriteComposition(compiled);
+            if (ProjectileSpriteDefinitions.TryPowerPhase(id, out int phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.PowerParts(phase));
+            frames.Add(id, composition);
         }
         return new(frames);
     }

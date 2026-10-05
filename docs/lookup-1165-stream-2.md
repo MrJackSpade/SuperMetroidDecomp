@@ -1082,3 +1082,10 @@ ProjectileSpriteDefinitions.NativePointers is converted (d30b18a514,6df4c64b0,5f
 Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain independently required under ProjectileFrameBindingCatalog.sprites. Chosen part counts,ordered footprints and artwork remain required under ProjectileSpriteCatalog.frames. These dependencies are explicit in the master JSON; no selection or artwork exception is claimed.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream2-projectile-identity-geometry passes the417 identity union from805 native selectors,48 selected/unselected physical startup headers through93:F5E2,417 extracted native-vs-installed OAM draws,independent edited composition/ownership,54 flare selectors and bounds. ResourceAudit source hashes refreshed. Inventory556 converted/19 retained-mixed/553 pending.
+
+
+## Integrated partial Power beam composition calculation
+
+54825296a calculates eight centered one-tile Power compositions at93:A24D-A27E using triangular three-glyph phases and native reflection phases. Stock matching uses immutable calculated SpriteComposition views; any supplied field difference preserves independently copied parts. The aggregate ProjectileSpriteCatalog.frames stays unchecked: glyph origin30,palette6,priority2,pixels and every other chosen OAM design remain required.
+
+Root Verification build1445 warnings/zero errors; focused projectile identity/composition check confirms exactly eight calculated views,417 native identities/OAM draws,48 startup records,independent Power edit/ownership,54 flare selectors and bounds. ResourceAudit builds0warnings/0errors; current shared SpriteComposition source is included in the projectile/flare closure. No new retained exception or count change:556 converted/19 retained-mixed/553 pending.

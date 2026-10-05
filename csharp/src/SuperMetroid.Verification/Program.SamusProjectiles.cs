@@ -213,19 +213,16 @@ static void VerifySamusPowerBeamProjectiles()
         }
     }
 
-    // Minimal but structurally authentic flare tables let the verifier exercise bank
-    // `$90:BAFC` -> `$81:8A37` without copying production animation logic. Every possible
-    // early table index selects the same one-entry spritemap; timing still comes from the
-    // three independently addressed delay lists.
-    for (int index = 0; index < 0x36; index++)
-        WriteTestWord(bus, 0x93a1a1 + index * 2, 0xa500);
-    WriteTestWord(bus, 0x93a500, 1);
-    WriteTestWord(bus, 0x93a502, 0);
-    bus.WriteByte(0x93a504, 0);
-    WriteTestWord(bus, 0x93a505, 0x2c30);
-    WriteTestWord(bus, 0x90c481, 0xc487);
-    WriteTestWord(bus, 0x90c483, 0xc4a7);
-    WriteTestWord(bus, 0x90c485, 0xc4ae);
+    // Every compiled flare identity uses the original one-OBJ synthetic artwork.
+    // Animation timing remains owned by the native compiled instruction sequence.
+    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
+    {
+        int address = 0x930000 | pointer;
+        WriteTestWord(bus, address, 1);
+        WriteTestWord(bus, address + 2, 0);
+        bus.WriteByte(address + 4, 0);
+        WriteTestWord(bus, address + 5, 0x2c30);
+    }
     for (int index = 0; index < 30; index++)
         bus.WriteByte(0x90c487 + index, 3);
     bus.WriteByte(0x90c4a7, 5);
@@ -237,6 +234,10 @@ static void VerifySamusPowerBeamProjectiles()
     const int width = 32;
     const int height = 16;
     var nativeProjectileRom = SeedNativeProjectileFixture(bus);
+    var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
+        new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
+    var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
+        new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
     var fixtureFrames = ProjectileFrameBindingCatalog.Load(
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
     var fixtureSprites = ProjectileSpriteCatalog.Load(
@@ -463,6 +464,7 @@ static void VerifySamusPowerBeamProjectiles()
         YPosition = 96,
         EquippedBeams = 0x1000,
     };
+    BindSyntheticSamusRendering(bus, chargeSamus);
     var chargeBombs = CreateSyntheticBombs();
     var chargeProjectiles = CreateSyntheticProjectiles();
     var flareOam = new OamBuffer();
@@ -497,7 +499,7 @@ static void VerifySamusPowerBeamProjectiles()
         }
 
         flareOam.BeginFrame();
-        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0);
+        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
         // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
         // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
         // consumes their zero terminators immediately instead of leaving timer-one slots.
@@ -507,7 +509,7 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
-    VerifySpinChargePreservation(bus, air);
+    VerifySpinChargePreservation(bus, air, fixtureFrames);
 
     // Make the release allocation fail through the real shared-cooldown gate. Native
     // FireUnchargedBeam still stops a charge that reached sound-start counter sixteen,
@@ -558,6 +560,7 @@ static void VerifySamusPowerBeamProjectiles()
         YPosition = 96,
         EquippedBeams = 0x1000,
     };
+    BindSyntheticSamusRendering(bus, baselineMode7Samus);
     var rotatedMode7Samus = new SamusState
     {
         Pose = rightPose,
@@ -565,6 +568,7 @@ static void VerifySamusPowerBeamProjectiles()
         YPosition = 96,
         EquippedBeams = 0x1000,
     };
+    BindSyntheticSamusRendering(bus, rotatedMode7Samus);
     var baselineMode7Bombs = CreateSyntheticBombs();
     var rotatedMode7Bombs = CreateSyntheticBombs();
     var baselineMode7Projectiles = CreateSyntheticProjectiles();
@@ -586,14 +590,14 @@ static void VerifySamusPowerBeamProjectiles()
     baselineMode7FlareOam.BeginFrame();
     rotatedMode7FlareOam.BeginFrame();
     baselineMode7Projectiles.HandleChargeFlareAndDraw(
-        bus, baselineMode7FlareOam, baselineMode7Samus, 0, 0);
+        bus, baselineMode7FlareOam, baselineMode7Samus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
     rotatedMode7Projectiles.HandleChargeFlareAndDraw(
         bus,
         rotatedMode7FlareOam,
         rotatedMode7Samus,
         0,
         0,
-        new SamusMode7Transform(0, 0x0100, 0xff00, 120, 96));
+        new SamusMode7Transform(0, 0x0100, 0xff00, 120, 96), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
     AssertTrue(baselineMode7FlareOam.NextByteOffset != 0,
         "Mode 7 flare fixture reaches visible central component");
     AssertEqual(baselineMode7FlareOam.NextByteOffset, rotatedMode7FlareOam.NextByteOffset,
@@ -857,6 +861,7 @@ static void VerifySamusPowerBeamProjectiles()
         EquippedBeams = 0x1009,
         HyperBeam = 0x8000,
     };
+    BindSyntheticSamusRendering(bus, hyperSamus);
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(bus, air, hyperSamus, 0, 0);
@@ -937,7 +942,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 15; call++)
     {
         hyperFlareOam.BeginFrame();
-        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, 0, 0);
+        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
         AssertTrue(hyperFlareOam.NextByteOffset != 0,
             $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
     }

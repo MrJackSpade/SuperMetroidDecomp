@@ -1138,6 +1138,21 @@ static void VerifyCeresRidleyRoomEntry()
     using var fixtureTilePng = new MemoryStream();
     IndexedPng.Write(fixtureTilePng, fixtureWidth, fixtureHeight, fixturePixels,
         SnesGraphics.DiagnosticPalette(16));
+    var fixtureSpriteFrames = EnemySpritemapDefinitions.Frames.ToArray();
+    var fixtureSprites = new EnemySpritemapDocument
+    {
+        Version = EnemySpritemapDefinitions.Version,
+        Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame =>
+            frame.Bank == 0xa6 && frame.Pointer == 0xa329
+                ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
+                    TileColumn = 0, TileRow = 0, Palette = 0, Priority = 0,
+                    FlipX = false, FlipY = false } }
+                : Array.Empty<SpriteVisualPart>()),
+        DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
+    };
+    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+        fixtureSprites, new System.Text.Json.JsonSerializerOptions
+        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
     var enemies = new RoomEnemySystem
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
@@ -1150,7 +1165,7 @@ static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }),
+            }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson)),
         CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
     };

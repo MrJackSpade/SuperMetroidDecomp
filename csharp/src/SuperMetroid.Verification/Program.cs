@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
 if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }
 if (args is ["--mutable-memory-boundary"]) { VerifySuperMetroidAddressSpace(); return 0; }
 if (args is ["--pause-fixtures"])

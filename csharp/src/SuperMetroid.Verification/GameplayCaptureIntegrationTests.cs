@@ -69,8 +69,8 @@ internal static partial class Program
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
-        var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        var packets = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var packets = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         legacy.BindMapPresentation(presentation);
         packets.BindMapPresentation(presentation);
         long sequence = 0;

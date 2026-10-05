@@ -25,7 +25,7 @@ public sealed class MotherBrainRoomColorPresentation
         ushort[] initialGlassShard, ushort[] initialTubeProjectile,
         RecoveryLightFade recoveryLights)
     {
-        this.flash = new RoomFlash(flash);
+        this.flash = new RoomFlash(flash, finalRoom);
         this.finalRoom = finalRoom;
         this.phaseTwoAttack = phaseTwoAttack;
         this.phaseTwoRearLeg = phaseTwoRearLeg;
@@ -126,8 +126,8 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < flash.Length; index++)
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorRomData.SliceColors * 2,
                 $"flash row {index}");
-        return new(flash,
-            Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room"),
+        ushort[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room");
+        return new(flash, finalRoom,
             Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two attack"),
             Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
@@ -142,7 +142,7 @@ public sealed class MotherBrainRoomColorPresentation
                     "room-entry tube projectile"),
             document.Version < MotherBrainRoomColorFormat.Version
                 ? currentStock!.recoveryLights
-                : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights)));
+                : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
@@ -154,10 +154,10 @@ public sealed class MotherBrainRoomColorPresentation
 
         public int FrameCount { get; }
 
-        public RoomFlash(ushort[][] rows)
+        public RoomFlash(ushort[][] rows, ushort[] finalRoom)
         {
             FrameCount = rows.Length;
-            basis = rows[0];
+            basis = finalRoom;
             highlight = rows[3][0];
             for (int frame = 0; frame < rows.Length; frame++)
                 for (int color = 0; color < basis.Length; color++)
@@ -184,55 +184,49 @@ public sealed class MotherBrainRoomColorPresentation
             return (ushort)result;
         }
     }
-    /// <summary>Seven equal light-intensity steps evaluated before RGB5 quantization.</summary>
+    /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
     private sealed class RecoveryLightFade
     {
-        private readonly LightChannel[] channels;
+        private readonly ushort[] finalRoom;
+        private readonly ushort backgroundLight;
+        private readonly ushort backgroundMiddle;
+        private readonly ushort backgroundDark;
+        private readonly ushort neutralHighlight;
+        private readonly ushort[][]? supplied;
 
-        public RecoveryLightFade(ushort[][] rows)
+        public RecoveryLightFade(ushort[][] rows, ushort[] finalRoom)
         {
-            int last = MotherBrainRoomColorRomData.RecoveryLightsFrames - 1;
-            channels = new LightChannel[rows[last].Length * 3];
-            for (int color = 0; color < rows[last].Length; color++)
-                for (int component = 0; component < 3; component++)
-                {
-                    int endpoint = (rows[last][color] >> (component * 5)) & 31;
-                    int basis = endpoint * 8;
-                    for (; basis < endpoint * 8 + 8; basis++)
-                    {
-                        bool matches = true;
-                        for (int frame = 0; frame <= last; frame++)
-                            if (Intensity(basis, frame) != ((rows[frame][color] >> (component * 5)) & 31))
-                            { matches = false; break; }
-                        if (matches) break;
-                    }
-                    byte[]? supplied = null;
-                    if (basis == endpoint * 8 + 8)
-                    {
-                        supplied = new byte[last + 1];
-                        for (int frame = 0; frame <= last; frame++)
-                            supplied[frame] = (byte)((rows[frame][color] >> (component * 5)) & 31);
-                    }
-                    channels[color * 3 + component] = new LightChannel(basis, supplied);
-                }
+            this.finalRoom = finalRoom;
+            ushort[] full = rows[^1];
+            backgroundLight = full[0];
+            backgroundMiddle = full[1];
+            backgroundDark = full[2];
+            neutralHighlight = full[14];
+            for (int frame = 0; frame < rows.Length; frame++)
+                for (int color = 0; color < rows[frame].Length; color++)
+                    if (Calculate(frame, color) != rows[frame][color])
+                    { supplied = rows; return; }
         }
 
-        public ushort Color(int frame, int color)
+        public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        private ushort Calculate(int frame, int color)
         {
-            int result = 0;
-            for (int component = 0; component < 3; component++)
+            ushort endpoint = color switch
             {
-                LightChannel channel = channels[color * 3 + component];
-                int value = channel.Supplied is { } supplied ? supplied[frame] : Intensity(channel.Basis, frame);
-                result |= value << (component * 5);
-            }
+                0 => backgroundLight,
+                1 => backgroundMiddle,
+                2 => backgroundDark,
+                >= 3 and <= 13 => finalRoom[color - 3],
+                14 or 15 => neutralHighlight,
+                _ => finalRoom[color - 4],
+            };
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((endpoint >> shift) & 31) * (frame + 1) /
+                    MotherBrainRoomColorRomData.RecoveryLightsFrames) << shift;
             return (ushort)result;
         }
-
-        private static int Intensity(int basis, int frame) =>
-            basis * (frame + 1) / (MotherBrainRoomColorRomData.RecoveryLightsFrames * 8);
-
-        private readonly record struct LightChannel(int Basis, byte[]? Supplied);
     }
     private static ushort[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {

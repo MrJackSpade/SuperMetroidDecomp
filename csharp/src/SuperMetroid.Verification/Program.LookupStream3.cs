@@ -1335,11 +1335,13 @@ internal static partial class Program
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         object fade = typeof(MotherBrainRoomColorPresentation).GetField("recoveryLights", flags)!.GetValue(stock)!;
-        var channels = (Array)fade.GetType().GetField("channels", flags)!.GetValue(fade)!;
-        foreach (object channel in channels)
-            AssertTrue(channel.GetType().GetProperty("Supplied")!.GetValue(channel) is null,
-                "stream 3 stock recovery light trajectories discarded");
-        for (int frame = 0; frame < 7; frame++)
+        AssertTrue(fade.GetType().GetField("supplied", flags)!.GetValue(fade) is null,
+            "stream 3 stock recovery light rows discarded");
+        AssertTrue(ReferenceEquals(fade.GetType().GetField("finalRoom", flags)!.GetValue(fade),
+            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+            "stream 3 recovery endpoint reuses the final room palette");
+        AssertEqual(4, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+            "stream 3 recovery keeps only four additional paint endpoints");        for (int frame = 0; frame < 7; frame++)
         {
             var actual = new SnesCgram();
             stock.ApplyRecoveryLights(actual, frame);
@@ -1377,6 +1379,32 @@ internal static partial class Program
                         }
                     }
                 }
+        for (int color = 0; color < 24; color++)
+            foreach (string component in new[] { "red", "green", "blue" })
+            {
+                var editedNode = node.DeepClone();
+                var rgb = editedNode["finalRoom"]![color]!;
+                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                for (int frame = 0; frame < 7; frame++)
+                {
+                    var expected = new SnesCgram();
+                    var actual = new SnesCgram();
+                    stock.ApplyRecoveryLights(expected, frame);
+                    edited.ApplyRecoveryLights(actual, frame);
+                    AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                        "stream 3 independent final-room edit cannot change recovery content");
+                    for (int phase = 0; phase < 2; phase++)
+                    {
+                        ushort pointer = (ushort)(0xd046 + (frame * 2 + phase) * 4);
+                        stock.ApplyFlash(expected, pointer);
+                        edited.ApplyFlash(actual, pointer);
+                        AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                            "stream 3 independent final-room edit cannot change flash content");
+                    }
+                }
+            }
         var legacy = node.DeepClone();
         legacy["version"] = MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
         legacy.AsObject().Remove("recoveryLights");
@@ -1400,6 +1428,9 @@ internal static partial class Program
         object flash = typeof(MotherBrainRoomColorPresentation).GetField("flash", flags)!.GetValue(stock)!;
         AssertTrue(flash.GetType().GetField("supplied", flags)!.GetValue(flash) is null,
             "stream 3 stock flash rows discarded");
+        AssertTrue(ReferenceEquals(flash.GetType().GetField("basis", flags)!.GetValue(flash),
+            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+            "stream 3 stock flash reuses final room paint basis");
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
         {
             bool mechanics = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 < 2 ||

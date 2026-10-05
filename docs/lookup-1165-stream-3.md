@@ -876,7 +876,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - Replaced all seven stored room-light rows with equal RGB8 intensity steps before RGB5 quantization: `floor(endpoint * (frame + 1) / 56)`. Every one of the 84 native channel trajectories fits an endpoint in the final RGB5 channel's eight-value interval. Stock trajectories are discarded; independent edits remain exact. Older room-color documents still inherit the installed stock recovery object.
 - Pinned $AD:F283-$F409 contains seven reverse-selected rows. Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all 196 native words at both CGRAM destinations, absent stock channel trajectories, 588 independent channel edits and legacy-document fallback for all seven steps.
-- The independent full-light color basis and its latent precision remain required; this inventory entry stays unchecked. Converted count remains 70 plus the separate decorative-anchor retention.
+- The independent full-light color basis remains required; batch 37 removes the apparent latent precision and shares matching final-room colors. This inventory entry stays unchecked. Converted count remains 70 plus the separate decorative-anchor retention.
 - Coordinator must refresh `ClosedPresentationContractDefinitions.cs` source hash for `MotherBrainRoomColorPresentation.cs` (previous 67630C828581AB534E1F6EBF0E8145762623EEE80F26B534157EB72FEC780AE8).
 ### Confirmed batch 33: Mother Brain room flash and control
 
@@ -925,6 +925,13 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all eighteen original roots/names/banks, eighteen native character counts, enumeration and bounds, plus all four complete sheet records, source boundaries and collection exceptions. Existing sheet-transfer checks also passed.
 - Two entries completed, bringing converted entries to 75 plus the two narrowly justified retained entries.
 - Coordinator must refresh `MotherBrainSheetsClosedContractDefinitions.cs` source hash for `MotherBrainSpecialSpriteArtworkDefinitions.cs`. No external source-hash dependency found for `MotherBrainVisualDefinitions.cs`.
+### Confirmed batch 37: Shared room-color basis and direct recovery scaling (partial)
+
+- Replaced recovery's per-channel RGB8 precision representation with exact direct RGB5 scaling: `floor(endpoint * (frame + 1) / 7)` for each channel. All 196 native words match without latent precision.
+- Recovery reuses 23 colors from the existing final-room basis. Its first slice prepends three background colors to final-room colors 0..10; its second prepends two copies of one neutral highlight to final-room colors 12..23. Only four additional scalar paint inputs remain. The flash calculation also reuses the final-room basis, keeping only its separate highlight input.
+- Import accepts these relationships only when every supplied output agrees. Independently editing final-room content leaves flash/recovery content exact, and legacy documents still inherit the stock recovery object. No generated frame arrays remain for stock.
+- Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all native recovery words and actual flash loop outputs, 588 independent recovery edits, 1008 independent flash edits, 72 independent final-room channel edits against every recovery/flash output, shared-basis storage assertions and legacy fallback.
+- Shared final-room paint content, the flash highlight and four recovery-only inputs remain required. No new completed entry or retention exception; totals remain 75 converted and two narrowly justified retained entries. Coordinator must refresh the existing room-color presentation source hash in `ClosedPresentationContractDefinitions.cs`.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 654,
+  "remainingTableDefinitionCount": 651,
   "fileCount": 523,
   "entries": [
     {
@@ -1645,21 +1645,27 @@
       "line": 18,
       "name": "PipeBugVisualDefinitions.Brinstar",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "36f0bf93fd849cb9af39654ca38b1794c64604dd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
       "line": 37,
       "name": "PipeBugVisualDefinitions.Norfair",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "36f0bf93fd849cb9af39654ca38b1794c64604dd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
       "line": 51,
       "name": "PipeBugVisualDefinitions.Yellow",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "36f0bf93fd849cb9af39654ca38b1794c64604dd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs",
@@ -21269,6 +21275,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 463,
+  "convertedSinceSnapshot": 466,
   "justifiedRetainedSinceSnapshot": 11
 }

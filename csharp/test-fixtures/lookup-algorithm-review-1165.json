@@ -11199,4 +11199,11 @@
     "state":  "converted",
     "algorithm":  "Three identities from consecutive two-byte count plus four five-byte OAM record geometry; yields catalog entries without literal stock array.",
     "remaining":  "463 converted,11 justified retained/mixed,654 pending. Independent artwork remains required."
+},"pipeBugVisualGeometryIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; existing native120 controls,16 complete actual variant programs and88 selectors/read guards pass;88 native OAM headers and adjacent nonvisual rejection also pass.",
+    "completed":  "PipeBugVisualDefinitions.Brinstar,Norfair,Yellow",
+    "workerCommit":  "36f0bf93fd849cb9af39654ca38b1794c64604dd",
+    "state":  "converted",
+    "algorithm":  "Opening/closing pose cycles,semantic variant/role/facing groups,four-byte timed records and seven-byte single-part OAM geometry; no selector arrays.",
+    "remaining":  "466 converted,11 justified retained/mixed,651 pending. Independent timings/artwork unchanged."
 }}

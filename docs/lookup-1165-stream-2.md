@@ -314,9 +314,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs
 
-- [ ] **PipeBugVisualDefinitions.Brinstar** ([L18](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PipeBugVisualDefinitions.Norfair** ([L37](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PipeBugVisualDefinitions.Yellow** ([L51](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Brinstar** ([L18](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Norfair** ([L37](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Yellow** ([L51](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs
 
@@ -928,3 +928,9 @@ Build1437 existing warnings/zero errors. New --lookup-stream2-kraid-lint-initial
 Frames() yields its three installed identities directly from the consecutive native four-part OAM record width: two-byte count plus four five-byte parts, beginning at A8:ABDA. Removed the factory literal array; no replacement stock array is generated or cached by this definition. Artwork contents remain independently accounted for.
 
 Production compilation passed; the first verifier build exposed an incorrect new reference to catalog All, corrected to its actual Frames API. Final verifier build25 existing warnings/zero errors. --lookup-stream2-kago-frame-geometry passes allthree independent native instruction selectors and four-part headers, exact names, enumeration count and membership in the installed catalog. Integrated stream checkpoint: 70 converted, two mixed definitions, 154 required.
+
+## Pipe Bug visual phase and OAM geometry
+
+Removed all88 stored visual address/frame pairs across Brinstar, Norfair and yellow variants. Eight-record rising cycles open/close five poses; six-record normal flight cycles skip intermediate pose2. Strong Brinstar and yellow variants use four-record three-pose opening/closing cycles. Timed records occupy four bytes, terminal goto four bytes, and each native sprite composition contains a two-byte count plus one five-byte OAM part. Facing/role groups determine the native frame identity, including strong Brinstar's shooting-before-rising OAM order opposite its program order. Named source constants retain exact native identities. No lookup is regenerated/cached, and independent program timings/artwork are untouched.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-visual-geometry runs the existing Brinstar/Norfair/Yellow confirmations unchanged:120 native controls, all16 actual variant programs through complete loops, all88 native selectors and source-read guards. Additional scoped proof confirms all88 one-part native OAM headers and rejects adjacent mechanics/unaligned words. Integrated stream checkpoint: 73 converted, two mixed definitions, 151 required.

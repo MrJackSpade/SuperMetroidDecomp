@@ -85,6 +85,33 @@ internal static partial class Program
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
+    private static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
+    {
+        VerifyBrinstarPipeBugInstructionProgramDefinitions(rom);
+        VerifyNorfairPipeBugInstructionProgramDefinitions(rom);
+        VerifyYellowPipeBugInstructionProgramDefinitions(rom);
+        for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
+            Check(index < 28 ? PipeBugDefinitions.BrinstarEnemyDefinition : PipeBugDefinitions.StrongBrinstarEnemyDefinition,
+                BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
+        for (int index = 0; index < NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
+            Check(PipeBugDefinitions.NorfairEnemyDefinition, NorfairPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
+        for (int index = 0; index < YellowPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
+            Check(PipeBugDefinitions.YellowEnemyDefinition, YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
+        Console.WriteLine("Pipe Bug visual geometry:88 native selectors/single-part headers, adjacent mechanics rejection and existing actual variant program checks pass.");
+
+        void Check(ushort enemy, ushort address)
+        {
+            ushort expected = ReadVerificationWord(rom, 0xb30000 | address);
+            AssertEqual(expected, PipeBugVisualDefinitions.FrameAt(enemy, address), "Native Pipe Bug visual selector");
+            AssertEqual((ushort)1, ReadVerificationWord(rom, 0xb30000 | expected), "Native seven-byte single-part composition");
+            for (int delta = -2; delta <= 2; delta++)
+            {
+                if (delta == 0) continue;
+                ushort invalid = unchecked((ushort)(address + delta));
+                AssertThrows<InvalidDataException>(() => PipeBugVisualDefinitions.FrameAt(enemy, invalid), "Nonvisual adjacent bytes rejected");
+            }
+        }
+    }
     private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

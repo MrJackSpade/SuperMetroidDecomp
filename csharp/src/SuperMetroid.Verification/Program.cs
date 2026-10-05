@@ -36,6 +36,11 @@ if (args is ["--lookup-stream2-kago-frame-geometry"])
     VerifyLookupStream2KagoFrameGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--lookup-stream2-pipe-bug-visual-geometry"])
+{
+    VerifyLookupStream2PipeBugVisualGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream2-drop-selection"])
 {
     VerifyLookupStream2DropSelection(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

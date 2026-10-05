@@ -10751,4 +10751,14 @@
   "remaining": "293 converted, one justified retained,834 pending. No new exception.",
   "algorithm": "Twelve-phase signed triangle wave; four-pixel pose offsets; quarter-turn compass acceleration. Native catalog owns the identities.",
   "scope": "Five Powamp motion tables: wiggle, rising/sinking balloon offsets and X/Y spike acceleration."
+},"projectileTrailAdjacentCodeReview":{
+  "nativeWords": "BD8B 0C18 0089 D00F 2905 003F 0D80 29EB 000F 03C9 B000 1817 1F69 0A00 F4AA 7E7E ABAB 22A0 B900 D658 07F0 8888 F710 38AB A96B",
+  "romRevision": "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72",
+  "scope": "Only25 adjacent code observations at90:B657-B688; excludes first78 actual trail selectors.",
+  "implementation": "Stream2 semantic selector conversion1072d4125 remains queued. Worker instructed to codify narrow accepted residual. Master entry remains pending until conversion and follow-up are integrated and verified.",
+  "remaining": "Counts unchanged293 converted,one justified retained,834 pending. No first78 semantic mapping exempted.",
+  "justification": "These are instruction encodings, operand bytes and branch distances observed as data, not a functional trail mapping. Managed code has no corresponding65816 layout. Deriving them from C# behavior is nonsense; assembling or re-encoding the original routine merely reconstructs the same native byte payload. Retain exactly this bounded window; no general exemption for adjacent data or other tables.",
+  "evidence": "Pinned bank90 Spawn_ProjectileTrail B657-B698 masks beam selector with003F, doubles it and reads right baseB609. Indices39..63 therefore read50 physical instruction bytes beyond the39-word table. Source begins PHB/LDA projectile type and ends RTL atB687 plus LDA opcode atB688; its immediate operand is outside window.",
+  "confirmation": "Independent static native/caller inspection and direct50-byte comparison against supported ROM, with SHA256 verified. No gameplay search or new behavior test needed for this source-only review.",
+  "state": "reviewed-retention-awaiting-integration"
 }}

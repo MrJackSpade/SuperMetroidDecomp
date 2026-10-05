@@ -275,7 +275,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs
 
-- [ ] **OwtchInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **OwtchInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **OwtchInstructionProgramDefinitions.PresentationWords** ([L36](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs
@@ -976,3 +976,10 @@ Root Verification build1445 warnings/zero errors; --lookup-stream-1-atmospheric-
 Partial conversion c962486be: named Ceres/Zebes selection replaces the program dictionary; calculated line views preserve independent text/destination differences and added/removed lines. Retention covers only the five exact English warning strings at A6:C458,C472,C488,C4A4,C4B6. Their wording is narrative content; generating different text from arithmetic would not preserve it. Glyph identities and geometry are separate.
 
 First column5,row8,row step2,three/two-line grouping and character delay2 remain required; the aggregate stays unchecked. Root Verification build1445 warnings/zero errors; --lookup-stream-1-escape-text passes five native lines, zero stock overrides, independent edits/counts/bounds and271 actual production calls compared to native command parsing for timing,destinations,clicks,glyphs and VRAM with cartridge reads denied. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
+## Integrated narrow Owtch visual cadence disposition
+
+OwtchInstructionProgramDefinitions.Words is mixed complete (dbe23c0e0): structure and selectors calculate; only CyclicVisualHold8 remains as chosen visual playback content. Root inspected the three native rendered poses, A2:A3AD/A3BF loops, A579 shot gate, A0:D03F header and managed movement/collision consumers. The same spiked shell has shifted lower pink/purple pixels, with opposite direction playback orders. Each map is one16x16 part at(-8,-8). Direction callbacks precede the cycles; the cycles contain only timed visuals and Goto.
+
+Radii8/8 are fixed, every map is nonempty, ordinary touch/projectiles use radius boxes, and damage gating uses behavior state. Movement uses independently selected velocity. The exact eight-tick visual tempo is an authored performance, not a physical quantity derivable from these consumers; an arithmetic encoding of that choice would merely disguise it. This exemption excludes reset1,movement,radii,selectors and pixel artwork.
+
+Root Verification build1445 warnings/zero errors; focused --lookup-stream-1-owtch-cadence passes12 native words,6 selectors,both actual25-call loops,direction callbacks,Goto cursors,all three frames,bounds and forbidden source reads. No whole-game claim. Inventory558 converted/21 retained-mixed/549 pending.

@@ -16,6 +16,17 @@ internal static class OwtchInstructionProgramDefinitions
     /// <summary><c>InstList_Owtch_MovingRight_0</c> at $A2:A3BD.</summary>
     internal const ushort MovingRight = 0xa3bd;
 
+    /// <summary>$A2:A3AD/A3B1/A3B5 and A3BF/A3C3/A3C7: selected eight-tick hold for the three cyclic shell poses.</summary>
+    /// <remarks>Issue1165 narrow nonsense retention: the same spiked shell has shifted lower
+    /// pink/purple pixels, played in opposite orders by the two directions. The selected
+    /// playback cadence has no timing equation from the independently selected movement
+    /// velocity. Native A0:D03F fixes collision radii8/8; all three maps retain identical
+    /// geometry, and A2:A579 gates shots by behavior state, not pose or animation timer.
+    /// Direction callbacks precede the loops; no pose triggers a collision/callback event.
+    /// Replacing this chosen visual rate changes the animation. This exception covers
+    /// only hold8, not instruction-reset1, motion, radii, sprite selection or pixel art.</remarks>
+    internal const ushort CyclicVisualHold = 8;
+
     private const int ProgramBytes = 18;
     internal static int MechanicsWordCount => 12;
     internal static int PresentationWordCount => 6;
@@ -41,7 +52,7 @@ internal static class OwtchInstructionProgramDefinitions
             switch (offset % ProgramBytes)
             {
                 case 0: return right ? EnemyInstructionCodePointers.Instruction_Owtch_1 : EnemyInstructionCodePointers.Instruction_Owtch_0;
-                case 2: case 6: case 10: return 8;
+                case 2: case 6: case 10: return CyclicVisualHold;
                 case 14: return CommonEnemyInstructionCodes.Goto;
                 case 16: return (ushort)((right ? MovingRight : MovingLeft) + 2);
             }

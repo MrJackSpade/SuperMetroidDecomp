@@ -11518,4 +11518,11 @@
     "state":  "partial-two-converted",
     "algorithm":  "Timed-pose block widths and loop/callback tails calculate 16/32 controls and 14/24 visual addresses.",
     "remaining":  "Both Words entries required: Multiviola cadence 10; Rio idle 4 and swoop/recovery 3. Two conversions, not four. No exception. 509 converted, 15 justified retained/mixed, 604 pending."
+},"sporeSpawnCollisionIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twelve roots/lists, 2376 actual touch/shot comparisons against independent native operands, source-read denial and invalid root/component boundaries pass.",
+    "completed":  "SporeSpawnCollisionDefinitions.Frames",
+    "workerCommit":  "23293673588d64845e14e1491308f5ea137e6462",
+    "state":  "partial-one-converted",
+    "algorithm":  "Opening head progression, B/C/D/C inner-point oscillation and fully-open B/C/D cycle derive ordered zero-offset components from native frame/list record widths.",
+    "remaining":  "Lists remains required; no hitbox geometry or callback payload exemption. 510 converted, 15 justified retained/mixed, 603 pending."
 }}

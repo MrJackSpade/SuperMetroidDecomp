@@ -604,7 +604,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs
 
-- [ ] **SporeSpawnCollisionDefinitions.Frames** ([L50](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnCollisionDefinitions.Frames** ([L50](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SporeSpawnCollisionDefinitions.Lists** ([L67](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L67)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnInstructionProgramDefinitions.cs
@@ -1017,3 +1017,9 @@ Mixed disposition for RoomEnemySpawnNameDefinitions.Records: 74 wholly converted
 - Evidence: bankB4 quoted EnemyName_* records, notably DDB3/DDCF pirate families and E205..E2AD colored variants, DEA1/E2C9/E2D7 Kihunters, and the named stem/alias identities documented in the catalog. Record_EnemySpawnData at A0:8923..893F copies five literal ASCII words,8941 reads the separate numeric index, and8948..8968 publishes the snapshot. It does not parse the chosen lexical spelling into AI or physics.
 - Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed the existing independent native90-pointer ordered-domain proof, all540 original text/index words and absent/unaligned identity rejection. No exploratory gameplay or new unrelated fixture was added. No ResourceAudit source hash reference was found for this catalog.
 - Managed consumer confirmation: RoomEnemySystem.InitializeSlot publishes ReadSpawnNameWords(definition) into RoomEnemySpawnSnapshot.NameWords; the reader returns the compiled words (or fixture data) opaquely. RoomEnemyData defines only Word0..Word4 and Word6. Static production usage has no character parsing into AI or physics. Coordinator independently confirmed both native copy instructions and these managed consumers before approving the exact lexical boundary.
+
+## Integrated Spore Spawn collision components
+
+Frames is complete: dead/closed roots select a single zero-offset head; seven opening roots advance the head layout and oscillate the inner point through B/C/D/C; three fully-open roots hold the final head and cycle B/C/D. Native A5:EE65-EEE5 and EF3D-EF61 establish component count, order, zero offsets and list identities. The intervening unused roots remain rejected. Lists remains unchecked; this does not exempt its hitbox coordinates or callback payloads.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-spore-collision confirms all 12 roots and 12 referenced lists, 2376 actual touch/shot comparisons against an independent native-data walker, source-read denial and invalid root/component boundaries. The obsolete generic runtime cartridge oracle was replaced with a fixture-only native walker; production execution stays guarded. Overall checkpoint: 510 converted, 15 justified retained/mixed, 603 pending.

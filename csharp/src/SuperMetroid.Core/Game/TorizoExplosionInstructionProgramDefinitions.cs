@@ -24,77 +24,94 @@ internal static class TorizoExplosionInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_3</c> at $86:A435.</summary>
     internal const ushort DeathSmokeLoop = 0xa435;
 
-    private static readonly TorizoExplosionInstructionMechanicsWord[] Words =
-    [
-        new(LowHealthInitial, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xa3cd, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xa3cf, 0x3000),
-        new(0xa3d1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xa3d3, 3),
-        new(LowHealthLoop, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition),
-        new(0xa3d7, EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xa3d9, 0x000f),
-        new(0xa3db, 0x000f),
-        new(0xa3dd, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xa3e0, 2),
-        new(0xa3e4, 2),
-        new(0xa3e8, 3),
-        new(0xa3ec, 3),
-        new(0xa3f0, 2),
-        new(0xa3f4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xa3f6, LowHealthLoop),
-        new(0xa3f8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    // Independent timing, random spread and repetition choices remain pending
+    // under issue1165. Program geometry does not exempt these operand payloads.
+    private static readonly ushort[] SmallExplosionHolds = [2, 2, 3, 3, 2];
+    private static readonly ushort[] LargeExplosionHolds = [4, 6, 5, 5, 5, 6];
+    /// <summary>$86:A3CF/A3FE: common property mask applied by both explosion initializers.</summary>
+    private const ushort ExplosionPropertyMask = 0x3000;
+    /// <summary>$86:A3D9/A3DB: low-health random spread masks.</summary>
+    private const ushort SmallSpreadMask = 0x000f;
+    /// <summary>$86:A40C/A439: death explosion/smoke horizontal random spread mask.</summary>
+    private const ushort DeathHorizontalSpreadMask = 0x001f;
+    /// <summary>$86:A40E: large explosion packed vertical bias and random mask.</summary>
+    private const ushort LargeVerticalSpread = 0x103f;
+    /// <summary>$86:A43B: smoke packed vertical bias and random mask.</summary>
+    private const ushort SmokeVerticalSpread = 0x043f;
 
-        new(DeathInitial, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xa3fc, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xa3fe, 0x3000),
-        new(0xa400, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4),
-        new(0xa402, DeathSmokeSetup),
-        new(0xa404, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xa406, 2),
-        new(DeathExplosionLoop, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition),
-        new(0xa40a, EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xa40c, 0x001f),
-        new(0xa40e, 0x103f),
-        new(0xa410, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xa413, 4),
-        new(0xa417, 6),
-        new(0xa41b, 5),
-        new(0xa41f, 5),
-        new(0xa423, 5),
-        new(0xa427, 6),
-        new(0xa42b, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xa42d, DeathExplosionLoop),
-        new(0xa42f, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(DeathSmokeSetup, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xa433, 2),
-        new(DeathSmokeLoop, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition),
-        new(0xa437, EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xa439, 0x001f),
-        new(0xa43b, 0x043f),
-        new(0xa43d, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xa440, 8),
-        new(0xa444, 8),
-        new(0xa448, 8),
-        new(0xa44c, 8),
-        new(0xa450, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xa452, DeathSmokeLoop),
-        new(0xa454, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    private enum ExplosionPhase { LowHealth, LargeDeath, DeathSmoke }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xa3e2, 0xa3e6, 0xa3ea, 0xa3ee, 0xa3f2,
-        0xa415, 0xa419, 0xa41d, 0xa421, 0xa425, 0xa429,
-        0xa442, 0xa446, 0xa44a, 0xa44e,
-    ];
+    internal static int MechanicsWordCount => 53;
+    internal static int PresentationWordCount => 15;
+    internal static TorizoExplosionInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, false).Selected;
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, true).Selected.Address;
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static TorizoExplosionInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>
+    /// $86:A3CB-A455: low-health, large-death and smoke lists share position reset,
+    /// random spread, a sound command with one packed operand byte, timed poses,
+    /// counted back-edge and deletion. The death initializer may branch to smoke.
+    /// </summary>
+    private static Layout BuildLayout(int index, bool presentation)
+    {
+        var layout = new Layout(index, presentation);
+        BuildExplosion(ref layout, ExplosionPhase.LowHealth);
+        BuildExplosion(ref layout, ExplosionPhase.LargeDeath);
+        BuildExplosion(ref layout, ExplosionPhase.DeathSmoke);
+        return layout;
+    }
 
+    private static void BuildExplosion(ref Layout layout, ExplosionPhase phase)
+    {
+        bool small = phase == ExplosionPhase.LowHealth;
+        bool smoke = phase == ExplosionPhase.DeathSmoke;
+        layout.Address = small ? LowHealthInitial : smoke ? DeathSmokeSetup : DeathInitial;
+        if (!smoke)
+        {
+            layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+            layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY, ExplosionPropertyMask);
+            if (!small) layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4, DeathSmokeSetup);
+        }
+        layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY, small ? (ushort)3 : (ushort)2);
+        ushort loop = layout.Address;
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition);
+        layout.Word(EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius);
+        layout.Word(small ? SmallSpreadMask : DeathHorizontalSpreadMask);
+        layout.Word(small ? SmallSpreadMask : smoke ? SmokeVerticalSpread : LargeVerticalSpread);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6);
+        layout.Address++; // The sound argument is a byte, outside this word catalog.
+        int poses = small ? SmallExplosionHolds.Length : smoke ? 4 : LargeExplosionHolds.Length;
+        for (int pose = 0; pose < poses; pose++)
+            layout.Pose(small ? SmallExplosionHolds[pose] : smoke ? (ushort)8 : LargeExplosionHolds[pose]);
+        layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero, loop);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+    }
+
+    private struct Layout(int target, bool presentation)
+    {
+        private int remaining = target;
+        internal ushort Address;
+        internal TorizoExplosionInstructionMechanicsWord Selected;
+        internal void Word(ushort value)
+        {
+            if (!presentation && remaining-- == 0) Selected = new(Address, value);
+            Address += 2;
+        }
+        internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (presentation && remaining-- == 0) Selected = new(Address, 0);
+            Address += 2;
+        }
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
         RoomEnemyProjectileKind.BombTorizoDeathExplosion;
@@ -102,11 +119,11 @@ internal static class TorizoExplosionInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TorizoExplosionInstructionMechanicsWord candidate = Words[middle];
+            TorizoExplosionInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -120,8 +137,9 @@ internal static class TorizoExplosionInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (TorizoExplosionInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

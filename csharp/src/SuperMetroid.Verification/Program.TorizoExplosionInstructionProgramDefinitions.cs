@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -103,9 +104,16 @@ internal static partial class Program
             secondCycleFrame: 33,
             "smoke");
 
-        AssertEqual(TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo explosion spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Torizo explosion execution uses compiled visual selectors without ROM reads");
+        for (int index = 0; index < TorizoExplosionInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Torizo explosion pose has an installed selector");
+            ushort native = (ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8);
+            AssertEqual(native, selector, "Torizo explosion installed selector equals the exact native operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo explosion mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -128,7 +136,7 @@ internal static partial class Program
         Console.WriteLine(
             "Torizo explosion instruction mechanics: fifty-three compiled words, the " +
             "real low-health producer's three cycles, and both probabilistic death paths " +
-            "pass with exact jitter, lifetimes, and mechanics bytes forbidden.");
+            "pass with exact jitter, lifetimes, fifteen native selectors and zero source reads.");
 
         void VerifyDeathPath(
             ushort branchSample,

@@ -562,7 +562,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs
 
 - [ ] **TorizoExplosionInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoExplosionInstructionProgramDefinitions.PresentationWords** ([L86](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L86)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoExplosionInstructionProgramDefinitions.PresentationWords** ([L86](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L86)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs
 
@@ -976,3 +976,9 @@ Root Verification build: 1445 warnings, zero errors. --lookup-stream2-lava-jumpe
 Calculated 65 control positions and 34 visual addresses from shared four-pose loops and six/eight-pose callback transitions. Native A2:C0F1-C1B6 establishes record widths and ordering. Idle holds 13/18, flight holds 6/5/8/6 and the per-pose follower-attachment callback sequence remain required. Named callback cases preserve the sequence but do not justify its independent offsets. Words stays unchecked without exemption. Integrated checkpoint: 79 converted, two mixed, 145 required.
 
 Root Verification build: 1445 warnings, zero errors. --norfair-rio-instruction-program-definitions passed 65 native words, seven actual parent/flame programs, eleven follower/completion callbacks, 34 exact compiled selectors, initializer selections, source-read guards, boundaries and allocations.
+
+## Integrated Torizo explosion layout
+
+Calculated 53 control positions and 15 visual addresses from the low-health, large-death and smoke phase structures, including the packed sound byte. Native 86:A3CB-A455 confirms record widths, counted back-edges and deletion. Only PresentationWords is complete. Words remains required: small holds 2/2/3/3/2, large holds 4/6/5/5/5/6, smoke hold 8, random spread masks/biases and repeat counts 3/2 have no exception.
+
+Root confirmation: Verification build passed with 1445 warnings and zero errors. --torizo-explosion-instruction-mechanics confirms 53 native words, the actual low-health producer's three cycles, both probabilistic death paths, exact jitter/lifetimes, 15 native compiled selectors, source-read guards, bounds and allocations. Integrated stream checkpoint: 80 converted, two mixed, 144 required. Overall: 504 converted, 15 justified retained/mixed, 609 pending.

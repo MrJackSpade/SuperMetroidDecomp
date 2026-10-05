@@ -11476,4 +11476,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Shared parent/flame loop widths and callback/pose transition widths calculate 65 control positions and 34 visual addresses.",
     "remaining":  "Words required: idle 13/18, flight 6/5/8/6 and per-pose attachment callback sequence remain unresolved. Naming callbacks is not a disposition for independent offsets. 503 converted, 15 justified retained/mixed, 610 pending."
+},"torizoExplosionStructureIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. 53 native words, actual low-health three cycles, both probabilistic death paths, exact jitter/lifetimes, 15 native selectors, source-read guards, bounds and allocations pass.",
+    "completed":  "TorizoExplosionInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "5944748166dc0872a89b186ebcb97584710f0b6e",
+    "state":  "partial-one-converted",
+    "algorithm":  "Three shared explosion phase layouts derive 53 control positions and 15 visual addresses, accounting for the packed sound byte.",
+    "remaining":  "Words required: small/large/smoke holds, random spread masks and biases, repeat counts 3/2. No exception. 504 converted, 15 justified retained/mixed, 609 pending."
 }}

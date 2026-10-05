@@ -10,7 +10,7 @@ public sealed class MotherBrainRoomColorPresentation
     private readonly RoomFlash flash;
     private readonly ushort[] finalRoom;
     private readonly ushort[] phaseTwoAttack;
-    private readonly ushort[] phaseTwoRearLeg;
+    private readonly ushort[]? phaseTwoRearLeg;
     private readonly ushort[] initialGlassShard;
     private readonly ushort[] initialTubeProjectile;
     private readonly RecoveryLightFade recoveryLights;
@@ -28,7 +28,8 @@ public sealed class MotherBrainRoomColorPresentation
         this.flash = new RoomFlash(flash, finalRoom);
         this.finalRoom = finalRoom;
         this.phaseTwoAttack = phaseTwoAttack;
-        this.phaseTwoRearLeg = phaseTwoRearLeg;
+        this.phaseTwoRearLeg = phaseTwoRearLeg.Where((word, color) =>
+            word != MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, color)).Any() ? phaseTwoRearLeg : null;
         this.initialGlassShard = initialGlassShard;
         this.initialTubeProjectile = initialTubeProjectile;
         this.recoveryLights = recoveryLights;
@@ -64,7 +65,7 @@ public sealed class MotherBrainRoomColorPresentation
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoAttackColor + index,
                 phaseTwoAttack[index]);
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoRearLegColor + index,
-                phaseTwoRearLeg[index]);
+                phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, index));
         }
     }
 

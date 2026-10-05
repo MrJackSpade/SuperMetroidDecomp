@@ -1902,4 +1902,40 @@ internal static partial class Program
         new(
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
+    private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertTrue(typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoRearLeg", flags)!.GetValue(stock) is null,
+            "stream 3 phase-two rear uses approved calculated health basis without stored rows");
+        var phaseTwo = new SnesCgram();
+        stock.ApplyPhaseTwoInitial(phaseTwo);
+        for (int color = 0; color < 15; color++)
+        {
+            int address = 0xa99494 + color * 2;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, phaseTwo.Colors[0xb1 + color], "stream 3 native phase-two rear color and destination");
+            foreach (string component in new[] { "red", "green", "blue" })
+            {
+                var editedNode = node.DeepClone();
+                var rgb = editedNode["phaseTwoRearLeg"]![color]!;
+                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                var actual = new SnesCgram();
+                edited.ApplyPhaseTwoInitial(actual);
+                for (int checkColor = 0; checkColor < 15; checkColor++)
+                {
+                    var expectedRgb = editedNode["phaseTwoRearLeg"]![checkColor]!;
+                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                        expectedRgb["green"]!.GetValue<int>() << 5 | expectedRgb["blue"]!.GetValue<int>() << 10);
+                    AssertEqual(expected, actual.Colors[0xb1 + checkColor], "stream 3 independent phase-two rear edit");
+                    AssertEqual(phaseTwo.Colors[0xa1 + checkColor], actual.Colors[0xa1 + checkColor],
+                        "stream 3 rear edit preserves independently installed attack palette");
+                }
+            }
+        }
+    }
 }

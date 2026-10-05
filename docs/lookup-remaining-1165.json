@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 587,
+  "remainingTableDefinitionCount": 586,
   "fileCount": 523,
   "entries": [
     {
@@ -1477,7 +1477,9 @@
       "line": 13,
       "name": "MotherBrainRoomColorPresentation.phaseTwoRearLeg",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoRearLeg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoRearLeg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "72050b27b929a33c8404d5a53dad6cb52a9f30c3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",

@@ -12,17 +12,18 @@ internal static partial class Program
     {
         if (stock.ZebetiteColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
-        (RoomEnemySystem native, SnesCgram nativeCgram) = Create(bus, null);
+        SnesCgram nativeCgram = SeedColors();
+        ushort nativeCounter = 0;
         var guard = new ZebetiteColorReadGuard(bus);
         (RoomEnemySystem installed, SnesCgram installedCgram) = Create(guard, stock);
         for (int call = 0; call < ZebetiteColorFormat.FrameCount * 2; call++)
         {
-            Cycle(native);
+            ReferenceCycle(nativeCgram, ref nativeCounter);
             Cycle(installed);
             AssertEqual((ushort)((call + 1) & ZebetiteDefinitions.PaletteCycleMask),
                 installed.Slots[0].VariableC,
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
-            AssertEqual(native.Slots[0].VariableC, installed.Slots[0].VariableC,
+            AssertEqual(nativeCounter, installed.Slots[0].VariableC,
                 "Installed Zebetite pulse keeps native frame selection");
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 "Installed Zebetite pulse preserves full native CGRAM and neighbors");
@@ -42,22 +43,23 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, selectedBytes);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         (RoomEnemySystem selected, SnesCgram selectedCgram) = Create(guard, edited);
-        (RoomEnemySystem control, SnesCgram controlCgram) = Create(bus, null);
+        SnesCgram controlCgram = SeedColors();
+        ushort controlCounter = 0;
         for (int call = 0; call < 2; call++)
         {
             Cycle(selected);
-            Cycle(control);
+            ReferenceCycle(controlCgram, ref controlCounter);
             AssertTrue(controlCgram.Colors.SequenceEqual(selectedCgram.Colors),
                 "Zebetite edit leaves preceding pulse frames unchanged");
         }
         Cycle(selected);
-        Cycle(control);
+        ReferenceCycle(controlCgram, ref controlCounter);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(controlCgram.Colors[color] ^
                 (color == ZebetiteDefinitions.PaletteDestinationColor + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
-        AssertEqual(control.Slots[0].VariableC, selected.Slots[0].VariableC,
+        AssertEqual(controlCounter, selected.Slots[0].VariableC,
             "Zebetite color edit does not change animation counter");
         selected.PaletteChangeNumber = 1;
         ushort counterBeforeGate = selected.Slots[0].VariableC;
@@ -100,16 +102,34 @@ internal static partial class Program
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
 
         static (RoomEnemySystem Enemies, SnesCgram Cgram) Create(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog? artwork)
+            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            var cgram = new SnesCgram();
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, (ushort)(color * 31));
+            SnesCgram cgram = SeedColors();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
             return (enemies, cgram);
+        }
+
+        // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
+        void ReferenceCycle(SnesCgram cgram, ref ushort counter)
+        {
+            counter = (ushort)((counter + 1) & 7);
+            for (int color = 0; color < 2; color++)
+            {
+                int address = 0xa6fd87 + counter * 4 + color * 2;
+                cgram.SetColor(0xac + color,
+                    (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            }
+        }
+
+        static SnesCgram SeedColors()
+        {
+            var cgram = new SnesCgram();
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                cgram.SetColor(color, (ushort)(color * 31));
+            return cgram;
         }
 
         static void Cycle(RoomEnemySystem enemies)

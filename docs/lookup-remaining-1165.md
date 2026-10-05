@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 497 are converted, 14 are justified retained, and 617 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 497 are converted, 15 are justified retained, and 616 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -593,7 +593,7 @@ Remaining table definitions: **1**.
 
 Remaining table definitions: **1**.
 
-- [ ] **CeresDestructionSpritePresentation.frames** - installed stock table ([L9](../csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs#L9)). Remaining four Zebes star sheets only: upper-left 8C:975E (12 parts), upper-right 979C (6), lower-left 97BC (4), lower-right 97D2 (7). The other nineteen layouts have specific completed geometry/anchor/atlas dispositions. Pixel data remains separately listed.
+- [x] **CeresDestructionSpritePresentation.frames** - installed stock table ([L9](../csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs#L9)). Remaining four Zebes star sheets only: upper-left 8C:975E (12 parts), upper-right 979C (6), lower-left 97BC (4), lower-right 97D2 (7). The other nineteen layouts have specific completed geometry/anchor/atlas dispositions. Pixel data remains separately listed.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs
 

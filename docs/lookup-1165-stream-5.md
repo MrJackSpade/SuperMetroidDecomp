@@ -142,7 +142,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs
 
-- [ ] **CeresDestructionSpritePresentation.frames** ([L9](../csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs#L9)) - installed stock table. Remaining four Zebes star sheets only: upper-left 8C:975E (12 parts), upper-right 979C (6), lower-left 97BC (4), lower-right 97D2 (7). The other nineteen layouts have specific completed geometry/anchor/atlas dispositions. Pixel data remains separately listed.
+- [x] **CeresDestructionSpritePresentation.frames** - MIXED: nineteen prior layouts are calculated; four star sheets calculate common rendering fields and grid scale, retaining only 29 ordered decorative position/glyph triples under the independently reviewed nonsense exception below. Pixel data is separate.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs
 
@@ -927,3 +927,22 @@ Root Verification build: 1444 existing warnings, zero errors. --lookup-stream5-c
 ### Tourian statue palette ramp integration
 Base colors 1..8 at AA:D785 interpolate exactly from RGB5 (25,31,9) to black. Grey colors 1..7 at 87:839C interpolate from (24,26,31) to (3,4,4), except color 6 green is 7 instead of 8 at 87:83A8. Both fields remain unchecked: endpoints, outside colors and this deviation have no approved exception. Custom supplied colors remain independently editable through sparse deviations; no complete replacement ramp is cached.
 Root Verification build: 1445 warnings, zero errors. --lookup-stream5-statue-ramps passed all 56 native colors, 72 independent RGB edits, actual CGRAM writes, canonical identities, unchanged statue/eye colors and bounds. ResourceAudit build: zero warnings/errors; source hash refreshed. Counts unchanged.
+
+### Zebes star composition: independent review and integration
+
+Native 8C:975E-97F6 contains four fixed decorative compositions with 12, 6, 4 and 7 stars. Native 8B:CD83-CDA1 repeatedly displays each unchanged picture. Initializers 8B:C942-C991 place the four pictures on a two-by-two actor grid with inherited palette 4; 8B:C8B9-C941 translates whole pictures. Individual star coordinates and glyphs do not participate in the motion, completion condition, RNG or another functional calculation. The managed StepZebesActors and installed composition Draw preserve that same separation. Their irregular ordered positions and selected glyphs specify where each drawn star appears and its appearance. Replacing that composition with a new generated star distribution changes the picture; encoding its arbitrary points in a function only restates the same drawing data. This is the user's permitted nonsense exception for seemingly random visual composition, not an argument from size, complexity or performance.
+
+Retain ONLY the 29 ordered grid-X/grid-Y/glyph triples. Calculate eight-pixel coordinate scaling, small sprite size, zero priority, no flips and inherited palette. Full-field matching preserves independently edited compositions exactly. Separate glyph pixels receive no exemption. Earlier independent reviews already resolve the other nineteen compositions; this closes the remaining portion of this inventory definition as mixed conversion/retention.
+
+Ordered triples (glyphs hexadecimal), directly checked against the pinned native records:
+Native8C:975E ordered(gridX,gridY,glyph): `(7,-5,40) (8,-3,09) (5,-1,09) (3,-4,09) (-3,7,09) (0,5,08) (-5,5,40) (0,1,AB) (-1,-2,00) (-3,-1,40) (-5,0,09) (-4,-5,00)`.
+
+Native8C:979C ordered(gridX,gridY,glyph): `(0,8,40) (3,5,AB) (-3,1,08) (2,-1,50) (-1,-5,00) (4,-5,09)`.
+
+Native8C:97BC ordered(gridX,gridY,glyph): `(8,-3,09) (1,-6,40) (-4,-3,09) (-5,-8,00)`.
+
+Native8C:97D2 ordered(gridX,gridY,glyph): `(-10,0,09) (2,-1,09) (-4,-1,08) (-3,-6,08) (-1,-4,50) (4,-5,00) (4,-8,08)`.
+
+Integrated checkpoint: 73 converted, two mixed, one retained, 149 required.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream5-zebes-star-fields passed 29 native parts, 261 independent field edits, exact ordered low/high OAM, calculated stock backing and canonical identity. ResourceAudit build: zero warnings/errors; interface source hash refreshed.

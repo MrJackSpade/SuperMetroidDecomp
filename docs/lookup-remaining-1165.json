@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 617,
+  "remainingTableDefinitionCount": 616,
   "fileCount": 523,
   "entries": [
     {
@@ -75,7 +75,10 @@
       "line": 9,
       "name": "CeresDestructionSpritePresentation.frames",
       "kind": "installed stock table",
-      "note": "Remaining four Zebes star sheets only: upper-left 8C:975E (12 parts), upper-right 979C (6), lower-left 97BC (4), lower-right 97D2 (7). The other nineteen layouts have specific completed geometry/anchor/atlas dispositions. Pixel data remains separately listed."
+      "note": "Remaining four Zebes star sheets only: upper-left 8C:975E (12 parts), upper-right 979C (6), lower-left 97BC (4), lower-right 97D2 (7). The other nineteen layouts have specific completed geometry/anchor/atlas dispositions. Pixel data remains separately listed.",
+      "state": "justified-retained",
+      "disposition": "Mixed: nineteen layouts converted; remaining four star sheets calculate common fields and grid scaling. Only 29 arbitrary decorative position/glyph triples retained; native consumers translate whole pictures without individual-star functional roles. Pixels remain separate.",
+      "implementationCommit": "e3ad02fd75f5e971300a3cec93c173d6b4f37a09"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
@@ -21347,5 +21350,5 @@
     }
   ],
   "convertedSinceSnapshot": 497,
-  "justifiedRetainedSinceSnapshot": 14
+  "justifiedRetainedSinceSnapshot": 15
 }

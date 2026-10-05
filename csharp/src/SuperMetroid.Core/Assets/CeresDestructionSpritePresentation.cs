@@ -64,6 +64,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = ZebesStarGridParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresDestructionSpritePresentation(frames);
@@ -106,4 +107,49 @@ public static class CeresDestructionSpriteFormat
 {
     public const int Version = 1;
     public const string FileName = "ceres-destruction-sprites.json";
+}
+
+/// <summary>
+/// Shared single-cell star rendering for8C:975E/979C/97BC/97D2. Ordered grid
+/// positions and glyph choices are retained decorative star composition under #1165.
+/// Native 8B:C8B9-C991 translates whole sheets; individual stars have no functional roles.
+/// small size, zero priority and no flips are common to all29 original parts.
+/// </summary>
+internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
+{
+    private readonly (sbyte X, sbyte Y, ushort Tile)[] placements;
+    private ZebesStarGridParts(SpriteComposition supplied)
+    {
+        placements = new (sbyte, sbyte, ushort)[supplied.PartCount];
+        for (int index = 0; index < placements.Length; index++)
+        {
+            CompiledSpritePart part = supplied.Part(index);
+            placements[index] = ((sbyte)(part.X.SignedOffset / 8),
+                (sbyte)(unchecked((sbyte)part.Y) / 8), (ushort)part.Attributes.TileNumber);
+        }
+    }
+    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    {
+        if (pointer is not (CeresDestructionSpriteDefinitions.UpperLeftStars or
+            CeresDestructionSpriteDefinitions.UpperRightStars or
+            CeresDestructionSpriteDefinitions.LowerLeftStars or
+            CeresDestructionSpriteDefinitions.LowerRightStars)) return supplied;
+        // Full-field matching preserves off-grid and independently edited appearance.
+        return supplied.CalculateIfMatching(new ZebesStarGridParts(supplied));
+    }
+    public int Count => placements.Length;
+    public CompiledSpritePart this[int index]
+    {
+        get
+        {
+            var point = placements[index];
+            return new(SnesSpritemapXWord.Create(point.X * 8, false), unchecked((byte)(point.Y * 8)),
+                SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
+        }
+    }
+    public IEnumerator<CompiledSpritePart> GetEnumerator()
+    {
+        for (int index = 0; index < Count; index++) yield return this[index];
+    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

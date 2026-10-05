@@ -6,6 +6,85 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
+    {
+        var frames = new Dictionary<string, SpriteVisualPart[]>();
+        foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
+            frames.Add(definition.Name, SuperMetroid.AssetExtraction.IntroCinematicSpriteFrameExtractor.Extract(
+                rom, definition.Pointer, definition.StockPartCount, definition.Name));
+        var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
+        var stock = Load(document);
+        int total = 0;
+        foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
+        {
+            if (!definition.Name.StartsWith("zebes-stars-", StringComparison.Ordinal)) continue;
+            SpriteVisualPart[] parts = frames[definition.Name];
+            Check(stock, definition.Pointer, parts);
+            var compiled = IntroCinematicSpriteCompiler.Compile(parts, definition.Name);
+            var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Pointer, compiled);
+            AssertTrue(typeof(SpriteComposition).GetField("parts", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(calculated) is ZebesStarGridParts, "Stock stars use calculated common fields");
+            for (int index = 0; index < parts.Length; index++)
+            {
+                int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
+                CompiledSpritePart actual = calculated.Part(index);
+                AssertEqual(Word(source), actual.X.Raw, "Native star X/size");
+                AssertEqual(rom.ReadByte(source + 2), actual.Y, "Native star Y");
+                AssertEqual((ushort)(Word(source + 3) & ~0x0e00), actual.Attributes.Raw,
+                    "Native star attributes excluding replaced source palette");
+                for (int field = 0; field < 9; field++)
+                {
+                    SpriteVisualPart value = parts[index];
+                    SpriteVisualPart edit = field switch
+                    {
+                        0 => value with { OffsetX = value.OffsetX + 1 },
+                        1 => value with { OffsetY = value.OffsetY + 1 },
+                        2 => value with { TileColumn = value.TileColumn ^ 1 },
+                        3 => value with { TileRow = value.TileRow ^ 1 },
+                        4 => value with { Size = 16 },
+                        5 => value with { Priority = 1 },
+                        6 => value with { Palette = 2 },
+                        7 => value with { FlipX = true },
+                        _ => value with { FlipY = true },
+                    };
+                    var editedParts = (SpriteVisualPart[])parts.Clone();
+                    editedParts[index] = edit;
+                    var editedFrames = new Dictionary<string, SpriteVisualPart[]>(frames)
+                        { [definition.Name] = editedParts };
+                    Check(Load(document with { Frames = editedFrames }), definition.Pointer, editedParts);
+                }
+                total++;
+            }
+        }
+        AssertEqual(29, total, "All four native star sheets checked");
+        Console.WriteLine("Zebes stars:29 native parts,261 independent field edits, actual ordered OAM and full content identity pass; only decorative position/glyph triples are retained.");
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static CeresDestructionSpritePresentation Load(CeresDestructionSpriteDocument value)
+        {
+            using var json = new MemoryStream();
+            CeresDestructionSpritePresentation.Write(json, value);
+            json.Position = 0;
+            var result = CeresDestructionSpritePresentation.Load(json);
+            var expected = value.Frames.ToDictionary(pair => CeresDestructionSpriteDefinitions.Frames
+                .Single(definition => definition.Name == pair.Key).Pointer,
+                pair => IntroCinematicSpriteCompiler.Compile(pair.Value, pair.Key));
+            AssertEqual(SelectedPresentationHash.FromCompositions(nameof(CeresDestructionSpritePresentation), expected),
+                result.ContentIdentity, "Selected star edits retain canonical composition identity");
+            return result;
+        }
+        static void Check(CeresDestructionSpritePresentation catalog, ushort pointer, SpriteVisualPart[] parts)
+        {
+            var expected = IntroCinematicSpriteCompiler.Compile(parts, "star-reference");
+            var actualOam = new OamBuffer();
+            var expectedOam = new OamBuffer();
+            actualOam.BeginFrame(); expectedOam.BeginFrame();
+            catalog.Draw(pointer, actualOam, 128, 112, 0x0800, true);
+            expected.DrawOnScreen(expectedOam, 128, 112, 0x0800);
+            AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Star OAM count/order");
+            AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable), "Exact star low OAM");
+            AssertTrue(expectedOam.HighTable.SequenceEqual(actualOam.HighTable), "Exact star high OAM");
+        }
+    }
     private static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);

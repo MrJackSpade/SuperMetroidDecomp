@@ -11397,4 +11397,13 @@
     "state":  "partial-required",
     "algorithm":  "Nearest-integer RGB5 endpoint interpolation calculates base colors 1..8 and grey colors 1..7. Independent supplied deviations remain exact without caching complete ramps.",
     "remaining":  "Independent endpoint/outside colors and grey color 6 green channel 7 instead of 8 at 87:83A8 remain required. No exception. Counts unchanged: 497 converted, 14 justified retained/mixed, 617 pending."
+},"zebesStarCompositionIntegration":{
+    "remaining":  "497 converted, 15 justified retained/mixed, 616 pending.",
+    "converted":  "Nineteen previously reviewed layouts plus star size, flags, palette inheritance and eight-pixel grid scaling.",
+    "state":  "mixed-converted-justified-retained",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 29 native parts, 261 independent field edits, exact ordered low/high OAM, calculated stock backing and content identity pass. ResourceAudit build zero warnings/errors; interface source hash refreshed.",
+    "retained":  "Only 29 ordered grid-X/grid-Y/glyph triples in four fixed decorative star pictures, 8C:975E-97F6. These arbitrary drawing choices have no individual functional role; generating different points changes the picture and encoding these choices as cases only restates them.",
+    "workerCommit":  "e3ad02fd75f5e971300a3cec93c173d6b4f37a09",
+    "scope":  "CeresDestructionSpritePresentation.frames",
+    "evidence":  "Independently inspected all native parts, 8B:CD83-CDA1 fixed-picture loops, 8B:C942-C991 actor origins/palette, 8B:C8B9-C941 whole-sheet translation and managed StepZebesActors/Draw. Separate pixels are not exempt."
 }}

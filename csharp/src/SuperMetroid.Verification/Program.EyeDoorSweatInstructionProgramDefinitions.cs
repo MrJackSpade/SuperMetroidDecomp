@@ -28,6 +28,7 @@ internal static partial class Program
         }
 
         var guard = new EyeDoorSweatInstructionReadGuard(rom);
+        var observedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -98,18 +99,20 @@ internal static partial class Program
 
         AssertEqual(
             EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Eye Door sweat spritemap operands remain cartridge reads");
+            observedOperands.Count,
+            "all live Eye Door sweat spritemap operands are selected from installed artwork");
         for (int index = 0;
              index < EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Eye Door sweat presentation $86:{address:X4}");
+            AssertTrue(observedOperands.Contains(address),
+                $"production execution selects Eye Door sweat presentation $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "projectile visuals do not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Eye Door sweat and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -129,14 +132,25 @@ internal static partial class Program
         Console.WriteLine(
             "Eye Door sweat instruction mechanics: eight compiled words, the complete " +
             "falling loop, real floor-impact handoff, three impact frames, shared shot " +
-            "deletion, and four live spritemap reads pass with mechanics bytes forbidden.");
+            "deletion, and four installed visual operands pass with mechanics bytes forbidden.");
 
+        void ObserveFrame(RoomEnemyProjectileSlot projectile)
+        {
+            if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
+            ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
+            AssertEqual(operand, projectile.PresentationOperandAddress,
+                "timed projectile frame retains its installed visual operand");
+            AssertEqual(ReadEyeDoorSweatInstructionWord(rom, unchecked((ushort)(operand - 2))),
+                projectile.InstructionTimer, "projectile frame duration matches cartridge data");
+            observedOperands.Add(projectile.PresentationOperandAddress);
+        }
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                ObserveFrame(projectile);
             }
         }
     }

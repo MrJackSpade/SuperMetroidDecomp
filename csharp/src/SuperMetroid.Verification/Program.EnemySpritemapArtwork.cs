@@ -1213,13 +1213,13 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        HashSet<string> yardNames = YardVisualDefinitions.Frames()
-            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        HashSet<string> botwoonNames = BotwoonVisualDefinitions.Frames()
+        // Construct the historical version boundary, not today's catalog minus
+        // a few known families. Every older fixture below derives from this set.
+        HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames.ToArray()
+            .Take(EnemySpritemapDefinitions.PreYardFrameCount)
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         var preYardFrames = document.Frames
-            .Where(pair => !yardNames.Contains(pair.Key) &&
-                           !botwoonNames.Contains(pair.Key))
+            .Where(pair => preYardNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preYardBindings = document.DisplayFrames!
             .Where(pair => preYardFrames.ContainsKey(pair.Key))
@@ -2415,24 +2415,12 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        // Preserve the edited values while selecting exactly the pre-Dragon schema.
+        HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames.ToArray()
+            .Take(EnemySpritemapDefinitions.PreDragonFrameCount)
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
-            document.Frames.Where(pair =>
-                !pair.Key.StartsWith("botwoon_head_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("yard_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("work_robot_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("evir_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("mochtroid_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_zoomer_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_ripper_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_skree_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_sidehopper_", StringComparison.Ordinal) &&
-                pair.Key != "dead_torizo_stationary_a9_d6e2" &&
-                !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("rinka_spin_", StringComparison.Ordinal));
+            document.Frames.Where(pair => historicalNames.Contains(pair.Key));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&

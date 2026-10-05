@@ -48,7 +48,7 @@ internal static partial class Program
         AssertTrue(expectedHeading.AsSpan().SequenceEqual(heading.BuildResultPanel()), "Provided heading retains original fixed origin, padding and precedence over template words");
         foreach (int invalid in new[] { -1, native.Length })
             AssertThrows<IndexOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultWord(invalid, "PRODUCED BY"), "Calculated result layout bounds");
-        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen labels/styles remain required.");
+        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
     }
 
     private static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)

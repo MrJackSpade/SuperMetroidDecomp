@@ -11786,12 +11786,12 @@
     "scope":  "Exact credit wording PRODUCED BY / DEER FORCE / OF / TEAM SHIKAMARU only.",
     "evidence":  "Root inspected pinned8C:DC9B-DEDA glyph tilemap;8B:E19F-E1B1 copies576bytes without lexical interpretation;managed EndingCreditsState copies BuildResultPanel then uploads. Existing direct288cell confirmation established compiled text matches native.",
     "justification":  "Chosen lexical identity has no gameplay-derived spelling; generating another phrase replaces the credited content. Arithmetic encoding of the spelling would merely disguise retained text.",
-    "remaining":  "Palette6/7,glyph pixels,timing and unresolved placement excluded. resultPanel remains pending;no count change.",
-    "state":  "approved-narrow-retention-pending-integration"
+    "remaining":  "Palette6/7,glyph pixels,timing and other unresolved placement excluded. resultPanel remains pending;no count change.",
+    "state":  "integrated-narrow-retention"
 },"sparkContinuousChoreographyIndependentReview":{
     "scope":  "Shared Spark continuous visual-loop cadence3 atA8:E5D1-E5E3 andE609-E61B only.",
     "evidence":  "Root native review includes four duration/spritemap pairs plusGoto in each loop,no callbacks. SeparateE6B7functionTimer owns lifetime;E6DC owns emission. Fixed8x8contact/nonzero spritemaps match previously reviewed activation scope.",
     "justification":  "Cadence chooses the repeated visible performance; replacing it invents different visual content.",
     "remaining":  "Deactivation1/E605intangible boundary/E6D3extra8,lifetime/RNG excluded. Words remains pending.",
     "state":  "approved-narrow-retention-pending-integration"
-}}
+},"endingCreditSpacingIntegration":{"workerCommits":"e1306d8de;4c62bd5fe","algorithm":"Distribute nine panel rows after two small and two large glyph lines evenly across three gaps.","confirmation":"Root Verification build1445warnings/0errors;288 direct native panel cells and64 subtitle cells, zero stock overrides, independent edits and heading precedence pass.","remaining":"Palette6/7 and font pixels remain required;resultPanel remains pending;counts unchanged548/16/564."}}

@@ -30,20 +30,29 @@ internal static class EndingTextLayoutDefinitions
             : SubtitleContinuationTopTile + glyph - firstRunCount;
         return (ushort)(topTile + row * atlasWidth);
     }
-    // These chosen lexical and styling inputs remain required under resultPanel.
-    // No authorship or visual preference exemption is claimed for them.
+    // Exact stock credit wording is retained as chosen lexical content: the native
+    // consumer copies glyphs opaquely; generating the spelling from gameplay is nonsense.
+    // This narrow disposition excludes the independently required palette choices and font pixels.
+    /// <summary>$8C:DD31 glyphs spell the chosen credit identity DEER FORCE; narrowly retained lexical content.</summary>
     private const string DevelopmentGroup = "DEER FORCE";
+    /// <summary>$8C:DDF9 glyphs spell OF, the chosen connective wording of the credit; narrowly retained lexical content.</summary>
     private const string AttributionPreposition = "OF";
+    /// <summary>$8C:DE6D glyphs spell the chosen credit identity TEAM SHIKAMARU; narrowly retained lexical content.</summary>
     private const string DevelopmentTeam = "TEAM SHIKAMARU";
-    /// <summary>$8C:DC9B panel separates its four text lines with one blank tile row; this chosen spacing remains required.</summary>
-    private const int CreditLineGap = 1;
+    /// <summary>$8C:DC9B..DEDA fills nine rows with two small and two large lines, distributing the remaining rows equally across the three intervening gaps.</summary>
+    private const int CreditLineGap = (EndingTextDefinitions.ResultPanelRows -
+        2 * (EndingTextDefinitions.Native.SmallGlyphHeight + EndingTextDefinitions.Native.LargeGlyphHeight)) / 3;
     /// <summary>$8C:DD31 applies BG palette6 to the DEER FORCE label; this chosen style remains required.</summary>
     private const ushort DevelopmentGroupAttributes = 6 << 10;
     /// <summary>$8C:DE6D applies BG palette7 to TEAM SHIKAMARU; this chosen style remains required.</summary>
     private const ushort DevelopmentTeamAttributes = 7 << 10;
     internal const int ResultCellCount = EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth;
 
-    /// <summary>Center the four credit lines, stack their actual glyph heights with a blank row between lines, and generate large lower halves from the shared font layout.</summary>
+    /// <summary>
+    /// Center the four credit lines, distribute available blank rows between their actual
+    /// glyph heights, and generate large lower halves from the font layout. The supplied
+    /// heading defaults to $8C:DCAF PRODUCED BY, the fourth narrowly retained stock phrase.
+    /// </summary>
     internal static ushort ResultWord(int cell, string producedBy)
     {
         if ((uint)cell >= ResultCellCount) throw new IndexOutOfRangeException();

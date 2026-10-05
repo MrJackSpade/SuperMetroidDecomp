@@ -14,7 +14,7 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "E4C3A28CF6D33EC61265864EF63979C7A1C062CA50CA235162A3F90C8B1CB21C")],
             "Private construction requires all six pages with nonempty, ordered, bounded lines and supported glyphs. The loader copies arrays of immutable line records; Compile uses the same guarded glyph compiler. Complete page/glyph coverage does not certify caret, timing or scene transitions."),
         new("SuperMetroid.Core.Assets.EndingTextPresentation", "ending-text-complete-panels-and-sequences", ["Compile", "BuildResultPanel", "BuildCopyrightPanel"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EndingTextLayoutDefinitions.cs", "5D251A823DC422E10B15EB4843096A23B544466AD1E189EE3B15E63B15AF2591"),
+            [new("csharp/src/SuperMetroid.Core/Assets/EndingTextLayoutDefinitions.cs", "0EEF8D4B1EB7F8A22B8E4EDD43CE263C9A7A191B8296B47B60DC79D8EFCA5011"),
              new("csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs", "CC6BC998489911458232FE1C85FDE9C2A05143A9289AF9A657F95D5D38BDF35B"),
              new("csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs", "32ADCA17B0B06C96C0F94BA912D93FB68D6CEF489FDDA8C9A4A2994280A09961")],
             "Private construction validates exact templates and compiles every mandatory label, both ending sequences and the copyright panel. Result/subtitle cells calculate with independent supplied overrides; panel methods return independent output arrays. Unknown sequence enums fail. Ending timing, percentages and rendering are not certified."),

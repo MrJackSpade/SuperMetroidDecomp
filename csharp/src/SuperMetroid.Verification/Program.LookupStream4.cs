@@ -9,6 +9,53 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
+    {
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        AssertEqual(4, ((ushort[])typeof(GameplayHudPresentation).GetField("autoReserveBasis", flags)!.GetValue(stock)!).Length,
+            "AUTO retains only four independent input cells");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(GameplayHudPresentation).GetField("autoReserveOverrides", flags)!.GetValue(stock)!).Count,
+            "AUTO eight repeated stock words calculate without stored overrides");
+        ushort[] tiles = new ushort[96];
+        for (int state = 0; state < 2; state++)
+        {
+            stock.ApplyAutoReserve(tiles, state == 0);
+            for (int cell = 0; cell < 6; cell++)
+            {
+                int address = 0x80998b + state * 12 + cell * 2;
+                ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                AssertEqual(native, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "AUTO actual native cell draw");
+            }
+        }
+        document.AutoReserve.ContainsEnergy[0] = document.AutoReserve.ContainsEnergy[0] with { Palette = 2 };
+        document.AutoReserve.ContainsEnergy[5] = document.AutoReserve.ContainsEnergy[5] with { TileColumn = 3 };
+        document.AutoReserve.Empty[1] = document.AutoReserve.Empty[1] with { FlipX = true };
+        document.AutoReserve.Empty[4] = document.AutoReserve.Empty[4] with { Priority = false };
+        using var editedJson = new MemoryStream();
+        GameplayHudPresentation.Write(editedJson, document);
+        editedJson.Position = 0;
+        GameplayHudPresentation edited = GameplayHudPresentation.Load(editedJson);
+        for (int state = 0; state < 2; state++)
+        {
+            edited.ApplyAutoReserve(tiles, state == 0);
+            for (int cell = 0; cell < 6; cell++)
+            {
+                GameplayHudCell supplied = (state == 0 ? document.AutoReserve.ContainsEnergy : document.AutoReserve.Empty)[cell];
+                ushort expected = SnesBgTilemapWord.Create(supplied.TileRow * 32 + supplied.TileColumn, supplied.Palette,
+                    supplied.Priority, (supplied.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
+                    (supplied.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+                AssertEqual(expected, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],
+                    "AUTO preserves each independent edit and every unedited neighbor");
+            }
+        }
+        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveWord(new ushort[4], invalid, true),
+                "AUTO calculated cell exact domain");
+    }
     private static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

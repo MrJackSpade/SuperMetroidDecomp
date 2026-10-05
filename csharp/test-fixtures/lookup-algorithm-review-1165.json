@@ -11560,4 +11560,11 @@
     "state":  "four-converted",
     "algorithm":  "Two seven-tank rows, item widths plus gaps and two-column/three-row AUTO layout calculate default positions; retain only independent edits.",
     "remaining":  "No artwork/icon/AUTO payload exemption. 519 converted, 15 justified retained/mixed, 594 pending."
+},"hudAutoCellsIntegration":{
+    "scope":  "GameplayHudPresentation.autoFull and autoEmpty remain unchecked",
+    "confirmation":  "Root build 1445 warnings, zero errors. Twelve native cells through actual drawing, four basis words/zero overrides, serialized palette/tile/flip/priority edits, unchanged neighbors and bounds pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "workerCommit":  "2b35f4adcc88324bb8ece6d088f49769d74d0dfe",
+    "state":  "partial-required",
+    "algorithm":  "Derive eight AUTO cells from four shared full-state inputs using vertical reflection and empty-state palette-bit change.",
+    "remaining":  "Four independent glyph/style words required; no exception. Counts unchanged: 519 converted, 15 justified retained/mixed, 594 pending."
 }}

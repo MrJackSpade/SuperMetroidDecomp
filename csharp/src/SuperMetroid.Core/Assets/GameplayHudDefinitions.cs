@@ -64,6 +64,17 @@ public static class GameplayHudDefinitions
     internal static ushort DigitWord(int digit) => (uint)digit < 10
         ? (ushort)(0x2c00 | (digit + 9) % 10)
         : throw new IndexOutOfRangeException();
+    /// <summary>
+    /// $80:998B/9997 AUTO cells: the bottom row vertically reflects the top row
+    /// (bit15); the empty indicator toggles palette bit12. Four full-state glyph/style
+    /// inputs remain independent required payload; this derives the other eight cells.
+    /// </summary>
+    internal static ushort AutoReserveWord(ReadOnlySpan<ushort> basis, int cell, bool containsEnergy)
+    {
+        if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
+        return (ushort)(basis[cell < 4 ? cell : cell - 4]
+            ^ (cell >= 4 ? 0x8000 : 0) ^ (containsEnergy ? 0 : 0x1000));
+    }
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

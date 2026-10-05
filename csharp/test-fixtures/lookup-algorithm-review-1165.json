@@ -11761,4 +11761,11 @@
     "state":  "one-converted",
     "algorithm":  "Named packed glyph runs/shared suffixes/padding and category geometry calculate label words/placement; only independent supplied differences stored.",
     "remaining":  "Glyph pixel artwork remains separate required scope.543converted/16justified retained-mixed/569pending."
+},"deadTorizoCropIntegration":{
+  "algorithm": "Row union extents,source origin,packed bounds and column minima derive immutable stationary sprite tile coverage; hardcoded stepped outline removed.",
+  "remaining": "Chosen composition seeds remain required in Stream3 EnemySpritemapCatalog.frames,dead_torizo_stationary_a9_d6e2; owner acknowledged. No artwork exception.545converted/16justified retained-mixed/567pending.",
+  "state": "two-converted",
+  "confirmation": "Root1445warnings/0errors;25native parts/97tiles/12MVNs/10column limits,actual staging/192row operations,bounds and independent edited display OAM pass.",
+  "completed": "RoomEnemySystem.DeadTorizoInitialGraphicsCopies;RoomEnemySystem.DeadTorizoColumnMinimumY",
+  "workerCommit": "aa5dd7e251224d72e7daeb2f5ebe06c0d2487048 with cf2a4194f evidence"
 }}

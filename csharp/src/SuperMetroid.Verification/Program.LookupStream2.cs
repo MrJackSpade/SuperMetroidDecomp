@@ -176,6 +176,38 @@ internal static partial class Program
             for (int offset = 0; offset < length; offset++)
                 expected[destination + offset] = rom.ReadByte(0xb7a800 + source + offset);
         }
+        // The crop is the tile union of the native stationary composition, not
+        // an occupancy bounding box over the unrelated parts elsewhere in its atlas.
+        var visibleTiles = new HashSet<int>();
+        int partCount = Word(0xa9d6e2);
+        AssertEqual(25, partCount, "Dead Torizo native stationary part count");
+        for (int part = 0; part < partCount; part++)
+        {
+            int address = 0xa9d6e4 + part * 5;
+            int tile = (Word(address + 3) & 0x1ff) - 0x100;
+            int extent = (Word(address) & 0x8000) == 0 ? 1 : 2;
+            int nativeX = Word(address) & 0x1ff;
+            if (nativeX >= 256) nativeX -= 512;
+            AssertEqual(new DeadTorizoStockPart(tile + 0x100, nativeX,
+                    unchecked((sbyte)rom.ReadByte(address + 2)), extent),
+                DeadTorizoStationaryCompositionDefinitions.Part(part),
+                "Immutable stock part preserves native tile/size/visible origin");
+            for (int y = 0; y < extent; y++)
+            for (int x = 0; x < extent; x++)
+                AssertEqual(true, visibleTiles.Add(tile + y * 16 + x),
+                    "Dead Torizo stationary parts have distinct source tiles");
+        }
+        var copiedTiles = new HashSet<int>();
+        for (int row = 0; row < 12; row++)
+        {
+            int cursor = 0xa9de18 + row * 14;
+            int first = (Word(cursor + 2) - 0xa800) / 32;
+            int count = (Word(cursor + 8) + 1) / 32;
+            for (int tile = first; tile < first + count; tile++) copiedTiles.Add(tile);
+        }
+        AssertEqual(97, visibleTiles.Count, "Dead Torizo native visible tile count");
+        AssertEqual(true, visibleTiles.SetEquals(copiedTiles),
+            "Dead Torizo twelve native MVNs copy exactly the 25-part stationary composition");
         int[] nativeColumns = [0xa9e280,0xa9e29f,0xa9e2be,0xa9e2d8,0xa9e2f2,
             0xa9e30c,0xa9e326,0xa9e340,0xa9e35a,0xa9e379];
         int[] minimumY = [Word(0xa9e276),Word(0xa9e295),Word(0xa9e2b4),0,0,0,0,0,0,Word(0xa9e36f)];
@@ -193,6 +225,24 @@ internal static partial class Program
         using var png = new MemoryStream();
         IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         png.Position = 0;
+        // An independently edited display composition is deliberately unrelated to
+        // stock tile coverage. Native staging must still copy the same artwork rows.
+        var displayParts = new Dictionary<int, EnemySpritemapPart[]>
+        {
+            [0xa9d6e2] = [new(SnesSpritemapXWord.Create(70, false), 33,
+                SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))],
+        };
+        var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };
+        var display = (EnemySpritemapCatalog)typeof(EnemySpritemapCatalog)
+            .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+                [typeof(Dictionary<int, EnemySpritemapPart[]>), typeof(Dictionary<int, int>)], null)!
+            .Invoke([displayParts, displayBindings]);
+        AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out ReadOnlyMemory<EnemySpritemapPart> selectedDisplay),
+            "Edited Dead Torizo display is selected");
+        var editedOam = new OamBuffer();
+        editedOam.AddEnemySpritemap(selectedDisplay.Span, 128, 128, 0, 0);
+        AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
+        AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort,RoomCharacterAtlas> { [RoomEnemySystem.DeadTorizoDefinition] = RoomCharacterAtlas.Load(png, planar.Length) },
             new Dictionary<ushort,EnemyPaletteSheet>
@@ -204,6 +254,7 @@ internal static partial class Program
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
             },
+            spritemaps: display,
             dmaSources: new Dictionary<ushort,int> { [RoomEnemySystem.DeadTorizoDefinition] = DeadTorizoArtworkDefinitions.SourceAddress });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -243,7 +294,11 @@ internal static partial class Program
             moveRow(state, y, move);
             Compare(expected, "Actual Dead Torizo column row copy/move");
         }
-        Console.WriteLine("Dead Torizo geometry: 12 native MVNs, 10 column operands/clip limits, actual installed-art staging and 192 actual row copy/move operations pass; silhouette choices remain pending.");
+        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(-1), "Crop negative row rejected");
+        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(12), "Crop row upper bound rejected");
+        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(-1), "Crop negative column rejected");
+        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(10), "Crop column upper bound rejected");
+        Console.WriteLine("Dead Torizo geometry:12 native MVNs/25-part OAM exact97-tile union,10 column operands/clip limits, actual installed-art staging and192 actual row copy/move operations pass; crop derives from immutable stock composition independently of edited display OAM; artwork ownership remains explicit.");
 
         void Compare(byte[] bytes, string context)
         {

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One cropped tile row copied from the corpse sheet to its rotting surface.</summary>
@@ -5,30 +7,52 @@ internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int Des
 
 /// <summary>
 /// Tile geometry shared by $A9:DE18-DEBF initialization and E272/E38B row motion.
-/// The chosen stepped silhouette remains unresolved artwork geometry under issue1165;
-/// these operations derive its storage addresses and column clip boundaries only.
+/// All crop edges derive from the immutable stationary composition's tile union.
+/// Its artwork ownership remains explicit in DeadTorizoStationaryCompositionDefinitions.
 /// </summary>
 internal static class DeadTorizoGeometryDefinitions
 {
-    /// <summary>$A9:DE18: twelve rows from the sixteen-tile-wide $B7:A800 source.</summary>
-    internal const int Rows = 12;
-    /// <summary>$7E:2000 corpse surface packs ten 4bpp tiles per row.</summary>
-    internal const int Columns = 10;
-    private const int TileBytes = 32;
+    private const int TileBytes = 32, TilePixels = 8;
+    internal static int Rows => Bounds.Bottom - Bounds.Top;
+    internal static int Columns => Bounds.Right - Bounds.Left;
 
-    // Independent silhouette choices: top two rows omit three left/one right tiles;
-    // middle rows omit two left tiles; the lower left edge steps outward at rows9/10.
-    // These choices are explicitly pending, not claimed to follow from tile packing.
-    private static int LeftColumn(int row) => row < 2 ? 3 : Math.Clamp(10 - row, 0, 2);
-    private static int EndColumn(int row) => row < 2 ? Columns - 1 : Columns;
+    private static (int Left, int Top, int Right, int Bottom) Bounds
+    {
+        get
+        {
+            int left = int.MaxValue, top = int.MaxValue, right = 0, bottom = 0;
+            for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
+            {
+                var part = SourcePart(index);
+                left = Math.Min(left, part.X); top = Math.Min(top, part.Y);
+                right = Math.Max(right, part.X + part.Extent); bottom = Math.Max(bottom, part.Y + part.Extent);
+            }
+            return (left, top, right, bottom);
+        }
+    }
 
-    /// <summary>Calculate each native MVN's source, destination and length from the shared tile crop.</summary>
+    private static (int X, int Y, int Extent) SourcePart(int index)
+    {
+        DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);
+        int tile = part.Tile - DeadTorizoStationaryCompositionDefinitions.SourceTileBase;
+        return (tile % DeadTorizoStationaryCompositionDefinitions.SourceColumns,
+            tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns, part.TileExtent);
+    }
+
+    /// <summary>Calculate each native MVN's source, destination and length from the stock sprite tile union.</summary>
     internal static DeadTorizoGraphicsCopy InitialCopy(int row)
     {
-        if ((uint)row >= Rows) throw new IndexOutOfRangeException();
-        int left = LeftColumn(row);
-        return new((row * 16 + left + 6) * TileBytes,
-            (row * Columns + left) * TileBytes, (EndColumn(row) - left) * TileBytes);
+        var bounds = Bounds;
+        if ((uint)row >= bounds.Bottom - bounds.Top) throw new IndexOutOfRangeException();
+        int sourceRow = bounds.Top + row, left = int.MaxValue, right = 0;
+        for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
+        {
+            var part = SourcePart(index);
+            if (sourceRow < part.Y || sourceRow >= part.Y + part.Extent) continue;
+            left = Math.Min(left, part.X); right = Math.Max(right, part.X + part.Extent);
+        }
+        return new((sourceRow * DeadTorizoStationaryCompositionDefinitions.SourceColumns + left) * TileBytes,
+            (row * (bounds.Right - bounds.Left) + left - bounds.Left) * TileBytes, (right - left) * TileBytes);
     }
 
     /// <summary>$A9:E27F-E383/E398-E458: each tile column advances sixteen planar words.</summary>
@@ -38,12 +62,18 @@ internal static class DeadTorizoGeometryDefinitions
         return column * TileBytes / sizeof(ushort);
     }
 
-    /// <summary>First pixel row present in a column of the same crop used by initialization.</summary>
+    /// <summary>First pixel row covered by a stock sprite in the given packed tile column.</summary>
     internal static int ColumnMinimumY(int column)
     {
-        if ((uint)column >= Columns) throw new IndexOutOfRangeException();
-        for (int row = 0; row < Rows; row++)
-            if (column >= LeftColumn(row) && column < EndColumn(row)) return row * 8;
-        throw new InvalidOperationException("Dead Torizo crop omits a complete column.");
+        var bounds = Bounds;
+        if ((uint)column >= bounds.Right - bounds.Left) throw new IndexOutOfRangeException();
+        int sourceColumn = bounds.Left + column, firstRow = bounds.Bottom;
+        for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
+        {
+            var part = SourcePart(index);
+            if (sourceColumn >= part.X && sourceColumn < part.X + part.Extent)
+                firstRow = Math.Min(firstRow, part.Y);
+        }
+        return (firstRow - bounds.Top) * TilePixels;
     }
 }

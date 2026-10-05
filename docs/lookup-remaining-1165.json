@@ -6364,7 +6364,9 @@
       "line": 22,
       "name": "RoomEnemySystem.DeadTorizoInitialGraphicsCopies",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aa5dd7e251224d72e7daeb2f5ebe06c0d2487048"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs",
@@ -6380,7 +6382,9 @@
       "line": 43,
       "name": "RoomEnemySystem.DeadTorizoColumnMinimumY",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aa5dd7e251224d72e7daeb2f5ebe06c0d2487048"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",

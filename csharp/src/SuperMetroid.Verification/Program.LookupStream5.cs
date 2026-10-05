@@ -6,6 +6,43 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
+    {
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem();
+        var body = enemies.Slots[0];
+        var state = new PhantoonEnemyState(body)
+        {
+            Eye = enemies.Slots[1], Tentacles = enemies.Slots[2], Mouth = enemies.Slots[3],
+        };
+        var shot = typeof(RoomEnemySystem).GetMethod("ResolvePhantoonShotReaction", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort>>(enemies);
+        ushort random = 0;
+        int calls = 0;
+        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies,
+            (Func<ushort>)(() => { calls++; return random; }));
+        for (int bucket = 0; bucket < 8; bucket++)
+        {
+            random = (ushort)(0xfff8 | bucket);
+            body.Health = 1000;
+            body.AiHandlerBits = 2;
+            body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
+            body.VariableE = 60;
+            state.Tentacles.VariableA = state.Tentacles.VariableB = 0;
+            byte expected = rom.ReadByte(0xa7cda5 + bucket);
+            AssertEqual(expected, PhantoonPatternDefinitions.ShotEyeMarkers[bucket], "Exact retained native RNG bucket");
+            shot(body, state, 0x100, 1);
+            AssertEqual((ushort)expected, state.Eye.VariableB, "Actual exposed eye marker");
+            AssertEqual((ushort)bucket, state.Mouth.Parameter2, "Actual selected RNG pattern");
+            AssertEqual((ushort)16, body.VariableE, "Actual shot window");
+            AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
+        }
+        Console.WriteLine("Phantoon retained random markers: eight SHA-verified native bytes and eight actual bus-free shot writes preserve RNG, pattern and timing.");
+    }
+
+
     private static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MagdollitePaletteCycleExtractor.Extract(rom);
@@ -438,7 +475,7 @@ internal static partial class Program
             "Phantoon eye direction beyond authored table");
         AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");
-        Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers remain pending.");
+        Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
     private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)

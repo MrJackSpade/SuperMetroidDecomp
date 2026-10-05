@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 495 are converted, 13 are justified retained, and 620 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 495 are converted, 14 are justified retained, and 619 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -2986,7 +2986,7 @@ Remaining table definitions: **3**.
 
 - [ ] **PhantoonPatternDefinitions.EyeInstructions** - stored definition ([L11](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L11)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **PhantoonPatternDefinitions.FirstRainColumns** - stored definition ([L37](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L37)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PhantoonPatternDefinitions.ShotEyeMarkers** - stored definition ([L40](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L40)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonPatternDefinitions.ShotEyeMarkers** - retained: exact eight random-bucket assignments only - stored definition ([L40](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L40)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs
 

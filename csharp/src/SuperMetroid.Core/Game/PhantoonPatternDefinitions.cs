@@ -44,7 +44,18 @@ public static class PhantoonPatternDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    /// <summary>$A7:CDA5, Phantoon_Unknown0FEAValues: shot writes to eye variable B. No native reader is known; preserve the exact exposed state without inventing direction semantics.</summary>
+    /// <summary>
+    /// $A7:CDA5, Phantoon_Unknown0FEAValues: the shot reaction at $A7:DE5C-DE6A
+    /// indexes these eight bytes with RNG &amp; 7 and writes the selected marker to eye variable B.
+    /// </summary>
+    /// <remarks>
+    /// Issue1165 narrow nonsense exception: these are arbitrary random-bucket assignments,
+    /// not direction, phase or geometric selectors. Native eye variable B has no reader;
+    /// managed Phantoon reads of variable B address the other body/mouth/tentacle slots.
+    /// The marker remains exposed state, so replacing this with a different 50/50 selection
+    /// changes exact RNG-to-state behavior. Boolean cases would merely recite the same bucket
+    /// choices. Retain only this mapping and preserve the existing RNG call/state write.
+    /// </remarks>
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>

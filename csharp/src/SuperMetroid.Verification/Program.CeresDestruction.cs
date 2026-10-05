@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,13 +11,6 @@ static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
-    // The timeline fixture has no visible engine art. Supply a valid terminating program
-    // at the compiled retail list identity; the retail pixel audit covers the alternating
-    // engine colors, while the fixed object header is application-owned metadata.
-    ushort engineList = RoomPaletteFxDefinitions.Get(
-        CeresDestructionRomData.PaletteFx.EngineFlicker).InitialInstructionList;
-    WriteRomWord(rom, 0x8d0000 | engineList, PaletteFxInstructionCodes.Delete);
-
     AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");
     AssertTrue(
@@ -23,89 +18,64 @@ static void VerifyCeresDestructionCinematic()
             CeresDestructionRomData.Vram.Mode7CharacterBytes <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 
-    // Each cinematic decompression target is intentionally all zero in this timeline
-    // fixture. Long command-one runs encode $4000 bytes in only 49 stored bytes, while the
-    // distinct output lengths still exercise every minimum-size assertion and map slice.
-    WriteRepeatedCompressedStream(
-        rom,
-        CeresDestructionRomData.Assets.Mode7Characters,
-        CeresDestructionRomData.Vram.Mode7CharacterBytes,
-        0);
-    WriteRepeatedCompressedChunks(
-        rom,
-        CeresDestructionRomData.Assets.CeresTilemaps,
-        [0x11, 0x22, 0x33, 0x44]);
-    WriteRepeatedCompressedStream(
-        rom,
-        CeresDestructionRomData.Assets.CeresObjectCharacters,
-        CeresDestructionRomData.Vram.Mode7CharacterBytes,
-        0);
-    WriteRepeatedCompressedStream(
-        rom,
-        CeresDestructionRomData.Assets.ZebesTilemap,
-        CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
-        0);
-    WriteRepeatedCompressedStream(
-        rom,
-        CeresDestructionRomData.Assets.ZebesCharacters,
-        CeresDestructionRomData.Vram.Mode7CharacterBytes,
-        0);
-
-    // Stable invisible frame lists let this test isolate the state machine from spritemap
-    // decoding. The real-ROM audit exercises the same pointers with their retail maps.
-    ushort[] stableLists = [0xcc3f, 0xcc4f, 0xcc57, 0xccab, 0xcd83, 0xcd8b, 0xcd93, 0xcd9b];
-    foreach (ushort pointer in stableLists)
-    {
-        WriteRomWord(rom, 0x8b0000 | pointer, 10);
-        WriteRomWord(rom, 0x8b0000 | (ushort)(pointer + 2), 0);
-        WriteRomWord(rom, 0x8b0000 | (ushort)(pointer + 4), 0x94bc);
-        WriteRomWord(rom, 0x8b0000 | (ushort)(pointer + 6), pointer);
-    }
-
-    // Explosion actors need only remain alive beyond the first scene in this control-flow
-    // test. A long invisible frame preserves the generic interpreter's ordinary data path.
-    foreach (ushort pointer in new ushort[] { 0xccdb, 0xccf5, 0xcd1b, 0xce1b })
-    {
-        WriteRomWord(rom, 0x8b0000 | pointer, 0x7fff);
-        WriteRomWord(rom, 0x8b0000 | (ushort)(pointer + 2), 0);
-        WriteRomWord(rom, 0x8b0000 | (ushort)(pointer + 4), 0x9438);
-    }
-
+    // Keep the delayed-instruction interpreter case synthetic and independent of
+    // the compiled cinematic programs used by the complete scene below.
+    WriteRomWord(rom, 0x8bccdb, 0x7fff);
+    WriteRomWord(rom, 0x8bccdd, 0);
+    var fixtureBus = new CartridgeImportAddressSpace(rom);
+    ushort ReadFixtureWord(ushort pointer) => (ushort)(
+        fixtureBus.ReadByte(0x8b0000 | pointer) |
+        fixtureBus.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8);
     // Ceres' five initial explosions share $CCDB but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
     // to the list's decrement-and-goto opcode and must remain untouched.
     var delayedExplosion = new IntroDiscoverySprite(0, 0, 0, 0xccdb);
     delayedExplosion.DelayFirstInstruction(3);
-    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
+    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "Ceres staggered explosion remains invisible before instruction delay");
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
-    delayedExplosion.Step(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "fixture's first delayed explosion frame uses invisible map zero");
     AssertEqual(0xccdf, delayedExplosion.InstructionPointer,
         "third handler call consumes the first delayed explosion frame");
 
-    // Retail US PLANET ZEBES list. These private opcodes must drive the transition into
-    // camera flight; replacing the list with a host timer would make this fixture fail.
-    ushort[] titleList =
-    [
-        0x0040, 0,
-        0xc9a5,
-        0x0020, 0,
-        0xc9af,
-        0x00c0, 0,
-        0xc9bd,
-        0x0060, 0,
-        0xc9c7,
-        0x9438,
-    ];
-    for (int index = 0; index < titleList.Length; index++)
-        WriteRomWord(rom, 0x8bccbb + index * 2, titleList[index]);
-
-    var state = new CeresDestructionCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+    // Preserve the distinctive native map slices through the installed-artwork
+    // boundary. Scene programs and all other art retain their retail definitions.
+    WriteRepeatedCompressedChunks(rom, CeresDestructionRomData.Assets.CeresTilemaps,
+        [0x11, 0x22, 0x33, 0x44]);
+    byte[] maps = RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
+        CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
+    string overrideRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+        "ceres-timeline-" + Guid.NewGuid().ToString("N")));
+    Directory.CreateDirectory(overrideRoot);
+    using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))
+        CeresFlightArtworkCatalog.WriteMap(stream, new CeresFlightMapDocument
+        {
+            Version = CeresFlightArtworkFormat.Version,
+            Width = CeresFlightArtworkFormat.MapWidth,
+            Height = CeresFlightArtworkFormat.MapHeight,
+            FrontTiles = maps.AsSpan(0, 0x300).ToArray().Select(value => (int)value).ToArray(),
+            RearTiles = maps.AsSpan(0x300, 0x300).ToArray().Select(value => (int)value).ToArray(),
+        });
+    using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionArtworkFormat.CeresMapFileName)))
+        CeresDestructionArtworkCatalog.WriteMap(stream, new CeresDestructionMapDocument
+        {
+            Version = CeresDestructionArtworkFormat.Version,
+            Width = CeresDestructionArtworkFormat.MapWidth,
+            Height = CeresDestructionArtworkFormat.MapHeight,
+            Views = Enumerable.Range(0, 3).Select(index => maps.AsSpan(0x600 + index * 0x300, 0x300)
+                .ToArray().Select(value => (int)value).ToArray()).ToArray(),
+        });
+    var artwork = IntroCinematicArtworkFiles.Load(
+        runtimeFixtureInstallation.Value.IntroCinematicDirectory, overrideRoot);
+    var presentation = RetailPresentationFixture();
+    var state = new CeresDestructionCinematicState(fixtureBus,
+        fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
+        paletteFxColors: presentation.RoomPaletteFx);
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
     AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),

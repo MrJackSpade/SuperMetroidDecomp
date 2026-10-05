@@ -5538,6 +5538,11 @@ if (args is ["--ceres-flight-actor-definitions"])
     VerifyCeresFlightActorDefinitions();
     return 0;
 }
+if (args is ["--ceres-destruction"])
+{
+    VerifyCeresDestructionCinematic();
+    return 0;
+}
 if (args is ["--ceres-destruction-actor-definitions"])
 {
     VerifyCeresDestructionActorDefinitions();

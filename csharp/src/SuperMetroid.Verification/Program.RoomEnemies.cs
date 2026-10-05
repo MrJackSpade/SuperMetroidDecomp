@@ -701,6 +701,19 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
+private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
+{
+    string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+        "ceres-door-fixture-" + Guid.NewGuid().ToString("N")));
+    SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Extract(bus, directory);
+    var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(
+        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
+        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
+    return EnemyTileArtworkCatalog.FromArtworkForVerification(
+        new Dictionary<ushort, RoomCharacterAtlas>(),
+        new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visuals);
+}
+
 /// <summary>
 /// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
@@ -772,7 +785,7 @@ static void VerifyCeresElevatorPlatformAnimation()
     for (int color = 0; color < 6; color++)
         WriteWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
 
-    var enemies = new RoomEnemySystem();
+    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
     enemies.StepFrame(0, 0, timeIsFrozen: false);
     for (int index = 0; index < 4; index++)
@@ -836,12 +849,12 @@ static void VerifyCeresDoorBossBranch()
     // loops at `$F55E` while the boss lives; after defeat it clears the Ridley-drawn flag
     // and enters the ordinary closed-door loop at `$F598`. A nearby Samus then drives the
     // native opening frames to `$F68B`, whose intangible side effect is under test. Frame
-    // spritemap operands remain presentation reads; their zero values are harmless here.
+    // selectors use compiled mechanics; this fixture does not draw the door sprite.
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState { XPosition = 0x0008, YPosition = 0x007f };
-    var enemies = new RoomEnemySystem();
+    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(
         bus,
         populationPointer,

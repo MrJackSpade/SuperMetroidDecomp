@@ -5273,6 +5273,11 @@ if (args is ["--ripper-enemy"])
     VerifyRipperEnemy();
     return 0;
 }
+if (args is ["--ceres-elevator-platform"])
+{
+    VerifyCeresElevatorPlatformAnimation();
+    return 0;
+}
 if (args is ["--ceres-door-boss"])
 {
     VerifyCeresDoorBossBranch();

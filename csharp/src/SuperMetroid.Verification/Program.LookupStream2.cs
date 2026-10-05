@@ -7,6 +7,28 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
+    {
+        VerifyNorfairLavaJumperInstructionProgramDefinitions(rom);
+        int visual = 0;
+        int cursor = 0xbe3c;
+        while (cursor < 0xbe86)
+        {
+            ushort word = ReadVerificationWord(rom, 0xa20000 | cursor);
+            if (word < 0x8000)
+            {
+                ushort operand = (ushort)(cursor + 2);
+                AssertEqual(operand, NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(visual++), "Lava-jumper calculated pose address follows native instruction widths");
+                AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, operand, out ushort selector), "Lava-jumper pose has an installed selector");
+                AssertEqual(ReadVerificationWord(rom, 0xa20000 | operand), selector, "Lava-jumper selector matches exact native operand");
+                cursor += 4;
+            }
+            else cursor += word is 0x8123 or 0x8110 or 0x80ed ? 4 : 2;
+        }
+        AssertEqual(0xbe86, cursor, "Lava-jumper native walker stops before velocity data");
+        AssertEqual(14, visual, "All fourteen lava-jumper visual operands independently confirmed");
+        Console.WriteLine("Lava-jumper calculated layout:23 native controls,14 native selectors, actual parent/follower programs and handshake pass; seven pose holds remain pending.");
+    }
     private static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
         VerifyChozoStatueInstructionProgramDefinitions(rom);

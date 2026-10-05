@@ -11462,4 +11462,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Shared acquisition/rise/breathing/release structure and carrying strides derive 166 control positions and 52 visual addresses without rebuilding tables.",
     "remaining":  "Words required: independent acquisition/stride/per-scene holds, four footstep offsets and repeat counts 4/5/16 have no exception. 501 converted, 15 justified retained/mixed, 612 pending."
+},"lavaJumperStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 23 native controls, 14 independently decoded addresses/selectors, all three actual programs, parent/follower initialization, rise/completion handshake, exact boundary, read guards and allocations pass.",
+    "completed":  "NorfairLavaJumperInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "7931a5c926d28849747e830c7695472ffba0cf49",
+    "state":  "partial-one-converted",
+    "algorithm":  "Hidden/jump/follower instruction widths and loop targets calculate 23 control positions and 14 visual addresses.",
+    "remaining":  "Words required: seven jump holds 1/5/9/7/3/10/1 have no exception. 502 converted, 15 justified retained/mixed, 611 pending."
 }}

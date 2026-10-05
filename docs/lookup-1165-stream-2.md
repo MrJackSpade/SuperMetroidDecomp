@@ -257,7 +257,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs
 
 - [ ] **NorfairLavaJumperInstructionProgramDefinitions.Words** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NorfairLavaJumperInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairLavaJumperInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs
 
@@ -966,3 +966,8 @@ Root Verification build: 1445 warnings, zero errors. --lookup-stream2-trail-appe
 Calculated 166 control positions and 52 visual addresses with shared acquire/rise/breathe/release sequences and Wrecked Ship carrying strides. Native AA:E39D-E428/E457-E57E establishes command widths, movement-index progression and loop labels. Independent acquisition/stride/per-scene holds, four footstep offsets and repeat counts 4/5/16 remain required; Words stays unchecked. Only PresentationWords is complete. Integrated checkpoint: 77 converted, two mixed, 147 required.
 
 Root Verification build: 1445 warnings, zero errors. --lookup-stream2-chozo-layout passed 166 native controls, 52 independently decoded visual addresses and installed selectors, exact native list endpoints, bounds and allocation assertions.
+
+### Norfair lava-jumper structural integration
+Calculated 23 control positions and 14 visual addresses from hidden pose/sleep, seven-pose jump/callback/sleep and follower startup/counting loop. Native A2:BE3C-BE85 confirms the instruction widths and targets. Independent jump holds 1/5/9/7/3/10/1 remain required; Words stays unchecked without exemption. Integrated checkpoint: 78 converted, two mixed, 146 required.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-lava-jumper-layout passed 23 native controls, 14 independently decoded addresses/selectors, all three production programs, parent/follower initialization, rise/completion handshake, exact boundary, source-read guards and allocations.

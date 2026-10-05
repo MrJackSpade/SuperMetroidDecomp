@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 612,
+  "remainingTableDefinitionCount": 611,
   "fileCount": 523,
   "entries": [
     {
@@ -5277,7 +5277,9 @@
       "line": 60,
       "name": "NorfairLavaJumperInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "7931a5c926d28849747e830c7695472ffba0cf49"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs",
@@ -21357,6 +21359,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 501,
+  "convertedSinceSnapshot": 502,
   "justifiedRetainedSinceSnapshot": 15
 }

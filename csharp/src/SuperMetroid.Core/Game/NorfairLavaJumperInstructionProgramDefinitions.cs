@@ -29,63 +29,49 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
     /// <summary><c>Instruction_NorfairLavaJumper_SetAnimationFinished</c> at $A2:BE8E.</summary>
     internal const ushort AnimationFinishedCallback = 0xbe8e;
 
-    private static readonly NorfairLavaJumperInstructionMechanicsWord[] Words =
-    [
-        new(0xbe3c, 1),
-        new(0xbe40, CommonEnemyInstructionCodes.Sleep),
-        new(0xbe42, 1),
-        new(0xbe46, 5),
-        new(0xbe4a, 9),
-        new(0xbe4e, 7),
-        new(0xbe52, 3),
-        new(0xbe56, 10),
-        new(0xbe5a, 1),
-        new(0xbe5e, AnimationFinishedCallback),
-        new(0xbe60, CommonEnemyInstructionCodes.Sleep),
-        new(0xbe62, 1),
-        new(0xbe66, 1),
-        new(0xbe6a, CommonEnemyInstructionCodes.SetTimer),
-        new(0xbe6c, 1),
-        new(0xbe6e, 1),
-        new(0xbe72, 1),
-        new(0xbe76, 1),
-        new(0xbe7a, 1),
-        new(0xbe7e, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xbe80, 0xbe6e),
-        new(0xbe82, CommonEnemyInstructionCodes.Goto),
-        new(0xbe84, Follower),
-    ];
+    // Independent jump pose holds remain pending under issue1165.
+    private static readonly ushort[] JumpHolds = [1, 5, 9, 7, 3, 10, 1];
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbe3e,
-        0xbe44,
-        0xbe48,
-        0xbe4c,
-        0xbe50,
-        0xbe54,
-        0xbe58,
-        0xbe5c,
-        0xbe64,
-        0xbe68,
-        0xbe70,
-        0xbe74,
-        0xbe78,
-        0xbe7c,
-    ];
+    internal static int MechanicsWordCount => 23;
+    internal static int PresentationWordCount => 14;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NorfairLavaJumperInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>
+    /// $A2:BE3C-BE85: hidden pose/sleep, seven-pose jump/callback/sleep,
+    /// then two follower startup poses and a four-pose counted loop.
+    /// </summary>
+    internal static NorfairLavaJumperInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 2) return index == 0 ? new(Hidden, 1) : new(HiddenSleep, CommonEnemyInstructionCodes.Sleep);
+        if (index < 9) return new((ushort)(Jump + (index - 2) * 4), JumpHolds[index - 2]);
+        if (index == 9) return new((ushort)(JumpSleep - 2), AnimationFinishedCallback);
+        if (index == 10) return new(JumpSleep, CommonEnemyInstructionCodes.Sleep);
+        if (index < 13) return new((ushort)(Follower + (index - 11) * 4), 1);
+        if (index < 15) return new((ushort)(Follower + 8 + (index - 13) * 2), index == 13 ? CommonEnemyInstructionCodes.SetTimer : (ushort)1);
+        if (index < 19) return new((ushort)(Follower + 12 + (index - 15) * 4), 1);
+        return new((ushort)(Follower + 28 + (index - 19) * 2), (index - 19) switch
+        {
+            0 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+            1 => (ushort)(Follower + 12),
+            2 => CommonEnemyInstructionCodes.Goto,
+            _ => Follower,
+        });
+    }
 
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index == 0) return Hidden + 2;
+        if (index < 8) return (ushort)(Jump + 2 + (index - 1) * 4);
+        if (index < 10) return (ushort)(Follower + 2 + (index - 8) * 4);
+        return (ushort)(Follower + 14 + (index - 10) * 4);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -97,9 +83,9 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa20000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
                 return true;

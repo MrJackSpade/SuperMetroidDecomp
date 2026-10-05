@@ -267,7 +267,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs
 
 - [ ] **NorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **NorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **NorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs
 
@@ -971,3 +971,8 @@ Root Verification build: 1445 warnings, zero errors. --lookup-stream2-chozo-layo
 Calculated 23 control positions and 14 visual addresses from hidden pose/sleep, seven-pose jump/callback/sleep and follower startup/counting loop. Native A2:BE3C-BE85 confirms the instruction widths and targets. Independent jump holds 1/5/9/7/3/10/1 remain required; Words stays unchecked without exemption. Integrated checkpoint: 78 converted, two mixed, 146 required.
 
 Root Verification build: 1445 warnings, zero errors. --lookup-stream2-lava-jumper-layout passed 23 native controls, 14 independently decoded addresses/selectors, all three production programs, parent/follower initialization, rise/completion handshake, exact boundary, source-read guards and allocations.
+
+### Norfair Rio structural integration
+Calculated 65 control positions and 34 visual addresses from shared four-pose loops and six/eight-pose callback transitions. Native A2:C0F1-C1B6 establishes record widths and ordering. Idle holds 13/18, flight holds 6/5/8/6 and the per-pose follower-attachment callback sequence remain required. Named callback cases preserve the sequence but do not justify its independent offsets. Words stays unchecked without exemption. Integrated checkpoint: 79 converted, two mixed, 145 required.
+
+Root Verification build: 1445 warnings, zero errors. --norfair-rio-instruction-program-definitions passed 65 native words, seven actual parent/flame programs, eleven follower/completion callbacks, 34 exact compiled selectors, initializer selections, source-read guards, boundaries and allocations.

@@ -11469,4 +11469,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Hidden/jump/follower instruction widths and loop targets calculate 23 control positions and 14 visual addresses.",
     "remaining":  "Words required: seven jump holds 1/5/9/7/3/10/1 have no exception. 502 converted, 15 justified retained/mixed, 611 pending."
+},"norfairRioStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 65 native words, seven actual parent/flame programs, eleven follower/completion callbacks, 34 exact compiled selectors, initializer selections, source-read guards, boundaries and allocations pass.",
+    "completed":  "NorfairRioInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "e4d0033fb546300e64c0dedb5ada6b4db49ed045",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared parent/flame loop widths and callback/pose transition widths calculate 65 control positions and 34 visual addresses.",
+    "remaining":  "Words required: idle 13/18, flight 6/5/8/6 and per-pose attachment callback sequence remain unresolved. Naming callbacks is not a disposition for independent offsets. 503 converted, 15 justified retained/mixed, 610 pending."
 }}

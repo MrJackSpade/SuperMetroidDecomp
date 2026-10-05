@@ -10820,4 +10820,15 @@
     "46810c0b6"
   ],
   "remaining": "318 converted,two justified retained,808 pending. Ghost palette remains pending."
+},"creditsAndFileGlyphIntegration":{
+  "state": "converted",
+  "confirmation": "Verification1438 warnings/zero errors; integrated stream3 check passes520 native rows,67 roles and editable lines,actual scroll cadence,overrides/validation/identity/bounds/no cached rows;13 actual glyph writes and78 independent attribute edits/no stock arrays. ResourceAudit zero warnings/errors; three source hashes and static index refreshed.",
+  "implementationCommits": [
+    "d3f9e68ea",
+    "a0d04c1ac",
+    "ba5a86594"
+  ],
+  "algorithm": "Render rows on demand from validated text,fonts,attributes and semantic caption-role layout. Digit/letter tile bases plus index replace stock glyph arrays; independent edits preserved.",
+  "remaining": "322 converted,two justified retained,804 pending. No new exception.",
+  "scope": "Credits row cache,caption role table,file-select digits and slot letters:four definitions."
 }}

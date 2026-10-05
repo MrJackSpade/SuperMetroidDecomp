@@ -58,7 +58,7 @@ internal static class ClosedPresentationContractDefinitions
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
             [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
-                "29FD01E78FB882DBED5D805B3C9CEE3589EB8E5B14A29C29ECC52A936BACF656")],
+                "E3710C537B60C8DC3D9818FC7774877E24B2A2E545EF4F088196F648BCC10104")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
             "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +
             "Reviewed array selectors reject invalid indices; generated cursor/helmet names are bounded. " +

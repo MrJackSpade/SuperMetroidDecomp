@@ -3052,6 +3052,10 @@
     ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.SporeSpawnProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm exact installed native operands while preserving all real projectile producer and lifecycle assertions"}
     ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EtecoonInstructionProgramDefinitions.cs", "purpose": "Confirm native installed visual operands while preserving all friendly Etecoon continuation, sleep, jump, flex and loop assertions"}
     ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.MaridiaLargeSnailInstructionDefinitions.cs", "purpose": "Confirm exact executed native visuals while preserving snail program, rotation, sound and completion assertions"}
+    ,{"purpose":"Confirm native installed selectors while preserving real facing, held-Samus, fireball and flight assertions","stream":4,"path":"csharp/src/SuperMetroid.Verification/Program.RidleyInstructionProgramDefinitions.cs"}
+    ,{"purpose":"Only three palette-span helper signatures supporting owned palette-region conversion","stream":3,"path":"csharp/src/SuperMetroid.Core/Frontend/IntroCinematicState.cs"}
+    ,{"purpose":"Palette-span fixture parameter binding supporting owned region conversion","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.IntroCinematicRomData.cs"}
+    ,{"purpose":"Dedicated native catalog for calculated directional eye mounts and beam intensity","stream":5,"path":"csharp/src/SuperMetroid.Core/Game/MorphBallEyeGeometryDefinitions.cs"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

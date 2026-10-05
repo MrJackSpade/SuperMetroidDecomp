@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 808,
+  "remainingTableDefinitionCount": 804,
   "fileCount": 523,
   "entries": [
     {
@@ -373,14 +373,18 @@
       "line": 9,
       "name": "CreditsPresentation.rows",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CreditsPresentation.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CreditsPresentation.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d3f9e68ea"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs",
       "line": 28,
       "name": "CreditsPresentationDefinitions.Lines",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ba5a86594"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
@@ -711,14 +715,18 @@
       "line": 16,
       "name": "FileSelectPresentation.digits",
       "kind": "installed stock table",
-      "note": "Original/default payload behind FileSelectPresentation.digits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind FileSelectPresentation.digits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "a0d04c1ac"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
       "line": 17,
       "name": "FileSelectPresentation.slotLetters",
       "kind": "installed stock table",
-      "note": "Original/default payload behind FileSelectPresentation.slotLetters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind FileSelectPresentation.slotLetters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "a0d04c1ac"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
@@ -20952,6 +20960,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 318,
+  "convertedSinceSnapshot": 322,
   "justifiedRetainedSinceSnapshot": 2
 }

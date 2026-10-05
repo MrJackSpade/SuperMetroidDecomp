@@ -132,7 +132,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs
 
-- [x] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **ChootInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs
@@ -219,7 +219,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs
 
-- [x] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **EnemyPickupInstructionProgramDefinitions.PresentationWords** ([L64](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs
@@ -253,7 +253,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs
 
-- [x] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **FirefleaInstructionProgramDefinitions.PresentationWords** ([L21](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L21)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs
@@ -687,28 +687,28 @@ For each completed entry, record the conversion or precise retention evidence, c
 - No new dependencies or shared-file edits.
 ### Confirmed batch 3: Pickup and Fireflea instruction layouts
 
-- Converted six definitions without retention: enemy pickup/death selectors now dispatch named variants; pickup mechanics and visual operand addresses calculate five timed loops; Fireflea mechanics and visual operand addresses calculate its 52 timed records and loop tail.
+- Converted four selector/layout definitions. Pickup and Fireflea control/address structure calculates, but their two timing-bearing Words aggregates remain pending for independent hold magnitudes (pickup8/5; Fireflea2/1). No retention is justified by this structure.
 - Pickup energy loops have four eight-tick records, missile loops two five-tick records, Power Bombs four five-tick records. Every loop branches to its start; the four earlier programs preserve their unreachable trailing sleep instruction. Metadata selects these semantic programs; no generated word arrays remain.
 - Fireflea durations alternate two/one ticks with four-byte timed records; the final Goto and target follow the 52 records. Read, enumeration and ownership APIs calculate directly and retain their original accepted/rejected domains.
 - Evidence and confirmation: pinned ROM pickup selectors $86:EF04, death selectors $86:EFD5, all 30 pickup mechanics/16 visual operands in $ED8D-$EDFD, and 54 Fireflea mechanics/52 visual operands in $A3:8C2F-$8D02. Verification build passed (1431 warnings, zero errors), and `--lookup-stream-3` passed native words, enumeration order, exact word/byte ownership, presentation exclusion, invalid indices and invalid kind/variant boundaries.
 - Changed production: `EnemyPickupDefinitions.cs`, `EnemyDeathExplosionDefinitions.cs`, `EnemyPickupInstructionProgramDefinitions.cs`, `FirefleaInstructionProgramDefinitions.cs`. Confirmation extends the assigned stream partial; no additional dependencies.
 ### Confirmed batch 4: Choot control and motion selection
 
-- Converted three definitions: normal/wide/very-wide/slow/very-slow motion selection is direct semantic dispatch, and the idle/jump/fall instruction mechanics plus visual operand addresses calculate on demand.
+- Converted two selector/layout definitions. Motion selection is semantic dispatch and visual operand addresses calculate. Idle/jump/fall control structure calculates, but the Words aggregate remains pending for independent idle1 and jump/fall8+1 holds.
 - Idle disables off-screen processing, displays one tick and sleeps. Jump/fall enable off-screen processing, display eight ticks then one tick and sleep; their final visual operands remain separate. The physical program layouts supply record addresses without cached word arrays.
 - Shared path identities are named once in `ChootFallingPathDefinitions.cs`; selection retains the five original loop advances. The three original motion arrays are still required. Their former retention claims based on correction complexity, readability or scaling were deleted, as were obsolete retention claims in the converted selector/control files. No retained exception is asserted.
 - Confirmation: Verification build passed (1431 warnings, zero errors), `--lookup-stream-3` passed all five pointers and native indirect loop advances ($A2:DF5E/$DF6A), all eleven native control words/five visual operand addresses ($D82C-$D84A), complete word/byte ownership, alias rejection and index boundaries.
 - Changed production: `ChootPatternDefinitions.cs`, `ChootInstructionProgramDefinitions.cs`, `ChootFallingPathDefinitions.cs` (identity sharing and comment cleanup only; motion data unchanged). Tests extend the owned stream partial. No dependencies.
 ### Confirmed batch 5: Ripper-family animation and visuals
 
-- Converted four definitions. Six direction programs share four timed records (8,7,8,7 ticks), then Goto and the start address. Mechanics and visual operand addresses calculate directly; no program record arrays remain.
+- Converted three visual/layout definitions. Six direction programs share four timed records (8,7,8,7 ticks), then Goto and the start address. Addresses and control calculate, but Words remains pending: neither the independent cadence8 nor its alternating one-tick reduction has an established disposition.
 - Visual selection computes neutral/first/neutral/second wing phase and direction. Shared GRipper/Ripper II compositions occupy four/three/four OAM-part records per direction; ordinary Ripper has three two-part records per direction. Frame pointers derive from those composition sizes. Both shared enemy owners retain their original union of accepted operand addresses.
 - Evidence: all 36 native mechanics and 24 visual operands in the six $A2:E19B/E1AF/E2E0/E2F4/E477/E48B loops, and their $E3C5/$E527 sprite composition sequences.
 - Verification build passed (1431 warnings, zero errors). `--lookup-stream-3` passed direct native records/order/ownership/bounds plus the existing six production animation fixtures with source bytes forbidden, including all twelve distinct selected frames.
 - Changed production: `RipperInstructionProgramDefinitions.cs`, `RipperVisualDefinitions.cs`; tests extend the owned partial. No retained exception or cross-stream dependency.
 ### Confirmed batch 6: Mochtroid and Yellow Pipe Bug loops
 
-- Converted four definitions: both families calculate their four-frame loops, Goto commands, branch targets, visual addresses and byte ownership directly. Mochtroid uses fourteen ticks in free flight and five when attached; Yellow Pipe Bug uses four ticks in straight flight and one when arcing, for each facing direction.
+- Converted two visual-address definitions. Both families calculate their four-frame structure, Goto commands, branch targets and byte ownership. Their Words aggregates remain pending: Mochtroid holds14 in free flight and5 when attached; Yellow Pipe Bug holds4 in straight flight and1 when arcing. Naming these states does not derive their independent timing magnitudes.
 - Evidence: original $A3:A745/$A759 and $B3:8EFC/$8F10/$8F24/$8F38 programs. All 36 mechanics and 24 visual operand addresses match the pinned ROM.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed direct native records and ownership/bounds, plus existing real-initializer/state-switch fixtures, two Mochtroid loops and four Yellow Pipe Bug loops with source reads forbidden.
 - Changed production: `MochtroidInstructionProgramDefinitions.cs`, `YellowPipeBugInstructionProgramDefinitions.cs`; tests extend the owned partial. No retained exceptions or dependencies.
@@ -1134,3 +1134,7 @@ Root --lookup-menu-sprite-geometry passes all15native-imported parts/eight calcu
 ### Reopened independent hold magnitudes
 
 Mochtroid Words14free-flight/5attached, YellowPipeBug Words4straight/1arc and Ripper Words8/7 remain required: earlier uniform-loop conversion did not derive these independent holds or establish an acceptable exception. Reopened all three Words entries; presentation/control calculations remain valid. Root reconciled master state from the source audit; aggregate now550 converted/16retained-mixed/562 pending after two environmental owner conversions.
+
+### Further early timing audit corrections
+
+Integrated5f00aef40's additional reopenings: Pickup Words energy8/ammunition5 at86:ED8D-EDFD; Fireflea Words2/1 atA3:8C2F-8D02; Choot Words idle1,jump/fall8then1 atA2:D82C-D84A. Earlier Mochtroid/YellowPipeBug/Ripper reopenings already applied in0f38142d4. Original batch3–6 claims now distinguish finished structure from unresolved timing. No runtime code changes; source inspection establishes these are pending magnitudes without a derivation or accepted exception. Master547 converted/16retained-mixed/565 pending.

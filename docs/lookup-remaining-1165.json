@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 562,
+  "remainingTableDefinitionCount": 565,
   "fileCount": 523,
   "entries": [
     {
@@ -3008,7 +3008,7 @@
       "name": "ChootInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "5670b1983384c99fbee47e1e63f84324ab7186ed"
     },
     {
@@ -3573,7 +3573,7 @@
       "name": "EnemyPickupInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "e0a0ac2c096ab54344e07e0204f4b12ad2785cd1"
     },
     {
@@ -3839,7 +3839,7 @@
       "name": "FirefleaInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
       "note": "Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "e0a0ac2c096ab54344e07e0204f4b12ad2785cd1"
     },
     {
@@ -21460,6 +21460,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 550,
+  "convertedSinceSnapshot": 547,
   "justifiedRetainedSinceSnapshot": 16
 }

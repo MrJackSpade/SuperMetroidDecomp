@@ -421,8 +421,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** ([L22](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords** ([L95](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** - PARTIAL: composed69 native controls, sequential movement indexes, increasing sitting holds and halving upload holds. Independent hold scales/transitions and loop counts remain REQUIRED.
+- [x] **GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords** - CONVERTED: pose/function/branch/DMA record widths calculate all21 visual operand addresses; native selectors and selected physical frames confirmed.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs
 
@@ -1000,3 +1000,9 @@ Pinned A9:DE18-DEBF supplies twelve native MVN descriptors; E272/E38B supplies t
 Wall, floor and flight phases calculate pose/control positions, including the floor program's packed sound byte and damage-enable operation. Explosion waits form a unit-step progression. All17 presentation addresses are complete. Words remains required for wall4, landing8, flight1, explosion start4 and increment1, and the selected phase2 damage-enable placement. No retention exception is added.
 
 Root build passed (1445 warnings, zero errors). `--golden-torizo-eye-beam-instruction-mechanics` passes28 native controls, both real producers, collision-to-impact selection, exact wall/floor lifetimes, disabled floor loop, frame-specific damage transition,17 exact native installed selectors with zero live reads, boundaries and allocation checks. The fixture's obsolete live-read expectation was corrected without weakening behavior assertions. Inventory:533 converted,15 justified retained/mixed,580 pending.
+
+## Golden Torizo awakening layout (partial timing payload)
+
+Composed the69 controls and21 visual addresses atAA:C9E2-CACD from fall, sit, seated-upload, stand and color-handoff operations. Native timed poses occupy4 bytes, word instructions/operands2, and DMA records9 including their separately owned7-byte descriptors. Sitting movement indexes traverse4/2/0; standing traverses0..10 in word steps. Sitting holds3/4/5 increment once per phase, upload holds32/16/8 halve. No mechanics or presentation-address roster is rebuilt/cached.
+
+Independent hold scales and transitions1/3/48/32/4/32/12/8/4/16, upload repeat2 and color iterations16 remain REQUIRED; Words is unchecked. PresentationWords resolves. Build1437 existing warnings/zero errors; new guarded --lookup-stream2-golden-awakening-layout calls the existing bounded native confirmation unchanged: all69 unique control words and byte ownership,8 DMA operations,21 exact compiled visual selectors,7 selected physical frames and9 hitbox lists pass. This batch confirms the changed layout contract without gameplay discovery. Stream checkpoint86resolved:83converted,two mixed definitions,one justified coordinate-code window;140required.

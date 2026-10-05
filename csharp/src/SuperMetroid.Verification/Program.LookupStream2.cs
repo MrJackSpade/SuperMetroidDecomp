@@ -7,6 +7,89 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] json = PauseWireframeExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseWireframeDocument>(json,
+            MapPresentationFormat.JsonOptions)!;
+        var stock = PauseWireframePresentation.Load(new MemoryStream(json));
+        int pieceCells = 0, leftResiduals = 0, rightResiduals = 0;
+        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        {
+            int pointer = Word(PauseWireframeDefinitions.Pointers + (int)kind * 2) | 0x820000;
+            var native = new byte[PauseWireframeDefinitions.Cells * 2];
+            for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), Word(pointer + cell * 2));
+            Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
+            const BindingFlags privateFields = BindingFlags.Instance | BindingFlags.NonPublic;
+            object frame = ((Array)typeof(PauseWireframePresentation).GetField("frames", privateFields)!.GetValue(stock)!).GetValue((int)kind)!;
+            var left = (Dictionary<int, ushort>)frame.GetType().GetField("leftCells", privateFields)!.GetValue(frame)!;
+            var right = (Dictionary<int, ushort>)frame.GetType().GetField("rightDifferences", privateFields)!.GetValue(frame)!;
+            leftResiduals += left.Count; rightResiduals += right.Count;
+            for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
+            {
+                ushort actualNative = Word(pointer + cell * 2);
+                bool piece = PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile);
+                if (piece)
+                {
+                    AssertEqual(actualNative & 0x03ff, tile, "Native body-piece tile progression");
+                    pieceCells++;
+                }
+                if (cell % 8 < 4)
+                {
+                    ushort calculated = piece ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile) : (ushort)0;
+                    AssertEqual(actualNative != calculated, left.ContainsKey(cell), "Exact required left residual membership");
+                    if (left.TryGetValue(cell, out ushort input)) AssertEqual(actualNative, input, "Required left input preserved exactly");
+                }
+                else
+                {
+                    int paired = cell / 8 * 8 + 7 - cell % 8;
+                    ushort pairedWord = Word(pointer + paired * 2);
+                    ushort reflected = piece ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile)
+                        : pairedWord == 0 ? (ushort)0 : (ushort)(pairedWord ^ 0x4000);
+                    AssertEqual(actualNative != reflected, right.ContainsKey(cell), "Exact asymmetric right residual membership");
+                    if (right.TryGetValue(cell, out ushort input)) AssertEqual(actualNative, input, "Required right input preserved exactly");
+                }
+            }
+            // Confirm independent edits to an empty cell, either side of the
+            // helmet pair, and the asymmetric lower-right artwork/connector cell.
+            foreach (int cell in new[] { 0, 3, 4, 6 * PauseWireframeDefinitions.Columns + 6, PauseWireframeDefinitions.Cells - 1 })
+            {
+                var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value);
+                PauseBackdropCell[] cells = frames[kind.ToString()].ToArray();
+                cells[cell] = cells[cell] with
+                {
+                    TileColumn = (cells[cell].TileColumn + 1) % PauseBackdropDefinitions.AtlasColumns,
+                    FlipX = !cells[cell].FlipX,
+                };
+                frames[kind.ToString()] = cells;
+                using var output = new MemoryStream();
+                PauseWireframePresentation.Write(output, document with { Frames = frames });
+                var selected = PauseWireframePresentation.Load(new MemoryStream(output.ToArray()));
+                Confirm(selected, kind, PauseTileGrid.Compile(cells, "Edited wireframe"),
+                    "Independent left/right/empty/asymmetric edit does not propagate into its paired cell");
+            }
+        }
+        AssertEqual(266, pieceCells, "Native glyph cells calculated from named body pieces");
+        AssertEqual(19, leftResiduals, "Independent left shape/priority residual count");
+        AssertEqual(17, rightResiduals, "Independent right asymmetry residual count");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new byte[2048], (PauseWireframeKind)4), "Wireframe kind bound");
+        AssertThrows<ArgumentException>(() => stock.ApplyTo(new byte[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
+        Console.WriteLine("Wireframe reflection/body pieces:544 native words,266 calculated glyph cells, exact19left/17right residual membership, four actual full stock patches,20 independent empty/left/right/cannon/asymmetric edits and untouched-page/bounds checks pass; independent shape inputs remain required.");
+
+        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, byte[] words, string context)
+        {
+            byte[] actual = Enumerable.Repeat((byte)0xaa, PauseWireframeDefinitions.DestinationSize).ToArray();
+            byte[] expected = actual.ToArray();
+            for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
+                words.AsSpan(row * PauseWireframeDefinitions.Columns * 2, PauseWireframeDefinitions.Columns * 2)
+                    .CopyTo(expected.AsSpan(PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride));
+            presentation.ApplyTo(actual, kind);
+            AssertTrue(expected.AsSpan().SequenceEqual(actual), context);
+        }
+    }
+
     private static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);

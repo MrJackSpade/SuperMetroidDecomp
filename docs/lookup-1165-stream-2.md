@@ -1034,3 +1034,22 @@ Focused `--lookup-stream2-dead-torizo-geometry` passes all25native part tile/siz
 Granted PauseReserveUiDefinitions catalogs semantic text runs at82:BF06-BF30: MODE119-11B with palette1/priority, shared MANUAL146-149 with palette7/priority, RESERVE TANK080-086 and AUTO156-159 with palette7/priority. Mode composes its prefix with the shared Manual suffix; the two long-label anchors share a column and consecutive rows at82:C068/C06A, while manual/auto replace the suffix atModeCell. The provider calculates stock words and destinations directly and stores only independently edited cells/anchors. No unexplained fallback or cached stock label array remains. Independent glyph pixel design and arrow palette endpoints/channel deviations remain REQUIRED separately; no artistic exemption follows from text composition.
 
 `--lookup-stream2-reserve-labels` passes22native words/four destinations,22independent cell edits,56actual ordinary/attribute-preserving/moved label patches and invalid-name/short-destination/index bounds. This specifically preserves82:AB47's old attributes while replacing only the character during mode changes. Build1437existing warnings/zero errors. Stream2 now91resolved (88converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/135required.
+
+### Pause ankle/toe strips and exact remaining inputs (partial)
+
+Added regular Varia ankle17B/18B, Hi-Jump collar179-origin rows, regular upper-foot19E/19F, regular toe1AD-1AF, and regular outer-foot1EE/1FE. Extended existing Power leg and Hi-Jump toe pieces through their remaining native cells, retaining their priority differences. There are266calculated glyph references,19left/17right residual words, and25named source-piece origins. All origins, chosen placements/extents, attribute choices and residual words remain REQUIRED under the same original frames entry; no exemption is asserted.
+
+Exact residual coordinates below are zero-based `(column,row)=native word` within each8x17frame. They are the complete stored stock residual set confirmed by the focused check, not a subset:
+
+- PowerSuit left: `(2,6)=2594, (1,9)=25C9, (3,13)=05D7, (2,14)=258F, (0,15)=258E`.
+- PowerSuitHiJump left: `(2,6)=2594, (1,9)=25C9, (1,13)=0579, (2,13)=258C, (3,13)=05D7, (1,14)=0589, (3,15)=059B`.
+- VariaSuit left: `(1,9)=25C9, (1,11)=05E9, (1,12)=05F9, (3,13)=05D7, (0,15)=258E`.
+- VariaSuitHiJump left: `(1,9)=25C9, (3,15)=059B`.
+- All four right sides: `(6,9)=0000, (7,15)=259D`, plus `(7,14)=F955` for PowerSuit and `E955` for the other three.
+- Additional VariaSuit right: `(4,11)=45EB, (6,11)=65E9, (4,12)=45FB, (6,12)=65F9, (7,16)=25FF`.
+
+Native82:B20C-B256 selects one complete frame solely from EquippedItems&0101, then copies17rows of8words. Managed PauseMenuState.WriteSamusWireframe uses PauseEquipmentRules.WireframeIndex followed by the same bounded patch operation. The display is static line artwork, including the asymmetric cannon and equipment connector strokes shown in `lookup1165-pause-wireframes.png`; there is no animation/angle/velocity phase controlling individual cells. This bounds the remaining artwork-role review but does not itself approve retention of every selected value.
+
+`--lookup-stream2-wireframe-mirrors` passes266native glyph calculations, all544complete native words, exact19left/17right residual membership/values, four actual stock patches,20independent edits and bounds. Build1437existing warnings/zero errors. Stream2 remains91resolved/135required.
+
+Root integration: combines25d70f98,66814a6a,17961551,159a07c0. Viewed the four source wireframes; root Verification build1445warnings/0errors and focused544word/266glyph/exact36residual/20edit checks pass; ResourceAudit0/0. All25piece origins, placements, attributes and36residuals remain required; no aggregate completion or retention. Master551converted/16retained-mixed/561pending unchanged.

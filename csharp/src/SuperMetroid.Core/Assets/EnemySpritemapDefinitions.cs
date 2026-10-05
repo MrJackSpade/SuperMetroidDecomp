@@ -179,540 +179,1419 @@ internal static class EnemySpritemapDefinitions
     internal const int TileColumns = 16;
     internal const int TileRows = 32;
 
-    private static readonly EnemySpritemapDefinition[] NamedFrameDefinitions =
-    [
-        new(BoyonBank, 0x88da, "boyon_idle_0"),
-        new(BoyonBank, 0x88e1, "boyon_idle_1"),
-        new(BoyonBank, 0x88e8, "boyon_idle_2"),
-        new(BoyonBank, 0x88ef, "boyon_bounce_0"),
-        new(BoyonBank, 0x88f6, "boyon_bounce_1"),
-        new(BoyonBank, 0x88fd, "boyon_bounce_2"),
-        new(BoyonBank, 0x8904, "boyon_bounce_3"),
-        new(BoyonBank, 0xa0bb, "cacatac_upright_idle_0"),
-        new(BoyonBank, 0xa0db, "cacatac_upright_idle_1"),
-        new(BoyonBank, 0xa0fb, "cacatac_upright_idle_2"),
-        new(BoyonBank, 0xa11b, "cacatac_upright_idle_3"),
-        new(BoyonBank, 0xa13b, "cacatac_upright_idle_4"),
-        new(BoyonBank, 0xa15b, "cacatac_upright_idle_5"),
-        new(BoyonBank, 0xa17b, "cacatac_upright_idle_6"),
-        new(BoyonBank, 0xa19b, "cacatac_upright_idle_7"),
-        new(BoyonBank, 0xa1bb, "cacatac_upright_attack_1"),
-        new(BoyonBank, 0xa1ef, "cacatac_upright_attack_2"),
-        new(BoyonBank, 0xa223, "cacatac_inverted_idle_0"),
-        new(BoyonBank, 0xa243, "cacatac_inverted_idle_1"),
-        new(BoyonBank, 0xa263, "cacatac_inverted_idle_2"),
-        new(BoyonBank, 0xa283, "cacatac_inverted_idle_3"),
-        new(BoyonBank, 0xa2a3, "cacatac_inverted_idle_4"),
-        new(BoyonBank, 0xa2c3, "cacatac_inverted_idle_5"),
-        new(BoyonBank, 0xa2e3, "cacatac_inverted_idle_6"),
-        new(BoyonBank, 0xa303, "cacatac_inverted_idle_7"),
-        new(BoyonBank, 0xa323, "cacatac_inverted_attack_1"),
-        new(BoyonBank, 0xa357, "cacatac_inverted_attack_2"),
-        new(BoulderBank, 0x8a59, "boulder_roll_0"),
-        new(BoulderBank, 0x8a6f, "boulder_roll_1"),
-        new(BoulderBank, 0x8a85, "boulder_roll_2"),
-        new(BoulderBank, 0x8a9b, "boulder_roll_3"),
-        new(BoulderBank, 0x8ab1, "boulder_roll_4"),
-        new(BoulderBank, 0x8ac7, "boulder_roll_5"),
-        new(BoulderBank, 0x8add, "boulder_roll_6"),
-        new(BoulderBank, 0x8af3, "boulder_roll_7"),
-        new(AtomicBank, 0xe489, "atomic_up_right_0"),
-        new(AtomicBank, 0xe49f, "atomic_up_right_1"),
-        new(AtomicBank, 0xe4b5, "atomic_up_right_2"),
-        new(AtomicBank, 0xe4cb, "atomic_up_right_3"),
-        new(AtomicBank, 0xe4e1, "atomic_up_right_4"),
-        new(AtomicBank, 0xe4f2, "atomic_up_right_5"),
-        new(AtomicBank, 0xe508, "atomic_up_left_0"),
-        new(AtomicBank, 0xe51e, "atomic_up_left_1"),
-        new(AtomicBank, 0xe534, "atomic_up_left_2"),
-        new(AtomicBank, 0xe54a, "atomic_up_left_3"),
-        new(AtomicBank, 0xe560, "atomic_up_left_4"),
-        new(AtomicBank, 0xe571, "atomic_up_left_5"),
-        new(SkulteraBank, 0x928a, "skultera_swim_left_0"),
-        new(SkulteraBank, 0x92a5, "skultera_swim_left_1"),
-        new(SkulteraBank, 0x92c0, "skultera_swim_left_2"),
-        new(SkulteraBank, 0x92db, "skultera_turn_right_0"),
-        new(SkulteraBank, 0x92f6, "skultera_turn_right_1"),
-        new(SkulteraBank, 0x9311, "skultera_turn_right_2"),
-        new(SkulteraBank, 0x9327, "skultera_turn_right_3"),
-        new(SkulteraBank, 0x933d, "skultera_turn_right_4"),
-        new(SkulteraBank, 0x934e, "skultera_turn_right_5"),
-        new(SkulteraBank, 0x9364, "skultera_turn_right_6"),
-        new(SkulteraBank, 0x937f, "skultera_turn_right_7"),
-        new(SkulteraBank, 0x939a, "skultera_swim_right_0"),
-        new(SkulteraBank, 0x93b5, "skultera_swim_right_1"),
-        new(SkulteraBank, 0x93d0, "skultera_swim_right_2"),
-        new(SkulteraBank, 0x93eb, "skultera_turn_left_0"),
-        new(SkulteraBank, 0x9406, "skultera_turn_left_1"),
-        new(SkulteraBank, 0x9421, "skultera_turn_left_2"),
-        new(SkulteraBank, 0x9437, "skultera_turn_left_3"),
-        new(SkulteraBank, 0x944d, "skultera_turn_left_4"),
-        new(SkulteraBank, 0x945e, "skultera_turn_left_5"),
-        new(SkulteraBank, 0x9474, "skultera_turn_left_6"),
-        new(SkulteraBank, 0x948f, "skultera_turn_left_7"),
-        new(WaverBank, 0x884a, "waver_steady_left"),
-        new(WaverBank, 0x88b3, "waver_steady_right"),
-        new(WaverBank, 0x885b, "waver_spin_left_0"),
-        new(WaverBank, 0x8871, "waver_spin_left_1"),
-        new(WaverBank, 0x881e, "waver_spin_left_2"),
-        new(WaverBank, 0x8834, "waver_spin_left_3"),
-        new(WaverBank, 0x88c4, "waver_spin_right_0"),
-        new(WaverBank, 0x88da, "waver_spin_right_1"),
-        new(WaverBank, 0x8887, "waver_spin_right_2"),
-        new(WaverBank, 0x889d, "waver_spin_right_3"),
-        new(SkreeMetareeBank, 0x8b65, "metaree_idle_0"),
-        new(SkreeMetareeBank, 0x8bb9, "metaree_idle_1"),
-        new(SkreeMetareeBank, 0x8bde, "metaree_idle_2"),
-        new(SkreeMetareeBank, 0x8bea, "metaree_idle_3"),
-        new(SkreeMetareeBank, 0x8b94, "metaree_prepare_1"),
-        new(SkreeMetareeBank, 0xc842, "skree_idle_0"),
-        new(SkreeMetareeBank, 0xc878, "skree_idle_1"),
-        new(SkreeMetareeBank, 0xc884, "skree_idle_2"),
-        new(SkreeMetareeBank, 0xc89a, "skree_idle_3"),
-        new(SkreeMetareeBank, 0xc862, "skree_prepare_1"),
-        new(ZoaBank, 0xb55f, "zoa_shoot_left_0"),
-        new(ZoaBank, 0xb566, "zoa_shoot_left_1"),
-        new(ZoaBank, 0xb56d, "zoa_shoot_left_2"),
-        new(ZoaBank, 0xb57b, "zoa_rise_left_0"),
-        new(ZoaBank, 0xb574, "zoa_rise_left_1"),
-        new(ZoaBank, 0xb582, "zoa_rise_left_2"),
-        new(ZoaBank, 0xb589, "zoa_shoot_right_0"),
-        new(ZoaBank, 0xb590, "zoa_shoot_right_1"),
-        new(ZoaBank, 0xb597, "zoa_shoot_right_2"),
-        new(ZoaBank, 0xb5a5, "zoa_rise_right_0"),
-        new(ZoaBank, 0xb59e, "zoa_rise_right_1"),
-        new(ZoaBank, 0xb5ac, "zoa_rise_right_2"),
-        new(PipeBugBank, 0x89b7, "pipe_brinstar_normal_left_0"),
-        new(PipeBugBank, 0x89be, "pipe_brinstar_normal_left_1"),
-        new(PipeBugBank, 0x89c5, "pipe_brinstar_normal_left_2"),
-        new(PipeBugBank, 0x89cc, "pipe_brinstar_normal_left_3"),
-        new(PipeBugBank, 0x89d3, "pipe_brinstar_normal_left_4"),
-        new(PipeBugBank, 0x89da, "pipe_brinstar_normal_right_0"),
-        new(PipeBugBank, 0x89e1, "pipe_brinstar_normal_right_1"),
-        new(PipeBugBank, 0x89e8, "pipe_brinstar_normal_right_2"),
-        new(PipeBugBank, 0x89ef, "pipe_brinstar_normal_right_3"),
-        new(PipeBugBank, 0x89f6, "pipe_brinstar_normal_right_4"),
-        new(PipeBugBank, 0x8a6d, "pipe_brinstar_strong_shoot_left_0"),
-        new(PipeBugBank, 0x8a74, "pipe_brinstar_strong_shoot_left_1"),
-        new(PipeBugBank, 0x8a7b, "pipe_brinstar_strong_shoot_left_2"),
-        new(PipeBugBank, 0x8a82, "pipe_brinstar_strong_rise_left_0"),
-        new(PipeBugBank, 0x8a89, "pipe_brinstar_strong_rise_left_1"),
-        new(PipeBugBank, 0x8a90, "pipe_brinstar_strong_rise_left_2"),
-        new(PipeBugBank, 0x8a97, "pipe_brinstar_strong_shoot_right_0"),
-        new(PipeBugBank, 0x8a9e, "pipe_brinstar_strong_shoot_right_1"),
-        new(PipeBugBank, 0x8aa5, "pipe_brinstar_strong_shoot_right_2"),
-        new(PipeBugBank, 0x8aac, "pipe_brinstar_strong_rise_right_0"),
-        new(PipeBugBank, 0x8ab3, "pipe_brinstar_strong_rise_right_1"),
-        new(PipeBugBank, 0x8aba, "pipe_brinstar_strong_rise_right_2"),
-        new(PipeBugBank, 0x8e96, "pipe_norfair_left_0"),
-        new(PipeBugBank, 0x8e9d, "pipe_norfair_left_1"),
-        new(PipeBugBank, 0x8ea4, "pipe_norfair_left_2"),
-        new(PipeBugBank, 0x8eab, "pipe_norfair_left_3"),
-        new(PipeBugBank, 0x8eb2, "pipe_norfair_left_4"),
-        new(PipeBugBank, 0x8eb9, "pipe_norfair_right_0"),
-        new(PipeBugBank, 0x8ec0, "pipe_norfair_right_1"),
-        new(PipeBugBank, 0x8ec7, "pipe_norfair_right_2"),
-        new(PipeBugBank, 0x8ece, "pipe_norfair_right_3"),
-        new(PipeBugBank, 0x8ed5, "pipe_norfair_right_4"),
-        new(PipeBugBank, 0x92ad, "pipe_yellow_fly_left_0"),
-        new(PipeBugBank, 0x92b4, "pipe_yellow_fly_left_1"),
-        new(PipeBugBank, 0x92bb, "pipe_yellow_fly_left_2"),
-        new(PipeBugBank, 0x92c2, "pipe_yellow_arc_left_0"),
-        new(PipeBugBank, 0x92c9, "pipe_yellow_arc_left_1"),
-        new(PipeBugBank, 0x92d0, "pipe_yellow_arc_left_2"),
-        new(PipeBugBank, 0x92d7, "pipe_yellow_fly_right_0"),
-        new(PipeBugBank, 0x92de, "pipe_yellow_fly_right_1"),
-        new(PipeBugBank, 0x92e5, "pipe_yellow_fly_right_2"),
-        new(PipeBugBank, 0x92ec, "pipe_yellow_arc_right_0"),
-        new(PipeBugBank, 0x92f3, "pipe_yellow_arc_right_1"),
-        new(PipeBugBank, 0x92fa, "pipe_yellow_arc_right_2"),
-        new(FakeKraidBank, 0x9c64, "fake_kraid_walk_left_0"),
-        new(FakeKraidBank, 0x9cb6, "fake_kraid_walk_left_1"),
-        new(FakeKraidBank, 0x9d08, "fake_kraid_walk_left_2"),
-        new(FakeKraidBank, 0x9d5a, "fake_kraid_walk_left_3"),
-        new(FakeKraidBank, 0x9dac, "fake_kraid_spit_left_0"),
-        new(FakeKraidBank, 0x9dfe, "fake_kraid_spit_left_1"),
-        new(FakeKraidBank, 0x9e50, "fake_kraid_spit_left_2"),
-        new(FakeKraidBank, 0x9ea2, "fake_kraid_walk_right_0"),
-        new(FakeKraidBank, 0x9ef4, "fake_kraid_walk_right_1"),
-        new(FakeKraidBank, 0x9f46, "fake_kraid_walk_right_2"),
-        new(FakeKraidBank, 0x9f98, "fake_kraid_walk_right_3"),
-        new(FakeKraidBank, 0x9fea, "fake_kraid_spit_right_0"),
-        new(FakeKraidBank, 0xa03c, "fake_kraid_spit_right_1"),
-        new(FakeKraidBank, 0xa08e, "fake_kraid_spit_right_2"),
-        new(KraidNailBank, 0xa617, "kraid_nail_0"),
-        new(KraidNailBank, 0xa623, "kraid_nail_1"),
-        new(KraidNailBank, 0xa639, "kraid_nail_2"),
-        new(KraidNailBank, 0xa645, "kraid_nail_3"),
-        new(KraidNailBank, 0xa65b, "kraid_nail_4"),
-        new(KraidNailBank, 0xa667, "kraid_nail_5"),
-        new(KraidNailBank, 0xa67d, "kraid_nail_6"),
-        new(KraidNailBank, 0xa689, "kraid_nail_7"),
-        new(OwtchStokeBank, 0xa589, "owtch_left_0"),
-        new(OwtchStokeBank, 0xa590, "owtch_left_1"),
-        new(OwtchStokeBank, 0xa597, "owtch_left_2"),
-        new(OwtchStokeBank, 0x8aca, "stoke_walk_left_0"),
-        new(OwtchStokeBank, 0x8ad6, "stoke_walk_left_1"),
-        new(OwtchStokeBank, 0x8ae7, "stoke_walk_left_2"),
-        new(OwtchStokeBank, 0x8af3, "stoke_walk_left_3"),
-        new(OwtchStokeBank, 0x8aff, "stoke_attack_left"),
-        new(OwtchStokeBank, 0x8b15, "stoke_walk_right_0"),
-        new(OwtchStokeBank, 0x8b21, "stoke_walk_right_1"),
-        new(OwtchStokeBank, 0x8b32, "stoke_walk_right_2"),
-        new(OwtchStokeBank, 0x8b3e, "stoke_walk_right_3"),
-        new(OwtchStokeBank, 0x8b4a, "stoke_attack_right"),
-        new(RipperBank, 0xe3c5, "ripper_shared_left_0"),
-        new(RipperBank, 0xe3db, "ripper_shared_left_1"),
-        new(RipperBank, 0xe3ec, "ripper_shared_left_2"),
-        new(RipperBank, 0xe402, "ripper_shared_right_0"),
-        new(RipperBank, 0xe418, "ripper_shared_right_1"),
-        new(RipperBank, 0xe429, "ripper_shared_right_2"),
-        new(RipperBank, 0xe43f, "ripper_shared_frozen_left"),
-        new(RipperBank, 0xe44b, "ripper_shared_frozen_right"),
-        new(RipperBank, 0xe527, "ripper_left_0"),
-        new(RipperBank, 0xe533, "ripper_left_1"),
-        new(RipperBank, 0xe53f, "ripper_left_2"),
-        new(RipperBank, 0xe54b, "ripper_right_0"),
-        new(RipperBank, 0xe557, "ripper_right_1"),
-        new(RipperBank, 0xe563, "ripper_right_2"),
-        new(FirefleaBank, 0x8ea5, "fireflea_cycle_0"),
-        new(FirefleaBank, 0x8eb6, "fireflea_cycle_1"),
-        new(FirefleaBank, 0x8ec7, "fireflea_cycle_2"),
-        new(FirefleaBank, 0x8ed8, "fireflea_cycle_3"),
-        new(FirefleaBank, 0x8ee9, "fireflea_cycle_4"),
-        new(FirefleaBank, 0x8efa, "fireflea_cycle_5"),
-        new(FirefleaBank, 0x8f0b, "fireflea_cycle_6"),
-        new(FirefleaBank, 0x8f1c, "fireflea_cycle_7"),
-        new(FirefleaBank, 0x8f2d, "fireflea_cycle_8"),
-        new(FirefleaBank, 0x8f3e, "fireflea_cycle_9"),
-        new(FirefleaBank, 0x8f4f, "fireflea_cycle_10"),
-        new(FirefleaBank, 0x8f60, "fireflea_cycle_11"),
-        new(FirefleaBank, 0x8f71, "fireflea_cycle_12"),
-        new(FirefleaBank, 0x8f82, "fireflea_cycle_13"),
-        new(FirefleaBank, 0x8f93, "fireflea_cycle_14"),
-        new(FirefleaBank, 0x8fa4, "fireflea_cycle_15"),
-        new(FirefleaBank, 0x8fb5, "fireflea_cycle_16"),
-        new(FirefleaBank, 0x8fc6, "fireflea_cycle_17"),
-        new(FirefleaBank, 0x8fd7, "fireflea_cycle_18"),
-        new(FirefleaBank, 0x8fe8, "fireflea_cycle_19"),
-        new(FirefleaBank, 0x8ff9, "fireflea_cycle_20"),
-        new(MagdolliteBank, 0xb448, "magdollite_left_idle_0"),
-        new(MagdolliteBank, 0xb459, "magdollite_left_idle_1"),
-        new(MagdolliteBank, 0xb46a, "magdollite_left_idle_2"),
-        new(MagdolliteBank, 0xb47b, "magdollite_left_throw_0"),
-        new(MagdolliteBank, 0xb48c, "magdollite_left_throw_1"),
-        new(MagdolliteBank, 0xb49d, "magdollite_left_throw_2"),
-        new(MagdolliteBank, 0xb4a9, "magdollite_left_throw_3"),
-        new(MagdolliteBank, 0xb4b5, "magdollite_pillar_cap"),
-        new(MagdolliteBank, 0xb4c1, "magdollite_left_submerge_0"),
-        new(MagdolliteBank, 0xb4cf, "magdollite_left_submerge_1"),
-        new(MagdolliteBank, 0xb4e0, "magdollite_left_submerge_2"),
-        new(MagdolliteBank, 0xb4f1, "magdollite_right_idle_0"),
-        new(MagdolliteBank, 0xb502, "magdollite_right_idle_1"),
-        new(MagdolliteBank, 0xb513, "magdollite_right_idle_2"),
-        new(MagdolliteBank, 0xb524, "magdollite_right_throw_0"),
-        new(MagdolliteBank, 0xb535, "magdollite_right_throw_1"),
-        new(MagdolliteBank, 0xb546, "magdollite_right_throw_2"),
-        new(MagdolliteBank, 0xb552, "magdollite_right_throw_3"),
-        new(MagdolliteBank, 0xb56a, "magdollite_right_submerge_0"),
-        new(MagdolliteBank, 0xb578, "magdollite_right_submerge_1"),
-        new(MagdolliteBank, 0xb589, "magdollite_right_submerge_2"),
-        new(MagdolliteBank, 0xb59a, "magdollite_pillar_phase_0"),
-        new(MagdolliteBank, 0xb5a1, "magdollite_pillar_phase_1"),
-        new(MagdolliteBank, 0xb5ad, "magdollite_pillar_phase_2"),
-        new(MagdolliteBank, 0xb5be, "magdollite_pillar_phase_3"),
-        new(MagdolliteBank, 0xb5d4, "magdollite_pillar_phase_4"),
-        new(MagdolliteBank, 0xb5ef, "magdollite_pillar_phase_5"),
-        new(MagdolliteBank, 0xb60f, "magdollite_pillar_phase_6"),
-        new(MagdolliteBank, 0xb634, "magdollite_pillar_phase_7"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf921, "ceres_door_rotating_overlay"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf95f, "ceres_door_left_hold"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf989, "ceres_door_left_transition_0"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9b3, "ceres_door_left_transition_1"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9d3, "ceres_door_left_transition_2"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9f3, "ceres_door_left_transition_3"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa13, "ceres_door_right_hold"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa3d, "ceres_door_right_transition_0"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa67, "ceres_door_right_transition_1"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa87, "ceres_door_right_transition_2"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfaa7, "ceres_door_right_transition_3"),
-        new(CeresDoorInstructionProgramDefinitions.Bank,
-            CeresDoorInstructionProgramDefinitions.InitialSpritemap, "ceres_door_initial"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xface, "ceres_door_mode7_left_wall"),
-        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfb2f, "ceres_door_mode7_right_wall"),
-        new(CeresDoorInstructionProgramDefinitions.Bank,
-            CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
-            "ceres_door_ridley_private_overlay"),
-        new(CeresBabyInstructionProgramDefinitions.Bank,
-            CeresBabyInstructionProgramDefinitions.HorizontalFrame,
-            "ceres_baby_horizontal"),
-        new(CeresBabyInstructionProgramDefinitions.Bank,
-            CeresBabyInstructionProgramDefinitions.RoundFrame,
-            "ceres_baby_round"),
-        new(CeresBabyInstructionProgramDefinitions.Bank,
-            CeresBabyInstructionProgramDefinitions.VerticalFrame,
-            "ceres_baby_vertical"),
-        new(RioBank, 0xbd6c, "rio_bd6c"),
-        new(RioBank, 0xbd82, "rio_bd82"),
-        new(RioBank, 0xbd98, "rio_bd98"),
-        new(RioBank, 0xbdae, "rio_bdae"),
-        new(RioBank, 0xbdc4, "rio_bdc4"),
-        new(RioBank, 0xbdda, "rio_bdda"),
-        new(RioBank, 0xbdf0, "rio_bdf0"),
-        new(RioBank, 0xbe06, "rio_be06"),
-        new(LowerNorfairRioBank, 0xc8bd, "lower_norfair_rio_c8bd"),
-        new(LowerNorfairRioBank, 0xc8d3, "lower_norfair_rio_c8d3"),
-        new(LowerNorfairRioBank, 0xc8e9, "lower_norfair_rio_c8e9"),
-        new(LowerNorfairRioBank, 0xc8ff, "lower_norfair_rio_c8ff"),
-        new(LowerNorfairRioBank, 0xc915, "lower_norfair_rio_c915"),
-        new(LowerNorfairRioBank, 0xc92b, "lower_norfair_rio_c92b"),
-        new(LowerNorfairRioBank, 0xc941, "lower_norfair_rio_c941"),
-        new(LowerNorfairRioBank, 0xc957, "lower_norfair_rio_c957"),
-        new(LowerNorfairRioBank, 0xc96d, "lower_norfair_rio_c96d"),
-        new(LowerNorfairRioBank, 0xc983, "lower_norfair_rio_c983"),
-        new(LowerNorfairRioBank, 0xc999, "lower_norfair_rio_c999"),
-        new(LowerNorfairRioBank, 0xc9af, "lower_norfair_rio_c9af"),
-        new(LowerNorfairRioBank, 0xc9c5, "lower_norfair_rio_c9c5"),
-        new(LowerNorfairRioBank, 0xc9db, "lower_norfair_rio_c9db"),
-        new(LowerNorfairRioBank, 0xc9f1, "lower_norfair_rio_c9f1"),
-        new(LowerNorfairRioBank, 0xca07, "lower_norfair_rio_ca07"),
-        new(LowerNorfairRioBank, 0xca13, "lower_norfair_rio_ca13"),
-        new(LowerNorfairRioBank, 0xca1f, "lower_norfair_rio_ca1f"),
-        new(NorfairRioBank, 0xc427, "norfair_rio_c427"),
-        new(NorfairRioBank, 0xc442, "norfair_rio_c442"),
-        new(NorfairRioBank, 0xc45d, "norfair_rio_c45d"),
-        new(NorfairRioBank, 0xc493, "norfair_rio_c493"),
-        new(NorfairRioBank, 0xc49f, "norfair_rio_c49f"),
-        new(NorfairRioBank, 0xc4ab, "norfair_rio_c4ab"),
-        new(NorfairRioBank, 0xc4b7, "norfair_rio_c4b7"),
-        new(NorfairRioBank, 0xc4d2, "norfair_rio_c4d2"),
-        new(NorfairRioBank, 0xc4ed, "norfair_rio_c4ed"),
-        new(NorfairRioBank, 0xc508, "norfair_rio_c508"),
-        new(NorfairRioBank, 0xc523, "norfair_rio_c523"),
-        new(NorfairRioBank, 0xc534, "norfair_rio_c534"),
-        new(NorfairRioBank, 0xc54f, "norfair_rio_c54f"),
-        new(NorfairRioBank, 0xc56a, "norfair_rio_c56a"),
-        new(NorfairRioBank, 0xc585, "norfair_rio_c585"),
-        new(NorfairRioBank, 0xc5a0, "norfair_rio_c5a0"),
-        new(NorfairRioBank, 0xc5bb, "norfair_rio_c5bb"),
-        new(NorfairRioBank, 0xc5d6, "norfair_rio_c5d6"),
-        new(NorfairRioBank, 0xc5e2, "norfair_rio_c5e2"),
-        new(NorfairRioBank, 0xc5ee, "norfair_rio_c5ee"),
-        new(PuyoBank, 0x9df6, "puyo_ground_0"),
-        new(PuyoBank, 0x9e02, "puyo_ground_1"),
-        new(PuyoBank, 0x9e0e, "puyo_ground_2"),
-        new(PuyoBank, 0x9e1a, "puyo_air_0"),
-        new(PuyoBank, 0x9e26, "puyo_air_1"),
-        new(PuyoBank, 0x9e37, "puyo_air_2"),
-        new(PuyoBank, 0x9e4d, "puyo_air_3"),
-        new(PuyoBank, 0x9e5e, "puyo_air_4"),
-        new(BullBank, 0xdb76, "bull_idle_0"),
-        new(BullBank, 0xdb8c, "bull_idle_1"),
-        new(BullBank, 0xdba2, "bull_idle_2"),
-        new(AlcoonBank, 0xdfa2, "alcoon_left_walk_0"),
-        new(AlcoonBank, 0xdfc2, "alcoon_left_walk_1"),
-        new(AlcoonBank, 0xdfe2, "alcoon_left_walk_2"),
-        new(AlcoonBank, 0xe007, "alcoon_left_walk_3"),
-        new(AlcoonBank, 0xe027, "alcoon_left_fire_0"),
-        new(AlcoonBank, 0xe047, "alcoon_left_fire_1"),
-        new(AlcoonBank, 0xe06c, "alcoon_left_fire_2"),
-        new(AlcoonBank, 0xe09b, "alcoon_left_fire_3"),
-        new(AlcoonBank, 0xe0bb, "alcoon_left_air_up"),
-        new(AlcoonBank, 0xe0db, "alcoon_right_walk_0"),
-        new(AlcoonBank, 0xe0fb, "alcoon_right_walk_1"),
-        new(AlcoonBank, 0xe11b, "alcoon_right_walk_2"),
-        new(AlcoonBank, 0xe140, "alcoon_right_walk_3"),
-        new(AlcoonBank, 0xe160, "alcoon_right_fire_0"),
-        new(AlcoonBank, 0xe180, "alcoon_right_fire_1"),
-        new(AlcoonBank, 0xe1a5, "alcoon_right_fire_2"),
-        new(AlcoonBank, 0xe1d4, "alcoon_right_fire_3"),
-        new(AlcoonBank, 0xe1f4, "alcoon_right_air_up"),
-        new(BeetomBank, 0xbed3, "beetom_left_crawl_0"),
-        new(BeetomBank, 0xbeee, "beetom_left_crawl_1"),
-        new(BeetomBank, 0xbf09, "beetom_left_crawl_2"),
-        new(BeetomBank, 0xbf24, "beetom_left_hop_0"),
-        new(BeetomBank, 0xbf3f, "beetom_left_hop_1"),
-        new(BeetomBank, 0xbf5a, "beetom_left_drain_0"),
-        new(BeetomBank, 0xbf75, "beetom_left_drain_1"),
-        new(BeetomBank, 0xbf90, "beetom_left_drain_2"),
-        new(BeetomBank, 0xbfab, "beetom_left_drain_3"),
-        new(BeetomBank, 0xbfcb, "beetom_left_drain_4"),
-        new(BeetomBank, 0xbfeb, "beetom_left_drain_5"),
-        new(BeetomBank, 0xc00b, "beetom_right_crawl_0"),
-        new(BeetomBank, 0xc026, "beetom_right_crawl_1"),
-        new(BeetomBank, 0xc041, "beetom_right_crawl_2"),
-        new(BeetomBank, 0xc05c, "beetom_right_hop_0"),
-        new(BeetomBank, 0xc077, "beetom_right_hop_1"),
-        new(BeetomBank, 0xc092, "beetom_right_drain_0"),
-        new(BeetomBank, 0xc0ad, "beetom_right_drain_1"),
-        new(BeetomBank, 0xc0c8, "beetom_right_drain_2"),
-        new(BeetomBank, 0xc0e3, "beetom_right_drain_3"),
-        new(BeetomBank, 0xc103, "beetom_right_drain_4"),
-        new(BeetomBank, 0xc123, "beetom_right_drain_5"),
-        new(HopperBank, 0xaf19, "sidehopper_jump_floor"),
-        new(HopperBank, 0xaee3, "sidehopper_land_floor_0"),
-        new(HopperBank, 0xaefe, "sidehopper_land_floor_1"),
-        new(HopperBank, 0xaf6a, "sidehopper_jump_ceiling"),
-        new(HopperBank, 0xaf34, "sidehopper_land_ceiling_0"),
-        new(HopperBank, 0xaf4f, "sidehopper_land_ceiling_1"),
-        new(HopperBank, 0xb019, "dessgeega_jump_floor"),
-        new(HopperBank, 0xafe3, "dessgeega_land_floor_0"),
-        new(HopperBank, 0xaffe, "dessgeega_land_floor_1"),
-        new(HopperBank, 0xb06a, "dessgeega_jump_ceiling"),
-        new(HopperBank, 0xb034, "dessgeega_land_ceiling_0"),
-        new(HopperBank, 0xb04f, "dessgeega_land_ceiling_1"),
-        new(HopperBank, 0xb15b, "large_sidehopper_jump_floor"),
-        new(HopperBank, 0xb111, "large_sidehopper_land_floor_0"),
-        new(HopperBank, 0xb136, "large_sidehopper_land_floor_1"),
-        new(HopperBank, 0xb1de, "large_sidehopper_jump_ceiling"),
-        new(HopperBank, 0xb194, "large_sidehopper_land_ceiling_0"),
-        new(HopperBank, 0xb1b9, "large_sidehopper_land_ceiling_1"),
-        new(HopperBank, 0xb2d1, "large_dessgeega_jump_floor"),
-        new(HopperBank, 0xb273, "large_dessgeega_land_floor_0"),
-        new(HopperBank, 0xb2a2, "large_dessgeega_land_floor_1"),
-        new(HopperBank, 0xb368, "large_dessgeega_jump_ceiling"),
-        new(HopperBank, 0xb30a, "large_dessgeega_land_ceiling_0"),
-        new(HopperBank, 0xb339, "large_dessgeega_land_ceiling_1"),
-        new(ChootBank, 0xe146, "choot_idle"),
-        new(ChootBank, 0xe15c, "choot_jump"),
-        new(ChootBank, 0xe168, "choot_jump_apex"),
-        new(ChootBank, 0xe16f, "choot_fall_end"),
-        new(HZoomerBank, 0xe50e, "hzoomer_upside_right_0"),
-        new(HZoomerBank, 0xe524, "hzoomer_upside_right_1"),
-        new(HZoomerBank, 0xe53a, "hzoomer_upside_right_2"),
-        new(HZoomerBank, 0xe550, "hzoomer_upside_right_3"),
-        new(HZoomerBank, 0xe566, "hzoomer_upside_right_4"),
-        new(HZoomerBank, 0xe3c4, "hzoomer_upside_left_0"),
-        new(HZoomerBank, 0xe3da, "hzoomer_upside_left_1"),
-        new(HZoomerBank, 0xe3f0, "hzoomer_upside_left_2"),
-        new(HZoomerBank, 0xe406, "hzoomer_upside_left_3"),
-        new(HZoomerBank, 0xe41c, "hzoomer_upside_left_4"),
-        new(HZoomerBank, 0xe432, "hzoomer_upside_down_0"),
-        new(HZoomerBank, 0xe448, "hzoomer_upside_down_1"),
-        new(HZoomerBank, 0xe45e, "hzoomer_upside_down_2"),
-        new(HZoomerBank, 0xe474, "hzoomer_upside_down_3"),
-        new(HZoomerBank, 0xe48a, "hzoomer_upside_down_4"),
-        new(HZoomerBank, 0xe2e8, "hzoomer_upside_up_0"),
-        new(HZoomerBank, 0xe2fe, "hzoomer_upside_up_1"),
-        new(HZoomerBank, 0xe314, "hzoomer_upside_up_2"),
-        new(HZoomerBank, 0xe32a, "hzoomer_upside_up_3"),
-        new(HZoomerBank, 0xe340, "hzoomer_upside_up_4"),
-        new(SbugBank, 0xa67d, "sbug_right_0"),
-        new(SbugBank, 0xa684, "sbug_right_1"),
-        new(SbugBank, 0xa68b, "sbug_right_2"),
-        new(SbugBank, 0xa692, "sbug_up_right_0"),
-        new(SbugBank, 0xa699, "sbug_up_right_1"),
-        new(SbugBank, 0xa6a0, "sbug_up_right_2"),
-        new(SbugBank, 0xa6a7, "sbug_up_0"),
-        new(SbugBank, 0xa6ae, "sbug_up_1"),
-        new(SbugBank, 0xa6b5, "sbug_up_2"),
-        new(SbugBank, 0xa6bc, "sbug_up_left_0"),
-        new(SbugBank, 0xa6c3, "sbug_up_left_1"),
-        new(SbugBank, 0xa6ca, "sbug_up_left_2"),
-        new(SbugBank, 0xa6d1, "sbug_left_0"),
-        new(SbugBank, 0xa6d8, "sbug_left_1"),
-        new(SbugBank, 0xa6df, "sbug_left_2"),
-        new(SbugBank, 0xa6e6, "sbug_down_left_0"),
-        new(SbugBank, 0xa6ed, "sbug_down_left_1"),
-        new(SbugBank, 0xa6f4, "sbug_down_left_2"),
-        new(SbugBank, 0xa6fb, "sbug_down_0"),
-        new(SbugBank, 0xa702, "sbug_down_1"),
-        new(SbugBank, 0xa709, "sbug_down_2"),
-        new(SbugBank, 0xa710, "sbug_down_right_0"),
-        new(SbugBank, 0xa717, "sbug_down_right_1"),
-        new(SbugBank, 0xa71e, "sbug_down_right_2"),
-        new(FuneNamiheBank, 0x93f9, "fune_left_idle"),
-        new(FuneNamiheBank, 0x9423, "fune_left_active_0"),
-        new(FuneNamiheBank, 0x944d, "fune_left_active_1"),
-        new(FuneNamiheBank, 0x9477, "fune_left_active_2"),
-        new(FuneNamiheBank, 0x94a1, "fune_left_active_3"),
-        new(FuneNamiheBank, 0x94cb, "fune_right_idle"),
-        new(FuneNamiheBank, 0x94f5, "fune_right_active_0"),
-        new(FuneNamiheBank, 0x951f, "fune_right_active_1"),
-        new(FuneNamiheBank, 0x9549, "fune_right_active_2"),
-        new(FuneNamiheBank, 0x9573, "fune_right_active_3"),
-        new(FuneNamiheBank, 0x97b4, "namihe_left_idle"),
-        new(FuneNamiheBank, 0x97de, "namihe_left_active_0"),
-        new(FuneNamiheBank, 0x9808, "namihe_left_active_1"),
-        new(FuneNamiheBank, 0x9832, "namihe_left_active_2"),
-        new(FuneNamiheBank, 0x985c, "namihe_left_active_3"),
-        new(FuneNamiheBank, 0x9886, "namihe_left_active_4"),
-        new(FuneNamiheBank, 0x98b0, "namihe_right_idle"),
-        new(FuneNamiheBank, 0x98da, "namihe_right_active_0"),
-        new(FuneNamiheBank, 0x9904, "namihe_right_active_1"),
-        new(FuneNamiheBank, 0x992e, "namihe_right_active_2"),
-        new(FuneNamiheBank, 0x9958, "namihe_right_active_3"),
-        new(FuneNamiheBank, 0x9982, "namihe_right_active_4"),
-        new(KamerPlatformBank, 0xf468, "kamer_platform_0"),
-        new(KamerPlatformBank, 0xf474, "kamer_platform_1"),
-        new(KamerPlatformBank, 0xf480, "kamer_platform_2"),
-        new(KamerPlatformBank, 0xf48c, "kamer_platform_3"),
-        new(ElevatorBank, 0x962f, "elevator_platform_0"),
-        new(ElevatorBank, 0x9645, "elevator_platform_1"),
-        new(RoomSpriteObjectBank, 0xdb42, "draygon_intro_evir_0"),
-        new(RoomSpriteObjectBank, 0xdb80, "draygon_intro_evir_1"),
-        new(RoomSpriteObjectBank, 0xdbbe, "draygon_intro_evir_2"),
-        new(RoomSpriteObjectBank, 0xdbfc, "draygon_intro_evir_3"),
-        new(RoomSpriteObjectBank, 0xc920, "draygon_breath_bubble_0"),
-        new(RoomSpriteObjectBank, 0xc927, "draygon_breath_bubble_1"),
-        new(RoomSpriteObjectBank, 0xc938, "draygon_breath_bubble_2"),
-        new(RoomSpriteObjectBank, 0xc949, "draygon_breath_bubble_3"),
-        new(RoomSpriteObjectBank, 0xc95a, "draygon_breath_bubble_4"),
-        new(RoomSpriteObjectBank, 0xc96b, "draygon_breath_bubble_5"),
-        new(RoomSpriteObjectBank, 0xc97c, "draygon_breath_bubble_6"),
-        new(RoomSpriteObjectBank, 0xc98d, "draygon_breath_bubble_7"),
-        new(RoomSpriteObjectBank, 0xc999, "draygon_breath_bubble_8"),
-    ];
+    // These mutually exclusive identities preserve the historical installed-schema order.
+    private enum NamedFrameId
+    {
+        /// <summary>$A2:88DA: boyon_idle_0 visual identity in the installed frame schema.</summary>
+        boyon_idle_0,
+        /// <summary>$A2:88E1: boyon_idle_1 visual identity in the installed frame schema.</summary>
+        boyon_idle_1,
+        /// <summary>$A2:88E8: boyon_idle_2 visual identity in the installed frame schema.</summary>
+        boyon_idle_2,
+        /// <summary>$A2:88EF: boyon_bounce_0 visual identity in the installed frame schema.</summary>
+        boyon_bounce_0,
+        /// <summary>$A2:88F6: boyon_bounce_1 visual identity in the installed frame schema.</summary>
+        boyon_bounce_1,
+        /// <summary>$A2:88FD: boyon_bounce_2 visual identity in the installed frame schema.</summary>
+        boyon_bounce_2,
+        /// <summary>$A2:8904: boyon_bounce_3 visual identity in the installed frame schema.</summary>
+        boyon_bounce_3,
+        /// <summary>$A2:A0BB: cacatac_upright_idle_0 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_0,
+        /// <summary>$A2:A0DB: cacatac_upright_idle_1 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_1,
+        /// <summary>$A2:A0FB: cacatac_upright_idle_2 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_2,
+        /// <summary>$A2:A11B: cacatac_upright_idle_3 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_3,
+        /// <summary>$A2:A13B: cacatac_upright_idle_4 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_4,
+        /// <summary>$A2:A15B: cacatac_upright_idle_5 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_5,
+        /// <summary>$A2:A17B: cacatac_upright_idle_6 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_6,
+        /// <summary>$A2:A19B: cacatac_upright_idle_7 visual identity in the installed frame schema.</summary>
+        cacatac_upright_idle_7,
+        /// <summary>$A2:A1BB: cacatac_upright_attack_1 visual identity in the installed frame schema.</summary>
+        cacatac_upright_attack_1,
+        /// <summary>$A2:A1EF: cacatac_upright_attack_2 visual identity in the installed frame schema.</summary>
+        cacatac_upright_attack_2,
+        /// <summary>$A2:A223: cacatac_inverted_idle_0 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_0,
+        /// <summary>$A2:A243: cacatac_inverted_idle_1 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_1,
+        /// <summary>$A2:A263: cacatac_inverted_idle_2 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_2,
+        /// <summary>$A2:A283: cacatac_inverted_idle_3 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_3,
+        /// <summary>$A2:A2A3: cacatac_inverted_idle_4 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_4,
+        /// <summary>$A2:A2C3: cacatac_inverted_idle_5 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_5,
+        /// <summary>$A2:A2E3: cacatac_inverted_idle_6 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_6,
+        /// <summary>$A2:A303: cacatac_inverted_idle_7 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_idle_7,
+        /// <summary>$A2:A323: cacatac_inverted_attack_1 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_attack_1,
+        /// <summary>$A2:A357: cacatac_inverted_attack_2 visual identity in the installed frame schema.</summary>
+        cacatac_inverted_attack_2,
+        /// <summary>$A6:8A59: boulder_roll_0 visual identity in the installed frame schema.</summary>
+        boulder_roll_0,
+        /// <summary>$A6:8A6F: boulder_roll_1 visual identity in the installed frame schema.</summary>
+        boulder_roll_1,
+        /// <summary>$A6:8A85: boulder_roll_2 visual identity in the installed frame schema.</summary>
+        boulder_roll_2,
+        /// <summary>$A6:8A9B: boulder_roll_3 visual identity in the installed frame schema.</summary>
+        boulder_roll_3,
+        /// <summary>$A6:8AB1: boulder_roll_4 visual identity in the installed frame schema.</summary>
+        boulder_roll_4,
+        /// <summary>$A6:8AC7: boulder_roll_5 visual identity in the installed frame schema.</summary>
+        boulder_roll_5,
+        /// <summary>$A6:8ADD: boulder_roll_6 visual identity in the installed frame schema.</summary>
+        boulder_roll_6,
+        /// <summary>$A6:8AF3: boulder_roll_7 visual identity in the installed frame schema.</summary>
+        boulder_roll_7,
+        /// <summary>$A8:E489: atomic_up_right_0 visual identity in the installed frame schema.</summary>
+        atomic_up_right_0,
+        /// <summary>$A8:E49F: atomic_up_right_1 visual identity in the installed frame schema.</summary>
+        atomic_up_right_1,
+        /// <summary>$A8:E4B5: atomic_up_right_2 visual identity in the installed frame schema.</summary>
+        atomic_up_right_2,
+        /// <summary>$A8:E4CB: atomic_up_right_3 visual identity in the installed frame schema.</summary>
+        atomic_up_right_3,
+        /// <summary>$A8:E4E1: atomic_up_right_4 visual identity in the installed frame schema.</summary>
+        atomic_up_right_4,
+        /// <summary>$A8:E4F2: atomic_up_right_5 visual identity in the installed frame schema.</summary>
+        atomic_up_right_5,
+        /// <summary>$A8:E508: atomic_up_left_0 visual identity in the installed frame schema.</summary>
+        atomic_up_left_0,
+        /// <summary>$A8:E51E: atomic_up_left_1 visual identity in the installed frame schema.</summary>
+        atomic_up_left_1,
+        /// <summary>$A8:E534: atomic_up_left_2 visual identity in the installed frame schema.</summary>
+        atomic_up_left_2,
+        /// <summary>$A8:E54A: atomic_up_left_3 visual identity in the installed frame schema.</summary>
+        atomic_up_left_3,
+        /// <summary>$A8:E560: atomic_up_left_4 visual identity in the installed frame schema.</summary>
+        atomic_up_left_4,
+        /// <summary>$A8:E571: atomic_up_left_5 visual identity in the installed frame schema.</summary>
+        atomic_up_left_5,
+        /// <summary>$A3:928A: skultera_swim_left_0 visual identity in the installed frame schema.</summary>
+        skultera_swim_left_0,
+        /// <summary>$A3:92A5: skultera_swim_left_1 visual identity in the installed frame schema.</summary>
+        skultera_swim_left_1,
+        /// <summary>$A3:92C0: skultera_swim_left_2 visual identity in the installed frame schema.</summary>
+        skultera_swim_left_2,
+        /// <summary>$A3:92DB: skultera_turn_right_0 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_0,
+        /// <summary>$A3:92F6: skultera_turn_right_1 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_1,
+        /// <summary>$A3:9311: skultera_turn_right_2 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_2,
+        /// <summary>$A3:9327: skultera_turn_right_3 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_3,
+        /// <summary>$A3:933D: skultera_turn_right_4 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_4,
+        /// <summary>$A3:934E: skultera_turn_right_5 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_5,
+        /// <summary>$A3:9364: skultera_turn_right_6 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_6,
+        /// <summary>$A3:937F: skultera_turn_right_7 visual identity in the installed frame schema.</summary>
+        skultera_turn_right_7,
+        /// <summary>$A3:939A: skultera_swim_right_0 visual identity in the installed frame schema.</summary>
+        skultera_swim_right_0,
+        /// <summary>$A3:93B5: skultera_swim_right_1 visual identity in the installed frame schema.</summary>
+        skultera_swim_right_1,
+        /// <summary>$A3:93D0: skultera_swim_right_2 visual identity in the installed frame schema.</summary>
+        skultera_swim_right_2,
+        /// <summary>$A3:93EB: skultera_turn_left_0 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_0,
+        /// <summary>$A3:9406: skultera_turn_left_1 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_1,
+        /// <summary>$A3:9421: skultera_turn_left_2 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_2,
+        /// <summary>$A3:9437: skultera_turn_left_3 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_3,
+        /// <summary>$A3:944D: skultera_turn_left_4 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_4,
+        /// <summary>$A3:945E: skultera_turn_left_5 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_5,
+        /// <summary>$A3:9474: skultera_turn_left_6 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_6,
+        /// <summary>$A3:948F: skultera_turn_left_7 visual identity in the installed frame schema.</summary>
+        skultera_turn_left_7,
+        /// <summary>$A3:884A: waver_steady_left visual identity in the installed frame schema.</summary>
+        waver_steady_left,
+        /// <summary>$A3:88B3: waver_steady_right visual identity in the installed frame schema.</summary>
+        waver_steady_right,
+        /// <summary>$A3:885B: waver_spin_left_0 visual identity in the installed frame schema.</summary>
+        waver_spin_left_0,
+        /// <summary>$A3:8871: waver_spin_left_1 visual identity in the installed frame schema.</summary>
+        waver_spin_left_1,
+        /// <summary>$A3:881E: waver_spin_left_2 visual identity in the installed frame schema.</summary>
+        waver_spin_left_2,
+        /// <summary>$A3:8834: waver_spin_left_3 visual identity in the installed frame schema.</summary>
+        waver_spin_left_3,
+        /// <summary>$A3:88C4: waver_spin_right_0 visual identity in the installed frame schema.</summary>
+        waver_spin_right_0,
+        /// <summary>$A3:88DA: waver_spin_right_1 visual identity in the installed frame schema.</summary>
+        waver_spin_right_1,
+        /// <summary>$A3:8887: waver_spin_right_2 visual identity in the installed frame schema.</summary>
+        waver_spin_right_2,
+        /// <summary>$A3:889D: waver_spin_right_3 visual identity in the installed frame schema.</summary>
+        waver_spin_right_3,
+        /// <summary>$A3:8B65: metaree_idle_0 visual identity in the installed frame schema.</summary>
+        metaree_idle_0,
+        /// <summary>$A3:8BB9: metaree_idle_1 visual identity in the installed frame schema.</summary>
+        metaree_idle_1,
+        /// <summary>$A3:8BDE: metaree_idle_2 visual identity in the installed frame schema.</summary>
+        metaree_idle_2,
+        /// <summary>$A3:8BEA: metaree_idle_3 visual identity in the installed frame schema.</summary>
+        metaree_idle_3,
+        /// <summary>$A3:8B94: metaree_prepare_1 visual identity in the installed frame schema.</summary>
+        metaree_prepare_1,
+        /// <summary>$A3:C842: skree_idle_0 visual identity in the installed frame schema.</summary>
+        skree_idle_0,
+        /// <summary>$A3:C878: skree_idle_1 visual identity in the installed frame schema.</summary>
+        skree_idle_1,
+        /// <summary>$A3:C884: skree_idle_2 visual identity in the installed frame schema.</summary>
+        skree_idle_2,
+        /// <summary>$A3:C89A: skree_idle_3 visual identity in the installed frame schema.</summary>
+        skree_idle_3,
+        /// <summary>$A3:C862: skree_prepare_1 visual identity in the installed frame schema.</summary>
+        skree_prepare_1,
+        /// <summary>$A3:B55F: zoa_shoot_left_0 visual identity in the installed frame schema.</summary>
+        zoa_shoot_left_0,
+        /// <summary>$A3:B566: zoa_shoot_left_1 visual identity in the installed frame schema.</summary>
+        zoa_shoot_left_1,
+        /// <summary>$A3:B56D: zoa_shoot_left_2 visual identity in the installed frame schema.</summary>
+        zoa_shoot_left_2,
+        /// <summary>$A3:B57B: zoa_rise_left_0 visual identity in the installed frame schema.</summary>
+        zoa_rise_left_0,
+        /// <summary>$A3:B574: zoa_rise_left_1 visual identity in the installed frame schema.</summary>
+        zoa_rise_left_1,
+        /// <summary>$A3:B582: zoa_rise_left_2 visual identity in the installed frame schema.</summary>
+        zoa_rise_left_2,
+        /// <summary>$A3:B589: zoa_shoot_right_0 visual identity in the installed frame schema.</summary>
+        zoa_shoot_right_0,
+        /// <summary>$A3:B590: zoa_shoot_right_1 visual identity in the installed frame schema.</summary>
+        zoa_shoot_right_1,
+        /// <summary>$A3:B597: zoa_shoot_right_2 visual identity in the installed frame schema.</summary>
+        zoa_shoot_right_2,
+        /// <summary>$A3:B5A5: zoa_rise_right_0 visual identity in the installed frame schema.</summary>
+        zoa_rise_right_0,
+        /// <summary>$A3:B59E: zoa_rise_right_1 visual identity in the installed frame schema.</summary>
+        zoa_rise_right_1,
+        /// <summary>$A3:B5AC: zoa_rise_right_2 visual identity in the installed frame schema.</summary>
+        zoa_rise_right_2,
+        /// <summary>$B3:89B7: pipe_brinstar_normal_left_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_left_0,
+        /// <summary>$B3:89BE: pipe_brinstar_normal_left_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_left_1,
+        /// <summary>$B3:89C5: pipe_brinstar_normal_left_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_left_2,
+        /// <summary>$B3:89CC: pipe_brinstar_normal_left_3 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_left_3,
+        /// <summary>$B3:89D3: pipe_brinstar_normal_left_4 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_left_4,
+        /// <summary>$B3:89DA: pipe_brinstar_normal_right_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_right_0,
+        /// <summary>$B3:89E1: pipe_brinstar_normal_right_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_right_1,
+        /// <summary>$B3:89E8: pipe_brinstar_normal_right_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_right_2,
+        /// <summary>$B3:89EF: pipe_brinstar_normal_right_3 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_right_3,
+        /// <summary>$B3:89F6: pipe_brinstar_normal_right_4 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_normal_right_4,
+        /// <summary>$B3:8A6D: pipe_brinstar_strong_shoot_left_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_left_0,
+        /// <summary>$B3:8A74: pipe_brinstar_strong_shoot_left_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_left_1,
+        /// <summary>$B3:8A7B: pipe_brinstar_strong_shoot_left_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_left_2,
+        /// <summary>$B3:8A82: pipe_brinstar_strong_rise_left_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_left_0,
+        /// <summary>$B3:8A89: pipe_brinstar_strong_rise_left_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_left_1,
+        /// <summary>$B3:8A90: pipe_brinstar_strong_rise_left_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_left_2,
+        /// <summary>$B3:8A97: pipe_brinstar_strong_shoot_right_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_right_0,
+        /// <summary>$B3:8A9E: pipe_brinstar_strong_shoot_right_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_right_1,
+        /// <summary>$B3:8AA5: pipe_brinstar_strong_shoot_right_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_shoot_right_2,
+        /// <summary>$B3:8AAC: pipe_brinstar_strong_rise_right_0 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_right_0,
+        /// <summary>$B3:8AB3: pipe_brinstar_strong_rise_right_1 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_right_1,
+        /// <summary>$B3:8ABA: pipe_brinstar_strong_rise_right_2 visual identity in the installed frame schema.</summary>
+        pipe_brinstar_strong_rise_right_2,
+        /// <summary>$B3:8E96: pipe_norfair_left_0 visual identity in the installed frame schema.</summary>
+        pipe_norfair_left_0,
+        /// <summary>$B3:8E9D: pipe_norfair_left_1 visual identity in the installed frame schema.</summary>
+        pipe_norfair_left_1,
+        /// <summary>$B3:8EA4: pipe_norfair_left_2 visual identity in the installed frame schema.</summary>
+        pipe_norfair_left_2,
+        /// <summary>$B3:8EAB: pipe_norfair_left_3 visual identity in the installed frame schema.</summary>
+        pipe_norfair_left_3,
+        /// <summary>$B3:8EB2: pipe_norfair_left_4 visual identity in the installed frame schema.</summary>
+        pipe_norfair_left_4,
+        /// <summary>$B3:8EB9: pipe_norfair_right_0 visual identity in the installed frame schema.</summary>
+        pipe_norfair_right_0,
+        /// <summary>$B3:8EC0: pipe_norfair_right_1 visual identity in the installed frame schema.</summary>
+        pipe_norfair_right_1,
+        /// <summary>$B3:8EC7: pipe_norfair_right_2 visual identity in the installed frame schema.</summary>
+        pipe_norfair_right_2,
+        /// <summary>$B3:8ECE: pipe_norfair_right_3 visual identity in the installed frame schema.</summary>
+        pipe_norfair_right_3,
+        /// <summary>$B3:8ED5: pipe_norfair_right_4 visual identity in the installed frame schema.</summary>
+        pipe_norfair_right_4,
+        /// <summary>$B3:92AD: pipe_yellow_fly_left_0 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_left_0,
+        /// <summary>$B3:92B4: pipe_yellow_fly_left_1 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_left_1,
+        /// <summary>$B3:92BB: pipe_yellow_fly_left_2 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_left_2,
+        /// <summary>$B3:92C2: pipe_yellow_arc_left_0 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_left_0,
+        /// <summary>$B3:92C9: pipe_yellow_arc_left_1 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_left_1,
+        /// <summary>$B3:92D0: pipe_yellow_arc_left_2 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_left_2,
+        /// <summary>$B3:92D7: pipe_yellow_fly_right_0 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_right_0,
+        /// <summary>$B3:92DE: pipe_yellow_fly_right_1 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_right_1,
+        /// <summary>$B3:92E5: pipe_yellow_fly_right_2 visual identity in the installed frame schema.</summary>
+        pipe_yellow_fly_right_2,
+        /// <summary>$B3:92EC: pipe_yellow_arc_right_0 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_right_0,
+        /// <summary>$B3:92F3: pipe_yellow_arc_right_1 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_right_1,
+        /// <summary>$B3:92FA: pipe_yellow_arc_right_2 visual identity in the installed frame schema.</summary>
+        pipe_yellow_arc_right_2,
+        /// <summary>$A6:9C64: fake_kraid_walk_left_0 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_left_0,
+        /// <summary>$A6:9CB6: fake_kraid_walk_left_1 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_left_1,
+        /// <summary>$A6:9D08: fake_kraid_walk_left_2 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_left_2,
+        /// <summary>$A6:9D5A: fake_kraid_walk_left_3 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_left_3,
+        /// <summary>$A6:9DAC: fake_kraid_spit_left_0 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_left_0,
+        /// <summary>$A6:9DFE: fake_kraid_spit_left_1 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_left_1,
+        /// <summary>$A6:9E50: fake_kraid_spit_left_2 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_left_2,
+        /// <summary>$A6:9EA2: fake_kraid_walk_right_0 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_right_0,
+        /// <summary>$A6:9EF4: fake_kraid_walk_right_1 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_right_1,
+        /// <summary>$A6:9F46: fake_kraid_walk_right_2 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_right_2,
+        /// <summary>$A6:9F98: fake_kraid_walk_right_3 visual identity in the installed frame schema.</summary>
+        fake_kraid_walk_right_3,
+        /// <summary>$A6:9FEA: fake_kraid_spit_right_0 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_right_0,
+        /// <summary>$A6:A03C: fake_kraid_spit_right_1 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_right_1,
+        /// <summary>$A6:A08E: fake_kraid_spit_right_2 visual identity in the installed frame schema.</summary>
+        fake_kraid_spit_right_2,
+        /// <summary>$A7:A617: kraid_nail_0 visual identity in the installed frame schema.</summary>
+        kraid_nail_0,
+        /// <summary>$A7:A623: kraid_nail_1 visual identity in the installed frame schema.</summary>
+        kraid_nail_1,
+        /// <summary>$A7:A639: kraid_nail_2 visual identity in the installed frame schema.</summary>
+        kraid_nail_2,
+        /// <summary>$A7:A645: kraid_nail_3 visual identity in the installed frame schema.</summary>
+        kraid_nail_3,
+        /// <summary>$A7:A65B: kraid_nail_4 visual identity in the installed frame schema.</summary>
+        kraid_nail_4,
+        /// <summary>$A7:A667: kraid_nail_5 visual identity in the installed frame schema.</summary>
+        kraid_nail_5,
+        /// <summary>$A7:A67D: kraid_nail_6 visual identity in the installed frame schema.</summary>
+        kraid_nail_6,
+        /// <summary>$A7:A689: kraid_nail_7 visual identity in the installed frame schema.</summary>
+        kraid_nail_7,
+        /// <summary>$A2:A589: owtch_left_0 visual identity in the installed frame schema.</summary>
+        owtch_left_0,
+        /// <summary>$A2:A590: owtch_left_1 visual identity in the installed frame schema.</summary>
+        owtch_left_1,
+        /// <summary>$A2:A597: owtch_left_2 visual identity in the installed frame schema.</summary>
+        owtch_left_2,
+        /// <summary>$A2:8ACA: stoke_walk_left_0 visual identity in the installed frame schema.</summary>
+        stoke_walk_left_0,
+        /// <summary>$A2:8AD6: stoke_walk_left_1 visual identity in the installed frame schema.</summary>
+        stoke_walk_left_1,
+        /// <summary>$A2:8AE7: stoke_walk_left_2 visual identity in the installed frame schema.</summary>
+        stoke_walk_left_2,
+        /// <summary>$A2:8AF3: stoke_walk_left_3 visual identity in the installed frame schema.</summary>
+        stoke_walk_left_3,
+        /// <summary>$A2:8AFF: stoke_attack_left visual identity in the installed frame schema.</summary>
+        stoke_attack_left,
+        /// <summary>$A2:8B15: stoke_walk_right_0 visual identity in the installed frame schema.</summary>
+        stoke_walk_right_0,
+        /// <summary>$A2:8B21: stoke_walk_right_1 visual identity in the installed frame schema.</summary>
+        stoke_walk_right_1,
+        /// <summary>$A2:8B32: stoke_walk_right_2 visual identity in the installed frame schema.</summary>
+        stoke_walk_right_2,
+        /// <summary>$A2:8B3E: stoke_walk_right_3 visual identity in the installed frame schema.</summary>
+        stoke_walk_right_3,
+        /// <summary>$A2:8B4A: stoke_attack_right visual identity in the installed frame schema.</summary>
+        stoke_attack_right,
+        /// <summary>$A2:E3C5: ripper_shared_left_0 visual identity in the installed frame schema.</summary>
+        ripper_shared_left_0,
+        /// <summary>$A2:E3DB: ripper_shared_left_1 visual identity in the installed frame schema.</summary>
+        ripper_shared_left_1,
+        /// <summary>$A2:E3EC: ripper_shared_left_2 visual identity in the installed frame schema.</summary>
+        ripper_shared_left_2,
+        /// <summary>$A2:E402: ripper_shared_right_0 visual identity in the installed frame schema.</summary>
+        ripper_shared_right_0,
+        /// <summary>$A2:E418: ripper_shared_right_1 visual identity in the installed frame schema.</summary>
+        ripper_shared_right_1,
+        /// <summary>$A2:E429: ripper_shared_right_2 visual identity in the installed frame schema.</summary>
+        ripper_shared_right_2,
+        /// <summary>$A2:E43F: ripper_shared_frozen_left visual identity in the installed frame schema.</summary>
+        ripper_shared_frozen_left,
+        /// <summary>$A2:E44B: ripper_shared_frozen_right visual identity in the installed frame schema.</summary>
+        ripper_shared_frozen_right,
+        /// <summary>$A2:E527: ripper_left_0 visual identity in the installed frame schema.</summary>
+        ripper_left_0,
+        /// <summary>$A2:E533: ripper_left_1 visual identity in the installed frame schema.</summary>
+        ripper_left_1,
+        /// <summary>$A2:E53F: ripper_left_2 visual identity in the installed frame schema.</summary>
+        ripper_left_2,
+        /// <summary>$A2:E54B: ripper_right_0 visual identity in the installed frame schema.</summary>
+        ripper_right_0,
+        /// <summary>$A2:E557: ripper_right_1 visual identity in the installed frame schema.</summary>
+        ripper_right_1,
+        /// <summary>$A2:E563: ripper_right_2 visual identity in the installed frame schema.</summary>
+        ripper_right_2,
+        /// <summary>$A3:8EA5: fireflea_cycle_0 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_0,
+        /// <summary>$A3:8EB6: fireflea_cycle_1 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_1,
+        /// <summary>$A3:8EC7: fireflea_cycle_2 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_2,
+        /// <summary>$A3:8ED8: fireflea_cycle_3 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_3,
+        /// <summary>$A3:8EE9: fireflea_cycle_4 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_4,
+        /// <summary>$A3:8EFA: fireflea_cycle_5 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_5,
+        /// <summary>$A3:8F0B: fireflea_cycle_6 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_6,
+        /// <summary>$A3:8F1C: fireflea_cycle_7 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_7,
+        /// <summary>$A3:8F2D: fireflea_cycle_8 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_8,
+        /// <summary>$A3:8F3E: fireflea_cycle_9 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_9,
+        /// <summary>$A3:8F4F: fireflea_cycle_10 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_10,
+        /// <summary>$A3:8F60: fireflea_cycle_11 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_11,
+        /// <summary>$A3:8F71: fireflea_cycle_12 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_12,
+        /// <summary>$A3:8F82: fireflea_cycle_13 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_13,
+        /// <summary>$A3:8F93: fireflea_cycle_14 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_14,
+        /// <summary>$A3:8FA4: fireflea_cycle_15 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_15,
+        /// <summary>$A3:8FB5: fireflea_cycle_16 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_16,
+        /// <summary>$A3:8FC6: fireflea_cycle_17 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_17,
+        /// <summary>$A3:8FD7: fireflea_cycle_18 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_18,
+        /// <summary>$A3:8FE8: fireflea_cycle_19 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_19,
+        /// <summary>$A3:8FF9: fireflea_cycle_20 visual identity in the installed frame schema.</summary>
+        fireflea_cycle_20,
+        /// <summary>$A8:B448: magdollite_left_idle_0 visual identity in the installed frame schema.</summary>
+        magdollite_left_idle_0,
+        /// <summary>$A8:B459: magdollite_left_idle_1 visual identity in the installed frame schema.</summary>
+        magdollite_left_idle_1,
+        /// <summary>$A8:B46A: magdollite_left_idle_2 visual identity in the installed frame schema.</summary>
+        magdollite_left_idle_2,
+        /// <summary>$A8:B47B: magdollite_left_throw_0 visual identity in the installed frame schema.</summary>
+        magdollite_left_throw_0,
+        /// <summary>$A8:B48C: magdollite_left_throw_1 visual identity in the installed frame schema.</summary>
+        magdollite_left_throw_1,
+        /// <summary>$A8:B49D: magdollite_left_throw_2 visual identity in the installed frame schema.</summary>
+        magdollite_left_throw_2,
+        /// <summary>$A8:B4A9: magdollite_left_throw_3 visual identity in the installed frame schema.</summary>
+        magdollite_left_throw_3,
+        /// <summary>$A8:B4B5: magdollite_pillar_cap visual identity in the installed frame schema.</summary>
+        magdollite_pillar_cap,
+        /// <summary>$A8:B4C1: magdollite_left_submerge_0 visual identity in the installed frame schema.</summary>
+        magdollite_left_submerge_0,
+        /// <summary>$A8:B4CF: magdollite_left_submerge_1 visual identity in the installed frame schema.</summary>
+        magdollite_left_submerge_1,
+        /// <summary>$A8:B4E0: magdollite_left_submerge_2 visual identity in the installed frame schema.</summary>
+        magdollite_left_submerge_2,
+        /// <summary>$A8:B4F1: magdollite_right_idle_0 visual identity in the installed frame schema.</summary>
+        magdollite_right_idle_0,
+        /// <summary>$A8:B502: magdollite_right_idle_1 visual identity in the installed frame schema.</summary>
+        magdollite_right_idle_1,
+        /// <summary>$A8:B513: magdollite_right_idle_2 visual identity in the installed frame schema.</summary>
+        magdollite_right_idle_2,
+        /// <summary>$A8:B524: magdollite_right_throw_0 visual identity in the installed frame schema.</summary>
+        magdollite_right_throw_0,
+        /// <summary>$A8:B535: magdollite_right_throw_1 visual identity in the installed frame schema.</summary>
+        magdollite_right_throw_1,
+        /// <summary>$A8:B546: magdollite_right_throw_2 visual identity in the installed frame schema.</summary>
+        magdollite_right_throw_2,
+        /// <summary>$A8:B552: magdollite_right_throw_3 visual identity in the installed frame schema.</summary>
+        magdollite_right_throw_3,
+        /// <summary>$A8:B56A: magdollite_right_submerge_0 visual identity in the installed frame schema.</summary>
+        magdollite_right_submerge_0,
+        /// <summary>$A8:B578: magdollite_right_submerge_1 visual identity in the installed frame schema.</summary>
+        magdollite_right_submerge_1,
+        /// <summary>$A8:B589: magdollite_right_submerge_2 visual identity in the installed frame schema.</summary>
+        magdollite_right_submerge_2,
+        /// <summary>$A8:B59A: magdollite_pillar_phase_0 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_0,
+        /// <summary>$A8:B5A1: magdollite_pillar_phase_1 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_1,
+        /// <summary>$A8:B5AD: magdollite_pillar_phase_2 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_2,
+        /// <summary>$A8:B5BE: magdollite_pillar_phase_3 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_3,
+        /// <summary>$A8:B5D4: magdollite_pillar_phase_4 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_4,
+        /// <summary>$A8:B5EF: magdollite_pillar_phase_5 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_5,
+        /// <summary>$A8:B60F: magdollite_pillar_phase_6 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_6,
+        /// <summary>$A8:B634: magdollite_pillar_phase_7 visual identity in the installed frame schema.</summary>
+        magdollite_pillar_phase_7,
+        /// <summary>$A6:F921: ceres_door_rotating_overlay visual identity in the installed frame schema.</summary>
+        ceres_door_rotating_overlay,
+        /// <summary>$A6:F95F: ceres_door_left_hold visual identity in the installed frame schema.</summary>
+        ceres_door_left_hold,
+        /// <summary>$A6:F989: ceres_door_left_transition_0 visual identity in the installed frame schema.</summary>
+        ceres_door_left_transition_0,
+        /// <summary>$A6:F9B3: ceres_door_left_transition_1 visual identity in the installed frame schema.</summary>
+        ceres_door_left_transition_1,
+        /// <summary>$A6:F9D3: ceres_door_left_transition_2 visual identity in the installed frame schema.</summary>
+        ceres_door_left_transition_2,
+        /// <summary>$A6:F9F3: ceres_door_left_transition_3 visual identity in the installed frame schema.</summary>
+        ceres_door_left_transition_3,
+        /// <summary>$A6:FA13: ceres_door_right_hold visual identity in the installed frame schema.</summary>
+        ceres_door_right_hold,
+        /// <summary>$A6:FA3D: ceres_door_right_transition_0 visual identity in the installed frame schema.</summary>
+        ceres_door_right_transition_0,
+        /// <summary>$A6:FA67: ceres_door_right_transition_1 visual identity in the installed frame schema.</summary>
+        ceres_door_right_transition_1,
+        /// <summary>$A6:FA87: ceres_door_right_transition_2 visual identity in the installed frame schema.</summary>
+        ceres_door_right_transition_2,
+        /// <summary>$A6:FAA7: ceres_door_right_transition_3 visual identity in the installed frame schema.</summary>
+        ceres_door_right_transition_3,
+        /// <summary>$A6:FAC7: ceres_door_initial visual identity in the installed frame schema.</summary>
+        ceres_door_initial,
+        /// <summary>$A6:FACE: ceres_door_mode7_left_wall visual identity in the installed frame schema.</summary>
+        ceres_door_mode7_left_wall,
+        /// <summary>$A6:FB2F: ceres_door_mode7_right_wall visual identity in the installed frame schema.</summary>
+        ceres_door_mode7_right_wall,
+        /// <summary>$A6:A329: ceres_door_ridley_private_overlay visual identity in the installed frame schema.</summary>
+        ceres_door_ridley_private_overlay,
+        /// <summary>$A6:BFFD: ceres_baby_horizontal visual identity in the installed frame schema.</summary>
+        ceres_baby_horizontal,
+        /// <summary>$A6:C018: ceres_baby_round visual identity in the installed frame schema.</summary>
+        ceres_baby_round,
+        /// <summary>$A6:C033: ceres_baby_vertical visual identity in the installed frame schema.</summary>
+        ceres_baby_vertical,
+        /// <summary>$A2:BD6C: rio_bd6c visual identity in the installed frame schema.</summary>
+        rio_bd6c,
+        /// <summary>$A2:BD82: rio_bd82 visual identity in the installed frame schema.</summary>
+        rio_bd82,
+        /// <summary>$A2:BD98: rio_bd98 visual identity in the installed frame schema.</summary>
+        rio_bd98,
+        /// <summary>$A2:BDAE: rio_bdae visual identity in the installed frame schema.</summary>
+        rio_bdae,
+        /// <summary>$A2:BDC4: rio_bdc4 visual identity in the installed frame schema.</summary>
+        rio_bdc4,
+        /// <summary>$A2:BDDA: rio_bdda visual identity in the installed frame schema.</summary>
+        rio_bdda,
+        /// <summary>$A2:BDF0: rio_bdf0 visual identity in the installed frame schema.</summary>
+        rio_bdf0,
+        /// <summary>$A2:BE06: rio_be06 visual identity in the installed frame schema.</summary>
+        rio_be06,
+        /// <summary>$A2:C8BD: lower_norfair_rio_c8bd visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c8bd,
+        /// <summary>$A2:C8D3: lower_norfair_rio_c8d3 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c8d3,
+        /// <summary>$A2:C8E9: lower_norfair_rio_c8e9 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c8e9,
+        /// <summary>$A2:C8FF: lower_norfair_rio_c8ff visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c8ff,
+        /// <summary>$A2:C915: lower_norfair_rio_c915 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c915,
+        /// <summary>$A2:C92B: lower_norfair_rio_c92b visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c92b,
+        /// <summary>$A2:C941: lower_norfair_rio_c941 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c941,
+        /// <summary>$A2:C957: lower_norfair_rio_c957 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c957,
+        /// <summary>$A2:C96D: lower_norfair_rio_c96d visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c96d,
+        /// <summary>$A2:C983: lower_norfair_rio_c983 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c983,
+        /// <summary>$A2:C999: lower_norfair_rio_c999 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c999,
+        /// <summary>$A2:C9AF: lower_norfair_rio_c9af visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c9af,
+        /// <summary>$A2:C9C5: lower_norfair_rio_c9c5 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c9c5,
+        /// <summary>$A2:C9DB: lower_norfair_rio_c9db visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c9db,
+        /// <summary>$A2:C9F1: lower_norfair_rio_c9f1 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_c9f1,
+        /// <summary>$A2:CA07: lower_norfair_rio_ca07 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_ca07,
+        /// <summary>$A2:CA13: lower_norfair_rio_ca13 visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_ca13,
+        /// <summary>$A2:CA1F: lower_norfair_rio_ca1f visual identity in the installed frame schema.</summary>
+        lower_norfair_rio_ca1f,
+        /// <summary>$A2:C427: norfair_rio_c427 visual identity in the installed frame schema.</summary>
+        norfair_rio_c427,
+        /// <summary>$A2:C442: norfair_rio_c442 visual identity in the installed frame schema.</summary>
+        norfair_rio_c442,
+        /// <summary>$A2:C45D: norfair_rio_c45d visual identity in the installed frame schema.</summary>
+        norfair_rio_c45d,
+        /// <summary>$A2:C493: norfair_rio_c493 visual identity in the installed frame schema.</summary>
+        norfair_rio_c493,
+        /// <summary>$A2:C49F: norfair_rio_c49f visual identity in the installed frame schema.</summary>
+        norfair_rio_c49f,
+        /// <summary>$A2:C4AB: norfair_rio_c4ab visual identity in the installed frame schema.</summary>
+        norfair_rio_c4ab,
+        /// <summary>$A2:C4B7: norfair_rio_c4b7 visual identity in the installed frame schema.</summary>
+        norfair_rio_c4b7,
+        /// <summary>$A2:C4D2: norfair_rio_c4d2 visual identity in the installed frame schema.</summary>
+        norfair_rio_c4d2,
+        /// <summary>$A2:C4ED: norfair_rio_c4ed visual identity in the installed frame schema.</summary>
+        norfair_rio_c4ed,
+        /// <summary>$A2:C508: norfair_rio_c508 visual identity in the installed frame schema.</summary>
+        norfair_rio_c508,
+        /// <summary>$A2:C523: norfair_rio_c523 visual identity in the installed frame schema.</summary>
+        norfair_rio_c523,
+        /// <summary>$A2:C534: norfair_rio_c534 visual identity in the installed frame schema.</summary>
+        norfair_rio_c534,
+        /// <summary>$A2:C54F: norfair_rio_c54f visual identity in the installed frame schema.</summary>
+        norfair_rio_c54f,
+        /// <summary>$A2:C56A: norfair_rio_c56a visual identity in the installed frame schema.</summary>
+        norfair_rio_c56a,
+        /// <summary>$A2:C585: norfair_rio_c585 visual identity in the installed frame schema.</summary>
+        norfair_rio_c585,
+        /// <summary>$A2:C5A0: norfair_rio_c5a0 visual identity in the installed frame schema.</summary>
+        norfair_rio_c5a0,
+        /// <summary>$A2:C5BB: norfair_rio_c5bb visual identity in the installed frame schema.</summary>
+        norfair_rio_c5bb,
+        /// <summary>$A2:C5D6: norfair_rio_c5d6 visual identity in the installed frame schema.</summary>
+        norfair_rio_c5d6,
+        /// <summary>$A2:C5E2: norfair_rio_c5e2 visual identity in the installed frame schema.</summary>
+        norfair_rio_c5e2,
+        /// <summary>$A2:C5EE: norfair_rio_c5ee visual identity in the installed frame schema.</summary>
+        norfair_rio_c5ee,
+        /// <summary>$A2:9DF6: puyo_ground_0 visual identity in the installed frame schema.</summary>
+        puyo_ground_0,
+        /// <summary>$A2:9E02: puyo_ground_1 visual identity in the installed frame schema.</summary>
+        puyo_ground_1,
+        /// <summary>$A2:9E0E: puyo_ground_2 visual identity in the installed frame schema.</summary>
+        puyo_ground_2,
+        /// <summary>$A2:9E1A: puyo_air_0 visual identity in the installed frame schema.</summary>
+        puyo_air_0,
+        /// <summary>$A2:9E26: puyo_air_1 visual identity in the installed frame schema.</summary>
+        puyo_air_1,
+        /// <summary>$A2:9E37: puyo_air_2 visual identity in the installed frame schema.</summary>
+        puyo_air_2,
+        /// <summary>$A2:9E4D: puyo_air_3 visual identity in the installed frame schema.</summary>
+        puyo_air_3,
+        /// <summary>$A2:9E5E: puyo_air_4 visual identity in the installed frame schema.</summary>
+        puyo_air_4,
+        /// <summary>$A8:DB76: bull_idle_0 visual identity in the installed frame schema.</summary>
+        bull_idle_0,
+        /// <summary>$A8:DB8C: bull_idle_1 visual identity in the installed frame schema.</summary>
+        bull_idle_1,
+        /// <summary>$A8:DBA2: bull_idle_2 visual identity in the installed frame schema.</summary>
+        bull_idle_2,
+        /// <summary>$A8:DFA2: alcoon_left_walk_0 visual identity in the installed frame schema.</summary>
+        alcoon_left_walk_0,
+        /// <summary>$A8:DFC2: alcoon_left_walk_1 visual identity in the installed frame schema.</summary>
+        alcoon_left_walk_1,
+        /// <summary>$A8:DFE2: alcoon_left_walk_2 visual identity in the installed frame schema.</summary>
+        alcoon_left_walk_2,
+        /// <summary>$A8:E007: alcoon_left_walk_3 visual identity in the installed frame schema.</summary>
+        alcoon_left_walk_3,
+        /// <summary>$A8:E027: alcoon_left_fire_0 visual identity in the installed frame schema.</summary>
+        alcoon_left_fire_0,
+        /// <summary>$A8:E047: alcoon_left_fire_1 visual identity in the installed frame schema.</summary>
+        alcoon_left_fire_1,
+        /// <summary>$A8:E06C: alcoon_left_fire_2 visual identity in the installed frame schema.</summary>
+        alcoon_left_fire_2,
+        /// <summary>$A8:E09B: alcoon_left_fire_3 visual identity in the installed frame schema.</summary>
+        alcoon_left_fire_3,
+        /// <summary>$A8:E0BB: alcoon_left_air_up visual identity in the installed frame schema.</summary>
+        alcoon_left_air_up,
+        /// <summary>$A8:E0DB: alcoon_right_walk_0 visual identity in the installed frame schema.</summary>
+        alcoon_right_walk_0,
+        /// <summary>$A8:E0FB: alcoon_right_walk_1 visual identity in the installed frame schema.</summary>
+        alcoon_right_walk_1,
+        /// <summary>$A8:E11B: alcoon_right_walk_2 visual identity in the installed frame schema.</summary>
+        alcoon_right_walk_2,
+        /// <summary>$A8:E140: alcoon_right_walk_3 visual identity in the installed frame schema.</summary>
+        alcoon_right_walk_3,
+        /// <summary>$A8:E160: alcoon_right_fire_0 visual identity in the installed frame schema.</summary>
+        alcoon_right_fire_0,
+        /// <summary>$A8:E180: alcoon_right_fire_1 visual identity in the installed frame schema.</summary>
+        alcoon_right_fire_1,
+        /// <summary>$A8:E1A5: alcoon_right_fire_2 visual identity in the installed frame schema.</summary>
+        alcoon_right_fire_2,
+        /// <summary>$A8:E1D4: alcoon_right_fire_3 visual identity in the installed frame schema.</summary>
+        alcoon_right_fire_3,
+        /// <summary>$A8:E1F4: alcoon_right_air_up visual identity in the installed frame schema.</summary>
+        alcoon_right_air_up,
+        /// <summary>$A8:BED3: beetom_left_crawl_0 visual identity in the installed frame schema.</summary>
+        beetom_left_crawl_0,
+        /// <summary>$A8:BEEE: beetom_left_crawl_1 visual identity in the installed frame schema.</summary>
+        beetom_left_crawl_1,
+        /// <summary>$A8:BF09: beetom_left_crawl_2 visual identity in the installed frame schema.</summary>
+        beetom_left_crawl_2,
+        /// <summary>$A8:BF24: beetom_left_hop_0 visual identity in the installed frame schema.</summary>
+        beetom_left_hop_0,
+        /// <summary>$A8:BF3F: beetom_left_hop_1 visual identity in the installed frame schema.</summary>
+        beetom_left_hop_1,
+        /// <summary>$A8:BF5A: beetom_left_drain_0 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_0,
+        /// <summary>$A8:BF75: beetom_left_drain_1 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_1,
+        /// <summary>$A8:BF90: beetom_left_drain_2 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_2,
+        /// <summary>$A8:BFAB: beetom_left_drain_3 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_3,
+        /// <summary>$A8:BFCB: beetom_left_drain_4 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_4,
+        /// <summary>$A8:BFEB: beetom_left_drain_5 visual identity in the installed frame schema.</summary>
+        beetom_left_drain_5,
+        /// <summary>$A8:C00B: beetom_right_crawl_0 visual identity in the installed frame schema.</summary>
+        beetom_right_crawl_0,
+        /// <summary>$A8:C026: beetom_right_crawl_1 visual identity in the installed frame schema.</summary>
+        beetom_right_crawl_1,
+        /// <summary>$A8:C041: beetom_right_crawl_2 visual identity in the installed frame schema.</summary>
+        beetom_right_crawl_2,
+        /// <summary>$A8:C05C: beetom_right_hop_0 visual identity in the installed frame schema.</summary>
+        beetom_right_hop_0,
+        /// <summary>$A8:C077: beetom_right_hop_1 visual identity in the installed frame schema.</summary>
+        beetom_right_hop_1,
+        /// <summary>$A8:C092: beetom_right_drain_0 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_0,
+        /// <summary>$A8:C0AD: beetom_right_drain_1 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_1,
+        /// <summary>$A8:C0C8: beetom_right_drain_2 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_2,
+        /// <summary>$A8:C0E3: beetom_right_drain_3 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_3,
+        /// <summary>$A8:C103: beetom_right_drain_4 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_4,
+        /// <summary>$A8:C123: beetom_right_drain_5 visual identity in the installed frame schema.</summary>
+        beetom_right_drain_5,
+        /// <summary>$A3:AF19: sidehopper_jump_floor visual identity in the installed frame schema.</summary>
+        sidehopper_jump_floor,
+        /// <summary>$A3:AEE3: sidehopper_land_floor_0 visual identity in the installed frame schema.</summary>
+        sidehopper_land_floor_0,
+        /// <summary>$A3:AEFE: sidehopper_land_floor_1 visual identity in the installed frame schema.</summary>
+        sidehopper_land_floor_1,
+        /// <summary>$A3:AF6A: sidehopper_jump_ceiling visual identity in the installed frame schema.</summary>
+        sidehopper_jump_ceiling,
+        /// <summary>$A3:AF34: sidehopper_land_ceiling_0 visual identity in the installed frame schema.</summary>
+        sidehopper_land_ceiling_0,
+        /// <summary>$A3:AF4F: sidehopper_land_ceiling_1 visual identity in the installed frame schema.</summary>
+        sidehopper_land_ceiling_1,
+        /// <summary>$A3:B019: dessgeega_jump_floor visual identity in the installed frame schema.</summary>
+        dessgeega_jump_floor,
+        /// <summary>$A3:AFE3: dessgeega_land_floor_0 visual identity in the installed frame schema.</summary>
+        dessgeega_land_floor_0,
+        /// <summary>$A3:AFFE: dessgeega_land_floor_1 visual identity in the installed frame schema.</summary>
+        dessgeega_land_floor_1,
+        /// <summary>$A3:B06A: dessgeega_jump_ceiling visual identity in the installed frame schema.</summary>
+        dessgeega_jump_ceiling,
+        /// <summary>$A3:B034: dessgeega_land_ceiling_0 visual identity in the installed frame schema.</summary>
+        dessgeega_land_ceiling_0,
+        /// <summary>$A3:B04F: dessgeega_land_ceiling_1 visual identity in the installed frame schema.</summary>
+        dessgeega_land_ceiling_1,
+        /// <summary>$A3:B15B: large_sidehopper_jump_floor visual identity in the installed frame schema.</summary>
+        large_sidehopper_jump_floor,
+        /// <summary>$A3:B111: large_sidehopper_land_floor_0 visual identity in the installed frame schema.</summary>
+        large_sidehopper_land_floor_0,
+        /// <summary>$A3:B136: large_sidehopper_land_floor_1 visual identity in the installed frame schema.</summary>
+        large_sidehopper_land_floor_1,
+        /// <summary>$A3:B1DE: large_sidehopper_jump_ceiling visual identity in the installed frame schema.</summary>
+        large_sidehopper_jump_ceiling,
+        /// <summary>$A3:B194: large_sidehopper_land_ceiling_0 visual identity in the installed frame schema.</summary>
+        large_sidehopper_land_ceiling_0,
+        /// <summary>$A3:B1B9: large_sidehopper_land_ceiling_1 visual identity in the installed frame schema.</summary>
+        large_sidehopper_land_ceiling_1,
+        /// <summary>$A3:B2D1: large_dessgeega_jump_floor visual identity in the installed frame schema.</summary>
+        large_dessgeega_jump_floor,
+        /// <summary>$A3:B273: large_dessgeega_land_floor_0 visual identity in the installed frame schema.</summary>
+        large_dessgeega_land_floor_0,
+        /// <summary>$A3:B2A2: large_dessgeega_land_floor_1 visual identity in the installed frame schema.</summary>
+        large_dessgeega_land_floor_1,
+        /// <summary>$A3:B368: large_dessgeega_jump_ceiling visual identity in the installed frame schema.</summary>
+        large_dessgeega_jump_ceiling,
+        /// <summary>$A3:B30A: large_dessgeega_land_ceiling_0 visual identity in the installed frame schema.</summary>
+        large_dessgeega_land_ceiling_0,
+        /// <summary>$A3:B339: large_dessgeega_land_ceiling_1 visual identity in the installed frame schema.</summary>
+        large_dessgeega_land_ceiling_1,
+        /// <summary>$A2:E146: choot_idle visual identity in the installed frame schema.</summary>
+        choot_idle,
+        /// <summary>$A2:E15C: choot_jump visual identity in the installed frame schema.</summary>
+        choot_jump,
+        /// <summary>$A2:E168: choot_jump_apex visual identity in the installed frame schema.</summary>
+        choot_jump_apex,
+        /// <summary>$A2:E16F: choot_fall_end visual identity in the installed frame schema.</summary>
+        choot_fall_end,
+        /// <summary>$A3:E50E: hzoomer_upside_right_0 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_right_0,
+        /// <summary>$A3:E524: hzoomer_upside_right_1 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_right_1,
+        /// <summary>$A3:E53A: hzoomer_upside_right_2 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_right_2,
+        /// <summary>$A3:E550: hzoomer_upside_right_3 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_right_3,
+        /// <summary>$A3:E566: hzoomer_upside_right_4 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_right_4,
+        /// <summary>$A3:E3C4: hzoomer_upside_left_0 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_left_0,
+        /// <summary>$A3:E3DA: hzoomer_upside_left_1 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_left_1,
+        /// <summary>$A3:E3F0: hzoomer_upside_left_2 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_left_2,
+        /// <summary>$A3:E406: hzoomer_upside_left_3 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_left_3,
+        /// <summary>$A3:E41C: hzoomer_upside_left_4 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_left_4,
+        /// <summary>$A3:E432: hzoomer_upside_down_0 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_down_0,
+        /// <summary>$A3:E448: hzoomer_upside_down_1 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_down_1,
+        /// <summary>$A3:E45E: hzoomer_upside_down_2 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_down_2,
+        /// <summary>$A3:E474: hzoomer_upside_down_3 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_down_3,
+        /// <summary>$A3:E48A: hzoomer_upside_down_4 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_down_4,
+        /// <summary>$A3:E2E8: hzoomer_upside_up_0 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_up_0,
+        /// <summary>$A3:E2FE: hzoomer_upside_up_1 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_up_1,
+        /// <summary>$A3:E314: hzoomer_upside_up_2 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_up_2,
+        /// <summary>$A3:E32A: hzoomer_upside_up_3 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_up_3,
+        /// <summary>$A3:E340: hzoomer_upside_up_4 visual identity in the installed frame schema.</summary>
+        hzoomer_upside_up_4,
+        /// <summary>$A3:A67D: sbug_right_0 visual identity in the installed frame schema.</summary>
+        sbug_right_0,
+        /// <summary>$A3:A684: sbug_right_1 visual identity in the installed frame schema.</summary>
+        sbug_right_1,
+        /// <summary>$A3:A68B: sbug_right_2 visual identity in the installed frame schema.</summary>
+        sbug_right_2,
+        /// <summary>$A3:A692: sbug_up_right_0 visual identity in the installed frame schema.</summary>
+        sbug_up_right_0,
+        /// <summary>$A3:A699: sbug_up_right_1 visual identity in the installed frame schema.</summary>
+        sbug_up_right_1,
+        /// <summary>$A3:A6A0: sbug_up_right_2 visual identity in the installed frame schema.</summary>
+        sbug_up_right_2,
+        /// <summary>$A3:A6A7: sbug_up_0 visual identity in the installed frame schema.</summary>
+        sbug_up_0,
+        /// <summary>$A3:A6AE: sbug_up_1 visual identity in the installed frame schema.</summary>
+        sbug_up_1,
+        /// <summary>$A3:A6B5: sbug_up_2 visual identity in the installed frame schema.</summary>
+        sbug_up_2,
+        /// <summary>$A3:A6BC: sbug_up_left_0 visual identity in the installed frame schema.</summary>
+        sbug_up_left_0,
+        /// <summary>$A3:A6C3: sbug_up_left_1 visual identity in the installed frame schema.</summary>
+        sbug_up_left_1,
+        /// <summary>$A3:A6CA: sbug_up_left_2 visual identity in the installed frame schema.</summary>
+        sbug_up_left_2,
+        /// <summary>$A3:A6D1: sbug_left_0 visual identity in the installed frame schema.</summary>
+        sbug_left_0,
+        /// <summary>$A3:A6D8: sbug_left_1 visual identity in the installed frame schema.</summary>
+        sbug_left_1,
+        /// <summary>$A3:A6DF: sbug_left_2 visual identity in the installed frame schema.</summary>
+        sbug_left_2,
+        /// <summary>$A3:A6E6: sbug_down_left_0 visual identity in the installed frame schema.</summary>
+        sbug_down_left_0,
+        /// <summary>$A3:A6ED: sbug_down_left_1 visual identity in the installed frame schema.</summary>
+        sbug_down_left_1,
+        /// <summary>$A3:A6F4: sbug_down_left_2 visual identity in the installed frame schema.</summary>
+        sbug_down_left_2,
+        /// <summary>$A3:A6FB: sbug_down_0 visual identity in the installed frame schema.</summary>
+        sbug_down_0,
+        /// <summary>$A3:A702: sbug_down_1 visual identity in the installed frame schema.</summary>
+        sbug_down_1,
+        /// <summary>$A3:A709: sbug_down_2 visual identity in the installed frame schema.</summary>
+        sbug_down_2,
+        /// <summary>$A3:A710: sbug_down_right_0 visual identity in the installed frame schema.</summary>
+        sbug_down_right_0,
+        /// <summary>$A3:A717: sbug_down_right_1 visual identity in the installed frame schema.</summary>
+        sbug_down_right_1,
+        /// <summary>$A3:A71E: sbug_down_right_2 visual identity in the installed frame schema.</summary>
+        sbug_down_right_2,
+        /// <summary>$A8:93F9: fune_left_idle visual identity in the installed frame schema.</summary>
+        fune_left_idle,
+        /// <summary>$A8:9423: fune_left_active_0 visual identity in the installed frame schema.</summary>
+        fune_left_active_0,
+        /// <summary>$A8:944D: fune_left_active_1 visual identity in the installed frame schema.</summary>
+        fune_left_active_1,
+        /// <summary>$A8:9477: fune_left_active_2 visual identity in the installed frame schema.</summary>
+        fune_left_active_2,
+        /// <summary>$A8:94A1: fune_left_active_3 visual identity in the installed frame schema.</summary>
+        fune_left_active_3,
+        /// <summary>$A8:94CB: fune_right_idle visual identity in the installed frame schema.</summary>
+        fune_right_idle,
+        /// <summary>$A8:94F5: fune_right_active_0 visual identity in the installed frame schema.</summary>
+        fune_right_active_0,
+        /// <summary>$A8:951F: fune_right_active_1 visual identity in the installed frame schema.</summary>
+        fune_right_active_1,
+        /// <summary>$A8:9549: fune_right_active_2 visual identity in the installed frame schema.</summary>
+        fune_right_active_2,
+        /// <summary>$A8:9573: fune_right_active_3 visual identity in the installed frame schema.</summary>
+        fune_right_active_3,
+        /// <summary>$A8:97B4: namihe_left_idle visual identity in the installed frame schema.</summary>
+        namihe_left_idle,
+        /// <summary>$A8:97DE: namihe_left_active_0 visual identity in the installed frame schema.</summary>
+        namihe_left_active_0,
+        /// <summary>$A8:9808: namihe_left_active_1 visual identity in the installed frame schema.</summary>
+        namihe_left_active_1,
+        /// <summary>$A8:9832: namihe_left_active_2 visual identity in the installed frame schema.</summary>
+        namihe_left_active_2,
+        /// <summary>$A8:985C: namihe_left_active_3 visual identity in the installed frame schema.</summary>
+        namihe_left_active_3,
+        /// <summary>$A8:9886: namihe_left_active_4 visual identity in the installed frame schema.</summary>
+        namihe_left_active_4,
+        /// <summary>$A8:98B0: namihe_right_idle visual identity in the installed frame schema.</summary>
+        namihe_right_idle,
+        /// <summary>$A8:98DA: namihe_right_active_0 visual identity in the installed frame schema.</summary>
+        namihe_right_active_0,
+        /// <summary>$A8:9904: namihe_right_active_1 visual identity in the installed frame schema.</summary>
+        namihe_right_active_1,
+        /// <summary>$A8:992E: namihe_right_active_2 visual identity in the installed frame schema.</summary>
+        namihe_right_active_2,
+        /// <summary>$A8:9958: namihe_right_active_3 visual identity in the installed frame schema.</summary>
+        namihe_right_active_3,
+        /// <summary>$A8:9982: namihe_right_active_4 visual identity in the installed frame schema.</summary>
+        namihe_right_active_4,
+        /// <summary>$A2:F468: kamer_platform_0 visual identity in the installed frame schema.</summary>
+        kamer_platform_0,
+        /// <summary>$A2:F474: kamer_platform_1 visual identity in the installed frame schema.</summary>
+        kamer_platform_1,
+        /// <summary>$A2:F480: kamer_platform_2 visual identity in the installed frame schema.</summary>
+        kamer_platform_2,
+        /// <summary>$A2:F48C: kamer_platform_3 visual identity in the installed frame schema.</summary>
+        kamer_platform_3,
+        /// <summary>$A3:962F: elevator_platform_0 visual identity in the installed frame schema.</summary>
+        elevator_platform_0,
+        /// <summary>$A3:9645: elevator_platform_1 visual identity in the installed frame schema.</summary>
+        elevator_platform_1,
+        /// <summary>$B4:DB42: draygon_intro_evir_0 visual identity in the installed frame schema.</summary>
+        draygon_intro_evir_0,
+        /// <summary>$B4:DB80: draygon_intro_evir_1 visual identity in the installed frame schema.</summary>
+        draygon_intro_evir_1,
+        /// <summary>$B4:DBBE: draygon_intro_evir_2 visual identity in the installed frame schema.</summary>
+        draygon_intro_evir_2,
+        /// <summary>$B4:DBFC: draygon_intro_evir_3 visual identity in the installed frame schema.</summary>
+        draygon_intro_evir_3,
+        /// <summary>$B4:C920: draygon_breath_bubble_0 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_0,
+        /// <summary>$B4:C927: draygon_breath_bubble_1 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_1,
+        /// <summary>$B4:C938: draygon_breath_bubble_2 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_2,
+        /// <summary>$B4:C949: draygon_breath_bubble_3 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_3,
+        /// <summary>$B4:C95A: draygon_breath_bubble_4 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_4,
+        /// <summary>$B4:C96B: draygon_breath_bubble_5 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_5,
+        /// <summary>$B4:C97C: draygon_breath_bubble_6 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_6,
+        /// <summary>$B4:C98D: draygon_breath_bubble_7 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_7,
+        /// <summary>$B4:C999: draygon_breath_bubble_8 visual identity in the installed frame schema.</summary>
+        draygon_breath_bubble_8,
+    }
+
+    /// <summary>Two-byte part count followed by five bytes per native OAM part.</summary>
+    private static int NativeFrameBytes(int parts) => 2 + 5 * parts;
+
+    private static EnemySpritemapDefinition NamedFrame(NamedFrameId frame)
+    {
+        (byte bank, ushort pointer) = frame switch
+        {
+            >= NamedFrameId.boyon_idle_0 and <= NamedFrameId.boyon_idle_2 =>
+                (BoyonBank, (ushort)(0x88da + ((int)frame - (int)NamedFrameId.boyon_idle_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.boyon_bounce_0 and <= NamedFrameId.boyon_bounce_3 =>
+                (BoyonBank, (ushort)(0x88ef + ((int)frame - (int)NamedFrameId.boyon_bounce_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.cacatac_upright_idle_0 and <= NamedFrameId.cacatac_upright_idle_7 =>
+                (BoyonBank, (ushort)(0xa0bb + ((int)frame - (int)NamedFrameId.cacatac_upright_idle_0) * NativeFrameBytes(6))),
+            NamedFrameId.cacatac_upright_attack_1 => (BoyonBank, (ushort)0xa1bb),
+            NamedFrameId.cacatac_upright_attack_2 => (BoyonBank, (ushort)0xa1ef),
+            >= NamedFrameId.cacatac_inverted_idle_0 and <= NamedFrameId.cacatac_inverted_idle_7 =>
+                (BoyonBank, (ushort)(0xa223 + ((int)frame - (int)NamedFrameId.cacatac_inverted_idle_0) * NativeFrameBytes(6))),
+            NamedFrameId.cacatac_inverted_attack_1 => (BoyonBank, (ushort)0xa323),
+            NamedFrameId.cacatac_inverted_attack_2 => (BoyonBank, (ushort)0xa357),
+            >= NamedFrameId.boulder_roll_0 and <= NamedFrameId.boulder_roll_7 =>
+                (BoulderBank, (ushort)(0x8a59 + ((int)frame - (int)NamedFrameId.boulder_roll_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.atomic_up_right_0 and <= NamedFrameId.atomic_up_right_4 =>
+                (AtomicBank, (ushort)(0xe489 + ((int)frame - (int)NamedFrameId.atomic_up_right_0) * NativeFrameBytes(4))),
+            NamedFrameId.atomic_up_right_5 => (AtomicBank, (ushort)0xe4f2),
+            >= NamedFrameId.atomic_up_left_0 and <= NamedFrameId.atomic_up_left_4 =>
+                (AtomicBank, (ushort)(0xe508 + ((int)frame - (int)NamedFrameId.atomic_up_left_0) * NativeFrameBytes(4))),
+            NamedFrameId.atomic_up_left_5 => (AtomicBank, (ushort)0xe571),
+            >= NamedFrameId.skultera_swim_left_0 and <= NamedFrameId.skultera_swim_left_2 =>
+                (SkulteraBank, (ushort)(0x928a + ((int)frame - (int)NamedFrameId.skultera_swim_left_0) * NativeFrameBytes(5))),
+            >= NamedFrameId.skultera_turn_right_0 and <= NamedFrameId.skultera_turn_right_2 =>
+                (SkulteraBank, (ushort)(0x92db + ((int)frame - (int)NamedFrameId.skultera_turn_right_0) * NativeFrameBytes(5))),
+            NamedFrameId.skultera_turn_right_3 => (SkulteraBank, (ushort)0x9327),
+            NamedFrameId.skultera_turn_right_4 => (SkulteraBank, (ushort)0x933d),
+            NamedFrameId.skultera_turn_right_5 => (SkulteraBank, (ushort)0x934e),
+            NamedFrameId.skultera_turn_right_6 => (SkulteraBank, (ushort)0x9364),
+            NamedFrameId.skultera_turn_right_7 => (SkulteraBank, (ushort)0x937f),
+            >= NamedFrameId.skultera_swim_right_0 and <= NamedFrameId.skultera_swim_right_2 =>
+                (SkulteraBank, (ushort)(0x939a + ((int)frame - (int)NamedFrameId.skultera_swim_right_0) * NativeFrameBytes(5))),
+            >= NamedFrameId.skultera_turn_left_0 and <= NamedFrameId.skultera_turn_left_2 =>
+                (SkulteraBank, (ushort)(0x93eb + ((int)frame - (int)NamedFrameId.skultera_turn_left_0) * NativeFrameBytes(5))),
+            NamedFrameId.skultera_turn_left_3 => (SkulteraBank, (ushort)0x9437),
+            NamedFrameId.skultera_turn_left_4 => (SkulteraBank, (ushort)0x944d),
+            NamedFrameId.skultera_turn_left_5 => (SkulteraBank, (ushort)0x945e),
+            NamedFrameId.skultera_turn_left_6 => (SkulteraBank, (ushort)0x9474),
+            NamedFrameId.skultera_turn_left_7 => (SkulteraBank, (ushort)0x948f),
+            NamedFrameId.waver_steady_left => (WaverBank, (ushort)0x884a),
+            NamedFrameId.waver_steady_right => (WaverBank, (ushort)0x88b3),
+            NamedFrameId.waver_spin_left_0 => (WaverBank, (ushort)0x885b),
+            NamedFrameId.waver_spin_left_1 => (WaverBank, (ushort)0x8871),
+            NamedFrameId.waver_spin_left_2 => (WaverBank, (ushort)0x881e),
+            NamedFrameId.waver_spin_left_3 => (WaverBank, (ushort)0x8834),
+            NamedFrameId.waver_spin_right_0 => (WaverBank, (ushort)0x88c4),
+            NamedFrameId.waver_spin_right_1 => (WaverBank, (ushort)0x88da),
+            NamedFrameId.waver_spin_right_2 => (WaverBank, (ushort)0x8887),
+            NamedFrameId.waver_spin_right_3 => (WaverBank, (ushort)0x889d),
+            NamedFrameId.metaree_idle_0 => (SkreeMetareeBank, (ushort)0x8b65),
+            NamedFrameId.metaree_idle_1 => (SkreeMetareeBank, (ushort)0x8bb9),
+            NamedFrameId.metaree_idle_2 => (SkreeMetareeBank, (ushort)0x8bde),
+            NamedFrameId.metaree_idle_3 => (SkreeMetareeBank, (ushort)0x8bea),
+            NamedFrameId.metaree_prepare_1 => (SkreeMetareeBank, (ushort)0x8b94),
+            NamedFrameId.skree_idle_0 => (SkreeMetareeBank, (ushort)0xc842),
+            NamedFrameId.skree_idle_1 => (SkreeMetareeBank, (ushort)0xc878),
+            NamedFrameId.skree_idle_2 => (SkreeMetareeBank, (ushort)0xc884),
+            NamedFrameId.skree_idle_3 => (SkreeMetareeBank, (ushort)0xc89a),
+            NamedFrameId.skree_prepare_1 => (SkreeMetareeBank, (ushort)0xc862),
+            >= NamedFrameId.zoa_shoot_left_0 and <= NamedFrameId.zoa_shoot_left_2 =>
+                (ZoaBank, (ushort)(0xb55f + ((int)frame - (int)NamedFrameId.zoa_shoot_left_0) * NativeFrameBytes(1))),
+            NamedFrameId.zoa_rise_left_0 => (ZoaBank, (ushort)0xb57b),
+            NamedFrameId.zoa_rise_left_1 => (ZoaBank, (ushort)0xb574),
+            NamedFrameId.zoa_rise_left_2 => (ZoaBank, (ushort)0xb582),
+            >= NamedFrameId.zoa_shoot_right_0 and <= NamedFrameId.zoa_shoot_right_2 =>
+                (ZoaBank, (ushort)(0xb589 + ((int)frame - (int)NamedFrameId.zoa_shoot_right_0) * NativeFrameBytes(1))),
+            NamedFrameId.zoa_rise_right_0 => (ZoaBank, (ushort)0xb5a5),
+            NamedFrameId.zoa_rise_right_1 => (ZoaBank, (ushort)0xb59e),
+            NamedFrameId.zoa_rise_right_2 => (ZoaBank, (ushort)0xb5ac),
+            >= NamedFrameId.pipe_brinstar_normal_left_0 and <= NamedFrameId.pipe_brinstar_normal_left_4 =>
+                (PipeBugBank, (ushort)(0x89b7 + ((int)frame - (int)NamedFrameId.pipe_brinstar_normal_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_brinstar_normal_right_0 and <= NamedFrameId.pipe_brinstar_normal_right_4 =>
+                (PipeBugBank, (ushort)(0x89da + ((int)frame - (int)NamedFrameId.pipe_brinstar_normal_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_brinstar_strong_shoot_left_0 and <= NamedFrameId.pipe_brinstar_strong_shoot_left_2 =>
+                (PipeBugBank, (ushort)(0x8a6d + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_shoot_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_brinstar_strong_rise_left_0 and <= NamedFrameId.pipe_brinstar_strong_rise_left_2 =>
+                (PipeBugBank, (ushort)(0x8a82 + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_rise_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_brinstar_strong_shoot_right_0 and <= NamedFrameId.pipe_brinstar_strong_shoot_right_2 =>
+                (PipeBugBank, (ushort)(0x8a97 + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_shoot_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_brinstar_strong_rise_right_0 and <= NamedFrameId.pipe_brinstar_strong_rise_right_2 =>
+                (PipeBugBank, (ushort)(0x8aac + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_rise_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_norfair_left_0 and <= NamedFrameId.pipe_norfair_left_4 =>
+                (PipeBugBank, (ushort)(0x8e96 + ((int)frame - (int)NamedFrameId.pipe_norfair_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_norfair_right_0 and <= NamedFrameId.pipe_norfair_right_4 =>
+                (PipeBugBank, (ushort)(0x8eb9 + ((int)frame - (int)NamedFrameId.pipe_norfair_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_yellow_fly_left_0 and <= NamedFrameId.pipe_yellow_fly_left_2 =>
+                (PipeBugBank, (ushort)(0x92ad + ((int)frame - (int)NamedFrameId.pipe_yellow_fly_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_yellow_arc_left_0 and <= NamedFrameId.pipe_yellow_arc_left_2 =>
+                (PipeBugBank, (ushort)(0x92c2 + ((int)frame - (int)NamedFrameId.pipe_yellow_arc_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_yellow_fly_right_0 and <= NamedFrameId.pipe_yellow_fly_right_2 =>
+                (PipeBugBank, (ushort)(0x92d7 + ((int)frame - (int)NamedFrameId.pipe_yellow_fly_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.pipe_yellow_arc_right_0 and <= NamedFrameId.pipe_yellow_arc_right_2 =>
+                (PipeBugBank, (ushort)(0x92ec + ((int)frame - (int)NamedFrameId.pipe_yellow_arc_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.fake_kraid_walk_left_0 and <= NamedFrameId.fake_kraid_walk_left_3 =>
+                (FakeKraidBank, (ushort)(0x9c64 + ((int)frame - (int)NamedFrameId.fake_kraid_walk_left_0) * NativeFrameBytes(16))),
+            >= NamedFrameId.fake_kraid_spit_left_0 and <= NamedFrameId.fake_kraid_spit_left_2 =>
+                (FakeKraidBank, (ushort)(0x9dac + ((int)frame - (int)NamedFrameId.fake_kraid_spit_left_0) * NativeFrameBytes(16))),
+            >= NamedFrameId.fake_kraid_walk_right_0 and <= NamedFrameId.fake_kraid_walk_right_3 =>
+                (FakeKraidBank, (ushort)(0x9ea2 + ((int)frame - (int)NamedFrameId.fake_kraid_walk_right_0) * NativeFrameBytes(16))),
+            >= NamedFrameId.fake_kraid_spit_right_0 and <= NamedFrameId.fake_kraid_spit_right_2 =>
+                (FakeKraidBank, (ushort)(0x9fea + ((int)frame - (int)NamedFrameId.fake_kraid_spit_right_0) * NativeFrameBytes(16))),
+            NamedFrameId.kraid_nail_0 => (KraidNailBank, (ushort)0xa617),
+            NamedFrameId.kraid_nail_1 => (KraidNailBank, (ushort)0xa623),
+            NamedFrameId.kraid_nail_2 => (KraidNailBank, (ushort)0xa639),
+            NamedFrameId.kraid_nail_3 => (KraidNailBank, (ushort)0xa645),
+            NamedFrameId.kraid_nail_4 => (KraidNailBank, (ushort)0xa65b),
+            NamedFrameId.kraid_nail_5 => (KraidNailBank, (ushort)0xa667),
+            NamedFrameId.kraid_nail_6 => (KraidNailBank, (ushort)0xa67d),
+            NamedFrameId.kraid_nail_7 => (KraidNailBank, (ushort)0xa689),
+            >= NamedFrameId.owtch_left_0 and <= NamedFrameId.owtch_left_2 =>
+                (OwtchStokeBank, (ushort)(0xa589 + ((int)frame - (int)NamedFrameId.owtch_left_0) * NativeFrameBytes(1))),
+            NamedFrameId.stoke_walk_left_0 => (OwtchStokeBank, (ushort)0x8aca),
+            NamedFrameId.stoke_walk_left_1 => (OwtchStokeBank, (ushort)0x8ad6),
+            NamedFrameId.stoke_walk_left_2 => (OwtchStokeBank, (ushort)0x8ae7),
+            NamedFrameId.stoke_walk_left_3 => (OwtchStokeBank, (ushort)0x8af3),
+            NamedFrameId.stoke_attack_left => (OwtchStokeBank, (ushort)0x8aff),
+            NamedFrameId.stoke_walk_right_0 => (OwtchStokeBank, (ushort)0x8b15),
+            NamedFrameId.stoke_walk_right_1 => (OwtchStokeBank, (ushort)0x8b21),
+            NamedFrameId.stoke_walk_right_2 => (OwtchStokeBank, (ushort)0x8b32),
+            NamedFrameId.stoke_walk_right_3 => (OwtchStokeBank, (ushort)0x8b3e),
+            NamedFrameId.stoke_attack_right => (OwtchStokeBank, (ushort)0x8b4a),
+            NamedFrameId.ripper_shared_left_0 => (RipperBank, (ushort)0xe3c5),
+            NamedFrameId.ripper_shared_left_1 => (RipperBank, (ushort)0xe3db),
+            NamedFrameId.ripper_shared_left_2 => (RipperBank, (ushort)0xe3ec),
+            NamedFrameId.ripper_shared_right_0 => (RipperBank, (ushort)0xe402),
+            NamedFrameId.ripper_shared_right_1 => (RipperBank, (ushort)0xe418),
+            NamedFrameId.ripper_shared_right_2 => (RipperBank, (ushort)0xe429),
+            NamedFrameId.ripper_shared_frozen_left => (RipperBank, (ushort)0xe43f),
+            NamedFrameId.ripper_shared_frozen_right => (RipperBank, (ushort)0xe44b),
+            >= NamedFrameId.ripper_left_0 and <= NamedFrameId.ripper_left_2 =>
+                (RipperBank, (ushort)(0xe527 + ((int)frame - (int)NamedFrameId.ripper_left_0) * NativeFrameBytes(2))),
+            >= NamedFrameId.ripper_right_0 and <= NamedFrameId.ripper_right_2 =>
+                (RipperBank, (ushort)(0xe54b + ((int)frame - (int)NamedFrameId.ripper_right_0) * NativeFrameBytes(2))),
+            >= NamedFrameId.fireflea_cycle_0 and <= NamedFrameId.fireflea_cycle_20 =>
+                (FirefleaBank, (ushort)(0x8ea5 + ((int)frame - (int)NamedFrameId.fireflea_cycle_0) * NativeFrameBytes(3))),
+            >= NamedFrameId.magdollite_left_idle_0 and <= NamedFrameId.magdollite_left_idle_2 =>
+                (MagdolliteBank, (ushort)(0xb448 + ((int)frame - (int)NamedFrameId.magdollite_left_idle_0) * NativeFrameBytes(3))),
+            >= NamedFrameId.magdollite_left_throw_0 and <= NamedFrameId.magdollite_left_throw_2 =>
+                (MagdolliteBank, (ushort)(0xb47b + ((int)frame - (int)NamedFrameId.magdollite_left_throw_0) * NativeFrameBytes(3))),
+            NamedFrameId.magdollite_left_throw_3 => (MagdolliteBank, (ushort)0xb4a9),
+            NamedFrameId.magdollite_pillar_cap => (MagdolliteBank, (ushort)0xb4b5),
+            NamedFrameId.magdollite_left_submerge_0 => (MagdolliteBank, (ushort)0xb4c1),
+            NamedFrameId.magdollite_left_submerge_1 => (MagdolliteBank, (ushort)0xb4cf),
+            NamedFrameId.magdollite_left_submerge_2 => (MagdolliteBank, (ushort)0xb4e0),
+            >= NamedFrameId.magdollite_right_idle_0 and <= NamedFrameId.magdollite_right_idle_2 =>
+                (MagdolliteBank, (ushort)(0xb4f1 + ((int)frame - (int)NamedFrameId.magdollite_right_idle_0) * NativeFrameBytes(3))),
+            >= NamedFrameId.magdollite_right_throw_0 and <= NamedFrameId.magdollite_right_throw_2 =>
+                (MagdolliteBank, (ushort)(0xb524 + ((int)frame - (int)NamedFrameId.magdollite_right_throw_0) * NativeFrameBytes(3))),
+            NamedFrameId.magdollite_right_throw_3 => (MagdolliteBank, (ushort)0xb552),
+            NamedFrameId.magdollite_right_submerge_0 => (MagdolliteBank, (ushort)0xb56a),
+            NamedFrameId.magdollite_right_submerge_1 => (MagdolliteBank, (ushort)0xb578),
+            NamedFrameId.magdollite_right_submerge_2 => (MagdolliteBank, (ushort)0xb589),
+            NamedFrameId.magdollite_pillar_phase_0 => (MagdolliteBank, (ushort)0xb59a),
+            NamedFrameId.magdollite_pillar_phase_1 => (MagdolliteBank, (ushort)0xb5a1),
+            NamedFrameId.magdollite_pillar_phase_2 => (MagdolliteBank, (ushort)0xb5ad),
+            NamedFrameId.magdollite_pillar_phase_3 => (MagdolliteBank, (ushort)0xb5be),
+            NamedFrameId.magdollite_pillar_phase_4 => (MagdolliteBank, (ushort)0xb5d4),
+            NamedFrameId.magdollite_pillar_phase_5 => (MagdolliteBank, (ushort)0xb5ef),
+            NamedFrameId.magdollite_pillar_phase_6 => (MagdolliteBank, (ushort)0xb60f),
+            NamedFrameId.magdollite_pillar_phase_7 => (MagdolliteBank, (ushort)0xb634),
+            NamedFrameId.ceres_door_rotating_overlay => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf921),
+            NamedFrameId.ceres_door_left_hold => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf95f),
+            NamedFrameId.ceres_door_left_transition_0 => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf989),
+            >= NamedFrameId.ceres_door_left_transition_1 and <= NamedFrameId.ceres_door_left_transition_3 =>
+                (CeresDoorInstructionProgramDefinitions.Bank, (ushort)(0xf9b3 + ((int)frame - (int)NamedFrameId.ceres_door_left_transition_1) * NativeFrameBytes(6))),
+            NamedFrameId.ceres_door_right_hold => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfa13),
+            NamedFrameId.ceres_door_right_transition_0 => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfa3d),
+            >= NamedFrameId.ceres_door_right_transition_1 and <= NamedFrameId.ceres_door_right_transition_3 =>
+                (CeresDoorInstructionProgramDefinitions.Bank, (ushort)(0xfa67 + ((int)frame - (int)NamedFrameId.ceres_door_right_transition_1) * NativeFrameBytes(6))),
+            NamedFrameId.ceres_door_initial => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)CeresDoorInstructionProgramDefinitions.InitialSpritemap),
+            NamedFrameId.ceres_door_mode7_left_wall => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xface),
+            NamedFrameId.ceres_door_mode7_right_wall => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfb2f),
+            NamedFrameId.ceres_door_ridley_private_overlay => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap),
+            NamedFrameId.ceres_baby_horizontal => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.HorizontalFrame),
+            NamedFrameId.ceres_baby_round => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.RoundFrame),
+            NamedFrameId.ceres_baby_vertical => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.VerticalFrame),
+            NamedFrameId.rio_bd6c => (RioBank, (ushort)0xbd6c),
+            NamedFrameId.rio_bd82 => (RioBank, (ushort)0xbd82),
+            NamedFrameId.rio_bd98 => (RioBank, (ushort)0xbd98),
+            NamedFrameId.rio_bdae => (RioBank, (ushort)0xbdae),
+            NamedFrameId.rio_bdc4 => (RioBank, (ushort)0xbdc4),
+            NamedFrameId.rio_bdda => (RioBank, (ushort)0xbdda),
+            NamedFrameId.rio_bdf0 => (RioBank, (ushort)0xbdf0),
+            NamedFrameId.rio_be06 => (RioBank, (ushort)0xbe06),
+            NamedFrameId.lower_norfair_rio_c8bd => (LowerNorfairRioBank, (ushort)0xc8bd),
+            NamedFrameId.lower_norfair_rio_c8d3 => (LowerNorfairRioBank, (ushort)0xc8d3),
+            NamedFrameId.lower_norfair_rio_c8e9 => (LowerNorfairRioBank, (ushort)0xc8e9),
+            NamedFrameId.lower_norfair_rio_c8ff => (LowerNorfairRioBank, (ushort)0xc8ff),
+            NamedFrameId.lower_norfair_rio_c915 => (LowerNorfairRioBank, (ushort)0xc915),
+            NamedFrameId.lower_norfair_rio_c92b => (LowerNorfairRioBank, (ushort)0xc92b),
+            NamedFrameId.lower_norfair_rio_c941 => (LowerNorfairRioBank, (ushort)0xc941),
+            NamedFrameId.lower_norfair_rio_c957 => (LowerNorfairRioBank, (ushort)0xc957),
+            NamedFrameId.lower_norfair_rio_c96d => (LowerNorfairRioBank, (ushort)0xc96d),
+            NamedFrameId.lower_norfair_rio_c983 => (LowerNorfairRioBank, (ushort)0xc983),
+            NamedFrameId.lower_norfair_rio_c999 => (LowerNorfairRioBank, (ushort)0xc999),
+            NamedFrameId.lower_norfair_rio_c9af => (LowerNorfairRioBank, (ushort)0xc9af),
+            NamedFrameId.lower_norfair_rio_c9c5 => (LowerNorfairRioBank, (ushort)0xc9c5),
+            NamedFrameId.lower_norfair_rio_c9db => (LowerNorfairRioBank, (ushort)0xc9db),
+            NamedFrameId.lower_norfair_rio_c9f1 => (LowerNorfairRioBank, (ushort)0xc9f1),
+            NamedFrameId.lower_norfair_rio_ca07 => (LowerNorfairRioBank, (ushort)0xca07),
+            NamedFrameId.lower_norfair_rio_ca13 => (LowerNorfairRioBank, (ushort)0xca13),
+            NamedFrameId.lower_norfair_rio_ca1f => (LowerNorfairRioBank, (ushort)0xca1f),
+            NamedFrameId.norfair_rio_c427 => (NorfairRioBank, (ushort)0xc427),
+            NamedFrameId.norfair_rio_c442 => (NorfairRioBank, (ushort)0xc442),
+            NamedFrameId.norfair_rio_c45d => (NorfairRioBank, (ushort)0xc45d),
+            NamedFrameId.norfair_rio_c493 => (NorfairRioBank, (ushort)0xc493),
+            NamedFrameId.norfair_rio_c49f => (NorfairRioBank, (ushort)0xc49f),
+            NamedFrameId.norfair_rio_c4ab => (NorfairRioBank, (ushort)0xc4ab),
+            NamedFrameId.norfair_rio_c4b7 => (NorfairRioBank, (ushort)0xc4b7),
+            NamedFrameId.norfair_rio_c4d2 => (NorfairRioBank, (ushort)0xc4d2),
+            NamedFrameId.norfair_rio_c4ed => (NorfairRioBank, (ushort)0xc4ed),
+            NamedFrameId.norfair_rio_c508 => (NorfairRioBank, (ushort)0xc508),
+            NamedFrameId.norfair_rio_c523 => (NorfairRioBank, (ushort)0xc523),
+            NamedFrameId.norfair_rio_c534 => (NorfairRioBank, (ushort)0xc534),
+            NamedFrameId.norfair_rio_c54f => (NorfairRioBank, (ushort)0xc54f),
+            NamedFrameId.norfair_rio_c56a => (NorfairRioBank, (ushort)0xc56a),
+            NamedFrameId.norfair_rio_c585 => (NorfairRioBank, (ushort)0xc585),
+            NamedFrameId.norfair_rio_c5a0 => (NorfairRioBank, (ushort)0xc5a0),
+            NamedFrameId.norfair_rio_c5bb => (NorfairRioBank, (ushort)0xc5bb),
+            NamedFrameId.norfair_rio_c5d6 => (NorfairRioBank, (ushort)0xc5d6),
+            NamedFrameId.norfair_rio_c5e2 => (NorfairRioBank, (ushort)0xc5e2),
+            NamedFrameId.norfair_rio_c5ee => (NorfairRioBank, (ushort)0xc5ee),
+            >= NamedFrameId.puyo_ground_0 and <= NamedFrameId.puyo_ground_2 =>
+                (PuyoBank, (ushort)(0x9df6 + ((int)frame - (int)NamedFrameId.puyo_ground_0) * NativeFrameBytes(2))),
+            NamedFrameId.puyo_air_0 => (PuyoBank, (ushort)0x9e1a),
+            NamedFrameId.puyo_air_1 => (PuyoBank, (ushort)0x9e26),
+            NamedFrameId.puyo_air_2 => (PuyoBank, (ushort)0x9e37),
+            NamedFrameId.puyo_air_3 => (PuyoBank, (ushort)0x9e4d),
+            NamedFrameId.puyo_air_4 => (PuyoBank, (ushort)0x9e5e),
+            >= NamedFrameId.bull_idle_0 and <= NamedFrameId.bull_idle_2 =>
+                (BullBank, (ushort)(0xdb76 + ((int)frame - (int)NamedFrameId.bull_idle_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.alcoon_left_walk_0 and <= NamedFrameId.alcoon_left_walk_2 =>
+                (AlcoonBank, (ushort)(0xdfa2 + ((int)frame - (int)NamedFrameId.alcoon_left_walk_0) * NativeFrameBytes(6))),
+            NamedFrameId.alcoon_left_walk_3 => (AlcoonBank, (ushort)0xe007),
+            NamedFrameId.alcoon_left_fire_0 => (AlcoonBank, (ushort)0xe027),
+            NamedFrameId.alcoon_left_fire_1 => (AlcoonBank, (ushort)0xe047),
+            NamedFrameId.alcoon_left_fire_2 => (AlcoonBank, (ushort)0xe06c),
+            NamedFrameId.alcoon_left_fire_3 => (AlcoonBank, (ushort)0xe09b),
+            NamedFrameId.alcoon_left_air_up => (AlcoonBank, (ushort)0xe0bb),
+            >= NamedFrameId.alcoon_right_walk_0 and <= NamedFrameId.alcoon_right_walk_2 =>
+                (AlcoonBank, (ushort)(0xe0db + ((int)frame - (int)NamedFrameId.alcoon_right_walk_0) * NativeFrameBytes(6))),
+            NamedFrameId.alcoon_right_walk_3 => (AlcoonBank, (ushort)0xe140),
+            NamedFrameId.alcoon_right_fire_0 => (AlcoonBank, (ushort)0xe160),
+            NamedFrameId.alcoon_right_fire_1 => (AlcoonBank, (ushort)0xe180),
+            NamedFrameId.alcoon_right_fire_2 => (AlcoonBank, (ushort)0xe1a5),
+            NamedFrameId.alcoon_right_fire_3 => (AlcoonBank, (ushort)0xe1d4),
+            NamedFrameId.alcoon_right_air_up => (AlcoonBank, (ushort)0xe1f4),
+            >= NamedFrameId.beetom_left_crawl_0 and <= NamedFrameId.beetom_left_crawl_2 =>
+                (BeetomBank, (ushort)(0xbed3 + ((int)frame - (int)NamedFrameId.beetom_left_crawl_0) * NativeFrameBytes(5))),
+            NamedFrameId.beetom_left_hop_0 => (BeetomBank, (ushort)0xbf24),
+            NamedFrameId.beetom_left_hop_1 => (BeetomBank, (ushort)0xbf3f),
+            >= NamedFrameId.beetom_left_drain_0 and <= NamedFrameId.beetom_left_drain_3 =>
+                (BeetomBank, (ushort)(0xbf5a + ((int)frame - (int)NamedFrameId.beetom_left_drain_0) * NativeFrameBytes(5))),
+            NamedFrameId.beetom_left_drain_4 => (BeetomBank, (ushort)0xbfcb),
+            NamedFrameId.beetom_left_drain_5 => (BeetomBank, (ushort)0xbfeb),
+            >= NamedFrameId.beetom_right_crawl_0 and <= NamedFrameId.beetom_right_crawl_2 =>
+                (BeetomBank, (ushort)(0xc00b + ((int)frame - (int)NamedFrameId.beetom_right_crawl_0) * NativeFrameBytes(5))),
+            NamedFrameId.beetom_right_hop_0 => (BeetomBank, (ushort)0xc05c),
+            NamedFrameId.beetom_right_hop_1 => (BeetomBank, (ushort)0xc077),
+            >= NamedFrameId.beetom_right_drain_0 and <= NamedFrameId.beetom_right_drain_3 =>
+                (BeetomBank, (ushort)(0xc092 + ((int)frame - (int)NamedFrameId.beetom_right_drain_0) * NativeFrameBytes(5))),
+            NamedFrameId.beetom_right_drain_4 => (BeetomBank, (ushort)0xc103),
+            NamedFrameId.beetom_right_drain_5 => (BeetomBank, (ushort)0xc123),
+            NamedFrameId.sidehopper_jump_floor => (HopperBank, (ushort)0xaf19),
+            NamedFrameId.sidehopper_land_floor_0 => (HopperBank, (ushort)0xaee3),
+            NamedFrameId.sidehopper_land_floor_1 => (HopperBank, (ushort)0xaefe),
+            NamedFrameId.sidehopper_jump_ceiling => (HopperBank, (ushort)0xaf6a),
+            NamedFrameId.sidehopper_land_ceiling_0 => (HopperBank, (ushort)0xaf34),
+            NamedFrameId.sidehopper_land_ceiling_1 => (HopperBank, (ushort)0xaf4f),
+            NamedFrameId.dessgeega_jump_floor => (HopperBank, (ushort)0xb019),
+            NamedFrameId.dessgeega_land_floor_0 => (HopperBank, (ushort)0xafe3),
+            NamedFrameId.dessgeega_land_floor_1 => (HopperBank, (ushort)0xaffe),
+            NamedFrameId.dessgeega_jump_ceiling => (HopperBank, (ushort)0xb06a),
+            NamedFrameId.dessgeega_land_ceiling_0 => (HopperBank, (ushort)0xb034),
+            NamedFrameId.dessgeega_land_ceiling_1 => (HopperBank, (ushort)0xb04f),
+            NamedFrameId.large_sidehopper_jump_floor => (HopperBank, (ushort)0xb15b),
+            NamedFrameId.large_sidehopper_land_floor_0 => (HopperBank, (ushort)0xb111),
+            NamedFrameId.large_sidehopper_land_floor_1 => (HopperBank, (ushort)0xb136),
+            NamedFrameId.large_sidehopper_jump_ceiling => (HopperBank, (ushort)0xb1de),
+            NamedFrameId.large_sidehopper_land_ceiling_0 => (HopperBank, (ushort)0xb194),
+            NamedFrameId.large_sidehopper_land_ceiling_1 => (HopperBank, (ushort)0xb1b9),
+            NamedFrameId.large_dessgeega_jump_floor => (HopperBank, (ushort)0xb2d1),
+            NamedFrameId.large_dessgeega_land_floor_0 => (HopperBank, (ushort)0xb273),
+            NamedFrameId.large_dessgeega_land_floor_1 => (HopperBank, (ushort)0xb2a2),
+            NamedFrameId.large_dessgeega_jump_ceiling => (HopperBank, (ushort)0xb368),
+            NamedFrameId.large_dessgeega_land_ceiling_0 => (HopperBank, (ushort)0xb30a),
+            NamedFrameId.large_dessgeega_land_ceiling_1 => (HopperBank, (ushort)0xb339),
+            NamedFrameId.choot_idle => (ChootBank, (ushort)0xe146),
+            NamedFrameId.choot_jump => (ChootBank, (ushort)0xe15c),
+            NamedFrameId.choot_jump_apex => (ChootBank, (ushort)0xe168),
+            NamedFrameId.choot_fall_end => (ChootBank, (ushort)0xe16f),
+            >= NamedFrameId.hzoomer_upside_right_0 and <= NamedFrameId.hzoomer_upside_right_4 =>
+                (HZoomerBank, (ushort)(0xe50e + ((int)frame - (int)NamedFrameId.hzoomer_upside_right_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.hzoomer_upside_left_0 and <= NamedFrameId.hzoomer_upside_left_4 =>
+                (HZoomerBank, (ushort)(0xe3c4 + ((int)frame - (int)NamedFrameId.hzoomer_upside_left_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.hzoomer_upside_down_0 and <= NamedFrameId.hzoomer_upside_down_4 =>
+                (HZoomerBank, (ushort)(0xe432 + ((int)frame - (int)NamedFrameId.hzoomer_upside_down_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.hzoomer_upside_up_0 and <= NamedFrameId.hzoomer_upside_up_4 =>
+                (HZoomerBank, (ushort)(0xe2e8 + ((int)frame - (int)NamedFrameId.hzoomer_upside_up_0) * NativeFrameBytes(4))),
+            >= NamedFrameId.sbug_right_0 and <= NamedFrameId.sbug_right_2 =>
+                (SbugBank, (ushort)(0xa67d + ((int)frame - (int)NamedFrameId.sbug_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_up_right_0 and <= NamedFrameId.sbug_up_right_2 =>
+                (SbugBank, (ushort)(0xa692 + ((int)frame - (int)NamedFrameId.sbug_up_right_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_up_0 and <= NamedFrameId.sbug_up_2 =>
+                (SbugBank, (ushort)(0xa6a7 + ((int)frame - (int)NamedFrameId.sbug_up_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_up_left_0 and <= NamedFrameId.sbug_up_left_2 =>
+                (SbugBank, (ushort)(0xa6bc + ((int)frame - (int)NamedFrameId.sbug_up_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_left_0 and <= NamedFrameId.sbug_left_2 =>
+                (SbugBank, (ushort)(0xa6d1 + ((int)frame - (int)NamedFrameId.sbug_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_down_left_0 and <= NamedFrameId.sbug_down_left_2 =>
+                (SbugBank, (ushort)(0xa6e6 + ((int)frame - (int)NamedFrameId.sbug_down_left_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_down_0 and <= NamedFrameId.sbug_down_2 =>
+                (SbugBank, (ushort)(0xa6fb + ((int)frame - (int)NamedFrameId.sbug_down_0) * NativeFrameBytes(1))),
+            >= NamedFrameId.sbug_down_right_0 and <= NamedFrameId.sbug_down_right_2 =>
+                (SbugBank, (ushort)(0xa710 + ((int)frame - (int)NamedFrameId.sbug_down_right_0) * NativeFrameBytes(1))),
+            NamedFrameId.fune_left_idle => (FuneNamiheBank, (ushort)0x93f9),
+            >= NamedFrameId.fune_left_active_0 and <= NamedFrameId.fune_left_active_3 =>
+                (FuneNamiheBank, (ushort)(0x9423 + ((int)frame - (int)NamedFrameId.fune_left_active_0) * NativeFrameBytes(8))),
+            NamedFrameId.fune_right_idle => (FuneNamiheBank, (ushort)0x94cb),
+            >= NamedFrameId.fune_right_active_0 and <= NamedFrameId.fune_right_active_3 =>
+                (FuneNamiheBank, (ushort)(0x94f5 + ((int)frame - (int)NamedFrameId.fune_right_active_0) * NativeFrameBytes(8))),
+            NamedFrameId.namihe_left_idle => (FuneNamiheBank, (ushort)0x97b4),
+            >= NamedFrameId.namihe_left_active_0 and <= NamedFrameId.namihe_left_active_4 =>
+                (FuneNamiheBank, (ushort)(0x97de + ((int)frame - (int)NamedFrameId.namihe_left_active_0) * NativeFrameBytes(8))),
+            NamedFrameId.namihe_right_idle => (FuneNamiheBank, (ushort)0x98b0),
+            >= NamedFrameId.namihe_right_active_0 and <= NamedFrameId.namihe_right_active_4 =>
+                (FuneNamiheBank, (ushort)(0x98da + ((int)frame - (int)NamedFrameId.namihe_right_active_0) * NativeFrameBytes(8))),
+            >= NamedFrameId.kamer_platform_0 and <= NamedFrameId.kamer_platform_3 =>
+                (KamerPlatformBank, (ushort)(0xf468 + ((int)frame - (int)NamedFrameId.kamer_platform_0) * NativeFrameBytes(2))),
+            NamedFrameId.elevator_platform_0 => (ElevatorBank, (ushort)0x962f),
+            NamedFrameId.elevator_platform_1 => (ElevatorBank, (ushort)0x9645),
+            >= NamedFrameId.draygon_intro_evir_0 and <= NamedFrameId.draygon_intro_evir_3 =>
+                (RoomSpriteObjectBank, (ushort)(0xdb42 + ((int)frame - (int)NamedFrameId.draygon_intro_evir_0) * NativeFrameBytes(12))),
+            NamedFrameId.draygon_breath_bubble_0 => (RoomSpriteObjectBank, (ushort)0xc920),
+            >= NamedFrameId.draygon_breath_bubble_1 and <= NamedFrameId.draygon_breath_bubble_7 =>
+                (RoomSpriteObjectBank, (ushort)(0xc927 + ((int)frame - (int)NamedFrameId.draygon_breath_bubble_1) * NativeFrameBytes(3))),
+            NamedFrameId.draygon_breath_bubble_8 => (RoomSpriteObjectBank, (ushort)0xc999),
+            _ => throw new IndexOutOfRangeException(),
+        };
+        return new(bank, pointer, frame.ToString());
+    }
+
+    private static IEnumerable<EnemySpritemapDefinition> NamedFrames()
+    {
+        for (var frame = NamedFrameId.boyon_idle_0; frame <= NamedFrameId.draygon_breath_bubble_8; frame++)
+            yield return NamedFrame(frame);
+    }
+
 
     // All other bank-$B4 presentation targets are shared by the 62 compiled
     // sprite-object programs. Build their stable, address-named art identities
     // from the compiled selectors; do not duplicate their pointer list here.
-    private static readonly EnemySpritemapDefinition[] FrameDefinitions =
-    [
-        .. NamedFrameDefinitions,
-        .. RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrameDefinitions),
-        .. YappingMawVisualDefinitions.Frames(),
-        .. KiHunterVisualDefinitions.Frames(),
-        .. MotherBrainVisualDefinitions.Frames(),
-        .. DeadTorizoArtworkDefinitions.Frames(),
-        .. RidleySupplementalVisualDefinitions.Frames(),
-        .. SciserVisualDefinitions.Frames(),
-        .. FlyVisualDefinitions.Frames(),
-        .. KagoVisualDefinitions.Frames(),
-        .. BlueBrinstarFaceBlockVisualDefinitions.Frames(),
-        .. MorphBallEyeVisualDefinitions.Frames(),
-        .. ShutterVisualDefinitions.Frames(),
-        .. MetroidVisualDefinitions.Frames(),
-        .. ShaktoolVisualDefinitions.Frames(),
-        .. TripperKamerVisualDefinitions.Frames(),
-        .. DragonVisualDefinitions.Frames(),
-        .. MultiviolaVisualDefinitions.Frames(),
-        .. NorfairLavaJumperVisualDefinitions.Frames(),
-        .. ChozoStatueVisualDefinitions.Frames(),
-        .. ViolaVisualDefinitions.Frames(),
-        .. RinkaVisualDefinitions.Frames(),
-        .. DeadTorizoArtworkDefinitions.StationaryFrames(),
-        .. DeadTourianCorpseVisualDefinitions.Frames(),
-        .. MochtroidVisualDefinitions.Frames(),
-        .. EvirVisualDefinitions.Frames(),
-        .. WorkRobotVisualDefinitions.Frames(),
-        .. YardVisualDefinitions.Frames(),
-        .. BotwoonVisualDefinitions.Frames(),
-        .. GunshipVisualDefinitions.Frames(),
-        .. MamaTurtleVisualDefinitions.Frames(),
-        .. ZeroVisualDefinitions.Frames(),
-        .. FriendlyAnimalVisualDefinitions.Frames(),
-        .. HibashiVisualDefinitions.Frames(),
-        .. ZebetiteVisualDefinitions.Frames(),
-        .. WreckedShipGhostVisualDefinitions.Frames(),
-        .. PowampVisualDefinitions.Frames(),
-        .. SparkVisualDefinitions.Frames(),
-        .. ShitroidVisualDefinitions.Frames(),
-        .. KraidLintVisualDefinitions.Frames(),
-        .. NuclearWaffleVisualDefinitions.Frames(),
-    ];
+    private static IEnumerable<EnemySpritemapDefinition> EnumerateFrames()
+    {
+        foreach (var frame in NamedFrames())
+            yield return frame;
+        foreach (var frame in RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrames()))
+            yield return frame;
+        foreach (var frame in YappingMawVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in KiHunterVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MotherBrainVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in DeadTorizoArtworkDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in RidleySupplementalVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in SciserVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in FlyVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in KagoVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MorphBallEyeVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ShutterVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MetroidVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ShaktoolVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in TripperKamerVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in DragonVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MultiviolaVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in NorfairLavaJumperVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ChozoStatueVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ViolaVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in RinkaVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in DeadTorizoArtworkDefinitions.StationaryFrames())
+            yield return frame;
+        foreach (var frame in DeadTourianCorpseVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MochtroidVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in EvirVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in WorkRobotVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in YardVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in BotwoonVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in GunshipVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in MamaTurtleVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ZeroVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in FriendlyAnimalVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in HibashiVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ZebetiteVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in WreckedShipGhostVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in PowampVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in SparkVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in ShitroidVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in KraidLintVisualDefinitions.Frames())
+            yield return frame;
+        foreach (var frame in NuclearWaffleVisualDefinitions.Frames())
+            yield return frame;
+    }
 
-    internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
+    internal static FrameList Frames { get; } = new();
+
+    internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
+    {
+        public int Count => EnumerateFrames().Count();
+        internal int Length => Count;
+        public EnemySpritemapDefinition this[int index] => (uint)index < Count
+            ? EnumerateFrames().ElementAt(index) : throw new IndexOutOfRangeException();
+        internal EnemySpritemapDefinition[] this[Range range]
+        {
+            get
+            {
+                (int offset, int length) = range.GetOffsetAndLength(Count);
+                return EnumerateFrames().Skip(offset).Take(length).ToArray();
+            }
+        }
+        public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => EnumerateFrames().GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
 
     /// <summary>
     /// Selects only families whose fixed instruction visual operands are compiled.

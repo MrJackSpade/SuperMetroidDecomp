@@ -198,7 +198,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs
 
-- [ ] **EnemySpritemapDefinitions.NamedFrameDefinitions** ([L183](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs#L183)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemySpritemapDefinitions.NamedFrameDefinitions** ([L183](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs#L183)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs
 
@@ -1114,3 +1114,9 @@ Root build passed (1445 warnings, zero errors). Shaktool focused confirmation pa
 Replaced ten stored activation durations with flash/blank/final-gap/sustained-stage operations and four chosen visual cadences. Root native-source review approves only those four inputs and the shared three-tick callback-free continuous loops as chosen visual choreography: separate function timers control lifetime and emission, and the nonzero blank map retains fixed contact geometry. Deactivation cadence1, the subsequent intangible callback and extra inactive8 remain required. Words stays unchecked; no aggregate count change. Worker commits ee04422db,394df00ed,723df7b36.
 
 Root confirmation: Verification build1445 warnings/zero errors; focused Spark check matches33 native control words and26 visual identities and exercises four production programs with cartridge reads denied. Forced instruction timers confirm transitions, not elapsed timing.
+
+### Integrated semantic enemy frame registration
+
+Replaced472 named cached registrations with semantic identity dispatch;66 native record-stride sequences calculate268 addresses. Root independently read all202 preceding native record headers and confirmed2+5*partCount strides. Terminal record counts do not determine their own address and need not equal preceding counts. Removed cached aggregate array while preserving enumeration, ordinal, range, duplicate exclusion and sorted additional targets. All sprite geometry, tile selection and pixels remain required under their existing entries.
+
+Root Verification build1445warnings/0errors; --lookup-enemy-frame-registration confirms472 exact ordered identities, indexed/range behavior, native additional targets and uniqueness, plus64 historical OAM schemas and54 binding schemas with independent art/remap preservation. ResourceAudit build0/0. Worker09b807962; aggregate550converted/16retained-mixed/562pending. Worker's broader legacy aggregate independently reported unrelated projectile schema11 fixture failure; that unrelated fixture was not run or changed for root's focused confirmation.

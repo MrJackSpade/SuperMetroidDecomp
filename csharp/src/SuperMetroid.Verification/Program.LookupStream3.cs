@@ -6,6 +6,34 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
+    {
+        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
+        const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
+        var named = EnemySpritemapDefinitions.Frames.Take(472).ToArray();
+        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}"));
+        AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
+        var all = EnemySpritemapDefinitions.Frames.ToArray();
+        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Length, "enemy calculated registry count");
+        AssertTrue(EnemySpritemapDefinitions.Frames[..472].SequenceEqual(named), "enemy legacy named prefix slice");
+        for (int index = 0; index < 472; index++)
+            AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
+        var additionalPointers = new SortedSet<ushort>();
+        var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
+        for (int index = 0; index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            int address = 0xb40000 | RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort pointer = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
+        }
+        var expectedAdditional = additionalPointers.Select(pointer =>
+            new EnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
+        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).SequenceEqual(expectedAdditional),
+            "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
+        AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
+        VerifyEnemyLegacyOverrides();
+    }
     private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

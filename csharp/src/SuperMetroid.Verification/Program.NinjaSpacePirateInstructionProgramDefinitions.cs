@@ -141,7 +141,7 @@ internal static partial class Program
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(

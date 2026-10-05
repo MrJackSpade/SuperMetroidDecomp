@@ -132,19 +132,27 @@ internal static partial class Program
         ushort warmedList = SpacePirateCollisionDefinitions.List(0).Pointer;
         _ = SpacePirateCollisionDefinitions.ComponentsAt(warmedFrame).Length;
         _ = SpacePirateCollisionDefinitions.HitboxesAt(warmedList).Length;
-        long beforeLookup = GC.GetAllocatedBytesForCurrentThread();
-        int lookupChecksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            lookupChecksum += SpacePirateCollisionDefinitions
-                .ComponentsAt(warmedFrame).Length;
-            lookupChecksum += SpacePirateCollisionDefinitions
-                .HitboxesAt(warmedList).Length;
-        }
+        _ = MeasureLookupAllocation(warmedFrame, warmedList);
+        (long allocated, int lookupChecksum) = MeasureLookupAllocation(warmedFrame, warmedList);
         AssertTrue(lookupChecksum > 0, "Space Pirate lookup probe consumes data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - beforeLookup,
+        AssertEqual(0L, allocated,
             "warmed Space Pirate collision lookups allocate no frame storage");
 
+        // Warm and measure the same isolated loop; assertions and the large
+        // surrounding reference fixture are outside the allocation interval.
+        [System.Runtime.CompilerServices.MethodImpl(
+            System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        static (long Allocated, int Checksum) MeasureLookupAllocation(ushort frame, ushort list)
+        {
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            int checksum = 0;
+            for (int index = 0; index < 65536; index++)
+            {
+                checksum += SpacePirateCollisionDefinitions.ComponentsAt(frame).Length;
+                checksum += SpacePirateCollisionDefinitions.HitboxesAt(list).Length;
+            }
+            return (GC.GetAllocatedBytesForCurrentThread() - before, checksum);
+        }
         var guard = new SpacePirateCollisionReadGuard(rom, nativeRanges);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(

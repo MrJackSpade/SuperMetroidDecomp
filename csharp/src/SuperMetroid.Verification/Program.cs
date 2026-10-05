@@ -2052,6 +2052,14 @@ if (args is ["--lookup-stream5-ceres-flight-palette"])
     VerifyLookupStream5CeresFlightPalette(oracle);
     return 0;
 }
+if (args is ["--lookup-stream-4-oum-layout"])
+{
+    var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Oum NTSC J/U v1.0 oracle");
+    VerifyLookupStream4OumListLayout(oracle);
+    return 0;
+}
 if (args is ["--lookup-stream-3"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

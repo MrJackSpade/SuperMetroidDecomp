@@ -339,7 +339,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs
 
-- [ ] **MaridiaLargeSnailCollisionDefinitions.ListPointers** ([L33](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaLargeSnailCollisionDefinitions.ListPointers** ([L33](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **MaridiaLargeSnailCollisionDefinitions.Lists** ([L42](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs
@@ -1093,3 +1093,9 @@ Root Verification build passed with 1445 warnings and zero errors. Focused stoke
 ### Root correction: Baby Turtle crawl timing remains required
 
 Reopened `MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202`. Removing its factory and repeating a scalar did not resolve the chosen ten-tick duration: TryCrawl returns10 for fields2/6 in each ten-byte record. Native A2:8B82/8B86 through8BC8/8BCC and8C74/8C78 through8CBA/8CBE retain32 such samples. Structure/presentation conversions remain intact, but this timing entry has no accepted derivation or impossible/nonsense disposition. No gameplay code changed for this correction.
+
+### Root integration: Oum collision-list addresses
+
+List pointers now derive from the first native record and successive record extents: two-byte rectangle count plus twelve bytes per rectangle. No replacement list-pointer or rectangle-count array is introduced. Lists geometry/callback payload remains required. The pre-existing FrameKeys cache and builder are also removed: an immutable view calculates the ten-byte frame stride on access without changing current consumer bindings.
+
+Root build passed (1445 warnings, zero errors). `--lookup-stream-4-oum-layout` confirms all30 native frame operands, all66 selected rectangle coordinates/touch/shot callbacks, enumeration coverage, calculated frame-index boundaries and complete ushort address rejection. This confirms selection/data identity, not gameplay collision behavior. ListPointers is complete; no retention exception added. Inventory:534 converted,15 justified retained/mixed,579 pending.

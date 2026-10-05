@@ -25,19 +25,12 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     private const ushort Shot = EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot;
     private const ushort NoShot = EnemyAiCodePointers.BankA0.NoOp;
 
-    /// <summary>
-    /// Ordered native hitbox-list identities from the frame components at
-    /// $A2:CB87-$CCA9. Index follows the ten-byte physical-frame stride.
-    /// </summary>
-    private static readonly ushort[] ListPointers =
-    [
-        0xd034, 0xd04e, 0xd05c, 0xd076, 0xd090, 0xd0aa,
-        0xd0c4, 0xd0de, 0xd0f8, 0xd11e, 0xd138, 0xd15e,
-        0xd178, 0xd19e, 0xd1b8, 0xd1de, 0xd1f8, 0xd206,
-        0xd220, 0xd23a, 0xd254, 0xd26e, 0xd288, 0xd2a2,
-        0xd2c8, 0xd2e2, 0xd308, 0xd322, 0xd348, 0xd362,
-    ];
-    private static readonly ushort[] FrameKeys = BuildFrameKeys();
+    /// <summary>First consecutive hitbox record, Hitbox_Oum_FacingLeft_0 at $A2:D034.</summary>
+    private const ushort FirstHitboxList = 0xd034;
+    /// <summary>Native hitbox records contain a two-byte count and twelve bytes per rectangle.</summary>
+    private const int HitboxRecordHeaderBytes = 2;
+    private const int HitboxRectangleBytes = 12;
+
     private static readonly Dictionary<ushort, MaridiaLargeSnailCollisionHitbox[]> Lists = new()
     {
         [0xd034] = [new(-16, -17, -8, 16, SafeTouch, Shot), new(-8, -17, 14, 16, SafeTouch, NoShot)],
@@ -72,17 +65,24 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         [0xd362] = [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 0, SafeTouch, Shot), new(0, 0, 16, 16, SafeTouch, NoShot)],
     };
 
-    internal static ReadOnlySpan<ushort> FramePointers => FrameKeys;
+    internal static FramePointerSequence FramePointers => default;
     internal static IEnumerable<ushort> HitboxPointers => Lists.Keys;
 
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame <= LastFrame &&
         (frame - FirstFrame) % FrameStride == 0;
 
-    internal static ushort HitboxListAt(ushort frame) =>
-        HasFrame(frame) ? ListPointers[(frame - FirstFrame) / FrameStride] :
-            throw new InvalidDataException(
-                $"Oum frame $A2:{frame:X4} has no compiled collision.");
+    internal static ushort HitboxListAt(ushort frame)
+    {
+        if (!HasFrame(frame))
+            throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
+        ushort pointer = FirstHitboxList;
+        int precedingFrames = (frame - FirstFrame) / FrameStride;
+        for (int index = 0; index < precedingFrames; index++)
+            pointer = checked((ushort)(pointer + HitboxRecordHeaderBytes +
+                HitboxRectangleBytes * Lists[pointer].Length));
+        return pointer;
+    }
 
     internal static ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGetValue(list, out MaridiaLargeSnailCollisionHitbox[]? hitboxes)
@@ -90,11 +90,18 @@ internal static class MaridiaLargeSnailCollisionDefinitions
             : throw new InvalidDataException(
                 $"Oum hitbox list $A2:{list:X4} is not compiled.");
 
-    private static ushort[] BuildFrameKeys()
+    /// <summary>Consecutive ten-byte one-component frame identities at $A2:CB87-$CCA9.</summary>
+    internal readonly struct FramePointerSequence : IReadOnlyList<ushort>
     {
-        var keys = new ushort[ListPointers.Length];
-        for (int index = 0; index < keys.Length; index++)
-            keys[index] = unchecked((ushort)(FirstFrame + index * FrameStride));
-        return keys;
+        public int Count => (LastFrame - FirstFrame) / FrameStride + 1;
+        public int Length => Count;
+        public ushort this[int index] => (uint)index < Count
+            ? (ushort)(FirstFrame + index * FrameStride)
+            : throw new IndexOutOfRangeException();
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

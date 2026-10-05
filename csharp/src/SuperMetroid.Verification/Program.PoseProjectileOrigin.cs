@@ -12,7 +12,7 @@ internal static partial class Program
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         var bus = new PoseOriginPresentationBus(rom);
-        var samus = new SamusState();
+        var samus = PrepareRetailSamusFixture(new SamusState());
         var slot = new SamusProjectileSlot(0);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
@@ -24,7 +24,8 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         for (int art = 0; art <= byte.MaxValue; art++)
         {
-            bus.Pose = samus.Pose = (byte)pose; bus.ArtY = (byte)art;
+            bus.Pose = samus.Pose = (byte)pose;
+            samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)art)));
             samus.XPosition = unchecked((ushort)(pose * 251 + art));
             samus.YPosition = unchecked((ushort)~samus.XPosition);
             byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);
@@ -65,13 +66,13 @@ internal static partial class Program
 
     private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        public byte Pose, ArtY;
+        public byte Pose;
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {
             if (address == 0x91b629 + Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
-            if (address == 0x91b629 + Pose * 8 + 4) return ArtY;
+            if (address == 0x91b629 + Pose * 8 + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

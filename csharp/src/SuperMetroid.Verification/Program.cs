@@ -4323,6 +4323,18 @@ if (args is ["--contact-crumble-programs"])
     VerifyContactCrumblePrograms();
     return 0;
 }
+if (args is ["--grapple-firing-definitions"])
+{
+    VerifyGrappleFiringDefinitions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--mother-brain-baby-metroid-definitions"])
+{
+    VerifyMotherBrainBabyMetroidDefinitions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
@@ -4742,6 +4754,12 @@ if (args is ["--yard-instruction-program-definitions"])
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();
+    return 0;
+}
+if (args is ["--pose-projectile-origins"])
+{
+    VerifyPoseProjectileOrigin(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--pose-dispatch-definitions"])

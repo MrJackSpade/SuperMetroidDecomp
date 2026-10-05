@@ -11,7 +11,7 @@ internal static partial class Program
         var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         var bus = new GrappleBodyReadGuard(rom);
-        var samus = new SamusState();
+        var samus = PrepareRetailSamusFixture(new SamusState());
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
         var stock = GrappleSwingFrameCatalog.Load(new MemoryStream(json));
         var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
@@ -24,8 +24,8 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var g = samus.Grapple;
-            g.SwingFrames = installed ? replaceArt ? edited : stock : null;
-            bus.ForbidArt = installed;
+            g.SwingFrames = replaceArt ? edited : installed ? projectileFixtureArt.Value.GrappleTiles.SwingFrames : stock;
+            bus.ForbidArt = true;
             samus.Pose = left ? SamusPoseIds.GrappleSwingLeftPose : SamusPoseIds.GrappleSwingRightPose;
             g.AnchorX = (ushort)raw; g.AnchorY = unchecked((ushort)~raw);
             g.RopeLength = (ushort)(raw & 127);
@@ -55,7 +55,7 @@ internal static partial class Program
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)
         {
-            var native = new SamusState(); var changed = new SamusState();
+            var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
             bus.ReplaceArt = false; bus.ForbidArt = true;
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, 512, 512, 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
@@ -72,7 +72,7 @@ internal static partial class Program
                 changed.SetGrappleSwingAnimationFrame(displayed);
             }
         }
-        Console.WriteLine("Grapple body placement: 524288 legacy/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
+        Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
 
     private sealed class GrappleBodyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

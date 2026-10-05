@@ -6,6 +6,24 @@ internal static partial class Program
     private static readonly Lazy<SamusBodyArtworkCatalog> renderingFixtureStock =
         new(() => runtimeFixtureInstallation.Value.LoadSamusBodyArt());
 
+    private static readonly Dictionary<sbyte, SamusBodyArtworkCatalog> graphicsOffsetFixtures = [];
+
+    private static SamusBodyArtworkCatalog SamusGraphicsOffsetFixture(sbyte offset)
+    {
+        if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
+        var stock = renderingFixtureStock.Value;
+        var result = new SamusBodyArtworkCatalog(stock.TopSetPointers.ToArray(),
+            stock.BottomSetPointers.ToArray(), stock.PosePointers.ToArray(),
+            Enumerable.Repeat(offset, SamusBodyArtworkCatalog.PoseCount).ToArray(),
+            stock.Frames.ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(),
+            stock.Spritemaps, stock.Atmosphere, stock.DeathPalettes, stock.DeathTiles,
+            stock.ArmCannon, stock.LandingYOffsets.ToArray(), stock.PostureYOffsets.ToArray(),
+            stock.DrainedYOffsets.ToArray());
+        graphicsOffsetFixtures.Add(offset, result);
+        return result;
+    }
     // Adapt this fixture's sparse, deliberately distinctive artwork to the installed
     // catalog boundary. Unspecified complete DMA groups retain valid stock layout;
     // sprite maps remain the fixture's own compact compositions, including zero pointers.

@@ -7,6 +7,86 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = PauseEquipmentBasePresentation.Load(new MemoryStream(json));
+        byte[] native = new byte[2048];
+        for (int cell = 0; cell < 1024; cell++)
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2),
+                ReadVerificationWord(rom, 0xb6e800 + cell * 2));
+        AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Calculated equipment template preserves all1024native words");
+        var residuals = (Dictionary<int, ushort>)typeof(PauseEquipmentBasePresentation)
+            .GetField("remainingCells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        for (int cell = 0; cell < 1024; cell++)
+        {
+            int x = cell % 32, y = cell / 32;
+            ushort expected = ReadVerificationWord(rom, 0xb6e800 + cell * 2);
+            ushort calculated;
+            if (x is >= 12 and < 20 && y is >= 7 and < 24)
+            {
+                int local = (y - 7) * 8 + x - 12;
+                if (PauseWireframeDefinitions.TryStockTile(PauseWireframeKind.PowerSuit, local, out int tile))
+                    calculated = (ushort)(0x2400 | tile);
+                else if (x >= 16)
+                {
+                    ushort left = ReadVerificationWord(rom, 0xb6e800 + (y * 32 + 31 - x) * 2);
+                    calculated = left == 0 ? (ushort)0 : (ushort)(left ^ 0x4000);
+                }
+                else calculated = 0;
+            }
+            else calculated = PauseEquipmentBaseDefinitions.StockWord(cell);
+            AssertEqual(expected != calculated, residuals.ContainsKey(cell), "Exact equipment base residual membership");
+            if (residuals.TryGetValue(cell, out ushort retained)) AssertEqual(expected, retained, "Required stock input remains exact");
+        }
+        AssertEqual(23, residuals.Count, "Exact required equipment base residual count" );
+        Console.WriteLine("Equipment base required residuals: " + string.Join(", ", residuals.Select(pair => $"({pair.Key % 32},{pair.Key / 32})={pair.Value:X4}")));
+        ConfirmRebind(stock, native);
+        foreach (int cell in new[] { 0, 5 * 32 + 13, 9 * 32 + 2, 4 * 32 + 1, 12 * 32 + 3, 16 * 32 + 4, 7 * 32 + 15, 7 * 32 + 16 })
+        {
+            var cells = document.Cells.ToArray();
+            cells[cell] = cells[cell] with { FlipX = !cells[cell].FlipX, Palette = 4 };
+            using var editedJson = new MemoryStream();
+            PauseEquipmentBasePresentation.Write(editedJson, document with { Cells = cells });
+            var selected = PauseEquipmentBasePresentation.Load(new MemoryStream(editedJson.ToArray()));
+            byte[] expected = PauseTileGrid.Compile(cells, "Independent equipment base edit");
+            AssertTrue(expected.AsSpan().SequenceEqual(selected.CreateTilemap()), "Independent selected glyph/palette/flip edit preserves every other cell and mirror partner");
+            ConfirmRebind(selected, expected);
+        }
+        byte[] mutable = stock.CreateTilemap();
+        mutable[0] ^= 1;
+        AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
+        AssertThrows<ArgumentException>(() => stock.RebindBaseInto(new byte[1]), "Base rebind length bound");
+        AssertThrows<ArgumentException>(() => stock.RebindBeforeInventoryRefreshInto(new byte[1]), "Inventory rebind length bound");
+        Console.WriteLine($"Equipment template:1024native words, exact{residuals.Count}required residuals,8independent edits,18actual rebinds,mutable-state independence and bounds pass; selected layout/style/glyph inputs remain required.");
+
+        static void ConfirmRebind(PauseEquipmentBasePresentation presentation, byte[] selected)
+        {
+            foreach (bool beforeInventory in new[] { false, true })
+            {
+                byte[] actual = Enumerable.Repeat((byte)0x55, 2048).ToArray();
+                byte[] expected = actual.ToArray();
+                for (int cell = 0; cell < 1024; cell++)
+                {
+                    int x = cell % 32, y = cell / 32;
+                    bool inventory = y is >= 16 and <= 20 && x is >= 4 and < 13 ||
+                        x is >= 21 and < 30 && y is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21;
+                    bool reserve = y is 10 or 11 && x is >= 4 and < 11 ||
+                        cell >= PauseReserveUiDefinitions.DigitCell && cell < PauseReserveUiDefinitions.DigitCell + 3;
+                    bool wireframe = x is >= 12 and < 20 && y is >= 7 and < 24;
+                    if (beforeInventory ? (reserve || wireframe) && !inventory : inventory || reserve || wireframe) continue;
+                    ushort word = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(selected.AsSpan(cell * 2));
+                    bool arrow = x == 1 && y is >= 4 and <= 12 || y == 12 && x == 2;
+                    if (arrow) word = (ushort)(word & ~0x1c00 | 0x5555 & 0x1c00);
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(cell * 2), word);
+                }
+                if (beforeInventory) presentation.RebindBeforeInventoryRefreshInto(actual);
+                else presentation.RebindBaseInto(actual);
+                AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual base refresh preserves live ownership and arrow palette while applying selected artwork");
+            }
+        }
+    }
     private static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

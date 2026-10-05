@@ -1053,3 +1053,9 @@ Native82:B20C-B256 selects one complete frame solely from EquippedItems&0101, th
 `--lookup-stream2-wireframe-mirrors` passes266native glyph calculations, all544complete native words, exact19left/17right residual membership/values, four actual stock patches,20independent edits and bounds. Build1437existing warnings/zero errors. Stream2 remains91resolved/135required.
 
 Root integration: combines25d70f98,66814a6a,17961551,159a07c0. Viewed the four source wireframes; root Verification build1445warnings/0errors and focused544word/266glyph/exact36residual/20edit checks pass; ResourceAudit0/0. All25piece origins, placements, attributes and36residuals remain required; no aggregate completion or retention. Master551converted/16retained-mixed/561pending unchanged.
+
+### Integrated equipment template geometry (partial)
+
+Panel borders, semantic label runs, SAMUS heading/ornaments, reserve arrow/gauge and shared Power Suit piece geometry now calculate the template instead of caching1024words. Root viewed the native template and reviewed the operations. All selected panel bounds, placements, styles, glyph origins, shared wireframe composition and23residual words remain REQUIRED under tilemap; no exemption or completion.
+
+Root --lookup-stream2-equipment-base-geometry passes all1024native words, exact23residual membership/values,8independent edits,18actual rebinds preserving live ownership/arrow palette, mutable output independence and bounds. Verification1445warnings/0errors; ResourceAudit0/0. Audit pins both new label/wireframe dependencies. Worker97c52ce1c22e4fbadc22caf83de042182c50d8f5. Aggregate551converted/16retained-mixed/561pending unchanged.

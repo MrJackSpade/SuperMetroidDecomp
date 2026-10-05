@@ -1222,4 +1222,47 @@ internal static partial class Program
         Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
     }
 
+    private static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort[] expected = Enumerable.Range(0, 12).Select(index =>
+            Word(0xa60000 | (Word(0xa6c933 + index * 7) + 12))).ToArray();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        foreach (int freeSlots in new[] { 12, 2, 0 })
+        {
+            var enemies = new RoomEnemySystem();
+            foreach (RoomEnemySlot slot in enemies.Slots) slot.EnemyDefinitionPointer = 0xffff;
+            for (int index = 1; index <= freeSlots; index++) enemies.Slots[index].Clear();
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+            int randomCalls = 0;
+            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies,
+                (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++)));
+            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnNorfairRidleyBreakupActors", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            RoomEnemySlot body = enemies.Slots[0];
+            var state = new RidleyEnemyState
+            {
+                TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
+                {
+                    XPosition = (ushort)(100 + index), YPosition = (ushort)(200 + index),
+                }).ToArray(),
+            };
+            if (freeSlots < expected.Length)
+                AssertThrows<InvalidOperationException>(() => spawn(body, state), "Breakup preserves partial allocation before pool exhaustion");
+            else spawn(body, state);
+            AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
+            AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
+            for (int index = 0; index < freeSlots; index++)
+            {
+                RoomEnemySlot fragment = enemies.Slots[index + 1];
+                AssertEqual(expected[index], fragment.Parameter1, "Actual breakup slot order follows original native spawn calls");
+                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragment.VariableB, "Actual breakup maps each random draw to its original fragment");
+                AssertEqual(Word(0xa6c6ce + expected[index]), fragment.VariableF, "Actual breakup preserves each unresolved native lifetime");
+            }
+            spawn(body, state);
+            AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
+        }
+        Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
+    }
+
 }

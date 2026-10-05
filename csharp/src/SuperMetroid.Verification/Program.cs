@@ -2066,6 +2066,15 @@ if (args is ["--lookup-stream-4-elevatube"])
     VerifyMaridiaElevatubeVisuals();
     return 0;
 }
+if (args is ["--lookup-stream-4-breakup-order"])
+{
+    var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Ridley breakup NTSC J/U v1.0 oracle");
+    VerifyRidleyExplosionDefinitions(oracle);
+    VerifyLookupStream4BreakupOrder(oracle);
+    return 0;
+}
 if (args is ["--lookup-stream-3"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -11681,4 +11681,11 @@
     "reason":  "These operands encode a particular recorded demonstration performance; a generated gameplay policy would invent different choreography. Newly-pressed operands are independent content. No size/performance/provenance rationale.",
     "remaining":  "No completion/count change until command/successor conversion and focused verification are integrated.",
     "state":  "approved-narrow-retention-pending-integration"
+},"ridleyBreakupOrderIntegration":{
+    "confirmation":  "Root1445/0;12native calls,32initializations/10actual effects,full/partial/empty pool,RNG assignment,lifetimes and retry guard pass; expected exceptions caught.",
+    "completed":  "RidleyExplosionDefinitions.SpawnOrder",
+    "workerCommit":  "aa351a237f0fe26b479701dae8744a0d7d373e3e",
+    "state":  "one-converted",
+    "algorithm":  "Native procedure: descending tail segments then five named body calls; per-call allocation preserves partial failure and RNG order.",
+    "remaining":  "PartRecords lifetime72/8/40/128 remains required. No exception.535converted/15justified retained-mixed/578pending."
 }}

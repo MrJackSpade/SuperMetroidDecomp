@@ -14,13 +14,15 @@ internal static partial class Program
             0xc933, 0xc93a, 0xc941, 0xc948, 0xc94f, 0xc956,
             0xc95d, 0xc964, 0xc96b, 0xc972, 0xc979, 0xc980,
         ];
-        AssertEqual(spawnPointerOperands.Length, RidleyExplosionDefinitions.SpawnOrder.Length,
+        var spawnOrder = new List<ushort>();
+        RidleyExplosionDefinitions.SpawnInNativeOrder(spawnOrder.Add);
+        AssertEqual(spawnPointerOperands.Length, spawnOrder.Count,
             "Ridley breakup spawn count");
         for (int index = 0; index < spawnPointerOperands.Length; index++)
         {
             ushort populationPointer = Word(rom, 0xa60000 | spawnPointerOperands[index]);
             ushort parameter = Word(rom, 0xa60000 | unchecked((ushort)(populationPointer + 12)));
-            AssertEqual(parameter, RidleyExplosionDefinitions.SpawnOrder[index],
+            AssertEqual(parameter, spawnOrder[index],
                 $"Ridley breakup native spawn order {index}");
         }
 

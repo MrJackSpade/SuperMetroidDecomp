@@ -5,14 +5,23 @@ public static class MotherBrainBeamRomData
 {
     /// <summary>Mutually exclusive targets of $AD:DE5F, indexed by the two edge quadrants.</summary>
     public enum Direction { Down, Up, Right, Retain, Unsupported }
-    /// <summary>$AD:DE5F-$DE7D dispatcher order; null pointers remain explicit unsupported entries.</summary>
-    public static ReadOnlySpan<Direction> QuadrantDirections =>
-    [
-        Direction.Down, Direction.Right, Direction.Unsupported, Direction.Unsupported,
-        Direction.Unsupported, Direction.Up, Direction.Up, Direction.Unsupported,
-        Direction.Unsupported, Direction.Unsupported, Direction.Up, Direction.Retain,
-        Direction.Down, Direction.Unsupported, Direction.Unsupported, Direction.Down,
-    ];
+    /// <summary>
+    /// $AD:DE5F-DE7D, CalculateMotherBrainRainbowBeamHDMATables_pointers.
+    /// The pair packs left-edge quadrant * 4 + right-edge quadrant. Zero native
+    /// targets remain unsupported; $AD:DE5E retains the preceding window table.
+    /// </summary>
+    public static Direction DirectionForQuadrants(int pair)
+    {
+        if ((uint)pair >= 16) throw new IndexOutOfRangeException();
+        return (pair / 4, pair % 4) switch
+        {
+            (0, 0) or (3, 0) or (3, 3) => Direction.Down,
+            (0, 1) => Direction.Right,
+            (1, 1) or (1, 2) or (2, 2) => Direction.Up,
+            (2, 3) => Direction.Retain,
+            _ => Direction.Unsupported,
+        };
+    }
     /// <summary>$88:E833, Set_RainbowBeam_ColorMathSubscreenBackdropColor.table; signed terminator.</summary>
     public const int ColorTable = 0x88e833;
     /// <summary>$88:E7FD increments the byte cursor four times, skipping every other color word.</summary>

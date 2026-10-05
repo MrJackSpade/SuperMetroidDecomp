@@ -450,7 +450,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs
 
-- [ ] **MotherBrainBeamRomData.QuadrantDirections** ([L10](../csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainBeamRomData.QuadrantDirections** ([L10](../csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs
 
@@ -487,7 +487,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs
 
-- [ ] **MotherBrainFallingTubeInstructionDefinitions.VisualPointers** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainFallingTubeInstructionDefinitions.VisualPointers** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs
 
@@ -958,6 +958,12 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Native evidence: $88:E833-E8C7 and the four byte-cursor increments at $88:E7FD-E806. The signed terminator stays engine control, and independently edited cycles retain their exact supplied colors.
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all 38 native sampled colors, 114 independent channel edits, unchanged initial color, terminator, alignment/bounds and absent stock cycle storage.
 - One entry completed: 82 converted plus two narrowly justified retained entries. Coordinator must refresh the rainbow presentation source hash in `SequenceColorClosedContractDefinitions.cs`.
+### Confirmed batch 42: Beam dispatch and falling-tube visual selection
+
+- Replaced $AD:DE5F-DE7D with cases for the two edge quadrants: down, right, up, retaining-left and unsupported null targets. Preserved the original index bounds. The separately granted HDMA caller changes only its dispatcher call; scanline geometry and retained/null handling remain unchanged.
+- Falling-tube selectors now use the shared final five visual-catalog records, whose roots calculate from native OAM record widths. Removed the duplicate five-pointer array; instruction duration, sleep cadence, visual/mechanics separation and address validation remain unchanged.
+- Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all sixteen native dispatcher targets and bounds, plus the existing actual five falling-tube frame/sleep executions with compiled source reads forbidden and all five native visual operands.
+- Two entries completed: 84 converted plus two narrowly justified retained entries. Coordinator must refresh `MotherBrainBeamRomData.cs` in `SequenceColorClosedContractDefinitions.cs`; no external source hash found for the other three production files.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

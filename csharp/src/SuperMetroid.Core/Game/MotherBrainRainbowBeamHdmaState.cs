@@ -62,7 +62,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
         int a = unchecked((byte)(angle.TableIndex - halfWidth));
         int b = unchecked((byte)(angle.TableIndex + halfWidth));
         int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;
-        var direction = MotherBrainBeamRomData.QuadrantDirections[quadrant];
+        var direction = MotherBrainBeamRomData.DirectionForQuadrants(quadrant);
         // Native DE5E is an RTS: retain the previous table for a beam straddling left.
         if (direction == MotherBrainBeamRomData.Direction.Retain) return;
         bool right = direction == MotherBrainBeamRomData.Direction.Right;

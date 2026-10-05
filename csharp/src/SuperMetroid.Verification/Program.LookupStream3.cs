@@ -7,6 +7,26 @@ internal static partial class Program
 {
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        for (int pair = 0; pair < 16; pair++)
+        {
+            int address = 0xadde5f + 2 * pair;
+            int pointer = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;
+            var expected = pointer switch
+            {
+                0xe1a6 => MotherBrainBeamRomData.Direction.Down,
+                0xde7f => MotherBrainBeamRomData.Direction.Right,
+                0xdf6e => MotherBrainBeamRomData.Direction.Up,
+                0xde5e => MotherBrainBeamRomData.Direction.Retain,
+                0 => MotherBrainBeamRomData.Direction.Unsupported,
+                _ => throw new InvalidDataException("Unexpected native beam quadrant target."),
+            };
+            AssertEqual(expected, MotherBrainBeamRomData.DirectionForQuadrants(pair),
+                "stream 3 native beam quadrant dispatcher including null and retaining entries");
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
+                "stream 3 beam dispatcher preserves span index bounds");
+        VerifyMotherBrainFallingTubeInstructionDefinitions();
         IntroCinematicRomData.Palette.Regions[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
          IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];

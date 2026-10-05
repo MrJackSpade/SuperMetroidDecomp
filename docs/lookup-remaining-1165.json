@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 699,
+  "remainingTableDefinitionCount": 697,
   "fileCount": 523,
   "entries": [
     {
@@ -1189,7 +1189,9 @@
       "line": 9,
       "name": "MapPaletteCycle.durations",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapPaletteCycle.durations. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapPaletteCycle.durations. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ad56ebed4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs",
@@ -2679,7 +2681,9 @@
       "line": 49,
       "name": "CeresBabyInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored CeresBabyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored CeresBabyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "0200a4aba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
@@ -21172,6 +21176,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 425,
+  "convertedSinceSnapshot": 427,
   "justifiedRetainedSinceSnapshot": 4
 }

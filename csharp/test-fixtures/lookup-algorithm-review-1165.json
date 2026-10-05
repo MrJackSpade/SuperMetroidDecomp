@@ -11024,4 +11024,14 @@
   ],
   "confirmation": "Integrated Verification1442warnings/zeroerrors and stream3 pass native drain/corpse/fake-death rows, independent edit preservation and absent stock endpoint storage. ResourceAudit zero warnings/errors; reviewed source hashes and new dependency closure refreshed.",
   "state": "integrated"
+},"ceresBabyMapHighlightIntegration":{
+  "implementationCommits": [
+    "0200a4aba",
+    "ad56ebed4"
+  ],
+  "remaining": "Eight independent16color map phases remain required; reverse traversal removes duplicate rows but does not close colors.427converted,4originalretained,697pending.",
+  "state": "partial",
+  "algorithm": "Two conditional four-pose groups and twelve callback/pose pairs with linear6..2..9hold ramp; map loop-origin pause15 and transitionhold3,mirrored phases0..7..1.",
+  "confirmation": "Integrated Verification1442warnings/zeroerrors; scoped Ceres proof43nativecontrols/20spritemap/13palette selectors and actual complete loop/save-load/branches passed. Map proof224nativecolors/14timings/actualCGRAM,224independentcolor edits/14duration edits,custom1/15/255frames,bounds/zero stock deviations passed.",
+  "completed": "CeresBabyInstructionProgramDefinitions.Words and MapPaletteCycle.durations"
 }}

@@ -13,7 +13,8 @@ public sealed class PauseReserveUiPresentation
     private readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
     private readonly ushort solidColor6, solidColor11;
-    private readonly (ushort Color6, ushort Color11)[] arrowFrames;
+    private readonly (ushort Color6, ushort Color11) arrowStart, arrowMiddle;
+    private readonly Dictionary<int, ushort> arrowColorEdits = [];
 
     private PauseReserveUiPresentation(Dictionary<string, (int, byte[])> labels, int digitOffset,
         byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
@@ -30,7 +31,16 @@ public sealed class PauseReserveUiPresentation
         this.arrowOffsets = stockArrow ? null : arrowOffsets;
         this.enabledPalette = enabledPalette;
         this.disabledPalette = disabledPalette; this.solidColor6 = solidColor6;
-        this.solidColor11 = solidColor11; this.arrowFrames = arrowFrames;
+        this.solidColor11 = solidColor11;
+        arrowStart = arrowFrames[0];
+        arrowMiddle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        for (int frame = 0; frame < arrowFrames.Length; frame++)
+        {
+            if (arrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
+                arrowColorEdits.Add(frame * 2, arrowFrames[frame].Item1);
+            if (arrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
+                arrowColorEdits.Add(frame * 2 + 1, arrowFrames[frame].Item2);
+        }
     }
 
     /// <summary>$82:8F70 selects the ten consecutive digit glyphs starting with native word $0804.</summary>
@@ -80,10 +90,34 @@ public sealed class PauseReserveUiPresentation
 
     public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
     {
-        var colors = animated ? arrowFrames[frame & (arrowFrames.Length - 1)] : (solidColor6, solidColor11);
+        var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
         cgram.SetColor(color6Index, colors.Item1); cgram.SetColor(color11Index, colors.Item2);
     }
 
+    /// <summary>
+    /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
+    /// Endpoint choices and six distinct native channel deviations remain pending
+    /// source payload; supplied deviations and independent edits are retained sparsely.
+    /// </summary>
+    private ushort CalculateArrowColor(int frame, bool second)
+    {
+        int last = PauseReserveUiDefinitions.ArrowFrames - 1;
+        int phase = Math.Min(frame, last - frame);
+        int steps = last / 2;
+        ushort start = second ? arrowStart.Color11 : arrowStart.Color6;
+        ushort end = second ? arrowMiddle.Color11 : arrowMiddle.Color6;
+        int value = 0;
+        for (int shift = 0; shift < 15; shift += 5)
+            value |= (((start >> shift & 31) * (steps - phase) + (end >> shift & 31) * phase) / steps) << shift;
+        return (ushort)value;
+    }
+
+    private ushort ArrowColor(int frame, bool second)
+    {
+        frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
+        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out ushort supplied)
+            ? supplied : CalculateArrowColor(frame, second);
+    }
     public static PauseReserveUiPresentation Load(Stream json)
     {
         PauseReserveUiDocument document;

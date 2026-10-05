@@ -951,3 +951,8 @@ Root integration build1444 existing warnings/zero errors. --lookup-stream2-toriz
 Posture X and walking motion now calculate opposite-facing signs from eight left-facing posture displacements and ten walking values. Native AA:C3EE-C41D/C440-C46F and C4BD-C4E4/C532-C559 confirm reflection and identical standing/sitting and normal/faceless sources. The eight base X values, eight Y values and ten walking values remain required. PostureX, PostureY and WalkVelocities stay unchecked; no choreography exception or completion-count change.
 
 Root Verification build: 1445 warnings, zero errors. --lookup-stream2-torizo-movement passed all 88 native words, 32 real posture applications, 20 real walking consumers and invalid offsets with all six source tables forbidden.
+
+### Reserve arrow pulse integration
+The two 32-frame pulses now calculate mirrored RGB5 interpolation from four endpoint colors: phase=min(frame,31-frame), channel=floor((start*(15-phase)+end*phase)/15). Sparse deviations preserve independently supplied edits without caching whole ramps. Native color6 blue phases 5/10 are 5/11 instead of 6/12, red phase 14 is 19 instead of 18; color11 blue phases 5/10/14 are 3/7/10 instead of 4/8/11. These six deviations repeat in the mirrored half. Endpoints and deviations remain required; arrowFrames stays unchecked without exemption or count change.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-reserve-arrow-colors passed all 64 native colors, 192 independent channel edits including endpoints, solid/animated CGRAM writes, frame wrapping and exactly 12 stock residual cells. ResourceAudit build: zero warnings/errors; source hash refreshed.

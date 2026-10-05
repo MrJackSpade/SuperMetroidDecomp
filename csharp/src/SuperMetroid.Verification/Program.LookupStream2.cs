@@ -536,6 +536,59 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
+    private static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
+    {
+        byte[] source = PauseReserveUiExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
+        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        var edits = (Dictionary<int, ushort>)typeof(PauseReserveUiPresentation)
+            .GetField("arrowColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(12, edits.Count, "Only six mirrored native residual color cells remain stored");
+        var cgram = new SnesCgram();
+        for (int frame = 0; frame < 32; frame++)
+        {
+            stock.ApplyArrowColors(cgram, true, frame, 6, 11);
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), cgram.Colors[6], "Native arrow color6 reaches CGRAM");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), cgram.Colors[11], "Native arrow color11 reaches CGRAM");
+        }
+        Check(stock, document);
+        for (int frame = 0; frame < 32; frame++)
+        for (int color = 0; color < 2; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var frames = document.Arrow.Frames.ToArray();
+            var rgb = color == 0 ? frames[frame].Color6 : frames[frame].Color11;
+            rgb = channel switch
+            {
+                0 => rgb with { Red = (rgb.Red + 1) & 31 },
+                1 => rgb with { Green = (rgb.Green + 1) & 31 },
+                _ => rgb with { Blue = (rgb.Blue + 1) & 31 },
+            };
+            frames[frame] = color == 0 ? frames[frame] with { Color6 = rgb } : frames[frame] with { Color11 = rgb };
+            var changed = document with { Arrow = document.Arrow with { Frames = frames } };
+            using var encoded = new MemoryStream();
+            PauseReserveUiPresentation.Write(encoded, changed);
+            encoded.Position = 0;
+            Check(PauseReserveUiPresentation.Load(encoded), changed);
+        }
+        Console.WriteLine("Reserve arrow ramps: all64 native colors,192 independent channel edits, solid/animated CGRAM writes and frame wrapping pass; endpoint and residual choices remain pending.");
+
+        static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
+        {
+            var cgram = new SnesCgram();
+            for (int frame = -1; frame <= 32; frame++)
+            {
+                presentation.ApplyArrowColors(cgram, true, frame, 6, 11);
+                var row = expected.Arrow.Frames[frame & 31];
+                AssertEqual(Pack(row.Color6), cgram.Colors[6], "Independent supplied color6");
+                AssertEqual(Pack(row.Color11), cgram.Colors[11], "Independent supplied color11");
+            }
+            presentation.ApplyArrowColors(cgram, false, 0, 6, 11);
+            AssertEqual(Pack(expected.Arrow.SolidColor6), cgram.Colors[6], "Solid arrow color6");
+            AssertEqual(Pack(expected.Arrow.SolidColor11), cgram.Colors[11], "Solid arrow color11");
+        }
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+    }
     private static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);

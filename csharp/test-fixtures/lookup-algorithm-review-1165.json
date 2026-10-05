@@ -11441,4 +11441,11 @@
     "state":  "partial-required",
     "algorithm":  "Opposite-facing horizontal posture and walking values calculate by sign reflection, removing duplicated facing sequences.",
     "remaining":  "Eight base X, eight Y and ten walking values remain required. No exemption. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"reserveArrowPulseIntegration":{
+    "scope":  "PauseReserveUiPresentation.arrowFrames remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 64 native colors, 192 independent channel edits including endpoints, solid/animated CGRAM writes, frame wrapping and 12 stock residual cells pass. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "7fe17c794e17544de5055f9828fc9eb0b950953c",
+    "state":  "partial-required",
+    "algorithm":  "Mirrored phase min(frame,31-frame), channelwise floor interpolation between four supplied endpoint colors, sparse exact independent edits.",
+    "remaining":  "Four endpoint colors and six distinct native channel deviations repeated in the mirrored half remain required. No exception or rounding-provenance claim. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
 }}

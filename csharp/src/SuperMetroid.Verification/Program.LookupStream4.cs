@@ -9,6 +9,49 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int phase = 0; phase < 4; phase++)
+            AssertEqual(Word(0xa6acda + phase * 2), CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+        var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
+        var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = colors };
+        var vram = new SnesVram();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+        var tick = typeof(RoomEnemySystem).GetMethod("TickCeresRidleyMode7Getaway", flags)!
+            .CreateDelegate<Action<RidleyEnemyState, SamusState?, ushort>>(enemies);
+        var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
+        byte[] untouched = new byte[SnesVram.ByteCount];
+        Array.Fill(untouched, (byte)0x5a);
+        int expectedPhase = 0;
+        for (ushort nmi = 0; nmi < 16; nmi++)
+        {
+            vram.LoadBytes(0, untouched);
+            bool advances = (nmi & 3) == 0;
+            if (advances) expectedPhase = (expectedPhase + 1) & 3;
+            tick(state, null, nmi);
+            AssertEqual((ushort)expectedPhase, state.Mode7BabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
+            int pointer = 0xa60000 | Word(0xa6acda + expectedPhase * 2);
+            for (int row = 0; row < 2; row++, pointer += 9)
+            {
+                int source = rom.ReadByte(pointer + 1) | rom.ReadByte(pointer + 2) << 8 | rom.ReadByte(pointer + 3) << 16;
+                int destination = Word(pointer + 6);
+                for (int column = 0; column < 2; column++)
+                {
+                    AssertEqual(advances ? rom.ReadByte(source + column) : (byte)0x5a,
+                        vram.Bytes[(destination + column) * 2], "Actual getaway selects native capsule rows and preserves non-update NMIs");
+                    AssertEqual((byte)0x5a, vram.Bytes[(destination + column) * 2 + 1], "Baby transfer preserves Mode7 character high bytes");
+                }
+            }
+        }
+        Console.WriteLine("Baby reflected phase: four original pointers and one actual16-NMI cycle preserve advance-before-select, transfer bytes and high-byte isolation.");
+    }
+
     private static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -6291,7 +6291,9 @@
       "line": 101,
       "name": "RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "efaa16a8a17227f6a751bc0b85525a881fab19e9"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireArena.cs",

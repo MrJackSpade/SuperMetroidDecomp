@@ -28,6 +28,18 @@ public static class CeresMode7TransferDefinitions
     /// <summary>$A6:AD80, Ridley wing tilemap frame one.</summary>
     public const ushort WingFrame1 = 0xad80;
 
+    /// <summary>
+    /// $A6:ACDA-$ACE1 selects the three consecutive capsule transfer records
+    /// in reflected phase order0,1,2,1. Each record has two nine-byte transfers
+    /// and a one-byte terminator; phase must already be bounded to0..3.
+    /// </summary>
+    internal static ushort BabyFrameForPhase(int phase)
+    {
+        if ((uint)phase >= 4) throw new IndexOutOfRangeException();
+        int reflectedPhase = Math.Min(phase, 4 - phase);
+        return checked((ushort)(BabyFrame0 + reflectedPhase * (BabyFrame1 - BabyFrame0)));
+    }
+
     private static readonly CeresMode7Transfer[] PlatformLight =
     [
         new(0xa6f918, 0x060e, new byte[] { 0x68, 0x69, 0x69, 0x78 }),

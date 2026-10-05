@@ -461,7 +461,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs
 
-- [ ] **RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers** ([L101](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs#L101)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers** ([L101](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs#L101)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs
 
@@ -1111,3 +1111,12 @@ Ridley PartRecords is reopened: equal-sized initializer addresses and part param
 The native A6:C932-C986 sequence is executable spawning: tail tip inward, then Wings, Legs, Torso, OpenHeadAndNeck and Claw. Runtime allocation remains inside each ordered call, preserving partial failure, RNG assignment and the one-shot guard. No replacement spawn-order array is retained. PartRecords lifetime inputs72/8/40/128 remain required; their earlier reopening is unchanged.
 
 Root build passed (1445 warnings, zero errors). `--lookup-stream-4-breakup-order` passes the native twelve-call order, original32 fragment initializations and ten actual death-effect spawns, plus full/partial/empty pool cases, exact RNG-to-fragment assignment, native lifetimes and no repeated allocation/RNG after success or failure. Expected allocation failures are caught inside the fixture. SpawnOrder is complete with no retention exception. Inventory:535 converted,15 justified retained/mixed,578 pending.
+
+## Batch 63: Baby capsule reflected transfer phase
+
+One definition converted: 109 wholly converted, one mixed, one retained, 114 unchecked. Transfer artwork and other animation timing/content fields remain independent and are not completed by this change.
+
+- Removed the runtime four-pointer array. Granted CeresMode7TransferDefinitions.BabyFrameForPhase calculates the reflected ordinal min(phase, 4-phase) across the three consecutive, equally sized two-transfer records. The caller retains its exact NMI gate and advances/masks the phase before selecting the transfer.
+- Native evidence: A6:ACBC..ACD9 gates on NMI&3, increments then masks the stored phase, and selects pointers ACDA..ACE1. These are ACE2, ACF5, AD08, ACF5. Each record contains two nine-byte low-byte VRAM descriptors and its zero terminator. The calculation preserves the 0,1,2,1 reflected phase without a replacement pointer lookup.
+- Confirmation: Verification build 1433 warnings/zero errors; --lookup-stream-4-baby-phase passes all four native identity operands and invalid-domain rejection. A focused invocation of the actual getaway handler across one 16-NMI cycle confirms advance-before-select, unchanged phase on other NMIs, exact four Baby tilemap bytes from original transfer descriptors, and preservation of character high bytes. Palette assets are supplied explicitly and the runtime bus denies cartridge reads. No other timing or transfer payload is exempted.
+- No ResourceAudit source-hash reference was found for either changed production file. The only newly granted path is csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs; its existing transfer arrays/content are untouched.

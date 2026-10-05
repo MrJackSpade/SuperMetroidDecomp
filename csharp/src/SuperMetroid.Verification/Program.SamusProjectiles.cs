@@ -1590,6 +1590,17 @@ static void VerifySamusPowerBeamProjectiles()
             $"colored-door setup preserves tile payload for header {index}");
     }
 
+    // Synthetic control fragments use the explicit interpreter fixture interface.
+    // Custom draw payloads use the mutable bank-$84 WRAM window instead of ROM identities.
+    void BindDoorPrograms(RoomPlmSystem plms, (ushort Pointer, int Length)[] fragments)
+    {
+        foreach (var fragment in fragments)
+        {
+            byte[] bytes = Enumerable.Range(0, fragment.Length)
+                .Select(offset => bus.ReadByte(0x840000 | (fragment.Pointer + offset))).ToArray();
+            plms.SupplyInstructionFragmentForVerification(fragment.Pointer, bytes);
+        }
+    }
     // Exercise the resident actor rather than setup alone. These pointers reproduce the
     // header/list graph consumed by the translation: header +2 selects the initial list,
     // that list links the closed-blue, hit, and colored-closed draw records, and the hit
@@ -1600,18 +1611,18 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x84c88c, 0xe000);
     WriteTestWord(bus, 0x84e002, 0xe100);
     WriteTestWord(bus, 0x84e006, 0xe200);
-    WriteTestWord(bus, 0x84e00e, 0xe300);
+    WriteTestWord(bus, 0x84e00e, 0x1300);
     bus.WriteByte(0x84e202, 5);
     WriteTestWord(bus, 0x84e203, 0xe400);
     WriteTestWord(bus, 0x84e205, 1);
-    WriteTestWord(bus, 0x84e207, 0xe320);
+    WriteTestWord(bus, 0x84e207, 0x1320);
     WriteTestWord(bus, 0x84e400, 12);
-    WriteTestWord(bus, 0x84e402, 0xe340);
-    WriteTestWord(bus, 0x84e105, 0xe360);
-    WriteDoorDrawList(bus, 0x84e300, [0x0001, 0xc123, 0x0000]);
-    WriteDoorDrawList(bus, 0x84e320, [0x0001, 0xc124, 0x0000]);
-    WriteDoorDrawList(bus, 0x84e340, [0x0001, 0xc125, 0x0000]);
-    WriteDoorDrawList(bus, 0x84e360, [0x0001, 0x8126, 0x0000]);
+    WriteTestWord(bus, 0x84e402, 0x1340);
+    WriteTestWord(bus, 0x84e105, 0x1360);
+    WriteDoorDrawList(bus, 0x841300, [0x0001, 0xc123, 0x0000]);
+    WriteDoorDrawList(bus, 0x841320, [0x0001, 0xc124, 0x0000]);
+    WriteDoorDrawList(bus, 0x841340, [0x0001, 0xc125, 0x0000]);
+    WriteDoorDrawList(bus, 0x841360, [0x0001, 0x8126, 0x0000]);
     WriteTestWord(bus, 0x8f0000 | residentDoorPopulation, 0xc88a);
     bus.WriteByte(0x8f0000 | (residentDoorPopulation + 2), 5);
     bus.WriteByte(0x8f0000 | (residentDoorPopulation + 3), 3);
@@ -1629,6 +1640,7 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[8]);
     var residentDoorSystem = new Bank80SystemState();
     var residentDoorPlms = new RoomPlmSystem();
+    BindDoorPrograms(residentDoorPlms, [(0xe000, 16), (0xe100, 7), (0xe200, 9), (0xe400, 4)]);
     AssertEqual(1, residentDoorPlms.LoadRoomPopulation(
             bus,
             residentDoorLevel,
@@ -1687,6 +1699,7 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[reopenedWords.Length],
         new byte[8]);
     var reopenedDoorPlms = new RoomPlmSystem();
+    BindDoorPrograms(reopenedDoorPlms, [(0xe000, 16), (0xe100, 7), (0xe200, 9), (0xe400, 4)]);
     reopenedDoorPlms.LoadRoomPopulation(
         bus,
         reopenedDoorLevel,
@@ -1731,13 +1744,13 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x84c844, greyDoorInitialList);
     WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 2), greyDoorClosedBlueList);
     WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 6), greyDoorActivationList);
-    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0xeb00);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0x1b00);
 
     // The activation list links a later shot to the one-hit trigger. Its eight-byte setup
     // falls through to a compact flash loop composed only of a timed draw and shared Goto.
     WriteTestWord(bus, 0x840000 | (greyDoorActivationList + 2), greyDoorOpenTriggerList);
     WriteTestWord(bus, 0x840000 | greyDoorFlashList, 1);
-    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0xeb20);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0x1b20);
     WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 4), 0x8724);
     WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 6), greyDoorFlashList);
 
@@ -1749,16 +1762,16 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
     bus.WriteByte(0x840000 | (greyDoorOpeningList + 2), 7);
     WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
-    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0xeb40);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0x1b40);
     WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
 
     // Persisted grey doors execute the same closed-blue list layout already exercised by
     // colored doors: PLM_BTS_Y precedes a one-byte timer and draw pointer at offset five.
-    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0xeb60);
-    WriteDoorDrawList(bus, 0x84eb00, [0x0001, 0xc220, 0x0000]);
-    WriteDoorDrawList(bus, 0x84eb20, [0x0001, 0xc221, 0x0000]);
-    WriteDoorDrawList(bus, 0x84eb40, [0x0001, 0x0222, 0x0000]);
-    WriteDoorDrawList(bus, 0x84eb60, [0x0001, 0x8223, 0x0000]);
+    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0x1b60);
+    WriteDoorDrawList(bus, 0x841b00, [0x0001, 0xc220, 0x0000]);
+    WriteDoorDrawList(bus, 0x841b20, [0x0001, 0xc221, 0x0000]);
+    WriteDoorDrawList(bus, 0x841b40, [0x0001, 0x0222, 0x0000]);
+    WriteDoorDrawList(bus, 0x841b60, [0x0001, 0x8223, 0x0000]);
     WriteTestWord(bus, 0x8f0000 | greyDoorPopulation, 0xc842);
     bus.WriteByte(0x8f0000 | (greyDoorPopulation + 2), 2);
     bus.WriteByte(0x8f0000 | (greyDoorPopulation + 3), 6);
@@ -1776,6 +1789,7 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[8]);
     var greyDoorSystem = new Bank80SystemState();
     var greyDoorPlms = new RoomPlmSystem();
+    BindDoorPrograms(greyDoorPlms, [(0xe500, 14), (0xe600, 7), (0xe700, 16), (0xe900, 5), (0xea00, 9)]);
     AssertEqual(1, greyDoorPlms.LoadRoomPopulation(
             bus,
             greyDoorLevel,
@@ -1848,6 +1862,7 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[reloadedGreyWords.Length],
         new byte[8]);
     var reloadedGreyPlms = new RoomPlmSystem();
+    BindDoorPrograms(reloadedGreyPlms, [(0xe500, 14), (0xe600, 7), (0xe700, 16), (0xe900, 5), (0xea00, 9)]);
     reloadedGreyPlms.LoadRoomPopulation(
         bus,
         reloadedGreyLevel,

@@ -67,11 +67,11 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-                "67630C828581AB534E1F6EBF0E8145762623EEE80F26B534157EB72FEC780AE8"),
+                "B7566D5D27CF2ED68B1597A399B71036E41C05764A8177D7CFF9B31920D17157"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs",
                 "1C721E9C962B99671899993D8228020C90266EB796466758A0FD6BF6351E424D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "68E027B6CA7DCA4C6357729EE8C73276E303D9E94AD934481442F59D4026E1E9")],
+                "B7D59A301621835F4C4708765DBF3458C6BF08B429A459F65A978D07EDA92E7A")],
             "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
             "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
             "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +

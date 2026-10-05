@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 789,
+  "remainingTableDefinitionCount": 785,
   "fileCount": 523,
   "entries": [
     {
@@ -1336,14 +1336,19 @@
       "line": 10,
       "name": "MotherBrainHealthPalettePresentation.body",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainHealthPalettePresentation.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainHealthPalettePresentation.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "312bed324",
+      "disposition": "Mixed: retain only six RGB5 paint anchors269F,0159,004C,0004,5739,367F for cortex highlights/midtones/shadows,outline,plates/teeth,and tissue. Static native artwork/palette masks establish chosen paint roles; a color function would merely encode those arbitrary choices. Quarter/fifth shades,neutral/repeated colors,damage tint,rear half-light and outline tint calculate."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs",
       "line": 11,
       "name": "MotherBrainHealthPalettePresentation.backLegs",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainHealthPalettePresentation.backLegs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainHealthPalettePresentation.backLegs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "312bed324"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
@@ -4880,14 +4885,18 @@
       "line": 23,
       "name": "MotherBrainRoomPaletteProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c1afaadbf"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
       "line": 33,
       "name": "MotherBrainRoomPaletteProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c1afaadbf"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs",
@@ -20991,6 +21000,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 336,
-  "justifiedRetainedSinceSnapshot": 3
+  "convertedSinceSnapshot": 339,
+  "justifiedRetainedSinceSnapshot": 4
 }

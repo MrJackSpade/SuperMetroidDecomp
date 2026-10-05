@@ -41,7 +41,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/DachoraColorRomData.cs", "AEB49D309BF39A60BF98D611B68B5288B4829EA7263421DBEC34C0AF88201CCE")],
             "Private construction requires the normal row and four speed/four shine rows, all sixteen colors and compiled independently. Resolve guards each phase's exact frame/color domain; Default owns only frame zero. Enemy speed/shine clocks are not executed."),
         new("SuperMetroid.Core.Assets.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "B33D938BDFF9FAF121A6D5E232B8CD0A00443E5EF104E825843EB78B5142A55B"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "0F24C73964AA66F0A8F63C92A8160159D29D3DECE122371A02627B5B283008F8"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowPaletteRomData.cs", "8FF000D50D77216696DF8B2BB3D75D90BBC90B697FEEEFAAFEAA07325CE6135E")],
             "The sole private-constructor loader requires all four fifteen-color body/back-leg state pairs and compiles independent arrays. Apply guards damageState and selects only those loaded pairs. Damage thresholds, rainbow transitions and battle timing are not certified."),
     ];

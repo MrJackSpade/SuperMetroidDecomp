@@ -3057,6 +3057,7 @@
     ,{"purpose":"Palette-span fixture parameter binding supporting owned region conversion","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.IntroCinematicRomData.cs"}
     ,{"purpose":"Dedicated native catalog for calculated directional eye mounts and beam intensity","stream":5,"path":"csharp/src/SuperMetroid.Core/Game/MorphBallEyeGeometryDefinitions.cs"}
     ,{"stream":4,"path":"csharp/src/SuperMetroid.Verification/Program.SporeSpawnInstructionProgramDefinitions.cs","purpose":"Supply required stock artwork/death palette and confirm native operands while preserving all five lifecycle paths"}
+    ,{"stream":4,"path":"csharp/src/SuperMetroid.AssetExtraction/GameplayHudPresentationExtractor.cs","purpose":"Narrow consumer adaptation for owned calculated HUD energy/item/AUTO layout indices; preserve editable content"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

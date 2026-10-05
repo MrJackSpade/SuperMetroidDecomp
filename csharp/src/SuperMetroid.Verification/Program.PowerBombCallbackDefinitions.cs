@@ -4,11 +4,25 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static string FindCallbackDisassemblySource()
+    {
+        // Linked worktrees share the separately checked-out diagnostic reference.
+        for (DirectoryInfo? directory = new(Environment.CurrentDirectory);
+             directory is not null; directory = directory.Parent)
+        {
+            string source = Path.Combine(directory.FullName, "upstream-disassembly", "src");
+            if (File.Exists(Path.Combine(source, "bank_A0.asm")))
+                return source;
+        }
+        throw new DirectoryNotFoundException(
+            "Callback verification requires upstream-disassembly/src/bank_A0.asm " +
+            "in this checkout or an ancestor containing the shared reference checkout.");
+    }
     private static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         int headers = 0;
         var literalCallbacks = new HashSet<int>();
-        foreach (string line in File.ReadLines("upstream-disassembly/src/bank_A0.asm"))
+        foreach (string line in File.ReadLines(Path.Combine(FindCallbackDisassemblySource(), "bank_A0.asm")))
         {
             Match match = Regex.Match(line, @"^EnemyHeaders_\w+:\s*;([0-9A-F]{6});");
             if (!match.Success)

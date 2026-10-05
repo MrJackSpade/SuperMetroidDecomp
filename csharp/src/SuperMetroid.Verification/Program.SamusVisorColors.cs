@@ -28,8 +28,8 @@ internal static partial class Program
 
         VerifyInstalledRoomVisorCycle(rom, catalog);
         VerifyInstalledXrayVisorCycle(rom, catalog);
-        AssertTrue(!catalog.TryResolveByteOffset(1, out _), "odd visor offsets remain cartridge reads");
-        AssertTrue(!catalog.TryResolveByteOffset(12, out _), "adjacent visor bytes remain cartridge reads");
+        AssertTrue(!catalog.TryResolveByteOffset(1, out _), "odd visor offsets are outside the installed color domain");
+        AssertTrue(!catalog.TryResolveByteOffset(12, out _), "adjacent visor bytes are outside the installed color domain");
         AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Load(
             new MemoryStream([1, 2, 3])), "corrupt visor JSON fails loudly");
         AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Load(
@@ -41,7 +41,7 @@ internal static partial class Program
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
-        var native = new SamusVisorPaletteState();
+        var native = new SamusVisorPaletteState { PresentationColors = catalog };
         var installed = new SamusVisorPaletteState { PresentationColors = catalog };
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
@@ -52,6 +52,9 @@ internal static partial class Program
                 LayerBlendingConfiguration.VisorBackdrop28);
             SamusVisorPaletteStepResult actual = installed.Update(guarded, installedCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
+            if (expected.SourceByteOffset is byte sourceOffset)
+                AssertEqual(ReadVisorFixtureColor(rom, sourceOffset), installedCgram.Colors[196],
+                    $"room visor frame {frame} matches native color word");
             AssertEqual(expected.Action, actual.Action, $"room visor frame {frame} action");
             AssertEqual(native.PackedTimerIndex, installed.PackedTimerIndex,
                 $"room visor frame {frame} timer and index");
@@ -65,6 +68,7 @@ internal static partial class Program
         SamusVisorColorCatalog catalog)
     {
         var native = CreateXraySamus(rom);
+        native.Xray.PresentationColors = catalog;
         var installed = CreateXraySamus(rom);
         installed.Xray.PresentationColors = catalog;
         var nativeCgram = new SnesCgram();
@@ -73,8 +77,14 @@ internal static partial class Program
 
         void Compare(int call)
         {
+            // This fixture enters the full-beam stage immediately before call 11;
+            // native $91:DCEA restarts that stage at color byte offset six.
+            ushort sourceOffset = call == 11 ? (ushort)6 : native.Xray.SpecialPaletteFrame;
             bool expected = native.Xray.UpdatePalette(rom, nativeCgram, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(guarded, installedCgram, installed.EquippedItems);
+            if (expected)
+                AssertEqual(ReadVisorFixtureColor(rom, sourceOffset), installedCgram.Colors[196],
+                    $"X-ray visor call {call} matches native color word");
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
             AssertEqual(native.Xray.SpecialPaletteFrame, installed.Xray.SpecialPaletteFrame,
                 $"X-ray visor call {call} next offset");
@@ -94,6 +104,9 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReads, "installed X-ray cycle does not read visor ROM table");
     }
 
+    private static ushort ReadVisorFixtureColor(ISnesAddressSpace rom, int offset) =>
+        (ushort)(rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset) |
+            rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset + 1) << 8);
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState

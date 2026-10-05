@@ -613,7 +613,8 @@ static void VerifySamusVisorPalette()
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
     WriteTestWords(bus, 0x9ba3c0, colors);
 
-    var state = new SamusVisorPaletteState();
+    var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
+    var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, 0x7777);
     SamusVisorPaletteStepResult normal = state.Update(
         bus, cgram, specialSamusPaletteType: 0,
@@ -674,6 +675,7 @@ static void VerifySamusVisorPalette()
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
     // This integration assertion prevents the exact state machine from becoming orphaned.
     var integratedSamus = new SamusState();
+    integratedSamus.VisorPalette.PresentationColors = visorColors;
     var projectiles = new SamusProjectileSystem();
     SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
         bus, cgram, integratedSamus,
@@ -711,11 +713,13 @@ static void VerifySamusHurtFlashPalette()
         WriteTestWord(bus, 0x9ba3a0 + color * 2, unchecked((ushort)(0x5000 + color)));
     }
 
+    var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,
         EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
+        SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus))),
     };
 
     int hurtPaletteCalls = 0;
@@ -724,7 +728,7 @@ static void VerifySamusHurtFlashPalette()
     for (int call = 1; call <= 59; call++)
     {
         SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
-            bus, cgram, samus, controllerInput: 0);
+            bus, cgram, samus, controllerInput: 0, presentationColors: hurtColors);
         AssertEqual(call, step.CounterBefore,
             $"hurt palette call {call} reads pre-increment counter");
 
@@ -781,7 +785,7 @@ static void VerifySamusHurtFlashPalette()
     var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = 0x0020 };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
     SamusHurtFlashPaletteStepResult intro = SamusHurtFlashPalette.Update(
-        bus, cgram, cinematic, controllerInput: 0);
+        bus, cgram, cinematic, controllerInput: 0, presentationColors: hurtColors);
     AssertEqual(SamusHurtFlashPaletteAction.IntroRestore, intro.Action,
         "cinematic even hurt call selects intro palette");
     AssertTrue(!intro.HurtSoundQueued, "cinematic hurt call suppresses impact SFX");

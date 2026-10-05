@@ -24,7 +24,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlasDefinitions.cs", "9E44730047C8A47B51636EA8B4598B186B2AAC2EB90A5E6CD7DDFD7FCA7CFB9B"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "1C1E490CCACF0ECC2DD5DCEC9D20531D405509461DDC875DAB7316D39A6D5133"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F"),
-        new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "0B4E997FFDEC6EB43D645854B167AD54512B062E026ABF494ACE039C68C51612"),
+        new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "C6C4D17762C7CE15D198E75002EFA383250973B3C2AFF62D24A42A378D772FDA"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "09B7001995AF8DD5373C1599A837379832D0257A24CF77B5BD249678B73355B8"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "EA65CD34CE62929EA176D6B3A840D90DFEB8D52A94C011ADF74E8C6EF3F41767"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "DB2353AEFABDD5D94FE882436C3AC5AA287121FEEE8A152C31155B6612CB9028"),

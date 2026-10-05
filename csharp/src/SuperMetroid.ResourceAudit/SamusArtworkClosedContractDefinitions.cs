@@ -23,7 +23,7 @@ internal static class SamusArtworkClosedContractDefinitions
             "Public construction requires both four-word direct atmospheric lists, calculates consecutive OBJ identities and retains independent full-word differences. Unsupported types or frames return false without demanding absent artwork. This proves only the direct-list membership query, not mutable-memory fallback, timing, uploaded characters or pixels."),
         new("SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
             ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "0B4E997FFDEC6EB43D645854B167AD54512B062E026ABF494ACE039C68C51612"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "C6C4D17762C7CE15D198E75002EFA383250973B3C2AFF62D24A42A378D772FDA"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "09B7001995AF8DD5373C1599A837379832D0257A24CF77B5BD249678B73355B8"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "EA65CD34CE62929EA176D6B3A840D90DFEB8D52A94C011ADF74E8C6EF3F41767"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs", "012612D5038094238C5FF9442742D744204A07379B433D0B5F9A825419C1A524"),

@@ -29,6 +29,11 @@ public sealed class SamusArmCannonArtworkCatalog
                 calculated = drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart];
                 derived = true;
             }
+            if (!derived && SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out source))
+            {
+                calculated = SamusArmCannonArtworkFormat.ReflectCoverX(drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart]);
+                derived = true;
+            }
             if (!derived || drawingData[index] != calculated) this.drawingData.Add(index, drawingData[index]);
         }
         for (int direction = 0; direction < attributes.Length; direction++)
@@ -160,6 +165,8 @@ public sealed class SamusArmCannonArtworkCatalog
         if (drawingData.TryGetValue(index, out byte supplied)) return supplied;
         if (SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte calculated)) return calculated;
         if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source)) return ReadDrawingByte(source);
+        if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out source))
+            return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source));
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
@@ -861,8 +868,8 @@ public static class SamusArmCannonArtworkFormat
         }
     }
 
-    /// <summary>Repeated cover origins and horizontally fixed running/moonwalking profiles.</summary>
-    /// <remarks>Only later XY pairs alias their own first pair, so dependencies strictly decrease in address. The first pair remains required coordinate artwork.</remarks>
+    /// <summary>Repeated cover origins and fixed-X/repeated-Y running and moonwalking profiles.</summary>
+    /// <remarks>Later stationary pairs, fixed X positions and repeated vertical cycles alias earlier coordinates. Dependencies strictly decrease in address; every independent first-cycle coordinate remains required artwork.</remarks>
     internal static bool TryStockCoordinateSource(ushort address, out ushort source)
     {
         int firstPair = address switch
@@ -917,8 +924,125 @@ public static class SamusArmCannonArtworkFormat
             _ => -1,
         };
         bool fixedX = firstX >= 0 && ((address - firstX) & 1) == 0;
-        source = fixedX ? (ushort)firstX : (ushort)0;
-        return fixedX;
+        if (fixedX)
+        {
+            source = (ushort)firstX;
+            return true;
+        }
+        // These vertical cycles repeat once per half of the native animation.
+        // The first cycle's chosen positions remain independent supplied inputs.
+        int cycleBytes = address switch
+        {
+            >= (DrawingMovingRightAimingUpRight + 13) and < DrawingMovingLeftAimingUpLeft => 10,
+            >= (DrawingMovingLeftAimingUpLeft + 13) and < DrawingMovingRightAimingDownRight => 10,
+            >= (DrawingMovingRightAimingDownRight + 13) and < DrawingMovingLeftAimingDownLeft => 10,
+            >= (DrawingMovingLeftAimingDownLeft + 13) and < DrawingFacingRightNormalJumpNotMovingGunExt => 10,
+            >= (DrawingFacingLeftMoonwalk + 9) and < DrawingFacingRightMoonwalk => 6,
+            >= (DrawingFacingRightMoonwalk + 9) and < DrawingFacingLeftMoonwalkAimingUpLeft => 6,
+            >= (DrawingFacingLeftMoonwalkAimingUpLeft + 9) and < DrawingFacingRightMoonwalkAimingUpRight => 6,
+            >= (DrawingFacingRightMoonwalkAimingUpRight + 9) and < DrawingFacingLeftMoonwalkAimingDownLeft => 6,
+            >= (DrawingFacingLeftMoonwalkAimingDownLeft + 9) and < DrawingFacingRightMoonwalkAimingDownRight => 6,
+            >= (DrawingFacingRightMoonwalkAimingDownRight + 9) and < DrawingFacingRightLandingFromNormalJump => 6,
+            _ => 0,
+        };
+        bool repeatedY = cycleBytes != 0 && firstX >= 0 && ((address - firstX) & 1) != 0;
+        if (repeatedY)
+        {
+            source = (ushort)(address - cycleBytes);
+            return true;
+        }
+        // Horizontal reflection preserves Y only in these exact native pose/frame
+        // pairs. Other vertical profiles keep their independently chosen offsets.
+        int pairedYSource = address switch
+        {
+            DrawingFacingLeft + 3 => DrawingFacingRight + 3,
+            DrawingFacingLeftAimingDownLeft + 3 => DrawingFacingRightAimingDownRight + 3,
+            DrawingMovingLeftAimingUpLeft + 3 => DrawingMovingRightAimingUpRight + 3,
+            DrawingMovingLeftAimingUpLeft + 5 => DrawingMovingRightAimingUpRight + 5,
+            DrawingMovingLeftAimingUpLeft + 7 => DrawingMovingRightAimingUpRight + 7,
+            DrawingMovingLeftAimingUpLeft + 9 => DrawingMovingRightAimingUpRight + 9,
+            DrawingMovingLeftAimingUpLeft + 11 => DrawingMovingRightAimingUpRight + 11,
+            DrawingMovingLeftAimingDownLeft + 3 => DrawingMovingRightAimingDownRight + 3,
+            DrawingMovingLeftAimingDownLeft + 5 => DrawingMovingRightAimingDownRight + 5,
+            DrawingMovingLeftAimingDownLeft + 7 => DrawingMovingRightAimingDownRight + 7,
+            DrawingMovingLeftAimingDownLeft + 9 => DrawingMovingRightAimingDownRight + 9,
+            DrawingMovingLeftAimingDownLeft + 11 => DrawingMovingRightAimingDownRight + 11,
+            DrawingFacingLeftNormalJumpNotMovingGunExt + 3 => DrawingFacingRightNormalJumpNotMovingGunExt + 3,
+            DrawingFacingLeftNormalJumpAimingDown + 3 => DrawingFacingRightNormalJumpAimingDown + 3,
+            DrawingFacingLeftNormalJumpMovingForward + 3 => DrawingFacingRightNormalJumpMovingForward + 3,
+            DrawingFacingLeftNormalJumpAimingUpLeft + 3 => DrawingFacingRightNormalJumpAimingUpRight + 3,
+            DrawingFacingLeftNormalJumpAimingDownLeft + 3 => DrawingFacingRightNormalJumpAimingDownRight + 3,
+            DrawingFacingLeftFallingGunExtended + 3 => DrawingFacingRightFallingGunExtended + 3,
+            DrawingFacingLeftFallingAimingDown + 3 => DrawingFacingRightFallingAimingDown + 3,
+            DrawingFacingLeftFallingAimingUpLeft + 3 => DrawingFacingRightFallingAimingUpRight + 3,
+            DrawingFacingLeftFallingAimingDownLeft + 3 => DrawingFacingRightFallingAimingDownRight + 3,
+            DrawingFacingLeftCrouching + 3 => DrawingFacingRightCrouching + 3,
+            DrawingFacingLeftCrouchingAimingDownLeft + 3 => DrawingFacingRightCrouchingAimingDownRight + 3,
+            DrawingFacingRightMoonwalk + 3 => DrawingFacingLeftMoonwalk + 3,
+            DrawingFacingRightMoonwalk + 5 => DrawingFacingLeftMoonwalk + 5,
+            DrawingFacingRightMoonwalk + 7 => DrawingFacingLeftMoonwalk + 7,
+            DrawingFacingRightMoonwalkAimingUpRight + 3 => DrawingFacingLeftMoonwalkAimingUpLeft + 3,
+            DrawingFacingRightMoonwalkAimingUpRight + 5 => DrawingFacingLeftMoonwalkAimingUpLeft + 5,
+            DrawingFacingRightMoonwalkAimingUpRight + 7 => DrawingFacingLeftMoonwalkAimingUpLeft + 7,
+            DrawingFacingRightMoonwalkAimingDownRight + 3 => DrawingFacingLeftMoonwalkAimingDownLeft + 3,
+            DrawingFacingRightMoonwalkAimingDownRight + 5 => DrawingFacingLeftMoonwalkAimingDownLeft + 5,
+            DrawingFacingRightMoonwalkAimingDownRight + 7 => DrawingFacingLeftMoonwalkAimingDownLeft + 7,
+            DrawingFacingLeftTransitionAimingUp + 3 => DrawingFacingRightTransitionAimingUp + 3,
+            DrawingFacingLeftAimingUp + 7 => DrawingFacingRightAimingUp + 7,
+            DrawingFacingLeftNormalJumpAimingUp + 7 => DrawingFacingRightNormalJumpAimingUp + 7,
+            DrawingFacingLeftCrouchingAimingUp + 7 => DrawingFacingRightCrouchingAimingUp + 7,
+            _ => -1,
+        };
+        source = pairedYSource >= 0 ? (ushort)pairedYSource : (ushort)0;
+        return pairedYSource >= 0;
+    }
+
+    /// <summary>$90:C663 DrawArmCannon emits one small OBJ and transfers one32-byte4bpp tile: its horizontal footprint is eight pixels.</summary>
+    private const int CoverWidthPixels = 8;
+
+    internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
+
+    /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
+    /// <remarks>Only exact named facing pairs are included. Unmatched Y coordinates remain independent;
+    /// downward-vertical jump/fall X positions also remain independent because their native
+    /// origins are asymmetric. Each source precedes its reflected result in the native window.</remarks>
+    internal static bool TryStockReflectedXSource(ushort address, out ushort source)
+    {
+        int selected = address switch
+        {
+            DrawingFacingLeft + 2 => DrawingFacingRight + 2,
+            DrawingFacingLeftAimingUp + 4 => DrawingFacingRightAimingUp + 4,
+            DrawingFacingLeftAimingUp + 6 => DrawingFacingRightAimingUp + 6,
+            DrawingFacingLeftAimingUpLeft + 2 => DrawingFacingRightAimingUpRight + 2,
+            DrawingFacingLeftAimingDownLeft + 2 => DrawingFacingRightAimingDownRight + 2,
+            DrawingMovingLeftGunExtended + 2 => DrawingMovingRightGunExtended + 2,
+            DrawingMovingLeftAimingUpLeft + 2 => DrawingMovingRightAimingUpRight + 2,
+            DrawingMovingLeftAimingDownLeft + 2 => DrawingMovingRightAimingDownRight + 2,
+            DrawingFacingLeftNormalJumpNotMovingGunExt + 2 => DrawingFacingRightNormalJumpNotMovingGunExt + 2,
+            DrawingFacingLeftNormalJumpAimingUp + 4 => DrawingFacingRightNormalJumpAimingUp + 4,
+            DrawingFacingLeftNormalJumpAimingUp + 6 => DrawingFacingRightNormalJumpAimingUp + 6,
+            DrawingFacingLeftNormalJumpMovingForward + 2 => DrawingFacingRightNormalJumpMovingForward + 2,
+            DrawingFacingLeftNormalJumpAimingUpLeft + 2 => DrawingFacingRightNormalJumpAimingUpRight + 2,
+            DrawingFacingLeftNormalJumpAimingDownLeft + 2 => DrawingFacingRightNormalJumpAimingDownRight + 2,
+            DrawingFacingLeftFallingGunExtended + 2 => DrawingFacingRightFallingGunExtended + 2,
+            DrawingFacingLeftFallingAimingUp + 4 => DrawingFacingRightFallingAimingUp + 4,
+            DrawingFacingLeftFallingAimingUp + 6 => DrawingFacingRightFallingAimingUp + 6,
+            DrawingFacingLeftFallingAimingUp + 8 => DrawingFacingRightFallingAimingUp + 8,
+            DrawingFacingLeftFallingAimingUpLeft + 2 => DrawingFacingRightFallingAimingUpRight + 2,
+            DrawingFacingLeftFallingAimingDownLeft + 2 => DrawingFacingRightFallingAimingDownRight + 2,
+            DrawingFacingLeftCrouching + 2 => DrawingFacingRightCrouching + 2,
+            DrawingFacingLeftCrouchingAimingUpLeft + 2 => DrawingFacingRightCrouchingAimingUpRight + 2,
+            DrawingFacingLeftCrouchingAimingDownLeft + 2 => DrawingFacingRightCrouchingAimingDownRight + 2,
+            DrawingFacingLeftCrouchingAimingUp + 4 => DrawingFacingRightCrouchingAimingUp + 4,
+            DrawingFacingLeftCrouchingAimingUp + 6 => DrawingFacingRightCrouchingAimingUp + 6,
+            DrawingFacingRightMoonwalk + 2 => DrawingFacingLeftMoonwalk + 2,
+            DrawingFacingRightMoonwalkAimingUpRight + 2 => DrawingFacingLeftMoonwalkAimingUpLeft + 2,
+            DrawingFacingRightMoonwalkAimingDownRight + 2 => DrawingFacingLeftMoonwalkAimingDownLeft + 2,
+            DrawingFacingLeftTransitionAimingUp + 2 => DrawingFacingRightTransitionAimingUp + 2,
+            _ => -1,
+        };
+        source = selected >= 0 ? (ushort)selected : (ushort)0;
+        return selected >= 0;
     }
 
     private enum TileOrientation

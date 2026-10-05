@@ -1228,11 +1228,73 @@ internal static partial class Program
                 for (int address = pointer + 4; address < next; address += 2)
                     fixedX &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2));
                 if (fixedX)
+                {
                     for (int address = pointer + 4; address < next; address += 2) aliases.Add(address, pointer + 2);
+                    int frames = (next - pointer - 2) / 2;
+                    if (frames is 6 or 10)
+                    {
+                        bool repeatedHalf = true;
+                        for (int address = pointer + 3 + frames; address < next; address += 2)
+                            repeatedHalf &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (address - frames));
+                        if (repeatedHalf)
+                            for (int address = pointer + 3 + frames; address < next; address += 2)
+                                aliases.Add(address, address - frames);
+                    }
+                }
             }
         }
-        AssertEqual(216, aliases.Count, "cannon original repeated coordinate-byte domain");
-        const int start = 0xC9D9, count = 608, coordinateCount = 238;
+        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        {
+            (0x01,0x02), (0x07,0x08), (0x0F,0x10), (0x11,0x12),
+            (0x13,0x14), (0x17,0x18), (0x51,0x52), (0x69,0x6A),
+            (0x6B,0x6C), (0x67,0x68), (0x2D,0x2E), (0x6D,0x6E),
+            (0x6F,0x70), (0x27,0x28), (0x73,0x74), (0x49,0x4A),
+            (0x75,0x76), (0x77,0x78), (0x55,0x56),
+        })
+        {
+            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
+            int end = boundaries[Array.IndexOf(boundaries, later) + 1] - later;
+            for (int offset = 3; offset < end; offset += 2)
+            {
+                AssertEqual(rom.ReadByte(0x900000 | (earlier + offset)), rom.ReadByte(0x900000 | (later + offset)),
+                    "native horizontally reflected poses share this vertical profile");
+                if (!aliases.ContainsKey(later + offset)) aliases.Add(later + offset, earlier + offset);
+            }
+        }
+        foreach ((int earlierPose, int laterPose) in new (int, int)[] { (0x03,0x04), (0x15,0x16), (0x85,0x86) })
+        {
+            int earlierY = Word(0x90C7DF + earlierPose * 2) + 7, laterY = Word(0x90C7DF + laterPose * 2) + 7;
+            AssertEqual(rom.ReadByte(0x900000 | earlierY), rom.ReadByte(0x900000 | laterY), "native fully upward secondary pose shares Y");
+            aliases.Add(laterY, earlierY);
+        }
+        var reflections = new Dictionary<int, int>();
+        // Native pose identities independently select the paired descriptors; no
+        // production reflection selector participates in this expected mapping.
+        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        {
+            (0x01,0x02), (0x03,0x04), (0x05,0x06), (0x07,0x08),
+            (0x0B,0x0C), (0x0F,0x10), (0x11,0x12), (0x13,0x14),
+            (0x15,0x16), (0x51,0x52), (0x69,0x6A), (0x6B,0x6C),
+            (0x67,0x68), (0x2B,0x2C), (0x6D,0x6E), (0x6F,0x70),
+            (0x27,0x28), (0x71,0x72), (0x73,0x74), (0x85,0x86),
+            (0x49,0x4A), (0x75,0x76), (0x77,0x78), (0x55,0x56),
+        })
+        {
+            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
+            bool variableDirection = (rom.ReadByte(0x900000 | later) & 0x80) != 0;
+            int first = variableDirection ? 4 : 2;
+            int end = variableDirection ? boundaries[Array.IndexOf(boundaries, later) + 1] - later : first + 2;
+            for (int offset = first; offset < end; offset += 2)
+            {
+                int source = earlier + offset, target = later + offset;
+                byte expected = unchecked((byte)(-unchecked((sbyte)rom.ReadByte(0x900000 | source)) - 8));
+                AssertEqual(expected, rom.ReadByte(0x900000 | target), "native paired cover spans reflect around Samus origin");
+                reflections.Add(target, source);
+            }
+        }
+        AssertEqual(29, reflections.Count, "cannon native reflected origin count");
+        AssertEqual(290, aliases.Count, "cannon original repeated coordinate-byte domain");
+        const int start = 0xC9D9, count = 608, coordinateCount = 135;
         AssertEqual(coordinateCount, Stored(stock).Count, "cannon stores exactly required coordinate basis");
         for (int index = 0; index < count; index++)
         {
@@ -1248,7 +1310,15 @@ internal static partial class Program
                 AssertEqual((ushort)aliases[address], source, "cannon direct original first-pair source");
                 AssertTrue(source < address, "cannon coordinate aliases strictly decrease");
             }
-            AssertEqual(!calculated && !alias, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
+            bool reflection = SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out ushort reflectedSource);
+            AssertEqual(reflections.ContainsKey(address), reflection, "cannon native reflected-origin domain");
+            if (reflection)
+            {
+                AssertEqual((ushort)reflections[address], reflectedSource, "cannon original opposite-facing source");
+                AssertTrue(reflectedSource < address && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
+                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(rom.ReadByte(0x900000 | reflectedSource)), "cannon reflected native default");
+            }
+            AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
             AssertEqual(expected, stock.ReadDrawingByte(address), "cannon complete installed byte window");
             int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xFF;
             var edited = Load(document with { DrawingData = drawing });
@@ -1256,9 +1326,12 @@ internal static partial class Program
             for (int selected = 0; selected < count; selected++)
             {
                 int selectedAddress = start + selected;
-                bool mandatory = !headers.Contains(selectedAddress) && !aliases.ContainsKey(selectedAddress);
+                bool mandatory = !headers.Contains(selectedAddress) && !aliases.ContainsKey(selectedAddress) && !reflections.ContainsKey(selectedAddress);
                 int selectedDefault = aliases.TryGetValue(selectedAddress, out int nativeSource)
-                    ? drawing[nativeSource - start] : document.DrawingData[selected];
+                    ? drawing[nativeSource - start]
+                    : reflections.TryGetValue(selectedAddress, out int reflectedNativeSource)
+                        ? unchecked((byte)(-unchecked((sbyte)drawing[reflectedNativeSource - start]) - 8))
+                        : document.DrawingData[selected];
                 bool shouldStore = mandatory || drawing[selected] != selectedDefault;
                 if (shouldStore) expectedStored++;
                 AssertEqual(shouldStore, Stored(edited).ContainsKey(selected), "cannon exact supplied-basis exception membership");
@@ -1271,7 +1344,7 @@ internal static partial class Program
         }
         foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ReadDrawingByte(address), "cannon drawing bounds remain exact");
-        Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,216 repeated coordinates,238 exact basis bytes and608 independent edits pass.");
+        Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and608 independent edits pass.");
     }
 
     private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)

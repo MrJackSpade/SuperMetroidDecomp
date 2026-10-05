@@ -52,137 +52,266 @@ internal static class WorkRobotInstructionProgramDefinitions
     public const ushort ApproachingFallLeft = 0xcb65;
 
     private const int PresentationOperand = -1;
-    private const ushort FirstWordAddress = NoPowerNeutral;
+    /// <summary>$A8:CB77, first code after the complete robot instruction region.</summary>
     private const ushort EndAddress = 0xcb77;
-
-    // This dense map covers the complete contiguous authored instruction region. Mechanics
-    // words retain their native values; presentation entries are sentinels so spritemap
-    // pointer values remain cartridge-owned and replaceable independently.
-    private static readonly int[] Words =
-    [
-        0x7fff, PresentationOperand, 0x812f, 0x7fff, PresentationOperand, 0x812f, 0x7fff, PresentationOperand, 0x812f, 0x0020, PresentationOperand, 0x0001,
-        PresentationOperand, 0x000a, PresentationOperand, 0x0001, PresentationOperand, 0xd107, 0x0009, PresentationOperand, 0x0001, PresentationOperand, 0xd0d2, 0x0009,
-        PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcd09, 0x000a, PresentationOperand, 0xcd09, 0x000a, PresentationOperand, 0x000a, PresentationOperand,
-        0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xcd09, 0xd091, 0x000a, PresentationOperand, 0xcd09, 0x0001,
-        PresentationOperand, 0xd13d, 0x0009, PresentationOperand, 0x80ed, 0xc6ed, 0x0001, PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcdea,
-        0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcdea,
-        0x000a, PresentationOperand, 0xcdea, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a,
-        PresentationOperand, 0xcdea, 0xd091, 0x000a, PresentationOperand, 0xcdea, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand,
-        0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcdea, 0x000a, PresentationOperand, 0xcdea, 0x000a, PresentationOperand, 0x000a,
-        PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xcecb, 0x0005, PresentationOperand, 0xd091, 0xce85,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xce85,
-        0x0005, PresentationOperand, 0xce85, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0xce85, 0xd091, 0x0005, PresentationOperand, 0xce85, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xce85, 0x0005, PresentationOperand, 0xce85, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xcecb, 0xd091, 0xcda4, 0x0005, PresentationOperand,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xcda4, 0x0005, PresentationOperand, 0xcda4, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xcda4, 0xd091, 0x0005,
-        PresentationOperand, 0xcda4, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand,
-        0xd091, 0xcda4, 0x0005, PresentationOperand, 0xcda4, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0xcda4, 0xd091, 0x0005, PresentationOperand, 0xcda4, 0x0005, PresentationOperand, 0xd0c2, 0x0005,
-        PresentationOperand, 0x0002, PresentationOperand, 0x80ed, 0xc8e9, 0x0005, PresentationOperand, 0x0002, PresentationOperand, 0xcdea, 0xd091, 0x000a,
-        PresentationOperand, 0x80ed, 0xc8e9, 0x0005, PresentationOperand, 0x0002, PresentationOperand, 0x0002, PresentationOperand, 0x0004, PresentationOperand, 0xcdea,
-        0xd091, 0x0004, PresentationOperand, 0xcdea, 0x0010, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand,
-        0x0005, PresentationOperand, 0xd091, 0xcdea, 0x000a, PresentationOperand, 0xcdea, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x0060,
-        PresentationOperand, 0xd16b, 0x80ed, 0xc6e9, 0x0080, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd16b, 0x80ed,
-        0xc6e9, 0x0001, PresentationOperand, 0x0001, PresentationOperand, 0xd131, 0x0009, PresentationOperand, 0xd16b, 0x000a, PresentationOperand, 0x0001,
-        PresentationOperand, 0xd100, 0x0009, PresentationOperand, 0x0001, PresentationOperand, 0xd0c6, 0x0009, PresentationOperand, 0x000a, PresentationOperand, 0xd091,
-        0xcecf, 0x000a, PresentationOperand, 0xcecf, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand,
-        0x000a, PresentationOperand, 0xcecf, 0xd091, 0x000a, PresentationOperand, 0xcecf, 0x80ed, 0xc931, 0x0001, PresentationOperand, 0x000a,
-        PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a,
-        PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand, 0xcfb0, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand,
-        0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand, 0xcfb0, 0x000a, PresentationOperand, 0x000a,
-        PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand, 0xcfb0,
-        0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0xd0c2, 0x0001,
-        PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xd04b, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xd04b, 0x0005, PresentationOperand, 0xd04b, 0x0005, PresentationOperand, 0x0005, PresentationOperand,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd04b, 0xd091, 0x0005, PresentationOperand, 0xd04b, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xd04b, 0x000a,
-        PresentationOperand, 0xd04b, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand,
-        0xd0c2, 0xcf6a, 0xd091, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0xd091, 0xcf6a, 0x0005, PresentationOperand, 0xcf6a, 0xd091, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005,
-        PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xcf6a, 0xd091, 0x0005, PresentationOperand, 0xcf6a, 0x0005, PresentationOperand,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xcf6a, 0x0005, PresentationOperand,
-        0xcf6a, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xcf6a,
-        0xd091, 0x0005, PresentationOperand, 0xcf6a, 0xcecb, 0x0005, PresentationOperand, 0x0002, PresentationOperand, 0x80ed, 0xcb35, 0x0005,
-        PresentationOperand, 0x0002, PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand, 0x80ed, 0xcb35, 0x0005, PresentationOperand, 0x0002,
-        PresentationOperand, 0x0002, PresentationOperand, 0x0004, PresentationOperand, 0xd091, 0xcfb0, 0x0004, PresentationOperand, 0xcfb0, 0x0010, PresentationOperand,
-        0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0x0005, PresentationOperand, 0xd091, 0xcfb0, 0x000a, PresentationOperand,
-        0xcfb0, 0x000a, PresentationOperand, 0x000a, PresentationOperand, 0x0060, PresentationOperand, 0x80ed, 0xc92d, 0x0080, PresentationOperand, 0x000a,
-        PresentationOperand, 0x000a, PresentationOperand, 0xd16b, 0x80ed, 0xc92d,
-    ];
+    /// <summary>$A8:C6E5, initial stationary pose before walking; independent hold remains pending.</summary>
+    private const ushort UnresolvedInitialTicks = 32;
+    /// <summary>$A8:C6ED and mirrored gait: common walking cadence; its independent magnitude remains pending.</summary>
+    private const ushort UnresolvedWalkTicks = 10;
+    /// <summary>$A8:C7BB/CA05 shot response traverses the same gait poses at twice normal cadence.</summary>
+    private const ushort ShotResponseTicks = UnresolvedWalkTicks / 2;
+    /// <summary>$A8:C8B1/BD/D1 and mirrored laser aims: initial firing pose hold, pending.</summary>
+    private const ushort UnresolvedLaserPoseTicks = 5;
+    /// <summary>$A8:C8B5/C8C1/C8D5/C8D9 and mirrors: laser transition pose cadence, pending.</summary>
+    private const ushort UnresolvedLaserTransitionTicks = 2;
+    /// <summary>$A8:C8DD/E5 and mirrors: upward-shot stepping poses, pending.</summary>
+    private const ushort UnresolvedUpwardStepTicks = 4;
+    /// <summary>$A8:C8EB/CB37: initial recoil kick hold, pending.</summary>
+    private const ushort UnresolvedRecoilKickTicks = 16;
+    /// <summary>$A8:C911/CB5D: final recoil recovery hold, pending.</summary>
+    private const ushort UnresolvedRecoilRecoveryTicks = 96;
+    /// <summary>$A8:C91B/CB65: ledge-approach hold before the two return poses, pending.</summary>
+    private const ushort UnresolvedLedgeTicks = 128;
+    /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers; pending.</summary>
+    private const ushort UnresolvedRightRetreatContactTicks = 10;
 
     internal const int MechanicsWordCount = 367;
     internal static int PresentationWordCount => 227;
 
     internal static WorkRobotInstructionMechanicsWord MechanicsWord(int index)
     {
-        if ((uint)index >= MechanicsWordCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        for (int address = NoPowerNeutral; address < EndAddress; address += 2)
         {
-            int value = Words[wordIndex];
-            if (value == PresentationOperand)
-                continue;
-            if (index-- == 0)
-                return new(unchecked((ushort)(FirstWordAddress + wordIndex * 2)),
-                    unchecked((ushort)value));
+            int value = ProgramWord((ushort)address);
+            if (value != PresentationOperand && index-- == 0) return new((ushort)address, (ushort)value);
         }
         throw new InvalidOperationException("Work Robot mechanics-word index is inconsistent.");
     }
-
-    /// <summary>Returns compiled Work Robot control data or rejects presentation/data pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int byteOffset = address - FirstWordAddress;
-        if ((byteOffset & 1) != 0 || byteOffset < 0 || address >= EndAddress)
-            throw NotCompiled(address);
-
-        int value = Words[byteOffset >> 1];
-        if (value == PresentationOperand)
-            throw NotCompiled(address);
-        return unchecked((ushort)value);
+        if (!IsWordAddress(address)) throw NotCompiled(address);
+        int value = ProgramWord(address);
+        return value == PresentationOperand ? throw NotCompiled(address) : (ushort)value;
     }
-
     internal static ushort PresentationWordAddress(int index)
     {
-        if ((uint)index >= PresentationWordCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-
-        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
-        {
-            if (Words[wordIndex] != PresentationOperand)
-                continue;
-            if (index-- == 0)
-                return unchecked((ushort)(FirstWordAddress + wordIndex * 2));
-        }
-
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        for (int address = NoPowerNeutral; address < EndAddress; address += 2)
+            if (ProgramWord((ushort)address) == PresentationOperand && index-- == 0) return (ushort)address;
         throw new InvalidOperationException("Work Robot presentation-word index is inconsistent.");
     }
-
-    /// <summary>Tests one native operand without scanning the full dense program.</summary>
-    internal static bool IsPresentationWordAddress(ushort address)
-    {
-        int byteOffset = address - FirstWordAddress;
-        return byteOffset >= 0 && address < EndAddress &&
-               (byteOffset & 1) == 0 &&
-               Words[byteOffset >> 1] == PresentationOperand;
-    }
-
+    internal static bool IsPresentationWordAddress(ushort address) =>
+        IsWordAddress(address) && ProgramWord(address) == PresentationOperand;
+    private static bool IsWordAddress(ushort address) => address >= NoPowerNeutral && address < EndAddress &&
+        ((address - NoPowerNeutral) & 1) == 0;
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        int byteOffset = bankAddress - FirstWordAddress;
-        if (byteOffset < 0 || bankAddress >= EndAddress)
-            return false;
-
-        int wordIndex = byteOffset >> 1;
-        return Words[wordIndex] != PresentationOperand;
+        if ((address & 0xff0000) != 0xa80000) return false;
+        ushort bankAddress = (ushort)address;
+        if (bankAddress < NoPowerNeutral || bankAddress >= EndAddress) return false;
+        ushort wordAddress = (ushort)(bankAddress - ((bankAddress - NoPowerNeutral) & 1));
+        return ProgramWord(wordAddress) != PresentationOperand;
     }
 
+    // Each phase emits its executable instruction shape into a scalar selector. No
+    // generated words or presentation-address table are retained between calls.
+    private static int ProgramWord(ushort address)
+    {
+        ushort start;
+        if (address < Initial)
+        {
+            start = (ushort)(NoPowerNeutral + (address - NoPowerNeutral) / 6 * 6);
+            var idle = new WordSelector(address, start);
+            idle.Timed((ushort)short.MaxValue);
+            idle.Command(CommonEnemyInstructionCodes.Sleep);
+            return idle.Value;
+        }
+        if (address < FacingLeftWalkingForwards)
+        {
+            var initial = new WordSelector(address, Initial);
+            initial.Timed(UnresolvedInitialTicks);
+            return initial.Value;
+        }
+        bool right = address >= FacingRightWalkingForwards;
+        ushort walking = right ? FacingRightWalkingForwards : FacingLeftWalkingForwards;
+        ushort wall = right ? FacingRightHitWallMovingForwards : FacingLeftHitWallMovingForwards;
+        ushort ahead = right ? FacingRightShotSamusAhead : FacingLeftShotSamusAhead;
+        ushort behind = right ? FacingRightShotSamusBehind : FacingLeftShotSamusBehind;
+        ushort down = right ? FacingRightShotLaserDownRight : FacingLeftShotLaserDownLeft;
+        ushort horizontal = right ? FacingRightShotLaserRight : FacingLeftShotLaserLeft;
+        ushort up = right ? FacingRightShotLaserUpRight : FacingLeftShotLaserUpLeft;
+        ushort recoil = right ? FacingRightLaserShotRecoil : FacingLeftLaserShotRecoil;
+        ushort ledge = right ? ApproachingFallLeft : ApproachingFallRight;
+        start = address < wall ? walking : address < ahead ? wall : address < behind ? ahead
+            : address < down ? behind : address < horizontal ? down : address < up ? horizontal
+            : address < recoil ? up : address < ledge ? recoil : ledge;
+        var writer = new WordSelector(address, start);
+        if (start == walking) Walk(ref writer, right);
+        else if (start == wall) Retreat(ref writer, right, wallResponse: true);
+        else if (start == ahead) Retreat(ref writer, right, wallResponse: false);
+        else if (start == behind) AdvanceAfterShot(ref writer, right);
+        else if (start == down) Laser(ref writer, right, LaserAim.Down);
+        else if (start == horizontal) Laser(ref writer, right, LaserAim.Horizontal);
+        else if (start == up) Laser(ref writer, right, LaserAim.Up);
+        else if (start == recoil) Recoil(ref writer, right);
+        else Ledge(ref writer, right);
+        return writer.Value;
+    }
+
+    /// <summary>The native shooting programs select exactly one of down, horizontal or up.</summary>
+    private enum LaserAim { Down, Horizontal, Up }
+
+    private static void Walk(ref WordSelector writer, bool right)
+    {
+        ushort move = MoveForward(right, hitWallOnly: false);
+        writer.Timed(1);
+        if (right)
+        {
+            ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight);
+            writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+        }
+        writer.Timed(UnresolvedWalkTicks);
+        ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight
+            : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft);
+        ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight
+            : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft);
+        writer.Timed(UnresolvedWalkTicks);
+        SoundThenMove(ref writer, move);
+        writer.Timed(UnresolvedWalkTicks);
+        writer.Command(move);
+        writer.Timed(UnresolvedWalkTicks, 5);
+        MoveThenSound(ref writer, move);
+        writer.Timed(UnresolvedWalkTicks);
+        writer.Command(move);
+        if (!right) ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft);
+        writer.Goto((ushort)((right ? FacingRightWalkingForwards : FacingLeftWalkingForwards) + 4));
+    }
+    private static void ShootingOpportunity(ref WordSelector writer, ushort callback)
+    {
+        // The callback is scheduled one tick into a pose; the remainder completes
+        // the same ten-tick gait exposure if no shooting branch replaces the list.
+        writer.Timed(1);
+        writer.Command(callback);
+        writer.Timed(UnresolvedWalkTicks - 1);
+    }
+    private static void Retreat(ref WordSelector writer, bool right, bool wallResponse)
+    {
+        ushort cadence = wallResponse ? UnresolvedWalkTicks : ShotResponseTicks;
+        ushort move = MoveBackward(right, hitWallOnly: !wallResponse);
+        if (wallResponse || right) writer.Timed(1);
+        for (int stride = 0; stride < 2; stride++)
+        {
+            if (stride == 0)
+            {
+                writer.Timed(cadence);
+                SoundThenMove(ref writer, move);
+            }
+            else
+            {
+                if (right && wallResponse) SoundThenMove(ref writer, move);
+                else MoveThenSound(ref writer, move);
+                writer.Timed(cadence);
+                writer.Command(move);
+            }
+            writer.Timed(cadence, 5);
+            SoundThenMove(ref writer, move);
+            writer.Timed(right && !wallResponse && stride == 1 ? UnresolvedRightRetreatContactTicks : cadence);
+            writer.Command(move);
+            writer.Timed(cadence, 5);
+        }
+        writer.Command(right ? WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards
+            : WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards);
+    }
+    private static void AdvanceAfterShot(ref WordSelector writer, bool right)
+    {
+        ushort move = MoveForward(right, hitWallOnly: true);
+        if (right) MoveThenSound(ref writer, move); else SoundThenMove(ref writer, move);
+        writer.Timed(ShotResponseTicks, right ? 5 : 4);
+        for (int stride = 0; stride < 2; stride++)
+        {
+            SoundThenMove(ref writer, move);
+            writer.Timed(ShotResponseTicks);
+            writer.Command(move);
+            if (right && stride == 0) writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+            writer.Timed(ShotResponseTicks, 5);
+            MoveThenSound(ref writer, move);
+            writer.Timed(ShotResponseTicks);
+            writer.Command(move);
+            if (stride == 0) writer.Timed(ShotResponseTicks, 5);
+            else if (!right) writer.Timed(ShotResponseTicks);
+        }
+        writer.Command(right ? WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards
+            : WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards);
+    }
+    private static void Laser(ref WordSelector writer, bool right, LaserAim aim)
+    {
+        writer.Timed(UnresolvedLaserPoseTicks);
+        writer.Timed(UnresolvedLaserTransitionTicks, aim == LaserAim.Up ? 2 : 1);
+        if (aim == LaserAim.Up) writer.Timed(UnresolvedUpwardStepTicks);
+        if (aim != LaserAim.Down)
+        {
+            ushort move = MoveBackward(right, hitWallOnly: false);
+            if (right) SoundThenMove(ref writer, move); else MoveThenSound(ref writer, move);
+            writer.Timed(aim == LaserAim.Up ? UnresolvedUpwardStepTicks : UnresolvedWalkTicks);
+        }
+        if (aim != LaserAim.Up) writer.Goto(right ? FacingRightLaserShotRecoil : FacingLeftLaserShotRecoil);
+    }
+    private static void Recoil(ref WordSelector writer, bool right)
+    {
+        ushort move = MoveBackward(right, hitWallOnly: false);
+        writer.Command(move);
+        writer.Timed(UnresolvedRecoilKickTicks);
+        writer.Timed(ShotResponseTicks, 4);
+        SoundThenMove(ref writer, move);
+        writer.Timed(UnresolvedWalkTicks);
+        writer.Command(move);
+        writer.Timed(UnresolvedWalkTicks, 2);
+        writer.Timed(UnresolvedRecoilRecoveryTicks);
+        if (!right) writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+        writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
+    }
+    private static void Ledge(ref WordSelector writer, bool right)
+    {
+        writer.Timed(UnresolvedLedgeTicks);
+        writer.Timed(UnresolvedWalkTicks, 2);
+        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+        writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
+    }
+    private static ushort MoveForward(bool right, bool hitWallOnly) => right
+        ? hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleHittingWall
+            : WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleWallOrFall
+        : hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleHittingWall
+            : WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleWallOrFall;
+    private static ushort MoveBackward(bool right, bool hitWallOnly) => right
+        ? hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleHittingWall
+            : WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleWallOrFall
+        : hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleHittingWall
+            : WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleWallOrFall;
+    private static void SoundThenMove(ref WordSelector writer, ushort move)
+    {
+        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+        writer.Command(move);
+    }
+    private static void MoveThenSound(ref WordSelector writer, ushort move)
+    {
+        writer.Command(move);
+        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+    }
+    private struct WordSelector(ushort address, ushort start)
+    {
+        private int remaining = (address - start) / 2;
+        private int selected = int.MinValue;
+        public readonly int Value => selected == int.MinValue
+            ? throw new InvalidOperationException("Work Robot semantic program shape is incomplete.") : selected;
+        public void Command(ushort command) => Emit(command);
+        public void Timed(ushort duration, int poses = 1)
+        {
+            for (int pose = 0; pose < poses; pose++) { Emit(duration); Emit(PresentationOperand); }
+        }
+        public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
+        private void Emit(int value) { if (remaining-- == 0) selected = value; }
+    }
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Work Robot instruction mechanics pointer $A8:{address:X4} is not compiled.");
 }

@@ -1064,3 +1064,11 @@ The four named palette registrations now enumerate explicit domain definitions. 
 Only `EnemyAuxiliaryColorDefinitions.Definitions` is complete. `EnemyAuxiliaryColorCatalog.frames` remains required: 64 Torizo endpoint words, nine Face Block input colors, and 30 Sidehopper endpoint plus 15 corpse colors still need dispositions. No retention exception is granted.
 
 Root Verification build passed (1445 warnings, zero errors); ResourceAudit build passed (zero warnings/errors). `--lookup-auxiliary-palettes` confirms all 393 native colors, 1179 independent RGB edits, unchanged selected-content hashes, stock calculated-row ownership, and invalid-index boundaries. Inventory: 528 converted, 15 justified retained/mixed, 585 pending.
+
+### Root integration: Work Robot semantic instruction phases
+
+The 594-word dense map is replaced with calculated unpowered, walking, retreat, advance, laser, recoil and ledge phases. Repeated gait exposures, mirrored directions, callback boundaries and split shooting opportunities derive instruction positions directly without a replacement stored program.
+
+`WorkRobotInstructionProgramDefinitions.Words` remains unchecked. Independent inputs still required: initial32, walking10, laser5/2, upward step4, recoil16/96, ledge128, right-retreat contact10, unpowered32767, one-tick entry scheduling and one-tick shooting-callback scheduling. The repeated/twice-speed structure is not an exemption for its magnitude.
+
+Root build passed (1445 warnings, zero errors). `--work-robot-instruction-program-definitions` passes367 native mechanics words,227 installed selectors,22 production entry paths/callback execution, read guards, rejection boundaries and allocation checks. This fixture advances timers; it does not establish elapsed-time behavior. No definition completed or new retention approved by this partial conversion.

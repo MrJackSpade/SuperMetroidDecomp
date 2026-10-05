@@ -275,7 +275,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs
 
-- [x] **OwtchInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **OwtchInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **OwtchInstructionProgramDefinitions.PresentationWords** ([L36](../csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs
@@ -898,3 +898,7 @@ Stream 1 rotation checkpoint: all work through Batch 32 is committed locally. Re
 Twelve native tile sources calculate from 9A00 through B000 in 0200-byte steps, including exact reverse membership. Four physical tile orientations select three successive opening frames, with the closed frame retaining its no-transfer sentinel. Native tile/palette/priority fields combine with direction-dependent horizontal/vertical reflections. Independently edited attributes and tile selectors remain sparse overrides; exported content identity and pixels are preserved.
 
 All three entries (TileSourcePointers, attributes, tileSources) are complete; pose pointers, drawing bytes and tile pixels remain required. No retention exception is added. Root Verification build passed with 1445 warnings/zero errors; ResourceAudit passed with zero warnings/errors. `--lookup-arm-cannon-selectors` confirms twelve native list-derived sources, all 65536 reverse inputs, ten native attributes, forty frame selections, direction-specific edits and canonical hashes, all 384 transferred tile bytes, an independent pixel edit and index/bank/length/interior-address boundaries. Both artwork and VRAM-DMA source hashes refreshed. Inventory: 532 converted, 15 justified retained/mixed, 581 pending.
+
+### Root correction: Owtch cadence remains required
+
+Reopened `OwtchInstructionProgramDefinitions.Words`: the prior451507846 conversion calculates instruction structure but still returns the independently chosen eight-tick hold at three pose positions. That value has no accepted functional derivation or impossible/nonsense disposition. PresentationWords stays complete; naming/repeating the eight-tick cadence does not complete Words. No gameplay behavior changed by this status correction. Overall inventory is531 converted,15 justified retained/mixed,582 pending.

@@ -890,10 +890,26 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - Further source analysis establishes a single RGB8 base rule `(RGB5 * 8) + 1` for every health-palette channel. Removed the per-channel precision search and storage. The same triangular tint strengths and red target still reproduce all four native states exactly.
 - Base body colors five through eight form a four-step gray ramp; colors nine through thirteen form a five-step brown ramp. Rear-leg colors five through eight form a four-step gray ramp, with its brightest color repeated at color fourteen. Each channel is `floor((endpoint * numerator + denominator/2) / denominator)` with descending numerators. Body color fourteen is white, body color fifteen and the remaining rear-leg slots are black. Stock base-row arrays are discarded; independent edits remain exact.
-- Eight independent RGB5 paint choices remain required: body `$269F,$0159,$004C,$0004,$5739,$367F`; rear-leg `$0024,$29AD`. No retention exception is claimed. Finer visible-component evidence is pending static artwork inspection.
+- Eight independent RGB5 paint choices remain required: body `$269F,$0159,$004C,$0004,$5739,$367F`; rear-leg `$0024,$29AD`. No retention exception is claimed. Static visible-component evidence is recorded below; endpoint retention still awaits independent review.
 - Native consumer $AD:E3D5-$E42E identifies BG4 as body, OBJ1 as brain, OBJ3 as rear leg. Body source $AD:E6AC-$E6B2 fills CGRAM $41-$44 and $91-$94; gray endpoint $AD:E6B4 supplies calculated ramps at $45-$48 and $95-$98; brown endpoint $AD:E6BC supplies $49-$4D and $99-$9D. Rear-leg outline $AD:E752 fills $B4; gray endpoint $AD:E754 supplies $B5-$B8 and repeated $BE. These are palette-slot assignments, not a claim that each RGB choice is mathematically irreducible.
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all 120 native words, 360 independent channel edits and stock-storage assertions for both shade ramps and intermediate damage rows. Converted count remains 72 plus the separately justified decorative-anchor retention; both health entries remain unchecked.
 - Coordinator must refresh the existing health-presentation source hash in `RemainingEnemyColorClosedContractDefinitions.cs`.
+### Health endpoint artwork evidence for independent review
+
+The isolated guarded exporter at `csharp/test-temp/stream3-palette-art` decodes only identified native artwork and produces per-index masks. It does not run gameplay or search for defects. Head source `$B7:8000` is composed with `$A9:A586`; neck uses `$A9:A694`; front/rear standing limb components come from root `$A9:9FA0` and `$B7:9000` leg tiles. The standing root's rear-foot component selects `$A9:A974`, OBJ palette three; its front components select OBJ palette one. Source palette routing agrees with `$AD:E3D5-$E42E`.
+
+| Independent word | Source / palette index | Visible role confirmed by masks | Dependent calculation |
+| --- | --- | --- | --- |
+| `$269F` | `$AD:E6AC`, body/brain index 1 | Bright patches on exposed brain cortex | Damage tint only |
+| `$0159` | `$AD:E6AE`, index 2 | Orange middle tones across cortex folds | Damage tint only |
+| `$004C` | `$AD:E6B0`, index 3 | Deep red cortex folds/shadows | Damage tint only |
+| `$0004` | `$AD:E6B2`, index 4 | Dark silhouette and internal outlines on head; outlines on limb components | Damage tint only |
+| `$5739` | `$AD:E6B4`, index 5 | Light gray spikes, skull/teeth and front limb plates | Indices 5..8 use endpoint times 4/4, 3/4, 2/4, 1/4, nearest RGB5 rounding |
+| `$367F` | `$AD:E6BC`, index 9 | Brown lower-face/mouth tissue; its darker shades also paint neck joint `$A9:A694` | Indices 9..13 use endpoint times 5/5 through 1/5, nearest RGB5 rounding |
+| `$0024` | `$AD:E752`, rear index 4 | Rear-foot and joint outlines | Stronger rear-leg damage tint |
+| `$29AD` | `$AD:E754`, rear index 5 | Dim rear-leg/foot plate highlight | Rear indices 5..8 use quarters; index 14 repeats the endpoint |
+
+Artifacts in that tool's `output` directory include `head-a586.png`, its `-index-01` through `-index-15` masks, `neck-a694.png`, front-limb `standing-part-3-a9a7c2.png`, and rear-foot `standing-part-6-a9a974.png` with masks. The export completed successfully. These visible paint roles and exact shade dependencies support a narrow endpoint review; they do not themselves mark the eight RGB choices exempt, and both health entries remain required pending that review.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

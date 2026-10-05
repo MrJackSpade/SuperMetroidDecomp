@@ -19,43 +19,59 @@ internal static class StokeInstructionProgramDefinitions
     /// <summary><c>InstList_Stoke_AttackingRight</c> at $A2:896E.</summary>
     internal const ushort AttackingRight = 0x896e;
 
-    private static readonly StokeInstructionMechanicsWord[] Words =
-    [
-        new(0x8932, EnemyInstructionCodePointers.Instruction_Stoke_SetMovingLeft),
-        new(0x8934, 8), new(0x8938, 0x0010), new(0x893c, 8), new(0x8940, 8),
-        new(0x8944, CommonEnemyInstructionCodes.Goto), new(0x8946, 0x8934),
-        new(0x8948, 0x0010),
-        new(0x894c, EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball),
-        new(0x894e, 0), new(0x8950, 0x0010),
-        new(0x8954, CommonEnemyInstructionCodes.Goto), new(0x8956, MovingLeft),
-        new(0x8958, EnemyInstructionCodePointers.Instruction_Stoke_SetMovingRight),
-        new(0x895a, 8), new(0x895e, 0x0010), new(0x8962, 8), new(0x8966, 8),
-        new(0x896a, CommonEnemyInstructionCodes.Goto), new(0x896c, 0x895a),
-        new(0x896e, 0x0010),
-        new(0x8972, EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball),
-        new(0x8974, 1), new(0x8976, 0x0010),
-        new(0x897a, CommonEnemyInstructionCodes.Goto), new(0x897c, MovingRight),
-    ];
+    /// <summary>
+    /// $A2:8934/8938/893C/8940, repeated for right-facing movement: original walking holds.
+    /// The longer second pose has no established mathematical or semantic timing derivation.
+    /// This value input remains required issue-1165 work; calculating the program layout does not resolve it.
+    /// </summary>
+    private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
+    // Attack holds of 16 also remain independent required inputs under #1165.
+    internal static int MechanicsWordCount => 26;
+    internal static int PresentationWordCount => 12;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x8936, 0x893a, 0x893e, 0x8942, 0x894a, 0x8952,
-        0x895c, 0x8960, 0x8964, 0x8968, 0x8970, 0x8978,
-    ];
+    internal static StokeInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int side = index / 13;
+        int local = index % 13;
+        ushort move = side == 0 ? MovingLeft : MovingRight;
+        if (local == 0)
+            return new(move, side == 0 ? EnemyInstructionCodePointers.Instruction_Stoke_SetMovingLeft
+                : EnemyInstructionCodePointers.Instruction_Stoke_SetMovingRight);
+        if (local < 5)
+            return new((ushort)(move + 2 + 4 * (local - 1)), WalkingFrameDurations[local - 1]);
+        if (local < 7)
+            return new((ushort)(move + 18 + 2 * (local - 5)), local == 5 ? CommonEnemyInstructionCodes.Goto : (ushort)(move + 2));
+        ushort attack = side == 0 ? AttackingLeft : AttackingRight;
+        int word = local - 7;
+        int offset = word == 0 ? 0 : word < 4 ? 2 + 2 * word : 4 + 2 * word;
+        ushort value = word switch
+        {
+            0 or 3 => 16,
+            1 => EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball,
+            2 => (ushort)side,
+            4 => CommonEnemyInstructionCodes.Goto,
+            _ => move,
+        };
+        return new((ushort)(attack + offset), value);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static StokeInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        int local = index % 6;
+        ushort move = index < 6 ? MovingLeft : MovingRight;
+        ushort attack = index < 6 ? AttackingLeft : AttackingRight;
+        return (ushort)(local < 4 ? move + 4 + 4 * local : attack + 2 + 8 * (local - 4));
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            StokeInstructionMechanicsWord candidate = Words[middle];
+            StokeInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -74,9 +90,9 @@ internal static class StokeInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

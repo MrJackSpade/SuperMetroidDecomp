@@ -26,6 +26,7 @@ internal static partial class Program
         }
 
         var guard = new StokeProjectileInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -74,16 +75,18 @@ internal static partial class Program
             "Stoke projectile shot reaction reaches the compiled shared delete program");
 
         AssertEqual(StokeProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both live Stoke-projectile spritemap operands remain cartridge reads");
+            selectedPresentation.Count,
+            "both Stoke-projectile native presentation operands execute");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Stoke projectile uses compiled presentation without ROM reads");
         for (int index = 0;
              index < StokeProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = StokeProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Stoke-projectile presentation $86:{address:X4}");
+            AssertTrue(selectedPresentation.Contains(address),
+                $"production execution selects Stoke-projectile presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -104,8 +107,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Stoke-projectile instruction mechanics: four compiled words, both real " +
-            "directions, complete loops, shared shot deletion, and both live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "directions, complete loops, shared shot deletion, and both installed native " +
+            "operands pass with source reads forbidden.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -113,6 +116,13 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                if (projectile.IsActive)
+                {
+                    ushort expected = (ushort)(StokeProjectileInstructionProgramDefinitions.Initial + 2 + 4 * (tick % 2));
+                    AssertEqual(expected, projectile.PresentationOperandAddress,
+                        "Stoke projectile actual installed operand matches native loop step");
+                    selectedPresentation.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

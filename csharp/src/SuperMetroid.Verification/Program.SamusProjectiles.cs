@@ -132,8 +132,12 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
             (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
     }
-    WriteTestWord(bus, 0x90c3b1, 0x8000);
-    WriteTestWord(bus, 0x90c3c9, 0xc3e1);
+    // Installed catalogs require every legal selection; share this fixture sheet.
+    for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+    {
+        WriteTestWord(bus, 0x90c3b1 + selection * 2, 0x8000);
+        WriteTestWord(bus, 0x90c3c9 + selection * 2, 0xc3e1);
+    }
     for (int index = 0; index < 0x100; index++)
         bus.WriteByte(0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
     for (int index = 0; index < 16; index++)
@@ -249,10 +253,12 @@ static void VerifySamusPowerBeamProjectiles()
     var beamVram = new SnesVram();
     var beamCgram = new SnesCgram();
     var beamWrites = new VramWriteQueue();
-    var beamGraphics = new SamusProjectileSystem();
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
+    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
+    var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
+    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram,
+        equippedBeams: 0, artwork: beamArtwork);
     AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
-    beamWrites.DrainTo(beamVram, ReferenceMutableMemory.From(bus));
+    beamWrites.DrainTo(beamVram, ReferenceMutableMemory.From(bus), beamArtwork);
     AssertEqual(0x5a, beamVram.ReadByte(0x6300 * 2),
         "power beam tiles begin at VRAM word $6300");
     AssertEqual(0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),

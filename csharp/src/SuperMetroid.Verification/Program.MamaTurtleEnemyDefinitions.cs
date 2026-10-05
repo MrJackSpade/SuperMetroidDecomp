@@ -26,11 +26,13 @@ internal static partial class Program
         }
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
+        var installation = runtimeFixtureInstallation.Value;
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room, installation.LoadRoomCharacters(),
+            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,

@@ -7,7 +7,9 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Botwoon);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var installation = runtimeFixtureInstallation.Value;
+        var assets = CartridgeRoomAssets.Load(bus, room, installation.LoadRoomCharacters(),
+            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var plms = new RoomPlmSystem();
         for (int i = 0; i < 40; i++)
         {

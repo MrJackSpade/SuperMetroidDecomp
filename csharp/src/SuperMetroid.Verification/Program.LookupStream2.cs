@@ -7,6 +7,42 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
+    {
+        var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
+        var accents = OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All;
+        AssertEqual(4, norfair.Count, "Four semantic Norfair owners");
+        AssertEqual(2, accents.Count, "Two semantic escape accent owners");
+        int count = 0;
+        foreach (var item in norfair)
+        {
+            AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorByteIndex, "Native Norfair palette/color role");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native Norfair loop target");
+            AssertEqual(norfair[count].ProgramStart, item.ProgramStart, "Indexed and enumerated Norfair identities agree");
+            count++;
+        }
+        AssertEqual(4, count, "Complete Norfair lazy enumeration");
+        count = 0;
+        foreach (var item in accents)
+        {
+            AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorByteIndex, "Native railings/panels color role");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
+            AssertEqual(accents[count].ProgramStart, item.ProgramStart, "Indexed and enumerated accent identities agree");
+            count++;
+        }
+        AssertEqual(2, count, "Complete accent lazy enumeration");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[-1]; }, "Norfair lower owner bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
+        VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(rom);
+        VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom);
+        Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
+    }
     private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);

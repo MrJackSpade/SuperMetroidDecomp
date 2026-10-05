@@ -363,7 +363,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs
 
-- [x] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **MochtroidInstructionProgramDefinitions.PresentationWords** ([L28](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs
@@ -595,7 +595,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs
 
-- [x] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RipperInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs
@@ -662,7 +662,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs
 
-- [x] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **YellowPipeBugInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff
@@ -1130,3 +1130,7 @@ The one visible caret is now a semantic registration property with calculated en
 The centered two-tile missile cursor is calculated across GameOver,FileSelect andGameOptions. GameOver Baby frames use centered16x16 geometry; the four8x8 specimen-container caps reflect around that center. Supplied tile identities and cursor ordering remain required, as do pixels; all three sprites entries stay unchecked. Native82:CBCB-CBFA/CFE0-D00A are the identified composition records.
 
 Root --lookup-menu-sprite-geometry passes all15native-imported parts/eight calculated GameOver compositions,135field edits including existing size rejection,reordering/expanded compositions,and all4cursor frames and edits through both other loaders. Verification1445warnings/0errors;ResourceAudit0/0. Both new geometry dependencies are pinned in the three provider contracts. Worker9961db125. Master551converted/16retained-mixed/561pending unchanged.
+
+### Reopened independent hold magnitudes
+
+Mochtroid Words14free-flight/5attached, YellowPipeBug Words4straight/1arc and Ripper Words8/7 remain required: earlier uniform-loop conversion did not derive these independent holds or establish an acceptable exception. Reopened all three Words entries; presentation/control calculations remain valid. Root reconciled master state from the source audit; aggregate now550 converted/16retained-mixed/562 pending after two environmental owner conversions.

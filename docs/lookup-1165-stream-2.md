@@ -248,7 +248,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
 
 - [x] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs
 
@@ -272,7 +272,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs
 
 - [ ] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations** ([L43](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions** ([L46](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions** ([L46](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
@@ -1069,3 +1069,7 @@ Both original areas/buttons entries remain REQUIRED. Selected frame/control plac
 The decoded native image is `C:\Users\SERVIC~1\AppData\Local\Temp\lookup1165-pause-backdrop.png`: a rectangular map frame with centered area text and named lower controls. It establishes the source-art roles, not permission to exempt chosen values. `--lookup-stream2-backdrop-geometry` calls VerifyLookupStream2BackdropGeometry inside guarded Main. It passes7680direct native words, exact15area/1button residual membership and values,53actual full-page VRAM loads with untouched surrounding memory,ten independent area/control edits and invalid destination/area bounds with no partial write. Initial build1438warnings/zero errors; removed the newly introduced argument-guard warning using existing Ensure helper, final production+verifier incremental1222warnings/zero errors. Focused confirmation passes again. Stream2 remains91resolved/135required.
 
 Root integrated5f90fd61fb9446c4d94eb0cf6a9cf99725be023c: viewed native backdrop, Verification1445warnings/0errors, focused7680native words/exact15area+1button residuals/53VRAM loads/10edits/bounds pass;ResourceAudit0/0. Aggregate551converted/16retained-mixed/561pending unchanged; both entries remain pending.
+
+### Integrated environmental owner catalogs
+
+Four Norfair heat/palette owners and two Old Tourian railings/panels owners use calculated definition/program/loop offsets and semantic CGRAM placements. Both Definitions entries complete; accent Durations and colors remain required. Root six native bindings,292mechanics words,16phase bytes,complete/repeating cycles,live colors,enumeration/bounds pass; Verification1445warnings/0errors. Worker67cbb0ed71ea4a75e452ab09799cb786123fcd9c.

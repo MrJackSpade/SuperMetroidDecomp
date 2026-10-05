@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 561,
+  "remainingTableDefinitionCount": 562,
   "fileCount": 523,
   "entries": [
     {
@@ -4752,7 +4752,7 @@
       "name": "MochtroidInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "1654bde7d17e104abc6881a82e969c27d2641394"
     },
     {
@@ -5309,7 +5309,7 @@
       "name": "NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    ,"state":"converted","implementationCommit":"67cbb0ed71ea4a75e452ab09799cb786123fcd9c"},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs",
       "line": 11,
@@ -5425,7 +5425,7 @@
       "name": "OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    ,"state":"converted","implementationCommit":"67cbb0ed71ea4a75e452ab09799cb786123fcd9c"},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
       "line": 39,
@@ -6101,7 +6101,7 @@
       "name": "RipperInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "76cea552eb13ce2e2555a5a3f1da846169ac3e89"
     },
     {
@@ -8764,7 +8764,7 @@
       "name": "YellowPipeBugInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "1654bde7d17e104abc6881a82e969c27d2641394"
     },
     {
@@ -21460,6 +21460,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 551,
+  "convertedSinceSnapshot": 550,
   "justifiedRetainedSinceSnapshot": 16
 }

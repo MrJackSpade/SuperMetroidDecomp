@@ -22,10 +22,10 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     public const ushort OrangeRailingsProgramStart = 0xfbc1;
 
     /// <summary><c>PalFxDef_Crateria20</c> at <c>$8D:FFE1</c>.</summary>
-    public const ushort YellowPanelsDefinitionPointer = 0xffe1;
+    public const ushort YellowPanelsDefinitionPointer = OrangeRailingsDefinitionPointer + 4;
 
     /// <summary><c>PalFxInstList_Crateria20</c> at <c>$8D:FC5F</c>.</summary>
-    public const ushort YellowPanelsProgramStart = 0xfc5f;
+    public const ushort YellowPanelsProgramStart = OrangeRailingsProgramStart + 4 + FrameCount * FrameByteCount + 4;
 
     /// <summary>Both loops contain fifteen timed records.</summary>
     public const int FrameCount = 15;
@@ -42,19 +42,31 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     private static readonly ushort[] Durations =
         [16, 1, 1, 2, 1, 2, 1, 1, 1, 1, 32, 2, 1, 1, 1];
 
-    private static readonly OldTourianEscapeAccentPaletteFxProgramDefinition[] Definitions =
-    [
-        new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-            OrangeRailingsDefinitionPointer, OrangeRailingsProgramStart, 0x00d2),
-        new(OldTourianEscapeAccentPaletteOwner.YellowPanels,
-            YellowPanelsDefinitionPointer, YellowPanelsProgramStart, 0x00aa),
-    ];
-    private static readonly IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
-
+    /// <summary>$8D:FBC1 selects $00D2: palette-six/color-nine railings.</summary>
+    private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
+    /// <summary>$8D:FC5F selects $00AA: palette-five/color-five panels.</summary>
+    private const ushort PanelsColorByteIndex = (5 * 16 + 5) * sizeof(ushort);
+    private static readonly ProgramDefinitions Definitions = new();
+    private sealed class ProgramDefinitions : IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public OldTourianEscapeAccentPaletteFxProgramDefinition this[int index] => index switch
+        {
+            (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
+                OrangeRailingsDefinitionPointer, OrangeRailingsProgramStart, RailingsColorByteIndex),
+            (int)OldTourianEscapeAccentPaletteOwner.YellowPanels => new(OldTourianEscapeAccentPaletteOwner.YellowPanels,
+                YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<OldTourianEscapeAccentPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The orange-railing and yellow-panel programs in definition order.</summary>
     public static IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

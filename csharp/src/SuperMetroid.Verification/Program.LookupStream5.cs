@@ -654,6 +654,25 @@ internal static partial class Program
         AssertEqual(6,((ushort[])typeof(CeresDoorVisualCatalog).GetField("animationSeeds",flags)!.GetValue(stock)!).Length,"Ceres animation retains six unresolved seeds");
         AssertEqual(4,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationPhaseResiduals",flags)!.GetValue(stock)!).Count,"Ceres animation retains four unresolved phase colors");
         AssertEqual(0,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationRowEdits",flags)!.GetValue(stock)!).Count,"stock reverse phases require no row storage");
+        AssertEqual(9, ((ushort[])typeof(CeresDoorVisualCatalog).GetField("escapeUniqueColors", flags)!
+            .GetValue(stock)!).Length, "Nine independent escape colors remain pending");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorVisualCatalog).GetField("escapeSharedEdits", flags)!
+            .GetValue(stock)!).Count, "Stock escape colors share six normal palette slots");
+        for (int palette = 0; palette < 2; palette++)
+        for (int color = 0; color < 15; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var colors = (PaletteRgb5[])(palette == 0 ? document.Normal : document.Escape).Clone();
+            PaletteRgb5 before = colors[color];
+            colors[color] = channel switch
+            {
+                0 => before with { Red = before.Red ^ 1 },
+                1 => before with { Green = before.Green ^ 1 },
+                _ => before with { Blue = before.Blue ^ 1 },
+            };
+            var changed = palette == 0 ? document with { Normal = colors } : document with { Escape = colors };
+            Check(Load(changed), changed);
+        }
         for (int edited = 0; edited <48; edited++)
         {
             var rows = document.Animation.Select(row => row.ToArray()).ToArray();
@@ -664,7 +683,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
-        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM, untouched setup colors and canonical identities pass; six seeds/four phase residuals remain pending.");
+        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; seed colors and four phase residuals remain pending.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {

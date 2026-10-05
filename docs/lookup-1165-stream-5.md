@@ -951,3 +951,7 @@ Root Verification build: 1445 warnings, zero errors. --lookup-stream5-zebes-star
 Calculated 27 control positions and 19 visual addresses from shared directional introductions, movement handoffs and floor splash. Splash holds 12/10/10/8/8 descend by two every two phases. Native 86:CF34-CF8F confirms the supported layout. Introduction holds 3/3/4/3/1 remain explicit unresolved inputs; Words stays unchecked without an exception. Integrated checkpoint: 74 converted, two mixed, one retained, 148 required.
 
 Root Verification build: 1445 warnings, zero errors. --kihunter-acid-spit-instruction-mechanics passed 27 native controls, both real directional producers, movement handoffs, sleeps, floor impact, full splash, shared deletion, 19 native selectors without ROM reads, bounds and allocation checks.
+
+### Ceres door setup palette sharing integration
+Native A6:F4FE-F509 and F51E-F529 share six setup colors (palette slots 9..14). Escape now reads those from normal colors with sparse overrides preserving independent supplied edits. Nine unique escape colors and all independent normal choices remain required. Escape stays unchecked; no exception and no completion-count change.
+Root Verification build: 1445 warnings, zero errors. --lookup-stream5-ceres-door-ramp passed 78 native setup/animation colors, 90 setup RGB edits, 48 animation edits, actual CGRAM, zero stock shared-slot overrides and canonical identities. ResourceAudit build: zero warnings/errors; source hash refreshed.

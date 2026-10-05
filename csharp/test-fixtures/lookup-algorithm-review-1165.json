@@ -11413,4 +11413,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Shared directional and splash layouts calculate 27 control positions and 19 visual addresses; splash durations descend by two every two phases.",
     "remaining":  "Words required: introduction holds 3/3/4/3/1 have no exception. 498 converted, 15 justified retained/mixed, 615 pending."
+},"ceresSetupPaletteSharingIntegration":{
+    "scope":  "CeresDoorVisualCatalog.escape remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. Focused check passed 78 native setup/animation colors, 90 setup RGB edits, 48 animation edits, actual CGRAM, zero stock shared-slot overrides and exact content identities. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "37afd21ad7366d530627b6db218fe0fe83496b70",
+    "state":  "partial-required",
+    "algorithm":  "Six native setup palette slots 9..14 share normal colors. Only nine independent escape colors and sparse custom overrides remain stored; edits to either palette preserve the other supplied state.",
+    "remaining":  "Independent normal/escape colors, animation seeds and phase residuals remain required. No exception. Counts unchanged: 498 converted, 15 justified retained/mixed, 615 pending."
 }}

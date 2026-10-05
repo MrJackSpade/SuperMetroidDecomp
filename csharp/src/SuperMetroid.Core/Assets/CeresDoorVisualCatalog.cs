@@ -13,7 +13,9 @@ public sealed class CeresDoorVisualCatalog
         {
             content.Append("tiles", tiles.Transfer.Span);
             content.AppendWords("normal", normal);
-            content.AppendWords("escape", escape);
+            Span<ushort> escapeColors = stackalloc ushort[CeresDoorVisualRomData.SetupColorCount];
+            for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = EscapeColor(color);
+            content.AppendWords("escape", escapeColors);
             content.Append("animation", CeresDoorVisualRomData.AnimationRowCount);
             Span<ushort> rowColors = stackalloc ushort[CeresDoorVisualRomData.AnimationColorCount];
             for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
@@ -28,7 +30,8 @@ public sealed class CeresDoorVisualCatalog
 
     private readonly RoomCharacterAtlas tiles;
     private readonly ushort[] normal;
-    private readonly ushort[] escape;
+    private readonly ushort[] escapeUniqueColors;
+    private readonly Dictionary<int, ushort> escapeSharedEdits = [];
     private readonly ushort[] animationSeeds;
     private readonly Dictionary<int, ushort> animationPhaseResiduals = [];
     private readonly Dictionary<int, ushort> animationRowEdits = [];
@@ -39,7 +42,13 @@ public sealed class CeresDoorVisualCatalog
     {
         this.tiles = tiles;
         this.normal = normal;
-        this.escape = escape;
+        // The two native states share slots9..14; their other colors remain
+        // independent unresolved choices. Preserve edits to either state separately.
+        escapeUniqueColors = new ushort[9];
+        Array.Copy(escape, escapeUniqueColors, 8);
+        escapeUniqueColors[8] = escape[14];
+        for (int color = 8; color < 14; color++)
+            if (escape[color] != normal[color]) escapeSharedEdits.Add(color, escape[color]);
         animationSeeds = animation[1];
         for (int phase = 0; phase < CeresDoorVisualRomData.AnimationRowCount / 2; phase++)
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
@@ -105,8 +114,23 @@ public sealed class CeresDoorVisualCatalog
     public void LoadNormalColors(SnesCgram cgram, int destination) =>
         LoadColors(cgram, normal, destination);
 
-    public void LoadEscapeColors(SnesCgram cgram, int destination) =>
-        LoadColors(cgram, escape, destination);
+    public void LoadEscapeColors(SnesCgram cgram, int destination)
+    {
+        Ensure.NotNull(cgram);
+        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > SnesCgram.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(destination));
+        for (int color = 0; color < CeresDoorVisualRomData.SetupColorCount; color++)
+            cgram.SetColor(destination + color, EscapeColor(color));
+    }
+
+    /// <summary>
+    /// $A6:F4FE-F509 andF51E-F529 share six yellow/red colors in normal and escape
+    /// states (palette slots9..14). The other nine escape colors remain independent
+    /// supplied data; sharing alone does not resolve those RGB5 choices.
+    /// </summary>
+    private ushort EscapeColor(int color) => color is >= 8 and < 14
+        ? escapeSharedEdits.TryGetValue(color, out ushort edited) ? edited : normal[color]
+        : escapeUniqueColors[color < 8 ? color : 8];
 
     public void LoadAnimationColors(SnesCgram cgram, int row)
     {

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 592,
+  "remainingTableDefinitionCount": 591,
   "fileCount": 523,
   "entries": [
     {
@@ -8150,7 +8150,9 @@
       "line": 48,
       "name": "SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ed296b4b3933e53fccc7cd6576e372bd6c532add"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs",

@@ -11581,4 +11581,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Paired swimming/turning record widths derive 32 control positions and 22 visual addresses; mirror four turn durations.",
     "remaining":  "Words required: swimming 14 and turn-half 13/10/8/6. No exception. 521 converted, 15 justified retained/mixed, 592 pending."
+},"sporeProjectileStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twenty-eight native words, three real producers, release/loop/shot instruction paths, callbacks/drop/deletion, 17 selected native operands, guards/bounds/allocations pass. Fixture advances timers; no claim of separate elapsed-time simulation.",
+    "completed":  "SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "a545a9d929695633cd0577d25068a487e6427328 with ed296b4b3933e53fccc7cd6576e372bd6c532add correction",
+    "state":  "partial-one-converted",
+    "algorithm":  "Native record widths/callback boundaries calculate 28 control positions and 17 presentation addresses.",
+    "remaining":  "Words required: release 1/6/16/6/1, shot 1/3/6/5/5/5/6, closed 1, airborne/stalk 5. No exception. 522 converted, 15 justified retained/mixed, 591 pending."
 }}

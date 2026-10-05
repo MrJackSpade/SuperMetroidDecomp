@@ -621,7 +621,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs
 
 - [ ] **SporeSpawnProjectileInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs
 
@@ -1075,3 +1075,9 @@ Root Verification build passed with 1445 warnings and zero errors. --lookup-stre
 PresentationWords is complete: paired swimming/turning blocks calculate 32 control positions and 22 visual addresses using native record widths at A3:902A-9095. Layer callbacks, loop targets, turn-completion callback and sleep retain their named behaviors. Words remains unchecked: swimming hold 14 and four turn-half holds 13/10/8/6 remain required independent inputs. Mirroring removes repetition without excusing those inputs; the worker's corrected timing treatment is included, and root review also tracks swimming cadence. No exception is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. --skultera-instruction-mechanics confirms all 32 native words, both swimming loops and turns, layer/completion callbacks, terminal sleeps, 22 compiled visual selectors, source-read guards, bounds and allocations. Overall checkpoint: 521 converted, 15 justified retained/mixed, 592 pending.
+
+## Integrated Spore Spawn projectile layout
+
+PresentationWords is complete: native 86:DC00-DC58 record widths and callback boundaries calculate 28 control positions and 17 visual addresses for ceiling emitter, release, airborne spore, stalk and shot/drop programs. Words remains unchecked. Release holds 1/6/16/6/1, shot holds 1/3/6/5/5/5/6, closed-emitter hold 1 and airborne/stalk holds 5 remain required independent inputs. Includes the worker's timing correction and root's explicit tracking of the fixed holds. No exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --spore-spawn-projectile-instruction-mechanics confirms all 28 native words, all three real producers, release/loop/shot instruction paths, spawn/drop/property callbacks, all 17 actual presentation operand selections, zero source reads, bounds and allocations. The path fixture advances timers explicitly; this confirms instruction selection and native duration words, not a separate elapsed-time simulation. Overall checkpoint: 522 converted, 15 justified retained/mixed, 591 pending.

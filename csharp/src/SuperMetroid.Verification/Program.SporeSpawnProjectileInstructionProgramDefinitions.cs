@@ -27,6 +27,7 @@ internal static partial class Program
         }
 
         var guard = new SporeSpawnProjectileInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -50,30 +51,30 @@ internal static partial class Program
         body.YPosition = 256;
         spawnSpawner(body, 0);
         RoomEnemyProjectileSlot spawner = Single(RoomEnemyProjectileKind.SporeSpawnSpawner);
-        Run(spawner, 2);
+        Run(spawner, 2, [0xdc02]);
         AssertEqual((ushort)0xdc04, spawner.InstructionPointer,
             "closed ceiling emitter reaches terminal sleep");
         AssertEqual((ushort)0, spawner.InstructionTimer,
             "closed ceiling emitter remains dormant at sleep");
         spawner.InstructionPointer = SporeSpawnProjectileInstructionProgramDefinitions.SpawnerRelease;
-        Run(spawner, 6);
+        Run(spawner, 6, [0xdc08, 0xdc0c, 0xdc12, 0xdc16, 0xdc1a]);
         AssertEqual((ushort)0xdc1c, spawner.InstructionPointer,
             "ceiling emitter completes its release and reaches sleep");
 
         RoomEnemyProjectileSlot spore = Single(RoomEnemyProjectileKind.SporeSpawnSpore);
-        Run(spore, 4);
+        Run(spore, 4, [0xdc20, 0xdc24, 0xdc28, 0xdc20]);
         AssertEqual((ushort)0xdc22, spore.InstructionPointer,
             "airborne spore completes and restarts its three-pose loop");
 
         spawnStalk(body, 0);
         RoomEnemyProjectileSlot stalk = Single(RoomEnemyProjectileKind.SporeSpawnStalk);
-        Run(stalk, 2);
+        Run(stalk, 2, [0xdc30]);
         AssertEqual((ushort)0xdc32, stalk.InstructionPointer,
             "stalk reaches terminal sleep after its display frame");
 
         spore.InstructionPointer = SporeSpawnProjectileInstructionProgramDefinitions.SporeShot;
         spore.InstructionTimer = 1;
-        Run(spore, 8);
+        Run(spore, 8, [0xdc36, 0xdc3c, 0xdc40, 0xdc44, 0xdc4a, 0xdc4e, 0xdc52]);
         AssertTrue(!spore.IsActive,
             "shot spore completes its seven-frame explosion/drop path and deletes");
         AssertEqual(1, enemies.SporeSpawnDropRequests.Count,
@@ -82,8 +83,10 @@ internal static partial class Program
             "shot spore property callback clears damage before deletion");
 
         AssertEqual(SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Spore Spawn projectile spritemaps remain cartridge reads");
+            selectedPresentation.Count,
+            "all native Spore Spawn projectile presentation operands execute");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Spore Spawn projectiles use compiled presentation without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Spore Spawn projectile mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -103,21 +106,29 @@ internal static partial class Program
         Console.WriteLine(
             "Spore Spawn projectile instruction mechanics: twenty-eight compiled words, " +
             "all three real producers, complete release/loop/shot paths, and seventeen " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "installed native operands pass with source reads forbidden.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
             enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
 
-        void Run(RoomEnemyProjectileSlot projectile, int frames)
+        void Run(RoomEnemyProjectileSlot projectile, int frames, ReadOnlySpan<ushort> nativeOperands)
         {
+            int draw = 0;
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                if (projectile.IsActive && projectile.InstructionTimer != 0)
+                {
+                    AssertTrue(draw < nativeOperands.Length, "Spore Spawn has no extra draw steps");
+                    AssertEqual(nativeOperands[draw++], projectile.PresentationOperandAddress,
+                        "Spore Spawn actual installed operand matches native program step");
+                    selectedPresentation.Add(projectile.PresentationOperandAddress);
+                }
             }
+            AssertEqual(nativeOperands.Length, draw, "Spore Spawn executes every expected draw step");
         }
     }
-
     private static int ProbeSporeSpawnProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;

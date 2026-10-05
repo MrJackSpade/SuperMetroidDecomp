@@ -1417,4 +1417,43 @@ internal static partial class Program
         Console.WriteLine($"Escape text: five direct native lines, zero stock overrides, independent edits/line counts and {totalFrames} actual native-oracle frames pass.");
     }
 
+    private static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
+    {
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
+            SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
+            SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
+        var stock = Load(document);
+        var field = typeof(SamusVisorColorCatalog).GetField("colors",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, ushort> Stored(SamusVisorColorCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
+        ushort Native(int index)
+        {
+            int address = SamusVisorColorFormat.SourceAddress + index * 2;
+            return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        }
+        AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");
+        AssertEqual(Native(0), SamusVisorColorDefinitions.WideningStart, "visor required widening basis");
+        AssertEqual(Native(3), SamusVisorColorDefinitions.FullBeamStart, "visor required full-beam basis");
+        for (int channel = 0; channel < 3; channel++)
+            AssertEqual(SamusVisorColorDefinitions.DarkeningStep,
+                ((Native(3) >> (channel * 5)) & 31) - ((Native(4) >> (channel * 5)) & 31), "visor required darkening basis");
+        for (int edited = 0; edited < SamusVisorColorFormat.ColorCount; edited++)
+        {
+            AssertEqual(Native(edited), SamusVisorColorDefinitions.Color(edited), $"visor direct native default {edited}");
+            var changedColors = document.Colors.ToArray();
+            ushort changedWord = (ushort)(Native(edited) ^ 0x7FFF);
+            changedColors[edited] = new PaletteRgb5 { Red = changedWord & 31, Green = (changedWord >> 5) & 31, Blue = changedWord >> 10 };
+            var changed = Load(document with { Colors = changedColors });
+            AssertEqual(1, Stored(changed).Count, "visor independent edit stores exactly one exception");
+            AssertEqual(changedWord, Stored(changed)[edited], "visor exception preserves supplied RGB5");
+            for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
+                AssertEqual(index == edited ? changedWord : Native(index), changed.Resolve(index), "visor supplied edit is independent");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1), "visor rejects negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(6), "visor rejects next index");
+        AssertTrue(!stock.TryResolveByteOffset(-2, out _), "visor rejects negative offset");
+        Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
+    }
+
 }

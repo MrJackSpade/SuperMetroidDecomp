@@ -26,6 +26,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-1-visor-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyLookupStream1VisorColors(rom);
+    VerifySamusVisorColors();
+    return 0;
+}
 if (args is ["--lookup-stream-1-owtch-cadence"])
 {
     VerifyOwtchInstructionProgramDefinitions(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

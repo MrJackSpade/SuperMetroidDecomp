@@ -2807,6 +2807,8 @@
     }
   ],
   "additionalOwnership": [
+{"path":"csharp/src/SuperMetroid.Verification/Program.SamusVisorColors.cs","purpose":"Supply independent native colors to two stale baseline fixtures; preserve all existing assertions","stream":1},
+{"path":"csharp/src/SuperMetroid.Core/Assets/SamusVisorColorDefinitions.cs","purpose":"Calculate visor phases; full-beam ink and darkening step remain required","stream":1},
 {"path":"csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkDefinitions.cs","purpose":"Calculate consecutive atmospheric OBJ identities; palette and priority remain required inputs","stream":1},
     {
       "stream": 1,

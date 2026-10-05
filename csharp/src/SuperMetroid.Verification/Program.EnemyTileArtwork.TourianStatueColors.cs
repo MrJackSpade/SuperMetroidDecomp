@@ -34,31 +34,31 @@ internal static partial class Program
         var guard = new TourianStatueColorReadGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            (RoomEnemySystem native, SnesCgram nativeCgram) = CreateEnemy(bus, null);
+            SnesCgram nativeCgram = SeedColors();
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
-            Initialize(native, parameter);
+            ReferenceEntrance(nativeCgram);
             Initialize(installed, parameter);
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
-            AssertEqual(native.Slots[0].CurrentInstruction,
+            AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 installed.Slots[0].CurrentInstruction,
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
-            AssertEqual(native.EnemyProjectiles.Count(x => x.IsActive),
+            AssertEqual(parameter == 0 ? 3 : 0,
                 installed.EnemyProjectiles.Count(x => x.IsActive),
                 $"Tourian statue entry parameter {parameter} keeps spawned actors");
         }
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
-            (RoomEnemySystem native, SnesCgram nativeCgram) = CreateEnemy(bus, null);
+            SnesCgram nativeCgram = SeedColors();
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
-            native.SpawnTourianUnlockEffect(parameter, soul: false);
+            ReferenceEye(nativeCgram, parameter);
             installed.SpawnTourianUnlockEffect(parameter, soul: false);
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 $"Tourian eye parameter {parameter} preserves full native CGRAM");
-            AssertEqual(native.EnemyProjectiles.Single(x => x.IsActive).XPosition,
+            AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
                 installed.EnemyProjectiles.Single(x => x.IsActive).XPosition,
                 $"Tourian eye parameter {parameter} keeps physical X");
-            AssertEqual(native.EnemyProjectiles.Single(x => x.IsActive).YPosition,
+            AssertEqual(new ushort[] { 0x90, 0x51, 0x80, 0x72 }[parameter / 2],
                 installed.EnemyProjectiles.Single(x => x.IsActive).YPosition,
                 $"Tourian eye parameter {parameter} keeps physical Y");
         }
@@ -76,17 +76,17 @@ internal static partial class Program
         changed["eye"]![2]![1]!["blue"] = changed["eye"]![2]![1]!["blue"]!.GetValue<int>() ^ 1;
         File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        (RoomEnemySystem nativeEntry, SnesCgram nativeEntryCgram) = CreateEnemy(bus, null);
+        SnesCgram nativeEntryCgram = SeedColors();
         (RoomEnemySystem editedEntry, SnesCgram editedEntryCgram) = CreateEnemy(guard, edited);
-        Initialize(nativeEntry, 0);
+        ReferenceEntrance(nativeEntryCgram);
         Initialize(editedEntry, 0);
         CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
             [(TourianStatuePaletteRomData.BaseCgramIndex + 1, 1),
              (TourianStatuePaletteRomData.StatueCgramIndex + 1, 1 << 5)],
             "Tourian entrance edit");
-        (RoomEnemySystem nativeEye, SnesCgram nativeEyeCgram) = CreateEnemy(bus, null);
+        SnesCgram nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SnesCgram editedEyeCgram) = CreateEnemy(guard, edited);
-        nativeEye.SpawnTourianUnlockEffect(4, soul: false);
+        ReferenceEye(nativeEyeCgram, 4);
         editedEye.SpawnTourianUnlockEffect(4, soul: false);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
             [(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
@@ -102,22 +102,33 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, greyBytes);
         EnemyTileArtworkCatalog editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var nativeRoom = CreateGreyRoom(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), null);
         var installedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), stock);
         var editedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), editedGrey);
-        nativeRoom.TourianStatues.StepTiles(nativeRoom);
+        // Use the room's pre-step palette as the unchanged background, then apply
+        // only the native grey instruction writes read from the four retail programs.
+        var nativeGreyCgram = new SnesCgram();
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            nativeGreyCgram.SetColor(color, installedRoom.Cgram.Colors[color]);
+        var greyDestinations = new List<int>();
+        foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
+        {
+            AssertEqual((ushort)0x837f, ReadReferenceWord(program + 0x62),
+                "native statue program grey-palette instruction");
+            int destination = ReadReferenceWord(program + 0x64) / 2;
+            greyDestinations.Add(destination);
+            CopyReferenceColors(nativeGreyCgram, 0x87839c, destination, 8);
+        }
         installedRoom.TourianStatues.StepTiles(installedRoom);
         editedRoom.TourianStatues.StepTiles(editedRoom);
-        AssertTrue(nativeRoom.Cgram.Colors.SequenceEqual(installedRoom.Cgram.Colors),
+        AssertTrue(nativeGreyCgram.Colors.SequenceEqual(installedRoom.Cgram.Colors),
             "Tourian grey room instruction preserves full native CGRAM");
-        var differences = TourianStatueAnimatedTileMechanicsDefinitions.All
-            .Select(definition => (Index: definition.TargetPaletteByteIndex / 2 + 1,
-                Mask: 1 << 10)).ToArray();
-        CheckOnlyDifferences(nativeRoom.Cgram, editedRoom.Cgram, differences,
+        var differences = greyDestinations
+            .Select(destination => (Index: destination + 1, Mask: 1 << 10)).ToArray();
+        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Cgram, differences,
             "Tourian grey room instruction edit");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");
@@ -155,14 +166,40 @@ internal static partial class Program
                 $"Tourian statue palette source ${address:X6}");
         }
 
-        static (RoomEnemySystem, SnesCgram) CreateEnemy(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog? artwork)
+        // Native palette writes from $AA:D7C8 and $86:B88E, independent of the
+        // installed catalog and production callbacks used on the actual side.
+        void ReferenceEntrance(SnesCgram cgram)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var enemy = new RoomEnemySystem { TileArtwork = artwork };
+            CopyReferenceColors(cgram, 0xaad785, 240, 16);
+            CopyReferenceColors(cgram, 0xaad765, 160, 16);
+        }
+
+        void ReferenceEye(SnesCgram cgram, ushort parameter) =>
+            CopyReferenceColors(cgram, 0x86b91e + parameter * 4, 249, 4);
+
+        void CopyReferenceColors(SnesCgram cgram, int source, int destination, int count)
+        {
+            for (int color = 0; color < count; color++)
+                cgram.SetColor(destination + color, ReadReferenceWord(source + color * 2));
+        }
+
+        ushort ReadReferenceWord(int address) =>
+            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+
+        static SnesCgram SeedColors()
+        {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, (ushort)(color * 31));
+            return cgram;
+        }
+
+        static (RoomEnemySystem, SnesCgram) CreateEnemy(
+            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var enemy = new RoomEnemySystem { TileArtwork = artwork };
+            SnesCgram cgram = SeedColors();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemy, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemy, cgram);
             return (enemy, cgram);
@@ -178,9 +215,9 @@ internal static partial class Program
         }
 
         static SuperMetroidRuntime CreateGreyRoom(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog? artwork)
+            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var runtime = new SuperMetroidRuntime(source, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(source, playerInvincibilityEnabled: true);
             runtime.Enemies.TileArtwork = artwork;
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

@@ -21,6 +21,31 @@ internal static partial class Program
 
     private static SamusBombProjectileSystem CreateBombFixture() =>
         new() { FrameBindings = projectileFixtureArt.Value.FrameBindings, PowerBombExplosion = { PresentationColors = RetailPresentationFixture().PowerBombFixedColors } };
+    private static readonly Lazy<Action<SamusState>> samusFixtureBindings = new(() =>
+    {
+        var maps = RetailPresentationFixture();
+        var body = runtimeFixtureInstallation.Value.LoadSamusBodyArt();
+        var grapple = projectileFixtureArt.Value.GrappleTiles;
+        return samus =>
+        {
+            samus.SuitColors = maps.SamusSuitColors;
+            samus.FullBodyCycleColors = maps.SamusFullBodyCycleColors;
+            samus.ChargeColors = maps.SamusChargeColors;
+            samus.VisorPalette.PresentationColors = maps.SamusVisorColors;
+            samus.Xray.PresentationColors = maps.SamusVisorColors;
+            samus.Drained.PresentationColors = maps.SamusHyperBeamColors;
+            samus.TileTransfers.BindArtwork(body);
+            samus.ArmCannon.Artwork = body.ArmCannon;
+            samus.Grapple.FlarePlacement = grapple.FlarePlacement;
+            samus.Grapple.SwingFrames = grapple.SwingFrames;
+        };
+    });
+
+    private static SamusState PrepareRetailSamusFixture(SamusState samus)
+    {
+        samusFixtureBindings.Value(samus);
+        return samus;
+    }
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeFixtureBindings =
         new(CreateRuntimeFixtureBindings);
 

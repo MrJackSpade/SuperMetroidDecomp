@@ -25,7 +25,7 @@ internal static partial class Program
         {
             var pickup = new SamusSuitPickupState();
             AssertTrue(SamusSuitPickupRenderer.Capture(pickup) is null, "inactive suit emits no operation");
-            var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
+            var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseIds.FacingRightNormalPose });
             pickup.Begin(bus, samus, 0, 0, kind);
             var phases = new HashSet<byte>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
@@ -48,7 +48,7 @@ internal static partial class Program
 
         foreach (ushort centerX in new ushort[] { 128, 65500, 290 })
         {
-            var explosion = new SamusPowerBombExplosionState();
+            var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
             AssertTrue(SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, 0, 0) is null,
                 "inactive Power Bomb emits no operation");
             explosion.Arm(); explosion.Spawn(centerX, 120);

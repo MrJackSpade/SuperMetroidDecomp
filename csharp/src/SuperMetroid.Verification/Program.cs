@@ -46,6 +46,7 @@ VerifySamusMorphBallMovement();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 return 0; }
+if (args is ["--color-window-fixture"]) { VerifyColorWindowSnapshots(); return 0; }
 if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }
 if (args is ["--mutable-memory-boundary"]) { VerifySuperMetroidAddressSpace(); return 0; }
 if (args is ["--pause-fixtures"])

@@ -26,7 +26,7 @@ internal static partial class Program
                 emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
                    empty.IsEmpty,
             "walking Pirate initial empty frame is a compiled draw identity");
-        OamBuffer nativeEmpty = DrawExtended(null, rom, emptyPointer,
+        OamBuffer nativeEmpty = DrawReferenceExtendedFrame(rom, EnemyExtendedFrameDefinitions.Bank, emptyPointer,
             0x0040, 0x0080);
         OamBuffer installedEmpty = DrawExtended(stock, guard, emptyPointer,
             0x0040, 0x0080);
@@ -35,7 +35,6 @@ internal static partial class Program
                    nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
             "walking Pirate common empty frame draws without ROM reads");
         VerifySharedEmptyExtendedFrames(rom, stock);
-        VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
         VerifyInstalledCeresSteamInstructionFrames(stock);
         VerifyInstalledOumVisualSelectors(rom, stock);
         VerifyInstalledCrocomireTongueVisualSelectors(rom, stock);
@@ -59,7 +58,7 @@ internal static partial class Program
                          (0x0000, 0x0000),
                      })
             {
-                OamBuffer native = DrawExtendedForBank(null, rom,
+                OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, x, y);
                 OamBuffer installed = DrawExtendedForBank(stock, guard,
                     frame.Bank, frame.Pointer, x, y);
@@ -69,6 +68,8 @@ internal static partial class Program
                     $"installed extended {frame.Name} matches native OAM at {x:X4},{y:X4}");
             }
         }
+        Console.WriteLine("  Extended enemy OAM: every installed composition matches native component offsets, clipping, and packed sprite bytes at all three fixture origins.");
+        VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
         AssertEqual(EnemyExtendedFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
@@ -1711,7 +1712,35 @@ internal static partial class Program
             ? "draygon_oam_" + name["spore_spawn_oam_".Length..]
             : name;
 
-    private static OamBuffer DrawExtended(EnemyTileArtworkCatalog? art,
+    // Independent native extended-spritemap OAM walker ($A0: drawing path).
+    // BG2 streams are covered by their dedicated fixture; this comparison owns
+    // only component offsets, clipping, and the packed sprite compositions.
+    private static OamBuffer DrawReferenceExtendedFrame(
+        ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y)
+    {
+        byte ReadByte(int address) => bus.ReadByte((bank << 16) | (address & 0xffff));
+        ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
+        var oam = new OamBuffer();
+        int count = ReadByte(pointer); // The high header byte is draw metadata.
+        for (int index = 0; index < count; index++)
+        {
+            int component = pointer + 2 + index * 8;
+            ushort sprite = ReadWord(component + 4);
+            if (ReadWord(sprite) == 0xfffe)
+                continue;
+            ushort componentX = unchecked((ushort)(x + ReadWord(component)));
+            ushort componentY = unchecked((ushort)(y + ReadWord(component + 2)));
+            if (((componentX + 128) & 0xfe00) != 0 ||
+                ((componentY + 128) & 0xfe00) != 0)
+                continue;
+            DrawImportedEnemySpritemap(bus, oam, bank, sprite, componentX,
+                componentY, 0, 0, clipVerticalWrap: true,
+                originYIsOnScreen: (componentY >> 8) == 0);
+        }
+        return oam;
+    }
+
+    private static OamBuffer DrawExtended(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
         Action<RoomEnemySlot>? inspect = null)
     {
@@ -1733,7 +1762,7 @@ internal static partial class Program
         // A non-Ridley definition lets the focused OAM comparison isolate the
         // extended body from Ridley's separately drawn tail and wings.
         slot.EnemyDefinitionPointer = bank == EnemyExtendedFrameDefinitions.Bank
-            ? PirateDefinitionForFrame(pointer) : (ushort)0;
+            ? PirateDefinitionForFrame(pointer) : RoomEnemySystem.BoyonDefinition;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = bank,

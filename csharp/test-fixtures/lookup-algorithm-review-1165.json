@@ -11330,4 +11330,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Named program widths derive27 visual operand addresses and58 control locations/commands.",
     "remaining":  "Words remains required: eye10,tentacle8,mouth5 independent dwell inputs explicitly named. No exception.489 converted,13 justified retained/mixed,626 pending."
+},"pirateProjectileStructureIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;58 native controls,actual producers/facings,movement,loops,deletion,42 exact native selectors,zero reads,bounds and allocations pass.",
+    "completed":  "SpacePirateProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "bf33a65b13fd06b7810c6d1efcbdcd4cb63f631d",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared facing/program record widths calculate42 visual addresses and58 control positions.",
+    "remaining":  "Words required: independent two-tick laser startup dwell named explicitly.490 converted,13 justified retained/mixed,625 pending."
 }}

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -121,17 +122,19 @@ internal static partial class Program
         AssertTrue(!deleting.IsActive,
             "Space Pirate projectile shot reaction reaches shared compiled deletion");
 
-        AssertEqual(SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Space Pirate projectile spritemap operands remain cartridge reads");
+            "all Space Pirate projectile spritemap selectors are compiled");
         for (int index = 0;
              index < SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = SpacePirateProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads Space Pirate presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selected),
+                "Every Pirate projectile operand has a compiled selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selected,
+                "Exact native Pirate projectile visual operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Space Pirate mechanics bytes");
@@ -152,7 +155,7 @@ internal static partial class Program
         Console.WriteLine(
             "Space Pirate projectile instruction mechanics: fifty-eight compiled words, " +
             "both real producers/facings, immediate laser motion, claw loops, shared " +
-            "deletion, and forty-two live spritemap reads pass.");
+            "deletion, and forty-two exact native compiled selectors pass with zero presentation reads.");
 
         RoomEnemySystem NewSystem()
         {

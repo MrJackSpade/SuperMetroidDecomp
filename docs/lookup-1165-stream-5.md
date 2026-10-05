@@ -618,7 +618,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs
 
 - [ ] **SpacePirateProjectileInstructionProgramDefinitions.Words** ([L39](../csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SpacePirateProjectileInstructionProgramDefinitions.PresentationWords** ([L82](../csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs#L82)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SpacePirateProjectileInstructionProgramDefinitions.PresentationWords** ([L82](../csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs#L82)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs
 
@@ -883,3 +883,13 @@ Worker2b31939a's full control-table completion claim is not accepted. The focuse
 Integrated checkpoint:65 converted,one mixed,159 required.
 
 Root integration Verification build1444 existing warnings/zero errors. --phantoon-instruction-program-definitions passed58 native control words,all19 actual programs,four callbacks,27 exact native compiled selectors with zero presentation reads,bounds,save/load and allocation assertions.
+
+### Pirate projectile structural integration
+
+Calculated58 control positions and42 visual operand addresses through shared facing/program layouts. PresentationWords is complete; Words remains required because the two-tick laser startup dwell has not been derived or acceptably justified. LaserStartupFrames explicitly records this residual. No exemption or complete control-table claim.
+
+Laser programs select immediate directional movement after three startup poses,then per-frame expansion/loop poses. Claws install directional movement and loop eight per-frame poses. Native record widths determine operand positions. Existing verifier preserves actual producers,facings,immediate movement,claw loops,shared deletion,bounds and allocation assertions; all42 selectors now compare directly to native values with zero live presentation reads.
+
+Integrated checkpoint:66 converted,one mixed,158 required.
+
+Root integration Verification build1444 existing warnings/zero errors; --space-pirate-projectile-instruction-mechanics passed58 native controls,both real producers/facings,immediate laser motion,claw loops,shared deletion,42 exact native selectors,zero presentation reads,bounds and allocation assertions.

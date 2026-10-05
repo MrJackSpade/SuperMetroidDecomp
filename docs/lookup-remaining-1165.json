@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 626,
+  "remainingTableDefinitionCount": 625,
   "fileCount": 523,
   "entries": [
     {
@@ -8006,7 +8006,9 @@
       "line": 82,
       "name": "SpacePirateProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "bf33a65b13fd06b7810c6d1efcbdcd4cb63f631d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs",
@@ -21327,6 +21329,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 489,
+  "convertedSinceSnapshot": 490,
   "justifiedRetainedSinceSnapshot": 13
 }

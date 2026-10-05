@@ -6,6 +6,40 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
+    {
+        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var stock = Load();
+        AssertTrue(typeof(GameOverPresentation).GetField("tilemap", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic)!.GetValue(stock) is null, "game-over stock text retains no tilemap row");
+        Confirm(stock);
+        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+        {
+            int cell = stream.DestinationByteOffset / sizeof(ushort);
+            document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
+        }
+        document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
+        Confirm(Load());
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(-1), "game-over text negative cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(1024), "game-over text final cell boundary");
+
+        void Confirm(GameOverPresentation presentation)
+        {
+            var vram = new SnesVram();
+            presentation.LoadTilemapTo(vram, 0x1000);
+            for (int cell = 0; cell < document.Tilemap.Length; cell++)
+            {
+                MapPresentationCell source = document.Tilemap[cell];
+                ushort expected = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn,
+                    source.Palette, source.Priority, (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                    (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
+                AssertEqual(expected, vram.ReadWord(0x1000 + cell), "game-over native/edited text word and VRAM placement");
+            }
+        }
+    }
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
         ushort LookupWord(ISnesAddressSpace source, int address) => (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
@@ -133,6 +167,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        VerifyStream3GameOverText(rom);
         VerifyStream3OptionsGeometry(rom);
         ushort[] expectedDoorCallbacks =
         [

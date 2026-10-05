@@ -19,7 +19,7 @@ internal static class MenuClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.GameOverPresentation", "game-over-v1-complete-enum-domains",
             ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
-                "4875F1E29748B33C81352529184423EAB9DC704E2CDC10D6F4CCAA7CCFC2C7E5"),
+                "0014DB87409BE7A7FB41DE3DF3E2FE7D38E924868FB49378A4BF78C9B3DDED05"),
              new("csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
                 "EC18D16A0969A3B6E8FE2ED0907FBF84B4A791E95D8BD3EA2EA614E8DAA83141"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",

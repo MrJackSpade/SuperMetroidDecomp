@@ -11147,4 +11147,20 @@
     "state":  "converted",
     "algorithm":  "Semantic button glyphs from atlas row stride, consecutive columns, shared shoulder corners and geometric reflections; stock rows absent, independent edited labels retained.",
     "remaining":  "457 converted,11 justified retained/mixed,660 pending."
+},"gameOverTextIntegration":{
+    "confirmation":  "Root Verification 1444 warnings/zero errors; scoped stream3 compares all1024 native VRAM words and edits to five text elements plus blank cell, storage absence and bounds. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameOverPresentation.tilemap",
+    "workerCommit":  "ece04195aa3311b5c39620ba06d6bf1fbb0c4732",
+    "state":  "converted",
+    "algorithm":  "Blank page plus five semantic text streams, contiguous small alphabet and named large glyph halves; stock tilemap absent, independent edited map preserved.",
+    "remaining":  "458 converted,11 justified retained/mixed,659 pending."
+},"enemyNameLexicalIndependentReview":{
+    "scope":  "Only69 chosen label strings and10 lexical fragments enumerated in Stream4 Batch49; original EnemyNames.Records must be mixed",
+    "workerCommits":  [
+                          "d8eea12ef",
+                          "7150c9575"
+                      ],
+    "reason":  "Lexical spelling is chosen text with no AI/physics derivation. Numbering/family composition,padding,ASCII packing,record index and identity selection remain calculated; no other payload exemption.",
+    "evidence":  "Independent pinned A0:8923-893F copies five opaque ASCII words,8941 reads separate spritemap selector,8948-8968 publishes. B4 literal ATOMIC atDD97,BOTOON atDDDD,BATTA1Na atE205 confirmed. Managed RoomEnemySystem snapshot constructor/ReadSpawnNameWords preserves opaque Word0-4/Word6 metadata.",
+    "state":  "approved-pending-integration"
 }}

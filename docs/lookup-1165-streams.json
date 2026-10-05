@@ -3159,6 +3159,9 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Game/GameplayMessageBoxState.cs","stream":4,"purpose":"Only configured button patch and ordered button glyph catalog dispatch; preserve multibit precedence and independent installed edits"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.ShitroidInstructionProgramDefinitions.cs","stream":3,"purpose":"Reproduced missing installed palette fixture; compare 30 native selectors and zero reads while preserving branch assertions"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/EnemyDropSelectionDefinitions.cs","stream":2,"purpose":"Six semantic pickup-column selections only; preserve accumulated probabilities and RNG; probability magnitudes remain Stream3-owned"}
+    ,{"path":"csharp/src/SuperMetroid.AssetExtraction/GameplayMessageNoticeExtractor.cs","stream":4,"purpose":"Pass existing imported template to calculated notice-region view; preserve export and independent edits"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs","stream":3,"purpose":"Named attack/glass/tube palette slot and range identities only; independent endpoints stay required"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/KraidLintInitializationDefinitions.cs","stream":2,"purpose":"Semantic top/middle/bottom initial timer policy with pinned native identities; preserve timed transitions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

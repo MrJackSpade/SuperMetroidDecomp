@@ -1165,9 +1165,12 @@ static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson)),
+            }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson),
+            ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual),
         CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
+        CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.CeresRidleyMode7ColorExtractor.Extract(bus))),
     };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
@@ -1337,8 +1340,8 @@ static void VerifyCeresRidleyRoomEntry()
         new byte[roomWidth * roomHeight],
         new ushort[roomWidth * roomHeight],
         new byte[8]);
-    var sharedProjectiles = new SamusBombProjectileSystem();
-    var projectiles = new SamusProjectileSystem();
+    var sharedProjectiles = CreateBombFixture();
+    var projectiles = CreateProjectileFixture();
 
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
@@ -1347,14 +1350,13 @@ static void VerifyCeresRidleyRoomEntry()
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
-        // The synthetic instruction stream covers phase transitions, not every
-        // hovering-frame art list. Reinstall its authored extended frame for each
-        // isolated shot; the separately stepped enemy AI can otherwise leave zero.
-        ridley.SpritemapPointer = 0x9000;
+        // Hold the independently read native initial frame for each isolated shot.
+        // Its body component spans X=0..28, beyond the header radius of eight.
+        ridley.SpritemapPointer = initialRidleyMap;
         // Place Samus relative to the active component, then retain native muzzle offset
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
-        samus.XPosition = unchecked((ushort)(ridley.XPosition + 32));
+        samus.XPosition = unchecked((ushort)(ridley.XPosition + 8));
         samus.YPosition = ridley.YPosition;
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
         SamusProjectileFrameResult fired = projectiles.StepFrame(
@@ -1368,6 +1370,8 @@ static void VerifyCeresRidleyRoomEntry()
             sharedProjectiles);
         AssertEqual((int?)0, fired.FiredSlot,
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
+        AssertTrue(projectiles.Slots[0].XPosition - projectiles.Slots[0].XRadius > ridley.XPosition + 8,
+            $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");

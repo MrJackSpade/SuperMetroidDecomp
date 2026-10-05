@@ -52,9 +52,9 @@ internal static partial class Program
             process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
                 $"Cacatac spike {direction} installs its live spritemap");
-            AssertEqual(ReadCacatacProjectileInstructionWord(rom, 0x860000 | program + 2),
-                actual.SpritemapPointer,
-                $"Cacatac spike {direction} retains cartridge presentation");
+            AssertEqual(unchecked((ushort)(program + 2)),
+                actual.PresentationOperandAddress,
+                $"Cacatac spike {direction} selects its installed cartridge frame");
 
             process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
@@ -63,17 +63,16 @@ internal static partial class Program
                 $"Cacatac spike {direction} terminal sleep is stable");
         }
 
-        AssertEqual(CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Cacatac spike spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Cacatac spike frames use installed presentation without cartridge reads");
         for (int index = 0;
              index < CacatacProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Cacatac spike presentation $86:{address:X4}");
+            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+                $"production execution avoids Cacatac spike presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -94,7 +93,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Cacatac spike instruction mechanics: twenty compiled words, ten complete " +
-            "production programs, and ten live spritemap reads pass with mechanics bytes " +
+            "production programs, and ten installed frame selectors pass with cartridge bytes " +
             "forbidden.");
     }
 

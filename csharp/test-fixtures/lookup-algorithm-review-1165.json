@@ -10734,4 +10734,14 @@
   "algorithm": "Four-byte native operand stride; four consecutive tiles33..36 with palette5,priority3,no flips. Custom styles retained exactly.",
   "implementationCommit": "296db7e3b",
   "scope": "Grapple segment attribute addresses and installed stock segment attributes, two definitions."
+},"fireCactusProgramsIntegration":{
+  "algorithm": "Timed-record geometry and staged callbacks; four two-draw fireball loops; shared upright/inverted cactus layout preserving distinct loop targets and named five-spike sweep.",
+  "implementationCommits": [
+    "5a7e56561",
+    "091c15860"
+  ],
+  "remaining": "288 converted, one justified retained,839 pending. No new exception.",
+  "state": "converted",
+  "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-1 passes66 Hibashi/fireball control words and32 operands/domains; actual fireball loops/zero-crossing/deletion;56 Cacatac words,24 selectors,four actual programs and10 real spike spawns. Source index refreshed; no source hash dependency found.",
+  "scope": "Hibashi, Dragon Fireball and Cacatac mechanics and presentation-address tables, six definitions."
 }}

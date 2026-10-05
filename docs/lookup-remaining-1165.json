@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 847,
+  "remainingTableDefinitionCount": 845,
   "fileCount": 523,
   "entries": [
     {
@@ -963,14 +963,18 @@
       "line": 10,
       "name": "GrappleSpriteCatalog.segments",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GrappleSpriteCatalog.segments. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GrappleSpriteCatalog.segments. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "296db7e3b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs",
       "line": 11,
       "name": "GrappleSpriteDefinitions.SegmentAttributeAddresses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "296db7e3b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs",
@@ -20873,6 +20877,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 280,
+  "convertedSinceSnapshot": 282,
   "justifiedRetainedSinceSnapshot": 1
 }

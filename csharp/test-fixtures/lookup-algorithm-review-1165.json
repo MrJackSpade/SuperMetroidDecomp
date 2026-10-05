@@ -10727,4 +10727,11 @@
   "confirmation": "All32 native colors, full CGRAM writes,32 independent edits, other palettes and canonical identity pass. Reviewed catalog source hash refreshed.",
   "state": "unreviewed",
   "remaining": "Eight seed colors require conversion or specific acceptable justification. Container remains unchecked; no retention exemption."
+},"grappleRopeAttributesIntegration":{
+  "remaining": "282 converted, one justified retained,845 pending. No new exception.",
+  "state": "converted",
+  "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-3 passes four native words, ordered addresses/bounds, absence of stock rows and24 independent tile/palette/priority/flip edits. ResourceAudit zero warnings/errors. Both reviewed source hashes and static index refreshed.",
+  "algorithm": "Four-byte native operand stride; four consecutive tiles33..36 with palette5,priority3,no flips. Custom styles retained exactly.",
+  "implementationCommit": "296db7e3b",
+  "scope": "Grapple segment attribute addresses and installed stock segment attributes, two definitions."
 }}

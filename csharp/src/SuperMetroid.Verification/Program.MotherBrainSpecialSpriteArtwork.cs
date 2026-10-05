@@ -59,7 +59,7 @@ internal static partial class Program
             SnesVram installedVram = TransferMotherBrainSpecialPages(stock,
                 new MotherBrainSpecialArtworkReadGuard(
                     SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
-            SnesVram cartridgeVram = TransferMotherBrainSpecialPages(null,
+            SnesVram cartridgeVram = ReferenceMotherBrainSpecialPages(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), sheet);
             for (int page = 0; page < sheet.PageCount; page++)
             {
@@ -72,7 +72,7 @@ internal static partial class Program
                     $"installed {sheet.FileName} page {page} matches native source");
                 AssertTrue(installedVram.Bytes.Slice(destinationOffset, count)
                     .SequenceEqual(cartridgeVram.Bytes.Slice(destinationOffset, count)),
-                    $"installed {sheet.FileName} page {page} matches cartridge fallback");
+                    $"installed {sheet.FileName} page {page} matches the independent cartridge transfer");
             }
 
             string filePath = Path.Combine(directory, sheet.FileName);
@@ -286,8 +286,23 @@ internal static partial class Program
         throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
     }
 
+    private static SnesVram ReferenceMotherBrainSpecialPages(
+        ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)
+    {
+        var vram = new SnesVram();
+        for (int page = 0; page < sheet.PageCount; page++)
+        {
+            byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                sheet.SourceAddress + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+                MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
+            int destination = (sheet.FirstDestinationWord +
+                page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride) * 2;
+            vram.LoadBytes(destination, bytes);
+        }
+        return vram;
+    }
     private static SnesVram TransferMotherBrainSpecialPages(
-        EnemyTileArtworkCatalog? artwork, ISnesAddressSpace bus,
+        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -103,17 +104,17 @@ internal static partial class Program
         AssertTrue(enemies.LastKagoBugDropRequest is not null,
             "Kago shot program emits its production drop request before deletion");
 
-        AssertEqual(KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Kago-bug spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled Kago bug visuals require no cartridge reads");
         for (int index = 0;
              index < KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = KagoBugProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Kago-bug presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "compiled Kago bug selector exists");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "compiled Kago bug selector matches original operand");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -135,7 +136,7 @@ internal static partial class Program
         Console.WriteLine(
             "Kago-bug projectile instruction mechanics: twenty-three private words, " +
             "the real producer, landed/falling/jump loops, complete shot/drop deletion, " +
-            "and eleven live spritemap reads pass with mechanics bytes forbidden.");
+            "and eleven native compiled spritemap operands pass with mechanics bytes forbidden.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot target, int count)
         {

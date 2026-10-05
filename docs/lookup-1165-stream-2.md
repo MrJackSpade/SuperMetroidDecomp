@@ -198,13 +198,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs
 
-- [ ] **KagoBugProjectileInstructionProgramDefinitions.Words** ([L53](../csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **KagoBugProjectileInstructionProgramDefinitions.PresentationWords** ([L80](../csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs#L80)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KagoBugProjectileInstructionProgramDefinitions.Words** ([L53](../csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KagoBugProjectileInstructionProgramDefinitions.PresentationWords** ([L80](../csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs#L80)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs
 
-- [ ] **KagoInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **KagoInstructionProgramDefinitions.PresentationWords** ([L25](../csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KagoInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KagoInstructionProgramDefinitions.PresentationWords** ([L25](../csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs
 
@@ -841,3 +841,10 @@ Removed mechanics and visual-address tables. Paired facing programs calculate th
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--golden-torizo-egg-instruction-mechanics` passed all53 original private mechanics words, both actual producers through bounce/hatch/charge/floor-break, the shared shot-break program,26 original compiled visual operands and zero forbidden reads. The first run reached the obsolete visual assertion (expected26 reads, actual0); assigned verification now checks zero reads and exact native selectors while preserving the existing complete producer/state/lifetime assertions.
 
 Forty-nine stream2 named definitions complete;177 remain required. Pending palette seeds/residuals and adjacent trail code observations retain their explicit unresolved status.
+### Batch 19: Kago body and bug program structure
+
+Removed both body mechanics/visual-address tables: two four-pose loops share a twenty-byte layout, with ten-tick idle and three-tick post-hit holds. Removed bug mechanics/visual-address tables through landed/falling/jumping/shot program cases, shared indefinite hold loops and a five-frame four-tick shot sequence. Explicit controls preserve idle/jump callbacks, palette reset, drop creation and shared deletion.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--kago-instruction-mechanics` passed12 native mechanics words, actual slow/post-hit loops and bug-spawning handoff,8 compiled native selectors and zero reads. `--kago-bug-projectile-instruction-mechanics` passed23 native mechanics words, the actual producer, landed/falling/jump paths, complete shot/drop/deletion sequence,11 compiled native selectors and zero reads. Its first run reached the obsolete visual-read assertion (expected11, actual0); the assigned verifier now asserts zero reads and all11 exact native selectors while retaining every behavioral assertion.
+
+Fifty-three stream2 named definitions complete;173 remain required. Palette residuals and adjacent trail code observations remain unresolved pending their specific review.

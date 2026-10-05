@@ -13,35 +13,36 @@ internal static class KagoInstructionProgramDefinitions
     /// <summary><c>InstList_Kago_TakenHit_FastAnimation</c> at $A8:AB32.</summary>
     internal const ushort Fast = 0xab32;
 
-    private static readonly KagoInstructionMechanicsWord[] Words =
-    [
-        new(0xab1e, 10), new(0xab22, 10), new(0xab26, 10), new(0xab2a, 10),
-        new(0xab2e, CommonEnemyInstructionCodes.Goto), new(0xab30, Slow),
-        new(0xab32, 3), new(0xab36, 3), new(0xab3a, 3), new(0xab3e, 3),
-        new(0xab42, CommonEnemyInstructionCodes.Goto), new(0xab44, Fast),
-    ];
+    internal static int MechanicsWordCount => 12;
+    internal static int PresentationWordCount => 8;
+    internal static KagoInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort start = index < 6 ? Slow : Fast;
+        int local = index % 6;
+        if (local < 4) return new((ushort)(start + 4 * local), index < 6 ? (ushort)10 : (ushort)3);
+        return local == 4 ? new((ushort)(start + 16), CommonEnemyInstructionCodes.Goto)
+            : new((ushort)(start + 18), start);
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xab20, 0xab24, 0xab28, 0xab2c,
-        0xab34, 0xab38, 0xab3c, 0xab40,
-    ];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Slow + 20 * (index / 4) + 2 + 4 * (index % 4));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KagoInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>True only for a visual operand in the native slow or fast loop.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    /// <summary>Four interleaved visual operands per20-byte slow/fast loop.</summary>
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - Slow;
+        return (uint)offset < 40 && offset % 20 < 16 && offset % 4 == 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -54,9 +55,9 @@ internal static class KagoInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

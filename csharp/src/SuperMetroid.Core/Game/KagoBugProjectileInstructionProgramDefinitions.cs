@@ -9,7 +9,7 @@ internal readonly record struct KagoBugProjectileInstructionMechanicsWord(
 /// Compiled control for Kago bug's landed, falling, jumping, and shot programs. The
 /// shared initial Kraid-rock pose is owned by
 /// <see cref="KraidRockProjectileInstructionProgramDefinitions"/>; interleaved
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap operands select compiled presentation identities.
 /// </summary>
 internal static class KagoBugProjectileInstructionProgramDefinitions
 {
@@ -49,53 +49,60 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpawnDropInstruction = 0xd1ce;
 
-    private static readonly KagoBugProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Landed, 0x0005),
-        new(0xd040, StartIdleInstruction),
-        new(0xd042, 0x7fff),
-        new(0xd046, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd048, Landed),
-        new(Falling, 0x7fff),
-        new(0xd04e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd050, Falling),
-        new(JumpStart, 0x0010),
-        new(0xd056, 0x0005),
-        new(0xd05a, StartJumpInstruction),
-        new(JumpLoop, 0x7fff),
-        new(0xd060, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd062, JumpLoop),
-        new(Shot, UsePaletteZeroInstruction),
-        new(0xd066, 0x0004),
-        new(0xd06a, 0x0004),
-        new(0xd06e, 0x0004),
-        new(0xd072, 0x0004),
-        new(0xd076, 0x0004),
-        new(0xd07a, SpawnDropInstruction),
-        new(0xd07c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd07e, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-    ];
+    internal static int MechanicsWordCount => 23;
+    internal static int PresentationWordCount => 11;
+    internal static KagoBugProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index is >= 5 and < 8) return HoldLoop(Falling, index - 5);
+        if (index is >= 11 and < 14) return HoldLoop(JumpLoop, index - 11);
+        if (index is >= 15 and < 20) return new((ushort)(Shot + 2 + 4 * (index - 15)), 4);
+        return index switch
+        {
+            0 => new(Landed, 5),
+            1 => new(Landed + 4, StartIdleInstruction),
+            2 => new(Landed + 6, 0x7fff),
+            3 => new(Landed + 10, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            4 => new(Landed + 12, Landed),
+            8 => new(JumpStart, 16),
+            9 => new(JumpStart + 4, 5),
+            10 => new(JumpStart + 8, StartJumpInstruction),
+            14 => new(Shot, UsePaletteZeroInstruction),
+            20 => new(Shot + 22, SpawnDropInstruction),
+            21 => new(Shot + 24, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            _ => new(Shot + 26, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        };
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xd03e, 0xd044, 0xd04c, 0xd054, 0xd058, 0xd05e,
-        0xd068, 0xd06c, 0xd070, 0xd074, 0xd078,
-    ];
+    private static KagoBugProjectileInstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
+    {
+        0 => new(start, 0x7fff),
+        1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+        _ => new((ushort)(start + 6), start),
+    };
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KagoBugProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index >= 6) return (ushort)(Shot + 4 + 4 * (index - 6));
+        return index switch
+        {
+            0 => Landed + 2,
+            1 => Landed + 8,
+            2 => Falling + 2,
+            3 => JumpStart + 2,
+            4 => JumpStart + 6,
+            _ => JumpLoop + 2,
+        };
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            KagoBugProjectileInstructionMechanicsWord candidate = Words[middle];
+            KagoBugProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -114,9 +121,9 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -88,8 +88,8 @@ internal static partial class Program
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0)!;
-        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
-        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
@@ -104,8 +104,11 @@ internal static partial class Program
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia).RenderFrameOnly();
-        Rgba32[] area = new FileSelectAreaMapGraphics(bus, 4).Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
+        var maps = RetailPresentationFixture();
+        var areaGraphics = new FileSelectAreaMapGraphics(bus, 4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        areaGraphics.BindLabels(maps.Labels);
+        Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
         {
             cancel.Step(0);
@@ -119,7 +122,7 @@ internal static partial class Program
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(bus, 4))),
+                FileSelectMapWindow.CreateReturn(bus, 4, maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -250,7 +253,8 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus);
-        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99 };
+        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
+            LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {
@@ -262,7 +266,7 @@ internal static partial class Program
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
-        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, gameOptions: null, renderGameplayFrames: false);
         game.BindMapPresentation(RetailPresentationFixture());
         FrontendFrame frame = game.Step(0);
         int expansionFrames = 0, returnFrames = 0;

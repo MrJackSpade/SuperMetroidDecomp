@@ -6,7 +6,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BotwoonColorCatalog", "botwoon-complete-health-colors", ["HealthColor"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs", "1DD712B0A28AA51CF687AD483D55D6D65EA6CCC69B29C75AD9679D2BFD5BF93B"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs", "849F9F333F01D3349173EC4B239B49C00590A501A67616B2488AEE4A3664D31A"),
              new("csharp/src/SuperMetroid.Core/Game/BotwoonHealthPaletteDefinitions.cs", "DD4DC9B57ABB2B15C9C1CFF83AFDC87B420BEACFD70417B21F2E24B8FE829C2B")],
             "The sole private-constructor loader requires eight sixteen-color health bands and compiles independent arrays. HealthColor guards band/color bounds. Health thresholds and their signed comparison are not executed or certified."),
         new("SuperMetroid.Core.Assets.BabyMetroidCutsceneColorCatalog", "cutscene-baby-complete-color-images", ["InitialColor", "FadeColor"],

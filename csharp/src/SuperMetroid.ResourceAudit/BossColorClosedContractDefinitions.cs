@@ -26,7 +26,7 @@ internal static class BossColorClosedContractDefinitions
             "Private construction requires sixteen-color spore, four health, eight death-sprite and seven death-level/background rows. The layer enum switch rejects invalid values; CheckFrame/Get guard each loaded row/color domain."),
         new("SuperMetroid.Core.Assets.DraygonColorCatalog", "draygon-v1-complete-health-palettes",
             ["ApplyIntro", "ApplyHurt", "ApplyHealthBand"],
-            [new("csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs", "8363967BE3CE6455F6DF0E2EC7CA4025204B7D1E7D0C34B9D83998C0660A7ACB"),
+            [new("csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs", "5DC9E26463CE3CFB95CFA2CFA51E6D26E429B2F8B0A51CA2D29EA6672F8C11D6"),
              new("csharp/src/SuperMetroid.Core/Game/DraygonColorRomData.cs", "C412E97DE1073FC470C90D9EA56F2BB71BB44F494833FA4E6701C9BB3442E030")],
             "Load requires intro/background/sprite/white-flash arrays and all eight complete health bands before private construction. Health selection rejects odd/out-of-range byte indices; hurt uses only these loaded arrays."),
         new("SuperMetroid.Core.Assets.PhantoonColorCatalog", "phantoon-v1-complete-color-targets",

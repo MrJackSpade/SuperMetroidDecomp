@@ -3058,6 +3058,9 @@
     ,{"purpose":"Dedicated native catalog for calculated directional eye mounts and beam intensity","stream":5,"path":"csharp/src/SuperMetroid.Core/Game/MorphBallEyeGeometryDefinitions.cs"}
     ,{"stream":4,"path":"csharp/src/SuperMetroid.Verification/Program.SporeSpawnInstructionProgramDefinitions.cs","purpose":"Supply required stock artwork/death palette and confirm native operands while preserving all five lifecycle paths"}
     ,{"stream":4,"path":"csharp/src/SuperMetroid.AssetExtraction/GameplayHudPresentationExtractor.cs","purpose":"Narrow consumer adaptation for owned calculated HUD energy/item/AUTO layout indices; preserve editable content"}
+    ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamHdmaState.cs","purpose":"Single quadrant direction consumer adaptation preserving null and retain semantics"}
+    ,{"stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PhantoonInstructionProgramDefinitions.cs","purpose":"Confirm all native installed selectors and zero live reads while preserving actual programs and callbacks"}
+    ,{"stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs","purpose":"Calculate title tube-light ramp while preserving independent installed overrides; endpoint disposition remains pending"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

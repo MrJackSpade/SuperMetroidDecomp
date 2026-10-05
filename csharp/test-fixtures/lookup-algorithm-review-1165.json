@@ -10875,4 +10875,15 @@
   "retention": "Only six body paint anchors. Independent static head B7:8000/A9:A586,neck A9:A694 and rear-foot A9:A974 masks plus AD:E3D5-E42E routing establish specific artistic roles; no health/geometry function selects those colors. All identified dependencies calculate,zero independent rear anchors.",
   "state": "mixed",
   "remaining": "339 converted,four justified retained,785 pending. Room recovery base/latent precision,flash base/highlight and chosen strength sequence,final room and other color payloads remain required; no blanket artwork exception."
+},"draygonBotwoonPaletteHoleIntegration":{
+  "scope": "Draygon white flash, Botwoon hole geometry and already converted wall draw reconciliation: three complete definitions. Both health palettes partially calculated.",
+  "implementationCommits": [
+    "c207c6dce",
+    "6f06086cb",
+    "ac7b824e7"
+  ],
+  "algorithm": "RGB5 interpolation removes 24 Draygon and 94 Botwoon intermediate words. Hole positions use named geometric directions; wall level words calculate a uniform fill.",
+  "confirmation": "Verification1441 warnings/zero errors; integrated stream4 checks pass after completed build. Draygon actual CGRAM and native palette values, Botwoon128 native palette words/independent edits/identity/bounds, hole native coordinates and actual detection/boundaries/invalid offsets. ResourceAudit zero warnings/errors; two source hashes and static index refreshed.",
+  "state": "partial",
+  "remaining": "342 converted,four justified retained,782 pending. Draygon8 endpoints and Botwoon32 endpoints plus2 nonmatching values remain required; no new retention."
 }}

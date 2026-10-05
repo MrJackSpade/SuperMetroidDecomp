@@ -7,106 +7,77 @@ internal readonly record struct EyeDoorProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the Eye Door's aimed projectile, wall-impact animation, and shot
-/// animation. Interleaved spritemap operands remain live cartridge presentation data.
+/// animation. Interleaved spritemap operands identify compiled presentation.
 /// </summary>
 internal static class EyeDoorProjectileInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile</c> at $86:B5D9.</summary>
+    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_0</c> at $86:B5D9.</summary>
     internal const ushort Initial = 0xb5d9;
 
-    /// <summary>Loop entered by the aimed projectile after setup at $86:B5EB.</summary>
+    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_1</c>, flight loop at $86:B5EB.</summary>
     internal const ushort FlyingLoop = 0xb5eb;
 
-    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Impact</c> at $86:B5F3.</summary>
+    /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Explode</c> at $86:B5F3.</summary>
     internal const ushort Impact = 0xb5f3;
 
     /// <summary><c>InstList_EnemyProjectile_Shot_EyeDoorProjectile</c> at $86:B603.</summary>
     internal const ushort Shot = 0xb603;
 
-    private static readonly EyeDoorProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0004),
-        new(0xb5dd, 0x0003),
-        new(0xb5e1, 0x0002),
-        new(0xb5e5,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus),
-        new(0xb5e7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb5e9, EyeDoorEnemyProjectileRomData.ProjectilePreInstruction),
-        new(FlyingLoop, 0x0010),
-        new(0xb5ef, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb5f1, FlyingLoop),
+    internal static int MechanicsWordCount => 19;
+    internal static int PresentationWordCount => 11;
 
-        new(Impact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb5f5, 0x0002),
-        new(0xb5f9, 0x0003),
-        new(0xb5fd, 0x0004),
-        new(0xb601, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    internal static EyeDoorProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 3) return new((ushort)(Initial + 4 * index), (ushort)(4 - index));
+        if (index < 6)
+            return new((ushort)(Initial + 12 + 2 * (index - 3)), index switch
+            {
+                3 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus,
+                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
+                _ => EyeDoorEnemyProjectileRomData.ProjectilePreInstruction,
+            });
+        if (index < 9)
+            return new((ushort)(FlyingLoop + (index == 6 ? 0 : 2 + 2 * (index - 6))), index switch
+            {
+                6 => 16,
+                7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+                _ => FlyingLoop,
+            });
+        if (index == 9) return new(Impact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        if (index < 13) return new((ushort)(Impact + 2 + 4 * (index - 10)), (ushort)(index - 8));
+        if (index == 13) return new((ushort)(Shot - 2), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+    }
 
-        new(Shot, 0x0004),
-        new(0xb607, 0x0004),
-        new(0xb60b, 0x0004),
-        new(0xb60f, 0x0004),
-        new(0xb613, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb5db,
-        0xb5df,
-        0xb5e3,
-        0xb5ed,
-        0xb5f7,
-        0xb5fb,
-        0xb5ff,
-        0xb605,
-        0xb609,
-        0xb60d,
-        0xb611,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EyeDoorProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 3) return (ushort)(Initial + 2 + 4 * index);
+        if (index == 3) return FlyingLoop + 2;
+        if (index < 7) return (ushort)(Impact + 4 + 4 * (index - 4));
+        return (ushort)(Shot + 2 + 4 * (index - 7));
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            int middle = low + ((high - low) >> 1);
-            EyeDoorProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            var word = MechanicsWord(index);
+            if (word.Address == address) return word.Value;
         }
-
-        throw new InvalidDataException(
-            $"Eye Door projectile instruction mechanics pointer $86:{address:X4} " +
-            "is not compiled.");
+        throw new InvalidDataException($"Eye Door projectile instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == wordAddress + 1) return true;
         }
-
         return false;
     }
 }

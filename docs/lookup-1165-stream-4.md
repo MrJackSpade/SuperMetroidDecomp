@@ -234,8 +234,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs
 
-- [ ] **EyeDoorProjectileInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EyeDoorProjectileInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorProjectileInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorProjectileInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs
 
@@ -875,3 +875,12 @@ Two more definitions converted;53 complete and172 unchecked. No retained excepti
 - Direct control resolution uses these semantic program rules. Native-order enumeration scans the bounded program region without caching; every sub-$8000 control is a draw duration whose following word owns presentation, yielding all75 operand addresses without storing a second mapping.
 - Evidence: pinned bankA2 thirteen `InstList_MamaTurtle/BabyTurtle` programs from `$8B80` through `$8D4E`, excluding adjacent code gaps and movement definitions starting `$8D50`.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing unchanged focused turtle verifier confirms117 original control words in strict order, both-byte ownership,75 unique presentation addresses and their mechanics exclusion, adjacent movement rejection and allocation-free direct resolution. This verifier is a definition-boundary check; its legacy console wording about executing all programs is broader than its actual assertions, so no such execution claim is made here.
+
+## Batch 19: Eye Door projectile control layouts
+
+Two more definitions converted;55 complete and170 unchecked. No retained exception.
+
+- Initial4/3/2-tick setup and impact2/3/4-tick reverse cadence calculate draw records. Aiming/pre-instruction installation, the16-tick flight loop, four4-tick shot frames and deletion remain semantic control cases. All19 controls and11 presentation identities derive from these layouts.
+- Evidence: pinned bank86 `InstList_EnemyProjectile_EyeDoorProjectile_Normal_0/1`, `Explode`, and `Shot_EyeDoorProjectile`, `$B5D9..B614`. Catalog XML now uses these exact source symbols.
+- Confirmation: full Verification build1433 warnings/zero errors, final incremental25 warnings/zero errors; `--lookup-stream-4` passed. Existing native-word, aiming/flight, real opened-door impact handoff, shot/impact deletion, mechanics exclusion, adjacent program rejection and allocation checks pass.
+- Reproduced the obsolete verifier expectation of11 live presentation reads (actual0). Granted verifier now checks every actual installed operand against the exact native program step and all11 unique operands, plus zero presentation reads. An attempted raw spritemap assertion was corrected because this presentation path intentionally uses a placeholder pointer and identifies artwork by installed operand; production behavior was unchanged.

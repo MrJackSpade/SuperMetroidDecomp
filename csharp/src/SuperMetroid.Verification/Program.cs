@@ -135,6 +135,7 @@ if (args is ["--lookup-stream-4"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 4 oracle revision");
     VerifyMamaTurtleInstructionProgramDefinitions();
+    VerifyEyeDoorProjectileInstructionProgramDefinitions();
     VerifyLookupStream4(rom);
     VerifyPowerBombFixedColors();
     VerifyRidleyAttackChoices(rom);

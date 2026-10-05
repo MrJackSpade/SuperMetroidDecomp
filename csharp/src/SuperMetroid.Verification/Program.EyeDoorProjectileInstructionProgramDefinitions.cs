@@ -28,6 +28,7 @@ internal static partial class Program
         }
 
         var guard = new EyeDoorProjectileInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -73,6 +74,7 @@ internal static partial class Program
             "Eye Door setup installs the native flight pre-instruction operand");
         impact.InstructionTimer = 1;
         process.Invoke(enemies, [impact, samus, (ushort)0, (ushort)0]);
+        CheckPresentation(impact, EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 2);
         AssertEqual(
             EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 4,
             impact.InstructionPointer,
@@ -100,16 +102,18 @@ internal static partial class Program
 
         AssertEqual(
             EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Eye Door projectile spritemap operands remain cartridge reads");
+            selectedPresentation.Count,
+            "all Eye Door projectile native presentation operands execute");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Eye Door uses compiled presentation without ROM reads");
         for (int index = 0;
              index < EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 EyeDoorProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Eye Door presentation $86:{address:X4}");
+            AssertTrue(selectedPresentation.Contains(address),
+                $"production execution selects Eye Door presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -131,14 +135,31 @@ internal static partial class Program
         Console.WriteLine(
             "Eye Door projectile instruction mechanics: nineteen compiled words, complete " +
             "aim/flying/impact/shot execution, the real opened-door handoff, and eleven " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "installed native selectors pass with source reads forbidden.");
 
+        void CheckPresentation(RoomEnemyProjectileSlot projectile, ushort expectedOperand)
+        {
+            ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
+            AssertEqual(operand, projectile.PresentationOperandAddress,
+                "Eye Door actual installed operand follows executed draw");
+            AssertEqual(expectedOperand, projectile.PresentationOperandAddress,
+                "Eye Door actual installed operand matches native program step");
+            selectedPresentation.Add(operand);
+        }
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
+            ushort start = projectile.InstructionPointer;
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                if (projectile.IsActive)
+                {
+                    ushort expected = start == EyeDoorProjectileInstructionProgramDefinitions.Initial
+                        ? tick < 3 ? (ushort)(start + 2 + 4 * tick) : (ushort)(EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 2)
+                        : (ushort)(start + (start == EyeDoorProjectileInstructionProgramDefinitions.Impact ? 4 : 2) + 4 * tick);
+                    CheckPresentation(projectile, expected);
+                }
             }
         }
     }

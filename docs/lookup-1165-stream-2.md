@@ -440,11 +440,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoInitialInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoInitialInstructionProgramDefinitions.Words** - Semantic tile upload/stance/lock/wake/pose/sleep dispatch; calculate instruction positions including the seven-byte DMA payload and visual operand gap. No independent timing sequence remains in this one-pose-then-sleep entry.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoJumpLandingInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoJumpLandingInstructionProgramDefinitions.Words** - Four facing/forward-foot cases choose named orb/sonic attack entries and return to the opposite moving leg; calculate each five-word control sequence and its addresses.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbCollisionDefinitions.cs
 
@@ -892,3 +892,7 @@ Verification build passed1437 warnings/zero errors. Existing --projectile-trail-
 Removed170 of870 stored four-coordinate records. Both default sequences calculate zero. Uncharged Wave derives its16-frame signed oscillation by reflection around the peak; cardinal ramps start at8 then step4, diagonal ramps step4 twice then2 twice. Charged cardinal Wave repeats each phase twice and caps its symmetric spread at16. Cardinal Ice-Spazer and unused SBA sequences use8-pixel linear spread; cardinal Wave-Ice-Spazer uses4-pixel spread capped at16 with mirrored return. Actual reads calculate these values directly; the pending dictionary contains only the700 remaining records.
 
 Verification build passed1437 warnings/zero errors. Reran --projectile-trail-coordinates: all native870 coordinate records,174 pointers, bounded observations,6600 actual spawns with all four positions and196608 operand-boundary assertions pass without coordinate ROM reads. Frames remains unchecked for its700 pending records; no residual or adjacent-code exemption is claimed. Counts remain64 resolved/162 required.
+
+## Golden Torizo initial/landing control batch
+
+Pinned AA:C9CB-C9E1 and CDAF-CDD6 establish these control-flow cases. Removed both stored Words lists without recreating arrays. `--lookup-stream2-golden-control` confirms allseven initial words with an independent native-width cursor, all20 landing words via the existing focused verifier, exact installed initial sprite selector, lookup values, both-byte ownership, and adjacent/index boundaries. Build1437 existing warnings/zero errors. No remaining animation-hold payload was exempted: these lists install a single static pose or dispatch attack/return operations. Integrated stream checkpoint:65 converted, one mixed trail selector,160 required. Other worker batches remain queued for review.

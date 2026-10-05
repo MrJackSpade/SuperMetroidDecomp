@@ -3140,6 +3140,15 @@
     ,{"purpose":"Binding-only explicit immutable stock-map provider at statically identified persistence caller; preserve existing assertions and startup ordering","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.PauseMenu.cs"}
     ,{"purpose":"Binding-only explicit immutable stock-map provider at statically identified persistence caller; preserve existing assertions and startup ordering","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.SpacetimeBeam.cs"}
     ,{"stream":3,"path":"csharp/test-support/SaveLoadRandomAudit.cs","purpose":"Binding-only required map-provider constructor adaptation; do not run random audit"}
+    ,{"path":"csharp/test-support/SaveMapPresentationFixture.cs","stream":3,"purpose":"Shared diagnostic startup-only stock map provider import; no gameplay fallback"}
+    ,{"path":"csharp/src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj","stream":3,"purpose":"Link-only shared save map fixture binding"}
+    ,{"path":"csharp/src/SuperMetroid.RenderVerification/SuperMetroid.RenderVerification.csproj","stream":3,"purpose":"Link-only shared save map fixture binding"}
+    ,{"path":"csharp/src/SuperMetroid.DesktopVerification/SuperMetroid.DesktopVerification.csproj","stream":3,"purpose":"Link-only shared save map fixture binding"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/TitleSequenceState.cs","stream":4,"purpose":"Calculated title gradient view binding and snapshot materialization only"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/TitleGradientColorDefinitions.cs","stream":4,"purpose":"Named title gradient channel/control native constants"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.MapPresentation.cs","stream":4,"purpose":"Title gradient SequenceEqual view binding only; preserve assertions"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.TitleGradient.cs","stream":4,"purpose":"Title gradient SequenceEqual view binding only; preserve assertions"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/DeadTorizoGeometryDefinitions.cs","stream":2,"purpose":"Shared calculated cropped-tile geometry; independent silhouette choices remain accounted for"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

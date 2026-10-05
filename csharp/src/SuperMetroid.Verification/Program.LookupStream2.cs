@@ -7,6 +7,43 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
+    {
+        VerifyGoldenTorizoJumpLandingDefinitions(rom);
+        int address = 0xc9cb;
+        for (int index = 0; index < 7; index++)
+        {
+            GoldenTorizoInitialMechanicsWord actual =
+                GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual((ushort)address, actual.Address, "Golden initial native instruction cursor");
+            ushort native = (ushort)(rom.ReadByte(0xaa0000 | address) |
+                rom.ReadByte(0xaa0000 | (address + 1)) << 8);
+            AssertEqual(native, actual.Value, "Golden initial native control word");
+            AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
+                actual.Address, out ushort selected) && selected == native,
+                "Golden initial runtime word dispatch");
+            for (int byteIndex = 0; byteIndex < 2; byteIndex++)
+                AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions.IsCompiledMechanicsByte(
+                    0xaa0000 | (address + byteIndex)), "Golden initial control byte ownership");
+            address += native == 0x814b ? 9 : native < 0x8000 ? 4 : 2;
+        }
+        AssertEqual(0xc9e2, address, "Golden initial terminal sleep boundary");
+        ushort operand = GoldenTorizoInitialInstructionProgramDefinitions.InitialFrameOperand;
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xaa, operand, out ushort visual),
+            "Golden initial installed sprite selector");
+        AssertEqual((ushort)(rom.ReadByte(0xaa0000 | operand) |
+            rom.ReadByte(0xaa0000 | (operand + 1)) << 8), visual,
+            "Golden initial exact native sprite selection");
+        AssertTrue(!GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(operand, out _),
+            "Golden initial visual operand excluded from mechanics");
+        AssertTrue(!GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord((ushort)address, out _),
+            "Golden initial next program excluded from mechanics");
+        AssertThrows<IndexOutOfRangeException>(() => GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(7),
+            "Golden initial control index boundary");
+        AssertThrows<IndexOutOfRangeException>(() => GoldenTorizoJumpLandingInstructionProgramDefinitions.MechanicsWord(20),
+            "Golden landing control index boundary");
+        Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
+    }
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);

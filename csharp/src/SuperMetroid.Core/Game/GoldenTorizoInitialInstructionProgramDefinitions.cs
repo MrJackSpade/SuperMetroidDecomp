@@ -21,19 +21,30 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitions
     /// <summary>Golden Torizo's Samus-position wake function at $AA:D5C2.</summary>
     internal const ushort WakeWhenSamusApproaches = 0xd5c2;
 
-    private static readonly GoldenTorizoInitialMechanicsWord[] Words =
-    [
-        new(Initial, CommonEnemyInstructionCodes.CopyToVram),
-        new(0xc9d4, TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState),
-        new(0xc9d6, TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
-        new(0xc9d8, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xc9da, WakeWhenSamusApproaches),
-        new(0xc9dc, 1),
-        new(Sleep, CommonEnemyInstructionCodes.Sleep),
-    ];
+    internal static int MechanicsWordCount => 7;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoInitialMechanicsWord MechanicsWord(int index) => Words[index];
+    /// <summary>
+    /// $AA:C9CB-C9E1 uploads tiles (two-byte opcode plus seven-byte DMA payload),
+    /// configures the standing pose and wake callback, then installs one pose and sleeps.
+    /// DMA and visual operands remain owned by their existing dedicated catalogs.
+    /// </summary>
+    internal static GoldenTorizoInitialMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = index == 0 ? Initial :
+            (ushort)(Initial + 9 + (index - 1) * 2 + (index == 6 ? 2 : 0));
+        ushort value = index switch
+        {
+            0 => CommonEnemyInstructionCodes.CopyToVram,
+            1 => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
+            3 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            4 => WakeWhenSamusApproaches,
+            5 => 1,
+            _ => CommonEnemyInstructionCodes.Sleep,
+        };
+        return new(address, value);
+    }
     internal static int PresentationWordCount => 1;
     internal static ushort PresentationWordAddress(int index) => index == 0
         ? InitialFrameOperand
@@ -41,8 +52,9 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (GoldenTorizoInitialMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            GoldenTorizoInitialMechanicsWord word = MechanicsWord(index);
             if (word.Address == address)
             {
                 value = word.Value;
@@ -58,8 +70,9 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xaa0000)
             return false;
         ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoInitialMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            GoldenTorizoInitialMechanicsWord word = MechanicsWord(index);
             if (offset == word.Address || offset == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

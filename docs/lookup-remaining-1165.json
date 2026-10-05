@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 697,
+  "remainingTableDefinitionCount": 695,
   "fileCount": 523,
   "entries": [
     {
@@ -3908,14 +3908,18 @@
       "line": 25,
       "name": "GoldenTorizoInitialInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "02c363a85516a45167e8b0ab1c9fb97f1d3d653c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs",
       "line": 18,
       "name": "GoldenTorizoJumpLandingInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "02c363a85516a45167e8b0ab1c9fb97f1d3d653c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbCollisionDefinitions.cs",
@@ -21176,6 +21180,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 427,
+  "convertedSinceSnapshot": 429,
   "justifiedRetainedSinceSnapshot": 4
 }

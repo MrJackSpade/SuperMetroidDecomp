@@ -14,37 +14,46 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
     internal const ushort Start = 0xcdaf;
     internal const ushort End = 0xcdd7;
 
-    private static readonly GoldenTorizoJumpLandingMechanicsWord[] Words =
-    [
-        new(0xcdaf, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdb1, GoldenTorizoLeftOrbInstructionProgramDefinitions.LeftFootForward),
-        new(0xcdb3, 0xcbed),
-        new(0xcdb5, CommonEnemyInstructionCodes.Goto),
-        new(0xcdb7, GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
-        new(0xcdb9, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdbb, GoldenTorizoLeftOrbInstructionProgramDefinitions.Start),
-        new(0xcdbd, 0xcb83),
-        new(0xcdbf, CommonEnemyInstructionCodes.Goto),
-        new(0xcdc1, GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg),
-        new(0xcdc3, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdc5, 0xcc99),
-        new(0xcdc7, 0xcd45),
-        new(0xcdc9, CommonEnemyInstructionCodes.Goto),
-        new(0xcdcb, GoldenTorizoCombatInstructionPointers.WalkingRightLeftLeg),
-        new(0xcdcd, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdcf, 0xcc57),
-        new(0xcdd1, 0xccdb),
-        new(0xcdd3, CommonEnemyInstructionCodes.Goto),
-        new(0xcdd5, GoldenTorizoCombatInstructionPointers.WalkingRightRightLeg),
-    ];
+    internal static int MechanicsWordCount => 4 * 5;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoJumpLandingMechanicsWord MechanicsWord(int index) => Words[index];
-
+    /// <summary>
+    /// $AA:CDAF-CDD6: each of four facing/forward-foot cases calls an orb or sonic
+    /// attack and returns to the opposite moving leg. Five words comprise each case.
+    /// </summary>
+    internal static GoldenTorizoJumpLandingMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int landing = index / 5;
+        bool facingRight = landing >= 2;
+        bool rightFootForward = ((landing & 1) != 0) != facingRight;
+        ushort value = (index % 5) switch
+        {
+            0 => TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack,
+            1 => facingRight
+                ? (rightFootForward ? GoldenTorizoRightOrbInstructionProgramDefinitions.Start
+                    : GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start)
+                : (rightFootForward ? GoldenTorizoLeftOrbInstructionProgramDefinitions.Start
+                    : GoldenTorizoLeftOrbInstructionProgramDefinitions.LeftFootForward),
+            2 => facingRight
+                ? (rightFootForward ? GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward
+                    : GoldenTorizoRightSonicInstructionProgramDefinitions.Start)
+                : (rightFootForward
+                    ? TorizoInstructionProgramDefinitions.InstList_GoldenTorizo_SonicBooms_FacingLeft_RightFootFwd_0
+                    : TorizoInstructionProgramDefinitions.InstList_GoldenTorizo_SonicBooms_FacingLeft_LeftFootFwd_0),
+            3 => CommonEnemyInstructionCodes.Goto,
+            _ => facingRight
+                ? (rightFootForward ? GoldenTorizoCombatInstructionPointers.WalkingRightLeftLeg
+                    : GoldenTorizoCombatInstructionPointers.WalkingRightRightLeg)
+                : (rightFootForward ? GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg
+                    : GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
+        };
+        return new((ushort)(Start + index * sizeof(ushort)), value);
+    }
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach (GoldenTorizoJumpLandingMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            GoldenTorizoJumpLandingMechanicsWord word = MechanicsWord(index);
             if (word.Address != address) continue;
             value = word.Value;
             return true;
@@ -58,10 +67,12 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xaa0000)
             return false;
         ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoJumpLandingMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
+        for (int index = 0; index < MechanicsWordCount; index++)
+        {
+            GoldenTorizoJumpLandingMechanicsWord word = MechanicsWord(index);
+            if (offset == word.Address || offset == unchecked((ushort)(word.Address + 1)))
                 return true;
+        }
         return false;
     }
 }

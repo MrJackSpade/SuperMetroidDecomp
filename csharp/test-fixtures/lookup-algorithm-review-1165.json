@@ -11034,4 +11034,11 @@
   "algorithm": "Two conditional four-pose groups and twelve callback/pose pairs with linear6..2..9hold ramp; map loop-origin pause15 and transitionhold3,mirrored phases0..7..1.",
   "confirmation": "Integrated Verification1442warnings/zeroerrors; scoped Ceres proof43nativecontrols/20spritemap/13palette selectors and actual complete loop/save-load/branches passed. Map proof224nativecolors/14timings/actualCGRAM,224independentcolor edits/14duration edits,custom1/15/255frames,bounds/zero stock deviations passed.",
   "completed": "CeresBabyInstructionProgramDefinitions.Words and MapPaletteCycle.durations"
+},"goldenTorizoControlIntegration":{
+  "completed": "GoldenTorizoInitialInstructionProgramDefinitions.Words; GoldenTorizoJumpLandingInstructionProgramDefinitions.Words",
+  "remaining": "429 converted,4 original justified retained,695 pending.",
+  "algorithm": "Initial upload/stance/lock/wake/one-pose/sleep sequence with calculated DMA operand spacing; four facing/forward-foot attack and return cases with calculated five-word layout.",
+  "workerCommit": "02c363a85516a45167e8b0ab1c9fb97f1d3d653c",
+  "confirmation": "Integrated build1442 warnings/zero errors; focused --lookup-stream2-golden-control passed all7 initial and20 landing native words, native instruction positions, exact installed sprite, bounded ownership and invalid indexes.",
+  "state": "converted"
 }}

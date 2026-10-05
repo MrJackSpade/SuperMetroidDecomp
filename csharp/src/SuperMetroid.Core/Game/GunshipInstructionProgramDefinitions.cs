@@ -34,43 +34,48 @@ internal static class GunshipInstructionProgramDefinitions
     /// <summary><c>InstList_ShipBottom</c> at $A2:A61C.</summary>
     public const ushort BottomHull = 0xa61c;
 
-    private static readonly GunshipInstructionMechanicsWord[] Words =
-    [
-        new(0xa5be, 0x0028), new(0xa5c2, 0x0008), new(0xa5c6, 0x0008),
-        new(0xa5ca, 0x0008), new(0xa5ce, 0x0018), new(0xa5d2, 0x0008),
-        new(0xa5d6, 0x0007), new(0xa5da, 0x0006), new(0xa5de, 0x0005),
-        new(0xa5e2, 0x0004), new(0xa5e6, 0x0004),
-        new(0xa5ea, CommonEnemyInstructionCodes.Goto), new(0xa5ec, EntrancePadOpen),
-        new(0xa5ee, 0x0004), new(0xa5f2, 0x0005), new(0xa5f6, 0x0006),
-        new(0xa5fa, 0x0007), new(0xa5fe, 0x0008), new(0xa602, 0x0018),
-        new(0xa606, 0x0008), new(0xa60a, 0x0008), new(0xa60e, 0x0008),
-        new(0xa612, CommonEnemyInstructionCodes.Goto),
-        new(0xa614, BottomEntrancePad),
-        new(0xa616, 0x0001), new(0xa61a, CommonEnemyInstructionCodes.Sleep),
-        new(0xa61c, 0x0001), new(0xa620, CommonEnemyInstructionCodes.Sleep),
-    ];
+    internal static int MechanicsWordCount => 28;
+    internal static int PresentationWordCount => 22;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xa5c0, 0xa5c4, 0xa5c8, 0xa5cc, 0xa5d0, 0xa5d4, 0xa5d8,
-        0xa5dc, 0xa5e0, 0xa5e4, 0xa5e8,
-        0xa5f0, 0xa5f4, 0xa5f8, 0xa5fc, 0xa600, 0xa604, 0xa608, 0xa60c,
-        0xa610, 0xa618, 0xa61e,
-    ];
+    /// <summary>Opening begins with a40-tick wait and a24-tick intermediate hold, then accelerates8..4; closing reverses the transition.</summary>
+    private static ushort OpeningDuration(int frame) => (ushort)(frame switch
+    {
+        0 => 40,
+        4 => 24,
+        _ => Math.Clamp(13 - frame, 4, 8),
+    });
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static GunshipInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static GunshipInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 11) return new((ushort)(EntrancePadOpening + 4 * index), OpeningDuration(index));
+        if (index < 13) return index == 11
+            ? new(EntrancePadOpen + 4, CommonEnemyInstructionCodes.Goto)
+            : new(EntrancePadOpen + 6, EntrancePadOpen);
+        if (index < 22) return new((ushort)(EntrancePadClosing + 4 * (index - 13)), OpeningDuration(9 - (index - 13)));
+        if (index < 24) return index == 22
+            ? new(BottomEntrancePad + 4, CommonEnemyInstructionCodes.Goto)
+            : new(BottomEntrancePad + 6, BottomEntrancePad);
+        int local = index - 24;
+        return new((ushort)(TopHull + 6 * (local / 2) + 4 * (local % 2)),
+            local % 2 == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+    }
 
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 11) return (ushort)(EntrancePadOpening + 2 + 4 * index);
+        if (index < 20) return (ushort)(EntrancePadClosing + 2 + 4 * (index - 11));
+        return (ushort)(TopHull + 2 + 6 * (index - 20));
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GunshipInstructionMechanicsWord candidate = Words[middle];
+            GunshipInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -88,9 +93,9 @@ internal static class GunshipInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa20000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

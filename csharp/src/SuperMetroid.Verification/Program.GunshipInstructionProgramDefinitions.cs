@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -70,18 +71,17 @@ internal static partial class Program
 
         VerifyInitializers();
 
-        AssertEqual(
-            GunshipInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all gunship spritemap words remain live cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled gunship visuals require no cartridge reads");
         for (int index = 0;
              index < GunshipInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 GunshipInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads gunship presentation $A2:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, address, out ushort selector),
+                "compiled gunship selector exists");
+            AssertEqual(ReadVerificationWord(rom, (0xa2 << 16) | address), selector,
+                "compiled gunship selector matches original operand");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -102,8 +102,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Gunship instruction mechanics: 28 compiled words, all five hull/pad " +
-            "program paths, both real initializer identities, and 22 live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "program paths, both real initializer identities, and 22 native compiled spritemap " +
+            "operands pass with mechanics bytes forbidden.");
 
         void VerifyProgram(
             ushort program,

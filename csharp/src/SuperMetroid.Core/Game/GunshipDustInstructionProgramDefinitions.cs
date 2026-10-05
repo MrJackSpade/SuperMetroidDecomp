@@ -10,7 +10,14 @@ internal readonly record struct GunshipDustInstructionProgramDefinition(
     ushort Initial,
     ushort FirstFrame,
     ushort Terminal,
-    ushort[] Durations);
+    GunshipDustDurations Durations);
+
+/// <summary>Each dust pair adds one tick per two poses, reaching its terminal hold after four poses.</summary>
+internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
+{
+    internal ushort this[int frame] => (uint)frame < Length
+        ? (ushort)(Initial + Math.Min(frame / 2, 2)) : throw new IndexOutOfRangeException();
+}
 
 /// <summary>
 /// Compiled control for all six gunship liftoff-dust instruction lists. Interleaved
@@ -36,21 +43,20 @@ internal static class GunshipDustInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_IndexA_0</c> at $86:A265.</summary>
     internal const ushort IndexA = 0xa265;
 
-    private static readonly GunshipDustInstructionProgramDefinition[] Programs =
-    [
-        new(Index0, 0xa19b, 0xa1bb, [8, 8, 9, 9, 10, 10, 10, 10]),
-        new(Index2, 0xa1c5, 0xa1e5, [6, 6, 7, 7, 8, 8, 8, 8]),
-        new(Index4, 0xa1ef, 0xa20b, [11, 11, 12, 12, 13, 13, 13]),
-        new(Index6, 0xa215, 0xa235, [8, 8, 9, 9, 10, 10, 10, 10]),
-        new(Index8, 0xa23f, 0xa25f, [6, 6, 7, 7, 8, 8, 8, 8]),
-        new(IndexA, 0xa269, 0xa285, [11, 11, 12, 12, 13, 13, 13]),
-    ];
-
-    internal static int ProgramCount => Programs.Length;
+    internal static int ProgramCount => 6;
     internal static int MechanicsWordCount => 76;
     internal static int PresentationWordCount => 46;
-    internal static GunshipDustInstructionProgramDefinition Program(int index) => Programs[index];
 
+    internal static GunshipDustInstructionProgramDefinition Program(int index)
+    {
+        if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
+        int shape = index % 3;
+        int count = shape == 2 ? 7 : 8;
+        ushort initialDuration = shape switch { 0 => 8, 1 => 6, _ => 11 };
+        ushort initial = (ushort)(Index0 + 42 * index - 4 * (index / 3));
+        return new(initial, (ushort)(initial + 4), (ushort)(initial + 4 + 4 * count),
+            new(count, initialDuration));
+    }
     internal static ushort InitialForParameter(ushort parameter) => parameter switch
     {
         0 => Index0,
@@ -66,9 +72,9 @@ internal static class GunshipDustInstructionProgramDefinitions
     internal static GunshipDustInstructionMechanicsWord MechanicsWord(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
-        for (int programIndex = 0; programIndex < Programs.Length; programIndex++)
+        for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
         {
-            GunshipDustInstructionProgramDefinition program = Programs[programIndex];
+            GunshipDustInstructionProgramDefinition program = Program(programIndex);
             int count = program.Durations.Length + 5;
             if (index >= count)
             {
@@ -109,9 +115,9 @@ internal static class GunshipDustInstructionProgramDefinitions
     internal static ushort PresentationWordAddress(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
-        for (int programIndex = 0; programIndex < Programs.Length; programIndex++)
+        for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
         {
-            GunshipDustInstructionProgramDefinition program = Programs[programIndex];
+            GunshipDustInstructionProgramDefinition program = Program(programIndex);
             if (index >= program.Durations.Length)
             {
                 index -= program.Durations.Length;

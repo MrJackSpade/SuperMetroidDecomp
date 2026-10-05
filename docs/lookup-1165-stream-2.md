@@ -180,12 +180,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GunshipDustInstructionProgramDefinitions.cs
 
-- [ ] **GunshipDustInstructionProgramDefinitions.Programs** ([L40](../csharp/src/SuperMetroid.Core/Game/GunshipDustInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GunshipDustInstructionProgramDefinitions.Programs** ([L40](../csharp/src/SuperMetroid.Core/Game/GunshipDustInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs
 
-- [ ] **GunshipInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GunshipInstructionProgramDefinitions.PresentationWords** ([L54](../csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs#L54)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GunshipInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GunshipInstructionProgramDefinitions.PresentationWords** ([L54](../csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs#L54)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs
 
@@ -818,3 +818,10 @@ Removed mechanics and presentation-address tables. Left/right flight shares an85
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--torizo-chozo-orb-instruction-mechanics` passed all40 original words, four actual producer loops, exact wall/floor lifetimes, both shot/drop paths,18 original compiled sprite operands and zero forbidden reads. The first run reached the obsolete visual assertion (expected18 reads, actual0); coordinator-assigned verification now checks zero reads and all18 exact native selectors while preserving every producer/lifetime/drop assertion. No production workaround was used.
 
 Forty-four stream2 named definitions complete;182 remain required. Palette residuals and unrelated artwork remain explicitly pending.
+### Batch 16: gunship entrance/hull and liftoff-dust programs
+
+Removed hull/entrance mechanics and visual-address arrays. Opening preserves its40-tick entry and24-tick intermediate holds, then accelerates8..4; closing reverses the same transition durations. Both static hulls calculate one-tick poses followed by sleep. Removed all six dust program records and their nested duration arrays: paired sets of three shapes share calculated program lengths/entry addresses, and each duration is its shape's initial hold plus min(frame/2,2). No duration/program lookup is rebuilt.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--gunship-instruction-mechanics` passed28 native mechanics words, five actual hull/pad program paths, both initializer identities and22 native selectors. `--gunship-dust-instruction-mechanics` passed76 native mechanics words, all six actual producers/frame loops/deletions and46 native selectors. Both initially reached obsolete visual-read counts (expected22/46, actual0); assigned verifiers now assert zero reads and every exact native compiled operand while retaining all existing behavior checks. Corrected the hull check's old console wording after the successful execution; assertions are unchanged.
+
+Forty-seven stream2 named definitions complete;179 remain required. Separate pixels and independent palette/trajectory residuals remain pending.

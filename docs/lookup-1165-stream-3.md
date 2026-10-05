@@ -154,7 +154,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs
 
-- [ ] **CreditsPresentationDefinitions.Lines** ([L28](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CreditsPresentationDefinitions.Lines** ([L28](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs
 
@@ -856,6 +856,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Converted both installed glyph sequences to tile-base arithmetic: decimal digits at $2060 plus digit, and slot letters at $206A plus slot. These named bases already drive native extraction. Import discards matching stock sequences; any independent tile/attribute edit remains exact. Existing tilemap destinations and input domains are preserved.
 - Full build passed (1431 warnings, zero errors); final verifier rebuild passed (25 warnings, zero errors). `--lookup-stream-3` passed all thirteen actual glyph writes, stock-storage absence and 78 independent edits covering column, row, palette, priority and both flips through production tilemap-writing methods.
 - Two entries completed, bringing converted entries to 66 plus the separate decorative-anchor retention. Other file-select pages, patches and sprite compositions remain required. No external source-hash dependency found.
+### Confirmed batch 29: Semantic credits caption roles
+
+- Replaced the 67 stored line records with semantic caption-role cases and numbered contributor groups. Heading suffixes select the small font; contributor names select the large font. Initial, heading, adjoining sound-heading and name spacing derive from each role directly. No generated definition array remains.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all 67 original role identities and order, all 520 native rendered rows, actual scrolling cadence through completion, editable overrides and strict validation.
+- One entry completed, bringing converted entries to 67 plus the separate decorative-anchor retention. Independent contributor text and glyph artwork remain separate payload obligations. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

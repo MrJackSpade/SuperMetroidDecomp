@@ -1121,7 +1121,39 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0x939108, 0x822f);
     WriteWord(bus, 0x90c28f, 0x000b);
 
-    var enemies = new RoomEnemySystem();
+    var fixturePalette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+    for (int color = 0; color < fixturePalette.Length; color++)
+    {
+        ushort word = (ushort)(bus.ReadByte(0xa6e14f + color * 2) |
+            bus.ReadByte(0xa6e150 + color * 2) << 8);
+        fixturePalette[color] = new PaletteRgb5
+        {
+            Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31,
+        };
+    }
+    byte[] fixturePlanar = Enumerable.Range(0, 0x20)
+        .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
+    byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
+        out int fixtureWidth, out int fixtureHeight);
+    using var fixtureTilePng = new MemoryStream();
+    IndexedPng.Write(fixtureTilePng, fixtureWidth, fixtureHeight, fixturePixels,
+        SnesGraphics.DiagnosticPalette(16));
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort, RoomCharacterAtlas>
+            {
+                [definitionPointer] = RoomCharacterAtlas.Load(
+                    new MemoryStream(fixtureTilePng.ToArray()), 0x20),
+            },
+            new Dictionary<ushort, EnemyPaletteSheet>
+            {
+                [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
+                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
+            }),
+        CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
+    };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);

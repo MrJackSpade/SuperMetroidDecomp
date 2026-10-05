@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 578,
+  "remainingTableDefinitionCount": 563,
   "fileCount": 523,
   "entries": [
     {
@@ -2087,7 +2087,7 @@
       "name": "SporeSpawnColorCatalog.spores",
       "kind": "installed stock table",
       "note": "Original/default payload behind SporeSpawnColorCatalog.spores. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    ,"state":"converted","implementationCommit":"c0d031b31336b6373d11fcef7f45f90db1b067ef"},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
       "line": 24,
@@ -21460,6 +21460,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 503,
-  "justifiedRetainedSinceSnapshot": 15
+  "convertedSinceSnapshot": 549,
+  "justifiedRetainedSinceSnapshot": 16
 }

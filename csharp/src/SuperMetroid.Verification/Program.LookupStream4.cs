@@ -9,6 +9,270 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("spores",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(Word(0xa5e379 + color * 2), Word(0xa5e359 + color * 2), "Original separate spore and healthy-body rows have identical coloring");
+        Verify(stock, false, false);
+        foreach (bool editSpore in new[] { false, true })
+        {
+            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            if (editSpore) document.Spores[5] = document.Spores[5] with { Red = document.Spores[5].Red ^ 1 };
+            else document.Health[0][5] = document.Health[0][5] with { Red = document.Health[0][5].Red ^ 1 };
+            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            Verify(edited, editSpore, !editSpore);
+            Verify(stock, false, false);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveSpore(invalid), "Spore alias color bounds remain exact");
+        Console.WriteLine("Spore healthy-palette alias: all16 native words, zero stock overrides and separate spore/healthy-body edits pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, bool editSpore, bool editHealth)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[] spores = Read(0xa5e359);
+            ushort[][] health = Rows(0xa5e379, 4);
+            if (editSpore) spores[5] ^= 1;
+            if (editHealth) health[0][5] ^= 1;
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(spores[color], catalog.ResolveSpore(color), "Independent health edit does not recolor spores");
+                for (int frame = 0; frame < 4; frame++)
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Independent spore edit leaves all body health rows intact");
+            }
+            string identity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", spores);
+                content.AppendWordFrames("health", health);
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "Healthy-palette alias preserves canonical content hash for independent edits");
+        }
+    }
+    private static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
+            SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        var basis = (ushort[])typeof(SporeSpawnDeathColorDefinitions).GetField("InitialRoomLevelColors",
+            BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathLevel",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
+        for (int color = 0; color < 16; color++)
+        {
+            bool unresolved = color is 0 or 7 or 11 or 15;
+            if (!unresolved)
+            {
+                int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
+                AssertEqual((ushort)(palette[offset] | palette[offset + 1] << 8),
+                    SporeSpawnDeathColorDefinitions.InitialLevelColor(color), "Level basis matches exact original decoded room color");
+            }
+            for (int frame = 0; frame < 7; frame++)
+            {
+                AssertEqual(frame == 6 || unresolved, values.ContainsKey(frame * 16 + color), "Only explicit unresolved columns and final colors remain stored");
+                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Word(0xa5e5b9 + color * 2), frame, color, out ushort value);
+                AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
+                if (calculated)
+                    AssertEqual(Word(0xa5e4f9 + frame * 32 + color * 2), value, "Direct level interpolation matches original native words");
+            }
+        }
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { (Frame: 6, Color: 3), (Frame: 2, Color: 3), (Frame: 1, Color: 0), (Frame: 3, Color: 7), (Frame: 4, Color: 11), (Frame: 5, Color: 15) })
+        {
+            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var old = document.DeathLevel[selected.Frame][selected.Color];
+            document.DeathLevel[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(invalid, 0), "Level frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(0, invalid), "Level color bounds remain exact");
+        Console.WriteLine("Spore level fade: twelve required room-color sites, forty required death words and72 calculated interiors; native values, exact basis, edits and identity pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] level = Rows(0xa5e4f9, 7);
+            if (editedFrame >= 0) level[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 7; frame++)
+                for (int color = 0; color < 16; color++)
+                {
+                    AssertEqual(level[frame][color], catalog.ResolveDeathLevel(frame, color), "Calculated and unresolved level edits retain every other selected word");
+                    AssertEqual(Word(0xa5e5d9 + frame * 32 + color * 2), catalog.ResolveDeathBackground(frame, color), "Level edit leaves background layer independent");
+                }
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", Rows(0xa5e379, 4));
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", level);
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Level calculation preserves canonical selected content identity");
+        }
+    }
+    private static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
+            SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        var basis = (ushort[])typeof(SporeSpawnDeathColorDefinitions).GetField("InitialRoomBackgroundColors",
+            BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
+        foreach (int color in Enumerable.Range(1, 11).Concat(new[] { 14, 15 }))
+        {
+            int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
+            AssertEqual((ushort)(palette[offset] | palette[offset + 1] << 8),
+                SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
+        }
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathBackground",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
+        for (int frame = 0; frame < 7; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(frame == 6, values.ContainsKey(frame * 16 + color), "Stock background has no interior fallback samples");
+                AssertEqual(Word(0xa5e5d9 + frame * 32 + color * 2),
+                    SporeSpawnDeathColorDefinitions.BackgroundColor(Word(0xa5e699 + color * 2), frame, color),
+                    "Direct background calculation matches every original word independently of catalog loading");
+            }
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { (Frame: 6, Color: 1), (Frame: 6, Color: 12), (Frame: 0, Color: 1), (Frame: 3, Color: 13) })
+        {
+            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var old = document.DeathBackground[selected.Frame][selected.Color];
+            document.DeathBackground[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(invalid, 0), "Background frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(0, invalid), "Background color bounds remain exact");
+        Console.WriteLine("Spore background fade: thirteen required room-color sites and sixteen final words; all112 native defaults, exact stored basis, independent edits and identities pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] background = Rows(0xa5e5d9, 7);
+            if (editedFrame >= 0) background[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 7; frame++)
+                for (int color = 0; color < 16; color++)
+                {
+                    AssertEqual(background[frame][color], catalog.ResolveDeathBackground(frame, color), "Final and interior background edits preserve all other selected colors");
+                    AssertEqual(Word(0xa5e4f9 + frame * 32 + color * 2), catalog.ResolveDeathLevel(frame, color), "Background edits leave level palette independent");
+                }
+            for (int frame = 0; frame < 8; frame++)
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(Word(0xa5e3f9 + frame * 32 + color * 2), catalog.ResolveDeathSprite(frame, color), "Background edits leave sprite fade independent");
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", Rows(0xa5e379, 4));
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", background);
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Background fade preserves exact selected canonical identity");
+        }
+    }
+    private static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathSprite",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
+        for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(frame == 7, values.ContainsKey(frame * 16 + color), "Only final endpoint row remains stored in stock fade");
+                AssertEqual(Word(0xa5e3f9 + frame * 32 + color * 2),
+                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Word(0xa5e3f9 + color * 2), Word(0xa5e4d9 + color * 2), frame),
+                    "Direct channel interpolation equals every original sprite death word without loading fallback samples");
+            }
+        for (int color = 0; color < 16; color++)
+            AssertEqual(Word(0xa5e3d9 + color * 2), Word(0xa5e3f9 + color * 2), "Death fade starts at original critical-health coloring");
+        var criticalDocument = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        criticalDocument.Health[3][1] = criticalDocument.Health[3][1] with { Red = criticalDocument.Health[3][1].Red ^ 1 };
+        var criticalEdit = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(criticalDocument)));
+        Verify(criticalEdit, -1, -1, criticalEdit: true);
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { (Frame: 0, Color: 1), (Frame: 7, Color: 15), (Frame: 3, Color: 6) })
+        {
+            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var old = document.DeathSprite[selected.Frame][selected.Color];
+            document.DeathSprite[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(invalid, 0), "Sprite fade frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(0, invalid), "Sprite fade color bounds remain exact");
+        Console.WriteLine("Spore sprite fade: sixteen required final words, shared critical-health endpoint and96 interpolated words; direct native defaults, sparse basis, independent edits and canonical identity pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor, bool criticalEdit = false)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] sprite = Rows(0xa5e3f9, 8);
+            ushort[][] health = Rows(0xa5e379, 4);
+            if (criticalEdit) health[3][1] ^= 1;
+            if (editedFrame >= 0) sprite[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 8; frame++)
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(sprite[frame][color], catalog.ResolveDeathSprite(frame, color), "Endpoint and intermediate edits preserve every other original selected word");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(Word(0xa5e359 + color * 2), catalog.ResolveSpore(color), "Sprite fade does not modify independent spore palette");
+                for (int frame = 0; frame < 4; frame++)
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Sprite fade and health edits remain independent");
+                for (int frame = 0; frame < 7; frame++)
+                {
+                    AssertEqual(Word(0xa5e4f9 + frame * 32 + color * 2), catalog.ResolveDeathLevel(frame, color), "Sprite fade leaves level colors independent");
+                    AssertEqual(Word(0xa5e5d9 + frame * 32 + color * 2), catalog.ResolveDeathBackground(frame, color), "Sprite fade leaves background colors independent");
+                }
+            }
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", health);
+                content.AppendWordFrames("deathSprite", sprite);
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Calculated fade retains exact selected canonical identity framing");
+        }
+    }
     private static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);

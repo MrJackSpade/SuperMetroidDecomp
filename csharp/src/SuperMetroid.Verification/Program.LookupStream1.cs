@@ -5,6 +5,26 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
+    {
+        for (int pose = 0; pose < 256; pose++)
+        {
+            if (pose < 0xDB)
+                AssertEqual(rom.ReadByte(0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((byte)pose),
+                    $"HUD exact bounded posture observation {pose:X2}");
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((byte)pose),
+                    "HUD rejects prefiltered posture observation");
+            foreach (bool grapple in new[] { false, true })
+            {
+                bool expected = pose >= 0xF1 || (pose < 0xDB && (rom.ReadByte(0x90DDAA + pose - 0x35) == 0 || grapple));
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((byte)pose, grapple),
+                    $"HUD actual admission {pose:X2}, Grapple={grapple}");
+            }
+        }
+        Console.WriteLine("HUD posture: twelve real flags plus207 bounded instruction bytes, all512 admission branches and rejection domain match native.");
+    }
+
     private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(0xb30000 | address) | rom.ReadByte(0xb30000 | address + 1) << 8);

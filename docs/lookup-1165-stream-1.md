@@ -388,7 +388,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs
 
 - [x] **SamusHudDefinitions.MovementHandlers** ([L10](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusHudDefinitions.PostureObservationsByPose** ([L27](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusHudDefinitions.PostureObservationsByPose** ([L27](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs
 
@@ -939,3 +939,12 @@ Root Verification build 1445 warnings/zero errors. After terminal build completi
 EscapeDachoraInstructionProgramDefinitions.PresentationWords is converted (ecb3b4450). Six-frame directional runs at two tide states and the initial/departure frames determine all 43 visual operand addresses. Calculated controls preserve timer setup, movement callbacks, acid/escape branches, loop targets and departure progression. Words remains pending nine independent repeat/hold/acceleration inputs; no retention exception.
 
 Root Verification build 1445 warnings/zero errors; --lookup-stream-1-dachora-programs passes independent native traversal of 119 controls and 43 visual operands, every native callback/target/hold, exact order/read domains/full byte classification and bank/index/address rejection. No gameplay or lifecycle equivalence claim. Inventory 555 converted/17 retained-mixed/556 pending.
+
+
+## Integrated HUD posture policy and bounded instruction observations
+
+SamusHudDefinitions.PostureObservationsByPose is mixed complete (e68a6acc9). Twelve authored flags at90:DDAA-DDB5 become named pose cases: crouch/stand0; morph/unmorph and unused transitions1. Only207 bounded adjacent-code observations remain: DD75-DDA9(53bytes),DDB6-DE4F(154bytes). Root inspected native DD8C bounds/subtract35/index/mask and managed flag==0||grappleActive. First byte is the low operand of DD74 LDA; the final byte is DE4E BMI displacement, not the following instruction.
+
+These retained bytes encode unrelated native instructions,addresses and branch displacements rather than posture policy. Reconstructing native machine code to synthesize accidental table observations would be nonsense; it would merely re-encode this bounded compatibility content. The exception excludes all12 real flags and every byte outside those exact windows; it does not authorize unbounded memory emulation.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream-1-hud-posture passes all219 native observations,512 actual admission-helper results and DB-FF observation rejection. Inventory556 converted/20 retained-mixed/552 pending.

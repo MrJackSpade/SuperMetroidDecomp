@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 556 are converted, 19 are justified retained, and 553 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 556 are converted, 20 are justified retained, and 552 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -3476,7 +3476,7 @@ Remaining table definitions: **3**.
 Remaining table definitions: **2**.
 
 - [ ] **SamusHudDefinitions.MovementHandlers** - stored definition ([L10](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L10)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusHudDefinitions.PostureObservationsByPose** - stored definition ([L27](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L27)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusHudDefinitions.PostureObservationsByPose** - stored definition ([L27](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L27)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs
 

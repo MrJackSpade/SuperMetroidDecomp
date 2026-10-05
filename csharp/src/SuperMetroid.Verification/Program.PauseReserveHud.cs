@@ -20,7 +20,7 @@ internal static partial class Program
         samus.CollectedBeams = (ushort)SamusBeamFlags.Charge;
         runtime.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
         runtime.RunNmi(0, true);
-        var pause = new PauseMenuState(bus, samus, runtime.System, AreaId.Crateria, 0, 0,
+        var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria, 0, 0,
             gameplayVram: runtime.Vram);
         pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
         for (int i = 0; i < 32; i++) pause.Step(0, 0);

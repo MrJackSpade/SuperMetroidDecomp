@@ -1,10 +1,21 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static AreaMapPresentationCatalog? retailPresentationFixture;
+
+    private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
+        SamusState samus, Bank80SystemState system, AreaId areaIndex,
+        byte roomMapX, byte roomMapY, CartridgeAudioState? audio = null,
+        SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
+        new(bus, samus, system, areaIndex, roomMapX, roomMapY, audio,
+            gameplayVram, mapRevealMode, RetailPresentationFixture());
 
     /// <summary>
     /// Installs the same extracted content contract used by the playable host in

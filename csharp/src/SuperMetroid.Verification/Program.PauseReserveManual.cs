@@ -14,7 +14,7 @@ internal static partial class Program
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = 1,
             CollectedBeams = (ushort)SamusBeamFlags.Charge };
-        var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
         pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
         for (int i = 0; i < 32; i++) pause.Step(0, 0);
         pause.Step(0, (ushort)SnesButton.Up);
@@ -62,7 +62,7 @@ internal static partial class Program
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
+            var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
             pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
             for (int i = 0; i < 32; i++) pause.Step(0, 0);
             pause.Step(0, (ushort)SnesButton.Up);

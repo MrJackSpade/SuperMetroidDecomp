@@ -28,6 +28,17 @@ try
 {
 if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }
 if (args is ["--mutable-memory-boundary"]) { VerifySuperMetroidAddressSpace(); return 0; }
+if (args is ["--pause-fixtures"])
+{
+    VerifyPauseRenderSnapshots();
+    VerifyPauseBossMarkers();
+    VerifyPausePaletteSound();
+    VerifyPauseReserveManual();
+    VerifyPauseReserveArrow();
+    VerifyPauseReserveTanks();
+    VerifyPauseReserveHud();
+    return 0;
+}
 if (args is ["--chozo-power-bomb"]) { VerifyChozoGrabAnimation(powerBomb: true); return 0; }
 if (args is ["--golden-torizo-code-entry"]) { VerifyGoldenTorizoCodeEntry(); return 0; }
 if (args is ["--mockball-boost-contact"]) { VerifyMockballBoostContact(); return 0; }

@@ -37,7 +37,7 @@ internal static partial class Program
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2,
                 CollectedBeams = (ushort)SamusBeamFlags.Charge };
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
             pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
             for (int i = 0; i < 32; i++) pause.Step(0, 0);
             foreach (ushort supply in new ushort[] { 0, 1, 13, 14, 15, 41, 42, 55, 56, 98, 99, 100, 101, 199, 200, 299, 300, 399, 400 }.Where(n => n <= capacity))
@@ -77,6 +77,7 @@ internal static partial class Program
                     DebuggerObjectGraphSerializer.Serialize(saved, pause);
                     saved.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(saved);
+                    restored.BindMapPresentation(RetailPresentationFixture());
                     AssertTrue(actual.AsSpan().SequenceEqual(restored.Render()), "saved pause preserves nonzero native tank-flicker phase");
                 }
                 if (capacity == 400 && supply == 199 && phase == 0)

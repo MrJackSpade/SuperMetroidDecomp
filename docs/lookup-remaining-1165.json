@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 683,
+  "remainingTableDefinitionCount": 678,
   "fileCount": 523,
   "entries": [
     {
@@ -771,21 +771,27 @@
       "line": 18,
       "name": "GameOptionsPresentation.controllerLabelAnchors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.controllerLabelAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.controllerLabelAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
       "line": 19,
       "name": "GameOptionsPresentation.languageRegions",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.languageRegions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.languageRegions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
       "line": 20,
       "name": "GameOptionsPresentation.specialToggles",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.specialToggles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.specialToggles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
@@ -799,14 +805,18 @@
       "line": 22,
       "name": "GameOptionsPresentation.headingAnchors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.headingAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.headingAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
       "line": 23,
       "name": "GameOptionsPresentation.cursorAnchors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.cursorAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.cursorAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
@@ -21204,6 +21214,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 441,
+  "convertedSinceSnapshot": 446,
   "justifiedRetainedSinceSnapshot": 4
 }

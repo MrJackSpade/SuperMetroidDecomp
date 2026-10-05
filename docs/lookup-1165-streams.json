@@ -3150,6 +3150,9 @@
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.TitleGradient.cs","stream":4,"purpose":"Title gradient SequenceEqual view binding only; preserve assertions"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/DeadTorizoGeometryDefinitions.cs","stream":2,"purpose":"Shared calculated cropped-tile geometry; independent silhouette choices remain accounted for"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/YappingMawRomData.cs","purpose":"Calculated radius16 Manhattan-diamond held-Samus offsets and native source identities","stream":5}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.YappingMawBodyProjectileInstructionProgramDefinitions.cs","stream":5,"purpose":"Reproduced stale transport expectation: exact native selectors and zero live reads; preserve producer/sleep/delete checks"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.PolypRockInstructionProgramDefinitions.cs","stream":5,"purpose":"Reproduced missing selector confirmation and exact native visuals; preserve producer/sleep/delete checks"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.SamusArmCannonDefinitions.cs","stream":1,"purpose":"Direct six native DesiredOpenFlag values instead of span binding; preserve actual cover transitions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -6,8 +6,120 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
+    {
+        ushort LookupWord(ISnesAddressSpace source, int address) => (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        byte[] imported = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom);
+        GameOptionsPresentationDocument ReadDocument() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
+            imported, MapPresentationFormat.JsonOptions)!;
+        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var stock = ReadDocument();
+        var loaded = Load(stock);
+        foreach (string field in new[] { "controllerLabelAnchors", "languageRegions", "specialToggles", "headingAnchors", "cursorAnchors" })
+            AssertTrue(typeof(GameOptionsPresentation).GetField(field, System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded) is null, "stock options geometry calculates " + field);
+        for (int action = 0; action < 7; action++)
+        {
+            ushort offset = LookupWord(rom, 0x82f639 + action * 2);
+            AssertEqual(new MapLabelPoint(offset / 2 % 32, offset / 2 / 32),
+                GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
+        }
+        foreach ((string page, int address, int count) in new[]
+        {
+            (GameOptionsPresentationDefinitions.PrimaryMenu, 0x82f307, 5),
+            (GameOptionsPresentationDefinitions.ControllerMenu, 0x82f31b, 9),
+            (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
+        })
+            for (int row = 0; row < count; row++)
+                AssertEqual(new MapLabelPoint(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
+                    loaded.CursorPosition(page, row), "native options cursor anchor");
+        Confirm(stock, loaded);
+        var edited = ReadDocument();
+        for (int action = 0; action < edited.ControllerLabelAnchors.Length; action++)
+        {
+            MapLabelPoint old = edited.ControllerLabelAnchors[action];
+            edited.ControllerLabelAnchors[action] = new(old.X + 1, old.Y);
+        }
+        edited.LanguageRegions[0].Cells[0] = 0;
+        edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
+        foreach (string page in edited.HeadingAnchors.Keys.ToArray())
+        {
+            MapLabelPoint old = edited.HeadingAnchors[page];
+            edited.HeadingAnchors[page] = new(old.X + 1, old.Y);
+            for (int row = 0; row < edited.CursorAnchors[page].Length; row++)
+            {
+                old = edited.CursorAnchors[page][row];
+                edited.CursorAnchors[page][row] = new(old.X + 1, old.Y);
+            }
+        }
+        Confirm(edited, Load(edited));
+
+        void Confirm(GameOptionsPresentationDocument document, GameOptionsPresentation presentation)
+        {
+            foreach (bool japanese in new[] { false, true })
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+                byte[] expected = (byte[])actual.Clone();
+                foreach (var region in document.LanguageRegions)
+                    Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
+                presentation.ApplyLanguage(actual, japanese);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
+            }
+            foreach (var pair in document.SpecialToggles)
+            foreach (bool enabled in new[] { false, true })
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+                byte[] expected = (byte[])actual.Clone();
+                Paint(expected, pair.Value.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
+                Paint(expected, pair.Value.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
+                presentation.ApplySpecialToggle(actual, pair.Key, enabled);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options toggle boxes preserve exact stock/edited cells");
+            }
+            for (int action = 0; action < 7; action++)
+            for (int button = 0; button < 7; button++)
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
+                byte[] expected = (byte[])actual.Clone();
+                MapLabelPoint point = document.ControllerLabelAnchors[action];
+                for (int cell = 0; cell < 6; cell++)
+                {
+                    ushort word = LookupWord(rom, 0x82f659 + button * 12 + cell * 2);
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(((point.Y + cell / 3) * 32 + point.X + cell % 3) * 2), word);
+                }
+                presentation.ApplyControllerLabel(actual, action, button);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
+            }
+            foreach (var pair in document.CursorAnchors)
+                for (int row = 0; row < pair.Value.Length; row++)
+                    AssertEqual(pair.Value[row], presentation.CursorPosition(pair.Key, row), "options stock/edited cursor");
+            foreach (var pair in document.HeadingAnchors)
+            {
+                var actual = new OamBuffer();
+                var expected = new OamBuffer();
+                presentation.DrawHeading(actual, pair.Key, 3);
+                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
+                    .DrawOnScreen(expected, checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3)),
+                        SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
+                AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable),
+                    "options stock/edited heading origin and scroll");
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
+            AssertThrows<InvalidDataException>(() => presentation.CursorPosition("invalid", 0), "options invalid page");
+        }
+        static void Paint(byte[] page, int[] cells, int palette)
+        {
+            foreach (int cell in cells)
+            {
+                Span<byte> destination = page.AsSpan(cell * 2);
+                ushort old = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(destination);
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(destination, (ushort)((old & ~0x1c00) | palette << 10));
+            }
+        }
+    }
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        VerifyStream3OptionsGeometry(rom);
         ushort[] expectedDoorCallbacks =
         [
             DoorCodes.DoorCode_Scroll6_Green,

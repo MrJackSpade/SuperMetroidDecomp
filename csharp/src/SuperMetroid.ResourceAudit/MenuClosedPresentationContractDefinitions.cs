@@ -9,12 +9,12 @@ internal static class MenuClosedPresentationContractDefinitions
             ["CreatePage", "LoadBackground", "ApplyLanguage", "ApplyControllerLabel", "ApplySpecialToggle",
                 "CursorPosition", "DrawHeading", "DrawCursor"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
-                "B7B17351DF7ED1B519921F3B7E23C192F845A8161689554755B920EFEAD0BC75"),
+                "58E0B0C39E1967C73E5932AA607E9E06F56B8BAD8F5C6BF7500339550A6CB0A6"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
                 "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],
             "The private-constructor loader requires all six pages, seven controller labels/anchors, " +
             "two special toggles, four language regions, three heading/cursor sets and four cursor frames. " +
-            "Controller/cursor indices are guarded and language/background operations use fixed loaded fields. " +
+            "Controller/cursor indices are guarded. Stock geometry calculates from the reviewed native rules; independently edited geometry retains validated supplied fields. " +
             "Named page/menu/toggle selections additionally require independently resolved finite installed keys."),
         new("SuperMetroid.Core.Assets.GameOverPresentation", "game-over-v1-complete-enum-domains",
             ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],

@@ -11062,4 +11062,11 @@
   "state": "converted",
   "completed": "RoomTilesetDefinitions.Entries",
   "remaining": "441converted,4original justified retained,683pending."
+},"optionsGeometryIntegration":{
+  "algorithm": "Reuse native spacing/region/page operations without stored stock anchor/region collections; preserve independently edited geometry exactly.",
+  "completed": "Five GameOptionsPresentation geometry definitions",
+  "remaining": "446converted,4original justified retained,678pending; page,label and sprite artwork still required.",
+  "state": "converted",
+  "workerCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors and stream3 scoped checks pass:7native label anchors,17native cursor pairs,49label placements,language/toggle states,headingOAMscroll,edited geometry and absent stock collections. Menu audit source hash/description refreshed and ResourceAudit builds."
 }}

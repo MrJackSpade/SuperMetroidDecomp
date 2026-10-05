@@ -55,6 +55,7 @@ if (args is ["--map-cancel-fixture"]) { VerifyMapCancelPresentation(); return 0;
 if (args is ["--station-marker-fixture"]) { VerifyFileSelectStationMarker(); return 0; }
 if (args is ["--inventory-fixture"]) { VerifyInvalidBeamSelection(); return 0; }
 if (args is ["--space-screw-fixture"]) { VerifySamusSpaceJumpAndScrewAttack(); return 0; }
+if (args is ["--enemy-pointer-fixture"]) { VerifyEnemyRomTablePointerCatalog(); return 0; }
 if (args is ["--permanent-collectibles-fixture"]) { VerifyPermanentCollectibles(); return 0; }
 if (args is ["--enemy-art-fixtures"]) { VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; }
 if (args is ["--xray-overlay-fixtures"]) { VerifyXrayOverlays(); VerifyXraySetupBuffers(); return 0; }

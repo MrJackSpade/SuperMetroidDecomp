@@ -417,23 +417,28 @@ internal static partial class Program
 
     private static void VerifyFileSelectStationMarker()
     {
-        var bus = new TestAddressSpace();
-        WriteTestWord(bus, FileSelectMapRomData.SavePointMapPointers, 0x9000);
-        WriteTestWord(bus, 0x829000, 100);
-        WriteTestWord(bus, 0x829002, 80);
-        WriteTestWord(bus, 0x829004, 0xfffe);
-        WriteTestWord(bus, 0x829008, 0xffff);
-        // Single-cell spritemaps with a visible (-2,-3) offset. Assert production OAM
-        // coordinates, palette and draw order rather than merely the marker's getters.
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var positions = System.Text.Json.JsonSerializer.Deserialize<MapSaveMarkerDocument>(
+            SuperMetroid.AssetExtraction.MapSaveMarkerExtractor.Extract(bus), options)!;
+        positions.Markers[MapSaveMarkerDefinitions.Id(AreaId.Crateria, 0)] = new(100, 80);
+        using var positionJson = new MemoryStream();
+        MapSaveMarkerLayout.Write(positionJson, positions);
+        positionJson.Position = 0;
+        var layout = MapSaveMarkerLayout.Load(positionJson);
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
+        var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            WriteTestWord(bus, 0x82c569 + id * 2, 0x9100);
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
+                TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
+                FlipX = false, FlipY = false }];
         }
-        WriteTestWord(bus, 0x829100, 1);
-        WriteTestWord(bus, 0x829102, 0x01fe);
-        bus.WriteByte(0x829104, 0xfd);
-        WriteTestWord(bus, 0x829105, 0x3001);
-        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0);
+        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+            new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];
         int[] durations = [4, 8, 4, 8, 4, 8, 4, 8];
         for (int phase = 0; phase < durations.Length; phase++)
@@ -445,7 +450,7 @@ internal static partial class Program
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = new OamBuffer();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16);
+            marker.Draw(bus, oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertEqual(backing ? 2 : 1, oam.LastFinalizedSpriteCount, "marker backing OAM emission");
             AssertEqual(74, oam.LowTable[0], "marker subtracts horizontal scroll and sprite offset");
@@ -453,13 +458,14 @@ internal static partial class Program
             AssertEqual(0x3e, oam.LowTable[3], "marker retains sprite priority with palette seven");
             byte[] first = oam.LowTable.ToArray();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16);
+            marker.Draw(bus, oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 1),
+        int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkerDefinitions.IsUsable(AreaId.Crateria, index));
+        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, unused, layout),
             "unused station map entry rejected");
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 3),
-            "station lookup cannot cross list terminator");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 16, layout),
+            "station lookup cannot cross the sixteen-slot domain");
     }
 }

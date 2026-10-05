@@ -10744,4 +10744,11 @@
   "state": "converted",
   "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-1 passes66 Hibashi/fireball control words and32 operands/domains; actual fireball loops/zero-crossing/deletion;56 Cacatac words,24 selectors,four actual programs and10 real spike spawns. Source index refreshed; no source hash dependency found.",
   "scope": "Hibashi, Dragon Fireball and Cacatac mechanics and presentation-address tables, six definitions."
+},"powampMotionIntegration":{
+  "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-1 passes34 native motion words and invalid domains. Source review confirms unchanged signed wrapping, centered phases, cursor underflow/default and horizontal collision early-return ordering. Source index refreshed; no reviewed-source hash dependency found.",
+  "state": "converted",
+  "implementationCommit": "062f370ba",
+  "remaining": "293 converted, one justified retained,834 pending. No new exception.",
+  "algorithm": "Twelve-phase signed triangle wave; four-pixel pose offsets; quarter-turn compass acceleration. Native catalog owns the identities.",
+  "scope": "Five Powamp motion tables: wiggle, rising/sinking balloon offsets and X/Y spike acceleration."
 }}

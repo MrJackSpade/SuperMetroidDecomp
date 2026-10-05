@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 839,
+  "remainingTableDefinitionCount": 834,
   "fileCount": 523,
   "entries": [
     {
@@ -6146,35 +6146,45 @@
       "line": 76,
       "name": "RoomEnemySystem.PowampWiggleOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "062f370ba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Powamp.cs",
       "line": 77,
       "name": "RoomEnemySystem.PowampRisingBalloonYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "062f370ba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Powamp.cs",
       "line": 78,
       "name": "RoomEnemySystem.PowampSinkingBalloonYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "062f370ba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PowampSpikes.cs",
       "line": 15,
       "name": "RoomEnemySystem.PowampSpikeXAccelerations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "062f370ba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PowampSpikes.cs",
       "line": 18,
       "name": "RoomEnemySystem.PowampSpikeYAccelerations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "062f370ba"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs",
@@ -20889,6 +20899,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 288,
+  "convertedSinceSnapshot": 293,
   "justifiedRetainedSinceSnapshot": 1
 }

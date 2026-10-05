@@ -3041,6 +3041,7 @@
     ,{"stream": 3, "path": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionPaletteDefinitions.cs", "purpose": "Express owned transition palette operations with named native slot identities"}
     ,{"stream": 1, "path": "csharp/src/SuperMetroid.Verification/Program.EscapeEtecoonDefinitions.cs", "purpose": "Preserve real Etecoon programs and motion assertions while confirming native installed operands"}
     ,{"stream": 4, "path": "csharp/src/SuperMetroid.Core/Assets/CrateriaLightningColorDefinitions.cs", "purpose": "Calculate surface lightning stock colors while preserving independent replacement colors"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EyeDoorProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm installed native visual operands while preserving eye-door projectile behavior assertions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

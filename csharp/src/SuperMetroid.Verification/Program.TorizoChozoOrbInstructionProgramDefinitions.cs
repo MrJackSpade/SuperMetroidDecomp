@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -104,9 +105,16 @@ internal static partial class Program
         VerifyShotDrop(golden: false);
         VerifyShotDrop(golden: true);
 
-        AssertEqual(TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo Chozo-orb spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled Torizo orb visuals require no cartridge reads");
+        for (int index = 0; index < TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Torizo orb compiled selector exists");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "Torizo orb compiled selector matches original operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo Chozo-orb mechanics byte");
         AssertThrows<InvalidDataException>(

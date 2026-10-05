@@ -551,8 +551,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs
 
-- [ ] **TorizoChozoOrbInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoChozoOrbInstructionProgramDefinitions.PresentationWords** ([L76](../csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoChozoOrbInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoChozoOrbInstructionProgramDefinitions.PresentationWords** ([L76](../csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoCollisionDefinitions.cs
 
@@ -811,3 +811,10 @@ The tube palette at$AA:E2DD contains two identical16-color halves. Colors8..15 i
 Verification build passed (1437 warnings, zero errors). `--lookup-stream2-tube-ramp` passed32 native colors, actual CGRAM writes, all32 independent color edits with unchanged other cells and statue palettes, canonical identity preservation and bounds. Stock content retains eight seed colors and zero deviations.
 
 This is a partial conversion. `ChozoAndTubeColorCatalog.tubeCracks` remains unchecked: the eight seed color choices still require derivation or concrete impossible/nonsense evidence. Neither duplication nor the interpolation establishes an exception for those choices. The two statue palettes also remain required. Counts remain42 complete and184 required.
+### Batch 15: Torizo Chozo-orb control structure
+
+Removed mechanics and presentation-address tables. Left/right flight shares an85-tick pose/goto structure; wall and shot impacts share property setup and five four-tick frames, with the shot path then selecting Bomb/Golden drop headers. Floor impact calculates its six durations4..9 after explicit property/sound setup. Program and visual operand addresses derive from those layouts without rebuilt tables.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--torizo-chozo-orb-instruction-mechanics` passed all40 original words, four actual producer loops, exact wall/floor lifetimes, both shot/drop paths,18 original compiled sprite operands and zero forbidden reads. The first run reached the obsolete visual assertion (expected18 reads, actual0); coordinator-assigned verification now checks zero reads and all18 exact native selectors while preserving every producer/lifetime/drop assertion. No production workaround was used.
+
+Forty-four stream2 named definitions complete;182 remain required. Palette residuals and unrelated artwork remain explicitly pending.

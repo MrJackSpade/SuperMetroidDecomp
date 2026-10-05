@@ -25,67 +25,70 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
     /// <summary><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</summary>
     internal const ushort GoldenOrbEnemyHeader = 0xefbf;
 
-    private static readonly TorizoChozoOrbInstructionMechanicsWord[] Words =
-    [
-        new(MovingLeft, 0x0055),
-        new(0xab19, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xab1b, MovingLeft),
-        new(MovingRight, 0x0055),
-        new(0xab21, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xab23, MovingRight),
+    internal static int MechanicsWordCount => 40;
+    internal static int PresentationWordCount => 18;
 
-        new(WallImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xab27, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xab29, 0x5000),
-        new(0xab2b, 4),
-        new(0xab2f, 4),
-        new(0xab33, 4),
-        new(0xab37, 4),
-        new(0xab3b, 4),
-        new(0xab3f, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    internal static TorizoChozoOrbInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 6)
+        {
+            ushort start = (ushort)(MovingLeft + 8 * (index / 3));
+            return (index % 3) switch
+            {
+                0 => new(start, 85),
+                1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                _ => new((ushort)(start + 6), start),
+            };
+        }
+        if (index < 15) return ImpactWord(WallImpact, index - 6, shot: false);
+        if (index < 28)
+        {
+            int local = index - 15;
+            if (local is >= 6 and < 12)
+                return new((ushort)(FloorImpact + 13 + 4 * (local - 6)), (ushort)(local - 2));
+            (int offset, ushort value) = local switch
+            {
+                0 => (0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+                1 => (2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
+                2 => (4, (ushort)0xdfff),
+                3 => (6, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
+                4 => (8, (ushort)0x5000),
+                5 => (10, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6),
+                _ => (37, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            };
+            return new((ushort)(FloorImpact + offset), value);
+        }
+        return ImpactWord(Shot, index - 28, shot: true);
+    }
 
-        new(FloorImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xab43, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
-        new(0xab45, 0xdfff),
-        new(0xab47, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xab49, 0x5000),
-        new(0xab4b, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6),
-        new(0xab4e, 4),
-        new(0xab52, 5),
-        new(0xab56, 6),
-        new(0xab5a, 7),
-        new(0xab5e, 8),
-        new(0xab62, 9),
-        new(0xab66, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Wall and shot impacts share property setup and five four-tick poses; only shot impact emits drops.</summary>
+    private static TorizoChozoOrbInstructionMechanicsWord ImpactWord(ushort start, int index, bool shot)
+    {
+        if (index is >= 3 and < 8)
+            return new((ushort)(start + 6 + 4 * (index - 3)), 4);
+        (int offset, ushort value) = index switch
+        {
+            0 => (0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+            1 => (2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
+            2 => (4, (ushort)0x5000),
+            8 => (26, shot ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances
+                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            9 => (28, BombOrbEnemyHeader),
+            10 => (30, GoldenOrbEnemyHeader),
+            _ => (32, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+        };
+        return new((ushort)(start + offset), value);
+    }
 
-        new(Shot, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xab6a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xab6c, 0x5000),
-        new(0xab6e, 4),
-        new(0xab72, 4),
-        new(0xab76, 4),
-        new(0xab7a, 4),
-        new(0xab7e, 4),
-        new(0xab82, EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances),
-        new(0xab84, BombOrbEnemyHeader),
-        new(0xab86, GoldenOrbEnemyHeader),
-        new(0xab88, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xab17, 0xab1f,
-        0xab2d, 0xab31, 0xab35, 0xab39, 0xab3d,
-        0xab50, 0xab54, 0xab58, 0xab5c, 0xab60, 0xab64,
-        0xab70, 0xab74, 0xab78, 0xab7c, 0xab80,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static TorizoChozoOrbInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 2) return (ushort)(MovingLeft + 2 + 8 * index);
+        if (index < 7) return (ushort)(WallImpact + 8 + 4 * (index - 2));
+        if (index < 13) return (ushort)(FloorImpact + 15 + 4 * (index - 7));
+        return (ushort)(Shot + 8 + 4 * (index - 13));
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoChozoOrb or
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb;
@@ -93,11 +96,11 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TorizoChozoOrbInstructionMechanicsWord candidate = Words[middle];
+            TorizoChozoOrbInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -111,8 +114,9 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (TorizoChozoOrbInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

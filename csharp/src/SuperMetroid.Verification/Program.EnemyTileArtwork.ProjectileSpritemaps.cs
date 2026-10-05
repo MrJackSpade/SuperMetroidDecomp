@@ -58,7 +58,7 @@ internal static partial class Program
         VerifySharedProgramVisuals(stock);
         ushort ceresOperand = CeresRidleyProjectileInstructionProgramDefinitions
             .PresentationWordAddress(0);
-        OamBuffer nativeCeres = DrawProgramFrame(null, ceresOperand, bus,
+        OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
             new EnemyProjectileVisualReadGuard(bus),
@@ -73,7 +73,7 @@ internal static partial class Program
         {
             ushort operand = AlcoonFireballInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            OamBuffer nativeAlcoon = DrawProgramFrame(null, operand, bus,
+            OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
                 new EnemyProjectileVisualReadGuard(bus),
@@ -101,7 +101,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     new EnemyProjectileVisualReadGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
@@ -116,7 +116,7 @@ internal static partial class Program
         {
             ushort operand = GoldenTorizoEggInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            OamBuffer native = DrawProgramFrame(null, operand, bus,
+            OamBuffer native = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             OamBuffer extracted = DrawProgramFrame(stock, operand,
                 new EnemyProjectileVisualReadGuard(bus),
@@ -154,7 +154,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     new EnemyProjectileVisualReadGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
@@ -179,7 +179,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     new EnemyProjectileVisualReadGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
@@ -231,7 +231,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     new EnemyProjectileVisualReadGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
@@ -265,7 +265,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     new EnemyProjectileVisualReadGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
@@ -274,7 +274,8 @@ internal static partial class Program
                     $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
-        OamBuffer nativeShard = DrawNoobTubeShard(null, bus);
+        // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
+        OamBuffer nativeShard = DrawReferenceProgramFrame(0xd485, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             new EnemyProjectileVisualReadGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
@@ -282,20 +283,23 @@ internal static partial class Program
             nativeShard.HighTable.SequenceEqual(installedShard.HighTable),
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
-        var nativeSamus = new SamusState { XPosition = 0x0080, YPosition = 0 };
         var installedSamus = new SamusState { XPosition = 0x0080, YPosition = 0 };
-        var nativeArrival = new CeresElevatorArrivalState(bus, nativeSamus);
         var installedArrival = new CeresElevatorArrivalState(
             new EnemyProjectileVisualReadGuard(bus), installedSamus, installed);
         for (int frame = 0; frame < 3; frame++)
         {
-            nativeArrival.Step(nativeSamus);
             installedArrival.Step(installedSamus);
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            nativeArrival.Draw(nativeOam, 0, 0);
+            // During the native sixty-frame wait, the pad stays at Y=28 and alternates
+            // its two one-tick maps; the concealer stays at Y=97 with one fixed map.
+            int padOperand = (frame & 1) == 0 ? 0x86a28f : 0x86a293;
+            ushort padPointer = (ushort)(bus.ReadByte(padOperand) | bus.ReadByte(padOperand + 1) << 8);
+            ushort platformPointer = (ushort)(bus.ReadByte(0x86a29b) | bus.ReadByte(0x86a29c) << 8);
+            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, 128, 28, 0, true);
+            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, 128, 97, 0, true);
             installedArrival.Draw(installedOam, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable),
@@ -872,7 +876,7 @@ internal static partial class Program
                 if (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(
                         frame.OperandAddress))
                 {
-                    AssertTrue(DrawSharedFrame(null, frame.OperandAddress, bus)
+                    AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
                             .LowTable.SequenceEqual(DrawSharedFrame(artwork,
                                 frame.OperandAddress,
                                 new EnemyProjectileVisualReadGuard(bus)).LowTable),
@@ -889,7 +893,7 @@ internal static partial class Program
                          SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
                      })
             {
-                OamBuffer native = DrawBurst(null, program, bus);
+                OamBuffer native = DrawReferenceBurst(program, bus);
                 OamBuffer installedBurst = DrawBurst(artwork, program,
                     new EnemyProjectileVisualReadGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
@@ -900,7 +904,35 @@ internal static partial class Program
             }
         }
 
-        static OamBuffer DrawBurst(EnemyTileArtworkCatalog? artwork, ushort program,
+        // Expected OAM comes from the cartridge's visual operand and bank-$8D
+        // composition, not the installed catalog or production draw callback.
+        static OamBuffer DrawReferenceProgramFrame(ushort operand, ISnesAddressSpace source,
+            RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
+        {
+            ushort pointer = (ushort)(source.ReadByte(0x860000 | operand) |
+                source.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, 128, 96,
+                0x0a04, originYIsOnScreen: true);
+            return oam;
+        }
+
+        static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source)
+        {
+            ushort pointer = (ushort)(source.ReadByte(0x860000 | (program + 2)) |
+                source.ReadByte(0x860000 | (program + 3)) << 8);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            // Native Skree/Metaree spawn order: two right particles then two left.
+            // Initialization offsets X by six; no motion tick precedes this draw.
+            foreach (ushort x in new ushort[] { 134, 134, 122, 122 })
+                DrawImportedEnemyProjectileSpritemap(source, oam, pointer, x, 96,
+                    0x0e00, originYIsOnScreen: true);
+            return oam;
+        }
+
+        static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
             ISnesAddressSpace source)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -930,12 +962,12 @@ internal static partial class Program
             return oam;
         }
 
-        static OamBuffer DrawSharedFrame(EnemyTileArtworkCatalog? artwork,
+        static OamBuffer DrawSharedFrame(EnemyTileArtworkCatalog artwork,
             ushort operand, ISnesAddressSpace source) =>
             DrawProgramFrame(artwork, operand, source,
                 RoomEnemyProjectileKind.MiscDustExplosion);
 
-        static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog? artwork,
+        static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -957,7 +989,7 @@ internal static partial class Program
             return oam;
         }
 
-        static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog? artwork,
+        static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
             ISnesAddressSpace source)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

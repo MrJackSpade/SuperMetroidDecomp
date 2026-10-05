@@ -592,7 +592,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs
 
 - [ ] **SkulteraInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkulteraInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkulteraInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs
 
@@ -1069,3 +1069,9 @@ FlyVisualDefinitions.Frames / literal at L15 is complete: four consecutive seven
 ZebesEscapeExplosionDefinitions.Definitions remains unchecked. Named effect cases preserve the 8F:C1D6/C1DE sprite/sound pairs and group repeated effects, but bucket weights/order and the two sound-bearing choices remain independent required inputs. The worker's claim that both entries were complete is not accepted. No retention exception is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-fly-escape confirms all four fly addresses against native instruction operands, bank/names/one-object counts, all 16 escape bytes and 128 actual random/inherited spawn handoffs with positions, sounds, source-read denial and invalid domains. Overall checkpoint: 520 converted, 15 justified retained/mixed, 593 pending.
+
+## Integrated Skultera mirrored layouts
+
+PresentationWords is complete: paired swimming/turning blocks calculate 32 control positions and 22 visual addresses using native record widths at A3:902A-9095. Layer callbacks, loop targets, turn-completion callback and sleep retain their named behaviors. Words remains unchecked: swimming hold 14 and four turn-half holds 13/10/8/6 remain required independent inputs. Mirroring removes repetition without excusing those inputs; the worker's corrected timing treatment is included, and root review also tracks swimming cadence. No exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --skultera-instruction-mechanics confirms all 32 native words, both swimming loops and turns, layer/completion callbacks, terminal sleeps, 22 compiled visual selectors, source-read guards, bounds and allocations. Overall checkpoint: 521 converted, 15 justified retained/mixed, 592 pending.

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -6,12 +7,11 @@ internal static partial class Program
 {
     private static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
-        ReadOnlySpan<byte> compiled = SamusArmCannonDefinitions.AllOpenFlags;
-        AssertEqual(
-            SamusArmCannonDefinitions.HudItemCount,
-            compiled.Length,
-            "arm-cannon policy contains every native HUD selection");
-
+        using var artworkDirectory = new MapCatalogTestDirectory();
+        SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Extract(
+            rom, artworkDirectory.Root, SupportedCartridge.Sha256);
+        var artwork = SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Load(
+            artworkDirectory.Root, null);
         for (ushort selectedHudItem = 0;
              selectedHudItem < SamusArmCannonDefinitions.HudItemCount;
              selectedHudItem++)
@@ -20,7 +20,7 @@ internal static partial class Program
                 SamusArmCannonDefinitions.OpenFlagTable + selectedHudItem);
             AssertEqual(
                 expected,
-                compiled[selectedHudItem],
+                SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
             var samus = new SamusState
@@ -28,6 +28,7 @@ internal static partial class Program
                 Pose = SamusPoseIds.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
             };
+            samus.ArmCannon.Artwork = artwork;
             var guarded = new ArmCannonPolicyReadGuard(rom);
 
             SamusArmCannonUpdateResult first = samus.ArmCannon.Update(guarded, samus);

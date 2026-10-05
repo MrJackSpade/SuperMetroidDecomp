@@ -358,7 +358,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs
 
-- [ ] **SamusArmCannonDefinitions.OpenFlags** ([L15](../csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusArmCannonDefinitions.OpenFlags** ([L15](../csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs
 
@@ -836,3 +836,12 @@ Five more definitions converted; 170 complete and 56 unchecked. No retained exce
 - Evidence: pinned splash `$90:81A4..81BF`, foot contacts `$90:A424..A42D`, duplicated room policy `$90:EDC9..EDD8/$91:F0F3..F102` and corresponding bank8F room-header indices; HUD dispatch `$90:DD05`; crash departure bytes `$90:D4C6..D4D1`.
 - Reproduced stale fixture setup: VerifySamusStoredShineAndShinespark failed at its first palette update because synthetic sentinel colors were supplied only as cartridge bytes. It now extracts/loads those same supplied colors into required suit/cycle catalogs for its two UpdatePalette call sites. All existing movement, collision, timing, sound, health, crash and echo assertions remain unchanged; no production fallback was added.
 - Confirmation: full Verification build 1432 warnings/zero errors, final fixture rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Existing atmospheric source/actual-particle checks, HUD native dispatch/actual admission/charge checks and stored-shine/shinespark crash fixture pass. New checks compare all twelve native departure angles, all 256 pose acceptance/rejection cases, named room-header identities and bounds for movement/contact/room policies.
+
+## Batch 28: semantic arm-cannon HUD policy
+
+One more definition converted; 171 complete and 55 unchecked. No retained exception.
+
+- Replaced the six-byte open-cover lookup with named HUD selection cases: Missile, Super Missile and Grapple open the cover; Beam, Power Bomb and X-ray leave it closed. All six accepted identities and the invalid-item rejection contract remain exact. Removed the verification-only span rather than constructing a replacement table.
+- Evidence: pinned bank90 `ArmCannonOpenFlags` at `$C7D9..C7DE`, consumed by `UpdateArmCannonIsOpenState` at `$C5EB..C624`; the native HUD item selector is the domain of the cases.
+- Reproduced stale fixture prerequisite: the existing native-policy verifier reached `Arm cannon requires installed drawing definitions` on its first Update because it omitted the installed artwork now required by the state. The fixture explicitly extracts/loads its supplied native arm-cannon artwork and binds it to each tested Samus. This is a fixture correction, not a production behavior fix; all original flag and cover-transition assertions remain.
+- Confirmation: final Verification build 25 warnings/zero errors; `--lookup-stream-1` passed. All six direct flags match native bytes, the actual update waits for the second stable item sample and starts precisely the expected opening transition, policy ROM reads remain forbidden, and out-of-range HUD selection still throws.

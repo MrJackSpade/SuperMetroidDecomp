@@ -3920,6 +3920,12 @@ if (args is ["--projectile-radius-instruction-fixtures"])
     VerifyProjectileInstructions(projectileFixtureRom);
     return 0;
 }
+if (args is ["--projectile-trail-artwork-fixture"])
+{
+    VerifyProjectileTrailArtwork(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--charge-flare-placement-fixture"])
 {
     VerifyChargeFlarePlacement(

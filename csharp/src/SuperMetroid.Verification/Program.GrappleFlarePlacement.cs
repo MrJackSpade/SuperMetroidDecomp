@@ -53,7 +53,9 @@ internal static partial class Program
             byte direction = authored.Direction;
             var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
             var guarded = new GrappleFlareReadGuard(nativeBus);
-            var native = Seed(null); var selected = Seed(stock); var changed = Seed(edited);
+            var native = Seed(stock);
+            var selected = Seed(projectileFixtureArt.Value.GrappleTiles.FlarePlacement);
+            var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(nativeBus, native);
             SamusGrappleMovement.BeginFiring(guarded, selected);
             SamusGrappleMovement.BeginFiring(guarded, changed);
@@ -78,6 +80,7 @@ internal static partial class Program
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {
                 var samus = new SamusState { Pose = pose, XPosition = 512, YPosition = 512 };
+                PrepareRetailSamusFixture(samus);
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
             }
@@ -98,7 +101,7 @@ internal static partial class Program
             }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
-        var runtime = new SuperMetroidRuntime(rom);
+        var runtime = CreateRetailRuntimeFixture(rom);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         byte[] beforeBinding = SaveGrappleFixture(runtime.Samus!);

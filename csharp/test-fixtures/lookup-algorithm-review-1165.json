@@ -11233,4 +11233,11 @@
     "state":  "converted",
     "algorithm":  "Named message/setup/draw/content cases,ordered button-mask cases,message-specific patch destinations. Metadata proof distinguished from actual production button consumers.",
     "remaining":  "471 converted,11 justified retained/mixed,646 pending. Text/pixels remain required."
+},"noticeRegionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;14 original rectangles/five notices,native border/content and installed outputs,both actual YES-to-NO transitions,live edit confinement,phase/radius and stock restoration pass. Audit hash refreshed;ResourceAudit zero warnings/errors.",
+    "completed":  "GameplayMessageNoticeDefinitions.MapAndEnergyRegions,MissileRegions,SaveRegions",
+    "workerCommit":  "cf7e1f7ebc7ea4a568c8fc7a1c606e6810285424",
+    "state":  "converted",
+    "algorithm":  "Imported32-cell glyph runs derive rectangles; single interword spaces included,wider/nontext gaps split regions. No duplicate layout table.",
+    "remaining":  "474 converted,11 justified retained/mixed,643 pending. Text/template/border payloads remain required."
 }}

@@ -26,7 +26,7 @@ internal static class MessageClosedContractDefinitions
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "903F8CCAAE5D0264CE35DE30DCEBB4C4D0A9BF33B335784BB93D0D14FC185E71"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "39B4E4F7AF5C6470DC3C9D4E6A7C5B2A74B8A5E453271631E088D0292493F81C")],
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "EDA3F1979E4A230DBAEAA4B333729C7B3D640C4A007940B8BA4282779C1CE44C")],
             "Load requires all five notice IDs, complete templates/borders and valid text regions; both save prompts require YES and NO rows. Contains is a membership query. Build covers the owned notice set; ApplySelection covers only the two save prompts, not station-completion notices."),
     ];
 }

@@ -8,6 +8,67 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<GameplayMessageNoticeDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var stock = GameplayMessageNoticePresentation.Load(new MemoryStream(bytes));
+        foreach (var id in GameplayMessageNoticeDefinitions.MessageIds)
+        {
+            var notice = document.Notices[id.ToString()];
+            (int Row, int Column, int Width)[] expectedRegions = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
+                ? [(0, 8, 14), (1, 8, 8), (3, 10, 3), (3, 19, 2)]
+                : [(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), (2, 10, 10)];
+            AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => (region.Row, region.Column, region.Width))),
+                "Calculated notice rectangles preserve every original row/column/width");
+            AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageNoticeDefinitions.LeftAlignment),
+                "Calculated notice regions retain left alignment");
+            int source = 0x850000 | Word(0x85869f + ((byte)id - 1) * 6);
+            var expected = new ushort[(notice.RowCount + 2) * 32];
+            for (int column = 0; column < 32; column++)
+                expected[column] = expected[expected.Length - 32 + column] = Word(0x858040 + column * 2);
+            for (int cell = 0; cell < notice.RowCount * 32; cell++) expected[32 + cell] = Word(source + cell * 2);
+            AssertTrue(expected.SequenceEqual(stock.Build(id)), "Derived notice export reproduces every native border/content word");
+            var state = new GameplayMessageBoxState();
+            state.BindPresentation(null, null, stock);
+            state.Begin(new FrontendCartridgeReadGuard(rom), id);
+            if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
+                for (int column = 0; column < 32; column++) expected[128 + column] = Word(0x8595c1 + column * 2);
+            AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
+            if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)) continue;
+            for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
+            AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
+            state.Step((ushort)SuperMetroid.Core.Input.SnesButton.Right);
+            for (int column = 0; column < 32; column++) expected[128 + column] = Word(0x859601 + column * 2);
+            AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content");
+        }
+        var editedJson = System.Text.Json.Nodes.JsonNode.Parse(bytes)!;
+        editedJson["notices"]![GameplayMessageId.MapDataAccessCompleted.ToString()]!["text"]![0]!["text"] = "MAP TEST";
+        var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
+        var active = new GameplayMessageBoxState();
+        active.BindPresentation(null, null, stock);
+        active.Begin(new FrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted);
+        active.Step(0);
+        var phase = active.Phase; int radius = active.RadiusPixels;
+        ushort[] original = active.Tilemap.ToArray();
+        active.BindPresentation(null, null, edited);
+        AssertEqual(phase, active.Phase, "Derived notice region edit preserves live phase");
+        AssertEqual(radius, active.RadiusPixels, "Derived notice region edit preserves window radius");
+        for (int cell = 0; cell < original.Length; cell++)
+        {
+            ushort expected = original[cell];
+            if (cell is >= 40 and < 55)
+            {
+                int textIndex = cell - 40;
+                char character = textIndex < 8 ? "MAP TEST"[textIndex] : ' ';
+                expected = (ushort)((original[40] & 0xfc00) | (character == ' ' ? 0x4e : 0xe0 + character - 'A'));
+            }
+            AssertEqual(expected, active.Tilemap[cell], "Independent notice text edit remains within its original calculated rectangle");
+        }
+        active.BindPresentation(null, null, stock);
+        AssertTrue(original.AsSpan().SequenceEqual(active.Tilemap), "Restoring supplied stock notice restores every live word");
+    }
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -56,6 +117,7 @@ internal static partial class Program
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
         VerifyLookupStream4MessageDispatch(rom);
+        VerifyLookupStream4NoticeRegions(rom);
         for (ushort offset = 0; offset <= 24; offset += 8)
         {
             var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);

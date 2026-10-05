@@ -19,26 +19,6 @@ public static class GameplayMessageNoticeDefinitions
         GameplayMessageId.GunshipSaveConfirmation,
     ];
 
-    private static readonly GameplayMessageTextRegionDefinition[] MapAndEnergyRegions =
-    [
-        new(0, 8, 15, LeftAlignment),
-        new(2, 10, 10, LeftAlignment),
-    ];
-
-    private static readonly GameplayMessageTextRegionDefinition[] MissileRegions =
-    [
-        new(0, 8, 14, LeftAlignment),
-        new(2, 10, 10, LeftAlignment),
-    ];
-
-    private static readonly GameplayMessageTextRegionDefinition[] SaveRegions =
-    [
-        new(0, 8, 14, LeftAlignment),
-        new(1, 8, 8, LeftAlignment),
-        new(3, 10, 3, LeftAlignment),
-        new(3, 19, 2, LeftAlignment),
-    ];
-
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
 
     public static bool IsSaveConfirmation(GameplayMessageId messageId) =>
@@ -54,17 +34,52 @@ public static class GameplayMessageNoticeDefinitions
                 : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                     "Message is not an editable completion/save notice.");
 
-    public static ReadOnlySpan<GameplayMessageTextRegionDefinition> StockTextRegions(
-        GameplayMessageId messageId) => messageId switch
+    /// <summary>
+    /// Derives stock notice rectangles from the imported tilemap's visible glyph runs.
+    /// Single interword spaces belong to a phrase; wider gaps and nontext glyphs separate
+    /// regions, including the independent YES/NO choices. Source text remains artwork.
+    /// </summary>
+    public static IEnumerable<GameplayMessageTextRegionDefinition> StockTextRegions(
+        GameplayMessageId messageId, IReadOnlyList<GameplayMessageTitleCell> template)
+    {
+        int rows = ContentRows(messageId);
+        Ensure.NotNull(template);
+        if (template.Count != rows * GameplayMessageRomData.Layout.TilemapWidth)
+            throw new InvalidDataException("Notice region derivation requires its complete native tilemap rows.");
+        return Enumerate();
+
+        IEnumerable<GameplayMessageTextRegionDefinition> Enumerate()
         {
-            GameplayMessageId.SaveConfirmation or
-            GameplayMessageId.GunshipSaveConfirmation => SaveRegions,
-            GameplayMessageId.MapDataAccessCompleted or
-            GameplayMessageId.EnergyRechargeCompleted => MapAndEnergyRegions,
-            GameplayMessageId.MissileRechargeCompleted => MissileRegions,
-            _ => throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
-                "Message is not an editable completion/save notice."),
-        };
+            int width = GameplayMessageRomData.Layout.TilemapWidth;
+            for (int row = 0; row < rows; row++)
+            {
+                int column = 0;
+                while (column < width)
+                {
+                    if (!IsText(template[row * width + column].Raw)) { column++; continue; }
+                    int start = column++;
+                    while (column < width)
+                    {
+                        ushort word = template[row * width + column].Raw;
+                        if (IsText(word)) { column++; continue; }
+                        if ((word & 0x03ff) == GameplayMessageTitleDefinitions.SpaceCharacter &&
+                            column + 1 < width && IsText(template[row * width + column + 1].Raw))
+                        {
+                            column += 2;
+                            continue;
+                        }
+                        break;
+                    }
+                    yield return new(row, start, column - start, LeftAlignment);
+                }
+            }
+        }
+
+        static bool IsText(ushort word) => (word & 0x03ff) is
+            >= GameplayMessageTitleDefinitions.UppercaseACharacter and <= GameplayMessageTitleDefinitions.UppercaseZCharacter or
+            GameplayMessageTitleDefinitions.HyphenCharacter or GameplayMessageTitleDefinitions.PeriodCharacter or
+            GameplayMessageTitleDefinitions.QuestionMarkCharacter;
+    }
 }
 
 /// <summary>One stock text rectangle inside a gameplay notice's content rows.</summary>

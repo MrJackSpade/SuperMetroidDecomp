@@ -146,13 +146,24 @@ public sealed partial class SamusProjectileSystem
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
             return;
 
-        bool running = samus.ReadMovementKind(bus) == SamusMovementType.Running;
+        DrawFlareComponentWithMetadata(oam, samus, layer1X, layer1Y, component,
+            mode7Transform, placement, compositions, direction,
+            samus.ReadMovementKind(bus) == SamusMovementType.Running,
+            unchecked((byte)samus.ReadGraphicsYOffset(bus)), samus.IsFacingLeft(bus));
+    }
+
+    private void DrawFlareComponentWithMetadata(
+        OamBuffer oam, SamusState samus, ushort layer1X, ushort layer1Y, int component,
+        SamusMode7Transform? mode7Transform, Assets.ChargeFlarePlacementCatalog? placement,
+        Assets.ChargeFlareSpriteCatalog? compositions, byte direction,
+        bool running, byte poseYOffset, bool facingLeft)
+    {
         var visualOffset = (placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
             .Resolve(running, direction & 0x0f);
         short xOffset = visualOffset.X;
         short yOffset = visualOffset.Y;
-        byte poseYOffset = unchecked((byte)samus.ReadGraphicsYOffset(bus));
+
 
         // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
@@ -170,7 +181,7 @@ public sealed partial class SamusProjectileSystem
         if ((screenY & 0xff00) != 0)
             return;
 
-        bool facingLeft = samus.IsFacingLeft(bus);
+
         ushort indexOffset = unchecked((ushort)(facingLeft
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));

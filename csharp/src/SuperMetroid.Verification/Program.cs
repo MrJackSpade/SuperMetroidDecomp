@@ -3920,6 +3920,14 @@ if (args is ["--projectile-radius-instruction-fixtures"])
     VerifyProjectileInstructions(projectileFixtureRom);
     return 0;
 }
+if (args is ["--kraid-contour-head-fixtures"])
+{
+    var kraidFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyKraidBodyContour(kraidFixtureRom);
+    VerifyKraidHeadInstructionDefinitions(kraidFixtureRom);
+    return 0;
+}
 if (args is ["--power-bomb-shape-fixture"])
 {
     VerifyCompiledPowerBombShape(

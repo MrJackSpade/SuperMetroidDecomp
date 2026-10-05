@@ -26,12 +26,8 @@ internal static partial class Program
                 $"Kraid contour native CMP/BPL selection at Y={relativeY}");
         }
         var enemies = new RoomEnemySystem();
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
-        var overlaps = typeof(RoomEnemySystem).GetMethod("KraidOuterBodyOverlapsShot", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, SamusProjectileSlot, bool>>(enemies);
+        var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.Slots[0];
-        var state = new KraidEnemyState { VulnerableMouthHitbox = 0 };
         var shot = new SamusProjectileSystem().Slots[0];
         body.XPosition = 256;
         body.YPosition = 32768;
@@ -43,7 +39,7 @@ internal static partial class Program
             for (int delta = -1; delta <= 1; delta++)
             {
                 shot.XPosition = (ushort)(edge + delta);
-                AssertEqual(delta > 0, overlaps(body, state, shot), "Wrapped contour production edge remains strict");
+                AssertEqual(delta > 0, overlaps(body, shot), "Wrapped contour production edge remains strict");
             }
         }
     }

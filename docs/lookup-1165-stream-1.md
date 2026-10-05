@@ -107,8 +107,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs
 
-- [ ] **BrinstarPipeBugInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BrinstarPipeBugInstructionProgramDefinitions.PresentationWords** ([L46](../csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BrinstarPipeBugInstructionProgramDefinitions.Words** ([L21](../csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BrinstarPipeBugInstructionProgramDefinitions.PresentationWords** ([L46](../csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BullInstructionProgramDefinitions.cs
 
@@ -679,3 +679,12 @@ Four more definitions converted; 117 complete and 109 remain. No retained except
 ### Rotation handoff after batch 10
 
 Stream1 pauses for the scheduled stream4 rotation at117 completed/109 unchecked definitions. Every unchecked entry remains an implementation obligation; no unexamined entry is retained by implication. Prepared next source review: Brinstar Pipe Bug normal rise/shoot loops and strong alternating rise cadence (`$B3:87AB..882A`, `$8A1D..8A6C`); no edits made there. Larger pending scopes include SPC pan mapping, remaining Samus animation/pose and projectile instruction/radius definitions, enemy instruction layouts and stock artwork payloads. No performance, complexity, size or provenance retention justification applies.
+
+## Batch 11: Brinstar Pipe Bug program layout and cadence
+
+Two more definitions converted;119 complete and107 unchecked. No retained exception.
+
+- Normal rising programs calculate eight two-tick draws; normal shooting calculates six one-tick draws. Strong rising alternates two/one ticks across four draws, while strong shooting uses four three-tick draws. Left/right programs share the same layout. All programs end with their own goto loop.
+- Mechanics and presentation addresses enumerate this layout without stored or generated arrays; readers and byte classification calculate exact native domains. All eight entry constants now carry original symbol/address XML documentation.
+- Evidence: pinned bankB3 `InstList_Zeb_FacingLeft/Right_Rising/Shooting`, `$87AB..882A`, and `InstList_Zebbo_FacingLeft/Right_Rising/Shooting`, `$8A1D..8A6C`.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. Existing Brinstar Pipe Bug verification is wired unchanged and confirms60 original control words,44 visual selectors, all eight actual animation programs and complete loops with mechanics source words forbidden, plus rejected pointers and zero-allocation assertions.

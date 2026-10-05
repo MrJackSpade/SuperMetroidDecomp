@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 649,
+  "remainingTableDefinitionCount": 646,
   "fileCount": 523,
   "entries": [
     {
@@ -3817,21 +3817,27 @@
       "line": 13,
       "name": "GameplayMessageDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c4d360b4994c82fac8fe3aac55cf156eed7b43e4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs",
       "line": 76,
       "name": "GameplayMessageRomData.Buttons.OrderedGlyphs",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c4d360b4994c82fac8fe3aac55cf156eed7b43e4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs",
       "line": 92,
       "name": "GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c4d360b4994c82fac8fe3aac55cf156eed7b43e4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
@@ -21279,6 +21285,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 468,
+  "convertedSinceSnapshot": 471,
   "justifiedRetainedSinceSnapshot": 11
 }

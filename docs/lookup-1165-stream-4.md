@@ -296,12 +296,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs
 
-- [ ] **GameplayMessageDefinitions.Definitions** ([L13](../csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageDefinitions.Definitions** ([L13](../csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs
 
-- [ ] **GameplayMessageRomData.Buttons.OrderedGlyphs** ([L76](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets** ([L92](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageRomData.Buttons.OrderedGlyphs** ([L76](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets** ([L92](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs
 
@@ -919,3 +919,14 @@ One definition converted; 59 integrated complete and 166 unchecked. LibraryBackg
 - Removed the separate58-address lookup. Membership walks DecompressToWorkRam operands; the calculated immutable list enumerates successive distinct source addresses in ascending order without caching a second source table. Count and indexing derive from that same view, preserving IReadOnlyList behavior and index rejection.
 - Evidence: native bank8F library-background command lists selected by retail states contain the compressed source identities as command0004 operands. The independent import-time LibraryBackgroundSourceInventory scanner reads those original operands and yields exactly the previous58 distinct addresses. Other transfer command operands are excluded.
 - Confirmation: final Verification build passed (1193 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare the complete native58-source set, count, ordered enumeration and every indexed value; all source memberships pass, adjacent interior bytes and absent identities reject, and negative/past-end/extreme indexes retain their exception type. Confirmation only walks source metadata, without room execution or gameplay discovery.
+
+## Batch 48: message and controller-button semantic dispatch
+
+Three definitions converted; 62 integrated complete and 163 unchecked. Message text, tile/pixel payloads and independently editable presentation fields remain required.
+
+- The 29 message records now select named setup/draw routines and named presentation identities by GameplayMessageId. Content-boundary records 1B and 1D remain explicit, with native pointer identities preserved so diagnostic content sizing remains exact. XML identifies every native payload symbol/address. This metadata currently has only diagnostic callers in this worktree; native-triple proof is not claimed as evidence of a production dependency.
+- Button glyph selection now executes ordered named controller-mask cases. The exact A/B/X/Y/Select/L/R priority survives malformed multibit bindings, and no-match still selects the native blank. Message-specific glyph patch positions now dispatch by named message ID; the full original 1..27 domain, including dummy boundary, and rejection outside it remain exact.
+- Granted GameplayMessageBoxState changes are limited to its two selector bindings. The actual patch operation still writes only the selected cell in the supplied tilemap; no installed message content or neighboring edit is replaced.
+- Evidence: pinned bank85 MessageDefinitionsPointers at869B..8748; DrawSpecialButton_SetupPPUForLargeMessageBox BIT tests at83D4..8407 and glyphs8426..8435; Special_Button_Tilemap_Offsets at8749..877E.
+- Confirmation: final Verification build 1218 warnings/zero errors; --lookup-stream-4 passed. New focused checks compare all87 native definition words and bounds, all65536 binding values against native BIT immediates/glyph words through both catalog and actual message resolver, all27 patch offsets and every other byte-ID rejection. Actual PatchConfiguredButton preserves all192 supplied cells except its one native destination for each accepted identity. No unrelated full message lifecycle fixture was run.
+- Integration dependency: ResourceAudit/MessageClosedContractDefinitions.cs line10 hashes GameplayMessageRomData.cs. Coordinator owns its refresh; no audit file was edited here.

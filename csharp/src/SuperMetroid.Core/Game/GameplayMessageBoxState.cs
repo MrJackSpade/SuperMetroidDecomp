@@ -335,7 +335,7 @@ public sealed class GameplayMessageBoxState
 
     private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
-        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets[(byte)messageId - 1];
+        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= _tilemap.Length * 2)
         {
             throw new InvalidDataException(
@@ -364,19 +364,8 @@ public sealed class GameplayMessageBoxState
         }
     }
 
-    private static ushort ResolveButtonTilemapWord(ushort binding)
-    {
-        // BIT tests occur in this exact order at $85:83D1. A malformed multi-bit binding
-        // therefore still selects the first native match instead of requiring an enum
-        // equality that the cartridge never performed.
-        foreach (GameplayMessageButtonGlyph definition in
-            GameplayMessageRomData.Buttons.Glyphs)
-        {
-            if ((binding & (ushort)definition.Button) != 0)
-                return definition.Glyph.Raw;
-        }
-        return GameplayMessageRomData.Buttons.UnknownGlyph.Raw;
-    }
+    private static ushort ResolveButtonTilemapWord(ushort binding) =>
+        GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
 
 }
 

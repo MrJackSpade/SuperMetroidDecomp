@@ -11226,4 +11226,11 @@
     "native":  "Direct ROM8B7F and palette listing match. 86CDF0 sets0640,83D9 splits tile/palette offsets;8D9750/976C select corrected tile162/165.",
     "state":  "approved-pending-integration",
     "limits":  "Shared dark0802/final-room and recovery inputs remain required; whole glass entry remains pending. Preserve independent supplied edits."
+},"gameplayMessageDispatchIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;87 native metadata words,65536 bindings,27 exact patch destinations and every neighboring supplied cell/bounds pass. Source audit hash refreshed;ResourceAudit zero warnings/errors.",
+    "completed":  "GameplayMessageDefinitions.Definitions;Buttons.OrderedGlyphs;Buttons.SpecialGlyphByteOffsets",
+    "workerCommit":  "c4d360b4994c82fac8fe3aac55cf156eed7b43e4",
+    "state":  "converted",
+    "algorithm":  "Named message/setup/draw/content cases,ordered button-mask cases,message-specific patch destinations. Metadata proof distinguished from actual production button consumers.",
+    "remaining":  "471 converted,11 justified retained/mixed,646 pending. Text/pixels remain required."
 }}

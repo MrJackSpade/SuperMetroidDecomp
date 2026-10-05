@@ -8,8 +8,54 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int id = 1; id <= 29; id++)
+        {
+            var definition = GameplayMessageDefinitions.AtNativeIndex(id);
+            int address = 0x85869b + (id - 1) * 6;
+            AssertEqual(Word(address), definition.ModifyFunction, "Native message setup callback case");
+            AssertEqual(Word(address + 2), definition.DrawFunction, "Native message drawing callback case");
+            AssertEqual(Word(address + 4), definition.ContentPointer, "Native message presentation identity case");
+        }
+        foreach (int invalid in new[] { int.MinValue, 0, 30, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageDefinitions.AtNativeIndex(invalid), "Native message record domain");
+        var resolve = typeof(GameplayMessageBoxState).GetMethod("ResolveButtonTilemapWord", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<ushort, ushort>>();
+        for (int bits = 0; bits <= ushort.MaxValue; bits++)
+        {
+            int winner = 0;
+            while (winner < 7 && (bits & Word(0x8583d5 + winner * 8)) == 0) winner++;
+            ushort expected = Word(0x858426 + 2 * winner);
+            AssertEqual(expected, GameplayMessageRomData.Buttons.ResolveGlyphWord((ushort)bits), "Native BIT order and all button glyph attributes");
+            AssertEqual(expected, resolve((ushort)bits), "Actual message button resolver retains first-match precedence");
+        }
+        var patch = typeof(GameplayMessageBoxState).GetMethod("PatchConfiguredButton", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<GameplayMessageBoxState, GameplayMessageId, ushort>>();
+        var tilemapField = typeof(GameplayMessageBoxState).GetField("_tilemap", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var id = (GameplayMessageId)raw;
+            if (raw is < 1 or > 27)
+            {
+                AssertThrows<IndexOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                continue;
+            }
+            ushort expected = Word(0x858749 + (raw - 1) * 2);
+            AssertEqual(expected, GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Native message button placement case");
+            var state = new GameplayMessageBoxState();
+            var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
+            tilemapField.SetValue(state, cells);
+            patch(state, id, ushort.MaxValue);
+            for (int index = 0; index < cells.Length; index++)
+                AssertEqual(index == expected / 2 ? Word(0x858426) : (ushort)(0x4000 + index), cells[index],
+                    "Actual button patch preserves every independently supplied neighboring cell");
+        }
+    }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4MessageDispatch(rom);
         for (ushort offset = 0; offset <= 24; offset += 8)
         {
             var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);

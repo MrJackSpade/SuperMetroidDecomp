@@ -4427,7 +4427,6 @@ if (args is ["--norfair-rio-instruction-program-definitions"])
 if (args is ["--lower-norfair-rio-instruction-program-definitions"])
 {
     VerifyLowerNorfairRioInstructionProgramDefinitions();
-    VerifyDraygonProjectileInstructionProgramDefinitions();
     return 0;
 }
 if (args is ["--mama-turtle-instruction-program-definitions"])

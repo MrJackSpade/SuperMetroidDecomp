@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 804,
+  "remainingTableDefinitionCount": 800,
   "fileCount": 523,
   "entries": [
     {
@@ -3325,14 +3325,18 @@
       "line": 30,
       "name": "DraygonProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ddd11b3b6"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs",
       "line": 73,
       "name": "DraygonProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ddd11b3b6"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs",
@@ -4328,14 +4332,18 @@
       "line": 31,
       "name": "LowerNorfairRioInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "142a42552"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
       "line": 33,
       "name": "LowerNorfairRioInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "142a42552"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MagdolliteInstructionProgramDefinitions.cs",
@@ -20960,6 +20968,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 322,
+  "convertedSinceSnapshot": 326,
   "justifiedRetainedSinceSnapshot": 2
 }

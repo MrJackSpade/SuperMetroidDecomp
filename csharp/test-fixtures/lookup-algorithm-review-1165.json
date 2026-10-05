@@ -10831,4 +10831,14 @@
   "algorithm": "Render rows on demand from validated text,fonts,attributes and semantic caption-role layout. Digit/letter tile bases plus index replace stock glyph arrays; independent edits preserved.",
   "remaining": "322 converted,two justified retained,804 pending. No new exception.",
   "scope": "Credits row cache,caption role table,file-select digits and slot letters:four definitions."
+},"rioAndDraygonProgramsIntegration":{
+  "state": "converted",
+  "algorithm": "Named program layouts,turnaround ramps,flame dwell halving,goop loops and two turret forming ramps calculate control words and visual operand addresses.",
+  "remaining": "326 converted,two justified retained,800 pending. Independent palette/artwork values remain required.",
+  "implementationCommits": [
+    "142a42552",
+    "ddd11b3b6"
+  ],
+  "confirmation": "Verification1438 warnings/zero errors. Rio51 native words,32 selectors,seven actual parent/flame programs and three callbacks; Draygon38 native words,27 actual visual selections,real goop/turret producers,touch/drop callbacks and all private programs. Source reads forbidden. Corrected standalone Rio flag to avoid invoking unrelated Draygon check; combined stream keeps both. No reviewed-source hash dependency; static index refreshed.",
+  "scope": "Lower Norfair Rio and Draygon projectile control/presentation-address arrays:four definitions."
 }}

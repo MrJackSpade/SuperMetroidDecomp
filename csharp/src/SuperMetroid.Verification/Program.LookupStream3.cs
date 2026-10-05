@@ -130,6 +130,8 @@ internal static partial class Program
         VerifyStream3ShitroidPulse(rom);
         VerifyStream3HealthTint(rom);
         VerifyStream3RecoveryLights(rom);
+        VerifyStream3RoomFlash(rom);
+        VerifyMotherBrainRoomPaletteProgramDefinitions();
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
@@ -1344,5 +1346,58 @@ internal static partial class Program
             oldOverride.ApplyRecoveryLights(actual, frame);
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "stream 3 legacy room override reuses calculated stock recovery");
         }
+    }
+    private static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object flash = typeof(MotherBrainRoomColorPresentation).GetField("flash", flags)!.GetValue(stock)!;
+        AssertTrue(flash.GetType().GetField("supplied", flags)!.GetValue(flash) is null,
+            "stream 3 stock flash rows discarded");
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+        {
+            bool mechanics = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 < 2 ||
+                offset is >= 0xd07e and < 0xd082;
+            bool presentation = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 >= 2;
+            AssertEqual(mechanics, MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte(0xa90000 | offset),
+                "stream 3 room palette mechanics byte ownership");
+            AssertEqual(presentation, MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(0xa90000 | offset, out ushort word),
+                "stream 3 room palette operand byte ownership");
+            if (presentation) AssertEqual((ushort)(offset & 0xfffe), word, "stream 3 room palette canonical operand");
+        }
+        foreach (int invalid in new[] { -1, 14, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 room palette operand index bounds");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 room palette mechanics index bounds");
+        for (int frame = 0; frame < 14; frame++)
+            for (int color = 0; color < 24; color++)
+                foreach (string component in new[] { "red", "green", "blue" })
+                {
+                    var editedNode = node.DeepClone();
+                    var rgb = editedNode["flash"]![frame]![color]!;
+                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                        System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                    for (int checkFrame = 0; checkFrame < 14; checkFrame++)
+                    {
+                        var actual = new SnesCgram();
+                        edited.ApplyFlash(actual, (ushort)(0xd046 + checkFrame * 4));
+                        for (int checkColor = 0; checkColor < 24; checkColor++)
+                        {
+                            var expectedRgb = editedNode["flash"]![checkFrame]![checkColor]!;
+                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                expectedRgb["green"]!.GetValue<int>() << 5 |
+                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            int destination = checkColor < 12 ? 0x34 + checkColor : 0x53 + checkColor - 12;
+                            AssertEqual(expected, actual.Colors[destination], "stream 3 independent room flash edit");
+                            if (checkColor >= 12)
+                                AssertEqual(expected, actual.Colors[0x73 + checkColor - 12], "stream 3 edited room flash mirror");
+                        }
+                    }
+                }
     }
 }

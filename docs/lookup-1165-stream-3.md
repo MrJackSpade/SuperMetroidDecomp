@@ -531,8 +531,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs
 
-- [ ] **MotherBrainRoomPaletteProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainRoomPaletteProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainRoomPaletteProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainRoomPaletteProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs
 
@@ -878,6 +878,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Pinned $AD:F283-$F409 contains seven reverse-selected rows. Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all 196 native words at both CGRAM destinations, absent stock channel trajectories, 588 independent channel edits and legacy-document fallback for all seven steps.
 - The independent full-light color basis and its latent precision remain required; this inventory entry stays unchecked. Converted count remains 70 plus the separate decorative-anchor retention.
 - Coordinator must refresh `ClosedPresentationContractDefinitions.cs` source hash for `MotherBrainRoomColorPresentation.cs` (previous 67630C828581AB534E1F6EBF0E8145762623EEE80F26B534157EB72FEC780AE8).
+### Confirmed batch 33: Mother Brain room flash and control
+
+- Converted the sixteen mechanics words and fourteen presentation operands to four-byte frame strides, two-tick durations and the closing loop operation. Flash-strength event selection uses semantic strength cases; no control/address arrays remain. Byte ownership, ordering, index exceptions and mechanics rejection are unchanged.
+- Replaced stock fourteen-by-24 flash color rows with a base palette and shared highlight. First thirteen colors interpolate toward that highlight in thirds; remaining eleven level colors darken by `(4-strength)/4`. Both calculations round RGB5 channels to nearest. All four distinct native palettes match exactly; independent edits retain their complete supplied flash content.
+- Reproduced the assigned fixture's missing-installed-colors failure before changing it. Initialized existing extraction and replaced obsolete live-ROM expectations with an independent native pointer/timer/full-CGRAM oracle across 48 actual production ticks. All fourteen operands and loop wrap are covered; runtime mechanics and presentation reads remain zero, and existing rejection assertions remain.
+- Full build passed (1432 warnings, zero errors); final verifier rebuild passed (25 warnings, zero errors). `--lookup-stream-3` passed the native production oracle, every bank-byte ownership decision, bounds, absent stock flash rows and 1008 independent RGB channel edits across all fourteen palettes and mirrored destinations.
+- Two control entries completed, bringing converted entries to 72 plus the separately justified decorative-anchor retention. The independent flash base/highlight, final-room colors and other room-color payloads remain required; the installed flash entry stays unchecked.
+- Coordinator must refresh both source hashes in `ClosedPresentationContractDefinitions.cs`: `MotherBrainRoomColorPresentation.cs` and `MotherBrainRoomPaletteProgramDefinitions.cs` (latter previous 68E027B6CA7DCA4C6357729EE8C73276E303D9E94AD934481442F59D4026E1E9).
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

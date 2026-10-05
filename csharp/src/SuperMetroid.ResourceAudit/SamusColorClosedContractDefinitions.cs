@@ -46,7 +46,7 @@ internal static class SamusColorClosedContractDefinitions
             "Private construction requires ten ten-color body rows and six six-color bubble rows, compiled independently. Each reviewed method guards its own frame/color bounds rather than the other stream's larger domain. Timers, radius and healing are outside this proof."),
         new("SuperMetroid.Core.Assets.PowerBombFixedColorCatalog", "power-bomb-complete-fixed-colors", ["Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs", "B9FE2A0BCC2ED71399E0F7E4C41C599BFF089DDC7459BDCF65930673D8772892")],
+             new("csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs", "8A289741B83C776E49ED6D5302BBE83AD1331B3EADD0A83EC4D2F3006414CD70")],
             "Private construction requires sixteen pre-explosion and thirty-two explosion RGB5 triplets and compiles independent arrays. Resolve guards the exact sequence enum and that sequence's index. Known pre-explosion selectors cannot borrow explosion capacity. HDMA radius and phase timing are not certified."),
         new("SuperMetroid.Core.Assets.HyperBeamFxColorCatalog", "hyper-beam-fx-complete-color-frames", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Assets/HyperBeamFxColorCatalog.cs", "2C6A1C6C8E24311CA7586ACA9104F80FE7DB6B93C0629C6A6D63C14861AD5C95"),

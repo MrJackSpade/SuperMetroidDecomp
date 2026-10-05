@@ -10636,4 +10636,14 @@
     "confirmation": "Integrated --lookup-stream-3 passed all native colors, body/brain tail preservation, leg and trailing WRAM destinations, fake-death revival behavior, 456 independent channel edits and exactly one stock supplied trajectory. Verification build: 1436 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract and static index refreshed.",
     "remaining": "Snapshot unchanged: 246 converted, one justified retained, 881 pending. Revival container remains unresolved until endpoints and unmatched channel have acceptable dispositions."
   }
+,
+  "powerBombInstalledRampsIntegration": {
+    "id": "power-bomb-pre-explosion-and-partial-explosion-colors",
+    "state": "unreviewed",
+    "implementationCommit": "a5cc64228",
+    "convertedFields": "All sixteen pre-explosion colors calculate rise/decline channel ramps, fully completing that definition. Explosion colors zero through twenty calculate yellow opening and grayscale crest; eleven tail colors remain supplied and unresolved.",
+    "evidence": "All 48 native RGB5 triplets match. Stock stores zero pre-explosion overrides and exactly eleven explosion colors. Independent JSON edits preserve all supplied neighbors, calculated values and unresolved tail values.",
+    "confirmation": "Integrated --lookup-stream-4 passes native colors, storage/domain checks, five independent edits, guarded Power Bomb and Crystal Flash lifecycles and the existing 95-frame Ceres effect check. Verification build: 1436 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract and static index refreshed.",
+    "remaining": "Snapshot: 247 converted, one justified retained, 880 pending. Explosion container stays unchecked. Its rejected irregular-tail retention prose has been removed; no new exception."
+  }
 }

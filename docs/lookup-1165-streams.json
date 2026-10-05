@@ -3017,6 +3017,21 @@
       "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.DraygonOamCollision.cs",
       "purpose": "Exclude confirmed BG2 frame roots from OAM-only fixture while preserving native collision assertions"
     }
+    ,{
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GrappleConnectionDefinitions.cs",
+      "purpose": "Initialize required installed swing artwork while retaining all connection behavior assertions"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GunshipInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native selector evidence while preserving actual program checks"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GunshipDustInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native selector evidence while preserving initializer and lifetime checks"
+    }
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

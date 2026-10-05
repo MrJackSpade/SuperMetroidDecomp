@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -25,6 +26,9 @@ internal static partial class Program
                 $"Yapping Maw body-projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new YappingMawBodyProjectileInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeYappingMaw", flags)!;
@@ -79,6 +83,7 @@ internal static partial class Program
             {
                 body.InstructionTimer = 1;
                 process.Invoke(system, [body, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, body, spriteArtwork, executedOperands);
             }
         }
 
@@ -91,20 +96,20 @@ internal static partial class Program
         AssertTrue(!deletion.IsActive,
             "Yapping Maw body shot reaction reaches the compiled shared delete program");
 
-        AssertEqual(
-            YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both live Yapping Maw body spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "YappingMawBodyProjectile execution performs no live spritemap operand reads");
+        AssertEqual(YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "YappingMawBodyProjectile executes every native visual operand");
+        for (int index = 0; index < YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = YappingMawBodyProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Yapping Maw body presentation $86:{address:X4}");
+            ushort address = YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"YappingMawBodyProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "YappingMawBodyProjectile has a compiled visual selector");
+            AssertEqual(ReadYappingMawBodyProjectileInstructionWord(rom, address), selector,
+                "YappingMawBodyProjectile compiled selector matches the cartridge");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Yapping Maw body and shared-delete mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -127,7 +132,7 @@ internal static partial class Program
         Console.WriteLine(
             "Yapping Maw body-projectile instruction mechanics: four compiled words, " +
             "both real facing producers, eight terminal sleeps, shared shot deletion, " +
-            "and both live spritemap reads pass with mechanics bytes forbidden.");
+            "and both installed sprite frames pass with mechanics and visual operand ROM reads forbidden.");
     }
 
     private static int ProbeYappingMawBodyProjectileInstructionMechanicsAllocation()

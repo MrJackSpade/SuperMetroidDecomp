@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -25,6 +26,9 @@ internal static partial class Program
                 $"Stoke-projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new StokeProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -73,19 +77,20 @@ internal static partial class Program
         AssertTrue(!projectiles[0].IsActive,
             "Stoke projectile shot reaction reaches the compiled shared delete program");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "StokeProjectile execution performs no live spritemap operand reads");
         AssertEqual(StokeProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both live Stoke-projectile spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < StokeProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "StokeProjectile executes every native visual operand");
+        for (int index = 0; index < StokeProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = StokeProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Stoke-projectile presentation $86:{address:X4}");
+            ushort address = StokeProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"StokeProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "StokeProjectile has a compiled visual selector");
+            AssertEqual(ReadStokeProjectileInstructionWord(rom, address), selector,
+                "StokeProjectile compiled selector matches the cartridge");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Stoke-projectile and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -104,8 +109,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Stoke-projectile instruction mechanics: four compiled words, both real " +
-            "directions, complete loops, shared shot deletion, and both live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "directions, complete loops, shared shot deletion, and both installed sprite frames " +
+            "pass with mechanics and visual operand ROM reads forbidden.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -113,6 +118,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 519 are converted, 15 are justified retained, and 594 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 520 are converted, 15 are justified retained, and 593 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -956,7 +956,7 @@ Remaining table definitions: **5**.
 
 Remaining table definitions: **1**.
 
-- [ ] **FlyVisualDefinitions.Frames / literal at L15** - method-local definition ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)). Fixed values inside a method; not an array parameter/return declaration.
+- [x] **FlyVisualDefinitions.Frames / literal at L15** - method-local definition ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)). Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs
 

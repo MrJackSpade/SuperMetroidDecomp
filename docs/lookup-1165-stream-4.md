@@ -244,7 +244,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs
 
-- [ ] **FlyVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **FlyVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs
 
@@ -1061,3 +1061,11 @@ Root Verification build passed with 1445 warnings and zero errors. --lookup-stre
 GameplayHudPresentation.autoFull and autoEmpty remain unchecked. Native 80:998B-99A1 derives the bottom row by vertical reflection of the top row and empty-state cells by toggling palette bit 12. Eight cells now calculate from four independent full-state glyph/style words; those four words remain required without exception. Independently supplied edits retain exact values for both states and all neighbors.
 
 Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-hud-auto-cells confirms all 12 native cells through actual drawing, four stored basis words with zero stock overrides, serialized independent palette/tile/flip/priority edits, all unchanged neighbors and invalid cell bounds. Presentation hash refreshed; ResourceAudit builds with zero warnings/errors. Counts unchanged: 519 converted, 15 justified retained/mixed, 594 pending.
+
+## Integrated fly identities and escape effect cases
+
+FlyVisualDefinitions.Frames / literal at L15 is complete: four consecutive seven-byte single-object OAM records at A2:B1E8-B203 calculate the frame identities and preserve editable names. Independent OAM artwork remains required.
+
+ZebesEscapeExplosionDefinitions.Definitions remains unchecked. Named effect cases preserve the 8F:C1D6/C1DE sprite/sound pairs and group repeated effects, but bucket weights/order and the two sound-bearing choices remain independent required inputs. The worker's claim that both entries were complete is not accepted. No retention exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-fly-escape confirms all four fly addresses against native instruction operands, bank/names/one-object counts, all 16 escape bytes and 128 actual random/inherited spawn handoffs with positions, sounds, source-read denial and invalid domains. Overall checkpoint: 520 converted, 15 justified retained/mixed, 593 pending.

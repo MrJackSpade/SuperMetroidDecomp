@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 594,
+  "remainingTableDefinitionCount": 593,
   "fileCount": 523,
   "entries": [
     {
@@ -756,7 +756,9 @@
       "line": 15,
       "name": "FlyVisualDefinitions.Frames / literal at L15",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "1b6cd05a6d468eb00e8c50e03aab6030aeabcd71"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",

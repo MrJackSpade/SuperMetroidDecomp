@@ -26,6 +26,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream4-fly-escape"])
+{
+    var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyFlyFrameIdentities(source);
+    VerifyZebesEscapeExplosionDefinitions(source);
+    return 0;
+}
 if (args is ["--lookup-stream4-hud-auto-cells"])
 {
     VerifyLookupStream4HudAutoCells(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

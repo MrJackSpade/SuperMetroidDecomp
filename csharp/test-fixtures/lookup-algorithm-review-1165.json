@@ -11567,4 +11567,11 @@
     "state":  "partial-required",
     "algorithm":  "Derive eight AUTO cells from four shared full-state inputs using vertical reflection and empty-state palette-bit change.",
     "remaining":  "Four independent glyph/style words required; no exception. Counts unchanged: 519 converted, 15 justified retained/mixed, 594 pending."
+},"flyEscapeIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Four native fly selectors/banks/names/object counts, sixteen native escape bytes and 128 actual random/inherited spawns with positions/sounds/read guards/bounds pass.",
+    "completed":  "FlyVisualDefinitions.Frames / literal at L15",
+    "workerCommit":  "1b6cd05a6d468eb00e8c50e03aab6030aeabcd71",
+    "state":  "partial-one-converted",
+    "algorithm":  "Four consecutive seven-byte single-object OAM records calculate fly identities. Escape effects dispatch named repeated effects.",
+    "remaining":  "ZebesEscapeExplosionDefinitions.Definitions required: bucket weights/order and sound-bearing choices not justified by naming cases. No artwork/weight exception. 520 converted, 15 justified retained/mixed, 593 pending."
 }}

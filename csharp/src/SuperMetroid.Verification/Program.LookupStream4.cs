@@ -9,6 +9,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        EnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
+        AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
+        for (int frame = 0; frame < flyFrames.Length; frame++)
+        {
+            AssertEqual((byte)0xa2, flyFrames[frame].Bank, "fly native frame bank");
+            AssertEqual(Word(0xa2b015 + frame * 4), flyFrames[frame].Pointer, "fly native instruction frame identity");
+            AssertEqual($"fly_shared_{frame}", flyFrames[frame].Name, "fly editable frame name");
+            AssertEqual((ushort)1, Word(0xa20000 | flyFrames[frame].Pointer), "fly native single OAM object");
+        }
+    }
     private static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);

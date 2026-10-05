@@ -31,7 +31,14 @@ internal static partial class Program
             AssertEqual((ushort)1, Word(0xa60000 | expected), "Each native tail-tip record contains exactly one OAM object");
             expectedFrames.Add(expected);
         }
-        for (int frame = 0; frame < 20; frame++) expectedFrames.Add(Word(0xa6db02 + frame * 2));
+        for (int frame = 0; frame < 20; frame++)
+        {
+            ushort expected = Word(0xa6db02 + frame * 2);
+            AssertEqual(expected, RidleySupplementalVisualDefinitions.WingFrameAt(frame), "Calculated downstroke/upstroke and facing preserve each native wing identity");
+            expectedFrames.Add(expected);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitions.WingFrameAt(invalid), "Wing phase/facing domain remains exact");
         AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitions.Frames().Select(frame => frame.Pointer)),
             "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })

@@ -129,33 +129,46 @@ internal static partial class Program
     private static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
-        for (int arrow = 0; arrow < 4; arrow++)
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var arrows = new Dictionary<string, MapArrowEntry>();
+        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
+            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79, DurationTicks = [3, 2] };
+        using var arrowJson = new MemoryStream();
+        MapArrowPresentation.Write(arrowJson, new() { Version = 1, Arrows = arrows });
+        arrowJson.Position = 0;
+        var animations = new FileSelectMapAnimations(bus, MapArrowPresentation.Load(arrowJson));
+        var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
-            int record = FileSelectMapRomData.ScrollArrows + arrow * 10;
-            WriteTestWord(bus, record, (ushort)(32 + arrow * 24));
-            WriteTestWord(bus, record + 2, 80);
-            WriteTestWord(bus, record + 4, (ushort)(arrow + 1));
-            WriteTestWord(bus, MapAnimationRomData.SpritePrograms + arrow * 2, 0x9000);
-            WriteTestWord(bus, MapAnimationRomData.SpriteBases + arrow * 2, 0x9100);
-        }
-        WriteTestWord(bus, 0x829100, 0x10);
-        bus.WriteByte(0x829000, 3); bus.WriteByte(0x829002, 0);
-        bus.WriteByte(0x829003, 2); bus.WriteByte(0x829005, 1);
-        bus.WriteByte(0x829006, 0xff);
-        for (ushort id = 0x10; id <= 0x11; id++)
+            DurationTicks = frame == 0 ? 3 : 2,
+            Colors = Enumerable.Range(0, 16).Select(color => new PaletteRgb5
+            {
+                Red = (100 + frame * 16 + color) & 31,
+                Green = ((100 + frame * 16 + color) >> 5) & 31, Blue = 0,
+            }).ToArray(),
+        }).ToArray();
+        using var paletteJson = new MemoryStream();
+        MapPaletteCycle.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
+        paletteJson.Position = 0;
+        animations.BindPalette(MapPaletteCycle.Load(paletteJson));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(retail);
+        var spriteDocument = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            ushort pointer = (ushort)(0xa000 + id * 8);
-            WriteTestWord(bus, 0x82c569 + id * 2, pointer);
-            WriteTestWord(bus, 0x820000 | pointer, 1);
-            WriteTestWord(bus, 0x820000 | (pointer + 2), 0);
-            WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
+            ushort id = MapArrowDefinitions.SpriteBase(direction);
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
+                TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
         }
-        bus.WriteByte(MapAnimationRomData.PaletteTiming, 3);
-        bus.WriteByte(MapAnimationRomData.PaletteTiming + 3, 2);
-        bus.WriteByte(MapAnimationRomData.PaletteTiming + 6, 0xff);
-        for (int color = 0; color < 32; color++)
-            WriteTestWord(bus, MapAnimationRomData.PaletteColors + color * 2, (ushort)(100 + color));
-        var animations = new FileSelectMapAnimations(bus);
+        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
+            new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        int ArrowPhase(int index)
+        {
+            const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var states = (Array)typeof(FileSelectMapAnimations).GetField("arrows", fields)!.GetValue(animations)!;
+            object state = states.GetValue(index)!;
+            return (int)state.GetType().GetField("Frame")!.GetValue(state)!;
+        }
         var cgram = new SnesCgram();
         cgram.SetColor(175, 77); cgram.SetColor(192, 88);
         AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
@@ -170,24 +183,26 @@ internal static partial class Program
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         OamBuffer Draw()
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam); oam.FinalizeFrame(); return oam;
+            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam, sprites); oam.FinalizeFrame(); return oam;
         }
         OamBuffer first = Draw();
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
         AssertEqual(32, first.LowTable[0], "arrow uses cartridge X");
         AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
-        AssertEqual(0x11, first.LowTable[2], "zero-initialized arrow timer advances before drawing");
+        AssertEqual(1, ArrowPhase(0), "zero-initialized arrow timer advances before drawing");
+        AssertEqual(0x10, first.LowTable[2], "installed arrow shape reaches OAM");
         AssertTrue(first.LowTable.ToArray().SequenceEqual(Draw().LowTable.ToArray()), "repaint does not advance arrow animation");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(0x11, Draw().LowTable[2], "arrow holds its full two-tick delay");
+        AssertEqual(1, ArrowPhase(0), "arrow holds its full two-tick delay");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(0x10, Draw().LowTable[2], "arrow sentinel wraps to frame zero");
+        AssertEqual(0, ArrowPhase(0), "arrow sentinel wraps to frame zero");
         for (int i = 0; i < 10; i++) animations.StepArrows(_ => false);
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unavailable arrows disappear");
         animations.StepArrows(direction => direction is MapScrollDirection.Left or MapScrollDirection.Right);
         OamBuffer resumed = Draw();
-        AssertEqual(0x10, resumed.LowTable[2], "hidden arrow timer pauses");
-        AssertEqual(0x11, resumed.LowTable[6], "newly visible arrow owns an independent timer");
+        AssertEqual(0, ArrowPhase(0), "hidden arrow timer pauses");
+        AssertEqual(1, ArrowPhase(1), "newly visible arrow owns an independent timer");
+        AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
     private static void VerifyFileSelectMapIcons()

@@ -26,6 +26,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
         gunshipInputs.TryGetValue(pointer, out color) ||
+        CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out color) ||
         TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
         LoadingPaletteColorDefinitions.TryReadColor(pointer, loadingInputs, out color) ||
         LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
@@ -43,11 +44,15 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         get
         {
             foreach (ushort pointer in colors.Keys)
-                if (!HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
+                if (!CrateriaLightningColorDefinitions.TryCoordinates(pointer, out _, out _) &&
+                    !HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
                     !LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
                     !LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                     !EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                     !TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out _, out _)) yield return pointer;
+            for (int frame = 0; frame < CrateriaLightningColorDefinitions.SurfaceProgram.Frames.Count; frame++)
+                for (int index = 0; index < CrateriaLightningColorDefinitions.SurfaceProgram.ColorsPerFrame; index++)
+                    yield return CrateriaLightningColorDefinitions.SurfaceProgram.ColorPointer(frame, index);
             for (int frame = 0; frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
                 for (int index = 0; index < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
                     yield return TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
@@ -556,6 +561,14 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         {
             ushort pointer = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
             if (TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
+                colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        var surfaceLightning = CrateriaLightningColorDefinitions.SurfaceProgram;
+        for (int frame = 0; frame < surfaceLightning.Frames.Count; frame++)
+        for (int index = 0; index < surfaceLightning.ColorsPerFrame; index++)
+        {
+            ushort pointer = surfaceLightning.ColorPointer(frame, index);
+            if (CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out ushort calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);

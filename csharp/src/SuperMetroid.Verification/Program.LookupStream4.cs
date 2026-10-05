@@ -19,6 +19,7 @@ internal static partial class Program
             AssertEqual((ushort)(Native(0) + 4), hole.TargetX, "Botwoon named hole center X");
             AssertEqual((ushort)(Native(4) + 4), hole.TargetY, "Botwoon named hole center Y");
         }
+        VerifyLookupStream4LightningColors(rom);
         VerifyLookupStream4BotwoonColors(rom);
         VerifyLookupStream4DraygonColors(rom);
         VerifyLookupStream4KzanCeresPrograms(rom);
@@ -58,6 +59,45 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.GetPart(invalid), "stream4 invalid breakup parameter");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionParts.TailTip, invalid), "stream4 invalid tail-tip orientation");
+    }
+    private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
+    {
+        var program = CrateriaLightningColorDefinitions.SurfaceProgram;
+        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
+        using var originalStream = new MemoryStream(originalJson);
+        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        for (int frame = 0; frame < 13; frame++)
+        for (int index = 0; index < 8; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            ushort native = (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8);
+            AssertTrue(original.TryReadColor(pointer, out ushort actual), "surface lightning installed color exists");
+            AssertEqual(native, actual, "surface lightning calculated native RGB5");
+            AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
+            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
+        }
+        foreach ((int frame, int index) in new[] { (0, 0), (4, 7), (8, 2), (12, 6) })
+        {
+            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
+            var source = document.CrateriaSurfaceLightning[frame][index];
+            document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+            var edited = RoomPaletteFxPresentation.Load(json);
+            for (int row = 0; row < 13; row++)
+            for (int color = 0; color < 8; color++)
+            {
+                var expected = document.CrateriaSurfaceLightning[row][color];
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out ushort actual), "surface lightning edited color exists");
+                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
+                    "surface lightning independent edit and neighbors preserved");
+            }
+        }
+        for (int address = 0xeb3b; address <= 0xec58; address++)
+        {
+            bool expected = Enumerable.Range(0, 13).Any(frame => Enumerable.Range(0, 8).Any(index => program.ColorPointer(frame, index) == address));
+            AssertEqual(expected, CrateriaLightningColorDefinitions.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
+        }
     }
     private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
